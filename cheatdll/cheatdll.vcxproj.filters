@@ -1,0 +1,429 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Файлы исходного кода">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Заголовочные файлы">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Файлы ресурсов">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Заголовочные файлы\ai">
+      <UniqueIdentifier>{3c73f63a-b9c8-4b22-bc07-6cfd031d6524}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\editor">
+      <UniqueIdentifier>{4ba7654c-a05a-46f0-ab81-a388dc43570c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\misc">
+      <UniqueIdentifier>{7875faa5-4716-4265-9fd9-53c3e950b5a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\ui">
+      <UniqueIdentifier>{47137f01-c959-43ed-848e-810b58986549}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\engine">
+      <UniqueIdentifier>{0744d37e-bdc9-4571-891d-1a0cad8f2933}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы исходного кода\ai">
+      <UniqueIdentifier>{fe16ecfd-7e74-4504-82b0-bc6b9cfc7d7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы исходного кода\editor">
+      <UniqueIdentifier>{5c5cad74-0151-4cf5-a012-a06c8d8ecea8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы исходного кода\misc">
+      <UniqueIdentifier>{8103bd23-154f-42d5-8201-71919259ac4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы исходного кода\engine">
+      <UniqueIdentifier>{4aedec6f-99e3-47c2-b693-4bade6942b0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы исходного кода\ui">
+      <UniqueIdentifier>{8d303b71-108b-4376-a4a3-16f023659424}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="widescrn_x2_template_1024" />
+    <None Include="widescrn_x2_template_1280" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="advcheat.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="gamemode.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="globalvar.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="rescheat.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="ai.h">
+      <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="aibuilders.h">
+      <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="aiunitcount.h">
+      <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="advtriggereffect.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="civletter.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="effects.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editorres.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editpropertyobject.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="chatgaiatoall.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="conditions.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="memfunc.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="configurator.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="icons.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="objpanel.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="resolution.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="rms.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="versionselect.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="textcolor.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="techupcolor.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="test.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="revertToX1.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="casts.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="civunit.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="convert.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="expldroid.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="jedimaster.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="population.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="resgenbldgs.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="researchrepeat.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="negdecay.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="registry.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="dsoundhook.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="consts.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="civresearch.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="drs.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="drsfile.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="aisnx.h">
+      <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="effectUnitVar.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="startupload.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="hotkeys.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="zannfort.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="processunit.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="votepanel.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="flare.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain_gen.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="filenames.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="savegamever.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="triggerdesc.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="crashreporter.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="rundll.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="editorenh.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="advcheat.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="gamemode.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="globalvar.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="rescheat.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="ai.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="aibuilders.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="aiunitcount.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="advtriggereffect.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="casts.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="chatgaiatoall.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="civresearch.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="conditions.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="configurator.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="convert.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="dsoundhook.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="editorres.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editpropertyobject.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="effects.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="effectUnitVar.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="expldroid.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="icons.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="jedimaster.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="log.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="memfunc.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="negdecay.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="objpanel.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="objpaneldraw.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="population.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="registry.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="researchrepeat.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="resolution.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="revertToX1.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="rms.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="techupcolor.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain_load.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="versionselect.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="textcolor.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="drs.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="drsfile.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="civunit.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="cheatdll.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="civletter.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="resgenbldgs.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="aisnx.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="rundll.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="startupload.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="hotkeys.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="zannfort.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="processunit.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="votepanel.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="flare.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain_gen.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="filenames.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="savegamever.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="triggerdesc.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="crashreporter.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="editorenh.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res.rc">
+      <Filter>Файлы ресурсов</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="terrain_bak.txt">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
