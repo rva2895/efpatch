@@ -1,0 +1,288 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_cc|Win32">
+      <Configuration>Release_cc</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C02AB7BB-4125-4DB8-954A-CA6079C8815D}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>cheatdll</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_cc|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_cc|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>efpatch</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>efpatch</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_cc|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>efpatch</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StructMemberAlignment>4Bytes</StructMemberAlignment>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ManifestFile>cheatdll.manifest</ManifestFile>
+      <OutputFile>C:\Users\Vasya\Documents\SWGB\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>cheatdll_commctrl.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StructMemberAlignment>4Bytes</StructMemberAlignment>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>C:\Users\Vasya\Documents\SWGB\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>cheatdll_commctrl.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_cc|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CHEATDLL_CC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StructMemberAlignment>4Bytes</StructMemberAlignment>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>cheatdll_commctrl.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="widescrn_x2_template_1024" />
+    <None Include="widescrn_x2_template_1280" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="advcheat.h" />
+    <ClInclude Include="advtriggereffect.h" />
+    <ClInclude Include="ai.h" />
+    <ClInclude Include="aibuilders.h" />
+    <ClInclude Include="aisnx.h" />
+    <ClInclude Include="aiunitcount.h" />
+    <ClInclude Include="casts.h" />
+    <ClInclude Include="chatgaiatoall.h" />
+    <ClInclude Include="civletter.h" />
+    <ClInclude Include="civresearch.h" />
+    <ClInclude Include="civunit.h" />
+    <ClInclude Include="conditions.h" />
+    <ClInclude Include="configurator.h" />
+    <ClInclude Include="consts.h" />
+    <ClInclude Include="convert.h" />
+    <ClInclude Include="crashreporter.h" />
+    <ClInclude Include="drs.h" />
+    <ClInclude Include="drsfile.h" />
+    <ClInclude Include="dsoundhook.h" />
+    <ClInclude Include="editorenh.h" />
+    <ClInclude Include="editorres.h" />
+    <ClInclude Include="editpropertyobject.h" />
+    <ClInclude Include="effects.h" />
+    <ClInclude Include="effectUnitVar.h" />
+    <ClInclude Include="expldroid.h" />
+    <ClInclude Include="filenames.h" />
+    <ClInclude Include="flare.h" />
+    <ClInclude Include="gamemode.h" />
+    <ClInclude Include="globalvar.h" />
+    <ClInclude Include="hotkeys.h" />
+    <ClInclude Include="icons.h" />
+    <ClInclude Include="jedimaster.h" />
+    <ClInclude Include="log.h" />
+    <ClInclude Include="memfunc.h" />
+    <ClInclude Include="negdecay.h" />
+    <ClInclude Include="objpanel.h" />
+    <ClInclude Include="population.h" />
+    <ClInclude Include="processunit.h" />
+    <ClInclude Include="registry.h" />
+    <ClInclude Include="rescheat.h" />
+    <ClInclude Include="researchrepeat.h" />
+    <ClInclude Include="resgenbldgs.h" />
+    <ClInclude Include="resolution.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="revertToX1.h" />
+    <ClInclude Include="rms.h" />
+    <ClInclude Include="rundll.h" />
+    <ClInclude Include="savegamever.h" />
+    <ClInclude Include="startupload.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="techupcolor.h" />
+    <ClInclude Include="terrain.h" />
+    <ClInclude Include="terrain_gen.h" />
+    <ClInclude Include="test.h" />
+    <ClInclude Include="textcolor.h" />
+    <ClInclude Include="triggerdesc.h" />
+    <ClInclude Include="versionselect.h" />
+    <ClInclude Include="votepanel.h" />
+    <ClInclude Include="zannfort.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="advcheat.cpp" />
+    <ClCompile Include="advtriggereffect.cpp" />
+    <ClCompile Include="ai.cpp" />
+    <ClCompile Include="aibuilders.cpp" />
+    <ClCompile Include="aisnx.cpp" />
+    <ClCompile Include="aiunitcount.cpp" />
+    <ClCompile Include="casts.cpp" />
+    <ClCompile Include="chatgaiatoall.cpp" />
+    <ClCompile Include="cheatdll.cpp" />
+    <ClCompile Include="civletter.cpp" />
+    <ClCompile Include="civresearch.cpp" />
+    <ClCompile Include="civunit.cpp" />
+    <ClCompile Include="conditions.cpp" />
+    <ClCompile Include="configurator.cpp" />
+    <ClCompile Include="convert.cpp" />
+    <ClCompile Include="crashreporter.cpp" />
+    <ClCompile Include="dllmain.cpp">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release_cc|Win32'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_cc|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="drs.cpp" />
+    <ClCompile Include="drsfile.cpp" />
+    <ClCompile Include="dsoundhook.cpp" />
+    <ClCompile Include="editorenh.cpp" />
+    <ClCompile Include="editorres.cpp" />
+    <ClCompile Include="editpropertyobject.cpp" />
+    <ClCompile Include="effects.cpp" />
+    <ClCompile Include="effectUnitVar.cpp" />
+    <ClCompile Include="expldroid.cpp" />
+    <ClCompile Include="filenames.cpp" />
+    <ClCompile Include="flare.cpp" />
+    <ClCompile Include="gamemode.cpp" />
+    <ClCompile Include="globalvar.cpp" />
+    <ClCompile Include="hotkeys.cpp" />
+    <ClCompile Include="icons.cpp" />
+    <ClCompile Include="jedimaster.cpp" />
+    <ClCompile Include="log.cpp" />
+    <ClCompile Include="memfunc.cpp" />
+    <ClCompile Include="negdecay.cpp" />
+    <ClCompile Include="objpanel.cpp" />
+    <ClCompile Include="objpaneldraw.cpp" />
+    <ClCompile Include="population.cpp" />
+    <ClCompile Include="processunit.cpp" />
+    <ClCompile Include="registry.cpp" />
+    <ClCompile Include="rescheat.cpp" />
+    <ClCompile Include="researchrepeat.cpp" />
+    <ClCompile Include="resgenbldgs.cpp" />
+    <ClCompile Include="resolution.cpp" />
+    <ClCompile Include="revertToX1.cpp" />
+    <ClCompile Include="rms.cpp" />
+    <ClCompile Include="rundll.cpp" />
+    <ClCompile Include="savegamever.cpp" />
+    <ClCompile Include="startupload.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_cc|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="techupcolor.cpp" />
+    <ClCompile Include="terrain.cpp" />
+    <ClCompile Include="terrain_gen.cpp" />
+    <ClCompile Include="terrain_load.cpp" />
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="textcolor.cpp" />
+    <ClCompile Include="triggerdesc.cpp" />
+    <ClCompile Include="versionselect.cpp" />
+    <ClCompile Include="votepanel.cpp" />
+    <ClCompile Include="zannfort.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="terrain_bak.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

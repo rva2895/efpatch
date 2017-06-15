@@ -1,0 +1,1354 @@
+#include "stdafx.h"
+
+#include "terrain.h"
+
+#define TERRAIN_COUNT 55
+#define TERRAIN_SHIFT ((TERRAIN_COUNT - 55) * 2)
+#define TERRAIN_SIZE (0x1D4 + TERRAIN_SHIFT)
+#define TERRAIN_EXPAND ((TERRAIN_SIZE * TERRAIN_COUNT) - (0x1D4 * 55))
+
+__declspec(naked) void off1 () //0060FEA5
+{
+	__asm
+	{
+		push    edx
+		mov     eax, TERRAIN_SIZE
+		imul    edx
+		pop     edx
+		mov     ax, [ecx + eax + 154h]
+		push    0060FEB6h
+		ret
+	}
+}
+
+__declspec(naked) void off2 () //0060FEC2
+{
+	__asm
+	{
+		mov     eax, TERRAIN_SIZE
+		imul    edx
+		push    0060FECEh
+		ret
+	}
+}
+
+__declspec(naked) void off3 () //0060FF66
+{
+	__asm
+	{
+		mov     ecx, eax
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		xchg    eax, ecx
+		mov     cx, [edi + ecx + 154h]
+		push    0060FF77h
+		ret
+	}
+}
+
+__declspec(naked) void off4 () //0060FF85
+{
+	__asm
+	{
+		mov     ecx, eax
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		mov     edx, [ebp - 14h]
+		xchg    eax, ecx
+		mov     ecx, [edi + ecx + 0BCh]
+		push    0060FF98h
+		ret
+	}
+}
+
+__declspec(naked) void off5 () //0061008F
+{
+	__asm
+	{
+		mov     ecx, eax
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		mov     edx, eax
+		mov     eax, ecx
+		mov     di, [edi + edx + 154h]
+		push    006100A0h
+		ret
+	}
+}
+
+__declspec(naked) void off6 () //0061010D
+{
+	__asm
+	{
+		mov     eax, TERRAIN_SIZE
+		imul    ebx
+		mov     edi, eax
+		mov     eax, [esi + 110h]
+		mov     edx, [ebp + 1Ch]
+		push    edx
+		push    00610123h
+		ret
+	}
+}
+
+__declspec(naked) void off7 () //0061023D
+{
+	__asm
+	{
+		mov     edx, eax
+		mov     eax, TERRAIN_SIZE
+		imul    edx
+		mov     edx, [esi + 110h]
+		mov     edi, [edx + eax + 0B4h]
+		push    00610253h
+		ret
+	}
+}
+
+__declspec(naked) void off8 () //00610A7A
+{
+	__asm
+	{
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		mov     edx, [esi + 110h]
+		mov     edi, [edx + eax + 0B4h]
+		push    00610A90h
+		ret
+	}
+}
+
+__declspec(naked) void off9 () //00611B31
+{
+	__asm
+	{
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		lea     edx, [ecx + eax + 8Ch]
+		mov     eax, [ecx + eax + 0B4h]
+		push    00611B48h
+		ret
+	}
+}
+
+__declspec(naked) void off10 () //0060DADF
+{
+	__asm
+	{
+		push    edx
+		mov     edi, TERRAIN_SIZE
+		imul    edi
+		pop     edx
+		mov     byte ptr [ecx + eax + 0E0h], 0
+		push    0060DAF0h
+		ret
+	}
+}
+
+__declspec(naked) void off11 () //0060D898
+{
+	__asm
+	{
+		mov     eax, TERRAIN_SIZE
+		imul    ecx
+		lea     ecx, [edi + eax + 0E1h]
+		mov     al, [edi + eax + 0E1h]
+		push    0060D8AFh
+		ret
+	}
+}
+
+__declspec(naked) void off12 () //0060D84D
+{
+	__asm
+	{
+		push    edx
+		mov     ebx, eax
+		mov     eax, TERRAIN_SIZE
+		imul    ecx
+		pop     edx
+		mov     cx, [edi + eax + 154h]
+		mov     eax, ebx
+		push    0060D85Eh
+		ret
+	}
+}
+
+__declspec(naked) void off13 () //0060D1C1
+{
+	__asm
+	{
+		mov     edi, edx
+		mov     ebx, TERRAIN_SIZE
+		imul    ebx
+		mov     edx, edi
+		mov     byte ptr [ecx + eax + 0E1h], 0
+		push    0060D1D2h
+		ret
+	}
+}
+
+__declspec(naked) void off14 () //0060DF46
+{
+	__asm
+	{
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		lea     eax, [ecx + eax + 0E1h]
+		push    0060DF56h
+		ret
+	}
+}
+
+__declspec(naked) void off15 () //0060E47E
+{
+	__asm
+	{
+		mov     ecx, TERRAIN_SIZE
+		imul    ecx
+		mov     edx, [ebp + 110h]
+		mov     ax, [eax + edx + 154h]
+		push    0060E495h
+		ret
+	}
+}
+
+__declspec(naked) void off16 () //0045664E
+{
+	__asm
+	{
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		mov     dl, [edi + eax + 0C5h]
+		push    0045665Eh
+		ret
+	}
+}
+
+__declspec(naked) void off17 () //00456669
+{
+	__asm
+	{
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		mov     dl, [edi + eax + 0C6h]
+		push    00456679h
+		ret
+	}
+}
+
+__declspec(naked) void off18 () //0049496C
+{
+	__asm
+	{
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		lea     ebp, [ebp + edx + 8Ch]
+		push    0049497Ch
+		ret
+	}
+}
+
+__declspec(naked) void off19 () //00495073
+{
+	__asm
+	{
+		mov     ebx, edx
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		mov     edx, ebx
+		mov     bl, [esi + eax + 8Ch]
+		lea     eax, [esi + eax]
+		push    00495086h
+		ret
+	}
+}
+
+__declspec(naked) void off19_2 () //0049508A
+{
+	__asm
+	{
+		cmp     word ptr [eax + 154h], 0
+		push    00495092h
+		ret
+	}
+}
+
+__declspec(naked) void off20 () //004950A8  check
+{
+	__asm
+	{
+		push    edx
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		pop     edx
+		test    ebp, ebp
+		mov     cx, [esi + eax + 25Eh + TERRAIN_SHIFT]
+		lea     eax, [esi + eax]
+		push    004950BEh
+		ret
+	}
+}
+
+__declspec(naked) void off21 () //0049513C disable
+{
+	__asm
+	{
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		mov     dx, [esi + eax + 25Eh + TERRAIN_SHIFT]
+		push    0049514Dh
+		ret
+	}
+}
+
+__declspec(naked) void off22 () //00495152 disable+unfinished
+{
+	__asm
+	{
+		mov     ecx, edx
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		//pop     edx, ecx
+		push    004950BEh
+		ret
+	}
+}
+
+__declspec(naked) void off23 () //00495542
+{
+	__asm
+	{
+		mov     ebx, edx
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		mov     edx, ebx
+		mov     bl, [edx + eax + 8Ch]
+		lea     eax, [edx + eax]
+		push    00495555h
+		ret
+	}
+}
+
+__declspec(naked) void off23_2 () //00495559
+{
+	__asm
+	{
+		cmp     word ptr [eax + 154h], 0
+		push    00495561h
+		ret
+	}
+}
+
+__declspec(naked) void off24 () //00495B7D
+{
+	__asm
+	{
+		mov     eax, edx
+		mov     esi, TERRAIN_SIZE
+		imul    esi
+		lea     ecx, [ecx + eax]
+		push    00495B89h
+		ret
+	}
+}
+
+__declspec(naked) void off24_2 () //00495B93
+{
+	__asm
+	{
+		cmp     word ptr [ecx + 154h], 0
+		push    00495B9Bh
+		ret
+	}
+}
+
+__declspec(naked) void off25 () //00495FA4
+{
+	__asm
+	{
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		mov     cl, [esi + eax + 8Ch]
+		lea     eax, [esi + eax]
+		push    00495FB7h
+		ret
+	}
+}
+
+__declspec(naked) void off26 () //00495FCF
+{
+	__asm
+	{
+		mov     edx, TERRAIN_SIZE
+		imul    edx
+		cmp     byte ptr [esi + eax + 8Ch], 1
+		push    00495FE0h
+		ret
+	}
+}
+
+__declspec(naked) void off27 () //00496490
+{
+	__asm
+	{
+		mov     eax, TERRAIN_SIZE
+		imul    ecx
+		mov     ax, [ebp + eax + 154h]
+		push    004964A1h
+		ret
+	}
+}
+
+__declspec(naked) void off28 () //004964B6
+{
+	__asm
+	{
+		mov     eax, TERRAIN_SIZE
+		imul    ecx
+		mov     ecx, [ebp + eax + 0BCh]
+		push    004964C3h
+		ret
+	}
+}
+
+__declspec(naked) void off29 () //0049653B
+{
+	__asm
+	{
+		mov     ecx, edx
+		mov     eax, TERRAIN_SIZE
+		imul    esi
+		mov     edx, ecx
+		mov     ax, [ebp + eax + 154h]
+		push    0049654Ch
+		ret
+	}
+}
+
+__declspec(naked) void off30 () //00496572
+{
+	__asm
+	{
+		mov     ecx, edx
+		mov     eax, TERRAIN_SIZE
+		imul    esi
+		mov     edx, ecx
+		mov     eax, [ebp + eax + 0BCh]
+		push    00496582h
+		ret
+	}
+}
+
+__declspec(naked) void off31 () //00500720
+{
+	__asm
+	{
+		mov     ecx, TERRAIN_SIZE
+		imul    ecx
+		mov     ecx, [esp + 10h]
+		mov     ecx, [ecx + eax + 0B8h]
+		push    00500734h
+		ret
+	}
+}
+
+__declspec(naked) void off32 () //005F9910
+{
+	__asm
+	{
+		push    edx
+		mov     ecx, TERRAIN_SIZE
+		imul    ecx
+		pop     edx
+		mov     cl, [ebx + eax + 0C5h]
+		push    005F9920h
+		ret
+	}
+}
+
+__declspec(naked) void off33 () //005F993A
+{
+	__asm
+	{
+		push    edx
+		mov     ecx, TERRAIN_SIZE
+		imul    ecx
+		pop     edx
+		mov     cl, [ebx + eax + 0C6h]
+		push    005F994Ah
+		ret
+	}
+}
+
+__declspec(naked) void off34 () //005F9964
+{
+	__asm
+	{
+		push    edx
+		mov     ecx, TERRAIN_SIZE
+		imul    ecx
+		pop     edx
+		mov     cl, [ebx + eax + 0C4h]
+		push    005F9974h
+		ret
+	}
+}
+
+__declspec(naked) void off35 () //00495578
+{
+	__asm
+	{
+		push    edx
+		mov     eax, TERRAIN_SIZE
+		imul    edi
+		pop     edx
+		mov     cl, [ebx + eax + 0C4h]
+		push    005F9974h
+		ret
+	}
+}
+
+void tf (int addr)
+{
+	setInt (addr, readInt (addr) + TERRAIN_EXPAND);
+}
+
+void setTerrainAmount ()
+{
+	setHook ((void*)0x0045664E, &off16);
+	setHook ((void*)0x00456669, &off17);
+	setHook ((void*)0x0049496C, &off18);
+	setHook ((void*)0x00495073, &off19);
+	//setHook ((void*)0x0049508A, &off19_2);
+	setHook ((void*)0x004950A8, &off20);
+
+	//setHook ((void*)0x0049513C, &off21);
+	//setHook ((void*)0x00495152, &off22);
+	setHook ((void*)0x00495542, &off23);
+	//setHook ((void*)0x00495559, &off23_2);
+	setHook ((void*)0x00495B7D, &off24);
+	//setHook ((void*)0x00495B93, &off24_2);
+	setHook ((void*)0x00495FA4, &off25);
+	setHook ((void*)0x00495FCF, &off26);
+	//setHook ((void*)0x00496490, &off27);//
+	////setHook ((void*)0x004964B6, &off28);//
+	//setHook ((void*)0x0049653B, &off29);//
+	setHook ((void*)0x00496572, &off30);
+
+	setHook ((void*)0x00500720, &off31);
+	setHook ((void*)0x005F9910, &off32);
+	setHook ((void*)0x005F993A, &off33);
+	setHook ((void*)0x005F9964, &off34);
+
+	setHook ((void*)0x0060DADF, &off10);
+	setHook ((void*)0x0060D898, &off11);
+	setHook ((void*)0x0060D84D, &off12);
+	setHook ((void*)0x0060D1C1, &off13);
+	setHook ((void*)0x0060DF46, &off14);
+	setHook ((void*)0x0060E47E, &off15);
+
+	setHook ((void*)0x0060FEA5, &off1);
+	setHook ((void*)0x0060FEC2, &off2);
+	setHook ((void*)0x0060FF66, &off3);
+	setHook ((void*)0x0060FF85, &off4);
+	setHook ((void*)0x0061008F, &off5);
+	setHook ((void*)0x0061010D, &off6);
+	setHook ((void*)0x0061023D, &off7);
+	setHook ((void*)0x00610A7A, &off8);
+	setHook ((void*)0x00611B31, &off9);
+
+	setInt (0x00495FBE, 0x154 + TERRAIN_SHIFT);
+
+	setInt (0x005FE48A, 0xFA10);
+	setInt (0x0048FAFD, 0xC1E8 + TERRAIN_EXPAND);
+	setInt (0x0048FB2B, 0xBF78 + TERRAIN_EXPAND);
+	setInt (0x00494796, 0x6368 + TERRAIN_EXPAND - TERRAIN_SHIFT);//need
+	setInt (0x0049479B, TERRAIN_COUNT);
+	setInt (0x00494807, TERRAIN_SIZE);
+	setInt (0x00494B8B, 1);     //fix!
+	setInt (0x0048FBC1, 1);     //fix!
+	setInt (0x005C9A64, 0x68AC);//need
+
+	tf (0x0042B575);
+	
+	tf (0x00443FEC);
+
+	tf (0x004444CF);
+	tf (0x00444630);
+
+	tf (0x00444E78);
+	tf (0x00444F04);
+
+	tf (0x00456544);
+	tf (0x0045655B);
+
+	tf (0x004573A4);
+
+	tf (0x00470446);
+
+	tf (0x00470610);
+
+	tf (0x0048E2E2);
+	tf (0x0048E386);
+	tf (0x0048E405);
+	tf (0x0048E474);
+	tf (0x0048E4EF);
+	tf (0x0048E566);
+	tf (0x0048E605);
+	tf (0x0048E670);
+	tf (0x0048E840);
+
+	tf (0x0048FB0D);
+	tf (0x0048FB31);
+	tf (0x0048FB37);
+	tf (0x0048FB3D);
+	tf (0x0048FB43);
+	tf (0x0048FB49);
+	tf (0x0048FB55);
+	tf (0x0048FB63);
+	tf (0x0048FB69);
+	tf (0x0048FB80);
+	tf (0x0048FB88);
+	tf (0x0048FB8E);
+	tf (0x0048FB94);
+	tf (0x0048FBA4);
+	tf (0x0048FBAA);
+	tf (0x0048FBB0);
+	tf (0x0048FBB6);
+	tf (0x0048FBBC);
+	tf (0x0048FBDE);
+
+	tf (0x00490067);
+	tf (0x00490087);
+	tf (0x0049009E);
+	tf (0x004900B1);
+	tf (0x004900BD);
+	tf (0x004900F1);
+	tf (0x004900F7);
+	tf (0x004900FD);
+	tf (0x0049011D);
+	tf (0x00490168);
+	tf (0x0049017B);
+	tf (0x0049018E);
+	tf (0x004901A1);
+	tf (0x004901D1);
+	tf (0x00490201);
+	tf (0x0049021D);
+	tf (0x00490237);
+	tf (0x00490241);
+	tf (0x00490251);
+	tf (0x00490260);
+	tf (0x0049026E);
+	tf (0x00490281);
+	tf (0x00490294);
+	tf (0x004902AE);
+	tf (0x004902C8);
+	tf (0x004902E2);
+	tf (0x004902F8);
+	tf (0x0049030E);
+
+	tf (0x004905CC);
+
+	tf (0x0049063B);
+
+	tf (0x00490656);
+
+	tf (0x00490666);
+
+
+	setInt (0x005C9A8F, 0xBF74 + TERRAIN_EXPAND);
+	setInt (0x005C9A98, 0xC234 + TERRAIN_EXPAND);
+	setInt (0x005C9A9E, 0xC1FC + TERRAIN_EXPAND);
+	setInt (0x005C9AA4, 0xC200 + TERRAIN_EXPAND);
+	setInt (0x005C9AAA, 0xC204 + TERRAIN_EXPAND);
+	setInt (0x005C9AB0, 0xC208 + TERRAIN_EXPAND);
+
+	setInt (0x00490713, 0xBF78 + TERRAIN_EXPAND);
+	setInt (0x00490727, 0xBF78 + TERRAIN_EXPAND);
+	setInt (0x00490743, 0xBF78 + TERRAIN_EXPAND);
+	setInt (0x00490757, 0xBF78 + TERRAIN_EXPAND);
+	setInt (0x0049077A, 0xC0CC + TERRAIN_EXPAND);
+	setInt (0x0049078D, 0xC0CC + TERRAIN_EXPAND);
+	setInt (0x00490793, 0xC1A4 + TERRAIN_EXPAND);
+	setInt (0x004907C9, 0xC0D0 + TERRAIN_EXPAND);
+	setInt (0x004907CF, 0xC0D4 + TERRAIN_EXPAND);
+	setInt (0x004907D5, 0xC0C4 + TERRAIN_EXPAND);
+	setInt (0x004907EC, 0xBF18 + TERRAIN_EXPAND);
+
+	setInt (0x0049085A, 0xBF50 + TERRAIN_EXPAND);
+	setInt (0x0049086D, 0xBF18 + TERRAIN_EXPAND);
+	setInt (0x00490880, 0xBF54 + TERRAIN_EXPAND);
+	setInt (0x00490898, 0xBF3A + TERRAIN_EXPAND);
+	setInt (0x0049089E, 0xBF24 + TERRAIN_EXPAND);
+	setInt (0x004908AF, 0xBF28 + TERRAIN_EXPAND);
+	setInt (0x004908BC, 0xBF3C + TERRAIN_EXPAND);
+	setInt (0x004908C2, 0xBF2C + TERRAIN_EXPAND);
+	setInt (0x004908D8, 0xBF30 + TERRAIN_EXPAND);
+	setInt (0x004908E7, 0xBF1C + TERRAIN_EXPAND);
+	setInt (0x004908ED, 0xBF20 + TERRAIN_EXPAND);
+	setInt (0x00490910, 0xBF50 + TERRAIN_EXPAND);
+	setInt (0x00490928, 0xBF18 + TERRAIN_EXPAND);
+	setInt (0x00490937, 0xBF54 + TERRAIN_EXPAND);
+	setInt (0x00490954, 0xBF18 + TERRAIN_EXPAND);
+	setInt (0x00490963, 0xBF50 + TERRAIN_EXPAND);
+	setInt (0x00490969, 0xBF54 + TERRAIN_EXPAND);
+	setInt (0x0049097F, 0xBF18 + TERRAIN_EXPAND);
+	setInt (0x00490990, 0xBF54 + TERRAIN_EXPAND);
+	setInt (0x00490996, 0xBF50 + TERRAIN_EXPAND);
+	setInt (0x004909B1, 0xBF18 + TERRAIN_EXPAND);
+	setInt (0x004909E7, 0xBF7C + TERRAIN_EXPAND);
+	setInt (0x00490A01, 0xBF7C + TERRAIN_EXPAND);
+	setInt (0x00490A29, 0xBF80 + TERRAIN_EXPAND);
+	setInt (0x00490A38, 0xBF7C + TERRAIN_EXPAND);
+	setInt (0x00490A7B, 0xBF84 + TERRAIN_EXPAND);
+	setInt (0x00490A87, 0xBF80 + TERRAIN_EXPAND);
+	setInt (0x00490AB9, 0xBF78 + TERRAIN_EXPAND);
+	setInt (0x00490AD1, 0xBF6C + TERRAIN_EXPAND);
+	setInt (0x00490ADD, 0xBF84 + TERRAIN_EXPAND);
+	setInt (0x00490B13, 0xBF6C + TERRAIN_EXPAND);
+	setInt (0x00490B1E, 0xBF6C + TERRAIN_EXPAND);
+	setInt (0x00490B24, 0xBF78 + TERRAIN_EXPAND);
+	setInt (0x00490B34, 0xBF70 + TERRAIN_EXPAND);
+	setInt (0x00490B6C, 0xBF70 + TERRAIN_EXPAND);
+	setInt (0x00490B77, 0xBF70 + TERRAIN_EXPAND);
+	setInt (0x00490B7D, 0xBF78 + TERRAIN_EXPAND);
+	setInt (0x00490BC5, 0xBF18 + TERRAIN_EXPAND);
+
+	tf (0x00490CBC);
+
+	tf (0x00490D00);
+
+
+	setInt (0x00490DDF, 0xBF18 + TERRAIN_EXPAND);
+	setInt (0x00490DF5, 0xBF40 + TERRAIN_EXPAND);
+	setInt (0x00490E07, 0xBF3E + TERRAIN_EXPAND);
+	setInt (0x00490E0F, 0xBF42 + TERRAIN_EXPAND);
+	setInt (0x00490E38, 0xBF42 + TERRAIN_EXPAND);
+
+	setInt (0x00490F78, 0xBF18 + TERRAIN_EXPAND);
+	setInt (0x004910EA, 0xBF18 + TERRAIN_EXPAND);
+	setInt (0x0049115A, 0xBF18 + TERRAIN_EXPAND);
+	setInt (0x00491224, 0xBF18 + TERRAIN_EXPAND); //?
+	setInt (0x00491294, 0xBF64 + TERRAIN_EXPAND); //?
+
+	tf (0x004913B1);
+	tf (0x004913C3);
+	tf (0x004913CF);
+	tf (0x004913E5);
+	tf (0x00491422);
+	tf (0x0049142A);
+	tf (0x0049143A);
+	tf (0x00491475);
+	tf (0x0049148C);
+	tf (0x00491492);
+	tf (0x004914B1);
+	tf (0x004914BB);
+	tf (0x004914C1);
+	tf (0x004914C7);
+	tf (0x00491557);
+	tf (0x0049155D);
+	tf (0x00491568);
+	tf (0x0049156E);
+	tf (0x0049188A);
+	tf (0x00491892);
+
+	tf (0x004918BB);
+	tf (0x004918C1);
+	tf (0x004918CB);
+	tf (0x004918D9);
+	tf (0x004918F3);
+	tf (0x00491906);
+	tf (0x00491919);
+	tf (0x0049191F);
+	tf (0x00491934);
+	tf (0x00491950);
+	tf (0x00491961);
+	tf (0x00491971);
+	tf (0x004919AD);
+	tf (0x004919B9);
+
+	tf (0x00491A44);
+	tf (0x00491A51);
+	tf (0x00491A61);
+	tf (0x00491A70);
+	tf (0x00491AAC);
+	tf (0x00491CFE);
+	tf (0x00491D40);
+
+	tf (0x00491E20);
+
+	tf (0x00491F12);
+	tf (0x00491F28);
+
+	tf (0x00491FB2);
+
+	tf (0x00492054);
+
+	tf (0x00492359);
+
+	
+	tf (0x004926B7);
+
+	tf (0x00492B79);
+
+	tf (0x00492E6E);
+
+	tf (0x00492F52);
+
+
+	tf (0x00493139);
+
+	tf (0x00493458);
+	tf (0x004934F7);
+	tf (0x004934FD);
+	tf (0x00493510);
+	tf (0x00493516);
+	tf (0x00493592);
+	tf (0x00493598);
+	tf (0x004935F0);
+	tf (0x004935F9);
+	tf (0x00493600);
+	tf (0x00493651);
+	tf (0x004936CE);
+	tf (0x004936F8);
+	tf (0x00493716);
+	
+	tf (0x004938CD);
+	tf (0x004938E7);
+	tf (0x004938FD);
+	tf (0x00493913);
+	tf (0x004939B1);
+	tf (0x004939BA);
+	tf (0x004939C8);
+	tf (0x004939ED);
+	tf (0x004939F3);
+	tf (0x00493A22);
+	tf (0x00493A36);
+	tf (0x00493A42);
+	tf (0x00493A57);
+	tf (0x00493A62);
+	tf (0x00493A75);
+	tf (0x00493AAE);
+	tf (0x00493AE0);
+	tf (0x00493AF6);
+	tf (0x00493B0C);
+	tf (0x00493B21);
+	tf (0x00493B36);
+	tf (0x00493B5B);
+	tf (0x00493BCE);
+	tf (0x00493BD4);
+	tf (0x00493BED);
+	tf (0x00493BF3);
+
+	tf (0x00493C32);
+	tf (0x00493C45);
+
+	tf (0x00493C68);
+	tf (0x00493CAB);
+	tf (0x00493CB6);
+	tf (0x00493CC9);
+	tf (0x00493CD7);
+	tf (0x00493D09);
+	tf (0x00493D1C);
+	tf (0x00493D35);
+	tf (0x00493D60);
+	tf (0x00493D74);
+	tf (0x00493D8D);
+	tf (0x00493DB5);
+	tf (0x00493E09);
+	tf (0x00493E3F);
+	tf (0x00493E6B);
+	tf (0x00493E7A);
+
+	tf (0x00493EB6);
+	tf (0x00493F1A);
+	tf (0x00493F33);
+	tf (0x00493F5E);
+	tf (0x00493F73);
+	tf (0x00493F9B);
+	tf (0x00493FCF);
+	tf (0x00493FE2);
+	tf (0x00493FFA);
+	tf (0x00494007);
+	tf (0x0049401C);
+	tf (0x00494066);
+	tf (0x0049407E);
+	tf (0x00494096);
+	tf (0x004940A3);
+	tf (0x004940B8);
+
+	tf (0x0049410D);
+	tf (0x00494175);
+	tf (0x00494222);
+	tf (0x00494259);
+	tf (0x0049430C);
+	tf (0x0049432A);
+	tf (0x00494338);
+	tf (0x0049435A);
+
+	tf (0x004943BF);
+	tf (0x00494400);
+	tf (0x0049441D);
+	tf (0x0049443B);
+	tf (0x0049448B);
+	tf (0x0049449B);
+	tf (0x00494493);
+	tf (0x004944FE);
+	tf (0x0049452C);
+
+	tf (0x00494587);
+	tf (0x00494595);
+	tf (0x004945A4);
+	tf (0x004945BD);
+	tf (0x00494614);
+	tf (0x00494627);
+	tf (0x0049463B);
+	tf (0x00494659);
+	tf (0x0049468C);
+	tf (0x00494697);
+
+	tf (0x00494708); //!
+	tf (0x00494749);
+
+	tf (0x0049484E); //!
+	tf (0x00494884);
+
+	tf (0x00494B86);
+
+	tf (0x00494C43);
+	tf (0x00494C74);
+	tf (0x00494D39);
+
+	tf (0x00495034);
+
+	tf (0x00495368);
+
+	tf (0x00495514);
+
+	tf (0x00495830);
+	tf (0x00495850);
+
+	tf (0x00495B57);
+
+	tf (0x00495BBE);
+	tf (0x00495C49);
+	tf (0x00495CEA);
+	tf (0x00495D8F);
+	tf (0x00495DF8);
+
+	tf (0x00495EBA);
+
+	tf (0x00495F90);
+	tf (0x0049602F);
+	tf (0x004960F5);
+	
+	tf (0x004961BD);
+
+	tf (0x00496475);
+	tf (0x0049652B);
+
+	tf (0x004965FF);
+	tf (0x0049662E);
+
+	tf (0x00496671);
+	tf (0x0049667D);
+	tf (0x0049668F);
+	tf (0x004966A4);
+	tf (0x004966B0);
+	tf (0x004966BD);
+	tf (0x004966C3);
+	tf (0x004966CD);
+	tf (0x004966DC);
+	tf (0x004966F3);
+	tf (0x0049670A);
+	tf (0x0049677F);
+
+	tf (0x00496793);
+	tf (0x004967AB);
+	tf (0x0049680A);
+	tf (0x0049681F);
+	tf (0x00496825);
+
+	tf (0x0049698D);
+	tf (0x004969D7);
+	tf (0x004969DE);
+	tf (0x004969FE);
+	tf (0x00496A32);
+
+	tf (0x00496A73);
+	tf (0x00496AD7);
+	tf (0x00496AF8);
+	tf (0x00496B2B);
+
+	tf (0x00496B9D);
+	tf (0x00496BE8);
+	tf (0x00496BEF);
+	
+	tf (0x00496C3F);
+	tf (0x00496C48);
+
+
+	tf (0x00497118);
+
+	setInt (0x00497124, 0xC11C + TERRAIN_EXPAND);
+	setInt (0x00497148, 0xC0C8 + TERRAIN_EXPAND);
+	setInt (0x0049714E, 0xC0D0 + TERRAIN_EXPAND);
+	setInt (0x00497162, 0xC0D0 + TERRAIN_EXPAND);
+	setInt (0x00497168, 0xC0C8 + TERRAIN_EXPAND);
+
+	tf (0x0049718E);
+	tf (0x00497194);
+	tf (0x0049719A);
+	tf (0x004971A5);
+	tf (0x004971B0);
+	tf (0x004971CC);
+	tf (0x0049720E);
+	tf (0x0049721D);
+	tf (0x0049722F);
+	tf (0x00497241);
+	
+	tf (0x00497276);
+	tf (0x00497287);
+	tf (0x004972CD);
+	tf (0x004972D9);
+	tf (0x004972FD);
+	tf (0x0049730D);
+	tf (0x00497318);
+	tf (0x0049733D);
+	tf (0x00497343);
+	tf (0x0049735E);
+
+	tf (0x0049737D);
+	tf (0x00497390);
+	tf (0x0049739A);
+	tf (0x004973CB);
+	tf (0x004973D1);
+	tf (0x004973D7);
+
+	tf (0x0049740D);
+	tf (0x0049741C);
+	tf (0x0049742B);
+	tf (0x00497439);
+	tf (0x0049744A);
+	tf (0x00497455);
+	tf (0x0049745C);
+	tf (0x00497468);
+	tf (0x00497472);
+	tf (0x0049747D);
+	tf (0x00497483);
+	tf (0x004974A3);
+	tf (0x004974BF);
+	tf (0x004974C5);
+	tf (0x004974D6);
+	tf (0x004974E1);
+	tf (0x004974EA);
+	tf (0x004974F4);
+	tf (0x004974FA);
+	tf (0x00497501);
+	tf (0x0049750C);
+	tf (0x00497512);
+	tf (0x0049754D);
+	tf (0x00497562);
+	tf (0x00497594);
+	tf (0x004975CE);
+	tf (0x004975D8);
+	tf (0x0049760E);
+	tf (0x00497638);
+	tf (0x00497643);
+	tf (0x0049764A);
+	tf (0x00497656);
+	tf (0x00497660);
+	tf (0x0049766D);
+	tf (0x0049772A);
+	tf (0x0049773D);
+	tf (0x00497746);
+	tf (0x00497766);
+	tf (0x00497798);
+	tf (0x004977A3);
+	tf (0x004977AC);
+	tf (0x004977B6);
+
+	tf (0x004977E6);
+	tf (0x0049781C);
+	tf (0x00497828);
+	tf (0x00497831);
+	tf (0x00497838);
+	tf (0x00497843);
+
+	tf (0x00497864);
+
+	tf (0x004A658D);
+	tf (0x004A65D3);
+	tf (0x004A6624);
+
+	tf (0x004A68DF);
+
+	tf (0x004A96C0);
+	tf (0x004A9731);
+	tf (0x004A97C1);
+	tf (0x004A984A);
+
+	tf (0x004A9BF2);
+	tf (0x004A9C99);
+
+	tf (0x004B0413);
+
+	tf (0x004BE0B0);
+	tf (0x004BE175);
+	tf (0x004BE1B2);
+	tf (0x004BE458);
+
+	tf (0x004BE8FC);
+
+
+	setInt (0x004C2076, 0xBF24 + TERRAIN_EXPAND);
+	setInt (0x004C20BB, 0xBF28 + TERRAIN_EXPAND);
+
+	tf (0x005494E2);
+	tf (0x00549700);
+	tf (0x00549734);
+
+	tf (0x0054BAF1);
+
+	tf (0x0054BD40);
+	
+	tf (0x0054BE16);
+
+	tf (0x0054F873);
+	tf (0x0054F880);
+	tf (0x0054F8AD);
+	tf (0x0054F8BA);
+	tf (0x0054F920);
+	tf (0x0054FC60);
+	tf (0x0054FC8C);
+	tf (0x0054FCB7);
+
+	tf (0x00550CE9);
+
+	tf (0x00552365);
+	tf (0x00552383);
+
+	tf (0x00552656);
+	tf (0x00552670);
+
+	tf (0x005526D7);
+	tf (0x005526F1);
+
+	tf (0x00552764);
+	tf (0x0055277E);
+
+	tf (0x005527F4);
+	tf (0x0055280E);
+
+	tf (0x00552AD0);
+	tf (0x00552AEC);
+	tf (0x00552AF6);
+
+	tf (0x00553C82);
+
+	tf (0x00554988);
+
+	tf (0x00556078);
+	tf (0x005560A7);
+	tf (0x005560CB);
+
+	tf (0x00557C9E);
+	tf (0x00557CA5);
+
+	tf (0x00557E10);
+
+	tf (0x00558166);
+
+	tf (0x00559D11);
+
+	tf (0x0055D908);
+
+	tf (0x0055DE09);
+	tf (0x0055DFB0);
+
+	tf (0x00560014);
+
+	tf (0x00565522);
+
+	tf (0x0056567F);
+
+	tf (0x005659B8);
+
+	tf (0x005696C6);
+
+	tf (0x0056C2EA);
+
+	tf (0x00571FAD);
+
+	tf (0x00572101);
+
+	tf (0x005855DB);
+	tf (0x0058564B);
+
+	tf (0x005876CF);
+
+	tf (0x00587C13);
+
+	tf (0x0058CA5D);
+
+	tf (0x0058FE45);
+	tf (0x0058FF58);
+
+	tf (0x0059041F);
+	tf (0x00590563);
+
+	tf (0x00591941);
+	tf (0x0059199B);
+
+	tf (0x005C7CA5);
+
+	tf (0x005C80E1);
+
+	tf (0x005C946F);
+
+	tf (0x005C9E12);
+	tf (0x005C9E78);
+	tf (0x005CA7EE);
+	tf (0x005CA81D);
+	tf (0x005CA84A);
+
+	tf (0x005CA99C);
+
+	tf (0x005CAA0B);
+
+	tf (0x005CAAAE);
+	tf (0x005CAAEA);
+
+	tf (0x005CAE47);
+	tf (0x005CAE5D);
+
+	tf (0x005CAFCB);
+
+	tf (0x005CB260);
+	tf (0x005CB284);
+	tf (0x005CB2C9);
+	tf (0x005CB312);
+	
+	tf (0x005CB3EE);
+	tf (0x005CB413);
+
+	tf (0x005CB51F);
+	tf (0x005CB544);
+
+	tf (0x005CB9B2);
+	tf (0x005CB9DA);
+
+	tf (0x005CBCAF);
+
+	tf (0x005CC08B);
+
+	tf (0x005CC358);
+
+	tf (0x005CC7C2);
+
+	tf (0x005CC8F9);
+	tf (0x005CC92A);
+
+	tf (0x005CCA3D);
+	tf (0x005CCCA2);
+	tf (0x005CCE73);
+	tf (0x005CCE92);
+	tf (0x005CCEBE);
+	tf (0x005CCEDD);
+	tf (0x005CCF09);
+	tf (0x005CCF28);
+	tf (0x005CCF54);
+	tf (0x005CCF73);
+
+	tf (0x005CD1F2);
+
+	tf (0x005D17C6);
+
+	tf (0x005F9803);
+	tf (0x005F981A);
+
+	tf (0x005FD0E3);
+
+	tf (0x005FD24C);
+
+	tf (0x005FD24C);
+
+	tf (0x005FFA1C);
+
+	tf (0x006060BA);
+	tf (0x0060611D);
+	tf (0x00606186);
+
+	tf (0x0060BE30);
+
+	tf (0x0060C275);
+	tf (0x0060C36F);
+	tf (0x0060C496);
+	tf (0x0060C5C2);
+
+	tf (0x0060D08C);
+
+	tf (0x0060D1B7);
+	tf (0x0060D1DB);
+	tf (0x0060D3AF);
+	tf (0x0060D431);
+	tf (0x0060D496);
+	tf (0x0060D621);
+	tf (0x0060D88A);
+	tf (0x0060DAD5);
+	tf (0x0060DAF9);
+
+	tf (0x0060DC6B);
+	tf (0x0060DC8F);
+	tf (0x0060DD7B);
+	tf (0x0060DE53);
+	tf (0x0060DED9);
+	tf (0x0060DF37);
+	tf (0x0060DF9A);
+	tf (0x0060E0E6);
+	
+	tf (0x0060FF4A);
+	tf (0x0061007D);
+	tf (0x00610308);
+	tf (0x00610B3A);
+
+	tf (0x00610C9B);
+
+	tf (0x00611275);
+
+	tf (0x00614E93);
+
+	tf (0x0061572E);
+
+	tf (0x0061597C);
+
+	tf (0x00615AF5);
+
+	tf (0x00615C88);
+
+	tf (0x00615E02);
+
+	tf (0x0061F20D);
+	tf (0x0061F2FA);
+	tf (0x0061F61F);
+	tf (0x0061F6DE);
+
+	tf (0x00623CA3);
+
+	tf (0x00623D7C);
+	
+	tf (0x00623D9C);
+
+	tf (0x00624F96);
+
+	tf (0x006255B8);
+	tf (0x0062564E);
+	tf (0x006256EC);
+	tf (0x00625788);
+
+	//---------------------
+
+	setInt (0x0060DC88, TERRAIN_SIZE);
+
+}
