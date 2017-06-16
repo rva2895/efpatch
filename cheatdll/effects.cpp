@@ -155,13 +155,11 @@ y_cont:
 		cmp     eax, [edi+54h]
 		jle     y_cont
 
-
 		cmp     edx, esi
 		jge     x_end
 		add     edx, 4
 		jmp     x_cont
 x_end:
-
 
 		push    005F3DB1h
 		ret

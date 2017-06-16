@@ -2,7 +2,11 @@
 
 #include "conditions.h"
 
-#define NEW_COND 1
+#define NEW_COND 3
+
+#define ALLIANCE_ALLY 0
+#define ALLIANCE_NEUTRAL 1
+#define ALLIANCE_ENEMY 3
 
 int condJMPTable [] =
 {
@@ -30,8 +34,12 @@ int condJMPTable [] =
 	0x5F2227,
 	0x5F1E25,
 	0x90909090,
+	0x90909090,
 	0x90909090
 };
+
+void conditionAreaExplored();
+void conditionAlliance();
 
 const char sss [] = "wew lad";
 
@@ -82,16 +90,33 @@ void setConditionNumbers ()
 	setInt (0x005F1E21, (int)condJMPTable);
 	setByte (0x005F1E17, 0x16+NEW_COND);
 
-	condJMPTable [0x17] = (int)&cond1;
+	condJMPTable[0x17] = (int)&cond1;
+	condJMPTable[0x18] = (int)&conditionAreaExplored;
+	condJMPTable[0x19] = (int)&conditionAlliance;
 }
 
 __declspec(naked) void condParams () //005F55AA
 {
 	__asm
 	{
-		mov     eax, [esi+8]
-		mov     edx, [eax+60h]    //new condition 1
-		mov     [edx+0], cl
+		mov     eax, [esi + 8]
+		mov     edx, [eax + 60h]    //new condition 1
+		mov		[edx + 0], cl
+
+		mov     eax, [esi + 8]
+		mov     edx, [eax + 64h]    //new condition 2
+		mov		[edx + 0], cl
+		mov		[edx + 5], cl
+		mov		[edx + 9], cl
+		mov		[edx + 0Ah], cl
+		mov		[edx + 0Bh], cl
+		mov		[edx + 0Ch], cl
+
+		mov     eax, [esi + 8]
+		mov     edx, [eax + 68h]    //new condition 2
+		mov		[edx + 0], cl
+		mov		[edx + 5], cl
+		mov		[edx + 7], cl
 
 		mov     eax, [esi+8]
 		mov     edx, [eax+8]
@@ -325,6 +350,88 @@ loc_5F4A63:
 loc_5F4A2D:
 		push    5F4A2Dh
 		ret
+	}
+}
+
+__declspec(naked) void conditionAreaExplored()
+{
+	__asm
+	{
+		mov     ebp, 7A1CBCh
+		mov     edx, [esi + 34h]    //y1
+		mov     edi, [esi + 3Ch]    //y2
+		//sub     ebx, edx          //rect x size - 1
+
+		shl     edx, 2
+		shl     edi, 2
+		add     edx, ebp          //y1 coloumn, x1 to x2
+		add     edi, ebp          //y2 coloumn, x1 to x2
+
+		xor		ecx, ecx
+		//mov     esi, edx
+
+x_cont :
+		//edx: current coloumn
+		mov     ebp, [edx]
+
+		mov     eax, [esi + 30h]
+		//mov     eax, [esi+ecx]
+		push	edx
+y_cont :
+		shl		ecx, 10h
+		mov     cl, [esi + 20h]
+		mov     ebx, 10000h
+		shl     ebx, cl
+		shr		ecx, 10h
+		test	[ebp + eax * 4], ebx
+		setnz	bl
+		movzx	ebx, bl
+		add		ecx, ebx
+		inc     eax
+		cmp     eax, [esi + 38h]
+		jle     y_cont
+		pop		edx
+		cmp     edx, edi
+		jge     x_end
+		add     edx, 4
+		jmp     x_cont
+x_end :
+		//ecx = n tiles
+		mov		eax, [esi + 38h]
+		sub		eax, [esi + 30h]
+		inc		eax			//eax = xl
+		mov		edx, [esi + 3Ch]
+		sub		edx, [esi + 34h]
+		inc		edx			//edx = yl
+		mul		edx
+		mov		ebx, [esi + 0Ch]
+		mul		ebx
+		mov		ebx, 100
+		div		ebx
+		//eax = n tiles required
+		cmp		ecx, eax
+		jl		_not_enough_tiles
+		jmp		condMet
+_not_enough_tiles:
+		jmp		condNotMet
+	}
+}
+
+__declspec(naked) void conditionAlliance()
+{
+	__asm
+	{
+		mov		ecx, [esp + 38h]	//player ptr
+		mov		eax, [esi + 28h]	//timer = target player
+		push	eax
+		mov		eax, 004C2C60h
+		call	eax
+		mov		cl, [esi + 0Ch]
+		cmp		al, cl
+		jz		_alliance_same
+		jmp		condNotMet
+_alliance_same:
+		jmp		condMet
 	}
 }
 

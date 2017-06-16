@@ -47,6 +47,8 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll (
 
 	log("WinMain_dll called");
 
+	//InitCommo
+
 	initialSetup();
 
 	setInt(0x00426509, (int)&WndProc_dll);

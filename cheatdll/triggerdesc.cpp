@@ -16,7 +16,7 @@ const char* condNames[] =
 	"Objects in Area",
 	"Destroy Object",
 	"Capture Object",
-	"Attrib",
+	"Attrib",				//0x08
 	"Research Tech",
 	"Timer",
 	"Object Selected",
@@ -24,7 +24,7 @@ const char* condNames[] =
 	"Player Defeated",
 	"Object Has Target",
 	"Object Visible",
-	"Object not Visible",
+	"Object not Visible",	//0x10
 	"Researching Tech",
 	"Units Garrisoned",
 	"Difficulty",
@@ -32,7 +32,9 @@ const char* condNames[] =
 	"Selected Obj in Area",
 	"Powered Obj in Area",
 	"Units queued past pop cap",
-	"Per mille chance"
+	"Per mille chance",		//0x18
+	"Area Explored",
+	"Alliance State"
 };
 
 const char* effectNames[] =
@@ -45,7 +47,7 @@ const char* effectNames[] =
 	"Tribute",
 	"Unlock Gate",
 	"Lock Gate",
-	"Trigger On",
+	"Trigger On",		//0x08
 	"Trigger Off",
 	"AI Script Goal",
 	"Create Object",
@@ -53,7 +55,7 @@ const char* effectNames[] =
 	"Declare Victory",
 	"Kill Object",
 	"Remove Object",
-	"Scroll View",
+	"Scroll View",		//0x10
 	"Unload",
 	"Ownership",
 	"Patrol",
@@ -61,7 +63,7 @@ const char* effectNames[] =
 	"Clear Instructions",
 	"Freeze Unit",
 	"Enable Adv Btns",
-	"Damage Object",
+	"Damage Object",	//0x18
 	"Place Foundation",
 	"Name",
 	"Change HP",
@@ -69,7 +71,7 @@ const char* effectNames[] =
 	"Stop Unit",
 	"Snap View",
 	"Disable Adv Btns",
-	"Enable Tech",
+	"Enable Tech",		//0x20
 	"Disable Tech",
 	"Enable Unit",
 	"Disable Unit",
@@ -77,7 +79,7 @@ const char* effectNames[] =
 	"Turn Input Off",
 	"Turn Input On",
 	"Change Speed",
-	"Give Ability",
+	"Give Ability",		//0x28
 	"Remove Ability",
 	"Data",
 	"Prop",
@@ -142,7 +144,9 @@ void(__stdcall* condPrint[]) (condition*, int) =
 	c_quantity, //sel obj in area
 	c_quantity, //pow obj in area
 	nullsub, //units q past pop cap
-	c_quantity //per mille chance
+	c_quantity, //per mille chance
+	c_quantity, //area explored
+	c_quantity //alliance state
 };
 
 void __stdcall e_send_chat(effect* p, int)
