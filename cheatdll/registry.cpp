@@ -12,11 +12,13 @@ CONFIG_DATA cd_default =
 	1,   //ask
 	0,   //alt civ letter
 	0,   //res unlock
-	0,   //genie ask
+	0,   //editor autosave
+	300, //editor autosave interval
 	0,   //widescrn on
 	-1,  //x
 	-1,  //y
-	0    //window mode
+	0,   //window mode
+	0    //large maps
 };
 
 void regGet (CONFIG_DATA* cd)
@@ -120,12 +122,21 @@ void regGet (CONFIG_DATA* cd)
 
 		if (RegQueryValueEx(
 			hKey,
-			"DAT file select",
+			"Editor Autosave",
 			0,
 			&type,
-			(BYTE*)&cd->genieAsk,
+			(BYTE*)&cd->editorAutosave,
 			&size))
-				cd->genieAsk = cd_default.genieAsk;
+			cd->editorAutosave = cd_default.editorAutosave;
+
+		if (RegQueryValueEx(
+			hKey,
+			"Editor Autosave Interval",
+			0,
+			&type,
+			(BYTE*)&cd->editorAutosaveInterval,
+			&size))
+			cd->editorAutosaveInterval = cd_default.editorAutosaveInterval;
 
 		if (RegQueryValueEx(
 			hKey,
@@ -161,7 +172,16 @@ void regGet (CONFIG_DATA* cd)
 			&type,
 			(BYTE*)&cd->windowMode,
 			&size))
-				cd->windowMode = cd_default.windowMode;
+			cd->windowMode = cd_default.windowMode;
+
+		if (RegQueryValueEx(
+			hKey,
+			"Large Maps",
+			0,
+			&type,
+			(BYTE*)&cd->largeMaps,
+			&size))
+			cd->largeMaps = cd_default.largeMaps;
 
 		RegCloseKey (hKey);
 		RegCloseKey (hKeyCU);
@@ -263,11 +283,19 @@ void regSet (CONFIG_DATA* cd)
 
 		RegSetValueEx(
 			hKey,
-			"DAT file select",
+			"Editor Autosave",
 			0,
 			type,
-			(BYTE*)&cd->genieAsk,
-			sizeof(cd->genieAsk));
+			(BYTE*)&cd->editorAutosave,
+			sizeof(cd->editorAutosave));
+
+		RegSetValueEx(
+			hKey,
+			"Editor Autosave Interval",
+			0,
+			type,
+			(BYTE*)&cd->editorAutosaveInterval,
+			sizeof(cd->editorAutosaveInterval));
 
 		RegSetValueEx(
 			hKey,
@@ -300,6 +328,14 @@ void regSet (CONFIG_DATA* cd)
 			type,
 			(BYTE*)&cd->windowMode,
 			sizeof(cd->windowMode));
+
+		RegSetValueEx(
+			hKey,
+			"Large Maps",
+			0,
+			type,
+			(BYTE*)&cd->largeMaps,
+			sizeof(cd->largeMaps));
 
 		RegCloseKey (hKey);
 		RegCloseKey (hKeyCU);

@@ -4,7 +4,7 @@
 
 unsigned char* tableR;
 
-#define RESEARCH_COUNT 0x2B3
+#define RESEARCH_COUNT 0x2E4 //0x2B3
 
 ID_ASSIGNR idAssignR [] =
 {

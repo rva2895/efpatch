@@ -372,7 +372,7 @@ __declspec(naked) void ctr2_10 () //005CEDE4
 	}
 }
 
-int unitCount = 0xCA4;
+int unitCount = 0x1000;// 0xCA4;
 
 void __cdecl _memset (void* m, int val, size_t size)
 {

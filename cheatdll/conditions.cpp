@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "conditions.h"
+#include "autosave.h"
 
 #define NEW_COND 3
 
@@ -197,6 +198,7 @@ loc_4ED5B5:             //                ; CODE XREF: sub_4ED530+44j
 	}
 }
 
+//constructor?
 __declspec(naked) void inv1 () //00529A06
 {
 	__asm
@@ -221,11 +223,15 @@ __declspec(naked) void inv1 () //00529A06
 		call    dword ptr [edx+28h]
 
 loc_7E22C4:
+		//
+		call	editor_enter
+		//
 		push    00529A0Dh
 		ret
 	}
 }
 
+//destructor?
 __declspec(naked) void inv2 () //0052ABD7
 {
 	__asm
@@ -235,6 +241,9 @@ __declspec(naked) void inv2 () //0052ABD7
 		push    eax
 		mov     eax, 428520h
 		call    eax
+		//
+		call	editor_exit
+		//
 		lea     eax, [esi+964h]
 		push    0052ABDDh
 		ret
@@ -353,11 +362,13 @@ loc_5F4A2D:
 	}
 }
 
+extern int* mapptr;
+
 __declspec(naked) void conditionAreaExplored()
 {
 	__asm
 	{
-		mov     ebp, 7A1CBCh
+		mov     ebp, mapptr
 		mov     edx, [esi + 34h]    //y1
 		mov     edi, [esi + 3Ch]    //y2
 		//sub     ebx, edx          //rect x size - 1
