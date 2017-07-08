@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "rundll.h"
+#include "autosave.h"
+#include "editorstatus.h"
 #include "crashreporter.h"
 
 #include <CrashRpt.h>
@@ -7,6 +9,8 @@
 extern crash_rpt::CrashRpt* g_crashRpt;
 
 extern int placementSettings;
+
+extern bool editorstatus_isValid;
 
 int CALLBACK WndProc_dll(HWND hWnd,
 	UINT msg,
@@ -77,11 +81,15 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll (
 int (CALLBACK* WndProc_exe) (HWND, UINT, WPARAM, LPARAM) =
 	(int (CALLBACK*) (HWND, UINT, WPARAM, LPARAM)) 0x00426530;
 
+HWND hWnd_main = 0;
+
 int CALLBACK WndProc_dll(HWND hWnd,
 	UINT msg,
 	WPARAM wParam,
 	LPARAM lParam)
 {
+	bool repaint = false;
+
 	if (msg == WM_KEYDOWN)
 	{
 		if (LOWORD(wParam) == 'S')
@@ -91,9 +99,26 @@ int CALLBACK WndProc_dll(HWND hWnd,
 				placementSettings++;
 				if (placementSettings > 3)
 					placementSettings = 0;
+				editorstatus_isValid = false;
 			}
 		}
 	}
+	if (msg == WM_TIMER)
+	{
+		if (wParam == AUTOSAVE_TIMER)
+		{
+			editor_autosave();
+			editorstatus_isValid = false;
+		}
+	}
+	if (msg == WM_PAINT)
+		repaint = paint_test();
+
+	if (!hWnd_main)
+		hWnd_main = hWnd;
 
 	return WndProc_exe(hWnd, msg, wParam, lParam);
+
+	//if (repaint)
+	//	InvalidateRect(hWnd, 0, true);
 }

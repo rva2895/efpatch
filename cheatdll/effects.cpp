@@ -125,11 +125,13 @@ __declspec(naked) void triggerDisplayHook ()
 	}
 }//2B02FC
 
+extern int* mapptr;
+
 __declspec(naked) void effectExploreArea ()
 {
 	__asm
 	{
-		mov     ebp, 7A1CBCh
+		mov     ebp, mapptr;
 		mov     edx, [edi+50h]    //y1
 		mov     esi, [edi+58h]    //y2
 		//sub     ebx, edx          //rect x size - 1

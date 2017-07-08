@@ -145,6 +145,7 @@
     <ClInclude Include="aibuilders.h" />
     <ClInclude Include="aisnx.h" />
     <ClInclude Include="aiunitcount.h" />
+    <ClInclude Include="autosave.h" />
     <ClInclude Include="casts.h" />
     <ClInclude Include="chatgaiatoall.h" />
     <ClInclude Include="civletter.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="dsoundhook.h" />
     <ClInclude Include="editorenh.h" />
     <ClInclude Include="editorres.h" />
+    <ClInclude Include="editorstatus.h" />
     <ClInclude Include="editpropertyobject.h" />
     <ClInclude Include="effects.h" />
     <ClInclude Include="effectUnitVar.h" />
@@ -172,6 +174,7 @@
     <ClInclude Include="icons.h" />
     <ClInclude Include="jedimaster.h" />
     <ClInclude Include="log.h" />
+    <ClInclude Include="mapsize.h" />
     <ClInclude Include="memfunc.h" />
     <ClInclude Include="negdecay.h" />
     <ClInclude Include="objpanel.h" />
@@ -207,6 +210,7 @@
     <ClCompile Include="aibuilders.cpp" />
     <ClCompile Include="aisnx.cpp" />
     <ClCompile Include="aiunitcount.cpp" />
+    <ClCompile Include="autosave.cpp" />
     <ClCompile Include="casts.cpp" />
     <ClCompile Include="chatgaiatoall.cpp" />
     <ClCompile Include="cheatdll.cpp" />
@@ -233,6 +237,7 @@
     <ClCompile Include="dsoundhook.cpp" />
     <ClCompile Include="editorenh.cpp" />
     <ClCompile Include="editorres.cpp" />
+    <ClCompile Include="editorstatus.cpp" />
     <ClCompile Include="editpropertyobject.cpp" />
     <ClCompile Include="effects.cpp" />
     <ClCompile Include="effectUnitVar.cpp" />
@@ -245,6 +250,7 @@
     <ClCompile Include="icons.cpp" />
     <ClCompile Include="jedimaster.cpp" />
     <ClCompile Include="log.cpp" />
+    <ClCompile Include="mapsize.cpp" />
     <ClCompile Include="memfunc.cpp" />
     <ClCompile Include="negdecay.cpp" />
     <ClCompile Include="objpanel.cpp" />

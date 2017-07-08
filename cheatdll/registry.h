@@ -17,11 +17,13 @@ struct CONFIG_DATA
 	int askAtStartup;
 	int useAltCivLetter;
 	int unlockResources;
-	int genieAsk;
+	int editorAutosave;
+	int editorAutosaveInterval;
 	int widescrnEnabled;
 	int xres;
 	int yres;
 	int windowMode;
+	int largeMaps;
 };
 
 void regGet (CONFIG_DATA*);

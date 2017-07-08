@@ -31,9 +31,13 @@ void __cdecl setHook (void* addr, void* newAddr)
 #ifdef _DEBUG
 	log ("Hook: 0x%X -> 0x%X", addr, newAddr);
 #endif
-	WriteProcessMemory (GetCurrentProcess (), addr, &push, 1, &c);
-	WriteProcessMemory (GetCurrentProcess (), (char*)addr+1, &newAddr, 4, &c);
-	WriteProcessMemory (GetCurrentProcess (), (char*)addr+5, &ret, 1, &c);
+	//WriteProcessMemory (GetCurrentProcess (), addr, &push, 1, &c);
+	//WriteProcessMemory (GetCurrentProcess (), (char*)addr+1, &newAddr, 4, &c);
+	//WriteProcessMemory (GetCurrentProcess (), (char*)addr+5, &ret, 1, &c);
+	unsigned char j = 0xE9;
+	WriteProcessMemory(GetCurrentProcess(), addr, &j, 1, &c);
+	char* r = (char*)newAddr - (char*)addr + (char*)-5;
+	WriteProcessMemory(GetCurrentProcess(), (char*)addr + 1, &r, 4, &c);
 }
 
 void __cdecl setHookRestorable (void* addr, void* newAddr, void* oldData)
@@ -55,6 +59,31 @@ int __cdecl readInt (int addr)
 	ReadProcessMemory (GetCurrentProcess (), (void*)addr, &val, 4, 0);
 	return val;
 }
+
+__declspec(naked) int __stdcall getWindowX()
+{
+	__asm
+	{
+		mov		eax, 006A3684h
+		mov		eax, [eax]
+		mov		eax, [eax + 24h]
+		mov		eax, [eax + 8F4h]
+		ret
+	}
+}
+
+__declspec(naked) int __stdcall getWindowY()
+{
+	__asm
+	{
+		mov		eax, 006A3684h
+		mov		eax, [eax]
+		mov		eax, [eax + 24h]
+		mov		eax, [eax + 8FCh]
+		ret
+	}
+}
+
 
 /*__declspec(naked) char* __cdecl strncpy__ (char*, const char*, size_t)
 {

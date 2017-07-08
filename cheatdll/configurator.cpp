@@ -11,16 +11,26 @@ void processIDOK (HWND hWnd)
 {
 	char buf [10];
 	CONFIG_DATA cd;
-	GetDlgItemText (hWnd, IDC_EDIT1, buf, 10);
-	sscanf (buf, "%d", &cd.nBufs);
-	GetDlgItemText (hWnd, IDC_EDIT2, buf, 10);
-	sscanf (buf, "%d", &cd.timeout);
-	cd.useFPS = IsDlgButtonChecked (hWnd, IDC_CHECK1);
-	cd.useDShook = IsDlgButtonChecked (hWnd, IDC_CHECK2);
-	cd.askAtStartup = !IsDlgButtonChecked (hWnd, IDC_CHECK3);
-	cd.unlockResources = IsDlgButtonChecked (hWnd, IDC_CHECK4);
-	cd.genieAsk = IsDlgButtonChecked (hWnd, IDC_CHECK5);
-	cd.windowMode = IsDlgButtonChecked (hWnd, IDC_CHECK7);
+	regGet(&cd);
+	GetDlgItemText(hWnd, IDC_EDIT1, buf, 10);
+	sscanf(buf, "%d", &cd.nBufs);
+	GetDlgItemText(hWnd, IDC_EDIT2, buf, 10);
+	sscanf(buf, "%d", &cd.timeout);
+	cd.useFPS = IsDlgButtonChecked(hWnd, IDC_CHECK_FPS);
+	cd.useDShook = IsDlgButtonChecked(hWnd, IDC_CHECK_DSH);
+	cd.askAtStartup = !IsDlgButtonChecked(hWnd, IDC_CHECK_ALWAYSRUN);
+	cd.unlockResources = IsDlgButtonChecked(hWnd, IDC_CHECK_UNLOCKRES);
+
+	cd.largeMaps = IsDlgButtonChecked(hWnd, IDC_CHECK_MAP);
+
+	if (cd.editorAutosave = IsDlgButtonChecked(hWnd, IDC_CHECK_EDITORAUTO))
+	{
+		char str[50];
+		GetDlgItemText(hWnd, IDC_EDIT_EDITORAUTO, str, 50);
+		sscanf(str, "%d", &cd.editorAutosaveInterval);
+	}
+
+	cd.windowMode = IsDlgButtonChecked(hWnd, IDC_CHECK_WNDMODE);
 
 	if (IsDlgButtonChecked (hWnd, IDC_RADIO1))
 		cd.gameVersion = CC;
@@ -32,13 +42,11 @@ void processIDOK (HWND hWnd)
 	if (IsDlgButtonChecked (hWnd, IDC_RADIO4))
 		cd.useAltCivLetter = 1;
 
-	cd.widescrnEnabled = IsDlgButtonChecked (hWnd, IDC_CHECK6);
-	if (IsDlgButtonChecked (hWnd, IDC_CHECK6))
+	if (cd.widescrnEnabled = IsDlgButtonChecked (hWnd, IDC_CHECK_WIDE))
 	{
 		char str [50];
-		cd.widescrnEnabled = 1;
-		GetDlgItemText (hWnd, IDC_COMBO1, str, 50);
-		sscanf (str, "%dx%d", &cd.xres, &cd.yres);
+		GetDlgItemText(hWnd, IDC_COMBO1, str, 50);
+		sscanf(str, "%dx%d", &cd.xres, &cd.yres);
 	}
 
 	regSet (&cd);
@@ -50,13 +58,18 @@ void getSettings (HWND hWnd)
 	CONFIG_DATA cd;
 	regGet (&cd);
 
-	CheckDlgButton (hWnd, IDC_CHECK1, cd.useFPS);
-	CheckDlgButton (hWnd, IDC_CHECK2, cd.useDShook);
-	CheckDlgButton (hWnd, IDC_CHECK3, !cd.askAtStartup);
-	CheckDlgButton (hWnd, IDC_CHECK4, cd.unlockResources);
-	CheckDlgButton (hWnd, IDC_CHECK5, cd.genieAsk);
-	CheckDlgButton (hWnd, IDC_CHECK6, cd.widescrnEnabled);
-	CheckDlgButton (hWnd, IDC_CHECK7, cd.windowMode);
+	CheckDlgButton (hWnd, IDC_CHECK_FPS, cd.useFPS);
+	CheckDlgButton (hWnd, IDC_CHECK_DSH, cd.useDShook);
+	CheckDlgButton (hWnd, IDC_CHECK_ALWAYSRUN, !cd.askAtStartup);
+	CheckDlgButton(hWnd, IDC_CHECK_UNLOCKRES, cd.unlockResources);
+	CheckDlgButton(hWnd, IDC_CHECK_EDITORAUTO, cd.editorAutosave);
+
+	EnableWindow(GetDlgItem(hWnd, IDC_EDIT_EDITORAUTO), cd.editorAutosave);
+
+	CheckDlgButton (hWnd, IDC_CHECK_WIDE, cd.widescrnEnabled);
+	CheckDlgButton (hWnd, IDC_CHECK_WNDMODE, cd.windowMode);
+
+	CheckDlgButton(hWnd, IDC_CHECK_MAP, cd.largeMaps);
 
 	if (cd.gameVersion == CC)
 	{
@@ -78,10 +91,13 @@ void getSettings (HWND hWnd)
 		CheckDlgButton (hWnd, IDC_RADIO3, BST_CHECKED);
 		CheckDlgButton (hWnd, IDC_RADIO4, BST_UNCHECKED);
 	}
-	sprintf (buf, "%d", cd.nBufs);
+	sprintf(buf, "%d", cd.nBufs);
 	SetDlgItemText (hWnd, IDC_EDIT1, buf);
-	sprintf (buf, "%d", cd.timeout);
+	sprintf(buf, "%d", cd.timeout);
 	SetDlgItemText (hWnd, IDC_EDIT2, buf);
+	sprintf(buf, "%d", cd.editorAutosaveInterval);
+	SetDlgItemText(hWnd, IDC_EDIT_EDITORAUTO, buf);
+
 	if (cd.widescrnEnabled)
 	{
 		sprintf (buf, "%dx%d", cd.xres, cd.yres);
@@ -140,7 +156,7 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 			char resolution [50];
 			int x;
 			int y;
-			if (IsDlgButtonChecked (hWndDlg, IDC_CHECK6))
+			if (IsDlgButtonChecked (hWndDlg, IDC_CHECK_WIDE))
 			{
 				GetDlgItemText (hWndDlg, IDC_COMBO1, resolution, 50);
 				x = 0; y = 0;
@@ -196,6 +212,10 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 
 				break;
 			}*/
+		case IDC_CHECK_EDITORAUTO:
+			EnableWindow(GetDlgItem(hWndDlg, IDC_EDIT_EDITORAUTO),
+				IsDlgButtonChecked(hWndDlg, IDC_CHECK_EDITORAUTO));
+			break;
 		default:
 			break;
 		}

@@ -10,6 +10,9 @@ void __cdecl restoreHook (void* addr, void* oldData);
 
 int __cdecl readInt (int addr);
 
+int __stdcall getWindowX();
+int __stdcall getWindowY();
+
 struct BYTE_ASSIGN
 {
 	int  addr;

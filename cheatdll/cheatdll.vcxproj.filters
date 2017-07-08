@@ -230,6 +230,15 @@
     <ClInclude Include="editorenh.h">
       <Filter>Заголовочные файлы\editor</Filter>
     </ClInclude>
+    <ClInclude Include="mapsize.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="autosave.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="editorstatus.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="advcheat.cpp">
@@ -414,6 +423,15 @@
     </ClCompile>
     <ClCompile Include="editorenh.cpp">
       <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="mapsize.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="autosave.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="editorstatus.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

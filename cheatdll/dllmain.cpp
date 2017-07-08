@@ -50,6 +50,9 @@
 #include "savegamever.h"
 #include "triggerdesc.h"
 #include "editorenh.h"
+#include "mapsize.h"
+#include "autosave.h"
+#include "editorstatus.h"
 #include "registry.h"
 #include "crashreporter.h"
 #include "rundll.h"
@@ -217,16 +220,11 @@ void getSettings ()
 {
 	regGet (&cd);
 
-	cd.genieAsk = 0;
-
 	bool key = GetAsyncKeyState (VK_SHIFT);
 
 	if (cd.askAtStartup || key)
 	{
-		if (cd.genieAsk)
-			DialogBox (GetModuleHandle("efpatch.dll"), MAKEINTRESOURCE(IDD_DIALOG2_), 0, MainDlgProc2);
-		else
-			DialogBox (GetModuleHandle("efpatch.dll"), MAKEINTRESOURCE(IDD_DIALOG1_), 0, MainDlgProc);
+		DialogBox (GetModuleHandle("efpatch.dll"), MAKEINTRESOURCE(IDD_DIALOG1_), 0, MainDlgProc);
 
 		regGet (&cd);
 	}
@@ -252,9 +250,9 @@ __declspec(naked) void wndtmp () //00616C0F
 	}
 }
 
-void setHooksCC ()
+void setHooksCC()
 {
-	log ("Setting EF-independent hooks...");
+	log("Setting EF-independent hooks...");
 
 #ifdef _CHEATDLL_CC_DEBUG
 	cd.windowMode = 1;
@@ -267,70 +265,78 @@ void setHooksCC ()
 		else
 			log("No wndmode.dll. Using ddraw window mode if possible");
 
-			setHook ((void*)0x00616C0F, &wndtmp);
+		setHook((void*)0x00616C0F, &wndtmp);
 
-			setByte (0x0047166E, 0x90);
-			setByte (0x0047166F, 0x90);
-			setInt (0x00471670, 0x90909090);
-			setInt (0x00471674, 0x90909090);
-			setInt (0x00471678, 0x90909090);
-			setInt (0x0047167C, 0x90909090);
-			setByte (0x00471680, 0x90);
-			setByte (0x00471681, 0x90);
+		setByte(0x0047166E, 0x90);
+		setByte(0x0047166F, 0x90);
+		setInt(0x00471670, 0x90909090);
+		setInt(0x00471674, 0x90909090);
+		setInt(0x00471678, 0x90909090);
+		setInt(0x0047167C, 0x90909090);
+		setByte(0x00471680, 0x90);
+		setByte(0x00471681, 0x90);
 		//}
 		//else
 		//	MessageBox (0, "Cannot open wndmode.dll. Window mode disabled.", "Error",
 		//		MB_ICONERROR);
 	}
 
-//#ifdef _CHEATDLL_CC_DEBUG
-	setAdvCheatHooks ();
-//#endif
+	//#ifdef _CHEATDLL_CC_DEBUG
+	setAdvCheatHooks();
+	//#endif
 
-	//Trigger object overflow fix
-	//setByte(0x5F2AF8, 0x65);
-	//setByte(0x5F2AF9, 0x11);
-	//setByte(0x5F2B02, 0x65);
-	//setByte(0x5F2B03, 0x11);
-	//setByte(0x5F2C5F, 0x65);
-	//setByte(0x5F2C60, 0x11);
-	//setByte(0x5F3DB5, 0x65);
-	//setByte(0x5F3DB6, 0x11);
-	//setByte(0x5F3DC8, 0x65);
-	//setByte(0x5F3DC9, 0x11);
+		//Trigger object overflow fix
+		//setByte(0x5F2AF8, 0x65);
+		//setByte(0x5F2AF9, 0x11);
+		//setByte(0x5F2B02, 0x65);
+		//setByte(0x5F2B03, 0x11);
+		//setByte(0x5F2C5F, 0x65);
+		//setByte(0x5F2C60, 0x11);
+		//setByte(0x5F3DB5, 0x65);
+		//setByte(0x5F3DB6, 0x11);
+		//setByte(0x5F3DC8, 0x65);
+		//setByte(0x5F3DC9, 0x11);
 
 	if (cd.useAltCivLetter)
-		setAltCivLetter ();
+		setAltCivLetter();
 
 	if (cd.unlockResources)
-		setResListHooks ();
-	
-	setTechUpColorHooks ();
-	
-	setRmsEditorHooks ();
-	
-	setObjectPanelHooks ();
+		setResListHooks();
 
-	setVotePanelHooks ();
+	setTechUpColorHooks();
 
-	setFlareHooks ();
+	setRmsEditorHooks();
+
+	setObjectPanelHooks();
+
+	setVotePanelHooks();
+
+	setFlareHooks();
 
 	setEditorEnhHooks();
 
+	if (cd.largeMaps)
+		setMapSizeHooks();
+	else
+		setMapSizeHooks_legacy();
+
 #ifdef _CHEATDLL_CC
-	setTerrainGenHooks ();
-	setSaveGameVersionHooks ();
+	setTerrainGenHooks();
+	setSaveGameVersionHooks();
 #endif
 	//
-	setFileNameHooks ();
+	setFileNameHooks();
 
-	setPopulationHooks ();
+	setPopulationHooks();
 
-	setResearchRepeatHooks ();
+	setResearchRepeatHooks();
 
-	setConditionHooks ();
-	setEffectHooks ();
+	setConditionHooks();
+	setEffectHooks();
 	//
+
+	if (cd.editorAutosave)
+		setAutosaveHooks(cd.editorAutosaveInterval);
 }
 
 __declspec(naked) void sc1Hook ()
@@ -344,71 +350,73 @@ __declspec(naked) void sc1Hook ()
 	}
 }
 
-void setHooksEF ()
+void setHooksEF()
 {
 	//setHook ((void*)0x005E55DB, &sc1Hook);
 
-	log ("setHooksEF () started");
+	log("setHooksEF () started");
 
-	setStartupLoadHooks ();
+	setStartupLoadHooks();
 
-	setDRSLoadHooks (cd.gameVersion, cd.widescrnEnabled);
+	setDRSLoadHooks(cd.gameVersion, cd.widescrnEnabled);
 
 	//setExtraTerrainHooks();
-	setTerrainLoadHooks ();
+	setTerrainLoadHooks();
 
 	//setHook ((void*)0x004B13A0, &pathFindHook);
 
-	setPopulationHooks ();
+	setPopulationHooks();
 
 	//setHook ((void*)0x004C1850, &prefabRes1);
 	//setHook ((void*)0x005F9796, &flash);
 
 	//setHook ((void*)0x005F395D, &origPatrolEnding);
 
-	setResearchRepeatHooks ();
+	setResearchRepeatHooks();
 
-	fixIconLoadingRoutines ();
-	fixCivLetterFunction ();
+	fixIconLoadingRoutines();
+	fixCivLetterFunction();
 
-	initExplDroid ();
-	setJediMasterHooks ();
-	setConvertHooks ();//  !!
+	initExplDroid();
+	setJediMasterHooks();
+	setConvertHooks();//  !!
 
-	setResGenHooks ();
+	setResGenHooks();
 
-	setDecayHooks ();
+	setDecayHooks();
 
 	//setByte (0x00444A10, 0xE8); //remove 1.0f check in getDamage function
 	//setByte (0x00444A11, 0x13);
 
-	setGameModeHooks ();
+	setGameModeHooks();
 
-	setChatGaiaToAllHooks ();
+	setChatGaiaToAllHooks();
 
-	setTextColorHooks ();
+	setTextColorHooks();
 
-	initCivUnitTable ();
-	initCivResearchTable ();
+	initCivUnitTable();
+	initCivResearchTable();
 
-	setResCheatHooks ();
+	setResCheatHooks();
 
-	setConditionHooks ();
-	setEffectHooks ();
+	setConditionHooks();
+	setEffectHooks();
 
 	setTriggerDescHooks();
 
 #ifndef _CHEATDLL_CC
-	setCastHooks ();
+	setCastHooks();
 #endif
 
-	setAIHooks ();
+	setAIHooks();
 
-	setHotkeyHooks ();
+	setHotkeyHooks();
 
-	setZannFortHooks ();
+	setZannFortHooks();
 
-	setProcessUnitHooks ();
+	setProcessUnitHooks();
+
+	setEditorStatusHooks();
 
 	//setTerrainAmount ();
 
@@ -427,15 +435,15 @@ void setHooksEF ()
 	setByte(0x00539E50, 0x02);
 	setByte(0x00539AE0, 0x88); //Dest
 	setByte(0x00539B00, 0x84);
-	setByte(0x005397E1, CIV_COUNT+1);
+	setByte(0x005397E1, CIV_COUNT + 1);
 	setByte(0x005397D0, 0xE0);
 
-	log ("setHooks () finished");
+	log("setHooks () finished");
 }
 
 char verStr2 [] = "1.2e";
 char verStr3 [] = "1.3e";
-char verStr4 [] = "1.5e";
+char verStr4 [] = "1.4e";
 char verStr5 [] = "1.5e";
 char verStr6 [] = "1.6e";
 char verStr7 [] = "1.7e";
@@ -536,12 +544,12 @@ void initialSetup()
 {
 	getSettings();
 
-	log("Settings: fps=%d,ds=%d,b=%d,to=%d,"
-		"v=%d,a=%d,civl=%d,res=%d"
-		"dat=%d,wide=%d,wx=%d,wy=%d,wind=%d",
-		cd.useFPS, cd.useDShook, cd.nBufs, cd.timeout,
-		cd.gameVersion, cd.askAtStartup, cd.useAltCivLetter, cd.unlockResources,
-		cd.genieAsk, cd.widescrnEnabled, cd.xres, cd.yres, cd.windowMode);
+	log("Settings: fps=%d,ds=%d,b=%d,to=%d,v=%d,a=%d,"
+		"civl=%d,res=%d,auto=%d,autoint=%d,"
+		"wide=%d,wx=%d,wy=%d,wind=%d",
+		cd.useFPS, cd.useDShook, cd.nBufs, cd.timeout, cd.gameVersion, cd.askAtStartup,
+		cd.useAltCivLetter, cd.unlockResources, cd.editorAutosave, cd.editorAutosaveInterval,
+		cd.widescrnEnabled, cd.xres, cd.yres, cd.windowMode);
 
 	//setTestHook ();
 
