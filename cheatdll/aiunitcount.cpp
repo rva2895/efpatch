@@ -13,8 +13,8 @@ __declspec(naked) void ctr1 () //004C2B7B
 		//mov     bp, [esi+ebp*2+1038h]
 		mov     eax, [esi+1038h]
 		mov     bp, [eax+ebp*2]
-		push    004C2B83h
-		ret
+		mov		eax, 004C2B83h
+		jmp		eax
 	}
 }
 
@@ -29,8 +29,8 @@ __declspec(naked) void ctr2 () //004C43EA
 		lea     eax, [esi+eax*2]
 		mov     esi, [esp+18h]
 		add     word ptr [eax], si
-		push    004C43F6h
-		ret
+		mov		eax, 004C43F6h
+		jmp		eax
 //_errorctr:
 		//int     3
 	}
@@ -43,8 +43,8 @@ __declspec(naked) void ctr3 () //00576D60
 		//cmp     word ptr [ecx+edi*2+1038h], 1
 		mov     esi, [ecx+1038h]
 		cmp     word ptr [esi+edi*2], 1
-		push    00576D69h
-		ret
+		mov		esi, 00576D69h
+		jmp		esi
 	}
 }
 
@@ -55,8 +55,8 @@ __declspec(naked) void ctr4 () //00576E7A
 		//cmp     word ptr [ecx+esi*2+1038h], 1
 		mov     ebx, [ecx+1038h]
 		cmp     word ptr [ebx+esi*2], 1
-		push    00576E83h
-		ret
+		mov		ebx, 00576E83h
+		jmp		ebx
 	}
 }
 
@@ -67,8 +67,8 @@ __declspec(naked) void ctr5 () //0057AF02
 		//movsx   edx, word ptr [ecx+eax*2+1038h]
 		mov     edx, [ecx+1038h]
 		movsx   edx, word ptr [edx+eax*2]
-		push    0057AF0Ah
-		ret
+		mov		ecx, 0057AF0Ah
+		jmp		ecx
 	}
 }
 
@@ -79,8 +79,8 @@ __declspec(naked) void ctr6 () //0057AF30
 		//movsx   esi, word ptr [eax+ecx*2+1038h]
 		mov     esi, [eax+1038h]
 		movsx   esi, word ptr [esi+ecx*2]
-		push    0057AF38h
-		ret
+		mov		eax, 0057AF38h
+		jmp		eax
 	}
 }
 
@@ -91,8 +91,9 @@ __declspec(naked) void ctr7 () //0057BA0A
 		//movsx   ecx, word ptr [edi+eax*2+1038h]
 		mov     ecx, [edi+1038h]
 		movsx   ecx, word ptr [ecx+eax*2]
-		push    0057BA12h
-		ret
+		add     esi, ecx
+		mov		ecx, 0057BA14h
+		jmp		ecx
 	}
 }
 
@@ -103,8 +104,8 @@ __declspec(naked) void ctr8 () //0057BA27
 		//movsx   esi, word ptr [edi+edx*2+1038h]
 		mov     esi, [edi+1038h]
 		movsx   esi, word ptr [esi+edx*2]
-		push    0057BA2Fh
-		ret
+		mov		eax, 0057BA2Fh
+		jmp		eax
 	}
 }
 
@@ -115,8 +116,9 @@ __declspec(naked) void ctr9 () //0057BD9C
 		//movsx   ecx, word ptr [edi+eax*2+1038h]
 		mov     ecx, [edi+1038h]
 		movsx   ecx, word ptr [ecx+eax*2]
-		push    0057BDA4h
-		ret
+		add     esi, ecx
+		mov		ecx, 0057BDA6h
+		jmp		ecx
 	}
 }
 
@@ -127,8 +129,8 @@ __declspec(naked) void ctr10 () //0057BDB9
 		//movsx   esi, word ptr [edi+edx*2+1038h]
 		mov     esi, [edi+1038h]
 		movsx   esi, word ptr [esi+edx*2]
-		push    0057BDC1h
-		ret
+		mov		eax, 0057BDC1h
+		jmp		eax
 	}
 }
 
@@ -139,8 +141,8 @@ __declspec(naked) void ctr11 () //0057CE91
 		//movsx   eax, word ptr [ebp+esi*2+1038h]
 		mov     eax, [ebp+1038h]
 		movsx   eax, word ptr [eax+esi*2]
-		push    0057CE99h
-		ret
+		mov		ecx, 0057CE99h
+		jmp		ecx
 	}
 }
 
@@ -151,8 +153,8 @@ __declspec(naked) void ctr12 () //0057CEC5
 		//movsx   edi, word ptr [ebp+esi*2+1038h]
 		mov     edi, [ebp+1038h]
 		movsx   edi, word ptr [edi+esi*2]
-		push    0057CECDh
-		ret
+		mov		eax, 0057CECDh
+		jmp		eax
 	}
 }
 
@@ -163,8 +165,8 @@ __declspec(naked) void ctr13 () //0057DB28
 		//movsx   eax, word ptr [ebp+esi*2+1038h]
 		mov     eax, [ebp+1038h]
 		movsx   eax, word ptr [eax+esi*2]
-		push    0057DB30h
-		ret
+		mov		ecx, 0057DB30h
+		jmp		ecx
 	}
 }
 
@@ -175,8 +177,8 @@ __declspec(naked) void ctr14 () //0057DB5A
 		//movsx   edi, word ptr [ebp+esi*2+1038h]
 		mov     edi, [ebp+1038h]
 		movsx   edi, word ptr [edi+esi*2]
-		push    0057DB62h
-		ret
+		mov		eax, 0057DB62h
+		jmp		eax
 	}
 }
 
@@ -187,8 +189,8 @@ __declspec(naked) void ctr15 () //0057E5C9
 		//movsx   edx, word ptr [ecx+eax*2+1038h]
 		mov     edx, [ecx+1038h]
 		movsx   edx, word ptr [edx+eax*2]
-		push    0057E5D1h
-		ret
+		mov		eax, 0057E5D1h
+		jmp		eax
 	}
 }
 
@@ -199,8 +201,8 @@ __declspec(naked) void ctr16 () //0057E5EA
 		//movsx   esi, word ptr [eax+ecx*2+1038h]
 		mov     esi, [eax+1038h]
 		movsx   esi, word ptr [esi+ecx*2]
-		push    0057E5F2h
-		ret
+		mov		eax, 0057E5F2h
+		jmp		eax
 	}
 }
 
@@ -211,8 +213,8 @@ __declspec(naked) void ctr17 () //005B2065 //?
 		//cmp     word ptr [ecx+10DCh], 0
 		mov     edx, [ecx+1038h]
 		cmp     word ptr [edx+0A4h], 0
-		push    005B206Dh
-		ret
+		mov		edx, 005B206Dh
+		jmp		edx
 	}
 }
 
@@ -223,8 +225,8 @@ __declspec(naked) void ctr18 () //005B208B //?
 		//cmp     word ptr [ecx+1112h], 0
 		mov     edx, [ecx+1038h]
 		cmp     word ptr [edx+0DAh], 0
-		push    005B2093h
-		ret
+		mov		edx, 005B2093h
+		jmp		edx
 	}
 }
 
@@ -235,8 +237,8 @@ __declspec(naked) void ctr19 () //005B20B1
 		//cmp     word ptr [ecx+1CCCh], 0
 		mov     edx, [ecx+1038h]
 		cmp     word ptr [edx+0C94h], 0
-		push    005B20B9h
-		ret
+		mov		edx, 005B20B9h
+		jmp		edx
 	}
 }
 
@@ -247,8 +249,8 @@ __declspec(naked) void ctr20 () //005B2065
 		//cmp     word ptr [ecx+10DCh], 0
 		mov     edx, [ecx+1038h]
 		cmp     word ptr [edx+0A4h], 0
-		push    005B206Dh
-		ret
+		mov		edx, 005B206Dh
+		jmp		edx
 	}
 }
 
@@ -259,8 +261,8 @@ __declspec(naked) void ctr2_1 () //004C2B5C
 		//mov     bx, [esi+ebp*2+2F0h]
 		mov     ecx, [esi+2F0h]
 		mov     bx, [ecx+ebp*2]
-		push    004C2B64h
-		ret
+		mov		ecx, 004C2B64h
+		jmp		ecx
 	}
 }
 
@@ -273,8 +275,8 @@ __declspec(naked) void ctr2_2 () //004C42DA
 		lea     eax, [esi+eax*2]
 		mov     esi, [esp+18h]
 		add     word ptr [eax], si
-		push    004C42E6h
-		ret
+		mov		eax, 004C42E6h
+		jmp		eax
 	}
 }
 
@@ -285,8 +287,8 @@ __declspec(naked) void ctr2_3 () //0057B022
 		//movsx   edx, word ptr [ecx+eax*2+2F0h]
 		mov     edx, [ecx+2F0h]
 		movsx   edx, word ptr [edx+eax*2]
-		push    0057B02Ah
-		ret
+		mov		ecx, 0057B02Ah
+		jmp		ecx
 	}
 }
 
@@ -297,8 +299,8 @@ __declspec(naked) void ctr2_4 () //0057B050
 		//movsx   esi, word ptr [eax+ecx*2+2F0h]
 		mov     esi, [eax+2F0h]
 		movsx   esi, word ptr [esi+ecx*2]
-		push    0057B058h
-		ret
+		mov		eax, 0057B058h
+		jmp		eax
 	}
 }
 
@@ -309,8 +311,9 @@ __declspec(naked) void ctr2_5 () //0057BB2A
 		//movsx   ecx, word ptr [edi+eax*2+2F0h]
 		mov     ecx, [edi+2F0h]
 		movsx   ecx, word ptr [ecx+eax*2]
-		push    0057BB32h
-		ret
+		add     esi, ecx
+		mov		ecx, 0057BB34h
+		jmp		ecx
 	}
 }
 
@@ -321,8 +324,8 @@ __declspec(naked) void ctr2_6 () //0057BB47
 		//movsx   esi, word ptr [edi+edx*2+2F0h]
 		mov     esi, [edi+2F0h]
 		movsx   esi, word ptr [esi+edx*2]
-		push    0057BB4Fh
-		ret
+		mov		eax, 0057BB4Fh
+		jmp		eax
 	}
 }
 
@@ -333,8 +336,8 @@ __declspec(naked) void ctr2_7 () //0057E739
 		//movsx   edx, word ptr [ecx+eax*2+2F0h]
 		mov     edx, [ecx+2F0h]
 		movsx   edx, word ptr [edx+eax*2]
-		push    0057E741h
-		ret
+		mov		ecx, 0057E741h
+		jmp		ecx
 	}
 }
 
@@ -345,8 +348,8 @@ __declspec(naked) void ctr2_8 () //0057E75A
 		//movsx   esi, word ptr [eax+ecx*2+2F0h]
 		mov     esi, [eax+2F0h]
 		movsx   esi, word ptr [esi+ecx*2]
-		push    0057E762h
-		ret
+		mov		eax, 0057E762h
+		jmp		eax
 	}
 }
 
@@ -356,8 +359,8 @@ __declspec(naked) void ctr2_9 () //00596695
 	{
 		mov     ecx, [ecx+2F0h]
 		cmp     word ptr [ecx+ebp*2], ax
-		push    0059669Dh
-		ret
+		mov		ecx, 0059669Dh
+		jmp		ecx
 	}
 }
 
@@ -367,8 +370,8 @@ __declspec(naked) void ctr2_10 () //005CEDE4
 	{
 		mov     eax, [ebp+2F0h]
 		cmp     word ptr [eax+434*2], 0
-		push    005CEDECh
-		ret
+		mov		ecx, 005CEDECh
+		jmp		ecx
 	}
 }
 
@@ -436,8 +439,8 @@ __declspec(naked) void ctrInit () //004BFEDF
 		push    eax
 		call    ds:[_memset]
 		add     esp, 24h
-		push    004BFF0Fh
-		ret
+		mov		eax, 004BFF0Fh
+		jmp		eax
 	}
 }
 
@@ -482,8 +485,8 @@ __declspec(naked) void ctrReadSave () //004BF665
 		add     esp, 4
 		pop     ebx
 		pop     edi
-		push    004BF69Bh
-		ret
+		mov		edx, 004BF69Bh
+		jmp		edx
 	}
 }
 
@@ -522,8 +525,8 @@ __declspec(naked) void ctrWriteSave () //004C1C55
 		add     esp, 4
 		pop     edi
 		pop     ebp
-		push    004C1C8Bh
-		ret
+		mov		edx, 004C1C8Bh
+		jmp		edx
 	}
 }
 
@@ -535,8 +538,8 @@ __declspec(naked) void ctr1PrefabFix () //0057AF3F
 		movsx   ecx, word ptr [esi+8Ch]  //prefab count
 		movsx   esi, word ptr [esi+7D2h] //underwater prefab count
 		add     esi, ecx
-		push    0057AF4Fh
-		ret
+		mov		eax, 0057AF4Fh
+		jmp		eax
 	}
 }
 
@@ -547,9 +550,9 @@ __declspec(naked) void ctr2PrefabFix () //0057B05F
 		mov     esi, [eax+2F0h]
 		movsx   ecx, word ptr [esi+8Ch]  //prefab count
 		movsx   esi, word ptr [esi+7D2h] //underwater prefab count
-		add     esi, ecx
-		push    0057B06Dh
-		ret
+		//add     esi, ecx
+		mov		eax, 0057B06Dh
+		jmp		eax
 	}
 }
 
@@ -560,8 +563,8 @@ __declspec(naked) void ctr2CCFix () //004C0745
 		//cmp     word ptr [ecx+3CAh], 0
 		mov     ecx, [ecx+2F0h]
 		cmp     word ptr [ecx+0DAh], 0
-		push    004C074Dh
-		ret
+		mov		esi, 004C074Dh
+		jmp		esi
 	}
 }
 
@@ -579,8 +582,8 @@ __declspec(naked) void buf2_init () //00583966
 		mov     [esi+3D8h], eax
 		add     esp, 0Ch
 		mov     edx, 4
-		push    0058397Ah
-		ret
+		mov		eax, 0058397Ah
+		jmp		eax
 	}
 }
 
@@ -602,8 +605,8 @@ __declspec(naked) void buf2_read () //00584927
 		add     esp, 4
 		mov     [esi+3D8h], eax
 		mov     edi, eax
-		push    00584932h
-		ret
+		mov		edx, 00584932h
+		jmp		edx
 	}
 }
 
@@ -620,8 +623,8 @@ __declspec(naked) void buf2_write () //005865C2
 		call    eax
 		pop     ebp
 		mov     edi, [ebx+3D8h]
-		push    005865CDh
-		ret
+		mov		edx, 005865CDh
+		jmp		edx
 	}
 }
 
@@ -632,8 +635,8 @@ __declspec(naked) void buf2_1 () //0058A87B
 		mov     ecx, [esi+3D8h]
 		lea     eax, [ecx+edx*4]
 		inc     dword ptr [eax]
-		push    0058A88Ch
-		ret
+		mov		ebx, 0058A88Ch
+		jmp		ebx
 	}
 }
 
@@ -644,8 +647,8 @@ __declspec(naked) void buf2_2 () //0058AA0C
 		mov     ecx, [esi+3D8h]
 		lea     eax, [ecx+edx*4]
 		dec     dword ptr [eax]
-		push    0058AA1Dh
-		ret
+		mov		eax, 0058AA1Dh
+		jmp		eax
 	}
 }
 
@@ -667,8 +670,8 @@ __declspec(naked) void ctr_free () //005CDCDF
 		mov     eax, 00632B42h
 		call    eax
 		add     esp, 4
-		push    005CDCE8h
-		ret
+		mov		eax, 005CDCE8h
+		jmp		eax
 	}
 }
 
@@ -683,8 +686,8 @@ __declspec(naked) void buf2_free () //0059544F
 		mov     eax, 00632B42h
 		call    eax
 		add     esp, 8
-		push    00595458h
-		ret
+		mov		eax, 00595458h
+		jmp		eax
 	}
 }
 

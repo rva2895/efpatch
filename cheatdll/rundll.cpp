@@ -2,6 +2,7 @@
 #include "rundll.h"
 #include "autosave.h"
 #include "editorstatus.h"
+#include "cliff.h"
 #include "crashreporter.h"
 
 #include <CrashRpt.h>
@@ -9,23 +10,26 @@
 extern crash_rpt::CrashRpt* g_crashRpt;
 
 extern int placementSettings;
+extern int cliff_type;
 
 extern bool editorstatus_isValid;
+
+extern void* scen_ptr;
 
 int CALLBACK WndProc_dll(HWND hWnd,
 	UINT msg,
 	WPARAM wParam,
 	LPARAM lParam);
 
-__declspec(dllexport) void CALLBACK RunGame (HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine, int nCmdShow)
+__declspec(dllexport) void CALLBACK RunGame(HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine, int nCmdShow)
 {
-	MessageBox (hwnd, lpszCmdLine, "Rundll", 0);
+	MessageBox(hwnd, lpszCmdLine, "Rundll", 0);
 	STARTUPINFO si;
-	memset (&si, 0, sizeof(STARTUPINFO));
+	memset(&si, 0, sizeof(STARTUPINFO));
 	si.cb = sizeof(STARTUPINFO);
 
-	SetCurrentDirectory (lpszCmdLine);
-	CreateProcess ("battlegrounds_x2.exe",
+	SetCurrentDirectory(lpszCmdLine);
+	CreateProcess("battlegrounds_x2.exe",
 		0,
 		0,
 		0,
@@ -83,6 +87,11 @@ int (CALLBACK* WndProc_exe) (HWND, UINT, WPARAM, LPARAM) =
 
 HWND hWnd_main = 0;
 
+int cliff_types[] = { 0x108, 3971, 3981, 3991, 0 };
+int* cliff_types_ptr = cliff_types;
+
+extern bool isEditor;
+
 int CALLBACK WndProc_dll(HWND hWnd,
 	UINT msg,
 	WPARAM wParam,
@@ -92,14 +101,31 @@ int CALLBACK WndProc_dll(HWND hWnd,
 
 	if (msg == WM_KEYDOWN)
 	{
-		if (LOWORD(wParam) == 'S')
+		if (isEditor)
 		{
-			if (short x = GetKeyState(VK_CONTROL))
+			if (LOWORD(wParam) == 'S')						//grid - collision
 			{
-				placementSettings++;
-				if (placementSettings > 3)
-					placementSettings = 0;
-				editorstatus_isValid = false;
+				if (short x = GetKeyState(VK_CONTROL))
+				{
+					placementSettings++;
+					if (placementSettings > 3)
+						placementSettings = 0;
+					editorstatus_isValid = false;
+				}
+			}
+			if (LOWORD(wParam) == 'Q')						//cliff type
+			{
+				if (short x = GetKeyState(VK_CONTROL))
+				{
+					cliff_types_ptr++;
+					if (!*cliff_types_ptr)
+						cliff_types_ptr = cliff_types;
+					cliff_type = *cliff_types_ptr;
+
+					setCliffType(cliff_type, scen_ptr);
+
+					editorstatus_isValid = false;
+				}
 			}
 		}
 	}
@@ -118,7 +144,4 @@ int CALLBACK WndProc_dll(HWND hWnd,
 		hWnd_main = hWnd;
 
 	return WndProc_exe(hWnd, msg, wParam, lParam);
-
-	//if (repaint)
-	//	InvalidateRect(hWnd, 0, true);
 }

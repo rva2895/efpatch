@@ -5,20 +5,25 @@
 bool isEditor = false;
 extern HWND hWnd_main;
 int autosave_interval;
+bool autosave = false;
 
 void __stdcall editor_enter()
 {
 	log("Editor opened");
 	isEditor = true;
-	SetTimer(hWnd_main, AUTOSAVE_TIMER, autosave_interval, 0);
+	if (autosave)
+		SetTimer(hWnd_main, AUTOSAVE_TIMER, autosave_interval, 0);
 }
 
 void __stdcall editor_exit()
 {
 	log("Editor closed");
 	isEditor = false;
-	log("Editor autosave: editor closed, killing timer");
-	KillTimer(hWnd_main, AUTOSAVE_TIMER);
+	if (autosave)
+	{
+		log("Editor autosave: editor closed, killing timer");
+		KillTimer(hWnd_main, AUTOSAVE_TIMER);
+	}
 }
 
 char name[] = "autosave.sc1";
@@ -56,4 +61,5 @@ void setAutosaveHooks(int interval)
 {
 	log("Editor autosave initialised, interval = %d seconds", interval);
 	autosave_interval = interval * 1000;
+	autosave = true;
 }

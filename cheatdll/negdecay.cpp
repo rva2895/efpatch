@@ -2,7 +2,7 @@
 
 #include "negdecay.h"
 
-__declspec(naked) int negDecay ()  //put on 0054F123
+__declspec(naked) int negDecay()  //put on 0054F123
 {
 	__asm
 	{
@@ -15,19 +15,19 @@ __declspec(naked) int negDecay ()  //put on 0054F123
 		mov     eax, [ecx + 80h]
 		mov     [esi + 54h], eax
 jumpgood:
-		push    0054F1B6h
-		ret
+		mov		ecx, 0054F1B6h
+		jmp		ecx
 jump:
-		push    0054F129h
-		ret
+		mov		ecx, 0054F129h
+		jmp		ecx
 	}
 }
 
-void setDecayHooks ()
+void setDecayHooks()
 {
 #ifdef _DEBUG
-	log ("Setting negative decay hooks...");
+	log("Setting negative decay hooks...");
 #endif
-	setByte (0x54F0F6, 0x40);
-	setHook ((void*)0x0054F123, &negDecay);
+	setByte(0x54F0F6, 0x40);
+	setHook((void*)0x0054F123, &negDecay);
 }

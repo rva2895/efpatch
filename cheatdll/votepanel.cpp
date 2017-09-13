@@ -48,13 +48,13 @@ count_players:
 		//can continue
 		pop     ebx
 		pop     ecx
-		push    0046F055h
-		ret
+		mov		eax, 0046F055h
+		jmp		eax
 not_enough_votes:
 		pop     ebx
 		pop     ecx
-		push    0046F1AEh
-		ret
+		mov		eax, 0046F1AEh
+		jmp		eax
 	}
 }
 
@@ -98,8 +98,8 @@ count_players2:
 		pop     esi
 		pop     ebx
 		pop     edi
-		push    0046F231h
-		ret
+		mov		eax, 0046F231h
+		jmp		eax
 not_enough_votes2:
 
 		pop     esi
@@ -145,14 +145,14 @@ count_players3:
 		pop     esi
 		pop     ebx
 		pop     edi
-		push    0046F1E7h
-		ret
+		mov		eax, 0046F1E7h
+		jmp		eax
 not_enough_votes3:
 		pop     esi
 		pop     ebx
 		pop     edi
-		push    0046F231h
-		ret
+		mov		eax, 0046F231h
+		jmp		eax
 	}
 }
 
@@ -175,8 +175,8 @@ _check_status:
 		inc     esi
 		cmp     esi, 9
 		jl      _check_status
-		push    0046EC28h
-		ret
+		mov		ecx, 0046EC28h
+		jmp		ecx
 	}
 }
 

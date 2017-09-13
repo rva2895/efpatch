@@ -35,8 +35,8 @@ __declspec(naked) void registerSNX () //00577B59
 		push    offset aSetUnitTypeBuilders
 		call    edi
 		pop     edi
-		push    00577B6Ch
-		ret
+		mov		ecx, 00577B6Ch
+		jmp		ecx
 	}
 }
 

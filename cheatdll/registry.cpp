@@ -18,7 +18,8 @@ CONFIG_DATA cd_default =
 	-1,  //x
 	-1,  //y
 	0,   //window mode
-	0    //large maps
+	0,   //large maps
+	1    //animated water
 };
 
 void regGet (CONFIG_DATA* cd)
@@ -183,6 +184,15 @@ void regGet (CONFIG_DATA* cd)
 			&size))
 			cd->largeMaps = cd_default.largeMaps;
 
+		if (RegQueryValueEx(
+			hKey,
+			"Animated Water",
+			0,
+			&type,
+			(BYTE*)&cd->animatedWater,
+			&size))
+			cd->animatedWater = cd_default.animatedWater;
+
 		RegCloseKey (hKey);
 		RegCloseKey (hKeyCU);
 	}
@@ -336,6 +346,14 @@ void regSet (CONFIG_DATA* cd)
 			type,
 			(BYTE*)&cd->largeMaps,
 			sizeof(cd->largeMaps));
+
+		RegSetValueEx(
+			hKey,
+			"Animated Water",
+			0,
+			type,
+			(BYTE*)&cd->animatedWater,
+			sizeof(cd->animatedWater));
 
 		RegCloseKey (hKey);
 		RegCloseKey (hKeyCU);

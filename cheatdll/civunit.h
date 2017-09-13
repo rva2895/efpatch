@@ -4,7 +4,11 @@
 
 struct ID_ASSIGNU
 {
-	short IDs [CIV_COUNT];
+#ifdef _CHEATDLL_CC
+	short IDs[9];
+#else
+	short IDs[CIV_COUNT];
+#endif
 };
 
-void initCivUnitTable ();
+void initCivUnitTable();

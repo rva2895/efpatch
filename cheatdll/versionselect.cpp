@@ -44,6 +44,10 @@ BOOL CALLBACK MainDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lPar
 		if (!cd.askAtStartup)
 			CheckDlgButton (hWndDlg, IDC_CHECK1_, BST_CHECKED);
 
+#ifdef _CHEATDLL_CC
+		EnableWindow(GetDlgItem(hWndDlg, IDC_RADIO2_), FALSE);
+#endif
+
 		break;
 	case WM_COMMAND:
 		{

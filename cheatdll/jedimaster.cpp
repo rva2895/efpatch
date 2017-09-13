@@ -19,12 +19,13 @@ loopcont:
 		dec     ecx
 		cmp     word ptr [edx + ecx*2], ax
 		jnz     loopcont
-		mov     eax, 1
+		xor		eax, eax
+		inc		eax
 		pop     edx
 		pop     ecx
 		ret
 loopend:
-		mov     eax, 0
+		xor		eax, eax
 		pop     edx
 		pop     ecx
 		ret
@@ -51,27 +52,27 @@ nonjedi:
 	}
 }
 
-void setJediMasterHooks ()
+void setJediMasterHooks()
 {
-	log ("Loading jedi master unit list");
-	FILE* f = fopen ("data\\master.txt", "rt");
+	log("Loading jedi master unit list");
+	FILE* f = fopen("data\\master.txt", "rt");
 	if (f)
 	{
 		int id;
 		nMasters = 0;
 		masters = 0;
 
-		while (fscanf (f, "%d", &id) > 0)
+		while (fscanf(f, "%d", &id) > 0)
 		{
 			nMasters++;
-			masters = (short*) realloc(masters, nMasters*sizeof(short));
-			masters [nMasters-1] = id;
+			masters = (short*)realloc(masters, nMasters * sizeof(short));
+			masters[nMasters - 1] = id;
 		}
 
-		fclose (f);
+		fclose(f);
 
-		setHook ((void*)0x0054B1D3, &jediMasterHook);
+		setHook((void*)0x0054B1D3, &jediMasterHook);
 	}
 	else
-		log ("Warning: master.txt not found, using default settings");
+		log("Warning: master.txt not found, using default settings");
 }

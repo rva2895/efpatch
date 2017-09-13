@@ -17,8 +17,8 @@ __declspec(naked) void cntrSet () //00413870
 		push    ebp
 		push    esi
 		mov     esi, ecx
-		push    00413878h
-		ret
+		mov		eax, 00413878h
+		jmp		eax
 	}
 }
 
@@ -60,8 +60,8 @@ __declspec(naked) void cntrContinue () //00413ADA
 _cntrNotFirst:
 		inc     eax
 		mov     buildersCntr, eax
-		push    00413AADh
-		ret
+		mov		ecx, 00413AADh
+		jmp		ecx
 	}
 }
 
@@ -87,11 +87,11 @@ __declspec(naked) void queryCntr () //0059F3EF
 		cmp     dword ptr [esp+1Ch], 2
 		jge     _noBuilders
 _builders:
-		push    0059F3FEh
-		ret
+		mov		eax, 0059F3FEh
+		jmp		eax
 _noBuilders:
-		push    0059F435h
-		ret
+		mov		eax, 0059F435h
+		jmp		eax
 	}
 }
 

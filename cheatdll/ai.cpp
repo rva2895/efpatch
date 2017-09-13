@@ -4,14 +4,17 @@
 #include "aiunitcount.h"
 #include "aibuilders.h"
 #include "aisnx.h"
+#include "aicommandunits.h"
 
-void setAIHooks ()
+void setAIHooks()
 {
 #ifdef _DEBUG
-	log ("Setting AI hooks:");
+	log("Setting AI hooks:");
 #endif
 
-	setAIBuildersCntrHooks ();
-	setAIUnitCountHooks ();
-	setAISNXHooks ();
+	setAIBuildersCntrHooks();
+	setAIUnitCountHooks();
+	setAISNXHooks();
+
+	setAICommandUnitsHooks();
 }

@@ -9,17 +9,21 @@
 
 void processIDOK (HWND hWnd)
 {
-	char buf [10];
 	CONFIG_DATA cd;
 	regGet(&cd);
+#ifndef _CHEATDLL_CC
+	char buf[10];
 	GetDlgItemText(hWnd, IDC_EDIT1, buf, 10);
 	sscanf(buf, "%d", &cd.nBufs);
 	GetDlgItemText(hWnd, IDC_EDIT2, buf, 10);
 	sscanf(buf, "%d", &cd.timeout);
+#endif
 	cd.useFPS = IsDlgButtonChecked(hWnd, IDC_CHECK_FPS);
 	cd.useDShook = IsDlgButtonChecked(hWnd, IDC_CHECK_DSH);
 	cd.askAtStartup = !IsDlgButtonChecked(hWnd, IDC_CHECK_ALWAYSRUN);
 	cd.unlockResources = IsDlgButtonChecked(hWnd, IDC_CHECK_UNLOCKRES);
+
+	cd.animatedWater = IsDlgButtonChecked(hWnd, IDC_CHECK_ANIMATED_WATER);
 
 	cd.largeMaps = IsDlgButtonChecked(hWnd, IDC_CHECK_MAP);
 
@@ -58,11 +62,21 @@ void getSettings (HWND hWnd)
 	CONFIG_DATA cd;
 	regGet (&cd);
 
+#ifdef _CHEATDLL_CC
+	cd.gameVersion = CC;
+	cd.largeMaps = 0;
+	cd.useDShook = 0;
+	cd.nBufs = 0;
+	cd.timeout = 0;
+#endif
+
 	CheckDlgButton (hWnd, IDC_CHECK_FPS, cd.useFPS);
 	CheckDlgButton (hWnd, IDC_CHECK_DSH, cd.useDShook);
 	CheckDlgButton (hWnd, IDC_CHECK_ALWAYSRUN, !cd.askAtStartup);
 	CheckDlgButton(hWnd, IDC_CHECK_UNLOCKRES, cd.unlockResources);
 	CheckDlgButton(hWnd, IDC_CHECK_EDITORAUTO, cd.editorAutosave);
+
+	CheckDlgButton(hWnd, IDC_CHECK_ANIMATED_WATER, cd.animatedWater);
 
 	EnableWindow(GetDlgItem(hWnd, IDC_EDIT_EDITORAUTO), cd.editorAutosave);
 
@@ -91,10 +105,19 @@ void getSettings (HWND hWnd)
 		CheckDlgButton (hWnd, IDC_RADIO3, BST_CHECKED);
 		CheckDlgButton (hWnd, IDC_RADIO4, BST_UNCHECKED);
 	}
+
+#ifdef _CHEATDLL_CC
+	EnableWindow(GetDlgItem(hWnd, IDC_RADIO2), FALSE);
+	EnableWindow(GetDlgItem(hWnd, IDC_CHECK_DSH), FALSE);
+	EnableWindow(GetDlgItem(hWnd, IDC_EDIT1), FALSE);
+	EnableWindow(GetDlgItem(hWnd, IDC_EDIT2), FALSE);
+	EnableWindow(GetDlgItem(hWnd, IDC_CHECK_MAP), FALSE);
+#else
 	sprintf(buf, "%d", cd.nBufs);
 	SetDlgItemText (hWnd, IDC_EDIT1, buf);
 	sprintf(buf, "%d", cd.timeout);
 	SetDlgItemText (hWnd, IDC_EDIT2, buf);
+#endif
 	sprintf(buf, "%d", cd.editorAutosaveInterval);
 	SetDlgItemText(hWnd, IDC_EDIT_EDITORAUTO, buf);
 
@@ -196,10 +219,7 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 			processDefaults (hWndDlg);
 
 			break;
-		//case IDC_BUTTON_ASSOC:
 
-
-		//	break;
 		/*case IDC_BUTTON1:
 			{
 				GetDlgItemText (hWndDlg, IDC_COMBO1, buf, 255);

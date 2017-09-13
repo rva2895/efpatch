@@ -2,74 +2,74 @@
 
 #include "textcolor.h"
 
-__declspec(naked) int colors1 () //put on 004F9C5C
+__declspec(naked) int colors1() //put on 004F9C5C
 {
 	__asm
 	{
-		test  eax, eax
-		jz    find
-		mov   esi, 6
-		push  004F9C65h
-		ret
+		test	eax, eax
+		jz		find
+		mov		esi, 6
+		mov		eax, 004F9C65h
+		jmp		eax
 find:
-		push  ebx
-		push  edi
-		call  getColor
-		add   esp, 4
-		cmp   eax, -1
-		jnz   setColor
-		pop   ebx
-		push  004F9C71h
-		ret
+		push	ebx
+		push	edi
+		call	getColor
+		add		esp, 4
+		cmp		eax, -1
+		jnz		setColor
+		pop		ebx
+		mov		eax, 004F9C71h
+		jmp		eax
 setColor:
 		//AH - color palette index
 		//AL - strlen
 		//mov   ebx, eax
 		//shr   ebx, 8
-		pop   ebx
-		mov   byte ptr [esp + 14h], ah
+		pop		ebx
+		mov		byte ptr[esp + 14h], ah
 		cbw
 		cwde
-		mov   esi, eax
-		mov   byte ptr [esp + 20h], 0
-		push  4F9CB1h
-		ret
+		mov		esi, eax
+		mov		byte ptr[esp + 20h], 0
+		mov		eax, 004F9CB1h
+		jmp		eax
 	}
 }
 
-__declspec(naked) int colors2 () //put on 004F967A
+__declspec(naked) int colors2() //put on 004F967A
 {
 	__asm
 	{
-		test  eax, eax
-		jz    find
-		mov   byte ptr [esi], 0FBh
-		push  004F9681h
-		ret
+		test	eax, eax
+		jz		find
+		mov		byte ptr [esi], 0FBh
+		mov		eax, 004F9681h
+		jmp		eax
 find:
-		push  ebx
-		mov   edx, [ebx]
-		push  edx
-		call  getColor
-		add   esp, 4
-		cmp   eax, -1
-		jnz   setColor
-		pop   ebx
-		push  004F9695h
-		ret
+		push	ebx
+		mov		edx, [ebx]
+		push	edx
+		call	getColor
+		add		esp, 4
+		cmp		eax, -1
+		jnz		setColor
+		pop		ebx
+		mov		eax, 004F9695h
+		jmp		eax
 setColor:
 		//AH - color palette index
 		//AL - strlen
 		//mov   ebx, eax
 		//shr   ebx, 8
-		pop   ebx
-		mov   byte ptr [esi], ah
+		pop		ebx
+		mov		byte ptr [esi], ah
 		cbw
 		cwde
-		mov   byte ptr [edi], 0
-		mov   ecx, [ebx]
-		push  004F968Bh
-		ret
+		mov		byte ptr [edi], 0
+		mov		ecx, [ebx]
+		mov		edi, 004F968Bh
+		jmp		edi
 	}
 }
 
@@ -103,24 +103,24 @@ COLOR_NAME_ASSIGN COLOR_NAMES [] =
 	113, "PLUM"
 };
 
-int getIndexByName (char* name)
+int getIndexByName(char* name)
 {
-	for (int i = 0; i < (sizeof (COLOR_NAMES) / sizeof (COLOR_NAME_ASSIGN)); i++)
-		if (!strcmp (COLOR_NAMES[i].name, name))
+	for (int i = 0; i < (sizeof(COLOR_NAMES) / sizeof(COLOR_NAME_ASSIGN)); i++)
+		if (!strcmp(COLOR_NAMES[i].name, name))
 			return COLOR_NAMES[i].color;
 	return -1;
 }
 
 #define MAX_STR_N 20
 
-int getColor (char* str)
+int getColor(char* str)
 {
 	if (str[0] != '<')      //no color specifier - return error
 		return -1;
 
 	int isIndex = 1;
 	int c;
-	char nStr [MAX_STR_N];
+	char nStr[MAX_STR_N];
 	char* nStrp = nStr;
 
 	char* strp = str;
@@ -144,11 +144,11 @@ int getColor (char* str)
 	}
 	*nStrp = 0;
 
-	if ( (*nStr == 'C') || (*nStr == 'c') )
+	if ((*nStr == 'C') || (*nStr == 'c'))
 	{                       //color index is entered
 		nStrp = nStr;
 		while (*++nStrp)
-			if ( (*nStrp < '0') || (*nStrp > '9') )
+			if ((*nStrp < '0') || (*nStrp > '9'))
 				isIndex = 0;
 	}
 	else
@@ -156,8 +156,8 @@ int getColor (char* str)
 
 	if (isIndex)
 	{
-		sscanf (nStr+1, "%d", &c);
-		if ( (c < 0) || (c > 255) )
+		sscanf(nStr + 1, "%d", &c);
+		if ((c < 0) || (c > 255))
 			return -1;      //invalid index - return error
 		else
 		{
@@ -168,7 +168,7 @@ int getColor (char* str)
 	}
 	else
 	{
-		c = getIndexByName (nStr);
+		c = getIndexByName(nStr);
 		if (c == -1)
 			return -1;      //color not found - return error
 		else
@@ -180,12 +180,12 @@ int getColor (char* str)
 	}
 }
 
-void setTextColorHooks ()
+void setTextColorHooks()
 {
 #ifdef _DEBUG
-	log ("Setting text colour hooks...");
+	log("Setting text colour hooks...");
 #endif
 
-	setHook ((void*)0x004F9C5C, &colors1);
-	setHook ((void*)0x004F967A, &colors2);
+	setHook((void*)0x004F9C5C, &colors1);
+	setHook((void*)0x004F967A, &colors2);
 }

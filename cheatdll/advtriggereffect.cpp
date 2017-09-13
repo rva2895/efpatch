@@ -351,8 +351,6 @@ bool isVarAllowed(void* unitData, int i)
 
 void __stdcall advTriggerEffectActual (void* unitData, char* s)
 {
-
-
 	char type;
 	char command[50];
 	char variable[50];
@@ -508,17 +506,10 @@ void __declspec(naked) advTriggerEffect ()
 {
 	__asm
 	{
-		push    eax
-		push    ecx
-		push    edx
 		mov     eax, [edi+6Ch]
 		push    eax //string
 		push    esi //property object
 		call    advTriggerEffectActual
-
-		pop     edx
-		pop     ecx
-		pop     eax
 		ret
 	}
 }

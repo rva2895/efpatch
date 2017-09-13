@@ -221,10 +221,10 @@ __declspec(naked) int terrain1 ()
 		push    29B8h
 		call    esi
 		//////////////////
-		mov     ecx, [edi]
-		push    55
-		push    1h
-		call    esi
+		//mov     ecx, [edi]
+		//push    55
+		//push    1h
+		//call    esi
 		//mov     ecx, [edi]
 		//push    36h
 		//push    2h
@@ -235,8 +235,8 @@ __declspec(naked) int terrain1 ()
 		//push    35h
 		//push    1389h
 		//call    terrFunc1
-		push    52A388h
-		ret
+		mov		ecx, 0052A388h
+		jmp		ecx
 	}
 }
 
@@ -461,10 +461,10 @@ __declspec(naked) int terrain2 ()
 		push    29B8h
 		call    esi
 		//////////
-		mov     ecx, ebx
-		push    55
-		push    1h
-		call    esi
+		//mov     ecx, ebx
+		//push    55
+		//push    1h
+		//call    esi
 		//mov     ecx, ebx
 		//push    36h
 		//push    2h
@@ -481,17 +481,17 @@ __declspec(naked) int terrain2 ()
 		push    13
 		call    terrainFunc2*/
 
-		push    53B53Bh
-		ret
+		mov		ecx, 0053B53Bh
+		jmp		ecx
 	}
 }
 
-void setTerrainLoadHooks ()
+void setTerrainLoadHooks()
 {
 #ifdef _DEBUG
-	log ("Setting terrain list load hooks...");
+	log("Setting terrain list load hooks...");
 #endif
 
-	setHook ((void*)0x0052A30A, &terrain1);
-	setHook ((void*)0x0053B3C1, &terrain2);
+	setHook((void*)0x0052A30A, &terrain1);
+	setHook((void*)0x0053B3C1, &terrain2);
 }
