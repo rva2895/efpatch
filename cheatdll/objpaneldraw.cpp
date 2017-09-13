@@ -16,7 +16,7 @@ extern void* objPanelPtr;
 
 extern int(__thiscall* objPanelDrawItem) (void*, int, int, int, int, int, int, int, int);
 
-void __cdecl objPanel (void* unit)
+void __cdecl objPanel(void* unit)
 {
 	//50731 - SLP in interfac.drs
 	//if (unit)
@@ -25,16 +25,15 @@ void __cdecl objPanel (void* unit)
 	if (!currentPlayer)
 		return;
 
-	memset (is2ndCol, 0, 0x10);
+	memset(is2ndCol, 0, 0x10);
 	//is2ndCol [itemCounter] = 1;
 	//is2ndCol [itemCounter+1] = 1;
 	int cntr = 4;
 	int localItemCounter = itemCounter;
 	int val;
 
-	void* propObj = *(void**)((int)unit+0x14);
-	short id = *(short*)((int)propObj+0x18);
-	float workrate;
+	void* propObj = *(void**)((int)unit + 0x14);
+	short id = *(short*)((int)propObj + 0x18);
 
 	int worker = 0;
 	int frame;
@@ -80,7 +79,7 @@ void __cdecl objPanel (void* unit)
 			}
 
 			val = res * 100;
-			objPanelDrawItem (objPanelPtr, localItemCounter++, frame, 6, val, 0, 0, 0, langID);
+			objPanelDrawItem(objPanelPtr, localItemCounter++, frame, 6, val, 0, 0, 0, langID);
 		}
 	}
 
@@ -135,41 +134,32 @@ void __cdecl objPanel (void* unit)
 		objPanelDrawItem (localItemCounter++, frame, 6, val, 0, 0, 0, langID);
 	}*/
 
-	if (*(unsigned char*)((int)propObj+4) >= 70)
+	if (*(unsigned char*)((int)propObj + 4) >= 70)
 	{
-		float speed = *(float*)((int)propObj+0xD0);
+		float speed = *(float*)((int)propObj + 0xD0);
 		if (speed > 0.0f)
 		{
 			val = speed * 100;
-			is2ndCol [localItemCounter++] = 1;
-			objPanelDrawItem (objPanelPtr, cntr++, 24, 6, val, 0, 0, 0, 42042);
+			is2ndCol[localItemCounter++] = 1;
+			objPanelDrawItem(objPanelPtr, cntr++, 24, 6, val, 0, 0, 0, 42042);
 		}
 
-		float reloadtime = *(float*)((int)propObj+0x150);
-		short proj = *(short*)((int)propObj+0x154);
-		short cls = *(short*)((int)propObj+0x01E);
+		float reloadtime = *(float*)((int)propObj + 0x150);
+		short proj = *(short*)((int)propObj + 0x154);
+		short cls = *(short*)((int)propObj + 0x01E);
 		if ((reloadtime > 0.0f) && ((proj != -1) || (cls != 18)))
 		{
 			val = reloadtime * 100;
-			is2ndCol [localItemCounter++] = 1;
-			objPanelDrawItem (objPanelPtr, cntr++, 30, 6, val, 0, 0, 0, 42043);
+			is2ndCol[localItemCounter++] = 1;
+			objPanelDrawItem(objPanelPtr, cntr++, 30, 6, val, 0, 0, 0, 42043);
 		}
 
-		float blastr = *(float*)((int)propObj+0x148);
+		float blastr = *(float*)((int)propObj + 0x148);
 		if (blastr > 0.0f)
 		{
 			val = blastr * 100;
-			is2ndCol [localItemCounter++] = 1;
-			objPanelDrawItem (objPanelPtr, cntr++, 28, 6, val, 0, 0, 0, 42044);
+			is2ndCol[localItemCounter++] = 1;
+			objPanelDrawItem(objPanelPtr, cntr++, 28, 6, val, 0, 0, 0, 42044);
 		}
 	}
-
-	
-	/*objPanelDrawItem (0, 2, 0, 1, 2, 3, 4, 42013);
-	objPanelDrawItem (1, 2, 1, 1, 2, 3, 4, 42013);
-	objPanelDrawItem (2, 2, 2, 1, 2, 3, 4, 42013);
-	objPanelDrawItem (3, 2, 3, 1, 2, 3, 4, 42013);
-	objPanelDrawItem (4, 2, 4, 1, 2, 3, 4, 42013);
-	objPanelDrawItem (5, 2, 5, 1, 2, 3, 4, 42013);
-	objPanelDrawItem (0, 2, 5, 1, 2, 3, 4, 42013);*/
 }

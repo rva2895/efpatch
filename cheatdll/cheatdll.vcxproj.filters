@@ -43,6 +43,12 @@
     <Filter Include="Файлы исходного кода\ui">
       <UniqueIdentifier>{8d303b71-108b-4376-a4a3-16f023659424}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы исходного кода\graphics">
+      <UniqueIdentifier>{91c4113f-daed-4ede-8364-73dd4870ccc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\graphics">
+      <UniqueIdentifier>{a214b077-c60a-4cc3-893c-12497fcf6e39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -239,6 +245,15 @@
     <ClInclude Include="editorstatus.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
+    <ClInclude Include="aicommandunits.h">
+      <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="cliff.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="animatedterrain.h">
+      <Filter>Заголовочные файлы\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="advcheat.cpp">
@@ -432,6 +447,15 @@
     </ClCompile>
     <ClCompile Include="editorstatus.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="aicommandunits.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="cliff.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="animatedterrain.cpp">
+      <Filter>Файлы исходного кода\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

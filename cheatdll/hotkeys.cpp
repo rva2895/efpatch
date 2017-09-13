@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#ifndef _CHEATDLL_CC
+
 char hotkeys [] = {
 	1,  7,  6, //monitor
 	2,  8,  4, //interceptor
@@ -372,8 +374,11 @@ _no_id:
 	}
 }
 
+#endif
+
 void setHotkeyHooks ()
 {
+#ifndef _CHEATDLL_CC
 	setGroupNumbers ();
 
 	setHook ((void*)0x005625C1, &hotkeyOptionsLoad);
@@ -395,4 +400,5 @@ void setHotkeyHooks ()
 	setInt (0x005647B4, (int)hotkeyDefaultsGroup10);
 	
 	setHook ((void*)0x00564ACF, &group18_fix);
+#endif
 }

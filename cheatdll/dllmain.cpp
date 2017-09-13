@@ -53,6 +53,8 @@
 #include "mapsize.h"
 #include "autosave.h"
 #include "editorstatus.h"
+#include "cliff.h"
+#include "animatedterrain.h"
 #include "registry.h"
 #include "crashreporter.h"
 #include "rundll.h"
@@ -216,47 +218,43 @@ retrn:
 
 CONFIG_DATA cd;
 
-void getSettings ()
+void getSettings()
 {
-	regGet (&cd);
+	regGet(&cd);
 
-	bool key = GetAsyncKeyState (VK_SHIFT);
+	bool key = GetAsyncKeyState(VK_SHIFT);
 
 	if (cd.askAtStartup || key)
 	{
-		DialogBox (GetModuleHandle("efpatch.dll"), MAKEINTRESOURCE(IDD_DIALOG1_), 0, MainDlgProc);
+		DialogBox(GetModuleHandle("efpatch.dll"), MAKEINTRESOURCE(IDD_DIALOG1_), 0, MainDlgProc);
 
-		regGet (&cd);
+		regGet(&cd);
 	}
 }
 
 //int cntr = 0;
 
-void __stdcall fixCur (HWND hWnd, LPRECT rect)
+void __stdcall fixCur(HWND hWnd, LPRECT rect)
 {
-	GetClientRect (hWnd, rect);
-	SetCursor (0);
+	GetClientRect(hWnd, rect);
+	SetCursor(0);
 	//cntr++;
 	//if (!(cntr % 1000))
 	//	MessageBox (hWnd, "1000 calls", "wow thats a lot", 0);
 }
 
-__declspec(naked) void wndtmp () //00616C0F
+__declspec(naked) void wndtmp() //00616C0F
 {
 	__asm
 	{
-		push    00616C15h
-		jmp     fixCur
+		push	00616C15h
+		jmp		fixCur
 	}
 }
 
 void setHooksCC()
 {
 	log("Setting EF-independent hooks...");
-
-#ifdef _CHEATDLL_CC_DEBUG
-	cd.windowMode = 1;
-#endif
 
 	if (cd.windowMode)
 	{
@@ -281,9 +279,9 @@ void setHooksCC()
 		//		MB_ICONERROR);
 	}
 
-	//#ifdef _CHEATDLL_CC_DEBUG
+#ifdef _DEBUG
 	setAdvCheatHooks();
-	//#endif
+#endif
 
 		//Trigger object overflow fix
 		//setByte(0x5F2AF8, 0x65);
@@ -307,27 +305,33 @@ void setHooksCC()
 
 	setRmsEditorHooks();
 
-	setObjectPanelHooks();
-
+#ifndef _CC_COMPATIBLE
 	setVotePanelHooks();
+#endif
 
 	setFlareHooks();
 
 	setEditorEnhHooks();
 
+#ifndef _CHEATDLL_CC
 	if (cd.largeMaps)
 		setMapSizeHooks();
 	else
+#endif
 		setMapSizeHooks_legacy();
 
 #ifdef _CHEATDLL_CC
+#ifndef _CC_COMPATIBLE
 	setTerrainGenHooks();
 	setSaveGameVersionHooks();
+#endif
 #endif
 	//
 	setFileNameHooks();
 
+#ifndef _CC_COMPATIBLE
 	setPopulationHooks();
+#endif
 
 	setResearchRepeatHooks();
 
@@ -337,6 +341,16 @@ void setHooksCC()
 
 	if (cd.editorAutosave)
 		setAutosaveHooks(cd.editorAutosaveInterval);
+
+	setDRSLoadHooks(cd.gameVersion, cd.widescrnEnabled);
+
+	setTriggerDescHooks();
+
+#ifndef _CC_COMPATIBLE
+	setEditorStatusHooks();
+#endif // !_CC_COMPATIBLE
+
+	setTerrainLoadHooks();
 }
 
 __declspec(naked) void sc1Hook ()
@@ -358,21 +372,14 @@ void setHooksEF()
 
 	setStartupLoadHooks();
 
-	setDRSLoadHooks(cd.gameVersion, cd.widescrnEnabled);
-
 	//setExtraTerrainHooks();
-	setTerrainLoadHooks();
 
 	//setHook ((void*)0x004B13A0, &pathFindHook);
-
-	setPopulationHooks();
 
 	//setHook ((void*)0x004C1850, &prefabRes1);
 	//setHook ((void*)0x005F9796, &flash);
 
 	//setHook ((void*)0x005F395D, &origPatrolEnding);
-
-	setResearchRepeatHooks();
 
 	fixIconLoadingRoutines();
 	fixCivLetterFunction();
@@ -394,19 +401,14 @@ void setHooksEF()
 
 	setTextColorHooks();
 
+	setObjectPanelHooks();
+
 	initCivUnitTable();
 	initCivResearchTable();
 
 	setResCheatHooks();
 
-	setConditionHooks();
-	setEffectHooks();
-
-	setTriggerDescHooks();
-
-#ifndef _CHEATDLL_CC
 	setCastHooks();
-#endif
 
 	setAIHooks();
 
@@ -416,9 +418,9 @@ void setHooksEF()
 
 	setProcessUnitHooks();
 
-	setEditorStatusHooks();
-
 	//setTerrainAmount ();
+
+	setCliffTypeHooks();
 
 	//disabled units crash
 	setByte(0x00539793, 0x02); //esp
@@ -438,20 +440,25 @@ void setHooksEF()
 	setByte(0x005397E1, CIV_COUNT + 1);
 	setByte(0x005397D0, 0xE0);
 
+	if (!cd.animatedWater)
+		setAnimatedTerrainHooks();
+
 	log("setHooks () finished");
 }
 
-char verStr2 [] = "1.2e";
-char verStr3 [] = "1.3e";
-char verStr4 [] = "1.4e";
-char verStr5 [] = "1.5e";
-char verStr6 [] = "1.6e";
-char verStr7 [] = "1.7e";
-char verStr8 [] = "1.8e";
-char verStr9 [] = "1.9e";
-char ver1x [] = "1.X";
+char verStr2[] = "1.2e";
+char verStr3[] = "1.3e";
+char verStr4[] = "1.4e";
+char verStr5[] = "1.5e";
+char verStr6[] = "1.6e";
+char verStr7[] = "1.7e";
+char verStr8[] = "1.8e";
+char verStr9[] = "1.9e";
+char ver1x[] = "1.X";
 
 char verCC3 [] = "1.3";
+char verCC4[] = "1.4";
+char verCC5[] = "1.5";
 
 __declspec(naked) void verHookEF () //0042C3E1
 {
@@ -502,7 +509,7 @@ _1_9e:
 	}
 }
 
-__declspec(naked) void verHookCC () //0042C3E1
+__declspec(naked) void verHookCC() //0042C3E1
 {
 	__asm
 	{
@@ -516,43 +523,48 @@ _1_3:
 	}
 }
 
-void updateVersionEF ()
+void updateVersionEF()
 {
-	setByte (0x00689534, 4); //EF 1.3e
+	setByte(0x00689534, 4); //EF 1.3e
 	//strcpy ((char*)0x00689BA4, verStr);
-	setHook ((void*)0x0042C3E1, &verHookEF);
+	setHook((void*)0x0042C3E1, &verHookEF);
 }
 
-void updateVersionCC ()
+void updateVersionCC()
 {
-	setByte (0x00689534, 3); //CC 1.3
+#ifndef _CC_COMPATIBLE
+	setByte(0x00689534, 3); //CC 1.3
 	//strcpy ((char*)0x00689BA4, verStr);
-	setHook ((void*)0x0042C3E1, &verHookCC);
+	setHook((void*)0x0042C3E1, &verHookCC);
+#endif // !_CC_COMPATIBLE
 }
 
-void fixCurrentDir ()
+void fixCurrentDir()
 {
-	char fname [256];
-	GetModuleFileName (0, fname, 255);
-	char* p = fname+strlen(fname);
+	char fname[256];
+	GetModuleFileName(0, fname, 255);
+	char* p = fname + strlen(fname);
 	while (*--p != '\\');
 	*p = 0;
-	SetCurrentDirectory (fname);
+	SetCurrentDirectory(fname);
 }
 
 void initialSetup()
 {
 	getSettings();
 
-	log("Settings: fps=%d,ds=%d,b=%d,to=%d,v=%d,a=%d,"
-		"civl=%d,res=%d,auto=%d,autoint=%d,"
-		"wide=%d,wx=%d,wy=%d,wind=%d",
-		cd.useFPS, cd.useDShook, cd.nBufs, cd.timeout, cd.gameVersion, cd.askAtStartup,
-		cd.useAltCivLetter, cd.unlockResources, cd.editorAutosave, cd.editorAutosaveInterval,
+	log("Settings (1/4): fps = %d, ds = %d, b = %d, to = %d, v = %d, a = %d",
+		cd.useFPS, cd.useDShook, cd.nBufs, cd.timeout, cd.gameVersion, cd.askAtStartup);
+	log("Settings (2/4): civl = %d, res = %d, auto = %d, autoint = %d",
+		cd.useAltCivLetter, cd.unlockResources, cd.editorAutosave, cd.editorAutosaveInterval);
+	log("Settings (3/4): wide = %d, wx = %d, wy = %d, wnd = %d",
 		cd.widescrnEnabled, cd.xres, cd.yres, cd.windowMode);
+	log("Settings (4/4): large = %d, aniw = %d",
+		cd.largeMaps, cd.animatedWater);
 
 	//setTestHook ();
 
+#ifndef _CHEATDLL_CC
 	switch (cd.gameVersion)
 	{
 	case CC:
@@ -572,12 +584,21 @@ void initialSetup()
 	default:
 		break;
 	}
+#else
+	cd.gameVersion = CC;
+	revertToX1();     //for EF
+	setHooksCC();
+
+	updateVersionCC();
+#endif
 
 	if (cd.widescrnEnabled)
 		resolutionTool(cd.xres, cd.yres);
 
+#ifndef _CHEATDLL_CC
 	if (cd.useDShook)
 		initDsoundhook();
+#endif
 	if (!cd.useFPS)
 	{
 		unsigned char fps = 0x20;
@@ -587,26 +608,36 @@ void initialSetup()
 	log("Initial setup complete, returning");
 }
 
-BOOL __stdcall DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-					 )
+BOOL __stdcall DllMain(HMODULE hModule,
+	DWORD  ul_reason_for_call,
+	LPVOID lpReserved
+)
 {
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
+#ifndef _CHEATDLL_CC
 		fixCurrentDir();   //for EF
+#endif
 
 		initLog();
 		log("===============================================");
 		log("Dll attached");
 		log("===============================================");
 
-		log("Compile time: %s, %s", __DATE__, __TIME__);
+		log("Compile time: " __DATE__ ", " __TIME__);
 #ifdef _DEBUG
+#ifdef _CHEATDLL_CC
+		log("Configuration: DEBUG_CC");
+#else
 		log("Configuration: DEBUG");
+#endif
+#else
+#ifdef _CHEATDLL_CC
+		log("Configuration: RELEASE_CC");
 #else
 		log("Configuration: RELEASE");
+#endif
 #endif
 
 		break;
@@ -615,10 +646,10 @@ BOOL __stdcall DllMain( HMODULE hModule,
 	case DLL_THREAD_DETACH:
 		break;
 	case DLL_PROCESS_DETACH:
-		log ("===============================================");
-		log ("DLL detached");
-		log ("===============================================");
-		closeLog ();
+		log("===============================================");
+		log("DLL detached");
+		log("===============================================");
+		closeLog();
 
 		break;
 	default:

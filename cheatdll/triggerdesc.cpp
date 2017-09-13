@@ -24,23 +24,25 @@ const char* condNames[] =
 	"Player Defeated",
 	"Object Has Target",
 	"Object Visible",
-	"Object not Visible",	//0x10
+	"Object Not Visible",	//0x10
 	"Researching Tech",
 	"Units Garrisoned",
 	"Difficulty",
 	"Own Fewer Foundations",
-	"Selected Obj in Area",
-	"Powered Obj in Area",
-	"Units queued past pop cap",
-	"Per mille chance",		//0x18
+	"Selected Obj In Area",
+	"Powered Obj In Area",
+	"Units Queued Past Pop Cap",
+	"Per Mille Chance",		//0x18
 	"Area Explored",
-	"Alliance State"
+	"Alliance",
+	"Var",
+	"Var"
 };
 
 const char* effectNames[] =
 {
 	"None",
-	"Change Alliance",
+	"Alliance",
 	"Research Tech",
 	"Chat",
 	"Play Sound",
@@ -118,12 +120,49 @@ void __stdcall c_attrib(condition* p, int)
 	sprintf(s + strlen(s), " (%s: %d)", resourceNames[p->attrib_list], p->quantity);
 }
 
+void __stdcall c_player(condition* p, int)
+{
+	sprintf(s + strlen(s), " (P%d)", p->player);
+}
+
+char* alliance_states[] =
+{
+	"Ally",
+	"Neutral",
+	0,
+	"Enemy"
+};
+
+void __stdcall c_alliance_state(condition* p, int)
+{
+	sprintf(s + strlen(s), " (P%d->P%d: %s)", p->player, p->timer, alliance_states[p->ai_signal]);
+}
+
+extern char* var_names[];
+
+void __stdcall c_var(condition* p, int)
+{
+	char* op;
+	switch (p->id)
+	{
+	case 0x1B:
+		(p->trigger & 1) ? op = ">=" : op = "<";
+		break;
+	case 0x1C:
+		(p->trigger & 1) ? op = "=" : op = "!=";
+		break;
+	default:
+		break;
+	}
+	sprintf(s + strlen(s), " (%s %s %d)", var_names[p->ai_signal], op, p->timer);
+}
+
 void(__stdcall* condPrint[]) (condition*, int) =
 {
 	nullsub, //none
 	nullsub, //bring obj to obj
 	nullsub, //bring obj to area
-	nullsub, //own obj
+	c_quantity, //own obj
 	c_quantity, //own fewer obj
 	c_quantity, //obj in area
 	nullsub, //dest obj
@@ -133,7 +172,7 @@ void(__stdcall* condPrint[]) (condition*, int) =
 	c_timer, //timer
 	nullsub, //obj sel
 	nullsub, //ai sign
-	nullsub, //pl def
+	c_player, //pl def
 	nullsub, //obj has t
 	nullsub, //obj vis
 	nullsub, //obj not vis
@@ -146,7 +185,9 @@ void(__stdcall* condPrint[]) (condition*, int) =
 	nullsub, //units q past pop cap
 	c_quantity, //per mille chance
 	c_quantity, //area explored
-	c_quantity //alliance state
+	c_alliance_state, //alliance state
+	c_var, //var ge
+	c_var //var e
 };
 
 void __stdcall e_send_chat(effect* p, int)
@@ -217,10 +258,15 @@ void __stdcall e_trigger(effect* p, int)
 		strcpy(s + strlen(s), " (none)");
 }
 
+void __stdcall e_alliance(effect* p, int)
+{
+	sprintf(s + strlen(s), " (P%d->P%d: %s)", p->source_player, p->target_player, alliance_states[p->alliance]);
+}
+
 void(__stdcall* effectPrint[]) (effect*, int) =
 {
 	nullsub, //none
-	nullsub, //change alliance
+	e_alliance, //change alliance
 	e_player_tech, //research tech
 	e_send_chat, //send chat
 	nullsub, //play sound
@@ -263,7 +309,7 @@ void(__stdcall* effectPrint[]) (effect*, int) =
 	e_quantity, //remove ability
 	e_str, //change data
 	e_str, //change prop obj
-	nullsub, //explore
+	e_player, //explore
 	e_str, //change var
 };
 
@@ -294,8 +340,8 @@ __declspec(naked) void onCondition() //0053D96B
 		//edx - string
 		mov		edx, s
 		mov		ecx, [esi + 0DACh]
-		push	0053D9BDh
-		ret
+		mov		eax, 0053D9BDh
+		jmp		eax
 	}
 }
 
@@ -311,8 +357,8 @@ __declspec(naked) void onEffect() //0053DA8D
 		//edx - string
 		mov		edx, s
 		mov		ecx, [esi + 0DACh]
-		push	0053DADFh
-		ret
+		mov		eax, 0053DADFh
+		jmp		eax
 	}
 }
 

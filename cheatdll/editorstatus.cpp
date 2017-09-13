@@ -26,7 +26,9 @@ HFONT hFont;
 bool editorstatus_isValid = false;
 bool background_initialised = false;
 
-#define RECT_X 200
+#define RECT_RIGHT_OFFSET 380
+
+#define RECT_X 300
 #define RECT_Y 40
 
 extern int placementSettings;
@@ -40,7 +42,7 @@ void initBackground(HDC hdc)
 
 	h_background = SelectObject(hdc_background, hbm_background);
 
-	BitBlt(hdc_background, 0, 0, RECT_X, RECT_Y, hdc, getWindowX()-280, 5, SRCCOPY);
+	BitBlt(hdc_background, 0, 0, RECT_X, RECT_Y, hdc, getWindowX() - RECT_RIGHT_OFFSET, 5, SRCCOPY);
 
 	hFont = CreateFont(15, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
 		OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
@@ -75,6 +77,8 @@ void DrawText_outline(HDC hdc, RECT* r, const char* str)
 char status_On[] = "On";
 char status_Off[] = "Off";
 
+extern int cliff_type;
+
 void paintOnScreen(HDC hdc)
 {
 	if (!background_initialised)
@@ -104,12 +108,38 @@ void paintOnScreen(HDC hdc)
 
 		sprintf(buf, "Grid placement: %s\nCollision enabled: %s", status_grid, status_collision);
 
+		r.right -= 160;
+		DrawText_outline(hdc_full, &r, buf);
+
+		char* cliff_txt;
+		switch (cliff_type)
+		{
+		case 0x108:
+			cliff_txt = "Standard";
+			break;
+		case 3971:
+			cliff_txt = "Gray 1";
+			break;
+		case 3981:
+			cliff_txt = "Gray 2";
+			break;
+		case 3991:
+			cliff_txt = "Brown";
+			break;
+		default:
+			cliff_txt = "Error!";
+			break;
+		}
+
+		sprintf(buf, "Cliff: %s", cliff_txt);
+		r.right += 160;
+		r.left += 160;
 		DrawText_outline(hdc_full, &r, buf);
 
 		editorstatus_isValid = true;
 	}
 
-	BitBlt(hdc, getWindowX()-280, 5, RECT_X, RECT_Y, hdc_full, 0, 0, SRCCOPY);
+	BitBlt(hdc, getWindowX() - RECT_RIGHT_OFFSET, 5, RECT_X, RECT_Y, hdc_full, 0, 0, SRCCOPY);
 
 	SelectObject(hdc_background, h_background);
 	SelectObject(hdc_full, h_full);

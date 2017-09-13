@@ -164,7 +164,7 @@ void __cdecl log (const char* format, ...)
 		//memset (lastLogs [logged % 3], 0, 500);
 		vsprintf (lastLogs [logged % 12], format, ap);
 		logged ++;
-		fputs ("\x0D\x0A", f);
+		fputs ("\x0A", f);
 		va_end (ap);
 	}
 #endif

@@ -12,38 +12,32 @@ void expl4 ();
 short* explIDs;
 int nExplIDs;
 
-SET_HOOK_ASSIGN explDroidHooks [] =
+void initExplDroid()
 {
-	{(void*)0x0040215F, &expl1},
-	{(void*)0x0055A881, &expl2},
-	{(void*)0x0055BE40, &expl3},
-	{(void*)0x005B6DF2, &expl4}
-};
-
-void initExplDroid ()
-{
-	log ("Loading suicide attack unit list");
-	FILE* f = fopen ("data\\expl.txt", "rt");
+	log("Loading suicide attack unit list");
+	FILE* f = fopen("data\\expl.txt", "rt");
 	if (f)
 	{
 		int id;
 		nExplIDs = 0;
 		explIDs = 0;
 
-		while (fscanf (f, "%d", &id) > 0)
+		while (fscanf(f, "%d", &id) > 0)
 		{
 			nExplIDs++;
-			explIDs = (short*) realloc (explIDs, nExplIDs*sizeof(short));
-			explIDs [nExplIDs-1] = id;
+			explIDs = (short*)realloc(explIDs, nExplIDs * sizeof(short));
+			explIDs[nExplIDs - 1] = id;
 		}
 
-		fclose (f);
+		fclose(f);
 
-		for (int i = 0; i < (sizeof(explDroidHooks)/sizeof(explDroidHooks[0])); i++)
-			setHook (explDroidHooks[i].addr, explDroidHooks[i].newAddr);
+		setHook((void*)0x0040215F, &expl1);
+		setHook((void*)0x0055A881, &expl2);
+		setHook((void*)0x0055BE40, &expl3);
+		setHook((void*)0x005B6DF2, &expl4);
 	}
 	else
-		log ("Warning: expl.txt not found, using default settings");
+		log("Warning: expl.txt not found, using default settings");
 }
 
 __declspec(naked) void isExpl () //bx = ID

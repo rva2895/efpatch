@@ -1,9 +1,10 @@
 #include "stdafx.h"
 
 #include "conditions.h"
+#include "triggerdesc.h"
 #include "autosave.h"
 
-#define NEW_COND 3
+#define NEW_COND 5
 
 #define ALLIANCE_ALLY 0
 #define ALLIANCE_NEUTRAL 1
@@ -36,20 +37,21 @@ int condJMPTable [] =
 	0x5F1E25,
 	0x90909090,
 	0x90909090,
+	0x90909090,
+	0x90909090,
 	0x90909090
 };
 
 void conditionAreaExplored();
 void conditionAlliance();
-
-const char sss [] = "wew lad";
+void conditionVariable();
 
 __declspec(naked) void condNotMet ()
 {
 	__asm
 	{
-		push    005F2626h
-		ret
+		mov		ebx, 005F2626h
+		jmp		ebx
 	}
 }
 
@@ -57,8 +59,8 @@ __declspec(naked) void condMet ()
 {
 	__asm
 	{
-		push    005F1E95h
-		ret
+		mov		ebx, 005F1E95h
+		jmp		ebx
 	}
 }
 
@@ -88,12 +90,17 @@ void setConditionNumbers ()
 	setByte (0x005F5548, 0x60+4*NEW_COND);
 	setByte (0x0053BD77, 0x18+NEW_COND);
 
+	setByte(0x005F5565, 0x17 + NEW_COND);
+	setByte(0x005F554E, 0x17 + NEW_COND);
+
 	setInt (0x005F1E21, (int)condJMPTable);
 	setByte (0x005F1E17, 0x16+NEW_COND);
 
 	condJMPTable[0x17] = (int)&cond1;
 	condJMPTable[0x18] = (int)&conditionAreaExplored;
 	condJMPTable[0x19] = (int)&conditionAlliance;
+	condJMPTable[0x1A] = (int)&conditionVariable;
+	condJMPTable[0x1B] = (int)&conditionVariable;
 }
 
 __declspec(naked) void condParams () //005F55AA
@@ -114,15 +121,51 @@ __declspec(naked) void condParams () //005F55AA
 		mov		[edx + 0Ch], cl
 
 		mov     eax, [esi + 8]
-		mov     edx, [eax + 68h]    //new condition 2
-		mov		[edx + 0], cl
+		mov     edx, [eax + 68h]    //new condition alliance state
 		mov		[edx + 5], cl
 		mov		[edx + 7], cl
+		mov		[edx + 0Fh], cl
+
+		mov     eax, [esi + 8]
+		mov     edx, [eax + 6Ch]    //new condition var GE
+		mov		cl, 2
+		mov		[edx + 0], cl
+		mov		[edx + 2], cl
+		mov		[edx + 4], cl
+		mov		[edx + 5], cl
+		mov		[edx + 7], cl
+		mov		[edx + 9], cl
+		mov		[edx + 0Ah], cl
+		mov		[edx + 0Bh], cl
+		mov		[edx + 0Ch], cl
+		mov		[edx + 0Dh], cl
+		mov		[edx + 0Eh], cl
+		mov		[edx + 0Fh], cl
+
+		mov     eax, [esi + 8]
+		mov     edx, [eax + 70h]    //new condition var E
+		mov		cl, 2
+		mov		[edx + 0], cl
+		mov		[edx + 2], cl
+		mov		[edx + 4], cl
+		mov		[edx + 5], cl
+		mov		[edx + 7], cl
+		mov		[edx + 9], cl
+		mov		[edx + 0Ah], cl
+		mov		[edx + 0Bh], cl
+		mov		[edx + 0Ch], cl
+		mov		[edx + 0Dh], cl
+		mov		[edx + 0Eh], cl
+		mov		[edx + 0Fh], cl
+
+		mov     eax, [esi + 8]
+		mov     edx, [eax + 14h]    //old condition objects in area
+		mov		[edx + 0Fh], cl
 
 		mov     eax, [esi+8]
 		mov     edx, [eax+8]
-		push    005F55B0h
-		ret
+		mov		eax, 005F55B0h
+		jmp		eax
 	}
 }
 
@@ -226,8 +269,8 @@ loc_7E22C4:
 		//
 		call	editor_enter
 		//
-		push    00529A0Dh
-		ret
+		mov		eax, 00529A0Dh
+		jmp		eax
 	}
 }
 
@@ -245,8 +288,8 @@ __declspec(naked) void inv2 () //0052ABD7
 		call	editor_exit
 		//
 		lea     eax, [esi+964h]
-		push    0052ABDDh
-		ret
+		mov		ecx, 0052ABDDh
+		jmp		ecx
 	}
 }
 
@@ -260,8 +303,8 @@ __declspec(naked) void inv3 () //0053BDA0
 		call    dword ptr [edx + 14h]
 
 		mov     ecx, [esi+0E1Ch]
-		push    0053BDA6h
-		ret
+		mov		edx, 0053BDA6h
+		jmp		edx
 	}
 }
 
@@ -286,8 +329,8 @@ __declspec(naked) void inv4 () //0053C37C
 		mov     ecx, edi
 		mov     eax, 419150h
 		call    eax
-		push    0053C383h
-		ret
+		mov		ecx, 0053C383h
+		jmp		ecx
 	}
 }
 
@@ -304,8 +347,8 @@ __declspec(naked) void inv5 () //0053E014
 		mov     ecx, ebx
 		mov     eax, 419150h
 		call    eax
-		push    0053E01Bh
-		ret
+		mov		esi, 0053E01Bh
+		jmp		esi
 	}
 }
 
@@ -325,14 +368,14 @@ loc_7E236B:                     //        ; CODE XREF: sub_437120+3AB243j
 		cmp     ebp, 10h
 		jge     jmpFar
 		xor     edx, edx
-		push    5F274Bh
-		ret
+		mov		eax, 005F274Bh
+		jmp		eax
 jmpFar:
-		push    005F2817h
-		ret
+		mov		eax, 005F2817h
+		jmp		eax
 cont:
-		push    005F275Eh
-		ret
+		mov		eax, 005F275Eh
+		jmp		eax
 	}
 }
 
@@ -351,14 +394,14 @@ __declspec(naked) void invProcessCond () //005F4A0F
 		jz      loc_5F4A2D
 		add     al, ds:invCond
 		jnz     loc_5F4A63
-		push    5F4A23h
-		ret
+		mov		ecx, 005F4A23h
+		jmp		ecx
 loc_5F4A63:
-		push    5F4A63h
-		ret
+		mov		ecx, 005F4A63h
+		jmp		ecx
 loc_5F4A2D:
-		push    5F4A2Dh
-		ret
+		mov		ecx, 005F4A2Dh
+		jmp		ecx
 	}
 }
 
@@ -437,13 +480,238 @@ __declspec(naked) void conditionAlliance()
 		push	eax
 		mov		eax, 004C2C60h
 		call	eax
-		mov		cl, [esi + 0Ch]
+		mov		cl, [esi + 48h]
 		cmp		al, cl
 		jz		_alliance_same
 		jmp		condNotMet
 _alliance_same:
 		jmp		condMet
 	}
+}
+
+int(__thiscall* unitContainter_countUnits) (void*, int, int, int, int, int, int, int, int, void*, char) =
+	(int(__thiscall*) (void*, int objListType, int objGroup, int unk2, int x1, int y1, int x2, int y2, int objType, void* unitsVectorPtr, char unk02))0x004AF980;
+
+bool __fastcall compare_null(int, int)
+{
+	return false;
+}
+
+bool __fastcall compare_ge(int v1, int v2)
+{
+	return v1 >= v2;
+}
+
+bool __fastcall compare_g(int v1, int v2)
+{
+	return v1 > v2;
+}
+
+bool __fastcall compare_e(int v1, int v2)
+{
+	return v1 == v2;
+}
+
+//////////////
+
+float __stdcall getval_null(void*)
+{
+	return 0;
+}
+
+float __stdcall getval_hp(void* unit)
+{
+	return *(float*)((int)unit + 0x3C);
+}
+
+float __stdcall getval_sp(void* unit)
+{
+	return *(float*)((int)unit + 0x40);
+}
+
+float __stdcall getval_resources(void* unit)
+{
+	return *(float*)((int)unit + 0x54);
+}
+
+float __stdcall getval_reload(void* unit)
+{
+	return *(float*)((int)unit + 0x174);
+}
+
+float __stdcall getval_hp_percent(void* unit)
+{
+	int propObj = *(int*)((int)unit + 0x14);
+	float maxHP = *(short*)(propObj + 0x32);
+	return getval_hp(unit) / maxHP * 100;
+}
+
+float __stdcall getval_sp_percent(void* unit)
+{
+	int propObj = *(int*)((int)unit + 0x14);
+	float maxHP = *(short*)(propObj + 0x32);
+	return getval_sp(unit) / maxHP * 100;
+}
+
+float __stdcall getval_garrison(void*unit)
+{
+	int ptr = *(int*)((int)unit + 0x30);
+	if (ptr)
+		return *(int*)(ptr + 4);
+	else
+		return 0.0f;
+}
+
+float __stdcall getval_reload_percent(void* unit)
+{
+	int propObj = *(int*)((int)unit + 0x14);
+	float reloadTime = *(short*)(propObj + 0x150);
+	return getval_reload(unit) / reloadTime * 100;
+}
+
+bool __stdcall conditionVariable_actual(condition* c, void* player, void* object)
+{
+	void* units[0x1000];
+	memset(units, 0, 0x1000 * 4);
+
+	bool(__fastcall* compare) (int, int) = compare_null;
+
+	switch (c->id)
+	{
+	case 0x1B:
+		compare = compare_ge;
+		break;
+	case 0x1C:
+		compare = compare_e;
+		break;
+	default:
+		break;
+	}
+
+	int n;
+	if (object)
+	{
+		n = 1;
+		units[0] = object;
+	}
+	else
+		n = unitContainter_countUnits(*(void**)((int)player + 0x78), c->obj_list_type, c->obj_group, 2,
+			c->area_x1, c->area_y1, c->area_x2, c->area_y2, c->obj_type, units, 0);
+
+	float(__stdcall* getval) (void*) = getval_null;
+
+	switch (c->ai_signal)
+	{
+	case 0:
+		getval = getval_hp;
+		break;
+	case 1:
+		getval = getval_hp_percent;
+		break;
+	case 2:
+		getval = getval_sp;
+		break;
+	case 3:
+		getval = getval_sp_percent;
+		break;
+	case 4:
+		getval = getval_reload;
+		break;
+	case 5:
+		getval = getval_reload_percent;
+		break;
+	case 6:
+		getval = getval_resources;
+		break;
+	case 7:
+		getval = getval_garrison;
+		break;
+	default:
+		break;
+	}
+
+	int cnt = 0;
+
+	for (int i = 0; i < n; i++)
+		if (!(c->trigger & 1) ^ compare(getval(units[i]), c->timer))
+			cnt++;
+
+	return !(c->trigger & 1) ^ cnt >= c->quantity;
+}
+
+__declspec(naked) void conditionVariable()
+{
+	__asm
+	{
+		mov		eax, [esp + 14h]	//object
+		mov		ecx, [esp + 38h]	//player
+		push	eax
+		push	ecx
+		push	esi					//condition
+		call	conditionVariable_actual
+		test	al, al
+		jnz		condMet
+		jmp		condNotMet
+	}
+}
+
+void* unitContainter_countUnits_ungarrisoned;
+void* unitContainter_countUnits_garrisoned;
+
+void reloc(void* src, void* dst)
+{
+	*(unsigned long*)src = (unsigned long)dst - ((unsigned long)src + 4);
+}
+
+__declspec(naked) void unitContainter_countUnits_wrapper()
+{
+	__asm
+	{
+		mov		eax, [esi + 48h]
+		test	eax, eax
+		jz		_count_default
+		cmp		eax, 1
+		jz		_count_ungarrisoned
+		cmp		eax, 2
+		jz		_count_garrisoned
+_count_default:
+		mov		eax, 004AF980h
+		jmp		eax
+_count_ungarrisoned:
+		mov		eax, unitContainter_countUnits_ungarrisoned
+		jmp		eax
+_count_garrisoned:
+		mov		eax, unitContainter_countUnits_garrisoned
+		jmp		eax
+	}
+}
+
+void make_counter_functions()
+{
+	DWORD r;
+	unitContainter_countUnits_ungarrisoned = VirtualAlloc(0, 0x1000, MEM_COMMIT, PAGE_READWRITE);
+	ReadProcessMemory(GetCurrentProcess(), (void*)0x004AF980, unitContainter_countUnits_ungarrisoned, 0x160, &r);
+	unitContainter_countUnits_garrisoned = (char*)unitContainter_countUnits_ungarrisoned + 0x160;
+	memcpy(unitContainter_countUnits_garrisoned, unitContainter_countUnits_ungarrisoned, 0x160);
+
+	reloc((BYTE*)unitContainter_countUnits_ungarrisoned + 0x0AB, (void*)0x00632BAC);
+	reloc((BYTE*)unitContainter_countUnits_ungarrisoned + 0x0B9, (void*)0x00632BAC);
+	reloc((BYTE*)unitContainter_countUnits_ungarrisoned + 0x0D9, (void*)0x00632BAC);
+	reloc((BYTE*)unitContainter_countUnits_ungarrisoned + 0x0E7, (void*)0x00632BAC);
+
+	reloc((BYTE*)unitContainter_countUnits_garrisoned + 0x0AB, (void*)0x00632BAC);
+	reloc((BYTE*)unitContainter_countUnits_garrisoned + 0x0B9, (void*)0x00632BAC);
+	reloc((BYTE*)unitContainter_countUnits_garrisoned + 0x0D9, (void*)0x00632BAC);
+	reloc((BYTE*)unitContainter_countUnits_garrisoned + 0x0E7, (void*)0x00632BAC);
+
+	setHook((char*)unitContainter_countUnits_ungarrisoned + 0x0A3, (char*)unitContainter_countUnits_ungarrisoned + 0x134);
+	setHook((char*)unitContainter_countUnits_garrisoned + 0x0D1, (char*)unitContainter_countUnits_garrisoned + 0x134);
+
+	VirtualProtect((void*)0x005F207E, 0x10, PAGE_READWRITE, &r);
+	reloc((void*)0x005F207E, &unitContainter_countUnits_wrapper);
+	VirtualProtect((void*)0x005F207E, 0x10, PAGE_EXECUTE_READ, &r);
+
+	VirtualProtect(unitContainter_countUnits_ungarrisoned, 0x1000, PAGE_EXECUTE_READ, &r);
 }
 
 void setConditionHooks ()
@@ -458,4 +726,6 @@ void setConditionHooks ()
 	setHook ((void*)0x005F2756, &inv6);
 
 	setHook ((void*)0x005F4A0F, &invProcessCond);
+
+	make_counter_functions();
 }

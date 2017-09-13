@@ -30,7 +30,7 @@ const char* resourceNames [] =
 	"Submarine Detection",
 	"Shield Generator Range",
 	"Unknown",
-    "Shields' Drop Off Time",
+	"Shields' Drop Off Time",
 	"Enable Jedi Conversion",
 	"Enable Building Conversion",
 	"Unknown",
@@ -60,9 +60,9 @@ const char* resourceNames [] =
 	"Tribute Sent",
 	"All Ruins Have Been Captured",
 	"All Relics Have Been Captured",
-    "Enable Stealth For Masters",
-    "Kidnap Storage",
-    "Masters Can See Hidden Units",
+	"Enable Stealth For Masters",
+	"Kidnap Storage",
+	"Masters Can See Hidden Units",
 	"Trade Good Quality",
 	"Trade Market Level",               //60
 	"Formations",
@@ -205,52 +205,52 @@ const char* resourceNames [] =
 	"Unknown",
 	"Unknown",
 	"Misc Counter 1",                     //200
-    "Misc Counter 2",
-    "Misc Counter 3",
-    "Misc Counter 4",
-    "Misc Counter 5",
-    "Unknown",
-    "Unknown",
-    "Unknown",
-    "Unknown",
+	"Misc Counter 2",
+	"Misc Counter 3",
+	"Misc Counter 4",
+	"Misc Counter 5",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
 	"Unknown",
 	"Unknown"                             //210
 	"Resource 211"
 };
 
-void __stdcall resLoadStr (int resID, char* ptr)
+void __stdcall resLoadStr(int resID, char* ptr)
 {
-	strcpy (ptr, resourceNames[resID]);
+	strcpy(ptr, resourceNames[resID]);
 }
 
-__declspec(naked) void resLoad () //004D392C
+__declspec(naked) void resLoad() //004D392C
 {
 	__asm
 	{
 		push    eax
 		push    ecx
 		call    resLoadStr
-		push    004D393Ah
-		ret
+		mov		eax, 004D393Ah
+		jmp		eax
 	}
 }
 
-void resLoadRestore ()
+void resLoadRestore()
 {
-	setInt (0x004D392C, 0x10068);
-	setInt (0x004D3930, 0x8B515000);
+	setInt(0x004D392C, 0x10068);
+	setInt(0x004D3930, 0x8B515000);
 }
 
-__declspec(naked) void resLoadF ()
+__declspec(naked) void resLoadF()
 {
 	__asm
 	{
-		push    4C82D0h
-		ret
+		mov		eax, 004C82D0h
+		jmp		eax
 	}
 }
 
-__declspec(naked) void resLoadHook () //0052A6DE
+__declspec(naked) void resLoadHook() //0052A6DE
 {
 	__asm
 	{
@@ -275,17 +275,17 @@ end:
 		call    resLoadRestore
 		pop     esi
 		pop     ebp
-		push    0052A83Fh
-		ret
+		mov		ecx, 0052A83Fh
+		jmp		ecx
 	}
 }
 
-void setResListHooks ()
+void setResListHooks()
 {
 #ifdef _DEBUG
-	log ("Expanding resource list...");
+	log("Expanding resource list...");
 #endif
 	//setHook ((void*)0x004D392C, &resLoad);
-	setHook ((void*)0x0052A6DE, &resLoadHook);
-	setHook ((void*)0x0052A7B4, &resLoadHook);
+	setHook((void*)0x0052A6DE, &resLoadHook);
+	setHook((void*)0x0052A7B4, &resLoadHook);
 }

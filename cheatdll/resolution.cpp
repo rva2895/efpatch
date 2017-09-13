@@ -4,6 +4,12 @@
 #include "registry.h"
 #include "drsfile.h"
 
+#ifdef _CHEATDLL_CC
+#define __INTERFAC_PATH__ "data\\interfac_x1.drs"
+#else
+#define __INTERFAC_PATH__ "data\\interfac_x2.drs"
+#endif
+
 struct drsTableHdr
 {
 	int type;
@@ -231,7 +237,7 @@ void parseSLP (int newH, int id, bool useWide)
 	}
 	else //should never be reached, but just in case...
 	{
-		MessageBox (0, "Errrrrrrror", "\0", MB_ICONERROR);
+		MessageBox(0, "Errrrrrrror", "\0", MB_ICONERROR);
 		exit (0);
 	}
 
@@ -240,9 +246,13 @@ void parseSLP (int newH, int id, bool useWide)
 	//else
 	//	memSLP = readDRSItemToMem (newDRSPath, id, &oldSize);
 	if (useWide)
-		memSLP = readDRSItemToMem ("data\\widescrn_x2.drs", id, &oldSize);
+		memSLP = readDRSItemToMem("data\\widescrn_x2.drs", id, &oldSize);
 	else
-		memSLP = readDRSItemToMem ("data\\interfac_x2.drs", id, &oldSize);
+	{
+		memSLP = readDRSItemToMem(__INTERFAC_PATH__, id, &oldSize);
+		if (!memSLP)
+			memSLP = readDRSItemToMem("data\\interfac.drs", id, &oldSize);
+	}
 
 	if (useWide)
 	{
@@ -535,13 +545,13 @@ for (j = 0; j < Y; j++) //for each horizontal line
 	fwrite (&d, 4, 1, file);
 }*/
 
-bool patchEXE (int X, int Y) //needs to be completed...
+bool patchEXE(int X, int Y) //needs to be completed...
 {
 	//file = fopen (mainEXE, "rb+");
 	//if (file == 0)
 	//	return false;
-	log ("Patching EXE for resolution %dx%d...", X, Y);
-	
+	log("Patching EXE for resolution %dx%d...", X, Y);
+
 	if (Y >= 1024)
 	{
 		setIntF(0x24B66, Y); //
@@ -552,42 +562,42 @@ bool patchEXE (int X, int Y) //needs to be completed...
 		setIntF(0x26845, X); //ok
 		setIntF(0x290A8, Y); //test
 		setIntF(0x2AA3E, X); //ok
-		setIntF(0x2AA52, X-340); //could be
+		setIntF(0x2AA52, X - 340); //could be
 		setIntF(0x5A365, X); //ok
 		setIntF(0x5A3CE, X); //ok
 		setIntF(0x5ACBA, X); //ok
 		setIntF(0x5ACBF, Y); //ok
-		setIntF(0x5ACFB, X+1); //ok
+		setIntF(0x5ACFB, X + 1); //ok
 		setIntF(0x639FB, Y); //ok
-		setIntF(0x63B9E, Y+1); //mm ok
+		setIntF(0x63B9E, Y + 1); //mm ok
 		setIntF(0x63E9F, Y); //ok
 		//float hMul = (float)Y / 600;
 		//hMul = 0;
 		//setInt (0x00463EAB, *(int*)&hMul);
 		setIntF(0x6A916, X); //ok
-		setIntF(0x6A920, Y-98); //ok
+		setIntF(0x6A920, Y - 98); //ok
 		setIntF(0x70D36, X); //ok
 		setIntF(0x70DFB, X); //ok
 		setIntF(0x70E04, Y); //ok
-		setIntF(0x70E16, X+1); //ok
-		setIntF(0x70E1F, Y+1); //ok
+		setIntF(0x70E16, X + 1); //ok
+		setIntF(0x70E1F, Y + 1); //ok
 		setIntF(0x710D4, X); //ok
-		setIntF(0x710DB, X+1); //check these 4
-		setIntF(0x7114B, X+1);
-		setIntF(0x711CD, X+1);
-		setIntF(0x71247, X+1);
+		setIntF(0x710DB, X + 1); //check these 4
+		setIntF(0x7114B, X + 1);
+		setIntF(0x711CD, X + 1);
+		setIntF(0x71247, X + 1);
 		setIntF(0xA9411, X); //looks wrong, check
 		setIntF(0xB7E39, X); //check
 		setIntF(0xBE147, X); //looks wrong, check
 		setIntF(0xF670C, X); //ok
-		setIntF(0xFDAF2, X+1); //mm ok
-		setIntF(0xFDAFB, Y+1); //mm ok
+		setIntF(0xFDAF2, X + 1); //mm ok
+		setIntF(0xFDAFB, Y + 1); //mm ok
 		setIntF(0xFDB20, X); //ok
 		setIntF(0xFDB29, Y); //ok
 		setIntF(0x1003A8, X); //ok
 		setIntF(0x1003D5, X); //ok
-		setIntF(0x1003E3, X-298); //some item icon, check
-		setIntF(0x1003E8, Y-340);
+		setIntF(0x1003E3, X - 298); //some item icon, check
+		setIntF(0x1003E8, Y - 340);
 		//setIntF(0x1003E3, Y-42); //some item icon, old ver
 		//setIntF(0x1003E8, X-340);
 		setIntF(0x102852, X); //check this again
@@ -601,98 +611,98 @@ bool patchEXE (int X, int Y) //needs to be completed...
 	}
 	else if (Y >= 768)
 	{
-		setIntF (0x24B66, X); //ok
-		setIntF (0x24BAC, Y); //ok
-		setIntF (0x24BB3, X+1); //ok
-		setIntF (0x261FD, X); //ok
-		setIntF (0x26217, Y); //ok
-		setIntF (0x2623A, X+1); //not needed?
-		setIntF (0x2680C, X); //ok
-		setIntF (0x2683B, Y); //ok
-		setIntF (0x26845, X+1); //not needed?
+		setIntF(0x24B66, X); //ok
+		setIntF(0x24BAC, Y); //ok
+		setIntF(0x24BB3, X + 1); //ok
+		setIntF(0x261FD, X); //ok
+		setIntF(0x26217, Y); //ok
+		setIntF(0x2623A, X + 1); //not needed?
+		setIntF(0x2680C, X); //ok
+		setIntF(0x2683B, Y); //ok
+		setIntF(0x26845, X + 1); //not needed?
 		//setIntF (0x290A8, X); //test. not res?
-		setIntF (0x2AA37, X); //ok
-		setIntF (0x2AA3E, X+1); //not needed?
-		setIntF (0x2AA59, X-274); //-> should be ok
-		setIntF (0x5A35E, X); //ok
-		setIntF (0x5A365, X+1); //not needed?
-		setIntF (0x5A3AA, X); //ok
-		setIntF (0x5A3CE, X+1); //not needed?
-		setIntF (0x5AC9F, X); //ok
-		setIntF (0x5ACA4, Y); //ok
-		setIntF (0x5ACBA, X+1); //not needed?
-		setIntF (0x5ACBF, Y+1);
-		setIntF (0x5ACFB, X+2); //?
-		setIntF (0x63923, Y); //ok
-		setIntF (0x639FB, Y+1); //block higher res
-		setIntF (0x63B9E, Y+2); //block higher res
-		setIntF (0x63E85, Y); //ok
-		setIntF (0x63E9F, Y+1); //block higher res
-		setIntF (0x6A90E, X); //ok
-		setIntF (0x6A916, X+1); //block higher res
-		setIntF (0x6A930, Y-103); //ok
-		setIntF (0x70D2B, X); //ok
-		setIntF (0x70D36, X+1); //block higher res
-		setIntF (0x70DE0, X); //ok
-		setIntF (0x70DE9, Y); //ok
-		setIntF (0x70DFB, X+1); //block higher res
-		setIntF (0x70E04, Y+1); //--
-		setIntF (0x70E16, X+2); //--
-		setIntF (0x70E1F, Y+2); //--
-		setIntF (0x70EB5, X); //ok
-		setIntF (0x70EBE, Y); //ok
-		setIntF (0x70F5D, X); //ok
-		setIntF (0x70F66, Y); //ok
-		setIntF (0x7100B, X); //ok
-		setIntF (0x71014, Y); //ok
-		setIntF (0x7107E, X); //ok
-		setIntF (0x710D4, X+1); //block higher res
-		setIntF (0x710DB, X+2); //block higher res
-		setIntF (0x71144, X); //ok?
-		setIntF (0x7114B, X+2); //block higher res
-		setIntF (0x711C6, X); //ok?
-		setIntF (0x711CD, X+2); //block higher res
-		setIntF (0x71240, X); //ok?
-		setIntF (0x71247, X+2); //block higher res
+		setIntF(0x2AA37, X); //ok
+		setIntF(0x2AA3E, X + 1); //not needed?
+		setIntF(0x2AA59, X - 274); //-> should be ok
+		setIntF(0x5A35E, X); //ok
+		setIntF(0x5A365, X + 1); //not needed?
+		setIntF(0x5A3AA, X); //ok
+		setIntF(0x5A3CE, X + 1); //not needed?
+		setIntF(0x5AC9F, X); //ok
+		setIntF(0x5ACA4, Y); //ok
+		setIntF(0x5ACBA, X + 1); //not needed?
+		setIntF(0x5ACBF, Y + 1);
+		setIntF(0x5ACFB, X + 2); //?
+		setIntF(0x63923, Y); //ok
+		setIntF(0x639FB, Y + 1); //block higher res
+		setIntF(0x63B9E, Y + 2); //block higher res
+		setIntF(0x63E85, Y); //ok
+		setIntF(0x63E9F, Y + 1); //block higher res
+		setIntF(0x6A90E, X); //ok
+		setIntF(0x6A916, X + 1); //block higher res
+		setIntF(0x6A930, Y - 103); //ok
+		setIntF(0x70D2B, X); //ok
+		setIntF(0x70D36, X + 1); //block higher res
+		setIntF(0x70DE0, X); //ok
+		setIntF(0x70DE9, Y); //ok
+		setIntF(0x70DFB, X + 1); //block higher res
+		setIntF(0x70E04, Y + 1); //--
+		setIntF(0x70E16, X + 2); //--
+		setIntF(0x70E1F, Y + 2); //--
+		setIntF(0x70EB5, X); //ok
+		setIntF(0x70EBE, Y); //ok
+		setIntF(0x70F5D, X); //ok
+		setIntF(0x70F66, Y); //ok
+		setIntF(0x7100B, X); //ok
+		setIntF(0x71014, Y); //ok
+		setIntF(0x7107E, X); //ok
+		setIntF(0x710D4, X + 1); //block higher res
+		setIntF(0x710DB, X + 2); //block higher res
+		setIntF(0x71144, X); //ok?
+		setIntF(0x7114B, X + 2); //block higher res
+		setIntF(0x711C6, X); //ok?
+		setIntF(0x711CD, X + 2); //block higher res
+		setIntF(0x71240, X); //ok?
+		setIntF(0x71247, X + 2); //block higher res
 		//setIntF(0xA9411, X+1); //not res
-		setIntF (0xB7E14, X); //ok
-		setIntF (0xB7E39, X+1); //ok
+		setIntF(0xB7E14, X); //ok
+		setIntF(0xB7E39, X + 1); //ok
 		//setIntF(0xBE147, X+1); //not res
 		setIntF(0xF6705, X); //ok
-		setIntF(0xF670C, X+1); //block higher res
-		setIntF(0xFDAF2, X+2); //not needed?
-		setIntF(0xFDAFB, Y+2);
-		setIntF(0xFDB20, X+1);
-		setIntF(0xFDB29, Y+1);
+		setIntF(0xF670C, X + 1); //block higher res
+		setIntF(0xFDAF2, X + 2); //not needed?
+		setIntF(0xFDAFB, Y + 2);
+		setIntF(0xFDB20, X + 1);
+		setIntF(0xFDB29, Y + 1);
 		setIntF(0xFDB6C, X); //ok
 		setIntF(0xFDB75, Y); //ok
 		//setIntF(0x1003A8, X+1); //test!!!         (!!!)
-		setIntF(0x1003D5, X+1); //ok
+		setIntF(0x1003D5, X + 1); //ok
 		setIntF(0x1003FD, X); //ok
 		//setIntF(0x1003E3:	D6	57
 		//setIntF(0x1003E8:	AC	0D
 		setIntF(0x1003FD, X); //ok
-		setIntF(0x10040B, Y-35); //ok, but test
+		setIntF(0x10040B, Y - 35); //ok, but test
 		//setIntF(0x100410, X  //same as above
-		setIntF(0x102852, X+1); //ok
+		setIntF(0x102852, X + 1); //ok
 		setIntF(0x102865, X); //ok, but test surroundings
 		setIntF(0x10C94A, X); //should be ok
-		setIntF(0x10C987, X+1); //block higher res
+		setIntF(0x10C987, X + 1); //block higher res
 		setIntF(0x10E4B2, X); //ok
 		setIntF(0x10E4B7, Y); //ok
-		setIntF(0x10E4CD, X+1); //block higher res
-		setIntF(0x10E4D2, Y+1); //block higher res
+		setIntF(0x10E4CD, X + 1); //block higher res
+		setIntF(0x10E4D2, Y + 1); //block higher res
 		setIntF(0x10EDC5, X); //ok
-		setIntF(0x10EDCC, X+1); //ok
+		setIntF(0x10EDCC, X + 1); //ok
 		setIntF(0x1D8529, X); //ok
-		setIntF(0x1D853F, X+1); //ok
+		setIntF(0x1D853F, X + 1); //ok
 		setIntF(0x1D98DA, X);
-		setIntF(0x1D98E9, X+1);
+		setIntF(0x1D98E9, X + 1);
 		//setIntF(0x1F6757, X+1); //not res
 	}
 	else
 	{
-		MessageBox (0, "Resolutions lower than 768V are not supported", "Error", MB_ICONERROR);
+		MessageBox(0, "Resolutions lower than 768V are not supported", "Error", MB_ICONERROR);
 	}
 
 	//fseek (file, 0x299D9C, SEEK_SET); //drs reference
@@ -704,15 +714,15 @@ bool patchEXE (int X, int Y) //needs to be completed...
 
 	if (Y >= 1024)
 	{
-		setByte (0x0042622F, 0x90);   //force 1280 screen setting
-		setByte (0x00426230, 0x90);
-		setByte (0x00477509, 0xEB);
+		setByte(0x0042622F, 0x90);   //force 1280 screen setting
+		setByte(0x00426230, 0x90);
+		setByte(0x00477509, 0xEB);
 	}
 	else
 	{
-		setByte (0x00426203, 0x90);   //force 1024 screen setting
-		setByte (0x00426204, 0x90);
-		setByte (0x004774F5, 0xEB);
+		setByte(0x00426203, 0x90);   //force 1024 screen setting
+		setByte(0x00426204, 0x90);
+		setByte(0x004774F5, 0xEB);
 	}
 
 	return true;
@@ -721,25 +731,25 @@ bool patchEXE (int X, int Y) //needs to be completed...
 //char endbuf [4096]; //static memory allocation is bad, but 4096 must be enough...
 void* drsRects;
 
-int findRectOffset (const char* itemname)
+int findRectOffset(const char* itemname)
 {
 	int i = 0;
-	while (memcmp (itemname, (char*)drsRects+i, strlen (itemname)) != 0)
+	while (memcmp(itemname, (char*)drsRects + i, strlen(itemname)) != 0)
 		i++;
 	return i;
 }
 
-void patchRect (const char* itemName, //name of the control, open 53290 in interfac.drs for details
+void patchRect(const char* itemName, //name of the control, open 53290 in interfac.drs for details
 	bool addX, //control needs to be moved horizontally
 	bool addY, //control needs to be moved vertically
 	bool addW, //control needs to be stretched horisontally
 	bool addH, //control needs to be stretched vertically
 	int* size) //returns the new size of the DRS item
 {
-	log ("Resolution: patching rect \"%s\", params: %d, %d, %d, %d",
+	log("Resolution: patching rect \"%s\", params: %d, %d, %d, %d",
 		itemName, addX, addY, addW, addH);
 
-	char* endbuf = (char*) malloc (4096);
+	char* endbuf = (char*)malloc(4096);
 
 	int X800; //see 53290 in interfac.drs to understand how this works
 	int Y800;
@@ -754,10 +764,10 @@ void patchRect (const char* itemName, //name of the control, open 53290 in inter
 	int W1280;
 	int H1280;
 	char scanArg[128];
-	char oldRects [128];
-	char newRects [128];
-	sprintf (scanArg, "%s\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%s", itemName);
-	sscanf ((char*)drsRects+findRectOffset (itemName), scanArg,
+	char oldRects[128];
+	char newRects[128];
+	sprintf(scanArg, "%s\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%s", itemName);
+	sscanf((char*)drsRects + findRectOffset(itemName), scanArg,
 		&X800,
 		&Y800,
 		&W800,
@@ -771,7 +781,7 @@ void patchRect (const char* itemName, //name of the control, open 53290 in inter
 		&W1280,
 		&H1280,
 		endbuf);
-	sprintf (oldRects, "\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t", //tab value tab value...
+	sprintf(oldRects, "\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t", //tab value tab value...
 		X800,
 		Y800,
 		W800,
@@ -791,7 +801,7 @@ void patchRect (const char* itemName, //name of the control, open 53290 in inter
 			X1024 += newXsize - 1024;
 		else
 		{
-			exit (1);
+			exit(1);
 		}
 	if (addY)
 		if (newYsize >= 1024)
@@ -800,7 +810,7 @@ void patchRect (const char* itemName, //name of the control, open 53290 in inter
 			Y1024 += newYsize - 768;
 		else
 		{
-			exit (1);
+			exit(1);
 		}
 	if (addW)
 		if (newYsize >= 1024)
@@ -809,7 +819,7 @@ void patchRect (const char* itemName, //name of the control, open 53290 in inter
 			W1024 += newXsize - 1024;
 		else
 		{
-			exit (1);
+			exit(1);
 		}
 	if (addH)
 		if (newYsize >= 1024)
@@ -818,9 +828,9 @@ void patchRect (const char* itemName, //name of the control, open 53290 in inter
 			H1024 += newYsize - 768;
 		else
 		{
-			exit (1);
+			exit(1);
 		}
-	sprintf (newRects, "\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t",
+	sprintf(newRects, "\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t",
 		X800,
 		Y800,
 		W800,
@@ -838,75 +848,80 @@ void patchRect (const char* itemName, //name of the control, open 53290 in inter
 	int src;
 	int n;
 
-	if (strlen (oldRects) != strlen (newRects)) //adjust data...
+	if (strlen(oldRects) != strlen(newRects)) //adjust data...
 	{
-		dst = (int)drsRects+findRectOffset (itemName)+strlen (itemName)+strlen (newRects)-strlen (oldRects);
-		src = (int)drsRects+findRectOffset (itemName)+strlen (itemName);
-		n =  *size - findRectOffset (itemName)+strlen (itemName);
-		memmove ((void*)dst, (void*)src, n);
-		*size += strlen(newRects)-strlen(oldRects);
-		memcpy ((void*)src, newRects, strlen(newRects));
+		dst = (int)drsRects + findRectOffset(itemName) + strlen(itemName) + strlen(newRects) - strlen(oldRects);
+		src = (int)drsRects + findRectOffset(itemName) + strlen(itemName);
+		n = *size - findRectOffset(itemName) + strlen(itemName);
+		memmove((void*)dst, (void*)src, n);
+		*size += strlen(newRects) - strlen(oldRects);
+		memcpy((void*)src, newRects, strlen(newRects));
 	}
 	else //don't adjust data...
 	{
-		dst = (int)drsRects+findRectOffset (itemName)+strlen (itemName);
-		memcpy ((void*)dst, newRects, strlen (newRects));
+		dst = (int)drsRects + findRectOffset(itemName) + strlen(itemName);
+		memcpy((void*)dst, newRects, strlen(newRects));
 	}
 
-	free (endbuf);
+	free(endbuf);
 
-	log ("Resolution: rect patching done");
+	log("Resolution: rect patching done");
 }
 
 
-void patchResRects (int X, int Y)
+void patchResRects(int X, int Y)
 {
 	int size;
-	drsRects = readDRSItemToMem ("data\\interfac_x2.drs", 53290, &size);
-	
+
+	drsRects = readDRSItemToMem(__INTERFAC_PATH__, 53290, &size);
+
 	newXsize = X;
 	newYsize = Y;
 
-	patchRect ("ToolBox", 0, 0, 1, 0, &size);
-	patchRect ("Main Viewport with toolbox", 0, 0, 1, 1, &size);
-	patchRect ("Main Viewport w/o toolbox", 0, 0, 1, 1, &size);
-	patchRect ("Inventory Panel", 1, 1, 0, 0, &size);
-	patchRect ("Map View", 1, 1, 0, 0, &size);
-	patchRect ("Age Panel", 0, 1, 1, 0, &size);
-	patchRect ("Objectives Changed Text", 1, 0, 0, 0, &size);
-	patchRect ("FPS Panel", 1, 1, 0, 0, &size);
-	patchRect ("Object Panel", 0, 1, 1, 0, &size);
-	patchRect ("Action Buttons", 0, 1, 0, 0, &size);
-	patchRect ("Objectives Button", 1, 1, 0, 0, &size);
-	patchRect ("Tech Tree Button", 1, 1, 0, 0, &size);
-	patchRect ("Chat Button", 1, 1, 0, 0, &size);
-	patchRect ("Diplomacy Button", 1, 1, 0, 0, &size);
-	patchRect ("Menu Button", 1, 1, 0, 0, &size);
-	patchRect ("Flare Button", 1, 1, 0, 0, &size);
-	patchRect ("Idle Villager Button", 1, 1, 0, 0, &size);
-	patchRect ("Score Button", 1, 1, 0, 0, &size);
-	patchRect ("Popup Help Button", 1, 1, 0, 0, &size);
-	patchRect ("Advanced Button", 1, 1, 0, 0, &size);
-	patchRect ("Normal Map Button", 1, 1, 0, 0, &size);
-	patchRect ("Combat Map Button", 1, 1, 0, 0, &size);
-	patchRect ("Resource Map Button", 1, 1, 0, 0, &size);
-	patchRect ("Toggle MiniMap Terrain", 1, 1, 0, 0, &size);
+	patchRect("ToolBox", 0, 0, 1, 0, &size);
+	patchRect("Main Viewport with toolbox", 0, 0, 1, 1, &size);
+	patchRect("Main Viewport w/o toolbox", 0, 0, 1, 1, &size);
+	patchRect("Inventory Panel", 1, 1, 0, 0, &size);
+	patchRect("Map View", 1, 1, 0, 0, &size);
+	patchRect("Age Panel", 0, 1, 1, 0, &size);
+	patchRect("Objectives Changed Text", 1, 0, 0, 0, &size);
+	patchRect("FPS Panel", 1, 1, 0, 0, &size);
+	patchRect("Object Panel", 0, 1, 1, 0, &size);
+	patchRect("Action Buttons", 0, 1, 0, 0, &size);
+	patchRect("Objectives Button", 1, 1, 0, 0, &size);
+	patchRect("Tech Tree Button", 1, 1, 0, 0, &size);
+	patchRect("Chat Button", 1, 1, 0, 0, &size);
+	patchRect("Diplomacy Button", 1, 1, 0, 0, &size);
+	patchRect("Menu Button", 1, 1, 0, 0, &size);
+	patchRect("Flare Button", 1, 1, 0, 0, &size);
+	patchRect("Idle Villager Button", 1, 1, 0, 0, &size);
+	patchRect("Score Button", 1, 1, 0, 0, &size);
+	patchRect("Popup Help Button", 1, 1, 0, 0, &size);
+	patchRect("Advanced Button", 1, 1, 0, 0, &size);
+	patchRect("Normal Map Button", 1, 1, 0, 0, &size);
+	patchRect("Combat Map Button", 1, 1, 0, 0, &size);
+	patchRect("Resource Map Button", 1, 1, 0, 0, &size);
+	patchRect("Toggle MiniMap Terrain", 1, 1, 0, 0, &size);
 
-	writeDRS ("data\\wide.drs", 53290, drsRects, size);
-	
-	free (drsRects);
+	writeDRS("data\\wide.drs", 53290, drsRects, size);
+
+	free(drsRects);
 }
 
-void placeSLP (int id, bool wide)
+void placeSLP(int id, bool wide)
 {
 	int size;
 	void* mem;
 	if (wide)
-		mem = readDRSItemToMem ("data\\widescrn_x2.drs", id, &size);
+		mem = readDRSItemToMem("data\\widescrn_x2.drs", id, &size);
 	else
-		mem = readDRSItemToMem ("data\\interfac_x2.drs", id, &size);
-	writeDRS ("data\\wide.drs", id, mem, size);
-	free (mem);
+	{
+		mem = readDRSItemToMem(__INTERFAC_PATH__, id, &size);
+		if (!mem)
+			mem = readDRSItemToMem("data\\interfac.drs", id, &size);
+	}
+	writeDRS("data\\wide.drs", id, mem, size);
+	free(mem);
 }
 
 void patchResolution (int x, int y)
@@ -950,6 +965,7 @@ void patchResolution (int x, int y)
 //50101 - load medium
 //50102 - load large
 
+#ifndef _CHEATDLL_CC
 	if (newXsize >= 1920)
 	{
 		placeSLP (50032, 0);
@@ -968,6 +984,7 @@ void patchResolution (int x, int y)
 		placeSLP (50101, 0);
 		placeSLP (50102, 0);
 	}
+#endif
 	
 	if (newYsize >= 1024)
 	{
@@ -981,7 +998,9 @@ void patchResolution (int x, int y)
 		parseSLP (newXsize, 51147, 0);
 		parseSLP (newXsize, 51148, 0);
 
+#ifndef _CHEATDLL_CC
 		parseSLP (newXsize, 51149, 0);
+#endif
 	}
 	else if (newYsize >= 768)
 	{
@@ -995,7 +1014,9 @@ void patchResolution (int x, int y)
 		parseSLP (newXsize, 51127, 0);
 		parseSLP (newXsize, 51128, 0);
 
+#ifndef _CHEATDLL_CC
 		parseSLP (newXsize, 51129, 0);
+#endif
 	}
 	log ("Resolution patch successfull");
 }

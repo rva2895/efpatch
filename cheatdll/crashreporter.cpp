@@ -30,7 +30,11 @@ void initCrashReporter()
 	ai.Prefix = NULL;
 	ai.AppName = L"Star Wars Galactic Battlegrounds: Expanding Fronts";
 	ai.Company = L"Expanding Fronts Development Team";
-	USHORT version[4] = { 1, 0, 0, 2 };
+#ifdef _CHEATDLL_CC
+	USHORT version[4] = { 2, 0, 0, 3 };
+#else
+	USHORT version[4] = { 1, 0, 0, 3 };
+#endif
 	ai.V[0] = version[0]; ai.V[1] = version[1]; ai.V[2] = version[2]; ai.V[3] = version[3];
 	ai.Hotfix = 0;
 	ai.PrivacyPolicyUrl = NULL;
