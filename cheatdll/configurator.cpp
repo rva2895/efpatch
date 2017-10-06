@@ -247,7 +247,13 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 	return true;
 }
 
-void launchConfigurator (HWND parent)
+void __stdcall launchConfigurator(HWND hWnd)
 {
-	DialogBox (GetModuleHandle("efpatch.dll"), MAKEINTRESOURCE(IDD_DIALOG_CONFIG), parent, ConfigDlgProc);
+	DialogBox(GetModuleHandle("efpatch.dll"), MAKEINTRESOURCE(IDD_DIALOG_CONFIG), hWnd, ConfigDlgProc);
+}
+
+extern "C" __declspec(dllexport) void __stdcall Configurator(HWND parent)
+{
+#pragma comment(linker, "/EXPORT:" __FUNCTION__"=" __FUNCDNAME__)
+	launchConfigurator(parent);
 }

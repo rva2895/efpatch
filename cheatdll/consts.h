@@ -4,7 +4,7 @@
 #define UNIT_COUNT 1596
 #define CIV_COUNT 8
 #else
-#define UNIT_COUNT 4001
+#define UNIT_COUNT 5000
 #define CIV_COUNT 9
 #endif
 

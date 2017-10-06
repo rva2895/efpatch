@@ -55,6 +55,7 @@
 #include "editorstatus.h"
 #include "cliff.h"
 #include "animatedterrain.h"
+#include "trigger_unit.h"
 #include "registry.h"
 #include "crashreporter.h"
 #include "rundll.h"
@@ -372,7 +373,7 @@ void setHooksEF()
 
 	setStartupLoadHooks();
 
-	//setExtraTerrainHooks();
+	//setExtraTerrainHooks();															//!!!
 
 	//setHook ((void*)0x004B13A0, &pathFindHook);
 
@@ -421,6 +422,8 @@ void setHooksEF()
 	//setTerrainAmount ();
 
 	setCliffTypeHooks();
+
+	setTriggerUnitHooks();
 
 	//disabled units crash
 	setByte(0x00539793, 0x02); //esp
@@ -549,8 +552,12 @@ void fixCurrentDir()
 	SetCurrentDirectory(fname);
 }
 
+void* new_memory_pages;
+
 void initialSetup()
 {
+	new_memory_pages = VirtualAlloc(0, 0x1000, MEM_COMMIT, PAGE_READWRITE);
+
 	getSettings();
 
 	log("Settings (1/4): fps = %d, ds = %d, b = %d, to = %d, v = %d, a = %d",
@@ -562,7 +569,9 @@ void initialSetup()
 	log("Settings (4/4): large = %d, aniw = %d",
 		cd.largeMaps, cd.animatedWater);
 
-	//setTestHook ();
+#ifdef _DEBUG
+	setTestHook();
+#endif // _DEBUG
 
 #ifndef _CHEATDLL_CC
 	switch (cd.gameVersion)

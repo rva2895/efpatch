@@ -50,7 +50,8 @@ __declspec(naked) void condNotMet ()
 {
 	__asm
 	{
-		mov		ebx, 005F2626h
+		//mov		ebx, 005F2626h
+		mov		ebx, 005F260Eh
 		jmp		ebx
 	}
 }
@@ -686,10 +687,12 @@ _count_garrisoned:
 	}
 }
 
+extern void* new_memory_pages;
+
 void make_counter_functions()
 {
 	DWORD r;
-	unitContainter_countUnits_ungarrisoned = VirtualAlloc(0, 0x1000, MEM_COMMIT, PAGE_READWRITE);
+	unitContainter_countUnits_ungarrisoned = new_memory_pages;
 	ReadProcessMemory(GetCurrentProcess(), (void*)0x004AF980, unitContainter_countUnits_ungarrisoned, 0x160, &r);
 	unitContainter_countUnits_garrisoned = (char*)unitContainter_countUnits_ungarrisoned + 0x160;
 	memcpy(unitContainter_countUnits_garrisoned, unitContainter_countUnits_ungarrisoned, 0x160);

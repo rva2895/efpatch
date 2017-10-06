@@ -254,6 +254,9 @@
     <ClInclude Include="animatedterrain.h">
       <Filter>Заголовочные файлы\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="trigger_unit.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="advcheat.cpp">
@@ -456,6 +459,9 @@
     </ClCompile>
     <ClCompile Include="animatedterrain.cpp">
       <Filter>Файлы исходного кода\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="trigger_unit.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

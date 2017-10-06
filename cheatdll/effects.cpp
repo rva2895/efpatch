@@ -110,6 +110,7 @@ _snapview_noobject:
 char aChangeGlobalUnit[] = "Change Unit Property Object";
 char aExplore[] = "Explore Area";
 char aUnitVar[] = "Change Unit Variable";
+char aBreakpoint[] = "Breakpoint";
 
 __declspec(naked) void triggerDisplayHook()
 {
@@ -132,6 +133,15 @@ __declspec(naked) void triggerDisplayHook()
 		push    offset aUnitVar
 		mov     eax, 4C82A0h
 		call    eax
+
+#ifdef _DEBUG
+
+		mov     ecx, [edi + 0E24h]		//breakpoint
+		push    2Eh
+		push    offset aBreakpoint
+		mov     eax, 4C82A0h
+		call    eax
+#endif
 
 		mov		eax, 007B23ACh
 		jmp		eax
@@ -214,12 +224,22 @@ endLoc:
 	}
 }
 
+__declspec(naked) void effectBreakpoint()
+{
+	__asm
+	{
+		int		3
+		mov		ebx, 005F3DB1h
+		jmp		ebx
+	}
+}
+
 void setEffectHooks()
 {
 	int adrBuf = ((int)&advTriggerEffect - 0x7B3199);
 
-	setByte(0x007B3188, 0x90); //change unit data - remove type check
-	setByte(0x007B3189, 0x90);
+	//setByte(0x007B3188, 0x90); //change unit data - remove type check
+	//setByte(0x007B3189, 0x90);
 
 	int adrChangePropertyObjectEffect = (int)&changePropertyObjectHook;
 	//int adrSetVarEffect = (int)&setVarEffect;
@@ -234,18 +254,24 @@ void setEffectHooks()
 	setHook((void*)0x007B2388, &triggerDisplayHook);
 
 	//snap view
-	setByte(0x005F5B10, 0x42);
-	setByte(0x005F5B19, 0x42);
+	//setByte(0x005F5B10, 0x42);
+	//setByte(0x005F5B19, 0x42);
 
 	//setHook ((void*)0x007B2ABF, &setVarHook);
 
-	setByte(0x005F2B4C, 0x2E); //effect count, old = 2d
+	int nEffects = 0x2E;
+#ifdef _DEBUG
+	nEffects++;
+#endif // _DEBUG
+
+
+	setByte(0x005F2B4C, nEffects); //effect count, old = 2d
 	//setByte (0x0053BD37, 0x28);
 
-	setByte(0x005F5575, 0xBC);
-	setByte(0x005F550C, 0xBC);
+	setByte(0x005F5575, (nEffects + 1) * 4);
+	setByte(0x005F550C, (nEffects + 1) * 4);
 
-	setByte(0x005F53AF, 0xB4);
+	setByte(0x005F53AF, (nEffects + 1) * 4 - 8);
 
 	WriteProcessMemory(GetCurrentProcess(), (void*)0x7B22F8, &adrChangePropertyObjectEffect, 4, 0); //changepropobj effect
 	//WriteProcessMemory (GetCurrentProcess (), (void*)0x7B22FC, &adrSetVarEffect, 4, 0); //setvar effect
@@ -254,6 +280,10 @@ void setEffectHooks()
 
 	setInt(0x7B22FC, (int)&effectExploreArea);
 	setInt(0x7B2300, (int)&effectUnitVar);
+#ifdef _DEBUG
+	setInt(0x7B2304, (int)&effectBreakpoint);
+#endif // _DEBUG
+
 	//setInt(0x7B2250 + 29*4, (int)&effectSnapView_new);
 
 	//WriteProcessMemory (GetCurrentProcess (), (void*)(0x7B2250+(18*4)), &patrolAddr, 4, 0); //new patrol effect addr

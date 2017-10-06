@@ -366,6 +366,9 @@ void __stdcall advTriggerEffectActual (void* unitData, char* s)
 	sscanf (s, "%s %s %s", command, variable, amount);
 	index = getArrayIndex (variable, &type);
 
+	//if (index == 0x38)
+	//	index = -1;
+
 	if (index != -1)
 	{
 		if (!isVarAllowed(unitData, index))

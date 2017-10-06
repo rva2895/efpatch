@@ -283,6 +283,7 @@
     <ClInclude Include="test.h" />
     <ClInclude Include="textcolor.h" />
     <ClInclude Include="triggerdesc.h" />
+    <ClInclude Include="trigger_unit.h" />
     <ClInclude Include="versionselect.h" />
     <ClInclude Include="votepanel.h" />
     <ClInclude Include="zannfort.h" />
@@ -374,6 +375,7 @@
     <ClCompile Include="test.cpp" />
     <ClCompile Include="textcolor.cpp" />
     <ClCompile Include="triggerdesc.cpp" />
+    <ClCompile Include="trigger_unit.cpp" />
     <ClCompile Include="versionselect.cpp" />
     <ClCompile Include="votepanel.cpp" />
     <ClCompile Include="zannfort.cpp" />
