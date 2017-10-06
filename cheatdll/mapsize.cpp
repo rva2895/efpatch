@@ -45,6 +45,12 @@ __declspec(naked) void onEditorMapSize() //0052A123
 		push	0
 		push	297Bh	//titanic
 		call	esi
+		//
+		mov     ecx, [edi]
+		push	0
+		push	10679	//400
+		call	esi
+		//
 		pop		esi
 		push	0052A131h
 		ret
@@ -71,6 +77,16 @@ __declspec(naked) void jmp_336()
 	}
 }
 
+__declspec(naked) void jmp_400()
+{
+	__asm
+	{
+		mov		esi, 480
+		push	0052EC76h
+		ret
+	}
+}
+
 
 int map_sizes_jmp[] =
 {
@@ -82,7 +98,8 @@ int map_sizes_jmp[] =
 	0x52EC6A,
 	0x52EC71,
 	(int)(&jmp_280),
-	(int)(&jmp_336)
+	(int)(&jmp_336),
+	(int)(&jmp_400)
 };
 
 int* mapptr = (int*)0x7A1CBC;
@@ -615,12 +632,163 @@ __declspec(naked) void facet3() //004BEBC2
 	}
 }
 
+__declspec(naked) void onPathFind_shift() //004B0987
+{
+	__asm
+	{
+		and     edx, 3FFh
+		mov		ebx, ecx
+		shr		ebx, 10
+		and		ebx, 3FFh
+		mov		ecx, 004B0991h
+		jmp		ecx
+	}
+}
+
+//ebp struct: 4 byte, 1 byte, 1 byte (unused), 1 byte x, 1 byte y
+//ebp+5 = unused var, 4 low bits = x, 4 high bits = y
+
+__declspec(naked) void findres_onX() //006150CB
+{
+	__asm
+	{
+		mov		al, [ebp + 5]
+		shl		eax, 8
+		mov		al, [ebp + 6]
+		and		eax, 0FFFh
+		mov		esi, 006150D0h
+		jmp		esi
+	}
+}
+
+__declspec(naked) void findres_onY() //006150E0
+{
+	__asm
+	{
+		mov		al, [ebp + 5]
+		shl		eax, 4
+		mov		al, [ebp + 7]
+		and		eax, 0FFFh
+		mov		ecx, 006150E5h
+		jmp		ecx
+	}
+}
+
+__declspec(naked) void findres_onPlayerUpdate() //00614FD4
+{
+	__asm
+	{
+		mov		ecx, [esp + 20h]
+		mov		[esi], edx
+		mov     word ptr[esi + 4], 0
+		mov		[esi + 6], cl
+		mov		[esi + 7], al
+		shl		eax, 4
+		and		eax, 0F000h
+		or		ecx, eax
+		mov		[esi + 5], ch
+		//mov		esi, 00614FE8h
+		//jmp		esi
+		push	00614FE8h
+		ret
+	}
+}
+
+//+5: player, use 4 lower bits, then 2: x, next 2: y
+
+__declspec(naked) void visible_unit_managerUpdate() //00614966
+{
+	__asm
+	{
+		mov		ebx, [esp + 30h]	//y
+		shl		ebx, 10
+		mov		bx, [esp + 2Ch]		//x
+		shr		ebx, 8
+		and		ebx, 0C03h
+		or		bl, bh
+		shl		ebx, 12
+		mov		bl, [esp + 28h]		//player
+		and		bl, 0Fh
+		or		bl, bh
+		//or		bl, 0F0h				//TEST, REMOVE
+		//and		bl, 5Fh					//TEST, REMOVE
+		mov		[eax + 5], bl
+		mov		ebx, [esp + 2Ch]	//x
+		mov		[eax + 6], bl
+		mov		ebx, [esp + 30h]	//y
+		mov		[eax + 7], bl
+		mov		ebx, [esp + 34h]	//radius
+		mov		[eax + 4], bl
+		//mov		ebx, 00614982h
+		//jmp		ebx
+		push	00614982h
+		ret
+	}
+}
+
+__declspec(naked) void visible_unit_managerOnX() //00614AC1
+{
+	__asm
+	{
+		xor		eax, eax
+		mov		al, [esi + 5]
+		shl		eax, 4
+		mov		al, [esi + 6]
+		and		eax, 3FFh
+		//and		eax, 0FFh			//TEST, REMOVE
+		mov		edx, 00614AC9h
+		jmp		edx
+	}
+}
+
+__declspec(naked) void visible_unit_managerOnY() //00614AEC
+{
+	__asm
+	{
+		xor		eax, eax
+		and		edx, 1Fh
+		mov		al, [esi + 5]
+		shl		eax, 2
+		mov		al, [esi + 7]
+		//and		eax, 0FFh			//TEST, REMOVE
+		mov		ecx, 00614AF7h
+		jmp		ecx
+	}
+}
+
+__declspec(naked) void visible_unit_managerOnPlayer() //00614B43
+{
+	__asm
+	{
+		mov		edx, eax
+		mov		al, [esi + 5]
+		and		eax, 0Fh
+		mov		edi, 00614B48h
+		jmp		edi
+	}
+}
+
+//references to visible unit ptr at 007A1CA0
+__declspec(naked) void visible_unit_ptr_fix_1() //0041BCC6
+{
+	__asm
+	{
+		mov     dl, [ecx + edi * 8 + 5]
+		and		dl, 0Fh
+		lea     eax, [ecx + edi * 8]
+		mov		ecx, 0041BCCDh
+		jmp		ecx
+	}
+}
+
 void setMapSizeHooks()
 {
+	//setHook((void*)0x00419250, &onUnitAI);
+
 	setHook((void*)0x0052A123, &onEditorMapSize);
 
 	setInt(0x0052EC29, (int)map_sizes_jmp);
-	setByte(0x0052EC23, 8);
+	setByte(0x0052EC23, sizeof(map_sizes_jmp) / sizeof(map_sizes_jmp[0]) - 1);
 
 	mapptr_2 = (int*)malloc(sizeof(int*) * (MAP_MAX+1));
 	mapptr = mapptr_2 + 1;
@@ -787,6 +955,60 @@ void setMapSizeHooks()
 	setHook((void*)0x004BDDBA, &facet1);
 	setHook((void*)0x004BDF60, &facet2);
 	setHook((void*)0x004BEBC2, &facet3);
+
+	//fix path finding on the right side: 8 to 10 bit shift
+	setByte(0x004B0A41, 10);
+	setHook((void*)0x004B0987, &onPathFind_shift);
+
+	//100h consts
+	setInt(0x00615F4C, MAP_MAX);
+	setInt(0x00615F53, MAP_MAX);
+
+	//setInt(0x00609999, MAP_MAX);	//check!
+	//setInt(0x00609A46, MAP_MAX);	//
+	//setInt(0x0060A10C, MAP_MAX);
+
+	//RM
+	//setInt(0x005CB15B, MAP_MAX);
+
+	//FFFCFF00h constant -> FFFCFC00h
+	setInt(0x004B19E6, 0xFFFCFC00);
+	setInt(0x004B1ACB, 0xFFFCFC00);
+	setByte(0x004B19EC, 10);
+	setInt(0x004B1ACB, 0xFFFCFC00);
+	setByte(0x004B1AD1, 10);
+	setInt(0x004B1BA9, 0xFFFCFC00);
+	setByte(0x004B1BAF, 10);
+	setInt(0x004B1CB2, 0xFFFCFC00);
+	setByte(0x004B1CC3, 10);
+
+	setByte(0x004A9163, 10);
+	setByte(0x004A9B4F, 10);
+
+	//movsx -> movzx
+	setByte(0x0060BE42, 0xB7);
+	setByte(0x0060DE66, 0xB7);
+	setByte(0x00611290, 0xB7);
+	setByte(0x00491D34, 0xB7);
+	setByte(0x0060D09F, 0xB7);
+
+	//search for resources
+	setHook((void*)0x006150CB, findres_onX);
+	setHook((void*)0x006150E0, findres_onY);
+	setHook((void*)0x00614FD4, findres_onPlayerUpdate);
+
+	//search for targets
+	setHook((void*)0x00614AC1, &visible_unit_managerOnX);
+	setHook((void*)0x00614AEC, &visible_unit_managerOnY);
+	setHook((void*)0x00614B43, &visible_unit_managerOnPlayer);
+	setHook((void*)0x00614966, &visible_unit_managerUpdate);
+
+	//visible unit ptr
+	setHook((void*)0x0041BCC6, &visible_unit_ptr_fix_1);
+
+	//save load fix
+	setInt(0x00583BF2, MAP_MAX);
+	setInt(0x00583BE7, MAP_MAX);
 }
 
 void setMapSizeHooks_legacy()

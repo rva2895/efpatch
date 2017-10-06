@@ -58,6 +58,9 @@ __declspec(naked) void onSlpAlloc() //004947D3
 	}
 }
 
+int map_adj_x = 0;
+int map_adj_y = 0;
+
 void* __stdcall getExtraSlp()
 {
 	char extra = extraTerrainMap[*map_current_y * 256 + *map_current_x];
@@ -67,9 +70,18 @@ void* __stdcall getExtraSlp()
 		return 0;
 }
 
+void* __stdcall getExtraSlp_adj()
+{
+	char extra = extraTerrainMap[map_adj_y * 256 + map_adj_x];
+	if (extra)
+		return extraTerrains[extra - 1].slpPtr;
+	else
+		return 0;
+}
+
 __declspec(naked) void terrainSlp1() //0061024C
 {
-	__asm
+	__asm	//elevation
 	{
 		push	ecx
 		mov		edi, [edx + eax*4 + 0B4h]
@@ -107,7 +119,7 @@ __declspec(naked) void terrainSlp3() //00610123
 	{
 		mov     ecx, [eax + edi + 0B4h]
 		push	ecx
-		call	getExtraSlp
+		call	getExtraSlp_adj
 		test	eax, eax
 		jz		_noExtraSlp3
 		pop		ecx
@@ -125,6 +137,8 @@ __declspec(naked) void terrainSlp4() //006100D9
 {
 	__asm
 	{
+		//xor ebx,ebx
+		//inc ebx
 		mov     edx, [ecx + eax + 0B4h]
 		push	edx
 		call	getExtraSlp
@@ -137,6 +151,19 @@ __declspec(naked) void terrainSlp4() //006100D9
 _noExtraSlp4:
 		pop		edx
 		push	6100E0h
+		ret
+	}
+}
+
+__declspec(naked) void get_adj_coord() //0060FF48
+{
+	__asm
+	{
+		mov     map_adj_y, eax
+		mov     map_adj_x, edx
+		mov     ecx, [edi + 0BF18h]
+		//push    0060FF4Eh
+		push	00610081h
 		ret
 	}
 }
@@ -215,6 +242,38 @@ loc_6129CA:
 	}
 }
 
+__declspec(naked) void temp1()
+{
+	__asm
+	{
+		push    0
+		push    0
+		mov     ecx, esi
+		mov		eax, 00610136h
+		jmp		eax
+	}
+}
+
+__declspec(naked) void terrainSlp5() //00610123
+{
+	__asm
+	{
+		mov     ecx, [eax + edi + 0B4h]
+		push	ecx
+		call	getExtraSlp
+		test	eax, eax
+		jmp		_noExtraSlp5
+		pop		ecx
+		mov		ecx, eax
+		push	61012Ah
+		ret
+_noExtraSlp5:
+		pop		ecx
+		push	61012Ah
+		ret
+	}
+}
+
 void setExtraTerrainHooks()
 {
 	initExtraTerrain();
@@ -223,10 +282,12 @@ void setExtraTerrainHooks()
 
 	setHook((void*)0x004947D3, &onSlpAlloc);
 
-	setHook((void*)0x0061024C, &terrainSlp1);
-	setHook((void*)0x00610A89, &terrainSlp2);
-	setHook((void*)0x00610123, &terrainSlp3);
-	setHook((void*)0x006100D9, &terrainSlp4);
+	setHook((void*)0x0061024C, &terrainSlp1);	//elevation
+	setHook((void*)0x00610A89, &terrainSlp2);	//normal
+	setHook((void*)0x00610123, &terrainSlp3);	//bad blend???
+	setHook((void*)0x006100D9, &terrainSlp4);	//internal blend
 
 	setHook((void*)0x00612904, &onPaint);
+
+	setHook((void*)0x0061007B, &get_adj_coord);
 }

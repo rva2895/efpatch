@@ -86,7 +86,8 @@ const char* effectNames[] =
 	"Data",
 	"Prop",
 	"Explore",
-	"Var"
+	"Var",
+	"Breakpoint"
 };
 
 void __stdcall condGeneral(condition* p, int index)
@@ -311,6 +312,7 @@ void(__stdcall* effectPrint[]) (effect*, int) =
 	e_str, //change prop obj
 	e_player, //explore
 	e_str, //change var
+	nullsub //breakpoint
 };
 
 void __stdcall scanCond(condition* p, int i)

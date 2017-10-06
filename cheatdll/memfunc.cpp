@@ -2,6 +2,8 @@
 
 #include "memfunc.h"
 
+//#include <map>
+
 void __cdecl setByte (int addr, unsigned char val)
 {
 	WriteProcessMemory (GetCurrentProcess (), (void*)addr, &val, 1, 0);
@@ -25,11 +27,15 @@ void __cdecl setIntF (int addr, int val)
 const unsigned char push = 0x68;
 const unsigned char ret = 0xC3;
 
+//std::map<int, int> m;
+
 void __cdecl setHook (void* addr, void* newAddr)
 {
 	unsigned long c;
 #ifdef _DEBUG
 	log ("Hook: 0x%X -> 0x%X", addr, newAddr);
+
+	//m.insert(std::make_pair<int, int>((int)addr, 0));
 #endif
 	//WriteProcessMemory (GetCurrentProcess (), addr, &push, 1, &c);
 	//WriteProcessMemory (GetCurrentProcess (), (char*)addr+1, &newAddr, 4, &c);

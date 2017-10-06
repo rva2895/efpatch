@@ -1,15 +1,16 @@
 #include "stdafx.h"
 
 #include "test.h"
+#include "log.h"
 
 char* str;
 
-extern char* lastLogs [12];
+extern char* lastLogs[12];
 extern int logged;
 
 //rect: 500x200
 
-void __stdcall someTextOut (HDC hdc)
+void __stdcall someTextOut(HDC hdc)
 {
 	/*sprintf (str,
 		"Cheatdll.dll info:\n"
@@ -59,7 +60,7 @@ void __stdcall someTextOut (HDC hdc)
 	*/
 }
 
-__declspec(naked) int someText ()
+__declspec(naked) int someText()
 {
 	__asm
 	{
@@ -69,7 +70,7 @@ __declspec(naked) int someText ()
 		call    someTextOut
 		pop     eax
 
-		mov     edx, [esi+100h]
+		mov     edx, [esi + 100h]
 		push    5E02BEh
 		ret
 	}
@@ -77,25 +78,25 @@ __declspec(naked) int someText ()
 
 int effectsFired = 0;
 int triggerBegun = 0;
-char triggerText [256];
+char triggerText[256];
 
 #ifdef _DEBUG
-void __cdecl effectLog (int n, char* ef)
+void __cdecl effectLog(int n, char* ef)
 {
 	if (triggerBegun)
 	{
-		log ("%s", triggerText);
+		log("%s", triggerText);
 		triggerBegun = 0;
 	}
-	log ("---> Effect %d (%d)", n, *(int*)(ef+4));
+	log("---> Effect %d (%d)", n, *(int*)(ef + 4));
 }
 
-__declspec(naked) int effectLogHook () //005F4A77
+__declspec(naked) int effectLogHook() //005F4A77
 {
 	__asm
 	{
 		mov     eax, [edx]
-		mov     ecx, [ecx + edi*4]
+		mov     ecx, [ecx + edi * 4]
 		push    eax
 		push    ecx
 		push    edi
@@ -107,30 +108,30 @@ __declspec(naked) int effectLogHook () //005F4A77
 	}
 }
 
-void __cdecl triggerLog (int n, char* tr)
+void __cdecl triggerLog(int n, char* tr)
 {
 	triggerBegun = 1;
 
-	char szName [] = "Untitled";
+	char szName[] = "Untitled";
 	//*szName = 0;
 	char* name;
-	if (*(char**)(tr+0x14))
-		name = *(char**)(tr+0x14);
+	if (*(char**)(tr + 0x14))
+		name = *(char**)(tr + 0x14);
 	else
 		name = szName;
 
 	if (*tr == 1)
-		sprintf (triggerText, "Trigger %d (name: %s; %d conditions, %d effects", n,
-			name, *(int*)(tr+0x20), *(int*)(tr+0x30));
+		sprintf(triggerText, "Trigger %d (name: %s; %d conditions, %d effects", n,
+			name, *(int*)(tr + 0x20), *(int*)(tr + 0x30));
 }
 
-__declspec(naked) int triggerLogHook () //005F54D2
+__declspec(naked) int triggerLogHook() //005F54D2
 {
 	__asm
 	{
 		mov     ecx, [esi + 10h]
 		push    ebx
-		mov     ecx, [ecx + edi*4]
+		mov     ecx, [ecx + edi * 4]
 		push    ecx
 		push    edi
 		call    triggerLog
@@ -145,17 +146,18 @@ __declspec(naked) int triggerLogHook () //005F54D2
 int retSave;
 int data;
 
-char title [] = "wew";
-char text [] = "text";
+char title[] = "wew";
+char text[] = "text";
 
-__declspec(naked) int onReadDat ()
+__declspec(naked) int onReadDat()
 {
 	__asm
 	{
 		mov     ecx, data
 		mov     ecx, [ecx]
-		cmp     ecx, 0x12345678
+		cmp     ecx, 0x006D5864
 		jnz     _end
+		int		3
 		push    eax
 		push    0
 		push    offset title
@@ -163,14 +165,13 @@ __declspec(naked) int onReadDat ()
 		push    0
 		call    ds:[MessageBoxA]
 		pop     eax
-		int     3
 _end:
 		mov     ecx, retSave
 		jmp     ecx
 	}
 }
 
-__declspec(naked) int readDatHook () //004D5550
+__declspec(naked) int readDatHook() //004D5550
 {
 	__asm
 	{
@@ -178,7 +179,7 @@ __declspec(naked) int readDatHook () //004D5550
 		mov     retSave, eax
 		mov     data, edx
 		mov     eax, onReadDat
-		mov     [esp], eax
+		mov		[esp], eax
 		push    ebp
 		mov     ebp, esp
 		sub     esp, 0Ch
@@ -187,18 +188,46 @@ __declspec(naked) int readDatHook () //004D5550
 	}
 }
 
-void setTestHook ()
+void __cdecl log_internal(int unk1, char* fmt1, char* fmt2, ...)
 {
-	str = (char*) malloc (2000);
+	va_list ap;
+	char* fmt;
+	if ((unsigned long)fmt1 < 0x2000)
+	{
+		va_start(ap, fmt2);
+		fmt = fmt2;
+	}
+	else
+	{
+		va_start(ap, fmt1);
+		fmt = fmt1;
+	}
 
-	setHook ((void*)0x5E02B8, &someText);
+	if (!fmt)
+		return;
+
+	if ((strlen(fmt) < 8) || (strlen(fmt) > 0x180))
+		return;
+	
+	char s[0x200];
+	vsprintf(s, fmt, ap);
+	log("%s", s);
+	va_end(ap);
+	//MessageBox(0, "1", "1", 0);
+}
+
+void setTestHook()
+{
+	//str = (char*) malloc (2000);
+
+	//setHook ((void*)0x5E02B8, &someText);
 
 #ifdef _DEBUG
-	setHook ((void*)0x005F54D2, &triggerLogHook);
-	setHook ((void*)0x005F4A77, &effectLogHook);
+	setHook((void*)0x005F54D2, &triggerLogHook);
+	setHook((void*)0x005F4A77, &effectLogHook);
+
+	setHook((void*)0x0060F920, &log_internal);
 #endif
 
-	//
-
-	setHook ((void*)0x004D5550, &readDatHook);
+	//setHook ((void*)0x004D5550, &readDatHook);
 }

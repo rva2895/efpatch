@@ -65,12 +65,12 @@ void __cdecl objPanel(void* unit)
 			else if (resProducersData[i].resID == 2)  //ore
 			{
 				frame = 1;
-				langID = 42047;
+				langID = 42048;
 			}
 			else if (resProducersData[i].resID == 3)  //nova
 			{
 				frame = 3;
-				langID = 42048;
+				langID = 42047;
 			}
 			else                                      //unknown
 			{
@@ -133,6 +133,13 @@ void __cdecl objPanel(void* unit)
 		val = workrate * 100;
 		objPanelDrawItem (localItemCounter++, frame, 6, val, 0, 0, 0, langID);
 	}*/
+
+	int garrisoned = *(int*)((int)unit + 0x30);
+	if (garrisoned)
+		if (*(int*)(garrisoned + 4) > 0)
+			return;
+
+	//TODO: when bldg is researching/building
 
 	if (*(unsigned char*)((int)propObj + 4) >= 70)
 	{

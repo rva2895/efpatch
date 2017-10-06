@@ -2,7 +2,11 @@
 
 #include <windows.h>
 
+#ifndef _CHEATDLL_CC
 #define REGPATH "Software\\LucasArts Entertainment Company LLC\\Star Wars Galactic Battlegrounds: Expanding Fronts\\Configurator"
+#else
+#define REGPATH "Software\\LucasArts Entertainment Company LLC\\Star Wars Galactic Battlegrounds: Clone Campaigns\\Configurator"
+#endif
 
 #define CC 0
 #define EF 1

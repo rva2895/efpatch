@@ -461,10 +461,10 @@ __declspec(naked) int terrain2 ()
 		push    29B8h
 		call    esi
 		//////////
-		//mov     ecx, ebx
-		//push    55
-		//push    1h
-		//call    esi
+		mov     ecx, ebx
+		push    55
+		push    1h
+		call    esi
 		//mov     ecx, ebx
 		//push    36h
 		//push    2h

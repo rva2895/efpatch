@@ -77,7 +77,7 @@ BOOL CALLBACK MainDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lPar
 				ExitProcess (0);
 				break;
 			case IDC_BUTTON1_:
-				launchConfigurator (hWndDlg);
+				launchConfigurator(hWndDlg);
 				break;
 			
 			default:
