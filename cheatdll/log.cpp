@@ -33,7 +33,7 @@ void deleteOldLogs ()
 #endif
 	WIN32_FIND_DATA fd;
 	HANDLE hFile = FindFirstFile ("logs\\efpatch*.log", &fd);
-	int xxxx = GetLastError ();
+	//int xxxx = GetLastError ();
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		log ("FindFirstFile returned INVALID_HANDLE_VALUE");

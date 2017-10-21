@@ -221,7 +221,12 @@ char* var_names[] =
 	"ReloadCooldown",
 	"ReloadCooldownPercent",
 	"Resources",
-	"Garrison"
+	"Garrison",
+	"MiscCounter1",
+	"MiscCounter2",
+	"MiscCounter3",
+	"MiscCounter4",
+	"MiscCounter5"
 };
 
 void* __stdcall getConditionParams_hook(void* _this, condition* c)

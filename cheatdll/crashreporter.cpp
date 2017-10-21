@@ -31,9 +31,9 @@ void initCrashReporter()
 	ai.AppName = L"Star Wars Galactic Battlegrounds: Expanding Fronts";
 	ai.Company = L"Expanding Fronts Development Team";
 #ifdef _CHEATDLL_CC
-	USHORT version[4] = { 2, 0, 0, 3 };
+	USHORT version[4] = { 2, 0, 0, 4 };
 #else
-	USHORT version[4] = { 1, 0, 0, 3 };
+	USHORT version[4] = { 1, 0, 0, 4 };
 #endif
 	ai.V[0] = version[0]; ai.V[1] = version[1]; ai.V[2] = version[2]; ai.V[3] = version[3];
 	ai.Hotfix = 0;
@@ -42,7 +42,6 @@ void initCrashReporter()
 	MINIDUMP_TYPE mt = (MINIDUMP_TYPE)(MiniDumpNormal
 		| MiniDumpWithProcessThreadData
 		| MiniDumpWithHandleData);
-
 
 	crash_rpt::custom_data_collection::Settings s;
 	s.SettingsSize = sizeof(crash_rpt::custom_data_collection::Settings);

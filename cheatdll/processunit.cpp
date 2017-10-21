@@ -69,7 +69,7 @@ _regenAllowed:
 	}
 }
 
-trigger_data* trigger;
+/*trigger_data* trigger;
 
 void build_table ()
 {
@@ -85,7 +85,7 @@ void build_table ()
 	trigger->zero1 = 0;
 	trigger->zero2 = 0;
 	trigger->zero3 = 0;
-}
+}*/
 
 __declspec(naked) void __stdcall player_createUnitAt (void* unit, int id)
 {
@@ -168,7 +168,7 @@ __declspec(naked) void __stdcall process_effect (void* effect, int game_ptr)
 	}
 }
 
-void __stdcall make_unit (void* unit, int id)
+/*void __stdcall make_unit (void* unit, int id)
 {
 	for (int i = 0; i < 0x2F; i++)
 		memset (trigger->table_ptr[i], 0, 0x17);
@@ -191,7 +191,7 @@ void __stdcall make_unit (void* unit, int id)
 		game_ptr = *(int*)(game_ptr + 0x126C);
 		process_effect (trigger, game_ptr);
 	}
-}
+}*/
 
 void setProcessUnitHooks ()
 {

@@ -2,6 +2,7 @@
 
 #include "objpanel.h"
 #include "resgenbldgs.h"
+#include "casts.h"
 
 extern int itemCounter;
 extern char* is2ndCol;
@@ -16,7 +17,7 @@ extern void* objPanelPtr;
 
 extern int(__thiscall* objPanelDrawItem) (void*, int, int, int, int, int, int, int, int);
 
-void __cdecl objPanel(void* unit)
+void __cdecl objPanel(UNIT* unit)
 {
 	//50731 - SLP in interfac.drs
 	//if (unit)
@@ -32,10 +33,6 @@ void __cdecl objPanel(void* unit)
 	int localItemCounter = itemCounter;
 	int val;
 
-	void* propObj = *(void**)((int)unit + 0x14);
-	short id = *(short*)((int)propObj + 0x18);
-
-	int worker = 0;
 	int frame;
 	int langID;
 
@@ -45,7 +42,7 @@ void __cdecl objPanel(void* unit)
 
 	for (int i = 0; i < numberOfResProducers; i++)
 	{
-		if (id == resProducersData[i].unitID)
+		if (unit->prop_object->id1 == resProducersData[i].unitID)
 		{
 			if (resProducersData[i].useControlRes)
 				res = resources[resProducersData[i].controlResID];
@@ -134,39 +131,55 @@ void __cdecl objPanel(void* unit)
 		objPanelDrawItem (localItemCounter++, frame, 6, val, 0, 0, 0, langID);
 	}*/
 
+	//has units inside - hide
 	int garrisoned = *(int*)((int)unit + 0x30);
 	if (garrisoned)
 		if (*(int*)(garrisoned + 4) > 0)
 			return;
 
+	//incomplete foundation - hide
+	if (unit->prop_object->type == 80)
+	{
+		if (*(float*)((int)unit + 0x230) < unit->prop_object->train_time)
+			return;
+	}
+
 	//TODO: when bldg is researching/building
 
-	if (*(unsigned char*)((int)propObj + 4) >= 70)
+	if (unit->prop_object->type >= 70)
 	{
-		float speed = *(float*)((int)propObj + 0xD0);
-		if (speed > 0.0f)
+		if (unit->prop_object->speed > 0.0f)
 		{
-			val = speed * 100;
+			val = unit->prop_object->speed * 100;
 			is2ndCol[localItemCounter++] = 1;
 			objPanelDrawItem(objPanelPtr, cntr++, 24, 6, val, 0, 0, 0, 42042);
 		}
 
-		float reloadtime = *(float*)((int)propObj + 0x150);
-		short proj = *(short*)((int)propObj + 0x154);
-		short cls = *(short*)((int)propObj + 0x01E);
-		if ((reloadtime > 0.0f) && ((proj != -1) || (cls != 18)))
+		if ((unit->prop_object->reload_time_1 > 0.0f) &&
+			((unit->prop_object->projectile_unit_id != -1) ||
+			(unit->prop_object->unit_class != 18)))
 		{
-			val = reloadtime * 100;
+			val = unit->prop_object->reload_time_1 * 100;
 			is2ndCol[localItemCounter++] = 1;
 			objPanelDrawItem(objPanelPtr, cntr++, 30, 6, val, 0, 0, 0, 42043);
 		}
 
-		float blastr = *(float*)((int)propObj + 0x148);
-		if (blastr > 0.0f)
+		if (unit->prop_object->blast_radius > 0.0f)
 		{
-			val = blastr * 100;
+			val = unit->prop_object->blast_radius * 100;
 			is2ndCol[localItemCounter++] = 1;
 			objPanelDrawItem(objPanelPtr, cntr++, 28, 6, val, 0, 0, 0, 42044);
+		}
+
+		UNIT_EXTRA* ud = getUnitExtra(unit);
+		if (ud && ud->countersUsed)
+		{
+			if (ud->miscCounter1 > 0.0f)
+			{
+				val = ud->miscCounter1 * 100;
+				is2ndCol[localItemCounter++] = 1;
+				objPanelDrawItem(objPanelPtr, cntr++, 29, 6, val, 0, 0, 0, 42050);
+			}
 		}
 	}
 }

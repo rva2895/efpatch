@@ -264,7 +264,6 @@ void setEffectHooks()
 	nEffects++;
 #endif // _DEBUG
 
-
 	setByte(0x005F2B4C, nEffects); //effect count, old = 2d
 	//setByte (0x0053BD37, 0x28);
 

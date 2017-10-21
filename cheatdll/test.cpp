@@ -155,7 +155,7 @@ __declspec(naked) int onReadDat()
 	{
 		mov     ecx, data
 		mov     ecx, [ecx]
-		cmp     ecx, 0x006D5864
+		cmp     cx, 16548
 		jnz     _end
 		int		3
 		push    eax
@@ -226,7 +226,7 @@ void setTestHook()
 	setHook((void*)0x005F54D2, &triggerLogHook);
 	setHook((void*)0x005F4A77, &effectLogHook);
 
-	setHook((void*)0x0060F920, &log_internal);
+	//setHook((void*)0x0060F920, &log_internal);
 #endif
 
 	//setHook ((void*)0x004D5550, &readDatHook);

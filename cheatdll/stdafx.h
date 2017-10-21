@@ -21,4 +21,5 @@
 
 #include "consts.h"
 #include "memfunc.h"
+#include "structs.h"
 #include "log.h"

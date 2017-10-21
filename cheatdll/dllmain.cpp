@@ -56,6 +56,9 @@
 #include "cliff.h"
 #include "animatedterrain.h"
 #include "trigger_unit.h"
+#include "scroll.h"
+#include "mapcopy.h"
+#include "gamespeed.h"
 #include "registry.h"
 #include "crashreporter.h"
 #include "rundll.h"
@@ -257,6 +260,9 @@ void setHooksCC()
 {
 	log("Setting EF-independent hooks...");
 
+	setScrollHooks();
+	setMapCopyHooks();
+
 	if (cd.windowMode)
 	{
 		if (LoadLibrary("wndmode.dll"))
@@ -280,9 +286,9 @@ void setHooksCC()
 		//		MB_ICONERROR);
 	}
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	setAdvCheatHooks();
-#endif
+//#endif
 
 		//Trigger object overflow fix
 		//setByte(0x5F2AF8, 0x65);
@@ -352,6 +358,8 @@ void setHooksCC()
 #endif // !_CC_COMPATIBLE
 
 	setTerrainLoadHooks();
+
+	setGameSpeedHooks();
 }
 
 __declspec(naked) void sc1Hook ()
@@ -373,7 +381,7 @@ void setHooksEF()
 
 	setStartupLoadHooks();
 
-	//setExtraTerrainHooks();															//!!!
+	setExtraTerrainHooks();															//!!!
 
 	//setHook ((void*)0x004B13A0, &pathFindHook);
 
@@ -423,7 +431,7 @@ void setHooksEF()
 
 	setCliffTypeHooks();
 
-	setTriggerUnitHooks();
+	//setTriggerUnitHooks();
 
 	//disabled units crash
 	setByte(0x00539793, 0x02); //esp

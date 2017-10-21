@@ -4,7 +4,7 @@
 
 #include "resgenbldgs.h"
 
-void* objPanelPtr;
+void* objPanelPtr = 0;
 
 int itemCounter;
 
@@ -26,6 +26,21 @@ int(__thiscall* objPanelDrawItem)
 //		ret
 //	}
 //}
+
+__declspec(naked) void __stdcall objPanel_invalidate()
+{
+	__asm
+	{
+		mov		ecx, objPanelPtr
+		test	ecx, ecx
+		jz		_bad_objpanel_ptr
+		push	2
+		mov		eax, 004B5F90h
+		call	eax
+_bad_objpanel_ptr:
+		ret
+	}
+}
 
 __declspec(naked) void secondCol1 () //005DB8B4
 {
