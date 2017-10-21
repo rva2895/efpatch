@@ -257,6 +257,21 @@
     <ClInclude Include="trigger_unit.h">
       <Filter>Заголовочные файлы\editor</Filter>
     </ClInclude>
+    <ClInclude Include="spregen.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="scroll.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="structs.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="mapcopy.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="gamespeed.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="advcheat.cpp">
@@ -462,6 +477,18 @@
     </ClCompile>
     <ClCompile Include="trigger_unit.cpp">
       <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="spregen.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="scroll.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="mapcopy.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="gamespeed.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

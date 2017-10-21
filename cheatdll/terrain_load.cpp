@@ -2,485 +2,177 @@
 
 #include "terrain.h"
 
+void (__thiscall* terrain1_load) (void* this_, int language_dll_id, int terrain) =
+	(void(__thiscall*) (void*, int, int))0x004C82D0;
+
+void __stdcall terrain1_(void* this_)
+{
+	terrain1_load(this_, 0x297D, 0);
+	terrain1_load(this_, 0x2980, 1);
+	terrain1_load(this_, 10926, 2);
+	terrain1_load(this_, 0x2993, 3);
+	terrain1_load(this_, 0x2983, 4);
+	terrain1_load(this_, 0x299A, 5);
+	terrain1_load(this_, 10622, 6);
+	terrain1_load(this_, 10920, 7);
+	terrain1_load(this_, 10921, 8);
+	terrain1_load(this_, 0x2991, 9);
+	terrain1_load(this_, 0x297F, 10);
+	terrain1_load(this_, 0x2992, 11);
+	terrain1_load(this_, 0x2990, 12);
+	terrain1_load(this_, 0x2981, 13);
+	terrain1_load(this_, 0x2998, 14);
+	terrain1_load(this_, 0x2A2D, 15);
+	terrain1_load(this_, 0x2A2E, 16);
+	terrain1_load(this_, 0x29A8, 17);
+	terrain1_load(this_, 0x2999, 18);
+	terrain1_load(this_, 0x2984, 19);
+	terrain1_load(this_, 0x2982, 20);
+	terrain1_load(this_, 0x29A9, 21);
+	terrain1_load(this_, 0x2985, 22);
+	terrain1_load(this_, 0x2994, 23);
+	terrain1_load(this_, 0x2995, 24);
+	terrain1_load(this_, 0x2996, 25);
+	terrain1_load(this_, 0x299B, 26);
+	terrain1_load(this_, 10927, 27);
+	terrain1_load(this_, 10929, 28);
+	terrain1_load(this_, 10922, 29);
+	terrain1_load(this_, 10925, 30);
+	terrain1_load(this_, 10924, 31);
+	terrain1_load(this_, 0x29AA, 32);
+	terrain1_load(this_, 10668, 33);
+	terrain1_load(this_, 0x29AB, 34);
+	terrain1_load(this_, 0x29AD, 35);
+	terrain1_load(this_, 10928, 36);
+	terrain1_load(this_, 10930, 37);
+	terrain1_load(this_, 0x29B5, 38);
+	terrain1_load(this_, 0x29B6, 39);
+	terrain1_load(this_, 10931, 40);
+	terrain1_load(this_, 10790, 41);
+	terrain1_load(this_, 0x2A27, 42);
+	terrain1_load(this_, 0x2A28, 43);
+	terrain1_load(this_, 0x2A29, 44);
+	terrain1_load(this_, 0x2A2A, 45);
+	terrain1_load(this_, 0x2A2B, 46);
+	terrain1_load(this_, 0x2A2C, 47);
+	terrain1_load(this_, 10923, 48);
+	terrain1_load(this_, 0x2A2F, 49);
+	terrain1_load(this_, 0x2A30, 50);
+	terrain1_load(this_, 0x29B7, 51);
+	terrain1_load(this_, 0x29B8, 52);
+	//terrain1_load(this_, 10931, 53);
+	//terrain1_load(this_, 10931, 54);
+	terrain1_load(this_, 1, 55);
+	terrain1_load(this_, 2, 56);
+}
+
 __declspec(naked) int terrain1 ()
 {
 	__asm
 	{
-		push    esi
-		mov     esi, 4C82D0h
 		mov     ecx, [edi]
-		push    0
-		push    297Dh
-		call    esi
-		mov     ecx, [edi]
-		push    1
-		push    2980h
-		call    esi
-		mov     ecx, [edi]
-		push    2
-		push    10926
-		call    esi
-		mov     ecx, [edi]
-		push    3
-		push    2993h
-		call    esi
-		mov     ecx, [edi]
-		push    4
-		push    2983h
-		call    esi
-		mov     ecx, [edi]
-		push    5
-		push    299Ah
-		call    esi
-		mov     ecx, [edi]
-		push    6
-		push    10622
-		call    esi
-		mov     ecx, [edi]
-		push    7
-		push    10920
-		call    esi
-		mov     ecx, [edi]
-		push    8
-		push    10921
-		call    esi
-		mov     ecx, [edi]
-		push    9
-		push    2991h
-		call    esi
-		mov     ecx, [edi]
-		push    0Ah
-		push    297Fh
-		call    esi
-		mov     ecx, [edi]
-		push    0Bh
-		push    2992h
-		call    esi
-		mov     ecx, [edi]
-		push    0Ch
-		push    2990h
-		call    esi
-		mov     ecx, [edi]
-		push    0Dh
-		push    2981h
-		call    esi
-		mov     ecx, [edi]
-		push    0Eh
-		push    2998h
-		call    esi
-		mov     ecx, [edi]
-		push    0Fh
-		push    2A2Dh
-		call    esi
-		mov     ecx, [edi]
-		push    10h
-		push    2A2Eh
-		call    esi
-		mov     ecx, [edi]
-		push    11h
-		push    29A8h
-		call    esi
-		mov     ecx, [edi]
-		push    12h
-		push    2999h
-		call    esi
-		mov     ecx, [edi]
-		push    13h
-		push    2984h
-		call    esi
-		mov     ecx, [edi]
-		push    14h
-		push    2982h
-		call    esi
-		mov     ecx, [edi]
-		push    15h
-		push    29A9h
-		call    esi
-		mov     ecx, [edi]
-		push    16h
-		push    2985h
-		call    esi
-		mov     ecx, [edi]
-		push    17h
-		push    2994h
-		call    esi
-		mov     ecx, [edi]
-		push    18h
-		push    2995h
-		call    esi
-		mov     ecx, [edi]
-		push    19h
-		push    2996h
-		call    esi
-		mov     ecx, [edi]
-		push    1Ah
-		push    299Bh
-		call    esi
-		mov     ecx, [edi]
-		push    1Bh
-		push    10927
-		call    esi
-		mov     ecx, [edi]
-		push    1Ch
-		push    10929
-		call    esi
-		mov     ecx, [edi]
-		push    1Dh
-		push    10922
-		call    esi
-		mov     ecx, [edi]
-		push    1Eh
-		push    10925
-		call    esi
-		mov     ecx, [edi]
-		push    1Fh
-		push    10924
-		call    esi
-		mov     ecx, [edi]
-		push    20h
-		push    29AAh
-		call    esi
-		mov     ecx, [edi]
-		push    21h
-		push    10668
-		call    esi
-		mov     ecx, [edi]
-		push    22h
-		push    29ABh
-		call    esi
-		mov     ecx, [edi]
-		push    23h
-		push    29ADh
-		call    esi
-		mov     ecx, [edi]
-		push    24h
-		push    10928
-		call    esi
-		mov     ecx, [edi]
-		push    25h
-		push    10930
-		call    esi
-		mov     ecx, [edi]
-		push    26h
-		push    29B5h
-		call    esi
-		mov     ecx, [edi]
-		push    27h
-		push    29B6h
-		call    esi
-		mov     ecx, [edi]
-		push    28h
-		push    10931
-		call    esi
-		mov     ecx, [edi]
-		push    29h
-		push    10790
-		call    esi
-		mov     ecx, [edi]
-		push    2Ah
-		push    2A27h
-		call    esi
-		mov     ecx, [edi]
-		push    2Bh
-		push    2A28h
-		call    esi
-		mov     ecx, [edi]
-		push    2Ch
-		push    2A29h
-		call    esi
-		mov     ecx, [edi]
-		push    2Dh
-		push    2A2Ah
-		call    esi
-		mov     ecx, [edi]
-		push    2Eh
-		push    2A2Bh
-		call    esi
-		mov     ecx, [edi]
-		push    2Fh
-		push    2A2Ch
-		call    esi
-		mov     ecx, [edi]
-		push    30h
-		push    10923
-		call    esi
-		mov     ecx, [edi]
-		push    31h
-		push    2A2Fh
-		call    esi
-		mov     ecx, [edi]
-		push    32h
-		push    2A30h
-		call    esi
-		mov     ecx, [edi]
-		push    33h
-		push    29B7h
-		call    esi
-		mov     ecx, [edi]
-		push    34h
-		push    29B8h
-		call    esi
-		//////////////////
-		//mov     ecx, [edi]
-		//push    55
-		//push    1h
-		//call    esi
-		//mov     ecx, [edi]
-		//push    36h
-		//push    2h
-		//call    esi
-		//////////////
-		pop     esi
-		//mov     ecx, [edi]
-		//push    35h
-		//push    1389h
-		//call    terrFunc1
+		push	ecx
+		call	terrain1_
 		mov		ecx, 0052A388h
 		jmp		ecx
 	}
+}
+
+void (__thiscall* terrain2_load) (void* this_, int language_dll_id, int terrain) =
+	(void(__thiscall*) (void*, int, int))0x0053AB20;
+
+void __stdcall terrain2_(void* this_)
+{
+	terrain2_load(this_, 10926, 2);
+	terrain2_load(this_, 0x2993, 3);
+	terrain2_load(this_, 0x299A, 5);
+	terrain2_load(this_, 10920, 7);
+	terrain2_load(this_, 10921, 8);
+	terrain2_load(this_, 0x2992, 0xB);
+	terrain2_load(this_, 0x2998, 0xE);
+	terrain2_load(this_, 0x2A2D, 0xF);
+	terrain2_load(this_, 0x2A2E, 0x10);
+	terrain2_load(this_, 0x29A8, 0x11);
+	terrain2_load(this_, 0x2999, 0x12);
+	terrain2_load(this_, 0x29A9, 0x15);
+	terrain2_load(this_, 0x2996, 0x19);
+	terrain2_load(this_, 0x299B, 0x1A);
+	terrain2_load(this_, 10927, 0x1B);
+	terrain2_load(this_, 10929, 0x1C);
+	terrain2_load(this_, 10922, 0x1D);
+	terrain2_load(this_, 10925, 0x1E);
+	terrain2_load(this_, 10924, 0x1F);
+	terrain2_load(this_, 0x29AA, 0x20);
+	terrain2_load(this_, 10668, 0x21);
+	terrain2_load(this_, 0x29AB, 0x22);
+	terrain2_load(this_, 0x29AD, 0x23);
+	terrain2_load(this_, 10928, 0x24);
+	terrain2_load(this_, 10930, 0x25);
+	terrain2_load(this_, 0x29B5, 0x26);
+	terrain2_load(this_, 0x29B6, 0x27);
+	terrain2_load(this_, 10931, 0x28);
+	terrain2_load(this_, 10790, 0x29);
+	terrain2_load(this_, 0x2A27, 0x2A);
+	terrain2_load(this_, 0x2A28, 0x2B);
+	terrain2_load(this_, 0x2A29, 0x2C);
+	terrain2_load(this_, 0x2A2A, 0x2D);
+	terrain2_load(this_, 0x2A2B, 0x2E);
+	terrain2_load(this_, 0x2A2C, 0x2F);
+	terrain2_load(this_, 10923, 0x30);
+	terrain2_load(this_, 0x2A2F, 0x31);
+	terrain2_load(this_, 0x2A30, 0x32);
+	terrain2_load(this_, 0x29B7, 0x33);
+	terrain2_load(this_, 0x29B8, 0x34);
+
+	terrain2_load(this_, 2707, 55);
+	terrain2_load(this_, 2724, 56);
+	terrain2_load(this_, 2708, 57);
+	terrain2_load(this_, 2709, 58);
+	terrain2_load(this_, 2710, 59);
+	terrain2_load(this_, 2711, 60);
+	terrain2_load(this_, 2712, 61);
+	terrain2_load(this_, 2713, 62);
+	terrain2_load(this_, 2714, 63);
+	terrain2_load(this_, 2715, 64);
+	terrain2_load(this_, 2716, 65);
+	terrain2_load(this_, 2717, 66);
+	terrain2_load(this_, 2718, 67);
+	terrain2_load(this_, 2719, 68);
+	terrain2_load(this_, 2720, 69);
+	terrain2_load(this_, 2721, 70);
+	terrain2_load(this_, 2723, 71);
+	terrain2_load(this_, 2722, 72);
+
+	//trees:
+	terrain2_load(this_, 22516, 73);
+	terrain2_load(this_, 23330, 74);
+	terrain2_load(this_, 23331, 75);
+	terrain2_load(this_, 214, 76);
+	terrain2_load(this_, 215, 77);
+	terrain2_load(this_, 22587, 78);
+	terrain2_load(this_, 23046, 79);
+	terrain2_load(this_, 219, 80);
+	terrain2_load(this_, 22515, 81);
+	terrain2_load(this_, 213, 82);
+	terrain2_load(this_, 217, 83);
+	terrain2_load(this_, 216, 84);
+	terrain2_load(this_, 23731, 85);
+	terrain2_load(this_, 218, 86);
+	//
+	terrain2_load(this_, 22739, 87);
+	terrain2_load(this_, 22741, 88);
+	terrain2_load(this_, 22736, 89);
+	terrain2_load(this_, 827, 90);
+	terrain2_load(this_, 828, 92);
 }
 
 __declspec(naked) int terrain2 ()
 {
 	__asm
 	{
-		//mov     ecx, ebx
-		//push    0
-		//push    297Dh
-		//call    terrainFunc2
-		//push    53B53Bh
-		//ret
-		//mov     ecx, ebx
-		//push    1
-		//push    2980h
-		//call    terrainFunc2
-		push    esi
-		mov     esi, 53AB20h
 		mov     ecx, ebx
-		push    2
-		push    10926
-		call    esi
-		mov     ecx, ebx
-		push    3
-		push    2993h
-		call    esi
-		//mov     ecx, ebx
-		//push    4
-		//push    2983h
-		//call    terrainFunc2
-		mov     ecx, ebx
-		push    5
-		push    299Ah
-		call    esi
-		//mov     ecx, ebx
-		//push    6
-		//push    10933
-		//call    terrainFunc2
-		mov     ecx, ebx
-		push    7
-		push    10920
-		call    esi
-		mov     ecx, ebx
-		push    8
-		push    10921
-		call    esi
-		//mov     ecx, ebx
-		//push    9
-		//push    2991h
-		//call    terrainFunc2
-		//mov     ecx, ebx
-		//push    0Ah
-		//push    297Fh
-		//call    terrainFunc2
-		mov     ecx, ebx
-		push    0Bh
-		push    2992h
-		call    esi
-		//mov     ecx, ebx
-		////push    0Ch
-		//push    2990h
-		//call    terrainFunc2
-		//mov     ecx, ebx
-		//push    0Dh
-		//push    2981h
-		//call    terrainFunc2
-		mov     ecx, ebx
-		push    0Eh
-		push    2998h
-		call    esi
-		mov     ecx, ebx
-		push    0Fh
-		push    2A2Dh
-		call    esi
-		mov     ecx, ebx
-		push    10h
-		push    2A2Eh
-		call    esi
-		mov     ecx, ebx
-		push    11h
-		push    29A8h
-		call    esi
-		mov     ecx, ebx
-		push    12h
-		push    2999h
-		call    esi
-		//mov     ecx, ebx
-		//push    13h
-		//push    2984h
-		//call    terrainFunc2
-		//mov     ecx, ebx
-		//push    14h
-		//push    2982h
-		//call    terrainFunc2
-		mov     ecx, ebx
-		push    15h
-		push    29A9h
-		call    esi
-		//mov     ecx, ebx
-		//push    16h
-		//push    2985h
-		//call    terrainFunc2
-		//mov     ecx, ebx
-		//push    17h
-		//push    2994h
-		//call    terrainFunc2
-		//mov     ecx, ebx
-		//push    18h
-		//push    2995h
-		//call    terrainFunc2
-		mov     ecx, ebx
-		push    19h
-		push    2996h
-		call    esi
-		mov     ecx, ebx
-		push    1Ah
-		push    299Bh
-		call    esi
-		mov     ecx, ebx
-		push    1Bh
-		push    10927
-		call    esi
-		mov     ecx, ebx
-		push    1Ch
-		push    10929
-		call    esi
-		mov     ecx, ebx
-		push    1Dh
-		push    10922
-		call    esi
-		mov     ecx, ebx
-		push    1Eh
-		push    10925
-		call    esi
-		mov     ecx, ebx
-		push    1Fh
-		push    10924
-		call    esi
-		mov     ecx, ebx
-		push    20h
-		push    29AAh
-		call    esi
-		mov     ecx, ebx
-		push    21h
-		push    10668
-		call    esi
-		mov     ecx, ebx
-		push    22h
-		push    29ABh
-		call    esi
-		mov     ecx, ebx
-		push    23h
-		push    29ADh
-		call    esi
-		mov     ecx, ebx
-		push    24h
-		push    10928
-		call    esi
-		mov     ecx, ebx
-		push    25h
-		push    10930
-		call    esi
-		mov     ecx, ebx
-		push    26h
-		push    29B5h
-		call    esi
-		mov     ecx, ebx
-		push    27h
-		push    29B6h
-		call    esi
-		mov     ecx, ebx
-		push    28h
-		push    10931
-		call    esi
-		mov     ecx, ebx
-		push    29h
-		push    10790
-		call    esi
-		mov     ecx, ebx
-		push    2Ah
-		push    2A27h
-		call    esi
-		mov     ecx, ebx
-		push    2Bh
-		push    2A28h
-		call    esi
-		mov     ecx, ebx
-		push    2Ch
-		push    2A29h
-		call    esi
-		mov     ecx, ebx
-		push    2Dh
-		push    2A2Ah
-		call    esi
-		mov     ecx, ebx
-		push    2Eh
-		push    2A2Bh
-		call    esi
-		mov     ecx, ebx
-		push    2Fh
-		push    2A2Ch
-		call    esi
-		mov     ecx, ebx
-		push    30h
-		push    10923
-		call    esi
-		mov     ecx, ebx
-		push    31h
-		push    2A2Fh
-		call    esi
-		mov     ecx, ebx
-		push    32h
-		push    2A30h
-		call    esi
-		mov     ecx, ebx
-		push    33h
-		push    29B7h
-		call    esi
-		mov     ecx, ebx
-		push    34h
-		push    29B8h
-		call    esi
-		//////////
-		mov     ecx, ebx
-		push    55
-		push    1h
-		call    esi
-		//mov     ecx, ebx
-		//push    36h
-		//push    2h
-		//call    esi
-			///////////
-		pop     esi
-		//mov     ecx, ebx
-		//push    35h
-		//push    1389h
-		//call    terrainFunc2
-
-		/*mov     ecx, ebx
-		push    37h
-		push    13
-		call    terrainFunc2*/
-
+		push	ecx
+		call	terrain2_
 		mov		ecx, 0053B53Bh
 		jmp		ecx
 	}

@@ -2,6 +2,8 @@
 
 #include "effects.h"
 #include "casts.h"
+#include "structs.h"
+#include "objpanel.h"
 
 void editVal (float* valPtr, float val, bool useMax, float max, int action)
 {
@@ -25,60 +27,90 @@ void editVal (float* valPtr, float val, bool useMax, float max, int action)
 			*valPtr = max;
 }
 
-void editHP (void* unit, float val, int action)
+void editHP (UNIT* unit, float val, int action)
 {
-	editVal ((float*)((int)unit+0x3C), val, false, 0, action);
+	editVal (&unit->hp, val, false, 0, action);
 }
 
-void editHPPercent (void* unit, float val, int action)
+void editHPPercent (UNIT* unit, float val, int action)
 {
-	int propObj = *(int*)((int)unit+0x14);
-	float maxHP = *(short*)(propObj+0x32);
-	editVal ((float*)((int)unit+0x3C), val*maxHP/100, false, 0, action);
+	float maxHP = unit->prop_object->hit_points;
+	editVal (&unit->hp, val*maxHP/100, false, 0, action);
 }
 
-void editSP(void* unit, float val, int action)
+void editSP(UNIT* unit, float val, int action)
 {
-	editVal((float*)((int)unit + 0x40), val, false, 0, action);
+	editVal(&unit->sp, val, false, 0, action);
 }
 
-void editResources(void* unit, float val, int action)
+void editResources(UNIT* unit, float val, int action)
 {
-	editVal((float*)((int)unit + 0x54), val, false, 0, action);
+	editVal(&unit->resources, val, false, 0, action);
 }
 
-void editSPPercent (void* unit, float val, int action)
+void editSPPercent (UNIT* unit, float val, int action)
 {
-	int propObj = *(int*)((int)unit+0x14);
-	float maxHP = *(short*)(propObj+0x32);
-	editVal ((float*)((int)unit+0x40), val*maxHP/100, false, 0, action);
+	float maxHP = unit->prop_object->hit_points;
+	editVal (&unit->sp, val*maxHP/100, false, 0, action);
 }
 
-void editReloadCooldown (void* unit, float val, int action)
+void editReloadCooldown (UNIT* unit, float val, int action)
 {
 	editVal ((float*)((int)unit+0x174), val, false, 0, action);
 }
 
-void editReloadCooldownPercent (void* unit, float val, int action)
+void editReloadCooldownPercent (UNIT* unit, float val, int action)
 {
-	int propObj = *(int*)((int)unit+0x14);
-	float reloadTime = *(short*)(propObj+0x150);
+	float reloadTime = unit->prop_object->reload_time_1;
 	editVal ((float*)((int)unit+0x174), val*reloadTime/100, false, 0, action);
 }
 
-void editHPRegen (void* unit, float val, float val2)
+void editHPRegen (UNIT* unit, float val, float val2)
 {
 	specialDamage (unit, 47, -val, 0);
 	specialDamage (unit, 48, val2, 0);
 }
 
-void editHPRegenPercent (void* unit, float val, float val2)
+void editHPRegenPercent (UNIT* unit, float val, float val2)
 {
 	specialDamage (unit, 49, -val, 0);
 	specialDamage (unit, 50, val2, 0);
 }
 
-void __stdcall effectUnitVarActual (void* unit, char* str)
+void editCounter(UNIT* unit, float val, int action, int c)
+{
+	UNIT_EXTRA* ud = getUnitExtra(unit);
+	if (!ud)
+	{
+		ud = new UNIT_EXTRA;
+		memset(ud, 0, sizeof(UNIT_EXTRA));
+		addUnitExtra(unit, ud);
+	}
+	ud->countersUsed = true;
+	switch (c)
+	{
+	case 1:
+		editVal(&ud->miscCounter1, val, false, 0, action);
+		break;
+	case 2:
+		editVal(&ud->miscCounter2, val, false, 0, action);
+		break;
+	case 3:
+		editVal(&ud->miscCounter3, val, false, 0, action);
+		break;
+	case 4:
+		editVal(&ud->miscCounter4, val, false, 0, action);
+		break;
+	case 5:
+		editVal(&ud->miscCounter5, val, false, 0, action);
+		break;
+	default:
+		break;
+	}
+	//objPanel_invalidate();
+}
+
+void __stdcall effectUnitVarActual (UNIT* unit, char* str)
 {
 	int action;
 	char var [50];
@@ -118,11 +150,7 @@ void __stdcall effectUnitVarActual (void* unit, char* str)
 	if (pch)
 		sscanf (pch, "%f", &val);
 
-	if (!strcmp (var, "wew lad"))
-	{
-		MessageBox (0, "wew lad", "test", 0);
-	}
-	else if (!strcmp (var, "HP"))
+	if (!strcmp (var, "HP"))
 	{
 		editHP (unit, val, action);
 	}
@@ -149,6 +177,26 @@ void __stdcall effectUnitVarActual (void* unit, char* str)
 	else if (!strcmp(var, "Resources"))
 	{
 		editResources(unit, val, action);
+	}
+	else if (!strcmp(var, "MiscCounter1"))
+	{
+		editCounter(unit, val, action, 1);
+	}
+	else if (!strcmp(var, "MiscCounter2"))
+	{
+		editCounter(unit, val, action, 2);
+	}
+	else if (!strcmp(var, "MiscCounter3"))
+	{
+		editCounter(unit, val, action, 3);
+	}
+	else if (!strcmp(var, "MiscCounter4"))
+	{
+		editCounter(unit, val, action, 4);
+	}
+	else if (!strcmp(var, "MiscCounter5"))
+	{
+		editCounter(unit, val, action, 5);
 	}
 	else if (!strcmp (var, "HPRegen"))
 	{

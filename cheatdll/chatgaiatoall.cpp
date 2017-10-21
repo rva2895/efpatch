@@ -2,25 +2,43 @@
 
 #include "chatgaiatoall.h"
 
-__declspec(naked) int srcPlayerCheck () //put on 005F3049
+__declspec(naked) int srcPlayerCheck_chat() //005F3049
 {
 	__asm
 	{
 		mov		ecx, [edi + 28h]
 		test	ecx, ecx
-		jz		toSendChat
+		jz		toSendChat_chat
 
-		_emit	0x39      //cmp     [esp+55F0h+player], eax
-		_emit	0x44
-		_emit	0x24
-		_emit	0x14
-		jnz		toDefault
+		cmp		[esp + 14h], eax
+		jnz		toDefault_chat
 
-toSendChat:
+toSendChat_chat:
 		mov		eax, 005F3053h
 		jmp		eax
 
-toDefault:
+toDefault_chat:
+		mov		ebx, 005F3DB1h
+		jmp		ebx
+	}
+}
+
+__declspec(naked) int srcPlayerCheck_sound() //005F310C
+{
+	__asm
+	{
+		mov		ecx, [edi + 28h]
+		test	ecx, ecx
+		jz		toSendChat_sound
+
+		cmp		[esp + 14h], eax
+		jnz		toDefault_sound
+
+toSendChat_sound:
+		mov		eax, 005F3116h
+		jmp		eax
+
+toDefault_sound:
 		mov		ebx, 005F3DB1h
 		jmp		ebx
 	}
@@ -31,5 +49,6 @@ void setChatGaiaToAllHooks ()
 #ifdef _DEBUG
 	log ("Setting gaia -> chat to all hooks...");
 #endif
-	setHook ((void*)0x005F3049, &srcPlayerCheck);
+	setHook((void*)0x005F3049, &srcPlayerCheck_chat);
+	setHook((void*)0x005F310C, &srcPlayerCheck_sound);
 }

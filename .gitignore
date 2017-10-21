@@ -12,8 +12,12 @@
 
 # Build results
 [Dd]ebug/
+[Dd]ebug_cc/
+[Dd]ebug_cc_compatible/
 [Dd]ebugPublic/
 [Rr]elease/
+[Rr]elease_cc/
+[Rr]elease_cc_compatible/
 [Rr]eleases/
 [Xx]64/
 [Xx]86/

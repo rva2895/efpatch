@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include <regex>
+#include "advtriggereffect.h"
 #include "triggerdesc.h"
 
 char* s;
@@ -153,6 +155,7 @@ void __stdcall c_var(condition* p, int)
 		(p->trigger & 1) ? op = "=" : op = "!=";
 		break;
 	default:
+		op = "";
 		break;
 	}
 	sprintf(s + strlen(s), " (%s %s %d)", var_names[p->ai_signal], op, p->timer);
@@ -264,6 +267,56 @@ void __stdcall e_alliance(effect* p, int)
 	sprintf(s + strlen(s), " (P%d->P%d: %s)", p->source_player, p->target_player, alliance_states[p->alliance]);
 }
 
+bool check_data(char* str)
+{
+	std::regex r("^([^ \t]+) ([^ \t]+) ([0-9]+ )?([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?)$",
+		std::regex_constants::icase);
+
+	std::smatch h;
+	std::string s(str);
+	if (std::regex_match(s, h, r))
+	{
+		std::ssub_match h_sub = h[1];
+		std::string match = h_sub.str();
+		if ((match == "SET") || (match == "ADD") || (match == "MUL"))
+		{
+			h_sub = h[2];
+			match = h_sub.str();
+			char type;
+			int i = getArrayIndex(match.c_str(), &type);
+			if (i == -1)
+			{
+				if ((match == "Attack") || (match == "Armor"))
+				{
+					h_sub = h[3];
+					match = h_sub.str();
+					return match.length() > 0;
+				}
+				else
+					return false;
+			}
+			else
+			{
+				h_sub = h[3];
+				match = h_sub.str();
+				return match.length() == 0;
+			}
+		}
+		else
+			return false;
+	}
+	else
+		return false;
+}
+
+void __stdcall e_str_data(effect* p, int)
+{
+	if (check_data(p->str))
+		sprintf(s + strlen(s), " (%s)", p->str);
+	else
+		sprintf(s + strlen(s), " (<syntax error>)");
+}
+
 void(__stdcall* effectPrint[]) (effect*, int) =
 {
 	nullsub, //none
@@ -308,8 +361,8 @@ void(__stdcall* effectPrint[]) (effect*, int) =
 	e_quantity, //change speed
 	e_quantity, //give ability
 	e_quantity, //remove ability
-	e_str, //change data
-	e_str, //change prop obj
+	e_str_data, //change data
+	e_str_data, //change prop obj
 	e_player, //explore
 	e_str, //change var
 	nullsub //breakpoint

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include <regex>
 #include "effects.h"
 #include "advtriggereffect.h"
 
@@ -39,7 +40,7 @@ assign dataIdentifiers [] =
 	{"HideInEditor",                                   0x05E,  T_INT16},
 	{"Unknown060",                                     0x060,  T_INT16}, //unknown 1
 	{"Unknown062",                                     0x062,  T_INT8 }, //1 enabled???
-	{"Unknown062",                                     0x063,  T_INT8 }, //disabled???
+	{"Unknown063",                                     0x063,  T_INT8 }, //disabled???
 	{"PlacementSideTerrain1",                          0x064,  T_INT16},
 	{"PlacementSideTerrain2",                          0x066,  T_INT16},
 	{"PlacementTerrain1",                              0x068,  T_INT16},
@@ -60,6 +61,8 @@ assign dataIdentifiers [] =
 	{"ResourceDecay",                                  0x090,  T_FLOAT},
 	{"Unknown 3A",                                     0x094,  T_FLOAT},
 	{"Unknown098",                                     0x098,  T_INT8 },
+	{"Unknown099",                                     0x099,  T_INT8 },
+	{"Unknown09A",                                     0x09A,  T_INT8 },
 	{"BlastDefenseLevel",                              0x09B,  T_INT8 },
 	{"Unknown2InteractionModeMinimapMode",             0x09C,  T_INT8 }, //test
 	{"InteractionMode",                                0x09D,  T_INT8 },
@@ -72,7 +75,7 @@ assign dataIdentifiers [] =
 	{"SelectionMask",                                  0x0A8,  T_INT8 },
 	{"SelectionShapeType",                             0x0A9,  T_INT8 },
 	{"SelectionShape",                                 0x0AA,  T_INT8 },
-	//{"null",                                  0x0AB,  T_INT8 },
+	//{"Unknown0AB",                                     0x0AB,  T_INT8 }, //padding byte
 	{"UnitAttribute",                                  0x0AC,  T_INT8 },
 	{"Civilization",                                   0x0AD,  T_INT8 },
 	{"AttributeLeftover",                              0x0AE,  T_INT16},
@@ -137,8 +140,7 @@ assign dataIdentifiers [] =
 	{"DisplayedRange",                                 0x170,  T_FLOAT},
 	{"ReloadTime2",                                    0x174,  T_FLOAT},
 	{"AccuracyErrorRadius",                            0x178,  T_FLOAT}, //type 50 ends here
-	{"Unknown17C",                                     0x17C,  T_INT16}, //type 70+ only
-	{"Cost1Type",                                      0x17C,  T_INT16},
+	{"Cost1Type",                                      0x17C,  T_INT16}, //type 70+ only
 	{"Cost1Amount", /*+0x180*/                         0x17E,  T_INT16},
 	{"Cost1IsPaid", /*+0x180*/                         0x180,  T_INT16},
 	{"Cost2Type",                                      0x182,  T_INT16},
@@ -349,6 +351,62 @@ bool isVarAllowed(void* unitData, int i)
 	return (i <= max);
 }
 
+/*void editUnitData(void* unitData, int i, int action)
+{
+
+}
+
+bool __stdcall advTriggerEffectActual2(void* unitData, char* str)
+{
+	std::regex r("^(.+) (.+) ([0-9]+ )?([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?)$",
+		std::regex_constants::icase);
+
+	std::smatch h;
+	std::string s(str);
+	int action;
+	if (std::regex_match(s, h, r))
+	{
+		std::ssub_match h_sub = h[1];
+		std::string command = h_sub.str();
+		if (command == "SET")
+			action = 0;
+		else if (command == "ADD")
+			action = 1;
+		else if (command == "MUL")
+			action = 2;
+		else
+			return false;
+
+		h_sub = h[2];
+		std::string variable = h_sub.str();
+		char type;
+		int i = getArrayIndex(variable.c_str(), &type);
+		if (i == -1)
+		{
+			if (variable == "Attack")
+			{
+				//todo
+			}
+			else if (variable == "Armor")
+			{
+				//todo
+			}
+			else
+				return false;
+			h_sub = h[3];
+			std::string cls_s = h_sub.str();
+			int cls;
+			sscanf(cls_s.c_str(), "%d", &cls);
+
+		}
+		else
+			editUnitData(unitData, i, action);
+		return true;
+	}
+	else
+		return false;
+}*/
+
 void __stdcall advTriggerEffectActual (void* unitData, char* s)
 {
 	char type;
@@ -505,14 +563,14 @@ void __stdcall advTriggerEffectActual (void* unitData, char* s)
 	}
 }
 
-void __declspec(naked) advTriggerEffect ()
+void __declspec(naked) advTriggerEffect()
 {
 	__asm
 	{
-		mov     eax, [edi+6Ch]
-		push    eax //string
-		push    esi //property object
-		call    advTriggerEffectActual
+		mov		eax, [edi + 6Ch]
+		push	eax			//string
+		push	esi			//property object
+		call	advTriggerEffectActual
 		ret
 	}
 }

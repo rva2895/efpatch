@@ -2,42 +2,36 @@
 
 struct UNIT_EXTRA
 {
-	int     unit;
-	void*   vtable;
-	int     speedReductionEnabled;
+	bool    speedReductionEnabled;
 	float   speedReductionTime;
 	float   speedReductionModifier;
 
-	int     stealthOffEnabled;
+	bool    stealthOffEnabled;
 	float   stealthOffTime;
 
-	int     reloadTimeEnabled;
+	bool    reloadTimeEnabled;
 	float   reloadTimeModifier;
 	float   reloadTimeTime;
 
-	int     hpDrainEnabled;
+	bool    hpDrainEnabled;
 	float   hpDrainPerSecond;
 	float   hpDrainTime;
 	float   hpDrainLeftover;
 
-	int     hpDrainPercentEnabled;
+	bool    hpDrainPercentEnabled;
 	float   hpDrainPercentPerSecond;
 	float   hpDrainPercentTime;
 	float   hpDrainPercentLeftover;
 
-	/*int     spawnEnabled;
-	int     spawnMinTime;
-	int     spawnMaxTime;   //-1 = unlimited
-	int     spawnProb;      //0 to RAND_MAX
-	float   spawnTime;
-	float   spawnLastTime;
-	int     spawnID;*/
-	//float   spawn
+	bool    countersUsed;
+	float   miscCounter1;
+	float   miscCounter2;
+	float   miscCounter3;
+	float   miscCounter4;
+	float   miscCounter5;
 };
 
 void setCastHooks ();
-
-void printMap ();
 
 UNIT_EXTRA* __fastcall getUnitExtra (void* unit);
 void __fastcall addUnitExtra (void* unit, UNIT_EXTRA* ud);

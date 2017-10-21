@@ -11,6 +11,7 @@ char* datFilename;
 
 BOOL CALLBACK MainDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	UNREFERENCED_PARAMETER(lParam);
     switch (message)
 	{
 	case WM_APP+1:

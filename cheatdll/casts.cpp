@@ -19,29 +19,23 @@
 
 int old_save_file_ver;
 
-void printMap ()
-{
-	//log ("--MAP: %d elements:", m.size());
-	//for (auto it = m.begin(); it != m.end(); it++)
-	//{
-	//log ("Vector size=%d", v.size());
-	//	log ("UNIT %d: sRE=%d,sRM=%f,sRT=%f,sOE=%d,sOT=%f",
-	//		it.
-		//	it->second->speedReductionEnabled,
-		//	it->second->speedReductionModifier,
-		//	it->second->speedReductionTime,
-		//	it->second->stealthOffEnabled,
-		//	it->second->stealthOffTime);
-	//}
-}
-
 int anyEffectsActive(UNIT_EXTRA* ud)
 {
 	return (ud->speedReductionEnabled || ud->stealthOffEnabled ||
 		ud->hpDrainEnabled || ud->hpDrainPercentEnabled || ud->reloadTimeEnabled);
 }
 
-void __stdcall processUnitExtra(void* unit, int timerRes)
+bool nonZeroCounters(UNIT_EXTRA* ud)
+{
+	//return ((ud->miscCounter1 > 0) ||
+	//	(ud->miscCounter2 > 0) ||
+	//	(ud->miscCounter3 > 0) ||
+	//	(ud->miscCounter4 > 0) ||
+	//	(ud->miscCounter5 > 0));
+	return ud->countersUsed;
+}
+
+void __stdcall processUnitExtra(UNIT* unit, int timerRes)
 {
 	UNIT_EXTRA* ud = getUnitExtra(unit);
 	if (ud)
@@ -83,9 +77,8 @@ void __stdcall processUnitExtra(void* unit, int timerRes)
 			}
 			else
 			{
-				void* propObj = *(void**)((int)unit + 0x14);
-				float maxHP = (float)*(short*)((int)propObj + 0x32);
-				float* hp = (float*)((int)unit + 0x3C);
+				float maxHP = unit->prop_object->hit_points;
+				float* hp = &unit->hp;
 				ud->hpDrainLeftover += *(float*)&timerRes * ud->hpDrainPerSecond;
 				float intp;
 				modf(ud->hpDrainLeftover, &intp);
@@ -108,9 +101,8 @@ void __stdcall processUnitExtra(void* unit, int timerRes)
 			}
 			else
 			{
-				void* propObj = *(void**)((int)unit + 0x14);
-				float maxHP = (float)*(short*)((int)propObj + 0x32);
-				float* hp = (float*)((int)unit + 0x3C);
+				float maxHP = unit->prop_object->hit_points;
+				float* hp = &unit->hp;
 				ud->hpDrainPercentLeftover +=
 					*(float*)&timerRes * ud->hpDrainPercentPerSecond*maxHP;
 				float intp;
@@ -124,23 +116,19 @@ void __stdcall processUnitExtra(void* unit, int timerRes)
 				}
 			}
 		}
-		/*if (ud->spawnEnabled)
-		{
-			if (ud->spawnTime - ud->spawnLastTime > 1.0)
-				ud->spawnLastTime ++;
-			ud->spawnTime += *(float*)&timerRes;
-			if (ud->spawnTime > ud->spawnMinTime)
-			{
-				if (ud->spawnTime - ud->spawnLastTime > 1.0)
-					if (rand () < ud->spawnProb)
-						make_unit (unit, ud->spawnID);
-			}
-		}*/
+		
 		if (!anyEffectsActive(ud))
 		{
-			removeUnitExtra(unit);
+			if (!nonZeroCounters(ud))
+			{
+				removeUnitExtra(unit);
 #ifdef _DEBUG
-			log("Removed expired unit 0x%X", unit);
+				log("Removed expired unit 0x%X", unit);
+#endif
+			}
+#ifdef _DEBUG
+			else
+				log("Unit 0x%X expired, but there are non-zero counters", unit);
 #endif
 		}
 	}
@@ -559,36 +547,9 @@ void __stdcall readUnitExtra(void* unit, int id)
 		if (flag)
 		{
 			ud = new UNIT_EXTRA;
-			readSaveFile(id, &ud->speedReductionEnabled, 4);
-			readSaveFile(id, &ud->speedReductionTime, 4);
-			readSaveFile(id, &ud->speedReductionModifier, 4);
-
-			readSaveFile(id, &ud->stealthOffEnabled, 4);
-			readSaveFile(id, &ud->stealthOffTime, 4);
-
-			readSaveFile(id, &ud->reloadTimeEnabled, 4);
-			readSaveFile(id, &ud->reloadTimeModifier, 4);
-			readSaveFile(id, &ud->reloadTimeTime, 4);
-
-			readSaveFile(id, &ud->hpDrainEnabled, 4);
-			readSaveFile(id, &ud->hpDrainPerSecond, 4);
-			readSaveFile(id, &ud->hpDrainTime, 4);
-			readSaveFile(id, &ud->hpDrainLeftover, 4);
-
-			readSaveFile(id, &ud->hpDrainPercentEnabled, 4);
-			readSaveFile(id, &ud->hpDrainPercentPerSecond, 4);
-			readSaveFile(id, &ud->hpDrainPercentTime, 4);
-			readSaveFile(id, &ud->hpDrainPercentLeftover, 4);
-
-			/*readSaveFile (id, &ud->spawnEnabled, 4);
-			readSaveFile (id, &ud->spawnMinTime, 4);
-			readSaveFile (id, &ud->spawnMaxTime, 4);
-			readSaveFile (id, &ud->spawnProb, 4);
-			readSaveFile (id, &ud->spawnTime, 4);
-			readSaveFile (id, &ud->spawnLastTime, 4);*/
-
+			readSaveFile(id, ud, sizeof(UNIT_EXTRA));
+			
 			addUnitExtra(unit, ud);
-			//m.insert (std::pair<int, UNIT_EXTRA*>(unit, ud));
 #ifdef _DEBUG
 			log("Loaded unit extra for unit 0x%X from save", unit);
 #endif
@@ -606,34 +567,8 @@ void __stdcall writeUnitExtra(void* unit, int id)
 		flag = 1;
 		writeSaveFile(id, &flag, 1);
 
-		writeSaveFile(id, &ud->speedReductionEnabled, 4);
-		writeSaveFile(id, &ud->speedReductionTime, 4);
-		writeSaveFile(id, &ud->speedReductionModifier, 4);
-
-		writeSaveFile(id, &ud->stealthOffEnabled, 4);
-		writeSaveFile(id, &ud->stealthOffTime, 4);
-
-		writeSaveFile(id, &ud->reloadTimeEnabled, 4);
-		writeSaveFile(id, &ud->reloadTimeModifier, 4);
-		writeSaveFile(id, &ud->reloadTimeTime, 4);
-
-		writeSaveFile(id, &ud->hpDrainEnabled, 4);
-		writeSaveFile(id, &ud->hpDrainPerSecond, 4);
-		writeSaveFile(id, &ud->hpDrainTime, 4);
-		writeSaveFile(id, &ud->hpDrainLeftover, 4);
-
-		writeSaveFile(id, &ud->hpDrainPercentEnabled, 4);
-		writeSaveFile(id, &ud->hpDrainPercentPerSecond, 4);
-		writeSaveFile(id, &ud->hpDrainPercentTime, 4);
-		writeSaveFile(id, &ud->hpDrainPercentLeftover, 4);
-
-		/*writeSaveFile (id, &ud->spawnEnabled, 4);
-		writeSaveFile (id, &ud->spawnMinTime, 4);
-		writeSaveFile (id, &ud->spawnMaxTime, 4);
-		writeSaveFile (id, &ud->spawnProb, 4);
-		writeSaveFile (id, &ud->spawnTime, 4);
-		writeSaveFile (id, &ud->spawnLastTime, 4);*/
-
+		writeSaveFile(id, ud, sizeof(UNIT_EXTRA));
+		
 #ifdef _DEBUG
 		log("Saved unit extra for unit %d", unit);
 #endif
@@ -681,7 +616,7 @@ int __stdcall strcmp_wr(char* s1, char* s2)
 }
 
 const char oldVer[] = "VER 9.4";
-const char newVer[] = "VER 9.5";
+const char newVer[] = "VER 9.6";
 
 __declspec(naked) void verLoadHook() //0061D9A5
 {

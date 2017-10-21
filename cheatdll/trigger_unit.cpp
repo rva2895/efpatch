@@ -98,7 +98,7 @@ void __stdcall trigger_process2(trigger* t, int arg0)
 			sscanf(match.c_str(), "%d", &player);
 
 			void* ptr = *(void**)(*(int*)(*(int*)(*(int*)(*(int*)(*(int*)(0x6A3684) + 0x17B4) + 0x126C) + 0x4C) + player * 4) + 0x78);
-			unit** units = *(unit***)((int)ptr + 4);
+			UNIT** units = *(UNIT***)((int)ptr + 4);
 			int n = *(int*)((int)ptr + 8);
 
 			for (int i = 0; i < n; i++)

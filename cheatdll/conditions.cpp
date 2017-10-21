@@ -2,6 +2,7 @@
 
 #include "conditions.h"
 #include "triggerdesc.h"
+#include "casts.h"
 #include "autosave.h"
 
 #define NEW_COND 5
@@ -35,11 +36,11 @@ int condJMPTable [] =
 	0x5F20F5,
 	0x5F2227,
 	0x5F1E25,
-	0x90909090,
-	0x90909090,
-	0x90909090,
-	0x90909090,
-	0x90909090
+	0,
+	0,
+	0,
+	0,
+	0
 };
 
 void conditionAreaExplored();
@@ -50,8 +51,8 @@ __declspec(naked) void condNotMet ()
 {
 	__asm
 	{
-		//mov		ebx, 005F2626h
-		mov		ebx, 005F260Eh
+		mov		ebx, 005F2626h
+		//mov		ebx, 005F260Eh
 		jmp		ebx
 	}
 }
@@ -493,68 +494,33 @@ _alliance_same:
 int(__thiscall* unitContainter_countUnits) (void*, int, int, int, int, int, int, int, int, void*, char) =
 	(int(__thiscall*) (void*, int objListType, int objGroup, int unk2, int x1, int y1, int x2, int y2, int objType, void* unitsVectorPtr, char unk02))0x004AF980;
 
-bool __fastcall compare_null(int, int)
-{
-	return false;
-}
-
-bool __fastcall compare_ge(int v1, int v2)
-{
-	return v1 >= v2;
-}
-
-bool __fastcall compare_g(int v1, int v2)
-{
-	return v1 > v2;
-}
-
-bool __fastcall compare_e(int v1, int v2)
-{
-	return v1 == v2;
-}
+bool __fastcall compare_null(int, int) { return false; }
+bool __fastcall compare_ge(int v1, int v2) { return v1 >= v2; }
+bool __fastcall compare_g(int v1, int v2) { return v1 > v2; }
+bool __fastcall compare_e(int v1, int v2) { return v1 == v2; }
 
 //////////////
 
-float __stdcall getval_null(void*)
-{
-	return 0;
-}
+float __fastcall getval_null(UNIT*) { return 0; }
+float __fastcall getval_hp(UNIT* unit) { return unit->hp; }
+float __fastcall getval_sp(UNIT* unit) { return unit->sp; }
+float __fastcall getval_resources(UNIT* unit) { return unit->resources; }
+float __fastcall getval_reload(UNIT* unit) { return *(float*)((int)unit + 0x174); }
+//float __stdcall getval_constr(UNIT* unit) { return *(float*)((int)unit + 0x230); }
 
-float __stdcall getval_hp(void* unit)
+float __fastcall getval_hp_percent(UNIT* unit)
 {
-	return *(float*)((int)unit + 0x3C);
-}
-
-float __stdcall getval_sp(void* unit)
-{
-	return *(float*)((int)unit + 0x40);
-}
-
-float __stdcall getval_resources(void* unit)
-{
-	return *(float*)((int)unit + 0x54);
-}
-
-float __stdcall getval_reload(void* unit)
-{
-	return *(float*)((int)unit + 0x174);
-}
-
-float __stdcall getval_hp_percent(void* unit)
-{
-	int propObj = *(int*)((int)unit + 0x14);
-	float maxHP = *(short*)(propObj + 0x32);
+	float maxHP = unit->prop_object->hit_points;
 	return getval_hp(unit) / maxHP * 100;
 }
 
-float __stdcall getval_sp_percent(void* unit)
+float __fastcall getval_sp_percent(UNIT* unit)
 {
-	int propObj = *(int*)((int)unit + 0x14);
-	float maxHP = *(short*)(propObj + 0x32);
+	float maxHP = unit->prop_object->hit_points;
 	return getval_sp(unit) / maxHP * 100;
 }
 
-float __stdcall getval_garrison(void*unit)
+float __fastcall getval_garrison(UNIT* unit)
 {
 	int ptr = *(int*)((int)unit + 0x30);
 	if (ptr)
@@ -563,16 +529,63 @@ float __stdcall getval_garrison(void*unit)
 		return 0.0f;
 }
 
-float __stdcall getval_reload_percent(void* unit)
+float __fastcall getval_reload_percent(UNIT* unit)
 {
-	int propObj = *(int*)((int)unit + 0x14);
+	int propObj = (int)unit->prop_object;
 	float reloadTime = *(short*)(propObj + 0x150);
 	return getval_reload(unit) / reloadTime * 100;
 }
 
-bool __stdcall conditionVariable_actual(condition* c, void* player, void* object)
+/*float __stdcall getval_constr_percent(UNIT* unit)
 {
-	void* units[0x1000];
+	int propObj = *(int*)((int)unit + 0x14);
+	if (*(char*)(propObj + 4) == 80)
+	{
+		float trainTime = *(short*)(propObj + 0x18E);
+		return getval_constr(unit) / trainTime * 100;
+	}
+	else
+		return 100;
+}*/
+
+float __fastcall getval_counter(UNIT* unit, int c)
+{
+	UNIT_EXTRA* ud = getUnitExtra(unit);
+	if (ud && (ud->countersUsed))
+		switch (c)
+		{
+		case 1:
+			return ud->miscCounter1;
+			break;
+		case 2:
+			return ud->miscCounter2;
+			break;
+		case 3:
+			return ud->miscCounter3;
+			break;
+		case 4:
+			return ud->miscCounter4;
+			break;
+		case 5:
+			return ud->miscCounter5;
+			break;
+		default:
+			return 0;
+			break;
+		}
+	else
+		return 0;
+}
+
+float __fastcall getval_counter1(UNIT* unit) { return getval_counter(unit, 1); }
+float __fastcall getval_counter2(UNIT* unit) { return getval_counter(unit, 2); }
+float __fastcall getval_counter3(UNIT* unit) { return getval_counter(unit, 3); }
+float __fastcall getval_counter4(UNIT* unit) { return getval_counter(unit, 4); }
+float __fastcall getval_counter5(UNIT* unit) { return getval_counter(unit, 5); }
+
+bool __stdcall conditionVariable_actual(condition* c, void* player, UNIT* object)
+{
+	UNIT* units[0x1000];
 	memset(units, 0, 0x1000 * 4);
 
 	bool(__fastcall* compare) (int, int) = compare_null;
@@ -599,7 +612,7 @@ bool __stdcall conditionVariable_actual(condition* c, void* player, void* object
 		n = unitContainter_countUnits(*(void**)((int)player + 0x78), c->obj_list_type, c->obj_group, 2,
 			c->area_x1, c->area_y1, c->area_x2, c->area_y2, c->obj_type, units, 0);
 
-	float(__stdcall* getval) (void*) = getval_null;
+	float(__fastcall* getval) (UNIT*) = getval_null;
 
 	switch (c->ai_signal)
 	{
@@ -626,6 +639,21 @@ bool __stdcall conditionVariable_actual(condition* c, void* player, void* object
 		break;
 	case 7:
 		getval = getval_garrison;
+		break;
+	case 8:
+		getval = getval_counter1;
+		break;
+	case 9:
+		getval = getval_counter2;
+		break;
+	case 10:
+		getval = getval_counter3;
+		break;
+	case 11:
+		getval = getval_counter4;
+		break;
+	case 12:
+		getval = getval_counter5;
 		break;
 	default:
 		break;

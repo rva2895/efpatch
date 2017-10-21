@@ -2,7 +2,7 @@
 
 #include "gamemode.h"
 
-int selectGameModeListJump [] =
+DWORD selectGameModeListJump [] =
 {
 	0x51F955,
 	0x51F934,

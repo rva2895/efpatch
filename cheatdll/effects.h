@@ -7,7 +7,7 @@ void triggerInputTableHook ();
 
 void effectUnitVar ();
 
-void __stdcall effectUnitVarActual (void* unit, char* str);
+void __stdcall effectUnitVarActual (UNIT* unit, char* str);
 
 struct assign
 {

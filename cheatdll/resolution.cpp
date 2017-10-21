@@ -32,6 +32,7 @@ void ResToFile (const char* res, const char* filename)
 	{
 		sprintf (tmpBuf, "Cannot create file: %s", filename);
 		MessageBox (0, tmpBuf, "Error", MB_ICONERROR);
+		exit(0);
 		//addLog ("Cannot create file. Setup aborted\x0D\x0A");
 		//_endthread ();
 	}

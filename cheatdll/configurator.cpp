@@ -138,6 +138,7 @@ void processDefaults (HWND hWnd)
 
 BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	UNREFERENCED_PARAMETER(lParam);
     switch (message)
 	{
 	case WM_CLOSE:
@@ -152,8 +153,8 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 			char curMode [50];
 			int nMode = 0;
 			DEVMODE devMode;
-			int prevW = 0;
-			int prevH = 0;
+			DWORD prevW = 0;
+			DWORD prevH = 0;
 			int prevBits = 0;
 			while (EnumDisplaySettings (0, nMode, &devMode) != 0)
 			{

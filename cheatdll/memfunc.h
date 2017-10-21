@@ -1,28 +1,28 @@
 #pragma once
 
-void __cdecl setByte (int addr, unsigned char val);
-void __cdecl setInt (int addr, int val);
-void __cdecl setByteF (int addr, unsigned char val);
-void __cdecl setIntF (int addr, int val);
+void __cdecl setByte (DWORD addr, BYTE val);
+void __cdecl setInt (DWORD addr, DWORD val);
+void __cdecl setByteF (DWORD addr, BYTE val);
+void __cdecl setIntF (DWORD addr, DWORD val);
 void __cdecl setHook (void* addr, void* newAddr);
-void __cdecl setHookRestorable (void* addr, void* newAddr, void* oldData);
-void __cdecl restoreHook (void* addr, void* oldData);
+//void __cdecl setHookRestorable (void* addr, void* newAddr, void* oldData);
+//void __cdecl restoreHook (void* addr, void* oldData);
 
-int __cdecl readInt (int addr);
+//int __cdecl readInt (int addr);
 
 int __stdcall getWindowX();
 int __stdcall getWindowY();
 
 struct BYTE_ASSIGN
 {
-	int  addr;
-	unsigned char val;
+	DWORD  addr;
+	BYTE val;
 };
 
 struct INT_ASSIGN
 {
-	int  addr;
-	int  val;
+	DWORD  addr;
+	DWORD  val;
 };
 
 struct SET_HOOK_ASSIGN

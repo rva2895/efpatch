@@ -21,27 +21,6 @@ int CALLBACK WndProc_dll(HWND hWnd,
 	WPARAM wParam,
 	LPARAM lParam);
 
-__declspec(dllexport) void CALLBACK RunGame(HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine, int nCmdShow)
-{
-	MessageBox(hwnd, lpszCmdLine, "Rundll", 0);
-	STARTUPINFO si;
-	memset(&si, 0, sizeof(STARTUPINFO));
-	si.cb = sizeof(STARTUPINFO);
-
-	SetCurrentDirectory(lpszCmdLine);
-	CreateProcess("battlegrounds_x2.exe",
-		0,
-		0,
-		0,
-		FALSE,
-		0,
-		0,
-		0,
-		&si,
-		0);
-	//HMODULE gbg = LoadLibrary ("battlegrounds_x2.exe");
-}
-
 int (WINAPI* WinMain_exe) (HINSTANCE, HINSTANCE, LPSTR, int) =
 	(int (WINAPI*) (HINSTANCE, HINSTANCE, LPSTR, INT)) 0x0048EFC0;
 

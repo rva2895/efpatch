@@ -103,7 +103,37 @@ __declspec(naked) void __stdcall takeControl (int p)
 	}
 }
 
-void __stdcall checkCheats (char* s)
+//6A35D8 <- chat this
+
+void __stdcall sendChat(char* s, int p)
+{
+	__asm
+	{
+		mov		eax, 006A35D8h
+		mov		ecx, [eax]
+		mov		edx, s
+		mov		eax, p
+		push	0
+		push	0
+		push	eax			//player
+		push	edx			//str
+		push	0			//int
+		mov		eax, 0042D5E0h
+		call	eax
+	}
+}
+
+void __cdecl chat(char* format, ...)
+{
+	char s[0x100];
+	va_list ap;
+	va_start(ap, format);
+	vsprintf(s, format, ap);
+	sendChat(s, -1);
+	va_end(ap);
+}
+
+int __stdcall checkCheats (char* s)
 {
 	char dummy[100];
 	int id;
@@ -119,51 +149,49 @@ void __stdcall checkCheats (char* s)
 		restoreCheatFlag = 1;
 		sscanf (s, "%s %d", dummy, &id);
 		prepareToEngageCheatCreateUnit (id);
+		return false;
 	}
 	if (strstr (s, "/research-tech"))
 	{
 		restoreCheatFlag = 1;
 		sscanf (s, "%s %d", dummy, &id);
 		prepareToEngageCheatResearchTech (id);
+		return false;
 	}
 	if (strstr (s, "/take-control"))
 	{
 		restoreCheatFlag = 1;
 		sscanf (s, "%s %d", dummy, &id);
-		if ( (id >= 0) && (id <= 8) )
-			takeControl (id);
+		if ((id >= 0) && (id <= 8))
+		{
+			takeControl(id);
+			chat("Taking control of player %d", id);
+		}
+		return true;
 	}
-	if (strstr (s, "/print-map"))
-	{
-		restoreCheatFlag = 1;
-		//sscanf (s, "%s %d", dummy, &id);
-		printMap ();
-	}
-	/*if (strstr (s, "/unit-extra off"))
-	{
-		restoreCheatFlag = 1;
-		extraOff ();
-	}
-	if (strstr (s, "/unit-extra on"))
-	{
-		restoreCheatFlag = 1;
-		extraOn ();
-	}*/
+
+	return false;
 }
 
 void __declspec(naked) scanChat () //put on sub at 0x005ED970
 {
 	__asm
 	{
-		mov     eax, [esp+8] //2nd argument of the function we are intercepting is pointer to the chat string
-		push    ecx
+		mov		eax, [esp+8] //2nd argument of the function we are intercepting is pointer to the chat string
+		push	ecx
 
-		push    eax
-		call    checkCheats
-
-		pop     ecx
-		sub     esp, 300h
-		push    005ED976h
+		push	eax
+		call	checkCheats
+		pop		ecx
+		sub		esp, 300h
+		push	ebx
+		push	edi
+		test	eax, eax
+		jnz		_no_chat
+		push	005ED978h
+		ret
+_no_chat:
+		push	005EDD65h
 		ret
 	}
 }
