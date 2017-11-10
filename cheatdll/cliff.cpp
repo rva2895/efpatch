@@ -22,23 +22,25 @@ __declspec(naked) void sub_5CAF00()
 {
 	__asm
 	{
-		mov		eax, 005CAF00h
-		jmp		eax
+		mov     eax, 005CAF00h
+		jmp     eax
 	}
 }
 
+#pragma warning(push)
+#pragma warning(disable:4100)
 __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
 {
 	__asm
 	{
-		push	ebp
-		mov		ebp, esp
+		push    ebp
+		mov     ebp, esp
 		push    edi
 		push    esi
 		push    ebx
-		or		edi, 0FFFFFFFFh
-		xor		ebx, ebx
-		mov		esi, [ebp + 0Ch]	//ptr
+		or      edi, 0FFFFFFFFh
+		xor     ebx, ebx
+		mov     esi, [ebp + 0Ch]	//ptr
 
 		push    3FC00000h
 		push    3FC00000h
@@ -390,6 +392,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
 		retn    8
 	}
 }
+#pragma warning(pop)
 
 int cliff_type = 0x108;
 
@@ -414,5 +417,5 @@ __declspec(naked) void onCliffPaint() //005CB1B0
 void setCliffTypeHooks()
 {
 	//setHook((void*)0x005CB1B0, &onCliffPaint);
-	setHook((void*)0x005C9D57, &scen_ptr_hook);
+	setHook((void*)0x005C9D57, scen_ptr_hook);
 }

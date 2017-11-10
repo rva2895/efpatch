@@ -3,12 +3,17 @@
 #include "processunit.h"
 #include "casts.h"
 
-void __stdcall airRegen (float* hp_leftover, int timerRes)
+#pragma warning(push)
+#pragma warning(disable:4100)
+
+void __stdcall airRegen(float* hp_leftover, int timerRes)
 {
+	UNREFERENCED_PARAMETER(hp_leftover);
+	UNREFERENCED_PARAMETER(timerRes);
 	//*hp_leftover += *(float*)&timerRes * 10.0f;
 }
 
-__declspec(naked) void _type70 () //0055A760
+__declspec(naked) void _type70() //0055A760
 {
 	__asm
 	{
@@ -19,7 +24,7 @@ __declspec(naked) void _type70 () //0055A760
 		push    ecx
 		mov     eax, [ecx + 18h]
 		mov     eax, [eax + 8Ch]
-		mov     eax, dword ptr [eax+0A8h]
+		mov     eax, dword ptr [eax + 0A8h]
 		push    eax
 		lea     eax, [ecx + 1C0h]
 		push    eax
@@ -38,7 +43,7 @@ _no_regen:
 	}
 }
 
-__declspec(naked) void regenFix () //0055A974
+__declspec(naked) void regenFix() //0055A974
 {
 	__asm
 	{
@@ -69,25 +74,7 @@ _regenAllowed:
 	}
 }
 
-/*trigger_data* trigger;
-
-void build_table ()
-{
-	trigger = new trigger_data;
-	memset (trigger, -1, sizeof(trigger_data));
-	trigger->table_ptr = new char* [0x2F];
-	for (int i = 0; i < 0x2F; i++)
-	{
-		trigger->table_ptr[i] = new char [0x17];
-		memset (trigger->table_ptr[i], 0, 0x17);
-	}
-	trigger->effect = 0;
-	trigger->zero1 = 0;
-	trigger->zero2 = 0;
-	trigger->zero3 = 0;
-}*/
-
-__declspec(naked) void __stdcall player_createUnitAt (void* unit, int id)
+__declspec(naked) void __stdcall player_createUnitAt(void* unit, int id)
 {
 	__asm
 	{
@@ -110,26 +97,26 @@ __declspec(naked) void __stdcall player_createUnitAt (void* unit, int id)
 	}
 }
 
-void __stdcall make_unit_extra (void* unit)
+void __stdcall make_unit_extra(void* unit)
 {
 	/*short id = *(short*)(*(int*)((char*)unit + 0x14) + 0x18);
 	UNIT_EXTRA* ud;
 	if (id == 3610)
 	{
 		ud = new UNIT_EXTRA;
-		memset (ud, 0, sizeof(UNIT_EXTRA));
+		memset(ud, 0, sizeof(UNIT_EXTRA));
 		ud->spawnMinTime = 30;
 		ud->spawnMaxTime = -1;
 		ud->spawnEnabled = 1;
 		ud->spawnProb = RAND_MAX / 10;
 		ud->spawnID = 0x19E;
-		addUnitExtra (unit, ud);
+		addUnitExtra(unit, ud);
 	}
 	if (id == 0x19E)
-		player_createUnitAt (unit, 3610);*/
+		player_createUnitAt(unit, 3610);*/
 }
 
-__declspec(naked) void _type10_constructor () //0048D310
+__declspec(naked) void _type10_constructor() //0048D310
 {
 	__asm
 	{
@@ -142,7 +129,7 @@ __declspec(naked) void _type10_constructor () //0048D310
 	}
 }
 
-__declspec(naked) void _type20_constructor () //00488920
+__declspec(naked) void _type20_constructor() //00488920
 {
 	__asm
 	{
@@ -155,7 +142,7 @@ __declspec(naked) void _type20_constructor () //00488920
 	}
 }
 
-__declspec(naked) void __stdcall process_effect (void* effect, int game_ptr)
+__declspec(naked) void __stdcall process_effect(void* effect, int game_ptr)
 {
 	__asm
 	{
@@ -168,38 +155,10 @@ __declspec(naked) void __stdcall process_effect (void* effect, int game_ptr)
 	}
 }
 
-/*void __stdcall make_unit (void* unit, int id)
-{
-	for (int i = 0; i < 0x2F; i++)
-		memset (trigger->table_ptr[i], 0, 0x17);
-
-	trigger->effect = 0xB;   //create object
-	trigger->table_ptr[trigger->effect][6] = 1;
-	trigger->table_ptr[trigger->effect][7] = 1;
-	trigger->table_ptr[trigger->effect][0xE] = 1;
-	trigger->table_ptr[trigger->effect][0xF] = 1;
-
-	//trigger->Object = *(short*)(*(int*)((char*)unit + 0x14) + 0x18);
-	trigger->Object = id;
-	trigger->Source_Player = 0;
-	trigger->Location_x = *(float*)((int)unit + 0x48);
-	trigger->Location_y = *(float*)((int)unit + 0x4C);
-
-	int game_ptr = *(int*)(*(int*)0x6A3684 + 0x17B4);
-	if (game_ptr)
-	{
-		game_ptr = *(int*)(game_ptr + 0x126C);
-		process_effect (trigger, game_ptr);
-	}
-}*/
-
 void setProcessUnitHooks ()
 {
 	//setHook ((void*)0x0055A760, &_type70);
-	setHook ((void*)0x0055A974, &regenFix);
-
-	//setHook ((void*)0x0048D310, &_type10_constructor);
-	//setHook ((void*)0x00488920, &_type20_constructor);
-
-	//build_table ();
+	setHook ((void*)0x0055A974, regenFix);
 }
+
+#pragma warning(pop)

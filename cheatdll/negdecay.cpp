@@ -15,11 +15,11 @@ __declspec(naked) int negDecay()  //put on 0054F123
 		mov     eax, [ecx + 80h]
 		mov     [esi + 54h], eax
 jumpgood:
-		mov		ecx, 0054F1B6h
-		jmp		ecx
+		mov     ecx, 0054F1B6h
+		jmp     ecx
 jump:
-		mov		ecx, 0054F129h
-		jmp		ecx
+		mov     ecx, 0054F129h
+		jmp     ecx
 	}
 }
 

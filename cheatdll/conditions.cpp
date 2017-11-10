@@ -11,7 +11,7 @@
 #define ALLIANCE_NEUTRAL 1
 #define ALLIANCE_ENEMY 3
 
-int condJMPTable [] =
+int condJMPTable[] =
 {
 	0x5F1E53,
 	0x5F1EA8,
@@ -47,32 +47,32 @@ void conditionAreaExplored();
 void conditionAlliance();
 void conditionVariable();
 
-__declspec(naked) void condNotMet ()
+__declspec(naked) void condNotMet()
 {
 	__asm
 	{
-		mov		ebx, 005F2626h
-		//mov		ebx, 005F260Eh
-		jmp		ebx
+		mov     ebx, 005F2626h
+		//mov     ebx, 005F260Eh
+		jmp     ebx
 	}
 }
 
-__declspec(naked) void condMet ()
+__declspec(naked) void condMet()
 {
 	__asm
 	{
-		mov		ebx, 005F1E95h
-		jmp		ebx
+		mov     ebx, 005F1E95h
+		jmp     ebx
 	}
 }
 
-__declspec(naked) void cond1 ()
+__declspec(naked) void cond1()
 {
 	__asm
 	{
 		//call    ds:[rand]
-		mov		edx, 00632BDDh
-		call	edx				//rand
+		mov     edx, 00632BDDh
+		call    edx			//rand
 		xor     edx, edx
 		mov     edi, 3E8h
 		idiv    edi
@@ -85,18 +85,18 @@ cYes:
 	}
 }
 
-void setConditionNumbers ()
+void setConditionNumbers()
 {
-	setByte (0x005F538A, 0x60+4*NEW_COND);
-	setByte (0x005F5505, 0x60+4*NEW_COND);
-	setByte (0x005F5548, 0x60+4*NEW_COND);
-	setByte (0x0053BD77, 0x18+NEW_COND);
+	setByte(0x005F538A, 0x60 + 4 * NEW_COND);
+	setByte(0x005F5505, 0x60 + 4 * NEW_COND);
+	setByte(0x005F5548, 0x60 + 4 * NEW_COND);
+	setByte(0x0053BD77, 0x18 + NEW_COND);
 
 	setByte(0x005F5565, 0x17 + NEW_COND);
 	setByte(0x005F554E, 0x17 + NEW_COND);
 
-	setInt (0x005F1E21, (int)condJMPTable);
-	setByte (0x005F1E17, 0x16+NEW_COND);
+	setInt(0x005F1E21, (int)condJMPTable);
+	setByte(0x005F1E17, 0x16 + NEW_COND);
 
 	condJMPTable[0x17] = (int)&cond1;
 	condJMPTable[0x18] = (int)&conditionAreaExplored;
@@ -111,63 +111,63 @@ __declspec(naked) void condParams () //005F55AA
 	{
 		mov     eax, [esi + 8]
 		mov     edx, [eax + 60h]    //new condition 1
-		mov		[edx + 0], cl
+		mov     [edx + 0], cl
 
 		mov     eax, [esi + 8]
 		mov     edx, [eax + 64h]    //new condition 2
-		mov		[edx + 0], cl
-		mov		[edx + 5], cl
-		mov		[edx + 9], cl
-		mov		[edx + 0Ah], cl
-		mov		[edx + 0Bh], cl
-		mov		[edx + 0Ch], cl
+		mov     [edx + 0], cl
+		mov     [edx + 5], cl
+		mov     [edx + 9], cl
+		mov     [edx + 0Ah], cl
+		mov     [edx + 0Bh], cl
+		mov     [edx + 0Ch], cl
 
 		mov     eax, [esi + 8]
 		mov     edx, [eax + 68h]    //new condition alliance state
-		mov		[edx + 5], cl
-		mov		[edx + 7], cl
-		mov		[edx + 0Fh], cl
+		mov     [edx + 5], cl
+		mov     [edx + 7], cl
+		mov     [edx + 0Fh], cl
 
 		mov     eax, [esi + 8]
 		mov     edx, [eax + 6Ch]    //new condition var GE
-		mov		cl, 2
-		mov		[edx + 0], cl
-		mov		[edx + 2], cl
-		mov		[edx + 4], cl
-		mov		[edx + 5], cl
-		mov		[edx + 7], cl
-		mov		[edx + 9], cl
-		mov		[edx + 0Ah], cl
-		mov		[edx + 0Bh], cl
-		mov		[edx + 0Ch], cl
-		mov		[edx + 0Dh], cl
-		mov		[edx + 0Eh], cl
-		mov		[edx + 0Fh], cl
+		mov     cl, 2
+		mov     [edx + 0], cl
+		mov     [edx + 2], cl
+		mov     [edx + 4], cl
+		mov     [edx + 5], cl
+		mov     [edx + 7], cl
+		mov     [edx + 9], cl
+		mov     [edx + 0Ah], cl
+		mov     [edx + 0Bh], cl
+		mov     [edx + 0Ch], cl
+		mov     [edx + 0Dh], cl
+		mov     [edx + 0Eh], cl
+		mov     [edx + 0Fh], cl
 
 		mov     eax, [esi + 8]
 		mov     edx, [eax + 70h]    //new condition var E
-		mov		cl, 2
-		mov		[edx + 0], cl
-		mov		[edx + 2], cl
-		mov		[edx + 4], cl
-		mov		[edx + 5], cl
-		mov		[edx + 7], cl
-		mov		[edx + 9], cl
-		mov		[edx + 0Ah], cl
-		mov		[edx + 0Bh], cl
-		mov		[edx + 0Ch], cl
-		mov		[edx + 0Dh], cl
-		mov		[edx + 0Eh], cl
-		mov		[edx + 0Fh], cl
+		mov     cl, 2
+		mov     [edx + 0], cl
+		mov     [edx + 2], cl
+		mov     [edx + 4], cl
+		mov     [edx + 5], cl
+		mov     [edx + 7], cl
+		mov     [edx + 9], cl
+		mov     [edx + 0Ah], cl
+		mov     [edx + 0Bh], cl
+		mov     [edx + 0Ch], cl
+		mov     [edx + 0Dh], cl
+		mov     [edx + 0Eh], cl
+		mov     [edx + 0Fh], cl
 
 		mov     eax, [esi + 8]
 		mov     edx, [eax + 14h]    //old condition objects in area
-		mov		[edx + 0Fh], cl
+		mov     [edx + 0Fh], cl
 
 		mov     eax, [esi+8]
 		mov     edx, [eax+8]
-		mov		eax, 005F55B0h
-		jmp		eax
+		mov     eax, 005F55B0h
+		jmp     eax
 	}
 }
 
@@ -269,10 +269,10 @@ __declspec(naked) void inv1 () //00529A06
 
 loc_7E22C4:
 		//
-		call	editor_enter
+		call    editor_enter
 		//
-		mov		eax, 00529A0Dh
-		jmp		eax
+		mov     eax, 00529A0Dh
+		jmp     eax
 	}
 }
 
@@ -287,11 +287,11 @@ __declspec(naked) void inv2 () //0052ABD7
 		mov     eax, 428520h
 		call    eax
 		//
-		call	editor_exit
+		call    editor_exit
 		//
 		lea     eax, [esi+964h]
-		mov		ecx, 0052ABDDh
-		jmp		ecx
+		mov     ecx, 0052ABDDh
+		jmp     ecx
 	}
 }
 
@@ -305,8 +305,8 @@ __declspec(naked) void inv3 () //0053BDA0
 		call    dword ptr [edx + 14h]
 
 		mov     ecx, [esi+0E1Ch]
-		mov		edx, 0053BDA6h
-		jmp		edx
+		mov     edx, 0053BDA6h
+		jmp     edx
 	}
 }
 
@@ -331,12 +331,12 @@ __declspec(naked) void inv4 () //0053C37C
 		mov     ecx, edi
 		mov     eax, 419150h
 		call    eax
-		mov		ecx, 0053C383h
-		jmp		ecx
+		mov     ecx, 0053C383h
+		jmp     ecx
 	}
 }
 
-__declspec(naked) void inv5 () //0053E014
+__declspec(naked) void inv5() //0053E014
 {
 	__asm
 	{
@@ -344,17 +344,17 @@ __declspec(naked) void inv5 () //0053E014
 		mov     eax, 4C5280h
 		call    eax
 		neg     eax
-		mov     [ebx+2Ch], al
+		mov     [ebx + 2Ch], al
 
 		mov     ecx, ebx
 		mov     eax, 419150h
 		call    eax
-		mov		esi, 0053E01Bh
-		jmp		esi
+		mov     esi, 0053E01Bh
+		jmp     esi
 	}
 }
 
-__declspec(naked) void inv6 () //005F2756
+__declspec(naked) void inv6() //005F2756
 {
 	__asm
 	{
@@ -370,40 +370,40 @@ loc_7E236B:                     //        ; CODE XREF: sub_437120+3AB243j
 		cmp     ebp, 10h
 		jge     jmpFar
 		xor     edx, edx
-		mov		eax, 005F274Bh
-		jmp		eax
+		mov     eax, 005F274Bh
+		jmp     eax
 jmpFar:
-		mov		eax, 005F2817h
-		jmp		eax
+		mov     eax, 005F2817h
+		jmp     eax
 cont:
-		mov		eax, 005F275Eh
-		jmp		eax
+		mov     eax, 005F275Eh
+		jmp     eax
 	}
 }
 
 char invCond;
 
-__declspec(naked) void invProcessCond () //005F4A0F
+__declspec(naked) void invProcessCond() //005F4A0F
 {
 	__asm
 	{
-		mov     ecx, [ecx+edi*4]
-		mov     al, [ecx+2Ch]
-		mov     ds:invCond, al
+		mov     ecx, [ecx + edi * 4]
+		mov     al, [ecx + 2Ch]
+		mov     ds : invCond, al
 		mov     eax, 005F1DE0h
 		call    eax
 		cmp     al, 2
 		jz      loc_5F4A2D
-		add     al, ds:invCond
+		add     al, ds : invCond
 		jnz     loc_5F4A63
-		mov		ecx, 005F4A23h
-		jmp		ecx
+		mov     ecx, 005F4A23h
+		jmp     ecx
 loc_5F4A63:
-		mov		ecx, 005F4A63h
-		jmp		ecx
+		mov     ecx, 005F4A63h
+		jmp     ecx
 loc_5F4A2D:
-		mov		ecx, 005F4A2Dh
-		jmp		ecx
+		mov     ecx, 005F4A2Dh
+		jmp     ecx
 	}
 }
 
@@ -423,53 +423,53 @@ __declspec(naked) void conditionAreaExplored()
 		add     edx, ebp          //y1 coloumn, x1 to x2
 		add     edi, ebp          //y2 coloumn, x1 to x2
 
-		xor		ecx, ecx
+		xor     ecx, ecx
 		//mov     esi, edx
 
-x_cont :
+x_cont:
 		//edx: current coloumn
 		mov     ebp, [edx]
 
 		mov     eax, [esi + 30h]
 		//mov     eax, [esi+ecx]
-		push	edx
-y_cont :
-		shl		ecx, 10h
+		push    edx
+y_cont:
+		shl     ecx, 10h
 		mov     cl, [esi + 20h]
 		mov     ebx, 10000h
 		shl     ebx, cl
-		shr		ecx, 10h
-		test	[ebp + eax * 4], ebx
-		setnz	bl
-		movzx	ebx, bl
-		add		ecx, ebx
+		shr     ecx, 10h
+		test    [ebp + eax * 4], ebx
+		setnz   bl
+		movzx   ebx, bl
+		add     ecx, ebx
 		inc     eax
 		cmp     eax, [esi + 38h]
 		jle     y_cont
-		pop		edx
+		pop     edx
 		cmp     edx, edi
 		jge     x_end
 		add     edx, 4
 		jmp     x_cont
-x_end :
+x_end:
 		//ecx = n tiles
-		mov		eax, [esi + 38h]
-		sub		eax, [esi + 30h]
-		inc		eax			//eax = xl
-		mov		edx, [esi + 3Ch]
-		sub		edx, [esi + 34h]
-		inc		edx			//edx = yl
-		mul		edx
-		mov		ebx, [esi + 0Ch]
-		mul		ebx
-		mov		ebx, 100
-		div		ebx
+		mov     eax, [esi + 38h]
+		sub     eax, [esi + 30h]
+		inc     eax			//eax = xl
+		mov     edx, [esi + 3Ch]
+		sub     edx, [esi + 34h]
+		inc     edx			//edx = yl
+		mul     edx
+		mov     ebx, [esi + 0Ch]
+		mul     ebx
+		mov     ebx, 100
+		div     ebx
 		//eax = n tiles required
-		cmp		ecx, eax
-		jl		_not_enough_tiles
-		jmp		condMet
+		cmp     ecx, eax
+		jl      _not_enough_tiles
+		jmp     condMet
 _not_enough_tiles:
-		jmp		condNotMet
+		jmp     condNotMet
 	}
 }
 
@@ -477,17 +477,17 @@ __declspec(naked) void conditionAlliance()
 {
 	__asm
 	{
-		mov		ecx, [esp + 38h]	//player ptr
-		mov		eax, [esi + 28h]	//timer = target player
-		push	eax
-		mov		eax, 004C2C60h
-		call	eax
-		mov		cl, [esi + 48h]
-		cmp		al, cl
-		jz		_alliance_same
-		jmp		condNotMet
+		mov     ecx, [esp + 38h]	//player ptr
+		mov     eax, [esi + 28h]	//timer = target player
+		push    eax
+		mov     eax, 004C2C60h
+		call    eax
+		mov     cl, [esi + 48h]
+		cmp     al, cl
+		jz      _alliance_same
+		jmp     condNotMet
 _alliance_same:
-		jmp		condMet
+		jmp     condMet
 	}
 }
 
@@ -672,15 +672,15 @@ __declspec(naked) void conditionVariable()
 {
 	__asm
 	{
-		mov		eax, [esp + 14h]	//object
-		mov		ecx, [esp + 38h]	//player
-		push	eax
-		push	ecx
-		push	esi					//condition
-		call	conditionVariable_actual
-		test	al, al
-		jnz		condMet
-		jmp		condNotMet
+		mov     eax, [esp + 14h]	//object
+		mov     ecx, [esp + 38h]	//player
+		push    eax
+		push    ecx
+		push    esi					//condition
+		call    conditionVariable_actual
+		test    al, al
+		jnz     condMet
+		jmp     condNotMet
 	}
 }
 
@@ -696,22 +696,22 @@ __declspec(naked) void unitContainter_countUnits_wrapper()
 {
 	__asm
 	{
-		mov		eax, [esi + 48h]
-		test	eax, eax
-		jz		_count_default
-		cmp		eax, 1
-		jz		_count_ungarrisoned
-		cmp		eax, 2
-		jz		_count_garrisoned
+		mov     eax, [esi + 48h]
+		test    eax, eax
+		jz      _count_default
+		cmp     eax, 1
+		jz      _count_ungarrisoned
+		cmp     eax, 2
+		jz      _count_garrisoned
 _count_default:
-		mov		eax, 004AF980h
-		jmp		eax
+		mov     eax, 004AF980h
+		jmp     eax
 _count_ungarrisoned:
-		mov		eax, unitContainter_countUnits_ungarrisoned
-		jmp		eax
+		mov     eax, unitContainter_countUnits_ungarrisoned
+		jmp     eax
 _count_garrisoned:
-		mov		eax, unitContainter_countUnits_garrisoned
-		jmp		eax
+		mov     eax, unitContainter_countUnits_garrisoned
+		jmp     eax
 	}
 }
 

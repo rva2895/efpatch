@@ -33,11 +33,11 @@ __declspec(naked) void saveScen()
 	__asm
 	{
 		mov     ecx, 0x6A3684
-		mov		ecx, [ecx]
+		mov     ecx, [ecx]
 		push    offset name
-		mov		ecx, [ecx + 420h]
+		mov     ecx, [ecx + 420h]
 		mov     edx, [ecx]
-		call    dword ptr[edx + 100h]
+		call    dword ptr [edx + 100h]
 		ret
 	}
 }

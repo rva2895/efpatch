@@ -8,9 +8,6 @@
 #define REGPATH "Software\\LucasArts Entertainment Company LLC\\Star Wars Galactic Battlegrounds: Clone Campaigns\\Configurator"
 #endif
 
-#define CC 0
-#define EF 1
-
 struct CONFIG_DATA
 {
 	int useFPS;

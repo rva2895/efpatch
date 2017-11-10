@@ -61,19 +61,19 @@ __declspec(naked) void loadDRS()
 {
 	__asm
 	{
-		xor		eax, eax
-		mov		edx, paramCntr
-		test	edx, edx
-		setnz	al
-		sub		edx, eax
-		mov		paramCntr, edx
-		push	eax
-		mov		eax, [ebp + 24h]
-		add		eax, 1467h
-		push	eax
-		mov		edx, offset aSwbg
-		mov		eax, 4D4C10h
-		call	eax
+		xor     eax, eax
+		mov     edx, paramCntr
+		test    edx, edx
+		setnz   al
+		sub     edx, eax
+		mov     paramCntr, edx
+		push    eax
+		mov     eax, [ebp + 24h]
+		add     eax, 1467h
+		push    eax
+		mov     edx, offset aSwbg
+		mov     eax, 4D4C10h
+		call    eax
 		ret
 	}
 }
@@ -82,24 +82,24 @@ __declspec(naked) void loadDRSHook() //005E4B78
 {
 	__asm
 	{
-		push	edi
-		push	esi
+		push    edi
+		push    esi
 
-		mov		edi, aDrs
-		mov		eax, nDrs
-		lea		esi, [edi + eax * 4]
+		mov     edi, aDrs
+		mov     eax, nDrs
+		lea     esi, [edi + eax * 4]
 cont:
-		cmp		edi, esi
-		jnb		end
-		mov		ecx, [edi]
-		add		edi, 4
-		call	loadDRS
-		jmp		cont
+		cmp     edi, esi
+		jnb     end
+		mov     ecx, [edi]
+		add     edi, 4
+		call    loadDRS
+		jmp     cont
 end:
-		pop		esi
-		pop		edi
-		mov		ecx, 005E4C46h
-		jmp		ecx
+		pop     esi
+		pop     edi
+		mov     ecx, 005E4C46h
+		jmp     ecx
 	}
 }
 
@@ -109,11 +109,11 @@ void setDRSLoadHooks(int ver, bool wide)
 	{
 		switch (ver)
 		{
-		case CC:
+		case VER_CC:
 			nDrs = nDrsCCWide;
 			aDrs = aDrsCCWide;
 			break;
-		case EF:
+		case VER_EF:
 			nDrs = nDrsWide;
 			aDrs = aDrsWide;
 			paramCntr = 2;
@@ -122,7 +122,7 @@ void setDRSLoadHooks(int ver, bool wide)
 			break;
 		}
 	}
-	else if (ver == EF)
+	else if (ver == VER_EF)
 	{
 		nDrs = nDrsNoWide;
 		aDrs = aDrsNoWide;

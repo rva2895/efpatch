@@ -1,3 +1,3 @@
 #pragma once
 
-void setFileNameHooks ();
+void setFileNameHooks(int ver);

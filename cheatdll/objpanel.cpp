@@ -31,12 +31,12 @@ __declspec(naked) void __stdcall objPanel_invalidate()
 {
 	__asm
 	{
-		mov		ecx, objPanelPtr
-		test	ecx, ecx
-		jz		_bad_objpanel_ptr
-		push	2
-		mov		eax, 004B5F90h
-		call	eax
+		mov     ecx, objPanelPtr
+		test    ecx, ecx
+		jz      _bad_objpanel_ptr
+		push    2
+		mov     eax, 004B5F90h
+		call    eax
 _bad_objpanel_ptr:
 		ret
 	}

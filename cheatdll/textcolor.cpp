@@ -6,34 +6,34 @@ __declspec(naked) int colors1() //put on 004F9C5C
 {
 	__asm
 	{
-		test	eax, eax
-		jz		find
-		mov		esi, 6
-		mov		eax, 004F9C65h
-		jmp		eax
+		test    eax, eax
+		jz      find
+		mov     esi, 6
+		mov     eax, 004F9C65h
+		jmp     eax
 find:
-		push	ebx
-		push	edi
-		call	getColor
-		add		esp, 4
-		cmp		eax, -1
-		jnz		setColor
-		pop		ebx
-		mov		eax, 004F9C71h
-		jmp		eax
+		push    ebx
+		push    edi
+		call    getColor
+		add     esp, 4
+		cmp     eax, -1
+		jnz     setColor
+		pop     ebx
+		mov     eax, 004F9C71h
+		jmp     eax
 setColor:
 		//AH - color palette index
 		//AL - strlen
 		//mov   ebx, eax
 		//shr   ebx, 8
-		pop		ebx
-		mov		byte ptr[esp + 14h], ah
+		pop     ebx
+		mov     byte ptr [esp + 14h], ah
 		cbw
 		cwde
-		mov		esi, eax
-		mov		byte ptr[esp + 20h], 0
-		mov		eax, 004F9CB1h
-		jmp		eax
+		mov     esi, eax
+		mov     byte ptr [esp + 20h], 0
+		mov     eax, 004F9CB1h
+		jmp     eax
 	}
 }
 
@@ -41,35 +41,35 @@ __declspec(naked) int colors2() //put on 004F967A
 {
 	__asm
 	{
-		test	eax, eax
-		jz		find
-		mov		byte ptr [esi], 0FBh
-		mov		eax, 004F9681h
-		jmp		eax
+		test    eax, eax
+		jz      find
+		mov     byte ptr [esi], 0FBh
+		mov     eax, 004F9681h
+		jmp     eax
 find:
-		push	ebx
-		mov		edx, [ebx]
-		push	edx
-		call	getColor
-		add		esp, 4
-		cmp		eax, -1
-		jnz		setColor
-		pop		ebx
-		mov		eax, 004F9695h
-		jmp		eax
+		push    ebx
+		mov     edx, [ebx]
+		push    edx
+		call    getColor
+		add     esp, 4
+		cmp     eax, -1
+		jnz     setColor
+		pop     ebx
+		mov     eax, 004F9695h
+		jmp     eax
 setColor:
 		//AH - color palette index
 		//AL - strlen
 		//mov   ebx, eax
 		//shr   ebx, 8
-		pop		ebx
-		mov		byte ptr [esi], ah
+		pop     ebx
+		mov     byte ptr [esi], ah
 		cbw
 		cwde
-		mov		byte ptr [edi], 0
-		mov		ecx, [ebx]
-		mov		edi, 004F968Bh
-		jmp		edi
+		mov     byte ptr [edi], 0
+		mov     ecx, [ebx]
+		mov     edi, 004F968Bh
+		jmp     edi
 	}
 }
 

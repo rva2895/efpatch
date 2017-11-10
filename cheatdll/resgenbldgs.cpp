@@ -62,23 +62,23 @@ __declspec(naked) int resGenHook()
 {
 	__asm
 	{
-		push	esi
-		push	ecx
-		mov		eax, [ecx + 0ACh]
-		push	eax //resources
-		mov		eax, [esi + 14h]
-		xor		ecx, ecx
-		mov		cx, word ptr [eax + 18h]
-		push	ecx //unit id
+		push    esi
+		push    ecx
+		mov     eax, [ecx + 0ACh]
+		push    eax //resources
+		mov     eax, [esi + 14h]
+		xor     ecx, ecx
+		mov     cx, word ptr [eax + 18h]
+		push    ecx //unit id
 
-		call	doResGen
+		call    doResGen
 
-		pop		ecx
-		pop		esi
-		mov		eax, [esi + 14h];
-		cmp		word ptr [eax + 18h], 68h
-		mov		eax, 005553CEh
-		jmp		eax
+		pop     ecx
+		pop     esi
+		mov     eax, [esi + 14h];
+		cmp     word ptr [eax + 18h], 68h
+		mov     eax, 005553CEh
+		jmp     eax
 	}
 }
 

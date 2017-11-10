@@ -13,8 +13,8 @@ __declspec (naked) void removeCheckResearched() //005BFF0B
 	setByte(0x5BFF10, 0x00);
 	__asm
 	{
-		mov		eax, 005BFF11h
-		jmp		eax
+		mov     eax, 005BFF11h
+		jmp     eax
 	}
 }
 
@@ -28,8 +28,8 @@ __declspec (naked) void removeCheckCiv() //005BFF25
 	setByte(0x5BFF2A, 0x00);
 	__asm
 	{
-		mov		ecx, 005BFF2Bh
-		jmp		ecx
+		mov     ecx, 005BFF2Bh
+		jmp     ecx
 	}
 }
 
@@ -37,30 +37,30 @@ __declspec (naked) void readQuant() //put on 5F2F72
 {
 	__asm
 	{
-		push	edx
-		push	esi
-		mov		esi, [edi + 0Ch]
-		test	esi, 0FFFFFFFCh
-		jnz		noRemoveCiv
-		test	esi, 1
-		jz		noRemoveResearched
-		push	removeCheckResearched
-		push	005BFF0Bh
-		call	setHook
-		add		esp, 8
+		push    edx
+		push    esi
+		mov     esi, [edi + 0Ch]
+		test    esi, 0FFFFFFFCh
+		jnz     noRemoveCiv
+		test    esi, 1
+		jz      noRemoveResearched
+		push    removeCheckResearched
+		push    005BFF0Bh
+		call    setHook
+		add     esp, 8
 noRemoveResearched:
-		test	esi, 2
-		jz		noRemoveCiv
-		push	removeCheckCiv
-		push	005BFF25h
-		call	setHook
-		add		esp, 8
+		test    esi, 2
+		jz      noRemoveCiv
+		push    removeCheckCiv
+		push    005BFF25h
+		call    setHook
+		add     esp, 8
 noRemoveCiv:
-		pop		esi
-		pop		edx
-		mov		ecx, [edx + 1D94h]
-		mov		eax, 005F2F78h
-		jmp		eax
+		pop     esi
+		pop     edx
+		mov     ecx, [edx + 1D94h]
+		mov     eax, 005F2F78h
+		jmp     eax
 	}
 }
 
@@ -69,10 +69,10 @@ void setResearchRepeatHooks()
 #ifdef _DEBUG
 	log("Setting research repeat hooks...");
 #endif
-	setHook((void*)0x005F2F72, &readQuant);
+	setHook((void*)0x005F2F72, readQuant);
 }
 
 void __stdcall removeCheckResearchedOnce()
 {
-	setHook((void*)0x005BFF0B, &removeCheckResearched);
+	setHook((void*)0x005BFF0B, removeCheckResearched);
 }

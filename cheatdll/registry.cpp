@@ -8,7 +8,7 @@ CONFIG_DATA cd_default =
 	1,   //dsoundhook
 	5,   //bufs
 	250, //delay
-	CC,  //version
+	VER_CC,  //version
 	1,   //ask
 	0,   //alt civ letter
 	0,   //res unlock

@@ -2,23 +2,24 @@
 #include "editorenh.h"
 #include "triggerdesc.h"
 
+//bit 1: restriction, bit 2: collision
 int placementSettings = 0;
 
 __declspec(naked) void noTerrainRestrictionHook() //00618FEE
 {
 	__asm
 	{
-		mov		ecx, placementSettings
-		test	ecx, 1					//no terrain restriction
-		jnz		_place_unit
-		and		eax, 0FFh
-		jz		_place_unit
-_no_place_unit:
-		mov		ecx, 0061922Eh
-		jmp		ecx
+		mov     ecx, placementSettings
+		test    ecx, 1					//no terrain restriction
+		jnz     _place_unit
+		and     eax, 0FFh
+		jz      _place_unit
+//_no_place_unit:
+		mov     ecx, 0061922Eh
+		jmp     ecx
 _place_unit:
-		mov		ecx, 00618FF9h
-		jmp		ecx
+		mov     ecx, 00618FF9h
+		jmp     ecx
 	}
 }
 
@@ -26,17 +27,17 @@ __declspec(naked) void noGridHook() //00618F90
 {
 	__asm
 	{
-		mov		edx, placementSettings
-		test	edx, 2					//no grid
-		jnz		_no_grid
+		mov     edx, placementSettings
+		test    edx, 2					//no grid
+		jnz     _no_grid
 		mov     edx, [edi]
 		push    eax
 		mov     eax, [ebx + 108h]
-		mov		ecx, 00618F99h
-		jmp		ecx
+		mov     ecx, 00618F99h
+		jmp     ecx
 _no_grid:
-		mov		ecx, 00618FA9h
-		jmp		ecx
+		mov     ecx, 00618FA9h
+		jmp     ecx
 	}
 }
 
@@ -44,18 +45,17 @@ __declspec(naked) void removeUnitsFix() //0049539F
 {
 	__asm
 	{
+		mov     ecx, placementSettings
+		test    ecx, 1
+		jnz     _no_remove
 		mov     ecx, [ebx]
-		test	ecx, ecx
-		jz		_no_remove
 		mov     eax, [ecx + 14h]
-		test	eax, eax
-		jz		_no_remove
 		mov     ax, [eax + 18h]
-		mov		edx, 004953A8h
-		jmp		edx
+		mov     edx, 004953A8h
+		jmp     edx
 _no_remove:
-		mov		edx, 004954A0h
-		jmp		edx
+		mov     edx, 0049549Bh   //A0
+		jmp     edx
 	}
 }
 
@@ -63,11 +63,11 @@ __declspec(naked) void __stdcall window_setRect(void*, int, int, int, int)
 {
 	__asm
 	{
-		pop		eax		//ret addr
-		pop		ecx		//this
-		push	eax
-		mov		edx, [ecx]
-		jmp		dword ptr [edx + 28h]
+		pop     eax		//ret addr
+		pop     ecx		//this
+		push    eax
+		mov     edx, [ecx]
+		jmp     dword ptr [edx + 28h]
 	}
 }
 
@@ -75,14 +75,14 @@ __declspec(naked) void __stdcall window_setText(void*, char*, int)
 {
 	__asm
 	{
-		mov		eax, [esp + 0Ch]
+		mov     eax, [esp + 0Ch]
 		mov     ecx, [esp + 4]
-		push	eax
-		mov		edx, [esp + 4 + 8]
-		push	edx
-		mov		eax, 004D0AF0h
-		call	eax
-		ret		0Ch
+		push    eax
+		mov     edx, [esp + 4 + 8]
+		push    edx
+		mov     eax, 004D0AF0h
+		call    eax
+		ret     0Ch
 	}
 }
 
@@ -97,23 +97,23 @@ __declspec(naked) void __fastcall flush_ai_trigger_dropdown(void*)
 {
 	__asm
 	{
-		push	esi
-		mov		esi, ecx
+		push    esi
+		mov     esi, ecx
 		lea     edx, [esi + 0ED0h]
 		mov     ecx, esi
 		push    edx
-		mov		eax, 00428520h
-		call	eax
+		mov     eax, 00428520h
+		call    eax
 
 		mov     ecx, [esi + 918h]
 		lea     eax, [esi + 0ED0h]
 		push    eax
 		push    ecx
 		mov     ecx, esi
-		mov		eax, 00529E50h
-		call	eax
+		mov     eax, 00529E50h
+		call    eax
 
-		pop		esi
+		pop     esi
 		ret
 	}
 }
@@ -191,23 +191,23 @@ __declspec(naked) void __fastcall flush_ai_signal_dropdown(void*)
 {
 	__asm
 	{
-		push	esi
-		mov		esi, ecx
+		push    esi
+		mov     esi, ecx
 		lea     edx, [esi + 0ED8h]
 		mov     ecx, esi
 		push    edx
-		mov		eax, 00428520h
-		call	eax
+		mov     eax, 00428520h
+		call    eax
 
 		mov     ecx, [esi + 918h]
 		lea     eax, [esi + 0ED8h]
 		push    eax
 		push    ecx
 		mov     ecx, esi
-		mov		eax, 00529E50h
-		call	eax
+		mov     eax, 00529E50h
+		call    eax
 
-		pop		esi
+		pop     esi
 		ret
 	}
 }
@@ -317,13 +317,13 @@ __declspec(naked) void getEffectParams_new()
 {
 	__asm
 	{
-		mov		eax, [esp + 4] //params
-		push	eax
-		push	ecx
-		call	getEffectParams_hook
-		mov		ecx, eax
-		mov		eax, 0053C920h
-		jmp		eax
+		mov     eax, [esp + 4] //params
+		push    eax
+		push    ecx
+		call    getEffectParams_hook
+		mov     ecx, eax
+		mov     eax, 0053C920h
+		jmp     eax
 	}
 }
 
@@ -331,13 +331,13 @@ __declspec(naked) void getConditionParams_new()
 {
 	__asm
 	{
-		mov		eax, [esp + 4] //params
-		push	eax
-		push	ecx
-		call	getConditionParams_hook
-		mov		ecx, eax
-		mov		eax, 0053C310h
-		jmp		eax
+		mov     eax, [esp + 4] //params
+		push    eax
+		push    ecx
+		call    getConditionParams_hook
+		mov     ecx, eax
+		mov     eax, 0053C310h
+		jmp     eax
 	}
 }
 
@@ -347,10 +347,14 @@ void setEditorEnhHooks()
 	setHook((void*)0x00618F90, &noGridHook);
 	setHook((void*)0x0049539F, &removeUnitsFix);
 
+#ifndef _CC_COMPATIBLE
 	setHook((void*)0x0052A977, (void*)0x0052A9C4);	//remove ai signal dropdown init
 	setHook((void*)0x0052A8F6, (void*)0x0052A943);	//remove ai trigger dropdown init
 
 	setInt(0x0053C2E4, (int)&getEffectParams_new - 0x0053C2E8);
 	setInt(0x0053DD6B, (int)&getConditionParams_new - 0x0053DD6F);
 	setInt(0x0053C26F, (int)&getConditionParams_new - 0x0053C273);
+#endif
+
+	setByte(0x00496A0B, 0xEB); //terrain paint crash
 }

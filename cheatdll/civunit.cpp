@@ -4,7 +4,7 @@
 
 unsigned char* tableU;
 
-ID_ASSIGNU idAssignU [] =
+ID_ASSIGNU idAssignU[] =
 {
 	//   E,     G,     R,     N,     F,     W,     A,     C,     Z
 	{ 0xB4,  0xB7,  0xE8,  0xCC,  0x34,  0xEF, 0x287, 0x28C, 0x9F5},  //padawan
@@ -50,29 +50,31 @@ ID_ASSIGNU idAssignU [] =
 	{0x3F1, 0x3F3, 0x3F5, 0x3F4, 0x3F2, 0x3F6, 0x3EF, 0x3F0, 0x706},  //power droid
 	{0x149, 0x14B, 0x15A, 0x158, 0x11F, 0x160, 0x3F7, 0x40D, 0x6D6},  //adv mounted trooper
 	{0x167, 0x169, 0x178, 0x172, 0x121, 0x17A, 0x413, 0x417, 0x6D4},  //mounted trooper
-	{0x17D, 0x17F, 0x183, 0x181, 0x124, 0x185, 0x5C6, 0x5CA, 1696},  //grenade trooper
+	{0x17D, 0x17F, 0x183, 0x181, 0x124, 0x185, 0x5C6, 0x5CA,  1696},  //grenade trooper
 	{0x187, 0x189, 0x18D, 0x18B, 0x127, 0x18F, 0x5CE, 0x5D2, 0x6D5},  //hvy mounted trooper
 	{0x191, 0x193, 0x197, 0x195, 0x12D, 0x199, 0x5D6, 0x5DA, 0x6D8},  //hvy aa trooper
 	{0x19C, 0x1A2, 0x1A6, 0x1A4, 0x129, 0x1A8, 0x5DE, 0x5E2, 0x6D0},  //hvy trooper
-	{0x1AA, 0x1AC, 0x1B0, 0x1AE, 0x12F, 0x1B4, 0x5E6, 0x5EA, 1698},  //repeater trooper
-	{0x1B6, 0x1B8, 0x1BC, 0x1BA, 0x131, 0x1BE, 0x604, 0x608, 1697},  //aa trooper
+	{0x1AA, 0x1AC, 0x1B0, 0x1AE, 0x12F, 0x1B4, 0x5E6, 0x5EA,  1698},  //repeater trooper
+	{0x1B6, 0x1B8, 0x1BC, 0x1BA, 0x131, 0x1BE, 0x604, 0x608,  1697},  //aa trooper
 	{0x133,  0xEE, 0x11A, 0x118, 0x135, 0x11E, 0x60C, 0x610, 0x6CE},  //trooper recruit
 	{0x1C0, 0x1C4, 0x1CC, 0x1C6, 0x13B, 0x1CE, 0x614, 0x618, 0x6CF},  //trooper
 	{0x9C8, 0x9C9, 0x9CA, 0x9CB, 0x9CC, 0x9CD, 0x9CE, 0x9CF, 0x9D0},  //interceptor
-	{0x9DC, 0x9DD, 0x9DE, 0x9DF, 0x9E0, 0x9E1, 0x9E2, 0x9E3, 0x9E4}   //attacker
+	{0x9DC, 0x9DD, 0x9DE, 0x9DF, 0x9E0, 0x9E1, 0x9E2, 0x9E3, 0x9E4},  //attacker
+	{ 1803,  1805,  1806,  1807,  1808,  1809,  1810,  1811,  1812},  //monitor
+	{ 1813,  1827,  1838,  1840,  1846,  1852,  1870,  1879,  1905}   //hvy monitor
 };
 
-void buildTableU ()
+void buildTableU()
 {
-	tableU = (unsigned char*) malloc (UNIT_COUNT);
-	memset (tableU, 0xFF, UNIT_COUNT);
+	tableU = (unsigned char*)malloc(UNIT_COUNT);
+	memset(tableU, 0xFF, UNIT_COUNT);
 
-	for (int i = 0; i < (sizeof(idAssignU)/sizeof(idAssignU[0])); i++)
+	for (int i = 0; i < (sizeof(idAssignU) / sizeof(idAssignU[0])); i++)
 		for (int j = 0; j < CIV_COUNT; j++)
 			tableU[idAssignU[i].IDs[j]] = i;
 }
 
-__declspec(naked) void unitCivAssign () //004DAD80
+__declspec(naked) void unitCivAssign() //004DAD80
 {
 	__asm
 	{
@@ -86,11 +88,11 @@ __declspec(naked) void unitCivAssign () //004DAD80
 		push    ebx
 		mov     ebx, offset idAssignU
 		movsx   ecx, cl
-		lea     ecx, [ecx + ecx*2]   //mul ecx by sizeof(short)*CIV_COUNT = 18
-		lea     ecx, [ecx + ecx*2]
+		lea     ecx, [ecx + ecx * 2]   //mul ecx by sizeof(short)*CIV_COUNT = 18
+		lea     ecx, [ecx + ecx * 2]
 		shl     ecx, 1
 		dec     edx
-		lea     ecx, [ecx + edx*2]
+		lea     ecx, [ecx + edx * 2]
 		mov     ax, word ptr [ebx + ecx]
 		pop     ebx
 locret:
@@ -98,11 +100,11 @@ locret:
 	}
 }
 
-void initCivUnitTable ()
+void initCivUnitTable()
 {
-	log ("Building civ unit assign table...");
+	log("Building civ unit assign table...");
 
-	buildTableU ();
+	buildTableU();
 
-	setHook ((void*)0x004DAD80, &unitCivAssign);
+	setHook((void*)0x004DAD80, unitCivAssign);
 }

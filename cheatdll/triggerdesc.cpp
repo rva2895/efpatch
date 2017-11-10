@@ -34,11 +34,13 @@ const char* condNames[] =
 	"Selected Obj In Area",
 	"Powered Obj In Area",
 	"Units Queued Past Pop Cap",
+#ifndef _CC_COMPATIBLE
 	"Per Mille Chance",		//0x18
 	"Area Explored",
 	"Alliance",
 	"Var",
 	"Var"
+#endif
 };
 
 const char* effectNames[] =
@@ -82,6 +84,7 @@ const char* effectNames[] =
 	"Flash Objects",
 	"Turn Input Off",
 	"Turn Input On",
+#ifndef _CC_COMPATIBLE
 	"Change Speed",
 	"Give Ability",		//0x28
 	"Remove Ability",
@@ -90,6 +93,7 @@ const char* effectNames[] =
 	"Explore",
 	"Var",
 	"Breakpoint"
+#endif
 };
 
 void __stdcall condGeneral(condition* p, int index)
@@ -187,11 +191,13 @@ void(__stdcall* condPrint[]) (condition*, int) =
 	c_quantity, //sel obj in area
 	c_quantity, //pow obj in area
 	nullsub, //units q past pop cap
+#ifndef _CC_COMPATIBLE
 	c_quantity, //per mille chance
 	c_quantity, //area explored
 	c_alliance_state, //alliance state
 	c_var, //var ge
 	c_var //var e
+#endif
 };
 
 void __stdcall e_send_chat(effect* p, int)
@@ -358,6 +364,7 @@ void(__stdcall* effectPrint[]) (effect*, int) =
 	nullsub, //flash obj
 	nullsub, //turn input off
 	nullsub, //turn input on
+#ifndef _CC_COMPATIBLE
 	e_quantity, //change speed
 	e_quantity, //give ability
 	e_quantity, //remove ability
@@ -366,6 +373,7 @@ void(__stdcall* effectPrint[]) (effect*, int) =
 	e_player, //explore
 	e_str, //change var
 	nullsub //breakpoint
+#endif
 };
 
 void __stdcall scanCond(condition* p, int i)
@@ -389,14 +397,14 @@ __declspec(naked) void onCondition() //0053D96B
 	{
 		//edi - index
 		//ebx - condition ptr
-		push	edi
-		push	ebx
-		call	scanCond
+		push    edi
+		push    ebx
+		call    scanCond
 		//edx - string
-		mov		edx, s
-		mov		ecx, [esi + 0DACh]
-		mov		eax, 0053D9BDh
-		jmp		eax
+		mov     edx, s
+		mov     ecx, [esi + 0DACh]
+		mov     eax, 0053D9BDh
+		jmp     eax
 	}
 }
 
@@ -406,14 +414,14 @@ __declspec(naked) void onEffect() //0053DA8D
 	{
 		//edi - index
 		//ebx - condition ptr
-		push	edi
-		push	ebx
-		call	scanEffect
+		push    edi
+		push    ebx
+		call    scanEffect
 		//edx - string
-		mov		edx, s
-		mov		ecx, [esi + 0DACh]
-		mov		eax, 0053DADFh
-		jmp		eax
+		mov     edx, s
+		mov     ecx, [esi + 0DACh]
+		mov     eax, 0053DADFh
+		jmp     eax
 	}
 }
 

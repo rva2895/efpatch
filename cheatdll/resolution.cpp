@@ -40,31 +40,6 @@ void ResToFile (const char* res, const char* filename)
 	fclose (file);
 }
 
-/*void drsCreate ()
-{
-	int off = 0;
-	int pos = 0;
-	drsTableHdr h;
-	FILE* f = fopen ("data\\widescrn_x2.drs", "wb");
-	fwrite ("Copyright (c) 2001 LucasArts Entertainment Company LLC\0\0\0\0\0"
-		"1.00swbg\0\0\0\0\0\0\0\0\x02\0\0\0", 0x50, 1, f);
-	fwrite (&off, 4, 1, f);
-	h.type = 1651076705;
-	h.count = 1;
-	h.offset = 0;
-	fwrite (&h, sizeof (drsTableHdr), 1, f);
-	h.type = 1936486432;
-	h.count = 9;
-	h.offset = 0;
-	fwrite (&h, sizeof (drsTableHdr), 1, f);
-	pos = ftell (f);
-}*/
-
-/*void drsWrite (char* type, int id, void* data, int size)
-{
-
-}*/
-
 //50032 - edit small
 //50033 - edit medium
 //50034 - edit large
@@ -74,17 +49,18 @@ void ResToFile (const char* res, const char* filename)
 
 void createNewFiles (int y)
 {
+//#ifndef _CHEATDLL_CC
 	if (y >= 1024)
 		ResToFile ("IDD_DRS_TEMPLATE_1280", "data\\wide.drs");
 	else
 		ResToFile ("IDD_DRS_TEMPLATE_1024", "data\\wide.drs");
+//#endif
 }
 
 void* memSLP; //global variable to store loaded SLP
 
 int oldSize;
 int newSize;
-
 
 void rd //read data from memSLP to mem
 	(int offset,
@@ -231,6 +207,8 @@ void parseSLP (int newH, int id, bool useWide)
 			stretchAt = 424;
 		else if (id == 51126)
 			stretchAt = 423;
+		else if (id == 51127)
+			stretchAt = 417;
 		else if (id == 51129)
 			stretchAt = 424;
 		else
@@ -539,13 +517,6 @@ for (j = 0; j < Y; j++) //for each horizontal line
 	log ("Resolution: SLP %d updated", id);
 }
 
-/*void wrt (int offset, int data) //write data to offset in file
-{
-	int d = data;
-	fseek (file, offset, SEEK_SET);
-	fwrite (&d, 4, 1, file);
-}*/
-
 bool patchEXE(int X, int Y) //needs to be completed...
 {
 	//file = fopen (mainEXE, "rb+");
@@ -601,7 +572,8 @@ bool patchEXE(int X, int Y) //needs to be completed...
 		setIntF(0x1003E8, Y - 340);
 		//setIntF(0x1003E3, Y-42); //some item icon, old ver
 		//setIntF(0x1003E8, X-340);
-		setIntF(0x102852, X); //check this again
+		setIntF(0x102852, X); //rec game UI
+		setIntF(0x10285E, Y - 224); //rec game UI
 		setIntF(0x10C987, X); //ok
 		setIntF(0x10E4CD, X); //ok
 		setIntF(0x10E4D2, Y); //ok
@@ -686,7 +658,8 @@ bool patchEXE(int X, int Y) //needs to be completed...
 		setIntF(0x10040B, Y - 35); //ok, but test
 		//setIntF(0x100410, X  //same as above
 		setIntF(0x102852, X + 1); //ok
-		setIntF(0x102865, X); //ok, but test surroundings
+		setIntF(0x102865, X); //rec game UI
+		setIntF(0x102871, Y - 181); //rec game UI
 		setIntF(0x10C94A, X); //should be ok
 		setIntF(0x10C987, X + 1); //block higher res
 		setIntF(0x10E4B2, X); //ok
@@ -966,7 +939,7 @@ void patchResolution (int x, int y)
 //50101 - load medium
 //50102 - load large
 
-#ifndef _CHEATDLL_CC
+//#ifndef _CHEATDLL_CC
 	if (newXsize >= 1920)
 	{
 		placeSLP (50032, 0);
@@ -985,7 +958,7 @@ void patchResolution (int x, int y)
 		placeSLP (50101, 0);
 		placeSLP (50102, 0);
 	}
-#endif
+//#endif
 	
 	if (newYsize >= 1024)
 	{

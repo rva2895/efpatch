@@ -4,16 +4,16 @@
 
 struct DRS_header
 {
-	char copyright [0x3C];
-	char version [4];
-	char ftype [12];
+	char copyright[0x3C];
+	char version[4];
+	char ftype[12];
 	long nTables;
 	long off1stFile;
 };
 
 struct DRS_tableInfo
 {
-	char ext [4];
+	char ext[4];
 	long tableOffset;
 	long nFiles;
 };
@@ -40,20 +40,20 @@ private:
 	DRS_tableEntry** tEntries;
 
 public:
-	DRS ();
+	DRS();
 	//DRS (const char* filename);
-	~DRS ();
+	~DRS();
 
-	char* listFiles (int* count);
-	void* getFile (int id, int* size);
-	int getFileOffset (int id);
-	int getTableEntryOffset (int id);
+	char* listFiles(int* count);
+	void* getFile(int id, int* size);
+	int getFileOffset(int id);
+	int getTableEntryOffset(int id);
 
-	void writeInt (int offset, int val);
+	void writeInt(int offset, int val);
 
-	bool loadDRS (const char* filename);
+	bool loadDRS(const char* filename);
 
-	void unload ();
-	void load ();
-	void reload ();
+	void unload();
+	void load();
+	void reload();
 };

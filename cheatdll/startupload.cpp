@@ -53,7 +53,7 @@ char* __stdcall checkCmdLine (char* ext)
 
 	strcpy (cmdLine, cmdLine_);
 
-	strupr (cmdLine);
+	_strupr (cmdLine);
 
 	char* ext_start = strstr (cmdLine, ext);
 	if (ext_start)
@@ -164,11 +164,11 @@ __declspec(naked) void __stdcall onLoadSave() //0061D928
 	setInt(0x0061D92C, 0x248C8D00);
 	__asm
 	{
-		lea		ecx, [esp + 0B1h]
+		lea     ecx, [esp + 0B1h]
 		mov     edx, 8000h
-		push	0061D939h
-		mov		eax, 004D5330h
-		jmp		eax
+		push    0061D939h
+		mov     eax, 004D5330h
+		jmp     eax
 	}
 }
 

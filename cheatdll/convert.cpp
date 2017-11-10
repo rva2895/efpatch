@@ -15,11 +15,11 @@ loopcont:
 		dec     eax
 		cmp     word ptr [edx + eax*2], bx
 		jnz     loopcont
-		xor		eax, eax
-		inc		eax
+		xor     eax, eax
+		inc     eax
 		ret
 loopend:
-		xor		eax, eax
+		xor     eax, eax
 		ret
 	}
 }
@@ -33,11 +33,11 @@ __declspec(naked) void unConvertHook() //00567EDC
 		pop     edx
 		test    eax, eax
 		jz      convertable
-		mov		edx, 0056823Ch
-		jmp		edx
+		mov     edx, 0056823Ch
+		jmp     edx
 convertable:
-		mov		eax, 00567EF1h
-		jmp		eax
+		mov     eax, 00567EF1h
+		jmp     eax
 	}
 }
 

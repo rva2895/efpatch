@@ -6,12 +6,12 @@ __declspec(naked) int createPopList()
 {
 	__asm
 	{
-		mov		edi, 5h
+		mov     edi, 5h
 		//imul    ecx, edi, 5h
-		lea		ecx, [edi + edi * 4]
-		push	ecx
-		mov		eax, 00520279h
-		jmp		eax
+		lea     ecx, [edi + edi * 4]
+		push    ecx
+		mov     eax, 00520279h
+		jmp     eax
 	}
 }
 
@@ -19,7 +19,7 @@ __declspec(naked) int popListContCreation()
 {
 	__asm
 	{
-		jle		createPopListCont
+		jle     createPopListCont
 
 		_emit	0x8B
 		_emit	0x0D
@@ -27,161 +27,127 @@ __declspec(naked) int popListContCreation()
 		_emit	0x36
 		_emit	0x6A
 		_emit	0x00
-		mov		edx, 005202ADh
-		jmp		edx
+		mov     edx, 005202ADh
+		jmp     edx
 
 createPopListCont:
 		//imul    ecx, edi, 05h
-		lea		ecx, [edi + edi * 4]
-		push	ecx
-		mov		eax, 00520279h
-		jmp		eax
-	}
-}
-
-__declspec(naked) int popFunc1()
-{
-	__asm
-	{
-		and		eax, 0FFh
-		//imul    eax, eax, 05h
-		lea		eax, [eax + eax * 4]
-		mov		ecx, ebp
-		mov		edx, 0051E594h
-		jmp		edx
-	}
-}
-
-__declspec(naked) int popFunc2()
-{
-	__asm
-	{
-		and		eax, 0FFh
-		//imul    eax, eax, 05h
-		lea		eax, [eax + eax * 4]
-		push	eax
-		mov		edx, 0060136Bh
-		jmp		edx
-	}
-}
-
-__declspec(naked) int popFuncMain()
-{
-	__asm
-	{
-		mov		edx, [ebp + 4Ch]
-		and		eax, 0FFh
-		//imul    eax, eax, 05h
-		lea		eax, [eax + eax * 4]
-		mov		[esp + 20h], eax
-		mov		eax, 00602715h
-		jmp		eax
-	}
-}
-
-char aPopCap275[] = "POPULATION-CAP-275";
-char aPopCap300[] = "POPULATION-CAP-300";
-char aPopCapEx[] = "POPULATION-CAP-EX";
-
-__declspec(naked) void popCap275()
-{
-	__asm
-	{
-		push	offset aPopCap275
-		mov		ecx, 0057F197h
-		jmp		ecx
-	}
-}
-
-__declspec(naked) void popCap300()
-{
-	__asm
-	{
-		push	offset aPopCap300
-		mov		ecx, 0057F197h
-		jmp		ecx
-	}
-}
-
-__declspec(naked) void popCapEx()
-{
-	__asm
-	{
-		push	offset aPopCapEx
-		mov		ecx, 0057F197h
-		jmp		ecx
-	}
-}
-
-int popCapJmpTable[] =
-{
-	0,
-	0x0057F153,
-	0x0057F15A,
-	0x0057F161,
-	0x0057F168,
-	0x0057F16F,
-	0x0057F176,
-	0x0057F17D,
-	0x0057F184,
-	0x0057F18B,
-	0x0057F192,
-	0x0057F192, //(int)&popCap275,
-	0x0057F192  //(int)&popCap300
-};
-
-extern bool isEditor;
-
-__declspec(naked) int badPopAiFix()
-{
-	__asm
-	{
-		and		eax, 0FFh
-		mov		dl, isEditor
-		test	dl, dl
-		jnz		scenCap
-		xor		edx, edx
-		mov		ecx, 5
-		div		ecx
-		cmp		eax, 40
-		ja		badPopCap
-		cmp		eax, 12
-		ja		extendedPopCap
-		mov		edx, offset popCapJmpTable
-		jmp		ds:popCapJmpTable[eax * 4]
-badPopCap:
-		mov		eax, 0057F1A2h
-		jmp		eax
-extendedPopCap:
-		//jmp     popCapEx
-		mov		ecx, 0057F192h
-		jmp		ecx
-scenCap:
-		cmp		eax, 75
-		jnz		test_sc
-		xor		edx, edx
-		mov		ecx, 25
-		div		ecx
-		mov		edx, offset popCapJmpTable
-		jmp		ds:popCapJmpTable[eax * 4]
-test_sc:
-		int		3
+		lea     ecx, [edi + edi * 4]
+		push    ecx
+		mov     eax, 00520279h
+		jmp     eax
 	}
 }
 
 float f1000 = 1000.0;
+
+__declspec(naked) void getPopCap_new() //005EF1B0
+{
+	__asm
+	{
+		xor     eax, eax
+		mov     al, [ecx + 1446h]
+		lea     eax, [eax + eax * 4]
+		ret
+	}
+}
+
+__declspec(naked) void getPopCap_fix1() //005202AD
+{
+	__asm
+	{
+
+		xor     eax, eax
+		mov     al, [ecx + 1446h]
+		mov     ecx, [esi + 0B28h]
+		push    005202BDh
+		ret
+	}
+}
+
+__declspec(naked) void setPopCap_new() //005EF240
+{
+	__asm
+	{
+		mov     al, [esp + 4]
+		mov     [ecx + 1446h], al
+		ret     4
+	}
+}
+
+char* __fastcall getPopCapString(int c)
+{
+	c /= 25;
+	switch (c)
+	{
+	case 1: //25
+		return (char*)0x00692E5C;
+	case 2: //50
+		return (char*)0x00692E48;
+	case 3: //75
+		return (char*)0x00692E34;
+	case 4: //100
+		return (char*)0x00692E20;
+	case 5: //125
+		return (char*)0x00692E0C;
+	case 6: //150
+		return (char*)0x00692DF8;
+	case 7: //175
+		return (char*)0x00692DE4;
+	case 8: //200
+		return (char*)0x00692DD0;
+	case 9: //225
+		return (char*)0x00692DBC;
+	case 10: //250
+		return (char*)0x00692DA8;
+	default:
+		return (char*)0x00692DA8;
+	}
+}
+
+__declspec(naked) void onAIPopCap() //0057F13A
+{
+	__asm
+	{
+		mov     ecx, eax
+		call    getPopCapString
+		push    eax
+		push    0057F197h
+		ret
+	}
+}
 
 void setPopulationHooks()
 {
 #ifdef _DEBUG
 	log("Setting population cap hooks...");
 #endif
-	setHook((void*)0x00520273, &createPopList);
-	setHook((void*)0x005202A5, &popListContCreation);
-	setHook((void*)0x0051E58D, &popFunc1);
-	setHook((void*)0x00601365, &popFunc2);
-	setHook((void*)0x00602709, &popFuncMain);
-	setHook((void*)0x0057F135, &badPopAiFix);
+	setHook((void*)0x00520273, createPopList);
+	setHook((void*)0x005202A5, popListContCreation);
+	setHook((void*)0x0057F13A, onAIPopCap);
+
+	setHook((void*)0x005EF1B0, getPopCap_new);
+	setHook((void*)0x005EF240, setPopCap_new);
+	setHook((void*)0x005202AD, getPopCap_fix1);
+
+	//fix 75 -> 15 (75/5)
+	setByte(0x004F1ADE, 15);
+	setByte(0x00508B8E, 15);
+	setByte(0x00520846, 15);
+	setByte(0x005E424E, 15);
+	setByte(0x005EC382, 15);
+
+
+	//getPopCap and eax, 0FFh
+	//setInt(0x005202B9, 0xFFFFFFFF); //useless
+	setInt(0x004412D8, 0xFFFFFFFF);
+	setInt(0x0051E58E, 0xFFFFFFFF);
+	setInt(0x00541D47, 0xFFFFFFFF);
+	setInt(0x0057F136, 0xFFFFFFFF);
+	setInt(0x005FECBA, 0xFFFFFFFF);
+	setInt(0x00601366, 0xFFFFFFFF);
+	setInt(0x0060270D, 0xFFFFFFFF);
+	setInt(0x006031D1, 0xFFFFFFFF);
 
 	//print new pop steps
 	setByte(0x0052029E, 5);

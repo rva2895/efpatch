@@ -53,10 +53,10 @@ __declspec(naked) int __stdcall getWindowX()
 {
 	__asm
 	{
-		mov		eax, 006A3684h
-		mov		eax, [eax]
-		mov		eax, [eax + 24h]
-		mov		eax, [eax + 8F4h]
+		mov     eax, 006A3684h
+		mov     eax, [eax]
+		mov     eax, [eax + 24h]
+		mov     eax, [eax + 8F4h]
 		ret
 	}
 }
@@ -65,10 +65,10 @@ __declspec(naked) int __stdcall getWindowY()
 {
 	__asm
 	{
-		mov		eax, 006A3684h
-		mov		eax, [eax]
-		mov		eax, [eax + 24h]
-		mov		eax, [eax + 8FCh]
+		mov     eax, 006A3684h
+		mov     eax, [eax]
+		mov     eax, [eax + 24h]
+		mov     eax, [eax + 8FCh]
 		ret
 	}
 }

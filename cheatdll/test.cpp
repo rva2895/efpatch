@@ -3,64 +3,7 @@
 #include "test.h"
 #include "log.h"
 
-char* str;
-
-extern char* lastLogs[12];
-extern int logged;
-
-//rect: 500x200
-
-void __stdcall someTextOut(HDC hdc)
-{
-	/*sprintf (str,
-		"Cheatdll.dll info:\n"
-		"Currently empty\n"
-		"hdc = 0x%X\n"
-		"Last 12 logged actions (total %d):\n"
-		"[%d]%s\n"
-		"[%d]%s\n"
-		"[%d]%s\n"
-		"[%d]%s\n"
-		"[%d]%s\n"
-		"[%d]%s\n"
-		"[%d]%s\n"
-		"[%d]%s\n"
-		"[%d]%s\n"
-		"[%d]%s\n"
-		"[%d]%s\n"
-		"[%d]%s\n",
-		hdc,
-		logged,
-		logged-11, lastLogs [logged % 12],
-		logged-10, lastLogs [(logged+1) % 12],
-		logged-9, lastLogs [(logged+2) % 12],
-		logged-8, lastLogs [(logged+3) % 12],
-		logged-7, lastLogs [(logged+4) % 12],
-		logged-6, lastLogs [(logged+5) % 12],
-		logged-5, lastLogs [(logged+6) % 12],
-		logged-4, lastLogs [(logged+7) % 12],
-		logged-3, lastLogs [(logged+8) % 12],
-		logged-2, lastLogs [(logged+9) % 12],
-		logged-1, lastLogs [(logged+10) % 12],
-		logged, lastLogs [(logged+11) % 12]);
-
-	RECT r;
-	r.left = 4; r.right = 490; r.top = 22; r.bottom = 190;
-	SetTextColor (hdc, RGB(0,0,0));
-	DrawText (hdc, str, strlen(str), &r, DT_LEFT|DT_NOCLIP);
-	r.left += 2; r.right += 2;
-	DrawText (hdc, str, strlen(str), &r, DT_LEFT|DT_NOCLIP);
-	r.top += 2; r.bottom += 2;
-	DrawText (hdc, str, strlen(str), &r, DT_LEFT|DT_NOCLIP);
-	r.left -= 2; r.right -= 2;
-	DrawText (hdc, str, strlen(str), &r, DT_LEFT|DT_NOCLIP);
-	r.left ++; r.right ++; r.top --; r.bottom --;
-	SetTextColor (hdc, RGB(255,255,255));
-	DrawText (hdc, str, strlen(str), &r, DT_LEFT|DT_NOCLIP);
-	*/
-}
-
-__declspec(naked) int someText()
+/*__declspec(naked) int someText()
 {
 	__asm
 	{
@@ -74,13 +17,14 @@ __declspec(naked) int someText()
 		push    5E02BEh
 		ret
 	}
-}
+}*/
+
+#ifdef _DEBUG
 
 int effectsFired = 0;
 int triggerBegun = 0;
 char triggerText[256];
 
-#ifdef _DEBUG
 void __cdecl effectLog(int n, char* ef)
 {
 	if (triggerBegun)
@@ -146,8 +90,8 @@ __declspec(naked) int triggerLogHook() //005F54D2
 int retSave;
 int data;
 
-char title[] = "wew";
-char text[] = "text";
+char title[] = "DAT";
+char text[] = "read";
 
 __declspec(naked) int onReadDat()
 {
@@ -157,7 +101,7 @@ __declspec(naked) int onReadDat()
 		mov     ecx, [ecx]
 		cmp     cx, 16548
 		jnz     _end
-		int		3
+		int     3
 		push    eax
 		push    0
 		push    offset title
@@ -179,7 +123,7 @@ __declspec(naked) int readDatHook() //004D5550
 		mov     retSave, eax
 		mov     data, edx
 		mov     eax, onReadDat
-		mov		[esp], eax
+		mov     [esp], eax
 		push    ebp
 		mov     ebp, esp
 		sub     esp, 0Ch
@@ -190,6 +134,7 @@ __declspec(naked) int readDatHook() //004D5550
 
 void __cdecl log_internal(int unk1, char* fmt1, char* fmt2, ...)
 {
+	UNREFERENCED_PARAMETER(unk1);
 	va_list ap;
 	char* fmt;
 	if ((unsigned long)fmt1 < 0x2000)
@@ -213,7 +158,6 @@ void __cdecl log_internal(int unk1, char* fmt1, char* fmt2, ...)
 	vsprintf(s, fmt, ap);
 	log("%s", s);
 	va_end(ap);
-	//MessageBox(0, "1", "1", 0);
 }
 
 void setTestHook()
