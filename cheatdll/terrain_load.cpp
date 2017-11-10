@@ -2,6 +2,8 @@
 
 #include "terrain.h"
 
+int ver;
+
 void (__thiscall* terrain1_load) (void* this_, int language_dll_id, int terrain) =
 	(void(__thiscall*) (void*, int, int))0x004C82D0;
 
@@ -62,8 +64,51 @@ void __stdcall terrain1_(void* this_)
 	terrain1_load(this_, 0x29B8, 52);
 	//terrain1_load(this_, 10931, 53);
 	//terrain1_load(this_, 10931, 54);
-	terrain1_load(this_, 1, 55);
-	terrain1_load(this_, 2, 56);
+	//terrain1_load(this_, 1, 55);
+	//terrain1_load(this_, 2, 56);
+	if (ver)
+	{
+		terrain1_load(this_, 2707, 55);
+		terrain1_load(this_, 2724, 56);
+		terrain1_load(this_, 2708, 57);
+		terrain1_load(this_, 2709, 58);
+		terrain1_load(this_, 2710, 59);
+		terrain1_load(this_, 2711, 60);
+		terrain1_load(this_, 2712, 61);
+		terrain1_load(this_, 2713, 62);
+		terrain1_load(this_, 2714, 63);
+		terrain1_load(this_, 2715, 64);
+		terrain1_load(this_, 2716, 65);
+		terrain1_load(this_, 2717, 66);
+		terrain1_load(this_, 2718, 67);
+		terrain1_load(this_, 2719, 68);
+		terrain1_load(this_, 2720, 69);
+		terrain1_load(this_, 2721, 70);
+		terrain1_load(this_, 2723, 71);
+		terrain1_load(this_, 2722, 72);
+
+		//trees:
+		terrain1_load(this_, 22516, 73);
+		terrain1_load(this_, 23330, 74);
+		terrain1_load(this_, 23331, 75);
+		terrain1_load(this_, 214, 76);
+		terrain1_load(this_, 215, 77);
+		terrain1_load(this_, 22587, 78);
+		terrain1_load(this_, 23046, 79);
+		terrain1_load(this_, 219, 80);
+		terrain1_load(this_, 22515, 81);
+		terrain1_load(this_, 213, 82);
+		terrain1_load(this_, 217, 83);
+		terrain1_load(this_, 216, 84);
+		terrain1_load(this_, 23731, 85);
+		terrain1_load(this_, 218, 86);
+		//
+		terrain1_load(this_, 22739, 87);
+		terrain1_load(this_, 22741, 88);
+		terrain1_load(this_, 22736, 89);
+		terrain1_load(this_, 827, 90);
+		terrain1_load(this_, 828, 92);
+	}
 }
 
 __declspec(naked) int terrain1 ()
@@ -71,10 +116,10 @@ __declspec(naked) int terrain1 ()
 	__asm
 	{
 		mov     ecx, [edi]
-		push	ecx
-		call	terrain1_
-		mov		ecx, 0052A388h
-		jmp		ecx
+		push    ecx
+		call    terrain1_
+		mov     ecx, 0052A388h
+		jmp     ecx
 	}
 }
 
@@ -124,66 +169,71 @@ void __stdcall terrain2_(void* this_)
 	terrain2_load(this_, 0x29B7, 0x33);
 	terrain2_load(this_, 0x29B8, 0x34);
 
-	terrain2_load(this_, 2707, 55);
-	terrain2_load(this_, 2724, 56);
-	terrain2_load(this_, 2708, 57);
-	terrain2_load(this_, 2709, 58);
-	terrain2_load(this_, 2710, 59);
-	terrain2_load(this_, 2711, 60);
-	terrain2_load(this_, 2712, 61);
-	terrain2_load(this_, 2713, 62);
-	terrain2_load(this_, 2714, 63);
-	terrain2_load(this_, 2715, 64);
-	terrain2_load(this_, 2716, 65);
-	terrain2_load(this_, 2717, 66);
-	terrain2_load(this_, 2718, 67);
-	terrain2_load(this_, 2719, 68);
-	terrain2_load(this_, 2720, 69);
-	terrain2_load(this_, 2721, 70);
-	terrain2_load(this_, 2723, 71);
-	terrain2_load(this_, 2722, 72);
+	if (ver)	//EF terrains
+	{
+		terrain2_load(this_, 2707, 55);
+		terrain2_load(this_, 2724, 56);
+		terrain2_load(this_, 2708, 57);
+		terrain2_load(this_, 2709, 58);
+		terrain2_load(this_, 2710, 59);
+		terrain2_load(this_, 2711, 60);
+		terrain2_load(this_, 2712, 61);
+		terrain2_load(this_, 2713, 62);
+		terrain2_load(this_, 2714, 63);
+		terrain2_load(this_, 2715, 64);
+		terrain2_load(this_, 2716, 65);
+		terrain2_load(this_, 2717, 66);
+		terrain2_load(this_, 2718, 67);
+		terrain2_load(this_, 2719, 68);
+		terrain2_load(this_, 2720, 69);
+		terrain2_load(this_, 2721, 70);
+		terrain2_load(this_, 2723, 71);
+		terrain2_load(this_, 2722, 72);
 
-	//trees:
-	terrain2_load(this_, 22516, 73);
-	terrain2_load(this_, 23330, 74);
-	terrain2_load(this_, 23331, 75);
-	terrain2_load(this_, 214, 76);
-	terrain2_load(this_, 215, 77);
-	terrain2_load(this_, 22587, 78);
-	terrain2_load(this_, 23046, 79);
-	terrain2_load(this_, 219, 80);
-	terrain2_load(this_, 22515, 81);
-	terrain2_load(this_, 213, 82);
-	terrain2_load(this_, 217, 83);
-	terrain2_load(this_, 216, 84);
-	terrain2_load(this_, 23731, 85);
-	terrain2_load(this_, 218, 86);
-	//
-	terrain2_load(this_, 22739, 87);
-	terrain2_load(this_, 22741, 88);
-	terrain2_load(this_, 22736, 89);
-	terrain2_load(this_, 827, 90);
-	terrain2_load(this_, 828, 92);
+		//trees:
+		terrain2_load(this_, 22516, 73);
+		terrain2_load(this_, 23330, 74);
+		terrain2_load(this_, 23331, 75);
+		terrain2_load(this_, 214, 76);
+		terrain2_load(this_, 215, 77);
+		terrain2_load(this_, 22587, 78);
+		terrain2_load(this_, 23046, 79);
+		terrain2_load(this_, 219, 80);
+		terrain2_load(this_, 22515, 81);
+		terrain2_load(this_, 213, 82);
+		terrain2_load(this_, 217, 83);
+		terrain2_load(this_, 216, 84);
+		terrain2_load(this_, 23731, 85);
+		terrain2_load(this_, 218, 86);
+		//
+		terrain2_load(this_, 22739, 87);
+		terrain2_load(this_, 22741, 88);
+		terrain2_load(this_, 22736, 89);
+		terrain2_load(this_, 827, 90);
+		terrain2_load(this_, 828, 92);
+	}
 }
 
-__declspec(naked) int terrain2 ()
+__declspec(naked) int terrain2()
 {
 	__asm
 	{
 		mov     ecx, ebx
-		push	ecx
-		call	terrain2_
-		mov		ecx, 0053B53Bh
-		jmp		ecx
+		push    ecx
+		call    terrain2_
+		mov     ecx, 0053B53Bh
+		jmp     ecx
 	}
 }
 
-void setTerrainLoadHooks()
+void setTerrainLoadHooks(int ver)
 {
 #ifdef _DEBUG
 	log("Setting terrain list load hooks...");
 #endif
 
-	setHook((void*)0x0052A30A, &terrain1);
-	setHook((void*)0x0053B3C1, &terrain2);
+	::ver = ver;
+
+	setHook((void*)0x0052A30A, terrain1);
+	setHook((void*)0x0053B3C1, terrain2);
 }

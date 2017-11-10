@@ -5,15 +5,15 @@ __declspec(naked) void onMapCopySetRotation() //005CE523
 {
 	__asm
 	{
-		mov		al, [esi + 4]
-		cmp		al, 30
-		jb		_no_copy_rotation
-		fld		dword ptr [esp + 28h]
-		mov		eax, 00632BACh
-		call	eax
-		mov		[esi + 45h], al
+		mov     al, [esi + 4]
+		cmp     al, 30
+		jb      _no_copy_rotation
+		fld     dword ptr [esp + 28h]
+		mov     eax, 00632BACh
+		call    eax
+		mov     [esi + 45h], al
 _no_copy_rotation:
-		push	005CE52Fh
+		push    005CE52Fh
 		ret
 	}
 }
@@ -26,13 +26,13 @@ __declspec(naked) void onMapCopyGetDimensions() //0052F0EB
 {
 	__asm
 	{
-		mov		mapcopy_x, eax
-		mov		mapcopy_y, ecx
-		cmp		eax, ecx
-		jg		short loc_52F0F1
-		mov		eax, ecx
+		mov     mapcopy_x, eax
+		mov     mapcopy_y, ecx
+		cmp     eax, ecx
+		jg      short loc_52F0F1
+		mov     eax, ecx
 loc_52F0F1:
-		push	0052F0F1h
+		push    0052F0F1h
 		ret
 	}
 }
@@ -56,14 +56,14 @@ __declspec(naked) void onSetShape() //0060CBC1
 {
 	__asm
 	{
-		mov		eax, [esp + 18h]	//x
-		mov		ecx, [esp + 1Ch]	//y
-		push	ebx
-		push	ecx
-		push	eax
-		push	edi
-		call	fixShape
-		push	0060CBEFh
+		mov     eax, [esp + 18h]	//x
+		mov     ecx, [esp + 1Ch]	//y
+		push    ebx
+		push    ecx
+		push    eax
+		push    edi
+		call    fixShape
+		push    0060CBEFh
 		ret
 	}
 }
@@ -72,11 +72,11 @@ __declspec(naked) void onChangeCurrentTool() //0052D394
 {
 	__asm
 	{
-		mov		[esi + 8ECh], eax
-		cmp		eax, 4
-		setz	cl
-		mov		mapcopy, cl
-		push	0052D39Ah
+		mov     [esi + 8ECh], eax
+		cmp     eax, 4
+		setz    cl
+		mov     mapcopy, cl
+		push    0052D39Ah
 		ret
 	}
 }

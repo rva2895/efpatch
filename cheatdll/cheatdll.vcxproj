@@ -178,7 +178,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CHEATDLL_CC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -202,7 +202,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CHEATDLL_CC;_CC_COMPATIBLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -257,7 +257,6 @@
     <ClInclude Include="flare.h" />
     <ClInclude Include="gamemode.h" />
     <ClInclude Include="gamespeed.h" />
-    <ClInclude Include="globalvar.h" />
     <ClInclude Include="hotkeys.h" />
     <ClInclude Include="icons.h" />
     <ClInclude Include="jedimaster.h" />
@@ -290,6 +289,7 @@
     <ClInclude Include="terrain_gen.h" />
     <ClInclude Include="test.h" />
     <ClInclude Include="textcolor.h" />
+    <ClInclude Include="timeline.h" />
     <ClInclude Include="triggerdesc.h" />
     <ClInclude Include="trigger_unit.h" />
     <ClInclude Include="versionselect.h" />
@@ -348,7 +348,6 @@
     <ClCompile Include="flare.cpp" />
     <ClCompile Include="gamemode.cpp" />
     <ClCompile Include="gamespeed.cpp" />
-    <ClCompile Include="globalvar.cpp" />
     <ClCompile Include="hotkeys.cpp" />
     <ClCompile Include="icons.cpp" />
     <ClCompile Include="jedimaster.cpp" />
@@ -386,6 +385,7 @@
     <ClCompile Include="terrain_load.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="textcolor.cpp" />
+    <ClCompile Include="timeline.cpp" />
     <ClCompile Include="triggerdesc.cpp" />
     <ClCompile Include="trigger_unit.cpp" />
     <ClCompile Include="versionselect.cpp" />

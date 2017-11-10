@@ -4,7 +4,7 @@
 #include "effects.h"
 #include "advtriggereffect.h"
 
-assign dataIdentifiers [] =
+assign dataIdentifiers[] =
 {
 	{"Unknown000",                                     0x000,  T_INT32}, //ptr, //type 10+ (all units)
 	{"Type",                                           0x004,  T_INT8},
@@ -179,12 +179,12 @@ assign dataIdentifiers [] =
 	//TODO
 };
 
-int getArrayIndex (const char* txt, char* type)
+int getArrayIndex(const char* txt, char* type)
 {
 	int i;
-	for (i = 0; i < sizeof(dataIdentifiers)/sizeof(dataIdentifiers[0]); i++)
+	for (i = 0; i < sizeof(dataIdentifiers) / sizeof(dataIdentifiers[0]); i++)
 	{
-		if (!strcmp (dataIdentifiers[i].str, txt))
+		if (!strcmp(dataIdentifiers[i].str, txt))
 		{
 			*type = dataIdentifiers[i].type;
 			return dataIdentifiers[i].offset;
@@ -193,73 +193,75 @@ int getArrayIndex (const char* txt, char* type)
 	return -1;
 }
 
-void setUnitDataC (int index, void* unitData, char value)
+void setUnitDataC(int index, void* unitData, char value)
 {
 	*(char*)((char*)unitData + index) = value;
 }
-void setUnitDataS (int index, void* unitData, short value)
+void setUnitDataS(int index, void* unitData, short value)
 {
 	*(short*)((char*)unitData + index) = value;
 }
-void setUnitDataL (int index, void* unitData, long value)
+void setUnitDataL(int index, void* unitData, long value)
 {
 	*(long*)((char*)unitData + index) = value;
 }
-void setUnitDataF (int index, void* unitData, float value)
+void setUnitDataF(int index, void* unitData, float value)
 {
 	*(float*)((char*)unitData + index) = value;
 }
 
-void modifyUnitDataC (int index, void* unitData, char value)
+void modifyUnitDataC(int index, void* unitData, char value)
 {
 	*(char*)((char*)unitData + index) += value;
 }
-void modifyUnitDataS (int index, void* unitData, short value)
+void modifyUnitDataS(int index, void* unitData, short value)
 {
 	*(short*)((char*)unitData + index) += value;
 }
-void modifyUnitDataL (int index, void* unitData, long value)
+void modifyUnitDataL(int index, void* unitData, long value)
 {
 	*(long*)((char*)unitData + index) += value;
 }
-void modifyUnitDataF (int index, void* unitData, float value)
+void modifyUnitDataF(int index, void* unitData, float value)
 {
 	*(float*)((char*)unitData + index) += value;
 }
 
-void multiplyUnitDataC (int index, void* unitData, float value)
+void multiplyUnitDataC(int index, void* unitData, float value)
 {
 	*(char*)((char*)unitData + index) *= value;
 }
-void multiplyUnitDataS (int index, void* unitData, float value)
+void multiplyUnitDataS(int index, void* unitData, float value)
 {
 	*(short*)((char*)unitData + index) *= value;
 }
-void multiplyUnitDataL (int index, void* unitData, float value)
+void multiplyUnitDataL(int index, void* unitData, float value)
 {
 	*(long*)((char*)unitData + index) *= value;
 }
-void multiplyUnitDataF (int index, void* unitData, float value)
+void multiplyUnitDataF(int index, void* unitData, float value)
 {
 	*(float*)((char*)unitData + index) *= value;
 }
 
-__declspec(naked) void* __stdcall getGraphicPtr (short id)
+#pragma warning(push)
+#pragma warning(disable:4100)
+__declspec(naked) void* __stdcall getGraphicPtr(short id)
 {
 	__asm
 	{
 		mov     eax, 6A3684h
 		mov     eax, [eax]
-		mov     eax, [eax+17B4h]
-		mov     eax, [eax+126Ch]
+		mov     eax, [eax + 17B4h]
+		mov     eax, [eax + 126Ch]
 		//mov     eax, [eax+420h]
 
-		mov     edx, [eax+40h] //graphics count
-		movsx   ecx, word ptr [esp+4]
+		mov     edx, [eax + 40h] //graphics count
+		movsx   ecx, word ptr [esp + 4]
 		cmp     ecx, edx
 		//jge     badID
-		mov     eax, [eax+44h]
-		mov     eax, [eax+ecx*4]
+		mov     eax, [eax + 44h]
+		mov     eax, [eax + ecx * 4]
 		ret     4
 badID:
 		xor     eax, eax
@@ -267,7 +269,7 @@ badID:
 	}
 }
 
-__declspec(naked) short* __stdcall getAttackArmorPtr ()
+__declspec(naked) short* __stdcall getAttackArmorPtr()
 {
 	__asm
 	{
@@ -283,36 +285,37 @@ _atkEnd:
 		xor     eax, eax
 		ret
 _atkFound:
-		lea     eax, [edx+2]
+		lea     eax, [edx + 2]
 		ret
 	}
 }
 
-__declspec(naked) short* __fastcall getAttackPtr (void* propObj, int c)
+__declspec(naked) short* __fastcall getAttackPtr(void* propObj, int c)
 {
 	__asm
 	{
 		mov     eax, edx
-		mov     edx, [ecx+13Ch]           //attacks
-		movsx   ecx, word ptr [ecx+138h]  //count
-		
+		mov     edx, [ecx + 13Ch]           //attacks
+		movsx   ecx, word ptr [ecx + 138h]  //count
+
 		call    getAttackArmorPtr
 		ret
 	}
 }
 
-__declspec(naked) short* __fastcall getArmorPtr (void* propObj, int c)
+__declspec(naked) short* __fastcall getArmorPtr(void* propObj, int c)
 {
 	__asm
 	{
 		mov     eax, edx
-		mov     edx, [ecx+134h]           //attacks
-		movsx   ecx, word ptr [ecx+132h]  //count
+		mov     edx, [ecx + 134h]           //attacks
+		movsx   ecx, word ptr [ecx + 132h]  //count
 
 		call    getAttackArmorPtr
 		ret
 	}
 }
+#pragma warning(pop)
 
 bool isVarAllowed(void* unitData, int i)
 {
@@ -407,7 +410,7 @@ bool __stdcall advTriggerEffectActual2(void* unitData, char* str)
 		return false;
 }*/
 
-void __stdcall advTriggerEffectActual (void* unitData, char* s)
+void __stdcall advTriggerEffectActual(void* unitData, char* s)
 {
 	char type;
 	char command[50];
@@ -421,8 +424,8 @@ void __stdcall advTriggerEffectActual (void* unitData, char* s)
 
 	int index;
 	//strcpy (s,(char*)x);
-	sscanf (s, "%s %s %s", command, variable, amount);
-	index = getArrayIndex (variable, &type);
+	sscanf(s, "%s %s %s", command, variable, amount);
+	index = getArrayIndex(variable, &type);
 
 	//if (index == 0x38)
 	//	index = -1;
@@ -437,102 +440,102 @@ void __stdcall advTriggerEffectActual (void* unitData, char* s)
 	}
 
 #ifdef _DEBUG
-	log ("Adv trigger effect: cmd=%s var=%s amount=%s", command, variable, amount);
+	log("Adv trigger effect: cmd=%s var=%s amount=%s", command, variable, amount);
 #endif
 
 	if (index != -1)
 	{
-		strupr (command);
-		if (!strcmp (command, "SET"))
+		_strupr(command);
+		if (!strcmp(command, "SET"))
 		{
 			switch (type)
 			{
 			case T_INT8:
-				sscanf (amount, "%d", &int8Amount);
-				setUnitDataC (index, unitData, int8Amount);
+				sscanf(amount, "%d", &int8Amount);
+				setUnitDataC(index, unitData, int8Amount);
 				break;
 			case T_INT16:
-				sscanf (amount, "%d", &int16Amount);
-				setUnitDataS (index, unitData, int16Amount);
+				sscanf(amount, "%d", &int16Amount);
+				setUnitDataS(index, unitData, int16Amount);
 				break;
 			case T_INT32:
-				sscanf (amount, "%d", &int32Amount);
-				setUnitDataL (index, unitData, int32Amount);
+				sscanf(amount, "%d", &int32Amount);
+				setUnitDataL(index, unitData, int32Amount);
 				break;
 			case T_FLOAT:
-				sscanf (amount, "%f", &floatAmount);
-				setUnitDataF (index, unitData, floatAmount);
+				sscanf(amount, "%f", &floatAmount);
+				setUnitDataF(index, unitData, floatAmount);
 				break;
 			case T_PTR_G:
-				sscanf (amount, "%d", &int16Amount);
-				void* p = getGraphicPtr (int16Amount);
+				sscanf(amount, "%d", &int16Amount);
+				void* p = getGraphicPtr(int16Amount);
 				if (p)
-					setUnitDataL (index, unitData, (long)p);
+					setUnitDataL(index, unitData, (long)p);
 				else
-					log ("Error: graphic ID (%d) >= n (%d)", index, int16Amount);
+					log("Error: graphic ID (%d) >= n (%d)", index, int16Amount);
 			}
 		}
-		else if (!strcmp (command, "ADD"))
+		else if (!strcmp(command, "ADD"))
 		{
 			switch (type)
 			{
 			case T_INT8:
-				sscanf (amount, "%d", &int8Amount);
-				modifyUnitDataC (index, unitData, int8Amount);
+				sscanf(amount, "%d", &int8Amount);
+				modifyUnitDataC(index, unitData, int8Amount);
 				break;
 			case T_INT16:
-				sscanf (amount, "%d", &int16Amount);
-				modifyUnitDataS (index, unitData, int16Amount);
+				sscanf(amount, "%d", &int16Amount);
+				modifyUnitDataS(index, unitData, int16Amount);
 				break;
 			case T_INT32:
-				sscanf (amount, "%d", &int32Amount);
-				modifyUnitDataL (index, unitData, int32Amount);
+				sscanf(amount, "%d", &int32Amount);
+				modifyUnitDataL(index, unitData, int32Amount);
 				break;
 			case T_FLOAT:
-				sscanf (amount, "%f", &floatAmount);
-				modifyUnitDataF (index, unitData, floatAmount);
+				sscanf(amount, "%f", &floatAmount);
+				modifyUnitDataF(index, unitData, floatAmount);
 				break;
 			case T_PTR_G:
-				log ("Error: command ADD is not allowed for pointers");
+				log("Error: command ADD is not allowed for pointers");
 			}
 		}
-		else if (!strcmp (command, "MUL"))
+		else if (!strcmp(command, "MUL"))
 		{
 			switch (type)
 			{
 			case T_INT8:
-				{
-					sscanf (amount, "%f", &floatAmount);
-					multiplyUnitDataC (index, unitData, floatAmount);
-					break;
-				}
+			{
+				sscanf(amount, "%f", &floatAmount);
+				multiplyUnitDataC(index, unitData, floatAmount);
+				break;
+			}
 			case T_INT16:
-				{
-					sscanf (amount, "%f", &floatAmount);
-					multiplyUnitDataS (index, unitData, floatAmount);
-					break;
-				}
+			{
+				sscanf(amount, "%f", &floatAmount);
+				multiplyUnitDataS(index, unitData, floatAmount);
+				break;
+			}
 			case T_INT32:
-				{
-					sscanf (amount, "%f", &floatAmount);
-					multiplyUnitDataL (index, unitData, floatAmount);
-					break;
-				}
+			{
+				sscanf(amount, "%f", &floatAmount);
+				multiplyUnitDataL(index, unitData, floatAmount);
+				break;
+			}
 			case T_FLOAT:
-				{
-					sscanf (amount, "%f", &floatAmount);
-					multiplyUnitDataF (index, unitData, floatAmount);
-					break;
-				}
+			{
+				sscanf(amount, "%f", &floatAmount);
+				multiplyUnitDataF(index, unitData, floatAmount);
+				break;
+			}
 			}
 		}
 		else
-			log ("Error: unknown command: %s", command);
+			log("Error: unknown command: %s", command);
 	}
 	else
 	{
-		char amount2 [50];
-		sscanf (s, "%s %s %s %s", command, variable, amount, amount2);
+		char amount2[50];
+		sscanf(s, "%s %s %s %s", command, variable, amount, amount2);
 		if (*(int*)((int)unitData + 4) < 50)
 		{
 			log("Warning: Cannot modify attack or armor for type %d", *(char*)((int)unitData + 4));
@@ -541,25 +544,25 @@ void __stdcall advTriggerEffectActual (void* unitData, char* s)
 		int c;
 		int v;
 		short* d;
-		sscanf (amount, "%d", &c);
-		sscanf (amount2, "%d", &v);
-		if (!strcmp (variable, "Attack"))
-			d = getAttackPtr (unitData, c);
-		else if (!strcmp (variable, "Armor"))
-			d = getArmorPtr (unitData, c);
+		sscanf(amount, "%d", &c);
+		sscanf(amount2, "%d", &v);
+		if (!strcmp(variable, "Attack"))
+			d = getAttackPtr(unitData, c);
+		else if (!strcmp(variable, "Armor"))
+			d = getArmorPtr(unitData, c);
 		else
 		{
-			log ("Error: unknown variable: %s", variable);
+			log("Error: unknown variable: %s", variable);
 			return;
 		}
-		if (!strcmp (command, "SET"))
+		if (!strcmp(command, "SET"))
 			*d = v;
-		else if (!strcmp (command, "ADD"))
+		else if (!strcmp(command, "ADD"))
 			*d += v;
-		else if (!strcmp (command, "MUL"))
+		else if (!strcmp(command, "MUL"))
 			*d *= v;
 		else
-			log ("Error: unknown command: %s", command);
+			log("Error: unknown command: %s", command);
 	}
 }
 
@@ -567,10 +570,10 @@ void __declspec(naked) advTriggerEffect()
 {
 	__asm
 	{
-		mov		eax, [edi + 6Ch]
-		push	eax			//string
-		push	esi			//property object
-		call	advTriggerEffectActual
+		mov     eax, [edi + 6Ch]
+		push    eax			//string
+		push    esi			//property object
+		call    advTriggerEffectActual
 		ret
 	}
 }

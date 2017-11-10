@@ -121,13 +121,13 @@ __declspec(naked) void on_trigger() //005F54D2
 {
 	__asm
 	{
-		mov		ecx, [esi + 10h]
-		push	ebx
-		mov		ecx, [ecx + edi * 4]
-		push	ecx
-		call	trigger_process2
-		mov		eax, 005F54DEh
-		jmp		eax
+		mov     ecx, [esi + 10h]
+		push    ebx
+		mov     ecx, [ecx + edi * 4]
+		push    ecx
+		call    trigger_process2
+		mov     eax, 005F54DEh
+		jmp     eax
 	}
 }
 

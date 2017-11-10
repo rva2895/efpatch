@@ -70,13 +70,13 @@ __declspec (naked) void altLetter1() //0053A874
 {
 	__asm
 	{
-		mov		edx, [esp]
-		mov		[esp], eax
-		push	edx
-		push	offset ss1
-		push	ecx
-		mov		eax, 0053A87Bh
-		jmp		eax
+		mov     edx, [esp]
+		mov     [esp], eax
+		push    edx
+		push    offset ss1
+		push    ecx
+		mov     eax, 0053A87Bh
+		jmp     eax
 	}
 }
 
@@ -84,13 +84,13 @@ __declspec (naked) void altLetter2() //0053A93B
 {
 	__asm
 	{
-		mov		edi, [esp]
-		mov		[esp], edx
-		push	edi
-		push	offset ss1
-		push	eax
-		mov		eax, 0053A942h
-		jmp		eax
+		mov     edi, [esp]
+		mov     [esp], edx
+		push    edi
+		push    offset ss1
+		push    eax
+		mov     eax, 0053A942h
+		jmp     eax
 	}
 }
 
@@ -98,13 +98,13 @@ __declspec (naked) void altLetter3() //0053A9EE
 {
 	__asm
 	{
-		mov		edi, [esp]
-		mov		[esp], edx
-		push	edi
-		push	offset ss1
-		push	eax
-		mov		eax, 0053A9F5h
-		jmp		eax
+		mov     edi, [esp]
+		mov     [esp], edx
+		push    edi
+		push    offset ss1
+		push    eax
+		mov     eax, 0053A9F5h
+		jmp     eax
 	}
 }
 
@@ -112,13 +112,13 @@ __declspec (naked) void altLetter4() //0053AA46
 {
 	__asm
 	{
-		mov		edi, [esp]
-		mov		[esp], ecx
-		push	edi
-		push	offset ss2
-		push	edx
-		mov		eax, 0053AA4Dh
-		jmp		eax
+		mov     edi, [esp]
+		mov     [esp], ecx
+		push    edi
+		push    offset ss2
+		push    edx
+		mov     eax, 0053AA4Dh
+		jmp     eax
 	}
 }
 

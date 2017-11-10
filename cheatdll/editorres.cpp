@@ -230,8 +230,8 @@ __declspec(naked) void resLoad() //004D392C
 		push    eax
 		push    ecx
 		call    resLoadStr
-		mov		eax, 004D393Ah
-		jmp		eax
+		mov     eax, 004D393Ah
+		jmp     eax
 	}
 }
 
@@ -245,8 +245,8 @@ __declspec(naked) void resLoadF()
 {
 	__asm
 	{
-		mov		eax, 004C82D0h
-		jmp		eax
+		mov     eax, 004C82D0h
+		jmp     eax
 	}
 }
 
@@ -275,8 +275,8 @@ end:
 		call    resLoadRestore
 		pop     esi
 		pop     ebp
-		mov		ecx, 0052A83Fh
-		jmp		ecx
+		mov     ecx, 0052A83Fh
+		jmp     ecx
 	}
 }
 

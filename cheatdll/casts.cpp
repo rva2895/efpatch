@@ -134,7 +134,7 @@ void __stdcall processUnitExtra(UNIT* unit, int timerRes)
 	}
 }
 
-__declspec(naked) void processUnitHook () //00444DA0, 0054EF00
+__declspec(naked) void processUnitHook() //00444DA0, 0054EF00
 {
 	__asm
 	{
@@ -153,16 +153,16 @@ __declspec(naked) void processUnitHook () //00444DA0, 0054EF00
 		push    ecx
 		push    ebx
 		xor     ebx, ebx
-		mov     eax, [ecx+18h]
-		mov     eax, [eax+8Ch]
-		mov     eax, dword ptr [eax+0A8h]
+		mov     eax, [ecx + 18h]
+		mov     eax, [eax + 8Ch]
+		mov     eax, dword ptr [eax + 0A8h]
 		push    esi
 		mov     esi, ecx
 		push    eax
 		push    ecx
 		call    processUnitExtra
-		mov		eax, 0054EF07h
-		jmp		eax
+		mov     eax, 0054EF07h
+		jmp     eax
 	}
 }
 
@@ -195,22 +195,22 @@ int __stdcall getStealthOff(void* unit) //1 - stealth off enabled
 void* targetUnit;
 int isDamage;
 
-__declspec(naked) void getDamageGetUnit () //004449C3
+__declspec(naked) void getDamageGetUnit() //004449C3
 {
 	__asm
 	{
-		mov     edx, [esp+10h]
+		mov     edx, [esp + 10h]
 		cmp     edx, 00444847h
 		setz    dl
 		movsx   edx, dl
 		mov     isDamage, edx
 		mov     targetUnit, ecx
-		mov     edx, [ecx+14h]
-		mov     eax, [ecx+28h]
-		push	ebx
-		push	ebp
-		mov		ebp, 004449CBh
-		jmp		ebp
+		mov     edx, [ecx + 14h]
+		mov     eax, [ecx + 28h]
+		push    ebx
+		push    ebp
+		mov     ebp, 004449CBh
+		jmp     ebp
 	}
 }
 
@@ -298,37 +298,37 @@ void __stdcall specialDamage(void* unit, short type, int damage, int armor)
 	}
 }
 
-__declspec(naked) void onGetDamage () //00444A7C
+__declspec(naked) void onGetDamage() //00444A7C
 {
 	__asm
 	{
 		cmp     dx, 41
 		jl      _end
-		movsx   eax, word ptr [esi+2]   //damage
-		mov     ecx, [esp+28h]          //armor
+		movsx   eax, word ptr [esi + 2]   //damage
+		mov     ecx, [esp + 28h]          //armor
 		push    0
 		fst     [esp]
-		push    edx                     //save edx
-		push    ecx                     //armor
-		push    eax                     //damage
-		push    edx                     //type
-		push    0                       //unit - 0 means use targetUnit
+		push    edx                       //save edx
+		push    ecx                       //armor
+		push    eax                       //damage
+		push    edx                       //type
+		push    0                         //unit - 0 means use targetUnit
 		call    specialDamage
 		pop     edx
 		fld     [esp]
 		fstp    st
 		add     esp, 4
-		mov		eax, 00444AA9h
-		jmp		eax
+		mov     eax, 00444AA9h
+		jmp     eax
 _end:
-		movsx   eax, word ptr [esi+2]
-		mov     [esp+1Ch], eax
-		mov		eax, 00444A84h
-		jmp		eax
+		movsx   eax, word ptr [esi + 2]
+		mov     [esp + 1Ch], eax
+		mov     eax, 00444A84h
+		jmp     eax
 	}
 }
 
-__declspec(naked) void speed1 () //0044B7E2
+__declspec(naked) void speed1() //0044B7E2
 {
 	__asm
 	{
@@ -339,20 +339,20 @@ __declspec(naked) void speed1 () //0044B7E2
 		call    getSpeedModifier
 		sub     esp, 4
 		mov     [esp], eax
-		fld     dword ptr [esp]
-		mov     edx, [esp+4]
-		mov     ecx, [esp+8]
-		mov     eax, [esp+0Ch]
-		fld     dword ptr [eax+0D0h]
+		fld     dword ptr[esp]
+		mov     edx, [esp + 4]
+		mov     ecx, [esp + 8]
+		mov     eax, [esp + 0Ch]
+		fld     dword ptr [eax + 0D0h]
 		fmul    st(1), st
 		fstp    st
 		add     esp, 10h
-		mov		eax, 0044B7E8h
-		jmp		eax
+		mov     eax, 0044B7E8h
+		jmp     eax
 	}
 }
 
-__declspec(naked) void speed2 () //004A28C0
+__declspec(naked) void speed2() //004A28C0
 {
 	__asm
 	{
@@ -364,10 +364,10 @@ __declspec(naked) void speed2 () //004A28C0
 		//fld     dword ptr [esp]
 		//add     esp, 4
 
-		mov     edx, [ecx+1Ch]
+		mov     edx, [ecx + 1Ch]
 		test    edx, edx
 		jz      short loc_4A28E4
-		fld     dword ptr [edx+74h]
+		fld     dword ptr [edx + 74h]
 		_emit   0xDC//fcomp   ds:dbl_6546B0
 		_emit   0x1D
 		_emit   0xB0
@@ -377,20 +377,20 @@ __declspec(naked) void speed2 () //004A28C0
 		fnstsw  ax
 		test    ah, 41h
 		jnz     short loc_4A28E4
-		mov     eax, [ecx+14h]
+		mov     eax, [ecx + 14h]
 		fld     dword ptr [esp]
-		fld     dword ptr [eax+0D0h]
+		fld     dword ptr [eax + 0D0h]
 		fmul    st(1), st
 		fstp    st
 		add     esp, 4
-		fmul    dword ptr [edx+74h]
+		fmul    dword ptr [edx + 74h]
 		retn
-//.text:004A28E4 ; ---------------------------------------------------------------------------
-//.text:004A28E4
+		//.text:004A28E4 ; ---------------------------------------------------------------------------
+		//.text:004A28E4
 loc_4A28E4:
-		mov     ecx, [ecx+14h]
+		mov     ecx, [ecx + 14h]
 		fld     dword ptr [esp]
-		fld     dword ptr [ecx+0D0h]
+		fld     dword ptr [ecx + 0D0h]
 		fmul    st(1), st
 		fstp    st
 		add     esp, 4
@@ -398,20 +398,20 @@ loc_4A28E4:
 	}
 }
 
-__declspec(naked) void speed3 () //004A3EAD
+__declspec(naked) void speed3() //004A3EAD
 {
 	__asm
 	{
 		push    esi
 		call    getSpeedModifier
-		mov     [esp-4], eax
+		mov     [esp - 4], eax
 		//fld     dword ptr [esp]
 		//add     esp, 4
 
-		mov     ecx, [esi+1Ch]
+		mov     ecx, [esi + 1Ch]
 		test    ecx, ecx
 		jz      short loc_4A3ED2
-		fld     dword ptr [ecx+74h]
+		fld     dword ptr [ecx + 74h]
 		_emit   0xDC//fcomp   ds:dbl_6546B0
 		_emit   0x1D
 		_emit   0xB0
@@ -421,28 +421,28 @@ __declspec(naked) void speed3 () //004A3EAD
 		fnstsw  ax
 		test    ah, 41h
 		jnz     short loc_4A3ED2
-		mov     eax, [esi+14h]
-		fld     dword ptr [esp-4]
-		fld     dword ptr [eax+0D0h]
+		mov     eax, [esi + 14h]
+		fld     dword ptr [esp - 4]
+		fld     dword ptr [eax + 0D0h]
 		fmul    st(1), st
 		fstp    st
-		fmul    dword ptr [ecx+74h]
+		fmul    dword ptr [ecx + 74h]
 		jmp     __end
-//.text:004A28E4 ; ---------------------------------------------------------------------------
-//.text:004A28E4
+		//.text:004A28E4 ; ---------------------------------------------------------------------------
+		//.text:004A28E4
 loc_4A3ED2:
-		mov     ecx, [esi+14h]
-		fld     dword ptr [esp-4]
-		fld     dword ptr [ecx+0D0h]
+		mov     ecx, [esi + 14h]
+		fld     dword ptr [esp - 4]
+		fld     dword ptr [ecx + 0D0h]
 		fmul    st(1), st
 		fstp    st
 __end:
-		mov		eax, 004A3EDBh
-		jmp		eax
+		mov     eax, 004A3EDBh
+		jmp     eax
 	}
 }
 
-__declspec(naked) void speed4 () //004A6250
+__declspec(naked) void speed4() //004A6250
 {
 	__asm
 	{
@@ -454,10 +454,10 @@ __declspec(naked) void speed4 () //004A6250
 		//fld     dword ptr [esp]
 		//add     esp, 4
 
-		mov     edx, [ecx+1Ch]
+		mov     edx, [ecx + 1Ch]
 		test    edx, edx
 		jz      short loc_4A6276
-		fld     dword ptr [edx+74h]
+		fld     dword ptr [edx + 74h]
 		_emit   0xDC//fcomp   ds:dbl_6546B0
 		_emit   0x1D
 		_emit   0xB0
@@ -467,23 +467,23 @@ __declspec(naked) void speed4 () //004A6250
 		fnstsw  ax
 		test    ah, 41h
 		jnz     short loc_4A6276
-		mov     eax, [ecx+14h]
+		mov     eax, [ecx + 14h]
 		fld     dword ptr [esp]
-		fld     dword ptr [eax+0D0h]
+		fld     dword ptr [eax + 0D0h]
 		fmul    st(1), st
 		fstp    st
 		add     esp, 4
-		fmul    dword ptr [edx+74h]
-		retn	4
-//---------------------------------------------------------------------------
+		fmul    dword ptr [edx + 74h]
+		retn    4
+		//---------------------------------------------------------------------------
 loc_4A6276:
-		mov     ecx, [ecx+14h]
+		mov     ecx, [ecx + 14h]
 		fld     dword ptr [esp]
-		fld     dword ptr [ecx+0D0h]
+		fld     dword ptr [ecx + 0D0h]
 		fmul    st(1), st
 		fstp    st
 		add     esp, 4
-		retn	4
+		retn    4
 	}
 }
 
@@ -497,8 +497,8 @@ __declspec(naked) void stealth1() //0054BB42
 		jnz     _stOff
 		mov     eax, [esi + 14h]
 		test    byte ptr [eax + 0ACh], 4
-		mov		ecx, 0054BB4Ch
-		jmp		ecx
+		mov     ecx, 0054BB4Ch
+		jmp     ecx
 _stOff:
 		pop     edi
 		pop     esi
@@ -508,6 +508,8 @@ _stOff:
 	}
 }
 
+#pragma warning(push)
+#pragma warning(disable:4100)
 __declspec(naked) void __stdcall writeSaveFile(int id, void* buffer, int size)
 {
 	__asm
@@ -591,8 +593,8 @@ __declspec(naked) void writeSaveHook() //004AF323
 		mov     edx, [ecx]
 		call    dword ptr [edx + 0A0h]
 		call    writeUnitExtra
-		mov		eax, 004AF32Fh
-		jmp		eax
+		mov     eax, 004AF32Fh
+		jmp     eax
 	}
 }
 
@@ -605,8 +607,8 @@ __declspec(naked) void readSaveHook() //004AEEEE
 		push    edi
 		push    eax
 		call    readUnitExtra
-		mov		ecx, 004AEED4h
-		jmp		ecx
+		mov     ecx, 004AEED4h
+		jmp     ecx
 	}
 }
 
@@ -631,8 +633,8 @@ __declspec(naked) void verLoadHook() //0061D9A5
 		jnz     ver_cont
 		mov     eax, 1
 		mov     old_save_file_ver, eax
-		mov		eax, 0061D9F1h
-		jmp		eax
+		mov     eax, 0061D9F1h
+		jmp     eax
 ver_cont:
 		mov     ecx, offset newVer
 		push    ecx
@@ -641,11 +643,11 @@ ver_cont:
 		test    eax, eax
 		jnz     bad_ver
 		mov     old_save_file_ver, eax
-		mov		eax, 0061D9F1h
-		jmp		eax
+		mov     eax, 0061D9F1h
+		jmp     eax
 bad_ver:
-		mov		eax, 0061D9DBh
-		jmp		eax
+		mov     eax, 0061D9DBh
+		jmp     eax
 	}
 }
 
@@ -657,8 +659,8 @@ __declspec(naked) void verSaveHook() //00620583
 		push    offset newVer
 		push    esi
 		call    writeSaveFile
-		mov		ecx, 00620591h
-		jmp		ecx
+		mov     ecx, 00620591h
+		jmp     ecx
 	}
 }
 
@@ -671,35 +673,35 @@ void __stdcall extraLog(UNIT_EXTRA* e, void* unit)
 }
 #endif
 
-__declspec(naked) void __fastcall removeUnitExtra (void* unit)
+__declspec(naked) void __fastcall removeUnitExtra(void* unit)
 {
 	__asm
 	{
-		mov     eax, [ecx+78h]
+		mov     eax, [ecx + 78h]
 		and     eax, 0FFFFFF00h
-		mov     al, [ecx+87h]
+		mov     al, [ecx + 87h]
 		test    eax, eax
 		jz      _noFree
-		push	ecx
+		push    ecx
 		push    eax
 		//
 #ifdef _DEBUG
-		push	ecx
-		push	eax
-		call	extraLog
+		push    ecx
+		push    eax
+		call    extraLog
 #endif
 		//
 		call    ds:[free]
 		add     esp, 4
-		pop		ecx
-		and		dword ptr[ecx + 78h], 0FFh
-		and		byte ptr[ecx+87h], 0
+		pop     ecx
+		and     dword ptr [ecx + 78h], 0FFh
+		and     byte ptr [ecx + 87h], 0
 _noFree:
 		ret
 	}
 }
 
-__declspec(naked) void destructorHook () //00408D20, 00550730
+__declspec(naked) void destructorHook() //00408D20, 00550730
 {
 	__asm
 	{
@@ -715,47 +717,47 @@ __declspec(naked) void destructorHook () //00408D20, 00550730
 		push    esi
 		mov     esi, ecx
 		call    removeUnitExtra
-		mov		eax, 00550736h
-		jmp		eax
+		mov     eax, 00550736h
+		jmp     eax
 	}
 }
 
-__declspec(naked) void constructorHook () //0054B312
+__declspec(naked) void constructorHook() //0054B312
 {
 	__asm
 	{
-		mov     [esi+78h], eax
-		mov     [esi+7Ch], eax
-		mov     [esi+84h], eax
+		mov     [esi + 78h], eax
+		mov     [esi + 7Ch], eax
+		mov     [esi + 84h], eax
 		push    0054B327h
 		ret
 	}
 }
 
-__declspec(naked) void saveReadFix () //0054B635
+__declspec(naked) void saveReadFix() //0054B635
 {
 	__asm
 	{
-		mov     [esi+78h], eax
-		mov     [esi+7Ch], eax
-		mov     [esi+84h], eax
+		mov     [esi + 78h], eax
+		mov     [esi + 7Ch], eax
+		mov     [esi + 84h], eax
 		push    0054B64Ah
 		ret
 	}
 }
 
-__declspec(naked) UNIT_EXTRA* __fastcall getUnitExtra (void* unit)
+__declspec(naked) UNIT_EXTRA* __fastcall getUnitExtra(void* unit)
 {
 	__asm
 	{
-		mov     eax, [ecx+78h]
+		mov     eax, [ecx + 78h]
 		and     eax, 0FFFFFF00h
-		mov     al, [ecx+87h]
+		mov     al, [ecx + 87h]
 		ret
 	}
 }
 
-__declspec(naked) void __fastcall addUnitExtra (void* unit, UNIT_EXTRA* ud)
+__declspec(naked) void __fastcall addUnitExtra(void* unit, UNIT_EXTRA* ud)
 {
 	__asm
 	{
@@ -769,10 +771,12 @@ __declspec(naked) void __fastcall addUnitExtra (void* unit, UNIT_EXTRA* ud)
 		ret
 	}
 }
+#pragma warning(pop)
 
 int cookie;
 int retAddr_;
 int testAddr;
+
 __declspec(naked) void readDatTest1 ()
 {
 	__asm

@@ -16,7 +16,6 @@
 #include "editpropertyobject.h"
 #include "civletter.h"
 #include "icons.h"
-#include "globalvar.h"
 #include "gamemode.h"
 #include "test.h"
 #include "negdecay.h"
@@ -59,18 +58,19 @@
 #include "scroll.h"
 #include "mapcopy.h"
 #include "gamespeed.h"
+#include "timeline.h"
 #include "registry.h"
 #include "crashreporter.h"
 #include "rundll.h"
 
-__declspec(naked) int pathFindHook ()
+__declspec(naked) int pathFindHook()
 {
 	__asm
 	{
-		mov  dword ptr [esp+4],   0
-		mov  dword ptr [esp+8],   0
-		mov  dword ptr [esp+0Ch], 0
-		mov  dword ptr [esp+10h], 0
+		mov  dword ptr [esp + 4], 0
+		mov  dword ptr [esp + 8], 0
+		mov  dword ptr [esp + 0Ch], 0
+		mov  dword ptr [esp + 10h], 0
 		sub  esp, 10h
 		_emit   0x8B
 		_emit   0x44
@@ -83,34 +83,38 @@ __declspec(naked) int pathFindHook ()
 
 int lineVar;
 int retAddr;
-int (__stdcall *drawLine) (int x1, int y1, int x2, int y2, int color) = (int (__stdcall *) (int, int, int, int, int))0x473EA0;
-__declspec(naked) int __stdcall drawLineX (int x1, int y1, int x2, int y2, int color)
+int (__stdcall *drawLine) (int x1, int y1, int x2, int y2, int color) =
+	(int (__stdcall *) (int, int, int, int, int))0x473EA0;
+
+#pragma warning(push)
+#pragma warning(disable:4100)
+__declspec(naked) int __stdcall drawLineX(int x1, int y1, int x2, int y2, int color)
 {
 	__asm
 	{
-		mov  ecx, lineVar
-		pop  retAddr
-		call drawLine
-	//drawLine (x1, y1, x2, y2, 0x45);
-		push retAddr
+		mov     ecx, lineVar
+		pop     retAddr
+		call    drawLine
+		//drawLine (x1, y1, x2, y2, 0x45);
+		push    retAddr
 		ret
 	}
 }
+#pragma warning(pop)
 
-
-__declspec(naked) int flash ()
+__declspec(naked) int flash()
 {
 	__asm
 	{
 		mov  ecx, [esi + 20h]
 		mov  lineVar, ecx
 	}
-	drawLineX (200, 200, 300, 300, 0x35);
-	drawLineX (200, 200, 400, 300, 0x85);
+	drawLineX(200, 200, 300, 300, 0x35);
+	drawLineX(200, 200, 400, 300, 0x85);
 	//MessageBox (0, "fjdisfjds", "asdijasdjas", 0);
 	__asm
 	{
-		
+
 		//mov  eax, [esi+17Ch]
 		//push 005F9412h //return to normal execution
 		pop  edi
@@ -187,7 +191,7 @@ zeroUnits:
 		ret
 
 defCase:
-		push	0x5F3DB1
+		push    0x5F3DB1
 		ret
 	}
 }
@@ -251,14 +255,19 @@ __declspec(naked) void wndtmp() //00616C0F
 {
 	__asm
 	{
-		push	00616C15h
-		jmp		fixCur
+		push    00616C15h
+		jmp     fixCur
 	}
 }
 
 void setHooksCC()
 {
 	log("Setting EF-independent hooks...");
+
+	DWORD wt;
+	WriteProcessMemory(GetCurrentProcess(), (void*)0x0068F14C, "error.txt\0", 10, &wt);
+
+	setTimelineHooks();
 
 	setScrollHooks();
 	setMapCopyHooks();
@@ -314,9 +323,8 @@ void setHooksCC()
 
 #ifndef _CC_COMPATIBLE
 	setVotePanelHooks();
-#endif
-
 	setFlareHooks();
+#endif
 
 	setEditorEnhHooks();
 
@@ -325,7 +333,9 @@ void setHooksCC()
 		setMapSizeHooks();
 	else
 #endif
+#ifndef _CC_COMPATIBLE
 		setMapSizeHooks_legacy();
+#endif
 
 #ifdef _CHEATDLL_CC
 #ifndef _CC_COMPATIBLE
@@ -333,18 +343,17 @@ void setHooksCC()
 	setSaveGameVersionHooks();
 #endif
 #endif
-	//
-	setFileNameHooks();
+
+	setFileNameHooks(cd.gameVersion);
 
 #ifndef _CC_COMPATIBLE
 	setPopulationHooks();
-#endif
 
 	setResearchRepeatHooks();
 
 	setConditionHooks();
 	setEffectHooks();
-	//
+#endif
 
 	if (cd.editorAutosave)
 		setAutosaveHooks(cd.editorAutosaveInterval);
@@ -355,19 +364,18 @@ void setHooksCC()
 
 #ifndef _CC_COMPATIBLE
 	setEditorStatusHooks();
-#endif // !_CC_COMPATIBLE
-
-	setTerrainLoadHooks();
+	setTerrainLoadHooks(cd.gameVersion);
+#endif
 
 	setGameSpeedHooks();
 }
 
-__declspec(naked) void sc1Hook ()
+__declspec(naked) void sc1Hook()
 {
 	__asm
 	{
-		mov     word ptr [ebp+17b8h], 31h
-		lea     eax, [ebp+17b8h]
+		mov     word ptr [ebp + 17b8h], 31h
+		lea     eax, [ebp + 17b8h]
 		push    5e55ebh
 		ret
 	}
@@ -377,7 +385,7 @@ void setHooksEF()
 {
 	//setHook ((void*)0x005E55DB, &sc1Hook);
 
-	log("setHooksEF () started");
+	log("setHooksEF() started");
 
 	setStartupLoadHooks();
 
@@ -454,7 +462,7 @@ void setHooksEF()
 	if (!cd.animatedWater)
 		setAnimatedTerrainHooks();
 
-	log("setHooks () finished");
+	log("setHooks() finished");
 }
 
 char verStr2[] = "1.2e";
@@ -471,7 +479,7 @@ char verCC3 [] = "1.3";
 char verCC4[] = "1.4";
 char verCC5[] = "1.5";
 
-__declspec(naked) void verHookEF () //0042C3E1
+__declspec(naked) void verHookEF() //0042C3E1
 {
 	__asm
 	{
@@ -584,13 +592,13 @@ void initialSetup()
 #ifndef _CHEATDLL_CC
 	switch (cd.gameVersion)
 	{
-	case CC:
+	case VER_CC:
 		revertToX1();     //for EF
 		setHooksCC();
 
 		updateVersionCC();
 		break;
-	case EF:
+	case VER_EF:
 		//revertToX1 ();               //remove!!!! <---
 		setByte(0x289BA4, 0x32);
 		setHooksCC();
@@ -602,7 +610,7 @@ void initialSetup()
 		break;
 	}
 #else
-	cd.gameVersion = CC;
+	cd.gameVersion = VER_CC;
 	revertToX1();     //for EF
 	setHooksCC();
 

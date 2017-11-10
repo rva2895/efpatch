@@ -8,7 +8,7 @@ __declspec(naked) int triggerTableLoad()
 {
 	__asm
 	{
-		mov		ebx, [edx + 04Ch]
+		mov     ebx, [edx + 04Ch]
 		//mov     [ebx+4], al
 		//mov     [ebx+6], al
 		//mov     [ebx+7], al
@@ -19,13 +19,13 @@ __declspec(naked) int triggerTableLoad()
 		//mov     [ebx+14h], al
 		//mov     [ebx+15h], al
 
-		mov		ebx, [edx + 8h]		//research tech
-		mov		[ebx + 0h], al
+		mov     ebx, [edx + 8h]		//research tech
+		mov     [ebx + 0h], al
 
 		//mov		ebx, [edx + 2Ch]	//create object
 		//mov		[ebx + 0h], al
 
-		mov		ebx, [edx + 0B4h]
+		mov     ebx, [edx + 0B4h]
 		//mov     [ebx+4], al
 		//mov     [ebx+6], al
 		//mov     [ebx+7], al
@@ -35,12 +35,12 @@ __declspec(naked) int triggerTableLoad()
 		//mov     [ebx+12h], al
 		//mov     [ebx+13h], al
 		//mov     [ebx+14h], al
-		mov		[ebx + 15h], al
+		mov     [ebx + 15h], al
 
-		mov		eax, [esi + 8]
-		mov		cl, 1
-		mov		edx, 005F5580h
-		jmp		edx
+		mov     eax, [esi + 8]
+		mov     cl, 1
+		mov     edx, 005F5580h
+		jmp     edx
 	}
 }
 
@@ -48,36 +48,36 @@ __declspec(naked) void triggerInputTableHook()
 {
 	__asm
 	{
-		mov		[ebx + 6], al
-		mov		[ebx + 7], al
-		mov		[ebx + 0Ah], al
+		mov     [ebx + 6], al
+		mov     [ebx + 7], al
+		mov     [ebx + 0Ah], al
 
-		mov		ebx, [edx + 0B0h]       //explore effect
-		mov		[ebx + 7], al           //player
-		mov		[ebx + 10h], al         //area
-		mov		[ebx + 11h], al
-		mov		[ebx + 12h], al
-		mov		[ebx + 13h], al
+		mov     ebx, [edx + 0B0h]       //explore effect
+		mov     [ebx + 7], al           //player
+		mov     [ebx + 10h], al         //area
+		mov     [ebx + 11h], al
+		mov     [ebx + 12h], al
+		mov     [ebx + 13h], al
 
-		mov		ebx, [edx + 0B4h]       //unit var effect
-		mov		[ebx + 4], al           //obj
-		mov		[ebx + 5], al
-		mov		[ebx + 6], al           //obj list
-		mov		[ebx + 7], al           //player
-		mov		[ebx + 0Ah], al         //message
-		mov		[ebx + 10h], al         //area
-		mov		[ebx + 11h], al
-		mov		[ebx + 12h], al
-		mov		[ebx + 13h], al
-		mov		[ebx + 14h], al         //obj group
-		mov		[ebx + 15h], al         //obj type
+		mov     ebx, [edx + 0B4h]       //unit var effect
+		mov     [ebx + 4], al           //obj
+		mov     [ebx + 5], al
+		mov     [ebx + 6], al           //obj list
+		mov     [ebx + 7], al           //player
+		mov     [ebx + 0Ah], al         //message
+		mov     [ebx + 10h], al         //area
+		mov     [ebx + 11h], al
+		mov     [ebx + 12h], al
+		mov     [ebx + 13h], al
+		mov     [ebx + 14h], al         //obj group
+		mov     [ebx + 15h], al         //obj type
 
 		//mov		ebx, [edx + 78h]	  //snap view
 		//mov		[ebx + 0Eh], al		  //x
 		//mov		[ebx + 0Fh], al		  //y
 
-		mov		ebx, 007B2ADDh
-		jmp		ebx
+		mov     ebx, 007B2ADDh
+		jmp     ebx
 	}
 }
 
@@ -86,24 +86,24 @@ __declspec(naked) void effectSnapView_new()
 	__asm
 	{
 		//esp+134h
-		mov		ecx, [esp + 134h]			//location_object
-		test	ecx, ecx
-		jz		_snapview_noobject
-		mov		eax, [ecx + 14h]
-		cmp		byte ptr [eax + 4], 3Ch		//type 60
-		jz		_snapview_noobject
-		mov		esi, 00632BACh				//ftol
-		fld		dword ptr [ecx + 48h]
-		call	esi
-		fstp	st
-		mov		[edi + 44h], eax
-		fld		dword ptr [ecx + 48h]
-		call	esi
-		fstp	st
-		mov		[edi + 48h], eax
+		mov     ecx, [esp + 134h]			//location_object
+		test    ecx, ecx
+		jz      _snapview_noobject
+		mov     eax, [ecx + 14h]
+		cmp     byte ptr [eax + 4], 3Ch		//type 60
+		jz      _snapview_noobject
+		mov     esi, 00632BACh				//ftol
+		fld     dword ptr [ecx + 48h]
+		call    esi
+		fstp    st
+		mov     [edi + 44h], eax
+		fld     dword ptr [ecx + 48h]
+		call    esi
+		fstp    st
+		mov     [edi + 48h], eax
 _snapview_noobject:
-		mov		ecx, 005F376Dh
-		jmp		ecx
+		mov     ecx, 005F376Dh
+		jmp     ecx
 	}
 }
 
@@ -135,7 +135,6 @@ __declspec(naked) void triggerDisplayHook()
 		call    eax
 
 #ifdef _DEBUG
-
 		mov     ecx, [edi + 0E24h]		//breakpoint
 		push    2Eh
 		push    offset aBreakpoint
@@ -143,8 +142,8 @@ __declspec(naked) void triggerDisplayHook()
 		call    eax
 #endif
 
-		mov		eax, 007B23ACh
-		jmp		eax
+		mov     eax, 007B23ACh
+		jmp     eax
 	}
 }//2B02FC
 
@@ -186,8 +185,8 @@ y_cont:
 		jmp     x_cont
 x_end:
 
-		mov		ebx, 005F3DB1h
-		jmp		ebx
+		mov     ebx, 005F3DB1h
+		jmp     ebx
 	}
 }
 
@@ -219,8 +218,8 @@ __declspec(naked) void effectUnitVar ()
 		jl      loc_5F3AAD
 
 endLoc:
-		mov		ebx, 005F3DB1h
-		jmp		ebx
+		mov     ebx, 005F3DB1h
+		jmp     ebx
 	}
 }
 
@@ -228,9 +227,9 @@ __declspec(naked) void effectBreakpoint()
 {
 	__asm
 	{
-		int		3
-		mov		ebx, 005F3DB1h
-		jmp		ebx
+		int     3
+		mov     ebx, 005F3DB1h
+		jmp     ebx
 	}
 }
 

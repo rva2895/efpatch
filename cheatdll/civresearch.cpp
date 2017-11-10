@@ -6,7 +6,7 @@ unsigned char* tableR;
 
 #define RESEARCH_COUNT 0x2E4 //0x2B3
 
-ID_ASSIGNR idAssignR [] =
+ID_ASSIGNR idAssignR[] =
 {
 	//   E,     G,     R,     N,     F,     W,     A,     C,     Z
 	{ 0x83,  0xB6, 0x11E,  0xC8,  0xA5, 0x11F,  0x74,  0x79, 0x269}, //AVAIL-ACRUC
@@ -78,5 +78,5 @@ void initCivResearchTable ()
 
 	buildTableR ();
 
-	setHook ((void*)0x0040FD10, &researchCivAssign);
+	setHook ((void*)0x0040FD10, researchCivAssign);
 }

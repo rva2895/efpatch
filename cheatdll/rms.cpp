@@ -35,56 +35,56 @@ __declspec(naked) void rmsListLoadHook() //0052A2BE
 {
 	__asm
 	{
-		mov		ecx, [esi]
-		push	1Fh
-		push	2A8Eh
-		mov		eax, 4C82D0h
-		call	eax
+		mov     ecx, [esi]
+		push    1Fh
+		push    2A8Eh
+		mov     eax, 4C82D0h
+		call    eax
 
-		push	edi
-		push	ebx
+		push    edi
+		push    ebx
 
-		mov		edi, offset ra
-		xor		ebx, ebx
+		mov     edi, offset ra
+		xor     ebx, ebx
 
 cont1:
-		mov		eax, nRa
-		cmp		ebx, eax
-		jz		end1
-		mov		al, [edi]
-		movsx	eax, al
-		push	eax
-		mov		ax, [edi + 2]
-		movsx	eax, ax
-		push	eax
-		mov		ecx, [esi]
-		mov		eax, 4C82D0h
-		call	eax
-		inc		ebx
-		add		edi, 4
-		jmp		cont1
+		mov     eax, nRa
+		cmp     ebx, eax
+		jz      end1
+		mov     al, [edi]
+		movsx   eax, al
+		push    eax
+		mov     ax, [edi + 2]
+		movsx   eax, ax
+		push    eax
+		mov     ecx, [esi]
+		mov     eax, 4C82D0h
+		call    eax
+		inc     ebx
+		add     edi, 4
+		jmp     cont1
 end1:
 		//
-		call	rmsNameHookLoad
-		mov		edi, 4C82D0h
-		xor		ebx, ebx
+		call    rmsNameHookLoad
+		mov     edi, 4C82D0h
+		xor     ebx, ebx
 
 cont:
-		mov		eax, nFiles
-		cmp		ebx, eax
-		jz		end
-		mov		ecx, [esi]
-		push	0FFh
-		push	ebx
-		call	edi
-		inc		ebx
-		jmp		cont
+		mov     eax, nFiles
+		cmp     ebx, eax
+		jz      end
+		mov     ecx, [esi]
+		push    0FFh
+		push    ebx
+		call    edi
+		inc     ebx
+		jmp     cont
 end:
-		call	rmsNameHookUnload
-		pop		ebx
-		pop		edi
-		mov		ecx, 0052A2CCh
-		jmp		ecx
+		call    rmsNameHookUnload
+		pop     ebx
+		pop     edi
+		mov     ecx, 0052A2CCh
+		jmp     ecx
 	}
 }
 
@@ -94,16 +94,16 @@ __declspec(naked) void rmsNameLoad() //004D392C
 	{
 		//eax - char*
 		//ecx - language dll id, change to array index
-		mov		edx, filenames
-		lea		edx, [edx + ecx * 4]
-		mov		edx, [edx]
-		push	100h
-		push	edx
-		push	eax
-		call	ds:[strncpy]
-		add		esp, 0Ch
-		mov		ecx, 004D393Ah
-		jmp		ecx
+		mov     edx, filenames
+		lea     edx, [edx + ecx * 4]
+		mov     edx, [edx]
+		push    100h
+		push    edx
+		push    eax
+		call    ds:[strncpy]
+		add     esp, 0Ch
+		mov     ecx, 004D393Ah
+		jmp     ecx
 	}
 }
 

@@ -11,3 +11,6 @@
 #define _BALANCE_PATCH_VER "1.4.0"
 
 #define AUTOSAVE_TIMER 0xF0
+
+#define VER_CC 0
+#define VER_EF 1

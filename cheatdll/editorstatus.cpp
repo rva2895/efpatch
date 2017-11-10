@@ -78,6 +78,7 @@ char status_On[] = "On";
 char status_Off[] = "Off";
 
 extern int cliff_type;
+extern int terrain_paint_mode;
 
 void paintOnScreen(HDC hdc)
 {
@@ -131,6 +132,12 @@ void paintOnScreen(HDC hdc)
 			break;
 		}
 
+		char* status_terrain;
+		if (terrain_paint_mode)
+			status_terrain = status_On;
+		else
+			status_terrain = status_Off;
+
 		sprintf(buf, "Cliff: %s", cliff_txt);
 		r.right += 160;
 		r.left += 160;
@@ -171,12 +178,12 @@ __declspec(naked) void edit_screen_hook() //00531012
 {
 	__asm
 	{
-		//mov		eax, 1
-		//mov		edit_screen_flag, eax
-		//mov		eax, s2
-		//mov		s, eax
-		mov		dword ptr[esp + 1010h], 0FFFFFFFFh
-		push	0053101Dh
+		//mov     eax, 1
+		//mov     edit_screen_flag, eax
+		//mov     eax, s2
+		//mov     s, eax
+		mov     dword ptr [esp + 1010h], 0FFFFFFFFh
+		push    0053101Dh
 		ret
 	}
 }
@@ -186,36 +193,36 @@ __declspec(naked) void createsurface_hook() //00472D56, 0047188E
 	__asm
 	{
 		push    edi
-		mov		s2, edi
+		mov     s2, edi
 		push    edx
 		push    eax
-		call	getWindowY
-		cmp		dword ptr[edx + 8], eax
-		setz	al
-		and		eax, 0FFh
-		mov		surf_flag, eax
-		call    dword ptr[ecx + 18h]
-		mov		ecx, surf_flag
-		test	ecx, ecx
-		jz		_not_surface
-		//mov		ecx, edit_screen_flag
-		//test	ecx, ecx
-		//jnz		_not_surface
-		mov		ecx, s2
-		mov		edx, s
-		mov		s, ecx
-		mov		s_old, edx
+		call    getWindowY
+		cmp     dword ptr [edx + 8], eax
+		setz    al
+		and     eax, 0FFh
+		mov     surf_flag, eax
+		call    dword ptr [ecx + 18h]
+		mov     ecx, surf_flag
+		test    ecx, ecx
+		jz      _not_surface
+		//mov     ecx, edit_screen_flag
+		//test    ecx, ecx
+		//jnz     _not_surface
+		mov     ecx, s2
+		mov     edx, s
+		mov     s, ecx
+		mov     s_old, edx
 		_not_surface :
-		//mov		ecx, 0
-		//mov		edit_screen_flag, ecx
-		//push	00471894h
-		push	00472D5Ch
+		//mov     ecx, 0
+		//mov     edit_screen_flag, ecx
+		//push    00471894h
+		push    00472D5Ch
 		ret
 	}
 }
 
 void setEditorStatusHooks()
 {
-	setHook((void*)0x00472D56, &createsurface_hook);
-	setHook((void*)0x00531012, &edit_screen_hook);
+	setHook((void*)0x00472D56, createsurface_hook);
+	setHook((void*)0x00531012, edit_screen_hook);
 }

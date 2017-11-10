@@ -19,13 +19,13 @@ loopcont:
 		dec     ecx
 		cmp     word ptr [edx + ecx*2], ax
 		jnz     loopcont
-		xor		eax, eax
-		inc		eax
+		xor     eax, eax
+		inc     eax
 		pop     edx
 		pop     ecx
 		ret
 loopend:
-		xor		eax, eax
+		xor     eax, eax
 		pop     edx
 		pop     ecx
 		ret

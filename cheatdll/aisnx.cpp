@@ -2,23 +2,22 @@
 
 #include "aisnx.h"
 
-void __fastcall setUnitTypeBuilders (int id, int count)
+void __fastcall setUnitTypeBuilders(int id, int count)
 {
 	//builder counters per ID
 	char* buildersPerID = *(char**)(*(int*)0x0077FDAC + 0x103C);
-	buildersPerID [id] = count;
+	buildersPerID[id] = count;
 }
 
-int __fastcall getUnitTypeBuilders (int id, void* player)
+int __fastcall getUnitTypeBuilders(int id, void* player)
 {
 	char* buildersPerID = *(char**)((int)player + 0x103C);
-	return buildersPerID [id];
+	return buildersPerID[id];
 }
 
-char aSetUnitTypeBuilders [] =
-	"set-builders-type";
+char aSetUnitTypeBuilders[] = "set-builders-type";
 
-__declspec(naked) void registerSNX () //00577B59
+__declspec(naked) void registerSNX() //00577B59
 {
 	__asm
 	{
@@ -35,12 +34,12 @@ __declspec(naked) void registerSNX () //00577B59
 		push    offset aSetUnitTypeBuilders
 		call    edi
 		pop     edi
-		mov		ecx, 00577B6Ch
-		jmp		ecx
+		mov     ecx, 00577B6Ch
+		jmp     ecx
 	}
 }
 
-void setAISNXHooks ()
+void setAISNXHooks()
 {
-	setHook ((void*)0x00577B59, &registerSNX);
+	setHook((void*)0x00577B59, registerSNX);
 }
