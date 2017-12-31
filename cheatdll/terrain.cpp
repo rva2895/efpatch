@@ -2,7 +2,7 @@
 
 #include "terrain.h"
 
-#define TERRAIN_COUNT 93
+#define TERRAIN_COUNT 104
 
 BYTE terrain_array[] =
 {
@@ -15,7 +15,8 @@ BYTE terrain_array[] =
 	4, 1, 4, 4, 2, 4, 4, 4, 4,	//0x30
 	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,	//0x40
 	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,	//0x50
-	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4	//0x60
+	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,	//0x60
+	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4	//0x70
 };
 
 BYTE indirect_table_water[] =	//starts from 1 (TERR-WATER1)
@@ -265,6 +266,50 @@ _snow9:
 	}
 }
 
+void(__thiscall* rmsDefine) (void* _this, char *str, int flag, int value, char, char, char, char) =
+	(void(__thiscall*) (void*, char*, int, int, char, char, char, char))0x004E1C20;
+
+void __stdcall mapsize_rms_define(int size, void* _this)
+{
+	switch (size)
+	{
+	case 320:
+		rmsDefine(_this, "MAPSIZE_320", 1, 0, 0, 0, 0, 0);
+		break;
+	case 400:
+		rmsDefine(_this, "MAPSIZE_400", 1, 0, 0, 0, 0, 0);
+		break;
+	case 480:
+		rmsDefine(_this, "MAPSIZE_480", 1, 0, 0, 0, 0, 0);
+		break;
+	case 560:
+		rmsDefine(_this, "MAPSIZE_560", 1, 0, 0, 0, 0, 0);
+		break;
+	case 640:
+		rmsDefine(_this, "MAPSIZE_640", 1, 0, 0, 0, 0, 0);
+		break;
+	default:
+		break;
+	}
+}
+
+__declspec(naked) void onMapSizeRMSDefine() //004E7542
+{
+	__asm
+	{
+		push    eax
+		mov     ecx, esi
+		mov     eax, 004E1C20h
+		call    eax
+
+		push    esi
+		mov     eax, [esi + 14h]
+		push    eax
+		call    mapsize_rms_define
+		push    004E754Ah
+		ret
+	}
+}
 void setExtraTerrainHooks()
 {
 	setByte(0x0048FB72, 0xEB);	//skip border loading
@@ -400,4 +445,32 @@ void setExtraTerrainHooks()
 	setHook((void*)0x005CC02C, snow_terrain_fix_7);
 	setHook((void*)0x005CC049, snow_terrain_fix_8);
 	setHook((void*)0x005CC095, snow_terrain_fix_9);
+
+	//RGE stack array
+	setInt(0x004DE832, 0x13C + (TERRAIN_COUNT - 55) * 4);
+	setInt(0x004DE96F, 0x13C + (TERRAIN_COUNT - 55) * 4);
+	setInt(0x004DED39, 0x13C + (TERRAIN_COUNT - 55) * 4);
+	setByte(0x004DE9E0, TERRAIN_COUNT);
+	//
+	setInt(0x004DE83A, 0x144 + (TERRAIN_COUNT - 55) * 4);
+	setInt(0x004DE861, 0x154 + (TERRAIN_COUNT - 55) * 4);
+	setInt(0x004DE86E, 0x154 + (TERRAIN_COUNT - 55) * 4);
+	setInt(0x004DE889, 0x158 + (TERRAIN_COUNT - 55) * 4);
+	setInt(0x004DE8E7, 0x158 + (TERRAIN_COUNT - 55) * 4);
+	setInt(0x004DE9B2, 0x154 + (TERRAIN_COUNT - 55) * 4);
+	setInt(0x004DE9B9, 0x158 + (TERRAIN_COUNT - 55) * 4);
+	setInt(0x004DE854, 0x158 + (TERRAIN_COUNT - 55) * 4);
+	setInt(0x004DE8E0, 0x160 + (TERRAIN_COUNT - 55) * 4);
+	setInt(0x004DE980, 0x160 + (TERRAIN_COUNT - 55) * 4);
+	setInt(0x004DE908, 0x164 + (TERRAIN_COUNT - 55) * 4);
+
+	//0x37 -> 104
+	setByte(0x004DE2E4, TERRAIN_COUNT);
+	setByte(0x004DE61C, TERRAIN_COUNT);
+	setByte(0x004E5F95, TERRAIN_COUNT); //NOT SURE (0x63)
+	setInt(0x004E5F72, (TERRAIN_COUNT - 0x63) * 4 + 0x190);
+	setInt(0x004E602E, (TERRAIN_COUNT - 0x63) * 4 + 0x190);
+	setByte(0x004E5FA7, TERRAIN_COUNT); //NOT SURE (0x63)
+
+	setHook((void*)0x004E7542, onMapSizeRMSDefine);
 }

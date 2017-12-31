@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include <regex>
+//#include <regex>
 #include "effects.h"
 #include "advtriggereffect.h"
 
@@ -555,14 +555,21 @@ void __stdcall advTriggerEffectActual(void* unitData, char* s)
 			log("Error: unknown variable: %s", variable);
 			return;
 		}
-		if (!strcmp(command, "SET"))
-			*d = v;
-		else if (!strcmp(command, "ADD"))
-			*d += v;
-		else if (!strcmp(command, "MUL"))
-			*d *= v;
+		if (!d)
+		{
+			log("Error: unit has no attacks/armors");
+		}
 		else
-			log("Error: unknown command: %s", command);
+		{
+			if (!strcmp(command, "SET"))
+				*d = v;
+			else if (!strcmp(command, "ADD"))
+				*d += v;
+			else if (!strcmp(command, "MUL"))
+				*d *= v;
+			else
+				log("Error: unknown command: %s", command);
+		}
 	}
 }
 

@@ -46,9 +46,6 @@ toDefault_sound:
 
 void setChatGaiaToAllHooks()
 {
-#ifdef _DEBUG
-	log("Setting gaia -> chat to all hooks...");
-#endif
 	setHook((void*)0x005F3049, srcPlayerCheck_chat);
 	setHook((void*)0x005F310C, srcPlayerCheck_sound);
 }

@@ -5,10 +5,10 @@
 CONFIG_DATA cd_default =
 {
 	1,   //fps
-	1,   //dsoundhook
+	0,   //dsoundhook
 	5,   //bufs
 	250, //delay
-	VER_CC,  //version
+	VER_EF,  //version
 	1,   //ask
 	0,   //alt civ letter
 	0,   //res unlock
@@ -19,7 +19,7 @@ CONFIG_DATA cd_default =
 	-1,  //y
 	0,   //window mode
 	0,   //large maps
-	1    //animated water
+	1    //crash reporting
 };
 
 void regGet (CONFIG_DATA* cd)
@@ -186,12 +186,12 @@ void regGet (CONFIG_DATA* cd)
 
 		if (RegQueryValueEx(
 			hKey,
-			"Animated Water",
+			"Crash Reporting",
 			0,
 			&type,
-			(BYTE*)&cd->animatedWater,
+			(BYTE*)&cd->crashReporting,
 			&size))
-			cd->animatedWater = cd_default.animatedWater;
+			cd->crashReporting = cd_default.crashReporting;
 
 		RegCloseKey (hKey);
 		RegCloseKey (hKeyCU);
@@ -349,11 +349,11 @@ void regSet (CONFIG_DATA* cd)
 
 		RegSetValueEx(
 			hKey,
-			"Animated Water",
+			"Crash Reporting",
 			0,
 			type,
-			(BYTE*)&cd->animatedWater,
-			sizeof(cd->animatedWater));
+			(BYTE*)&cd->crashReporting,
+			sizeof(cd->crashReporting));
 
 		RegCloseKey (hKey);
 		RegCloseKey (hKeyCU);

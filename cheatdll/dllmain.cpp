@@ -59,6 +59,8 @@
 #include "mapcopy.h"
 #include "gamespeed.h"
 #include "timeline.h"
+#include "langdll.h"
+#include "cargotrader.h"
 #include "registry.h"
 #include "crashreporter.h"
 #include "rundll.h"
@@ -388,6 +390,7 @@ void setHooksEF()
 	log("setHooksEF() started");
 
 	setStartupLoadHooks();
+	setLangDllHooks();
 
 	setExtraTerrainHooks();															//!!!
 
@@ -459,8 +462,10 @@ void setHooksEF()
 	setByte(0x005397E1, CIV_COUNT + 1);
 	setByte(0x005397D0, 0xE0);
 
-	if (!cd.animatedWater)
-		setAnimatedTerrainHooks();
+	//if (!cd.animatedWater)
+	//	setAnimatedTerrainHooks();
+
+	setCargoTraderHooks();
 
 	log("setHooks() finished");
 }
@@ -582,8 +587,8 @@ void initialSetup()
 		cd.useAltCivLetter, cd.unlockResources, cd.editorAutosave, cd.editorAutosaveInterval);
 	log("Settings (3/4): wide = %d, wx = %d, wy = %d, wnd = %d",
 		cd.widescrnEnabled, cd.xres, cd.yres, cd.windowMode);
-	log("Settings (4/4): large = %d, aniw = %d",
-		cd.largeMaps, cd.animatedWater);
+	log("Settings (4/4): large = %d, crash = %d",
+		cd.largeMaps, cd.crashReporting);
 
 #ifdef _DEBUG
 	setTestHook();

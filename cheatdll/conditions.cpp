@@ -105,10 +105,11 @@ void setConditionNumbers()
 	condJMPTable[0x1B] = (int)&conditionVariable;
 }
 
-__declspec(naked) void condParams () //005F55AA
+__declspec(naked) void condParams() //005F5DD1
 {
 	__asm
 	{
+		mov     cl, 1
 		mov     eax, [esi + 8]
 		mov     edx, [eax + 60h]    //new condition 1
 		mov     [edx + 0], cl
@@ -146,7 +147,6 @@ __declspec(naked) void condParams () //005F55AA
 
 		mov     eax, [esi + 8]
 		mov     edx, [eax + 70h]    //new condition var E
-		mov     cl, 2
 		mov     [edx + 0], cl
 		mov     [edx + 2], cl
 		mov     [edx + 4], cl
@@ -162,25 +162,30 @@ __declspec(naked) void condParams () //005F55AA
 
 		mov     eax, [esi + 8]
 		mov     edx, [eax + 14h]    //old condition objects in area
-		mov     [edx + 0Fh], cl
+		mov     [edx + 0Fh], cl     //ai trigger
+		mov     [edx + 9], cl       //area
+		mov     [edx + 0Ah], cl
+		mov     [edx + 0Bh], cl
+		mov     [edx + 0Ch], cl
 
-		mov     eax, [esi+8]
-		mov     edx, [eax+8]
-		mov     eax, 005F55B0h
-		jmp     eax
+		mov     ecx, [esi + 0Ch]
+		mov     edx, [ecx + 74h]
+		mov     al, 2
+		mov     ecx, 005F5DD7h
+		jmp     ecx
 	}
 }
 
 int invBtnPtr;
 
-__declspec(naked) void funcCreateWrapper ()
+__declspec(naked) void funcCreateWrapper()
 {
 	__asm
 	{
-		mov     eax, [esp+4]
+		mov     eax, [esp + 4]
 		push    esi
 		push    edi
-		mov     edi, [esp+10h]
+		mov     edi, [esp + 10h]
 		push    0
 		push    1
 		push    0
@@ -190,7 +195,7 @@ __declspec(naked) void funcCreateWrapper ()
 		push    edi
 		mov     esi, ecx
 		push    eax
-		mov     eax, 4b9520h
+		mov     eax, 004b9520h
 		call    eax
 		test    eax, eax
 		jnz     short loc_4ED558
@@ -198,43 +203,43 @@ __declspec(naked) void funcCreateWrapper ()
 		pop     esi
 		retn    8
 		//---------------------------------------------------------------------------
-		
+
 loc_4ED558:                      //       ; CODE XREF: sub_4ED530+21j
 		mov     ecx, [edi]
 		push    0
 		push    1
-		mov     eax, 4B7450h
+		mov     eax, 004B7450h
 		call    eax
 		mov     ecx, [edi]
 		push    0
 		mov     edx, [ecx]
-		call    dword ptr [edx+14h]
-		mov     eax, [esi+320h]
+		call    dword ptr [edx + 14h]
+		mov     eax, [esi + 320h]
 		test    eax, eax
 		jz      short loc_4ED5B5
 		xor     eax, eax
 		xor     ecx, ecx
-		mov     al, [esi+32Dh]
-		mov     cl, [esi+32Ch]
+		mov     al, [esi + 32Dh]
+		mov     cl, [esi + 32Ch]
 		xor     edx, edx
 		push    eax
-		mov     dl, [esi+32Bh]
+		mov     dl, [esi + 32Bh]
 		push    ecx
 		xor     eax, eax
 		push    edx
-		mov     al, [esi+32Ah]
+		mov     al, [esi + 32Ah]
 		xor     ecx, ecx
-		mov     cl, [esi+329h]
+		mov     cl, [esi + 329h]
 		xor     edx, edx
-		mov     dl, [esi+328h]
+		mov     dl, [esi + 328h]
 		push    eax
 		push    ecx
 		mov     ecx, [edi]
 		push    edx
 		push    3
-		mov     eax, 4C5190h
+		mov     eax, 004C5190h
 		call    eax
-		
+
 loc_4ED5B5:             //                ; CODE XREF: sub_4ED530+44j
 		pop     edi
 		mov     eax, 1
@@ -244,14 +249,14 @@ loc_4ED5B5:             //                ; CODE XREF: sub_4ED530+44j
 }
 
 //constructor?
-__declspec(naked) void inv1 () //00529A06
+__declspec(naked) void inv1() //00529A06
 {
 	__asm
 	{
 		mov     ecx, esi
-		mov     eax, 531E80h
+		mov     eax, 00531E80h
 		call    eax
-		mov     eax, [esi+918h]
+		mov     eax, [esi + 918h]
 		lea     edi, invBtnPtr
 		push    edi
 		push    eax
@@ -265,7 +270,7 @@ __declspec(naked) void inv1 () //00529A06
 		push    2
 		mov     edx, [ecx]
 		push    0BAh
-		call    dword ptr [edx+28h]
+		call    dword ptr [edx + 28h]
 
 loc_7E22C4:
 		//
@@ -277,25 +282,25 @@ loc_7E22C4:
 }
 
 //destructor?
-__declspec(naked) void inv2 () //0052ABD7
+__declspec(naked) void inv2() //0052ABD7
 {
 	__asm
 	{
 		lea     eax, invBtnPtr
 		mov     ecx, esi
 		push    eax
-		mov     eax, 428520h
+		mov     eax, 00428520h
 		call    eax
 		//
 		call    editor_exit
 		//
-		lea     eax, [esi+964h]
+		lea     eax, [esi + 964h]
 		mov     ecx, 0052ABDDh
 		jmp     ecx
 	}
 }
 
-__declspec(naked) void inv3 () //0053BDA0
+__declspec(naked) void inv3() //0053BDA0
 {
 	__asm
 	{
@@ -304,32 +309,32 @@ __declspec(naked) void inv3 () //0053BDA0
 		mov     edx, [ecx]
 		call    dword ptr [edx + 14h]
 
-		mov     ecx, [esi+0E1Ch]
+		mov     ecx, [esi + 0E1Ch]
 		mov     edx, 0053BDA6h
 		jmp     edx
 	}
 }
 
-__declspec(naked) void inv4 () //0053C37C
+__declspec(naked) void inv4() //0053C37C
 {
 	__asm
 	{
-		movsx   eax, byte ptr [edi+2Ch]
+		movsx   eax, byte ptr [edi + 2Ch]
 		neg     eax
 		mov     ecx, ds:invBtnPtr
 		push    eax
 		mov     edx, [ecx]
-		call    dword ptr [edx+104h]
+		call    dword ptr [edx + 104h]
 		mov     ecx, ds:invBtnPtr
 		push    1
 		mov     edx, [ecx]
-		call    dword ptr [edx+14h]
+		call    dword ptr [edx + 14h]
 		mov     ecx, edi
 		//call    sub_553EA0 -> 419150
-		mov     eax, [ecx+4]
+		mov     eax, [ecx + 4]
 
 		mov     ecx, edi
-		mov     eax, 419150h
+		mov     eax, 00419150h
 		call    eax
 		mov     ecx, 0053C383h
 		jmp     ecx
@@ -341,13 +346,13 @@ __declspec(naked) void inv5() //0053E014
 	__asm
 	{
 		mov     ecx, ds:invBtnPtr
-		mov     eax, 4C5280h
+		mov     eax, 004C5280h
 		call    eax
 		neg     eax
 		mov     [ebx + 2Ch], al
 
 		mov     ecx, ebx
-		mov     eax, 419150h
+		mov     eax, 00419150h
 		call    eax
 		mov     esi, 0053E01Bh
 		jmp     esi
@@ -389,12 +394,12 @@ __declspec(naked) void invProcessCond() //005F4A0F
 	{
 		mov     ecx, [ecx + edi * 4]
 		mov     al, [ecx + 2Ch]
-		mov     ds : invCond, al
+		mov     ds:invCond, al
 		mov     eax, 005F1DE0h
 		call    eax
 		cmp     al, 2
 		jz      loc_5F4A2D
-		add     al, ds : invCond
+		add     al, ds:invCond
 		jnz     loc_5F4A63
 		mov     ecx, 005F4A23h
 		jmp     ecx
@@ -672,11 +677,11 @@ __declspec(naked) void conditionVariable()
 {
 	__asm
 	{
-		mov     eax, [esp + 14h]	//object
-		mov     ecx, [esp + 38h]	//player
+		mov     eax, [esp + 14h]    //object
+		mov     ecx, [esp + 38h]    //player
 		push    eax
 		push    ecx
-		push    esi					//condition
+		push    esi                 //condition
 		call    conditionVariable_actual
 		test    al, al
 		jnz     condMet
@@ -745,18 +750,18 @@ void make_counter_functions()
 	VirtualProtect(unitContainter_countUnits_ungarrisoned, 0x1000, PAGE_EXECUTE_READ, &r);
 }
 
-void setConditionHooks ()
+void setConditionHooks()
 {
-	setConditionNumbers ();
-	setHook ((void*)0x005F55AA, &condParams);
-	setHook ((void*)0x00529A06, &inv1);
-	setHook ((void*)0x0052ABD7, &inv2);
-	setHook ((void*)0x0053BDA0, &inv3);
-	setHook ((void*)0x0053C37C, &inv4);
-	setHook ((void*)0x0053E014, &inv5);
-	setHook ((void*)0x005F2756, &inv6);
+	setConditionNumbers();
+	setHook((void*)0x005F5DD1, condParams);
+	setHook((void*)0x00529A06, inv1);
+	setHook((void*)0x0052ABD7, inv2);
+	setHook((void*)0x0053BDA0, inv3);
+	setHook((void*)0x0053C37C, inv4);
+	setHook((void*)0x0053E014, inv5);
+	setHook((void*)0x005F2756, inv6);
 
-	setHook ((void*)0x005F4A0F, &invProcessCond);
+	setHook((void*)0x005F4A0F, invProcessCond);
 
 	make_counter_functions();
 }

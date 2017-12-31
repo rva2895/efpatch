@@ -20,24 +20,24 @@ struct drsTableHdr
 int newXsize;
 int newYsize;
 
-void ResToFile (const char* res, const char* filename)
+void ResToFile(const char* res, const char* filename)
 {
-	char tmpBuf [255];
-	HRSRC foundedRes = FindResource(GetModuleHandle ("efpatch.dll"), res, "RAW");
-	HGLOBAL loadedRes = LoadResource (GetModuleHandle ("efpatch.dll"), foundedRes);
-	void* data =  LockResource (loadedRes);
-	unsigned long size = SizeofResource (GetModuleHandle ("efpatch.dll"), foundedRes);
-	FILE* file = fopen (filename, "wb");
+	char tmpBuf[255];
+	HRSRC foundedRes = FindResource(GetModuleHandle("efpatch.dll"), res, "RAW");
+	HGLOBAL loadedRes = LoadResource(GetModuleHandle("efpatch.dll"), foundedRes);
+	void* data = LockResource(loadedRes);
+	unsigned long size = SizeofResource(GetModuleHandle("efpatch.dll"), foundedRes);
+	FILE* file = fopen(filename, "wb");
 	if (file == NULL)
 	{
-		sprintf (tmpBuf, "Cannot create file: %s", filename);
-		MessageBox (0, tmpBuf, "Error", MB_ICONERROR);
+		sprintf(tmpBuf, "Cannot create file: %s", filename);
+		MessageBox(0, tmpBuf, "Error", MB_ICONERROR);
 		exit(0);
 		//addLog ("Cannot create file. Setup aborted\x0D\x0A");
 		//_endthread ();
 	}
-	fwrite (data, 1, size, file);
-	fclose (file);
+	fwrite(data, 1, size, file);
+	fclose(file);
 }
 
 //50032 - edit small
@@ -47,14 +47,14 @@ void ResToFile (const char* res, const char* filename)
 //50101 - load medium
 //50102 - load large
 
-void createNewFiles (int y)
+void createNewFiles(int y)
 {
-//#ifndef _CHEATDLL_CC
+	//#ifndef _CHEATDLL_CC
 	if (y >= 1024)
-		ResToFile ("IDD_DRS_TEMPLATE_1280", "data\\wide.drs");
+		ResToFile("IDD_DRS_TEMPLATE_1280", "data\\wide.drs");
 	else
-		ResToFile ("IDD_DRS_TEMPLATE_1024", "data\\wide.drs");
-//#endif
+		ResToFile("IDD_DRS_TEMPLATE_1024", "data\\wide.drs");
+	//#endif
 }
 
 void* memSLP; //global variable to store loaded SLP
@@ -67,7 +67,7 @@ void rd //read data from memSLP to mem
 	int len,
 	void* mem)
 {
-	memcpy (mem, (void*)((char*)memSLP + offset), len);
+	memcpy(mem, (void*)((char*)memSLP + offset), len);
 }
 
 /*int getDrsPos (HANDLE hFile, int id)
@@ -77,97 +77,99 @@ void rd //read data from memSLP to mem
 	SetFilePointer (hFile, 
 }*/
 
-void* readDRSItemToMem (const char* filename, int id, int* size)
+void* readDRSItemToMem(const char* filename, int id, int* size)
 {
 	FILE* f;// = fopen (filename, "rb");
 
 	//if (!file)
 	//	return 0;
 	DRS drs;
-	if (!drs.loadDRS (filename))
+	if (!drs.loadDRS(filename))
 	{
-		log ("Resolution: cannot load %s", filename);
+		log("Resolution: cannot load %s", filename);
 		return 0;
 	}
 
 	int oldOffset;
 
-	log ("Resolution: loading %s:%d...", filename, id);
+	log("Resolution: loading %s:%d...", filename, id);
 
-	int entryOffset = drs.getTableEntryOffset (id);
+	int entryOffset = drs.getTableEntryOffset(id);
 	if (entryOffset == -1)
 	{
-		log ("Resolution: cannot load %d", id);
+		log("Resolution: cannot load %d", id);
 		return 0;
 	}
 
-	drs.unload ();
+	drs.unload();
 
-	f = fopen (filename, "rb+");
-	fseek (f, entryOffset+4, SEEK_SET);
+	f = fopen(filename, "rb+");
+	fseek(f, entryOffset + 4, SEEK_SET);
 
-	fread (&oldOffset, 4, 1, f); //reading DRSItemDesc.offset
-	fread (&oldSize, 4, 1, f); //reading DRSItemDesc.size
+	fread(&oldOffset, 4, 1, f); //reading DRSItemDesc.offset
+	fread(&oldSize, 4, 1, f); //reading DRSItemDesc.size
 
 	//this does not look nice, but we need more memory than the actual file size,
 	//because we will edit it
 
-	void* m = malloc (oldSize*2);
-	fseek (f, oldOffset, SEEK_SET);
-	fread (m, 1, oldSize, f);
+	void* m = malloc(oldSize * 2);
+	fseek(f, oldOffset, SEEK_SET);
+	fread(m, 1, oldSize, f);
 
-	fclose (f);
+	fclose(f);
 
 	*size = oldSize; //returning the size
 
-	log ("Resolution: loaded %d: offset=%d, size=%d", id, oldOffset, oldSize);
+	log("Resolution: loaded %d: offset=%d, size=%d", id, oldOffset, oldSize);
 
 	return m;
 }
 
-void writeDRS (const char* filename, int id, void* data, int size)
+void writeDRS(const char* filename, int id, void* data, int size)
 {
 	//memSLP = readSLPtoMem ();
 
-	HANDLE hFile = CreateFile (filename,
+	HANDLE hFile = CreateFile(filename,
 		GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
-	if (int x = GetLastError ()) //halt if can't open file...
+	if (int x = GetLastError()) //halt if can't open file...
 	{
-		MessageBox (0, "Can't open file", "Error", MB_ICONERROR);
-		exit (0);
+		MessageBox(0, "Can't open file", "Error", MB_ICONERROR);
+		exit(0);
 	}
 
 	unsigned long readwritten;
 
-	log ("Resolution: looking for id=%d in %s", id, filename);
+	log("Resolution: looking for id=%d in %s", id, filename);
 
 	DRS drs;
-	if (!drs.loadDRS (filename))
+	if (!drs.loadDRS(filename))
 	{
-		log ("Resolution: cannot load %s", filename);
+		log("Resolution: cannot load %s", filename);
+		CloseHandle(hFile);
 		return;
 	}
 
-	int entryOffset = drs.getTableEntryOffset (id);
+	int entryOffset = drs.getTableEntryOffset(id);
 	if (entryOffset == -1)
 	{
-		log ("Resolution: cannot load %d", id);
+		log("Resolution: cannot load %d", id);
+		CloseHandle(hFile);
 		return;
 	}
 
-	drs.unload ();
-	
-	int newOffset = GetFileSize (hFile, 0);
-	SetFilePointer (hFile, entryOffset+4, 0, FILE_BEGIN);
-	WriteFile (hFile, &newOffset, 4, &readwritten, 0); //edit DRS item offset
-	//newSize = oldSize;
-	WriteFile (hFile, &size, 4, &readwritten, 0); //edit DRS item size
-	SetFilePointer (hFile, newOffset, 0, FILE_BEGIN);
-	WriteFile (hFile, data, size, &readwritten, 0); //write data at end of file
-	CloseHandle (hFile);
+	drs.unload();
 
-	log ("Resolution: updated %d: offset=%d, size=%d", id, newOffset, size);
+	int newOffset = GetFileSize(hFile, 0);
+	SetFilePointer(hFile, entryOffset + 4, 0, FILE_BEGIN);
+	WriteFile(hFile, &newOffset, 4, &readwritten, 0); //edit DRS item offset
+	//newSize = oldSize;
+	WriteFile(hFile, &size, 4, &readwritten, 0); //edit DRS item size
+	SetFilePointer(hFile, newOffset, 0, FILE_BEGIN);
+	WriteFile(hFile, data, size, &readwritten, 0); //write data at end of file
+	CloseHandle(hFile);
+
+	log("Resolution: updated %d: offset=%d, size=%d", id, newOffset, size);
 }
 
 void parseSLP (int newH, int id, bool useWide)
@@ -190,8 +192,10 @@ void parseSLP (int newH, int id, bool useWide)
 			stretchAt = 545;
 		else if (id == 51147)
 			stretchAt = 535;
-		else if (id == 51148)
+		else if (id == 51150)
 			stretchAt = 530;
+		else if (id == 51148)
+			stretchAt = 537;
 		else if (id == 51149)
 			stretchAt = 526;
 		else
@@ -201,14 +205,16 @@ void parseSLP (int newH, int id, bool useWide)
 	{
 		oldH = 1024;
 		oldV = 768;
-		if (id == 51128)
-			stretchAt = 431;
+		if (id == 51130)
+			stretchAt = 435;
 		else if (id == 51124)
 			stretchAt = 424;
 		else if (id == 51126)
 			stretchAt = 423;
 		else if (id == 51127)
 			stretchAt = 417;
+		else if (id == 51128)
+			stretchAt = 429;
 		else if (id == 51129)
 			stretchAt = 424;
 		else
@@ -229,6 +235,8 @@ void parseSLP (int newH, int id, bool useWide)
 	else
 	{
 		memSLP = readDRSItemToMem(__INTERFAC_PATH__, id, &oldSize);
+		if (!memSLP)
+			memSLP = readDRSItemToMem("data\\interfac_x1.drs", id, &oldSize);
 		if (!memSLP)
 			memSLP = readDRSItemToMem("data\\interfac.drs", id, &oldSize);
 	}
@@ -847,7 +855,7 @@ void patchResRects(int X, int Y)
 {
 	int size;
 
-	drsRects = readDRSItemToMem(__INTERFAC_PATH__, 53290, &size);
+	drsRects = readDRSItemToMem("data\\interfac_x1.drs", 53290, &size);
 
 	newXsize = X;
 	newYsize = Y;
@@ -892,122 +900,130 @@ void placeSLP(int id, bool wide)
 	{
 		mem = readDRSItemToMem(__INTERFAC_PATH__, id, &size);
 		if (!mem)
-			mem = readDRSItemToMem("data\\interfac.drs", id, &size);
+		{
+			mem = readDRSItemToMem("data\\interfac_x1.drs", id, &size);
+			if (!mem)
+				mem = readDRSItemToMem("data\\interfac.drs", id, &size);
+		}
 	}
 	writeDRS("data\\wide.drs", id, mem, size);
 	free(mem);
 }
 
-void patchResolution (int x, int y)
+void patchResolution(int x, int y)
 {
-	log ("Resolution patch started, %dx%d", x, y);
+	log("Resolution patch started, %dx%d", x, y);
 	int size;
-	void* drsResStr = readDRSItemToMem ("data\\wide.drs", 100000, &size);
+	void* drsResStr = readDRSItemToMem("data\\wide.drs", 100001, &size);
 	if (drsResStr)
 	{
 		int x_;
 		int y_;
-		sscanf ((char*)drsResStr, "%dx%d", &x_, &y_);
-		free (drsResStr);
+		sscanf((char*)drsResStr, "%dx%d", &x_, &y_);
+		free(drsResStr);
 		if ((x_ == x) && (y_ == y))
 		{
-			log ("Resolution: Patch already exists");
+			log("Resolution: Patch already exists");
 			return;
 		}
 	}
 	newXsize = x;
 	newYsize = y;
 
-	log ("Resolution: creating new files...");
-	createNewFiles (y);
+	log("Resolution: creating new files...");
+	createNewFiles(y);
 
-	log ("Resolution: patching rects...");
-	
-	patchResRects (newXsize, newYsize);
+	log("Resolution: patching rects...");
 
-	log ("Resolution: updating resolution id");
-	char resStr [20];
-	sprintf (resStr, "%dx%d", x, y);
-	writeDRS ("data\\wide.drs", 100000, resStr, strlen(resStr)+1);
+	patchResRects(newXsize, newYsize);
 
-	log ("Resolution: stretching SLPs...");
+	log("Resolution: updating resolution id");
+	char resStr[20];
+	sprintf(resStr, "%dx%d", x, y);
+	writeDRS("data\\wide.drs", 100001, resStr, strlen(resStr) + 1);
 
-//50032 - edit small
-//50033 - edit medium
-//50034 - edit large
-//50100 - load small
-//50101 - load medium
-//50102 - load large
+	log("Resolution: stretching SLPs...");
 
-//#ifndef _CHEATDLL_CC
+	//50032 - edit small
+	//50033 - edit medium
+	//50034 - edit large
+	//50100 - load small
+	//50101 - load medium
+	//50102 - load large
+
+	//#ifndef _CHEATDLL_CC
 	if (newXsize >= 1920)
 	{
-		placeSLP (50032, 0);
-		placeSLP (50033, 0);
-		placeSLP (50034, 1);
-		placeSLP (50100, 0);
-		placeSLP (50101, 0);
-		placeSLP (50102, 1);
+		placeSLP(50032, 0);
+		placeSLP(50033, 0);
+		placeSLP(50034, 1);
+		placeSLP(50100, 0);
+		placeSLP(50101, 0);
+		placeSLP(50102, 1);
 	}
 	else
 	{
-		placeSLP (50032, 0);
-		placeSLP (50033, 0);
-		placeSLP (50034, 0);
-		placeSLP (50100, 0);
-		placeSLP (50101, 0);
-		placeSLP (50102, 0);
+		placeSLP(50032, 0);
+		placeSLP(50033, 0);
+		placeSLP(50034, 0);
+		placeSLP(50100, 0);
+		placeSLP(50101, 0);
+		placeSLP(50102, 0);
 	}
-//#endif
-	
+	//#endif
+
 	if (newYsize >= 1024)
 	{
-		parseSLP (newXsize, 51141, 0);
-		parseSLP (newXsize, 51142, 0);
-		parseSLP (newXsize, 51143, 0);
-		parseSLP (newXsize, 51144, 0);
-		parseSLP (newXsize, 51145, 0);
-		parseSLP (newXsize, 51146, 0);
-		
-		parseSLP (newXsize, 51147, 0);
-		parseSLP (newXsize, 51148, 0);
+		parseSLP(newXsize, 51141, 0);
+		parseSLP(newXsize, 51142, 0);
+		parseSLP(newXsize, 51143, 0);
+		parseSLP(newXsize, 51144, 0);
+		parseSLP(newXsize, 51145, 0);
+		parseSLP(newXsize, 51146, 0);
+
+		parseSLP(newXsize, 51147, 0);
+		parseSLP(newXsize, 51148, 0);
 
 #ifndef _CHEATDLL_CC
-		parseSLP (newXsize, 51149, 0);
+		parseSLP(newXsize, 51149, 0);
+		parseSLP(newXsize, 51150, 0);
 #endif
 	}
 	else if (newYsize >= 768)
 	{
-		parseSLP (newXsize, 51121, 0);
-		parseSLP (newXsize, 51122, 0);
-		parseSLP (newXsize, 51123, 0);
-		parseSLP (newXsize, 51124, 0);
-		parseSLP (newXsize, 51125, 0);
-		parseSLP (newXsize, 51126, 0);
+		parseSLP(newXsize, 51121, 0);
+		parseSLP(newXsize, 51122, 0);
+		parseSLP(newXsize, 51123, 0);
+		parseSLP(newXsize, 51124, 0);
+		parseSLP(newXsize, 51125, 0);
+		parseSLP(newXsize, 51126, 0);
 
-		parseSLP (newXsize, 51127, 0);
-		parseSLP (newXsize, 51128, 0);
+		parseSLP(newXsize, 51127, 0);
+		parseSLP(newXsize, 51128, 0);
 
 #ifndef _CHEATDLL_CC
-		parseSLP (newXsize, 51129, 0);
+		parseSLP(newXsize, 51129, 0);
+		parseSLP(newXsize, 51130, 0);
 #endif
 	}
-	log ("Resolution patch successfull");
+	log("Resolution patch successfull");
 }
 
-void resolutionTool (int x, int y)
+void resolutionTool(int x, int y)
 {
 	int size;
-	void* drsResStr = readDRSItemToMem ("data\\wide.drs", 100000, &size);
-	if (!drsResStr)
-		return;
+	void* drsResStr = readDRSItemToMem("data\\wide.drs", 100001, &size);
+	if (drsResStr)
+	{
+		int x_;
+		int y_;
+		sscanf((char*)drsResStr, "%dx%d", &x_, &y_);
+		free(drsResStr);
+		if ((x_ != x) || (y_ != y))
+			patchResolution(x, y);
+	}
+	else
+		patchResolution(x, y);
 
-	int x_;
-	int y_;
-	sscanf ((char*)drsResStr, "%dx%d", &x_, &y_);
-	free (drsResStr);
-	if ((x_ != x) || (y_ != y))
-		return;
-
-	patchEXE (x, y);
+	patchEXE(x, y);
 }

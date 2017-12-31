@@ -119,9 +119,6 @@ __declspec(naked) void onAIPopCap() //0057F13A
 
 void setPopulationHooks()
 {
-#ifdef _DEBUG
-	log("Setting population cap hooks...");
-#endif
 	setHook((void*)0x00520273, createPopList);
 	setHook((void*)0x005202A5, popListContCreation);
 	setHook((void*)0x0057F13A, onAIPopCap);

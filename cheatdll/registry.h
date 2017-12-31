@@ -25,7 +25,7 @@ struct CONFIG_DATA
 	int yres;
 	int windowMode;
 	int largeMaps;
-	int animatedWater;
+	int crashReporting;
 };
 
 void regGet (CONFIG_DATA*);

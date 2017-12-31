@@ -1,0 +1,225 @@
+#include "stdafx.h"
+#include "langdll.h"
+
+__declspec(naked) void langdll_1() //0048BB12
+{
+	__asm
+	{
+		lea     ecx, [ecx + ebp + 52h]
+		movsx   ebp, byte ptr [ecx]
+		cmp     ebp, 31h
+		mov     ebp, 27h
+		jz      _high_civ_1
+		mov     ebp, 31h
+_high_civ_1:
+		movsx   ecx, byte ptr [ecx + 1]
+		sub     ecx, ebp
+		push    0048BB1Ah
+		ret
+	}
+}
+
+__declspec(naked) void langdll_2() //0048BB62
+{
+	__asm
+	{
+		lea     ecx, [ecx + edx + 52h]
+		movsx   edx, byte ptr [ecx]
+		cmp     edx, 31h
+		mov     edx, 27h
+		jz      _high_civ_2
+		mov     edx, 31h
+_high_civ_2:
+		movsx   ecx, byte ptr [ecx + 1]
+		sub     ecx, edx
+		push    0048BB6Ah
+		ret
+	}
+}
+
+__declspec(naked) void langdll_3() //0048BB90
+{
+	__asm
+	{
+		lea     ecx, [ecx + edx + 52h]
+		movsx   edx, byte ptr [ecx]
+		cmp     edx, 31h
+		mov     edx, 27h
+		jz      _high_civ_3
+		mov     edx, 31h
+_high_civ_3:
+		movsx   ecx, byte ptr [ecx + 1]
+		sub     ecx, edx
+		push    0048BB98h
+		ret
+	}
+}
+
+__declspec(naked) void langdll_4() //0048BBBE
+{
+	__asm
+	{
+		lea     ecx, [ecx + edx + 52h]
+		movsx   edx, byte ptr [ecx]
+		cmp     edx, 31h
+		mov     edx, 27h
+		jz      _high_civ_4
+		mov     edx, 31h
+_high_civ_4:
+		movsx   ecx, byte ptr [ecx + 1]
+		sub     ecx, edx
+		push    0048BBC6h
+		ret
+	}
+}
+
+__declspec(naked) void langdll_1_1() //0048BC12
+{
+	__asm
+	{
+		lea     ecx, [ecx + ebp + 52h]
+		movsx   ebp, byte ptr [ecx]
+		cmp     ebp, 31h
+		mov     ebp, 27h
+		jz      _high_civ_1_1
+		mov     ebp, 31h
+_high_civ_1_1:
+		movsx   ecx, byte ptr [ecx + 1]
+		sub     ecx, ebp
+		push    0048BC1Ah
+		ret
+	}
+}
+
+__declspec(naked) void langdll_2_1() //0048BC5D
+{
+	__asm
+	{
+		lea     ecx, [ecx + edx + 52h]
+		movsx   edx, byte ptr [ecx]
+		cmp     edx, 31h
+		mov     edx, 27h
+		jz      _high_civ_2_1
+		mov     edx, 31h
+_high_civ_2_1:
+		movsx   ecx, byte ptr [ecx + 1]
+		sub     ecx, edx
+		push    0048BC65h
+		ret
+	}
+}
+
+__declspec(naked) void langdll_3_1() //0048BC8B
+{
+	__asm
+	{
+		lea     ecx, [ecx + edx + 52h]
+		movsx   edx, byte ptr [ecx]
+		cmp     edx, 31h
+		mov     edx, 27h
+		jz      _high_civ_3_1
+		mov     edx, 31h
+_high_civ_3_1:
+		movsx   ecx, byte ptr [ecx + 1]
+		sub     ecx, edx
+		push    0048BC93h
+		ret
+	}
+}
+
+__declspec(naked) void langdll_4_1() //0048BCBA
+{
+	__asm
+	{
+		lea     ecx, [ecx + edx + 52h]
+		movsx   edx, byte ptr [ecx]
+		cmp     edx, 31h
+		mov     edx, 27h
+		jz      _high_civ_4_1
+		mov     edx, 31h
+_high_civ_4_1:
+		movsx   ecx, byte ptr [ecx + 1]
+		sub     ecx, edx
+		push    0048BCC2h
+		ret
+	}
+}
+
+__declspec(naked) void cargoTrader_langdll_1() //0048BB76
+{
+	__asm
+	{
+		cmp     si, 931
+		jnz     short loc_48BBA4
+		push    0048BB7Ch
+		ret
+loc_48BBA4:
+		push    0048BBA4h
+		ret
+	}
+}
+
+__declspec(naked) void cargoTrader_langdll_2() //0048BC71
+{
+	__asm
+	{
+		cmp     word ptr [edx + 18h], 931
+		jnz     short loc_48BC9F
+		push    0048BC77h
+		ret
+loc_48BC9F:
+		push    00048BC9Fh
+		ret
+	}
+}
+
+__declspec(naked) void medic_worker() //0054BA2B
+{
+	__asm
+	{
+		lea     ecx, [edi + eax + 52h]
+		movsx   edx, byte ptr [ecx]
+		cmp     edx, 31h
+		mov     edx, 26h
+		jz      _high_civ_medic
+		mov     edx, 30h
+_high_civ_medic:
+		pop     edi
+		pop     ebx
+		movsx   ecx, byte ptr [ecx + 1]
+		sub     ecx, edx
+		sub     ecx, 2
+		jz      _worker_bio
+		sub     ecx, 4
+		jz      _worker_bio
+		sub     ecx, 4
+		jz      _worker_bio
+		push    0054BA44h
+		ret
+_worker_bio:
+		push    0054BA49h
+		ret
+	}
+}
+
+void setLangDllHooks()
+{
+	setInt(0x0048BB21, 4);		//worker names, worker name offset nearby
+	setInt(0x0048BC21, 4);
+
+	setHook((void*)0x0048BB12, langdll_1);
+	setHook((void*)0x0048BB62, langdll_2);
+	setHook((void*)0x0048BB90, langdll_3);
+	setHook((void*)0x0048BBBE, langdll_4);
+
+	setHook((void*)0x0048BC12, langdll_1_1);
+	setHook((void*)0x0048BC5D, langdll_2_1);
+	setHook((void*)0x0048BC8B, langdll_3_1);
+	setHook((void*)0x0048BCBA, langdll_4_1);
+
+	setHook((void*)0x0048BB76, cargoTrader_langdll_1);
+	setHook((void*)0x0048BC71, cargoTrader_langdll_2);
+
+	setHook((void*)0x0054BA2B, medic_worker);
+	setByte(0x0054B3E9, CIV_COUNT + 1);			//wrong icon (civ > 8) fix
+}

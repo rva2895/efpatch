@@ -13,7 +13,7 @@ loopcont:
 		test    eax, eax
 		jz      loopend
 		dec     eax
-		cmp     word ptr [edx + eax*2], bx
+		cmp     word ptr [edx + eax * 2], bx
 		jnz     loopcont
 		xor     eax, eax
 		inc     eax

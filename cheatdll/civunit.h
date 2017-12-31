@@ -5,7 +5,7 @@
 struct ID_ASSIGNU
 {
 #ifdef _CHEATDLL_CC
-	short IDs[9];
+	short IDs[10];
 #else
 	short IDs[CIV_COUNT];
 #endif

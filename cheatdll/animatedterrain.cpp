@@ -26,5 +26,5 @@ _no_draw:
 
 void setAnimatedTerrainHooks()
 {
-	setHook((void*)0x0054BA83, &onCheckAttrib);
+	setHook((void*)0x0054BA83, onCheckAttrib);
 }

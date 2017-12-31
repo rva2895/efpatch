@@ -25,9 +25,6 @@ jump:
 
 void setDecayHooks()
 {
-#ifdef _DEBUG
-	log("Setting negative decay hooks...");
-#endif
 	setByte(0x54F0F6, 0x40);
-	setHook((void*)0x0054F123, &negDecay);
+	setHook((void*)0x0054F123, negDecay);
 }

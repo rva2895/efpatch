@@ -66,9 +66,6 @@ noRemoveCiv:
 
 void setResearchRepeatHooks()
 {
-#ifdef _DEBUG
-	log("Setting research repeat hooks...");
-#endif
 	setHook((void*)0x005F2F72, readQuant);
 }
 
