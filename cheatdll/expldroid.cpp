@@ -2,12 +2,12 @@
 
 #include "expldroid.h"
 
-void __cdecl isExpl ();
+void __cdecl isExpl();
 
-void expl1 ();
-void expl2 ();
-void expl3 ();
-void expl4 ();
+void expl1();
+void expl2();
+void expl3();
+void expl4();
 
 short* explIDs;
 int nExplIDs;
@@ -40,7 +40,7 @@ void initExplDroid()
 		log("Warning: expl.txt not found, using default settings");
 }
 
-__declspec(naked) void isExpl () //bx = ID
+__declspec(naked) void isExpl() //bx = ID
 {
 	__asm
 	{
@@ -53,7 +53,7 @@ loopcont:
 		test    ecx, ecx
 		jz      loopend
 		dec     ecx
-		cmp     word ptr [edx + ecx*2], bx
+		cmp     word ptr [edx + ecx * 2], bx
 		jnz     loopcont
 		inc     eax
 loopend:
@@ -63,13 +63,13 @@ loopend:
 	}
 }
 
-__declspec(naked) void expl1 () //0040215F
+__declspec(naked) void expl1() //0040215F
 {
 	__asm
 	{
 		push    ebx
 		push    eax
-		mov     bx, word ptr [eax+18h]
+		mov     bx, word ptr [eax + 18h]
 		call    isExpl
 		cmp     eax, 1
 		pop     eax
@@ -79,13 +79,13 @@ __declspec(naked) void expl1 () //0040215F
 	}
 }
 
-__declspec(naked) void expl2 () //0055A881
+__declspec(naked) void expl2() //0055A881
 {
 	__asm
 	{
 		push    ebx
 		push    eax
-		mov     bx, word ptr [ecx+18h]
+		mov     bx, word ptr [ecx + 18h]
 		call    isExpl
 		cmp     eax, 1
 		pop     eax
@@ -95,13 +95,13 @@ __declspec(naked) void expl2 () //0055A881
 	}
 }
 
-__declspec(naked) void expl3 () //0055BE40
+__declspec(naked) void expl3() //0055BE40
 {
 	__asm
 	{
 		push    ebx
 		push    eax
-		mov     bx, word ptr [ebp+18h]
+		mov     bx, word ptr [ebp + 18h]
 		call    isExpl
 		cmp     eax, 1
 		pop     eax
@@ -111,13 +111,13 @@ __declspec(naked) void expl3 () //0055BE40
 	}
 }
 
-__declspec(naked) void expl4 () //005B6DF2
+__declspec(naked) void expl4() //005B6DF2
 {
 	__asm
 	{
 		push    ebx
 		push    eax
-		mov     bx, word ptr [eax+18h]
+		mov     bx, word ptr [eax + 18h]
 		call    isExpl
 		cmp     eax, 1
 		pop     eax

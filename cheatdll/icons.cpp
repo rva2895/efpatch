@@ -472,52 +472,91 @@ __declspec(naked) void iconTCMounted()
 	}
 }
 
+__declspec(naked) void iconTCMounted_id_tech() //005051E0
+{
+	__asm
+	{
+		mov     edx, [esp + ecx * 4 + 3Ch]
+		sub     ecx, 9
+		jnz     _tech_civ10
+		mov     edx, 613		//avail-taniz
+		jmp     _not_tech_civ9_10
+_tech_civ10:
+		dec     ecx
+		jnz     _not_tech_civ9_10
+		mov     edx, 742		//avail-tanio
+_not_tech_civ9_10:
+		mov     ecx, [ebp + 1D94h]
+		mov     eax, 005051EAh
+		jmp     eax
+	}
+}
+
+__declspec(naked) void iconTCMounted_id_unit() //00505276
+{
+	__asm
+	{
+		mov     ebx, [esp + eax * 4 + 3Ch]
+		sub     eax, 9
+		jnz     _unit_civ10
+		mov     ebx, 1748		//unit-taniz
+		jmp     _not_unit_civ9_10
+_unit_civ10:
+		dec     eax
+		jnz     _not_unit_civ9_10
+		mov     ebx, 4056		//unit-tanio
+_not_unit_civ9_10:
+		lea     edx, [esp + 32h]
+		mov     eax, 0050527Eh
+		jmp     eax
+	}
+}
+
 void fixIconLoadingRoutines()
 {
-#ifdef _DEBUG
-	log("Setting icon hooks...");
-#endif
-
-	setHook((void*)0x004F3111, &newIconsGame);
-	setHook((void*)0x00533790, &newIconsEditor);
+	setHook((void*)0x004F3111, newIconsGame);
+	setHook((void*)0x00533790, newIconsEditor);
 
 	//civ is always in eax, unless stated otherwise
-	setHook((void*)0x005055A3, &iconLoadUnitAvailInBldg);      //load icons of units available in this bldg to ecx +7
-	setHook((void*)0x00505813, &iconLoadTechAvailInBldg);      //load icons of techs available in this bldg to edx +7, civ in ecx
-	setHook((void*)0x00504CF7, &iconLoadWorkerDefenceBldg);    //load worker defence bldg icons
-	setHook((void*)0x00504A77, &iconLoadWorkerMilitaryBldg);   //load worker military bldg icons
-	setHook((void*)0x00504601, &iconLoadWorkerEconomyBldg);    //load worker economy bldg icons
-	setHook((void*)0x00507016, &iconLoadUnitBeingCreated);     //load icon of unit being created to eax, civ in ecx
-	setHook((void*)0x00506FF6, &iconLoadTechBeingResearched);  //load icon of tech being researched to eax, civ in ecx
-	setHook((void*)0x005D9BE4, &iconLoadUnitSelected);         //load selected unit icon +9 to edx
-	setHook((void*)0x005D9BFD, &iconLoadBldgSelected);         //load selected building icon +9
-	setHook((void*)0x005DD1DD, &iconLoadMultipleUnitIcons);    //load multiple unit icons to edx +7
-	setHook((void*)0x005DD1F1, &iconLoadMultipleBldgIcons);    //load multiple bldg icons to edx
-	setHook((void*)0x005DD8A8, &iconGarrisonedUnitIcons);      //load garrisoned unit icons
-	setHook((void*)0x00548457, &iconLoadEditorUnitIcon);       //load worker military bldg icons
-	setHook((void*)0x0054846E, &iconLoadEditorBldgIcon);       //load worker military bldg icons
+	setHook((void*)0x005055A3, iconLoadUnitAvailInBldg);      //load icons of units available in this bldg to ecx +7
+	setHook((void*)0x00505813, iconLoadTechAvailInBldg);      //load icons of techs available in this bldg to edx +7, civ in ecx
+	setHook((void*)0x00504CF7, iconLoadWorkerDefenceBldg);    //load worker defence bldg icons
+	setHook((void*)0x00504A77, iconLoadWorkerMilitaryBldg);   //load worker military bldg icons
+	setHook((void*)0x00504601, iconLoadWorkerEconomyBldg);    //load worker economy bldg icons
+	setHook((void*)0x00507016, iconLoadUnitBeingCreated);     //load icon of unit being created to eax, civ in ecx
+	setHook((void*)0x00506FF6, iconLoadTechBeingResearched);  //load icon of tech being researched to eax, civ in ecx
+	setHook((void*)0x005D9BE4, iconLoadUnitSelected);         //load selected unit icon +9 to edx
+	setHook((void*)0x005D9BFD, iconLoadBldgSelected);         //load selected building icon +9
+	setHook((void*)0x005DD1DD, iconLoadMultipleUnitIcons);    //load multiple unit icons to edx +7
+	setHook((void*)0x005DD1F1, iconLoadMultipleBldgIcons);    //load multiple bldg icons to edx
+	setHook((void*)0x005DD8A8, iconGarrisonedUnitIcons);      //load garrisoned unit icons
+	setHook((void*)0x00548457, iconLoadEditorUnitIcon);       //load worker military bldg icons
+	setHook((void*)0x0054846E, iconLoadEditorBldgIcon);       //load worker military bldg icons
 
-	setHook((void*)0x00504842, &iconLoadWorkerFarm);
-	setHook((void*)0x005033E0, &iconLoadTrawler);
-	setHook((void*)0x005050DE, &iconLoadFoodProcFarm);
-	setHook((void*)0x00506FD6, &iconLoadFoodProcFarmQueue);
+	setHook((void*)0x00504842, iconLoadWorkerFarm);
+	setHook((void*)0x005033E0, iconLoadTrawler);
+	setHook((void*)0x005050DE, iconLoadFoodProcFarm);
+	setHook((void*)0x00506FD6, iconLoadFoodProcFarmQueue);
 
-	setHook((void*)0x00505AC7, &iconCCLevelUp);
+	setHook((void*)0x00505AC7, iconCCLevelUp);
 
-	setHook((void*)0x0050541B, &iconTCMounted);
+	setHook((void*)0x0050541B, iconTCMounted);
+
+	setHook((void*)0x005051E0, iconTCMounted_id_tech);
+	setHook((void*)0x00505276, iconTCMounted_id_unit);
 
 	// TECH TREE
 
-	setHook((void*)0x00463332, &newIconsTechTreeBldg);
-	setHook((void*)0x0046338E, &newIconsTechTreeUnit);
-	setHook((void*)0x004633EA, &newIconsTechTreeTech);
+	setHook((void*)0x00463332, newIconsTechTreeBldg);
+	setHook((void*)0x0046338E, newIconsTechTreeUnit);
+	setHook((void*)0x004633EA, newIconsTechTreeTech);
 
-	setHook((void*)0x0046B9D7, &loadTechTreeBldg);
-	setHook((void*)0x0046B9F4, &loadTechTreeUnit);
-	setHook((void*)0x0046B9EB, &loadTechTreeTech);
-	setHook((void*)0x0046BB18, &loadTechTreeTech2);
+	setHook((void*)0x0046B9D7, loadTechTreeBldg);
+	setHook((void*)0x0046B9F4, loadTechTreeUnit);
+	setHook((void*)0x0046B9EB, loadTechTreeTech);
+	setHook((void*)0x0046BB18, loadTechTreeTech2);
 
-	setHook((void*)0x004632E2, &setBaseEbp);
+	setHook((void*)0x004632E2, setBaseEbp);
 
 	techTreeBldg = malloc(CIV_ICON_OFFSET);
 	techTreeUnit = malloc(CIV_ICON_OFFSET);

@@ -38,7 +38,7 @@ void initBldgResProdList()
 			}
 		}
 
-		setHook((void*)0x005553C6, &resGenHook);
+		setHook((void*)0x005553C6, resGenHook);
 	}
 	else
 		log("Warning: resgen.txt not found, resource generating buildings disabled");

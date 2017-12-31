@@ -42,11 +42,11 @@ _bad_objpanel_ptr:
 	}
 }
 
-__declspec(naked) void secondCol1 () //005DB8B4
+__declspec(naked) void secondCol1() //005DB8B4
 {
 	__asm
 	{
-		mov     eax, [esi+20h]
+		mov     eax, [esi + 20h]
 		add     edx, ebx
 		push    ecx
 		cmp     edi, 3
@@ -58,7 +58,7 @@ end1:
 	}
 }
 
-__declspec(naked) void secondCol2 () //005DB894
+__declspec(naked) void secondCol2() //005DB894
 {
 	__asm
 	{
@@ -67,14 +67,14 @@ __declspec(naked) void secondCol2 () //005DB894
 		jng     end2
 		sub     ecx, 4
 end2:
-		lea     ecx, [ecx+ecx*8]
+		lea     ecx, [ecx + ecx * 8]
 		shl     eax, 2
 		push    005DB89Ah
 		ret
 	}
 }
 
-__declspec(naked) void secondColtxty () //005DBAC0
+__declspec(naked) void secondColtxty() //005DBAC0
 {
 	__asm
 	{
@@ -84,13 +84,13 @@ __declspec(naked) void secondColtxty () //005DBAC0
 		jng     endy
 		sub     ecx, 4
 endy:
-		lea     ecx, [ecx+ecx*8]
+		lea     ecx, [ecx + ecx * 8]
 		push    005DBAC7h
 		ret
 	}
 }
 
-__declspec(naked) void secondColtxtx () //005DBAE3
+__declspec(naked) void secondColtxtx() //005DBAE3
 {
 	__asm
 	{
@@ -99,15 +99,15 @@ __declspec(naked) void secondColtxtx () //005DBAE3
 		jng     endx
 		add     ecx, 6Ch
 endx:
-		mov     edx, [esi+20h]
+		mov     edx, [esi + 20h]
 		push    ecx
-		mov     eax, [edx+38h]
+		mov     eax, [edx + 38h]
 		push    005DBAEAh
 		ret
 	}
 }
 
-__declspec(naked) void objPanelHook () //005DB3CE
+__declspec(naked) void objPanelHook() //005DB3CE
 {
 	__asm
 	{
@@ -119,13 +119,13 @@ __declspec(naked) void objPanelHook () //005DB3CE
 		//pop     ebp
 		mov     eax, 6A3684h
 		mov     eax, [eax]
-		mov     ecx, [eax+17B4h]
+		mov     ecx, [eax + 17B4h]
 		push    005DB3D9h
 		ret
 	}
 }
 
-__declspec(naked) void obtainPtr () //005D98AE
+__declspec(naked) void obtainPtr() //005D98AE
 {
 	__asm
 	{
@@ -155,35 +155,35 @@ curPend:
 	}
 }
 
-__declspec(naked) void langDllList () //005DBB13
+__declspec(naked) void langDllList() //005DBB13
 {
 	__asm
 	{
 		mov     ebx, langDllPopup
-		mov     [ebx + eax*4], ecx
+		mov     [ebx + eax * 4], ecx
 		pop     ebx
 		push    005DBB1Bh
 		ret
 	}
 }
 
-__declspec(naked) void langDllRead1 () //005DF2D9
+__declspec(naked) void langDllRead1() //005DF2D9
 {
 	__asm
 	{
 		mov     esi, langDllPopup
-		mov     eax, [esi + eax*4]
+		mov     eax, [esi + eax * 4]
 		push    005DF2E0h
 		ret
 	}
 }
 
-__declspec(naked) void langDllRead2 () //005DF2F3
+__declspec(naked) void langDllRead2() //005DF2F3
 {
 	__asm
 	{
 		mov     esi, langDllPopup
-		mov     eax, [esi + ecx*4]
+		mov     eax, [esi + ecx * 4]
 		push    005DF2FAh
 		ret
 	}
@@ -191,7 +191,7 @@ __declspec(naked) void langDllRead2 () //005DF2F3
 
 int secondColFlag = 0;
 
-__declspec(naked) void popup1 () //005DF2B4
+__declspec(naked) void popup1() //005DF2B4
 {
 	__asm
 	{
@@ -211,7 +211,7 @@ noflag1:
 
 int startEbp;
 
-__declspec(naked) void popup2 () //005DF279
+__declspec(naked) void popup2() //005DF279
 {
 	__asm
 	{
@@ -236,13 +236,13 @@ popupCont:
 		add     ecx, 6Ch
 noflag2:
 		add     eax, ebp
-		mov     edx, [esi+10h]
+		mov     edx, [esi + 10h]
 		push    005DF280h
 		ret
 	}
 }
 
-__declspec(naked) void setItemCounter () //005D98A0
+__declspec(naked) void setItemCounter() //005D98A0
 {
 	__asm
 	{
@@ -257,7 +257,7 @@ __declspec(naked) void setItemCounter () //005D98A0
 	}
 }
 
-__declspec(naked) void incItemCounter () //005DB840
+__declspec(naked) void incItemCounter() //005DB840
 {
 	__asm
 	{
@@ -272,67 +272,107 @@ __declspec(naked) void incItemCounter () //005DB840
 	}
 }
 
-__declspec(naked) void clearStartEbp () //005DF253
+__declspec(naked) void clearStartEbp() //005DF253
 {
 	__asm
 	{
 		xor     eax, eax
 		mov     startEbp, eax
-		mov     eax, [esi+838h]
+		mov     eax, [esi + 838h]
 		push    005DF259h
 		ret
 	}
 }
 
-void langDllAlloc ()
+void langDllAlloc()
 {
 #ifdef _DEBUG
-	log ("LangDLLAlloc()");
+	log("LangDLLAlloc()");
 #endif
 
-	langDllPopup = malloc (sizeof(void*)*0x10);
-	is2ndCol = (char*) malloc (0x10);
-	memset (is2ndCol, 0, 0x10);
+	langDllPopup = malloc(sizeof(void*) * 0x10);
+	is2ndCol = (char*)malloc(0x10);
+	memset(is2ndCol, 0, 0x10);
 	//is2ndCol [3] = 1;
 	//is2ndCol [4] = 1;
 }
 
-void langDllFree ()
+void langDllFree()
 {
-	free (langDllPopup);
+	free(langDllPopup);
 }
 
-void fixObjPanelDrawFunction ()
+DWORD vtables[] =
 {
-	setHook ((void*)0x005DB8B4, &secondCol1);
-	setHook ((void*)0x005DB894, &secondCol2);
+	0x00663110, //80
+	0x006635B0, //70
+	0x0065B808, //60
+	0x00657544, //50
+	0x00654E54, //40
+	0x0065BE14, //30
+	0x0065A2C0, //25
+	0x006566A0, //20
+	0x00662C8C, //10
+	0
+};
 
-	setHook ((void*)0x005DBAC0, &secondColtxty);
-	setHook ((void*)0x005DBAE3, &secondColtxtx);
-
-	setHook ((void*)0x005DB3CE, &objPanelHook);
-
-	setHook ((void*)0x005D98AE, &obtainPtr);
-	setByte (0x005DB860, 7);
-
-	setHook ((void*)0x005D98A0, &setItemCounter);
-	setHook ((void*)0x005DB840, &incItemCounter);
-
-	setByte (0x005DF2B7, 0x11);
-	setByte (0x005DF298, 0x10);
-
-	langDllAlloc ();
-
-	//setHook ((void*)0x005DF2B4, &popup1);
-	setHook ((void*)0x005DF279, &popup2);
-	setHook ((void*)0x005DF253, &clearStartEbp);
-
-	setHook ((void*)0x005DBB13, &langDllList);
-	setHook ((void*)0x005DF2D9, &langDllRead1);
-	setHook ((void*)0x005DF2F3, &langDllRead2);
+__declspec(naked) void spUIFix() //004FFF4C
+{
+	__asm
+	{
+		mov     ecx, [edi + 1280h]
+		test    ecx, ecx
+		jz      unit_not_ok
+		mov     edx, offset vtables
+		mov     eax, [ecx]
+unit_loop:
+		cmp     eax, [edx]
+		jz      unit_ok
+		add     edx, 4
+		cmp     dword ptr [edx], 0
+		jnz     unit_loop
+unit_not_ok:
+		mov     ecx, 00500218h
+		jmp     ecx
+unit_ok:
+		mov     eax, 004FFF5Ah
+		jmp     eax
+	}
 }
 
-void setObjectPanelHooks ()
+void fixObjPanelDrawFunction()
 {
-	fixObjPanelDrawFunction ();
+	setHook((void*)0x005DB8B4, secondCol1);
+	setHook((void*)0x005DB894, secondCol2);
+
+	setHook((void*)0x005DBAC0, secondColtxty);
+	setHook((void*)0x005DBAE3, secondColtxtx);
+
+	setHook((void*)0x005DB3CE, objPanelHook);
+
+	setHook((void*)0x005D98AE, obtainPtr);
+	setByte(0x005DB860, 7);
+
+	setHook((void*)0x005D98A0, setItemCounter);
+	setHook((void*)0x005DB840, incItemCounter);
+
+	setByte(0x005DF2B7, 0x11);
+	setByte(0x005DF298, 0x10);
+
+	langDllAlloc();
+
+	//setHook ((void*)0x005DF2B4, popup1);
+	setHook((void*)0x005DF279, popup2);
+	setHook((void*)0x005DF253, clearStartEbp);
+
+	setHook((void*)0x005DBB13, langDllList);
+	setHook((void*)0x005DF2D9, langDllRead1);
+	setHook((void*)0x005DF2F3, langDllRead2);
+
+	setHook((void*)0x004FFF4C, spUIFix);
+}
+
+void setObjectPanelHooks()
+{
+	fixObjPanelDrawFunction();
 }

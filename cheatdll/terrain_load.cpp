@@ -87,6 +87,20 @@ void __stdcall terrain1_(void* this_)
 		terrain1_load(this_, 2723, 71);
 		terrain1_load(this_, 2722, 72);
 
+		//
+		terrain1_load(this_, 2725, 93);
+		terrain1_load(this_, 2726, 94);
+		terrain1_load(this_, 2727, 95);
+		terrain1_load(this_, 2728, 96);
+		terrain1_load(this_, 2729, 97);
+		terrain1_load(this_, 2730, 98);
+		terrain1_load(this_, 2731, 99);
+		terrain1_load(this_, 2732, 100);
+		terrain1_load(this_, 2733, 101);
+		terrain1_load(this_, 2734, 102);
+		terrain1_load(this_, 2735, 103);
+		terrain1_load(this_, 2736, 54);
+
 		//trees:
 		terrain1_load(this_, 22516, 73);
 		terrain1_load(this_, 23330, 74);
@@ -189,6 +203,19 @@ void __stdcall terrain2_(void* this_)
 		terrain2_load(this_, 2721, 70);
 		terrain2_load(this_, 2723, 71);
 		terrain2_load(this_, 2722, 72);
+		//
+		terrain2_load(this_, 2725, 93);
+		terrain2_load(this_, 2726, 94);
+		terrain2_load(this_, 2727, 95);
+		terrain2_load(this_, 2728, 96);
+		terrain2_load(this_, 2729, 97);
+		terrain2_load(this_, 2730, 98);
+		terrain2_load(this_, 2731, 99);
+		terrain2_load(this_, 2732, 100);
+		terrain2_load(this_, 2733, 101);
+		terrain2_load(this_, 2734, 102);
+		terrain2_load(this_, 2735, 103);
+		terrain2_load(this_, 2736, 54);
 
 		//trees:
 		terrain2_load(this_, 22516, 73);
@@ -228,10 +255,6 @@ __declspec(naked) int terrain2()
 
 void setTerrainLoadHooks(int ver)
 {
-#ifdef _DEBUG
-	log("Setting terrain list load hooks...");
-#endif
-
 	::ver = ver;
 
 	setHook((void*)0x0052A30A, terrain1);

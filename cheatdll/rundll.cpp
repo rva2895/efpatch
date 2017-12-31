@@ -5,6 +5,7 @@
 #include "cliff.h"
 #include "terrain.h"
 #include "crashreporter.h"
+#include "registry.h"
 
 #include <CrashRpt.h>
 
@@ -17,6 +18,8 @@ extern bool editorstatus_isValid;
 
 extern void* scen_ptr;
 
+extern CONFIG_DATA cd;
+
 int CALLBACK WndProc_dll(HWND hWnd,
 	UINT msg,
 	WPARAM wParam,
@@ -25,7 +28,7 @@ int CALLBACK WndProc_dll(HWND hWnd,
 int (WINAPI* WinMain_exe) (HINSTANCE, HINSTANCE, LPSTR, int) =
 	(int (WINAPI*) (HINSTANCE, HINSTANCE, LPSTR, INT)) 0x0048EFC0;
 
-extern "C" __declspec(dllexport) int WINAPI WinMain_dll (
+extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
 	HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine,
@@ -43,20 +46,32 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll (
 
 	int retval;
 
-#ifndef _DEBUG
-	initCrashReporter();
-	
-	__try
+	if (cd.crashReporting)
 	{
+		log("Crash reporting is ON");
+#ifndef _DEBUG
+		initCrashReporter();
+
+		__try
+		{
 #endif
+			int* x = 0;
+			int y = *x;
+			//log("%d", y);
+			retval = WinMain_exe(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+#ifndef _DEBUG
+		}
+		__except (g_crashRpt->SendReport(GetExceptionInformation()))
+		{
+			ExitProcess(0);
+		}
+#endif
+	}
+	else
+	{
+		log("Crash reporting is OFF");
 		retval = WinMain_exe(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-#ifndef _DEBUG
 	}
-	__except (g_crashRpt->SendReport(GetExceptionInformation()))
-	{
-		ExitProcess(0);
-	}
-#endif
 
 	log("WinMain_exe returned %d, exiting", retval);
 	return retval;

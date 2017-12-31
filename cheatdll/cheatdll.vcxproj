@@ -232,6 +232,7 @@
     <ClInclude Include="aiunitcount.h" />
     <ClInclude Include="animatedterrain.h" />
     <ClInclude Include="autosave.h" />
+    <ClInclude Include="cargotrader.h" />
     <ClInclude Include="casts.h" />
     <ClInclude Include="chatgaiatoall.h" />
     <ClInclude Include="civletter.h" />
@@ -260,6 +261,7 @@
     <ClInclude Include="hotkeys.h" />
     <ClInclude Include="icons.h" />
     <ClInclude Include="jedimaster.h" />
+    <ClInclude Include="langdll.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="mapcopy.h" />
     <ClInclude Include="mapsize.h" />
@@ -306,6 +308,7 @@
     <ClCompile Include="aiunitcount.cpp" />
     <ClCompile Include="animatedterrain.cpp" />
     <ClCompile Include="autosave.cpp" />
+    <ClCompile Include="cargotrader.cpp" />
     <ClCompile Include="casts.cpp" />
     <ClCompile Include="chatgaiatoall.cpp" />
     <ClCompile Include="cheatdll.cpp" />
@@ -351,6 +354,7 @@
     <ClCompile Include="hotkeys.cpp" />
     <ClCompile Include="icons.cpp" />
     <ClCompile Include="jedimaster.cpp" />
+    <ClCompile Include="langdll.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="mapcopy.cpp" />
     <ClCompile Include="mapsize.cpp" />

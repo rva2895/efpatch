@@ -15,8 +15,12 @@ crash_rpt::CrashProcessingCallbackResult CALLBACK crash_func(
 )
 {
 	crash_rpt::CrashProcessingCallbackResult r = crash_rpt::DoDefaultActions;
-	log("Crashed. Sending error report.");
-	flushLog();
+	//if (stage_ == crash_rpt::BeforeSendReport)
+	//{
+		//log("Crashed. Sending error report.");
+		//flushLog();
+		//closeLog();
+	//}
 	return r;
 }
 
@@ -31,9 +35,9 @@ void initCrashReporter()
 	ai.AppName = L"Star Wars Galactic Battlegrounds: Expanding Fronts";
 	ai.Company = L"Expanding Fronts Development Team";
 #ifdef _CHEATDLL_CC
-	USHORT version[4] = { 2, 0, 0, 5 };
+	USHORT version[4] = { 2, 0, 0, 7 };
 #else
-	USHORT version[4] = { 1, 0, 0, 5 };
+	USHORT version[4] = { 1, 1, 0, 0 };
 #endif
 	ai.V[0] = version[0]; ai.V[1] = version[1]; ai.V[2] = version[2]; ai.V[3] = version[3];
 	ai.Hotfix = 0;

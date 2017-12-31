@@ -2,7 +2,7 @@
 
 #include "editorres.h"
 
-const char* resourceNames [] =
+const char* resourceNames[] =
 {
 	"Food",                  //0
 	"Carbon",
@@ -214,8 +214,10 @@ const char* resourceNames [] =
 	"Unknown",
 	"Unknown",
 	"Unknown",
-	"Unknown"                             //210
-	"Resource 211"
+	"Unknown",                            //210
+	"Resource 211",
+	"Resource 212",
+	"Resource 213"
 };
 
 void __stdcall resLoadStr(int resID, char* ptr)
@@ -282,10 +284,7 @@ end:
 
 void setResListHooks()
 {
-#ifdef _DEBUG
-	log("Expanding resource list...");
-#endif
-	//setHook ((void*)0x004D392C, &resLoad);
-	setHook((void*)0x0052A6DE, &resLoadHook);
-	setHook((void*)0x0052A7B4, &resLoadHook);
+	//setHook ((void*)0x004D392C, resLoad);
+	setHook((void*)0x0052A6DE, resLoadHook);
+	setHook((void*)0x0052A7B4, resLoadHook);
 }

@@ -1,8 +1,8 @@
 #include "stdafx.h"
 
 #include "advcheat.h"
-
-#include "casts.h" //<- for /print-map command
+#include "advtriggereffect.h"
+#include "effects.h"
 
 /*extern char* (__cdecl *strncpy__)(char *Dest, const char *Source, size_t Count);
 extern char* (__cdecl *strstr__)(const char *Str, const char *SubStr);
@@ -23,6 +23,20 @@ extern size_t (__cdecl *strlen__)(const char *Str);
 extern void (__cdecl *free__)(void* mem);
 extern void* (__cdecl *realloc__)(void*, size_t, size_t);
 extern char* (__cdecl *strupr__)(char *String);*/
+
+int (__thiscall* unit_detach) (UNIT* unit) =
+	(int (__thiscall*) (UNIT*))0x0055F350;
+
+void* (__thiscall* global_getCurrentPlayer) (void* globalPtr) =
+	(void* (__thiscall*) (void*))0x00428750;
+
+void (__thiscall* player_clearSelection) (void* player) =
+	(void (__thiscall*) (void*))0x004C3050;
+
+void* getCurrentPlayer()
+{
+	return global_getCurrentPlayer(*(void**)0x006A3684);
+}
 
 void prepareToEngageCheatCreateUnit(int unitId)
 {
@@ -136,9 +150,12 @@ void __cdecl chat(char* format, ...)
 	va_end(ap);
 }
 
-int __stdcall checkCheats(char* s)
+int __stdcall checkCheats(char* s2)
 {
 	char dummy[100];
+	char s[0x100];
+	strcpy(s, s2);
+	strupr(s);
 	int id;
 #ifdef _DEBUG
 	log("Scanning chat...");
@@ -147,29 +164,109 @@ int __stdcall checkCheats(char* s)
 	if (restoreCheatFlag)
 		restoreAll();
 
-	if (strstr(s, "/create-unit"))
+	if (strstr(s, "/CREATE-UNIT"))
 	{
 		restoreCheatFlag = 1;
 		sscanf(s, "%s %d", dummy, &id);
 		prepareToEngageCheatCreateUnit(id);
 		return false;
 	}
-	if (strstr(s, "/research-tech"))
+	if (strstr(s, "/RESEARCH-TECH"))
 	{
 		restoreCheatFlag = 1;
 		sscanf(s, "%s %d", dummy, &id);
 		prepareToEngageCheatResearchTech(id);
 		return false;
 	}
-	if (strstr(s, "/take-control"))
+	if (strstr(s, "/TAKE-CONTROL"))
 	{
 		restoreCheatFlag = 1;
 		sscanf(s, "%s %d", dummy, &id);
 		if ((id >= 0) && (id <= 8))
 		{
+			player_clearSelection(getCurrentPlayer());
 			takeControl(id);
 			chat("Taking control of player %d", id);
 		}
+		return true;
+	}
+	if (strstr(s, "LUMINOUS BEINGS ARE WE"))
+	{
+		restoreCheatFlag = 1;
+		player_clearSelection(getCurrentPlayer());
+		takeControl(0);
+		return true;
+	}
+	if (strstr(s, "HELP ME OBI-WAN"))
+	{
+		restoreCheatFlag = 1;
+		prepareToEngageCheatResearchTech(798);
+		return false;
+	}
+	if (strstr(s, "NOW THIS IS PODRACING"))
+	{
+		restoreCheatFlag = 1;
+		prepareToEngageCheatResearchTech(799);
+		return false;
+	}
+	if (strstr(s, "YOU HAVE FAILED ME FOR THE LAST TIME"))
+	{
+		sel_iterator i(getCurrentPlayer());
+		UNIT* unit;
+		for (; unit = *i, unit != 0; ++i)
+			if (unit->player != getCurrentPlayer())
+			{
+				if (unit->prop_object->type > 30)
+					unit->hp = 0;
+			}
+		return true;
+	}
+	if (strstr(s, "THE DEFLECTOR SHIELD IS TOO STRONG"))
+	{
+		sel_iterator i(getCurrentPlayer());
+		UNIT* unit;
+		for (; unit = *i, unit != 0; ++i)
+			if (unit->player == getCurrentPlayer())
+			{
+				unit_detach(unit);
+				unit->prop_object->unit_attribute |= 0x40;
+			}
+		return true;
+	}
+	if (strstr(s, "FORCEHEAL"))
+	{
+		sel_iterator i(getCurrentPlayer());
+		UNIT* unit;
+		for (; unit = *i, unit != 0; ++i)
+			if (unit->player == getCurrentPlayer())
+			{
+				effectUnitVarActual(unit, "SET HPPercent 100");
+			}
+		return true;
+	}
+	if (strstr(s, "NO SHIP THAT SMALL HAS A CLOAKING DEVICE"))
+	{
+		sel_iterator i(getCurrentPlayer());
+		UNIT* unit;
+		for (; unit = *i, unit != 0; ++i)
+			if (unit->player == getCurrentPlayer())
+			{
+				unit_detach(unit);
+				unit->prop_object->unit_attribute |= 0x4;
+			}
+		return true;
+	}
+	if (strstr(s, "FORCEPROTECT"))
+	{
+		sel_iterator i(getCurrentPlayer());
+		UNIT* unit;
+		for (; unit = *i, unit != 0; ++i)
+			if (unit->player == getCurrentPlayer())
+			{
+				unit_detach(unit);
+				advTriggerEffectActual(unit->prop_object, "ADD Armor 3 1");
+				advTriggerEffectActual(unit->prop_object, "ADD Armor 4 1");
+			}
 		return true;
 	}
 
@@ -206,4 +303,41 @@ void setAdvCheatHooks()
 #endif
 
 	setHook((void*)0x005ED970, &scanChat);
+}
+
+sel_iterator::sel_iterator(void* player_)
+{
+	player = player_;
+	index = 0;
+}
+
+sel_iterator& sel_iterator::operator++()
+{
+	if (index < *(int*)((int)player + 0x26C))
+		index++;
+	return *this;
+}
+
+sel_iterator& sel_iterator::operator=(const sel_iterator& i)
+{
+	index = i.index;
+	return *this;
+}
+
+bool sel_iterator::operator==(const sel_iterator& i)
+{
+	return index == i.index;
+}
+
+bool sel_iterator::operator!=(const sel_iterator& i)
+{
+	return index != i.index;
+}
+
+UNIT* sel_iterator::operator*()
+{
+	if (index < *(int*)((int)player + 0x26C))
+		return *(UNIT**)((int)player + 0x1C8 + index * 4);
+	else
+		return nullptr;
 }

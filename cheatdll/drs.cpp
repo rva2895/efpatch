@@ -17,6 +17,8 @@ char* aDrsWide[] =
 	"terrain_x2.drs",
 	"wide.drs",
 	"interfac_x2.drs",
+	"interfac.drs",
+	"interfac_x1.drs",
 	"gamedata_x2.drs"
 };
 
@@ -31,6 +33,8 @@ char* aDrsNoWide[] =
 	"terrain_x1.drs",
 	"terrain_x2.drs",
 	"interfac_x2.drs",
+	"interfac.drs",
+	"interfac_x1.drs",
 	//"gamedata.drs",
 	"gamedata_x2.drs"
 };

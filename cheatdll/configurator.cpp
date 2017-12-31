@@ -23,7 +23,7 @@ void processIDOK(HWND hWnd)
 	cd.askAtStartup = !IsDlgButtonChecked(hWnd, IDC_CHECK_ALWAYSRUN);
 	cd.unlockResources = IsDlgButtonChecked(hWnd, IDC_CHECK_UNLOCKRES);
 
-	cd.animatedWater = IsDlgButtonChecked(hWnd, IDC_CHECK_ANIMATED_WATER);
+	cd.crashReporting = IsDlgButtonChecked(hWnd, IDC_CHECK_CRASH);
 
 	cd.largeMaps = IsDlgButtonChecked(hWnd, IDC_CHECK_MAP);
 
@@ -76,7 +76,7 @@ void getSettings(HWND hWnd)
 	CheckDlgButton(hWnd, IDC_CHECK_UNLOCKRES, cd.unlockResources);
 	CheckDlgButton(hWnd, IDC_CHECK_EDITORAUTO, cd.editorAutosave);
 
-	CheckDlgButton(hWnd, IDC_CHECK_ANIMATED_WATER, cd.animatedWater);
+	CheckDlgButton(hWnd, IDC_CHECK_CRASH, cd.crashReporting);
 
 	EnableWindow(GetDlgItem(hWnd, IDC_EDIT_EDITORAUTO), cd.editorAutosave);
 
@@ -236,6 +236,15 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 			case IDC_CHECK_EDITORAUTO:
 				EnableWindow(GetDlgItem(hWndDlg, IDC_EDIT_EDITORAUTO),
 					IsDlgButtonChecked(hWndDlg, IDC_CHECK_EDITORAUTO));
+				break;
+			case IDC_CHECK_MAP:
+				if (IsDlgButtonChecked(hWndDlg, IDC_CHECK_MAP))
+					CheckDlgButton(hWndDlg, IDC_CHECK_MAP,
+						MessageBox(hWndDlg,
+							"Large map support is experimental and may not work correctly. Enabling this option affects gameplay on ANY map, not only maps larger than 255x255. "
+							"It is recommended that you keep this option disabled for better user experience.\n"
+							"\nAre you sure you want to continue?",
+							"Warning", MB_YESNO | MB_ICONEXCLAMATION) == 6 ? TRUE : FALSE);
 				break;
 			default:
 				break;

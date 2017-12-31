@@ -812,32 +812,29 @@ _good:
 void setCastHooks()
 {
 	//testAddr = (int)&readDatTest2;
-	//setHook ((void*)0x004D5550, &readDatTest1);
+	//setHook ((void*)0x004D5550, readDatTest1);
 	//
-#ifdef _DEBUG
-	log("Setting cast hooks...");
-#endif
 
-	setHook((void*)0x00444A7C, &onGetDamage);
-	setHook((void*)0x004449C3, &getDamageGetUnit);
+	setHook((void*)0x00444A7C, onGetDamage);
+	setHook((void*)0x004449C3, getDamageGetUnit);
 
-	setHook((void*)0x0044B7E2, &speed1);
-	setHook((void*)0x004A28C0, &speed2);
-	setHook((void*)0x004A3EAD, &speed3);
-	setHook((void*)0x004A6250, &speed4);
+	setHook((void*)0x0044B7E2, speed1);
+	setHook((void*)0x004A28C0, speed2);
+	setHook((void*)0x004A3EAD, speed3);
+	setHook((void*)0x004A6250, speed4);
 
-	setHook((void*)0x0054BB42, &stealth1);
+	setHook((void*)0x0054BB42, stealth1);
 
-	setHook((void*)0x004AF323, &writeSaveHook);
-	setHook((void*)0x004AEEEE, &readSaveHook);
-	setHook((void*)0x0061D9A5, &verLoadHook);
-	setHook((void*)0x00620583, &verSaveHook);
+	setHook((void*)0x004AF323, writeSaveHook);
+	setHook((void*)0x004AEEEE, readSaveHook);
+	setHook((void*)0x0061D9A5, verLoadHook);
+	setHook((void*)0x00620583, verSaveHook);
 
-	setHook((void*)0x00550730, &destructorHook);
-	setHook((void*)0x0054B312, &constructorHook);
-	setHook((void*)0x0054B635, &saveReadFix);
+	setHook((void*)0x00550730, destructorHook);
+	setHook((void*)0x0054B312, constructorHook);
+	setHook((void*)0x0054B635, saveReadFix);
 
-	setHook((void*)0x0054EF00, &processUnitHook);
+	setHook((void*)0x0054EF00, processUnitHook);
 
-	//setHook ((void*)0x0058A170, &oldNullsub);
+	//setHook ((void*)0x0058A170, oldNullsub);
 }

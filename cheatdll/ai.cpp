@@ -8,10 +8,6 @@
 
 void setAIHooks()
 {
-#ifdef _DEBUG
-	log("Setting AI hooks:");
-#endif
-
 	setAIBuildersCntrHooks();
 	setAIUnitCountHooks();
 	setAISNXHooks();

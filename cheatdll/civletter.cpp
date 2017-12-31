@@ -2,7 +2,7 @@
 
 #include "civletter.h"
 
-BYTE_ASSIGN civLetterSet [] =
+BYTE_ASSIGN civLetterSet[] =
 {
 	{0x0053A543, 0xBE},                //new offset of (E), (N) etc
 	{0x0053A544, 0x0A},                //strings for the editor
@@ -56,9 +56,6 @@ BYTE_ASSIGN civLetterSet [] =
 
 void fixCivLetterFunction()
 {
-#ifdef _DEBUG
-	log("Setting civ letter hooks...");
-#endif
 	for (int i = 0; i < (sizeof(civLetterSet) / sizeof(civLetterSet[0])); i++)
 		setByte(civLetterSet[i].addr, civLetterSet[i].val);
 }
@@ -124,12 +121,8 @@ __declspec (naked) void altLetter4() //0053AA46
 
 void setAltCivLetter()
 {
-#ifdef _DEBUG
-	log("Setting alternative civ letter hooks...");
-#endif
-
-	setHook((void*)0x0053A874, &altLetter1);
-	setHook((void*)0x0053A93B, &altLetter2);
-	setHook((void*)0x0053A9EE, &altLetter3);
-	setHook((void*)0x0053AA46, &altLetter4);
+	setHook((void*)0x0053A874, altLetter1);
+	setHook((void*)0x0053A93B, altLetter2);
+	setHook((void*)0x0053A9EE, altLetter3);
+	setHook((void*)0x0053AA46, altLetter4);
 }

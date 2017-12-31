@@ -79,7 +79,7 @@ struct COLOR_NAME_ASSIGN
 	char* name;
 };
 
-COLOR_NAME_ASSIGN COLOR_NAMES [] =
+COLOR_NAME_ASSIGN COLOR_NAMES[] =
 {
 	135, "WHITE",
 	0,   "BLACK",
@@ -182,10 +182,6 @@ int getColor(char* str)
 
 void setTextColorHooks()
 {
-#ifdef _DEBUG
-	log("Setting text colour hooks...");
-#endif
-
-	setHook((void*)0x004F9C5C, &colors1);
-	setHook((void*)0x004F967A, &colors2);
+	setHook((void*)0x004F9C5C, colors1);
+	setHook((void*)0x004F967A, colors2);
 }

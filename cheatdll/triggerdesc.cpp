@@ -429,6 +429,6 @@ void setTriggerDescHooks()
 {
 	s = new char[256];
 
-	setHook((void*)0x0053D96B, &onCondition);
-	setHook((void*)0x0053DA8D, &onEffect);
+	setHook((void*)0x0053D96B, onCondition);
+	setHook((void*)0x0053DA8D, onEffect);
 }

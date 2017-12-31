@@ -95,10 +95,6 @@ _noBuilders:
 
 void setAIBuildersCntrHooks()
 {
-#ifdef _DEBUG
-	log("Setting AI builders hooks...");
-#endif
-
 	setHook((void*)0x00413870, cntrSet);
 	setHook((void*)0x00413ACE, checkCntr);
 	setHook((void*)0x00413ADA, cntrContinue);

@@ -375,28 +375,11 @@ __declspec(naked) void ctr2_10() //005CEDE4
 	}
 }
 
-int unitCount = 0x1000;// 0xCA4;
+int unitCount = 0x1800;// 0xCA4;
 
-void __cdecl _memset(void* m, int val, size_t size)
+void* __cdecl _memset(void* dst, int val, size_t size)
 {
-	memset(m, val, size);
-}
-
-void* __cdecl malloc_(size_t size)
-{
-	void* a = malloc(size);
-#ifdef _DEBUG
-	log("malloc: 0x%X, size %d", a, size);
-#endif
-	return (a);
-}
-
-void __cdecl free_(void* m)
-{
-#ifdef _DEBUG
-	log("free: 0x%X", m);
-#endif
-	free(m);
+	return memset(dst, val, size);
 }
 
 __declspec(naked) void ctrInit() //004BFEDF
@@ -405,7 +388,7 @@ __declspec(naked) void ctrInit() //004BFEDF
 	{
 		mov     eax, unitCount;
 		push    eax
-		call    ds:[malloc_]       //builders per type
+		call    ds:[malloc]       //builders per type
 		mov     [ebp + 103Ch], eax
 		push    1
 		push    eax
@@ -414,7 +397,7 @@ __declspec(naked) void ctrInit() //004BFEDF
 		mov     eax, unitCount
 		shl     eax, 1
 		push    eax
-		call    ds:[malloc_]
+		call    ds:[malloc]
 		mov     [ebp + 1038h], eax
 		push    0
 		push    eax
@@ -423,7 +406,7 @@ __declspec(naked) void ctrInit() //004BFEDF
 		mov     ecx, [esp]  //
 		shl     ecx, 2      //
 		mov     [esp], ecx  //
-		call    ds:[malloc_]
+		call    ds:[malloc]
 		mov     [ebp + 2F0h], eax
 		push    0
 		push    eax
@@ -460,7 +443,7 @@ __declspec(naked) void ctrReadSave() //004BF665
 		mov     unitCount, ebx
 		shl     ebx, 1
 		push    ebx
-		call    ds:[malloc_]
+		call    ds:[malloc]
 		mov     [esi + 2F0h], eax
 		mov     edx, eax
 		mov     ecx, ebp
@@ -470,14 +453,14 @@ __declspec(naked) void ctrReadSave() //004BF665
 		mov     ecx, ebp
 		call    edi
 		push    ebx
-		call    ds:[malloc_]
+		call    ds:[malloc]
 		mov     [esi + 1038h], eax
 		mov     edx, eax
 		mov     ecx, ebp
 		call    edi
 		shr     ebx, 1
 		push    ebx
-		call    ds:[malloc_]
+		call    ds:[malloc]
 		mov     [esi + 103Ch], eax
 		mov     edx, eax
 		mov     ecx, ebp
@@ -575,7 +558,7 @@ __declspec(naked) void buf2_init() //00583966
 		mov     eax, unitCount
 		shl     eax, 2
 		push    eax
-		call    ds:[malloc_]
+		call    ds:[malloc]
 		push    0
 		push    eax
 		call    ds:[_memset]
@@ -601,7 +584,7 @@ __declspec(naked) void buf2_read() //00584927
 		mov     eax, ebx
 		shl     eax, 2
 		push    eax
-		call    ds:[malloc_]
+		call    ds:[malloc]
 		add     esp, 4
 		mov     [esi + 3D8h], eax
 		mov     edi, eax
@@ -658,13 +641,13 @@ __declspec(naked) void ctr_free() //005CDCDF
 	{
 		mov     eax, [esi + 2F0h]
 		push    eax
-		call    ds:[free_]
+		call    ds:[free]
 		mov     eax, [esi + 1038h]
 		push    eax
-		call    ds:[free_]
+		call    ds:[free]
 		mov     eax, [esi + 103Ch]
 		push    eax
-		call    ds:[free_]
+		call    ds:[free]
 		add     esp, 0Ch
 		push    esi
 		mov     eax, 00632B42h
@@ -681,7 +664,7 @@ __declspec(naked) void buf2_free() //0059544F
 	{
 		mov     eax, [esi + 1A34h]  //3D8+165C
 		push    eax
-		call    ds:[free_]
+		call    ds:[free]
 		push    esi
 		mov     eax, 00632B42h
 		call    eax
@@ -693,10 +676,6 @@ __declspec(naked) void buf2_free() //0059544F
 
 void setAIUnitCountHooks()
 {
-#ifdef _DEBUG
-	log("Settings AI unit counter hooks...");
-#endif
-
 	setHook((void*)0x004C2B7B, ctr1);
 	setHook((void*)0x004C43EA, ctr2);
 	setHook((void*)0x00576D60, ctr3);
