@@ -2,7 +2,15 @@
 
 #include "terrain.h"
 
+#ifndef _CHEATDLL_CC
 #define TERRAIN_COUNT 104
+#else
+#ifdef _CC_COMPATIBLE
+#define TERRAIN_COUNT 53
+#else
+#define TERRAIN_COUNT 54
+#endif
+#endif
 
 BYTE terrain_array[] =
 {
@@ -473,4 +481,22 @@ void setExtraTerrainHooks()
 	setByte(0x004E5FA7, TERRAIN_COUNT); //NOT SURE (0x63)
 
 	setHook((void*)0x004E7542, onMapSizeRMSDefine);
+}
+
+void setExtraTerrainHooks_CC()
+{
+	setByte(0x0048FB72, 0xEB);	//skip border loading
+	setByte(0x0048FB73, 0x06);
+
+	setInt(0x004B0435, (DWORD)terrain_array);
+	setInt(0x004B0CBC, (DWORD)terrain_array);
+	setByte(0x004B0CC8, TERRAIN_COUNT);
+
+	setInt(0x0049479B, TERRAIN_COUNT);
+
+	setByte(0x00495063, TERRAIN_COUNT);
+	setByte(0x00495530, TERRAIN_COUNT);
+	setByte(0x00495B6C, TERRAIN_COUNT);
+
+	setByte(0x004901DE, 0xEB); //skip border unloading
 }

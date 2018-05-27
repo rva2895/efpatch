@@ -44,6 +44,7 @@ char* aDrsCCWide[] =
 	"sounds_x1.drs",
 	"graphics.drs",
 	"graphics_x1.drs",
+	//"terrgrid.drs",
 	"terrain.drs",
 	"terrain_x1.drs",
 	"wide.drs",
@@ -107,6 +108,26 @@ end:
 	}
 }
 
+__declspec(naked) void drsHeaderEnd() //004D4FE8
+{
+	__asm
+	{
+		mov     eax, [ecx + 50h]
+		add     eax, ecx
+		cmp     esi, eax
+		jz      _outside
+		mov     eax, [esp + 10h]
+		mov     edx, [esi]
+		cmp     edx, eax
+		jnz     _outside
+		mov     edx, 004D5020h
+		jmp     edx
+_outside:
+		mov     edx, 004D4FF2h
+		jmp     edx
+	}
+}
+
 void setDRSLoadHooks(int ver, bool wide)
 {
 	if (wide)
@@ -136,4 +157,7 @@ void setDRSLoadHooks(int ver, bool wide)
 		return;
 
 	setHook((void*)0x005E4B78, &loadDRSHook);
+
+	//heap corruption
+	setHook((void*)0x004D4FE8, &drsHeaderEnd);
 }

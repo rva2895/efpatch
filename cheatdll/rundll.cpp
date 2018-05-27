@@ -46,6 +46,10 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
 
 	int retval;
 
+#ifdef _CHEATDLL_CC
+	cd.crashReporting = 0;
+#endif
+
 	if (cd.crashReporting)
 	{
 		log("Crash reporting is ON");
@@ -55,9 +59,6 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
 		__try
 		{
 #endif
-			int* x = 0;
-			int y = *x;
-			//log("%d", y);
 			retval = WinMain_exe(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 #ifndef _DEBUG
 		}
@@ -82,10 +83,32 @@ int (CALLBACK* WndProc_exe) (HWND, UINT, WPARAM, LPARAM) =
 
 HWND hWnd_main = 0;
 
-int cliff_types[] = { 0x108, 3971, 3981, 3991, 0 };
+int cliff_types[] = { 0x108, 3971, 3981, 3991, 4196, 4206, 4216, 4226, 4236, 0};
 int* cliff_types_ptr = cliff_types;
 
 extern bool isEditor;
+
+extern DWORD window_editorbk;
+
+__declspec(naked) void __stdcall update_editor_bk()
+{
+	__asm
+	{
+		mov     ecx, window_editorbk
+		mov     eax, [ecx + 18h]
+		mov     edx, [ecx + 14h]
+		push    eax
+		push    edx
+		mov     eax, [ecx]
+		call    dword ptr [eax + 5Ch]
+
+		mov     ecx, window_editorbk
+		push    1
+		mov     eax, [ecx]
+		call    dword ptr [eax + 2Ch]
+		ret
+	}
+}
 
 int terrain_paint_mode = 0;	//default
 
@@ -94,8 +117,6 @@ int CALLBACK WndProc_dll(HWND hWnd,
 	WPARAM wParam,
 	LPARAM lParam)
 {
-	bool repaint = false;
-
 	if (msg == WM_KEYDOWN)
 	{
 		if (isEditor)
@@ -135,6 +156,13 @@ int CALLBACK WndProc_dll(HWND hWnd,
 				}
 			}
 #endif
+			if (!editorstatus_isValid)
+			{
+				if (window_editorbk)
+					update_editor_bk();
+
+				editorstatus_isValid = true;
+			}
 		}
 	}
 	if (msg == WM_TIMER)
@@ -145,8 +173,6 @@ int CALLBACK WndProc_dll(HWND hWnd,
 			editorstatus_isValid = false;
 		}
 	}
-	if (msg == WM_PAINT)
-		repaint = paint_test();
 
 	if (!hWnd_main)
 		hWnd_main = hWnd;

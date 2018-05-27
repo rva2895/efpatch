@@ -2,13 +2,14 @@
 
 #include "startupload.h"
 
-char sz_ga2 [] = ".GA2";
-char sz_sc1 [] = ".SC1";
+char sz_ga1[] = ".GA1";
+char sz_mg1[] = ".MG1";
+char sz_sc1[] = ".SC1";
 
-char cmdLine [255];
+char cmdLine[255];
 char* filename;
 
-__declspec(naked) void afterLoadHook () //005EC3DF
+__declspec(naked) void afterLoadHook() //005EC3DF
 {
 	__asm
 	{
@@ -45,20 +46,20 @@ char* getCmdFilename (char* s)
 	return p;
 }
 
-char* __stdcall checkCmdLine (char* ext)
+char* __stdcall checkCmdLine(char* ext)
 {
 	//MessageBox (0, "w", "w", 0);
 
-	char* cmdLine_ = GetCommandLine ();
+	char* cmdLine_ = GetCommandLine();
 
-	strcpy (cmdLine, cmdLine_);
+	strcpy(cmdLine, cmdLine_);
 
-	_strupr (cmdLine);
+	_strupr(cmdLine);
 
-	char* ext_start = strstr (cmdLine, ext);
+	char* ext_start = strstr(cmdLine, ext);
 	if (ext_start)
 	{
-		filename = getCmdFilename (cmdLine);
+		filename = getCmdFilename(cmdLine);
 		//MessageBox (0, filename, "asd", 0);
 		return filename;
 	}
@@ -87,15 +88,22 @@ _noCmdLine:
 void __stdcall setAbsScen();
 void __stdcall onLoadSave();
 
-__declspec(naked) void hookLoadSave () //005E5652
+__declspec(naked) void hookLoadSave() //005E5652
 {
 	__asm
 	{
-		push    offset sz_ga2
+		push    ebx
+		push    offset sz_ga1
+		call    checkCmdLine
+		test    eax, eax
+		jnz     _yes_cmd_line_save
+		push    offset sz_mg1
 		call    checkCmdLine
 		test    eax, eax
 		jz      _noCmdLine_save
-		push    ebx
+		//mg1: push 3
+		mov     [esp], 3
+_yes_cmd_line_save:
 		push    eax
 	}
 	setHook((void*)0x0061D928, &onLoadSave);
@@ -106,12 +114,13 @@ __declspec(naked) void hookLoadSave () //005E5652
 		push    005E55F4h
 		jmp     eax
 _noCmdLine_save:
+		pop     ebx
 		push    005E566Dh
 		ret
 	}
 }
 
-__declspec(naked) void hookLoadScen () //005E5636
+__declspec(naked) void hookLoadScen() //005E5636
 {
 	__asm
 	{
@@ -133,7 +142,7 @@ _noCmdLine_save:
 	}
 }
 
-__declspec(naked) void scenAbsPath () //00620F07
+__declspec(naked) void scenAbsPath() //00620F07
 {
 	__asm
 	{
@@ -153,15 +162,40 @@ __declspec(naked) void scenAbsPath () //00620F07
 	}
 }
 
-void __stdcall setAbsScen ()
+void __stdcall setAbsScen()
 {
-	setHook ((void*)0x00620F07, &scenAbsPath);
+	setHook((void*)0x00620F07, &scenAbsPath);
+}
+
+__declspec(naked) void rec_filename_fix() //0061DACF
+{
+	__asm
+	{
+		add     eax, 9
+		push    eax
+		push    edx
+		push    50h
+		push    0061DACFh
+		call    setByte
+		push    16148A8Bh
+		push    0061DAD0h
+		call    setInt
+		push    0A5E80000h
+		push    0061DAD4h
+		call    setInt
+		add     esp, 4 * 6
+		pop     edx
+		mov     ecx, [edx + 1614h]
+		mov     eax, 0061DAD6h
+		jmp     eax
+	}
 }
 
 __declspec(naked) void __stdcall onLoadSave() //0061D928
 {
 	setInt(0x0061D928, 0x008000BA);
 	setInt(0x0061D92C, 0x248C8D00);
+	setHook((void*)0x0061DACF, &rec_filename_fix);
 	__asm
 	{
 		lea     ecx, [esp + 0B1h]
@@ -172,10 +206,14 @@ __declspec(naked) void __stdcall onLoadSave() //0061D928
 	}
 }
 
-void setStartupLoadHooks ()
+void setStartupLoadHooks(int ver)
 {
-	setHook ((void*)0x005E5652, &hookLoadSave);
+	if (ver)	//EF
+	{
+		sz_ga1[3] = '2';
+		sz_mg1[3] = '2';
+	}
+	setHook((void*)0x005E5652, &hookLoadSave);
 	setHook((void*)0x005E5636, &hookLoadScen);
-
 	//setByte(0x0061D930, 0xB1);
 }

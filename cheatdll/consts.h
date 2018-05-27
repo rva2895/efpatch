@@ -8,7 +8,7 @@
 #define CIV_COUNT 10
 #endif
 
-#define _BALANCE_PATCH_VER "1.4.0"
+#define _BALANCE_PATCH_VER "1.2"
 
 #define AUTOSAVE_TIMER 0xF0
 

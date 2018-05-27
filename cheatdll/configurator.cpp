@@ -53,6 +53,9 @@ void processIDOK(HWND hWnd)
 		sscanf(str, "%dx%d", &cd.xres, &cd.yres);
 	}
 
+	cd.minimap7 = IsDlgButtonChecked(hWnd, IDC_CHECK_GREY);
+	cd.largeText = IsDlgButtonChecked(hWnd, IDC_CHECK_LARGETEXT);
+
 	regSet(&cd);
 }
 
@@ -61,6 +64,8 @@ void getSettings(HWND hWnd)
 	char buf[50];
 	CONFIG_DATA cd;
 	regGet(&cd);
+
+	cd.useDShook = 0;
 
 #ifdef _CHEATDLL_CC
 	cd.gameVersion = VER_CC;
@@ -71,7 +76,9 @@ void getSettings(HWND hWnd)
 #endif
 
 	CheckDlgButton(hWnd, IDC_CHECK_FPS, cd.useFPS);
+#ifndef _CC_COMPATIBLE
 	CheckDlgButton(hWnd, IDC_CHECK_DSH, cd.useDShook);
+#endif
 	CheckDlgButton(hWnd, IDC_CHECK_ALWAYSRUN, !cd.askAtStartup);
 	CheckDlgButton(hWnd, IDC_CHECK_UNLOCKRES, cd.unlockResources);
 	CheckDlgButton(hWnd, IDC_CHECK_EDITORAUTO, cd.editorAutosave);
@@ -82,8 +89,9 @@ void getSettings(HWND hWnd)
 
 	CheckDlgButton(hWnd, IDC_CHECK_WIDE, cd.widescrnEnabled);
 	CheckDlgButton(hWnd, IDC_CHECK_WNDMODE, cd.windowMode);
-
+#ifndef _CC_COMPATIBLE
 	CheckDlgButton(hWnd, IDC_CHECK_MAP, cd.largeMaps);
+#endif
 
 	if (cd.gameVersion == VER_CC)
 	{
@@ -111,7 +119,8 @@ void getSettings(HWND hWnd)
 	EnableWindow(GetDlgItem(hWnd, IDC_CHECK_DSH), FALSE);
 	EnableWindow(GetDlgItem(hWnd, IDC_EDIT1), FALSE);
 	EnableWindow(GetDlgItem(hWnd, IDC_EDIT2), FALSE);
-	EnableWindow(GetDlgItem(hWnd, IDC_CHECK_MAP), FALSE);
+	EnableWindow(GetDlgItem(hWnd, IDC_CHECK_MAP), FALSE); 
+	EnableWindow(GetDlgItem(hWnd, IDC_CHECK_CRASH), FALSE);
 #else
 	sprintf(buf, "%d", cd.nBufs);
 	SetDlgItemText(hWnd, IDC_EDIT1, buf);
@@ -126,6 +135,14 @@ void getSettings(HWND hWnd)
 		sprintf(buf, "%dx%d", cd.xres, cd.yres);
 		SetDlgItemText(hWnd, IDC_COMBO1, buf);
 	}
+
+	CheckDlgButton(hWnd, IDC_CHECK_GREY, cd.minimap7);
+	CheckDlgButton(hWnd, IDC_CHECK_LARGETEXT, cd.largeText);
+
+	EnableWindow(GetDlgItem(hWnd, IDC_CHECK_GREY), FALSE);
+	EnableWindow(GetDlgItem(hWnd, IDC_CHECK_DSH), FALSE);
+	EnableWindow(GetDlgItem(hWnd, IDC_EDIT1), FALSE);
+	EnableWindow(GetDlgItem(hWnd, IDC_EDIT2), FALSE);
 }
 
 extern CONFIG_DATA cd_default;
@@ -256,6 +273,12 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 	}
 	return true;
 }
+
+#ifndef _CC_COMPATIBLE
+#define IDD_DIALOG_CONFIG IDD_DIALOG_CONFIG_EF
+#else
+#define IDD_DIALOG_CONFIG IDD_DIALOG_CONFIG_CC
+#endif
 
 void __stdcall launchConfigurator(HWND hWnd)
 {

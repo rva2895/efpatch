@@ -241,6 +241,7 @@ void parseSLP (int newH, int id, bool useWide)
 			memSLP = readDRSItemToMem("data\\interfac.drs", id, &oldSize);
 	}
 
+#ifndef _CHEATDLL_CC
 	if (useWide)
 	{
 		if (newYsize >= 1080)
@@ -249,6 +250,7 @@ void parseSLP (int newH, int id, bool useWide)
 			oldV = 1080;
 		}
 	}
+#endif
 
 	//memSLP = readSLPtoMem ();
 
@@ -534,13 +536,13 @@ bool patchEXE(int X, int Y) //needs to be completed...
 
 	if (Y >= 1024)
 	{
-		setIntF(0x24B66, Y); //
-		setIntF(0x24BB3, X); //
-		setIntF(0x261FD, Y);
+		setIntF(0x24B66, Y); //ok
+		setIntF(0x24BB3, X); //ok
+		setIntF(0x261FD, Y); //ok
 		setIntF(0x2623A, X); //ok
 		setIntF(0x2680C, Y); //ok
 		setIntF(0x26845, X); //ok
-		setIntF(0x290A8, Y); //test
+		//setIntF(0x290A8, Y); //probably not, try removing !!!
 		setIntF(0x2AA3E, X); //ok
 		setIntF(0x2AA52, X - 340); //could be
 		setIntF(0x5A365, X); //ok
@@ -562,13 +564,13 @@ bool patchEXE(int X, int Y) //needs to be completed...
 		setIntF(0x70E16, X + 1); //ok
 		setIntF(0x70E1F, Y + 1); //ok
 		setIntF(0x710D4, X); //ok
-		setIntF(0x710DB, X + 1); //check these 4
+		setIntF(0x710DB, X + 1); //check these 4, probably fine
 		setIntF(0x7114B, X + 1);
 		setIntF(0x711CD, X + 1);
 		setIntF(0x71247, X + 1);
-		setIntF(0xA9411, X); //looks wrong, check
-		setIntF(0xB7E39, X); //check
-		setIntF(0xBE147, X); //looks wrong, check
+		//setIntF(0xA9411, X); //almost definitely wrong !!!
+		setIntF(0xB7E39, X); //might be ok
+		//setIntF(0xBE147, X); //almost definitely wrong !!!
 		setIntF(0xF670C, X); //ok
 		setIntF(0xFDAF2, X + 1); //mm ok
 		setIntF(0xFDAFB, Y + 1); //mm ok
@@ -585,9 +587,9 @@ bool patchEXE(int X, int Y) //needs to be completed...
 		setIntF(0x10C987, X); //ok
 		setIntF(0x10E4CD, X); //ok
 		setIntF(0x10E4D2, Y); //ok
-		setIntF(0x10EDCC, X); //weird
+		setIntF(0x10EDCC, X); //weird, likely OK
 		setIntF(0x1D853F, X); //most likely
-		setIntF(0x1D98E9, X); //?
+		setIntF(0x1D98E9, X); //likely OK
 		//setIntF(0x1F6757, X); not resolution
 	}
 	else if (Y >= 768)
@@ -951,7 +953,7 @@ void patchResolution(int x, int y)
 	//50101 - load medium
 	//50102 - load large
 
-	//#ifndef _CHEATDLL_CC
+	#ifndef _CHEATDLL_CC
 	if (newXsize >= 1920)
 	{
 		placeSLP(50032, 0);
@@ -962,6 +964,7 @@ void patchResolution(int x, int y)
 		placeSLP(50102, 1);
 	}
 	else
+#endif
 	{
 		placeSLP(50032, 0);
 		placeSLP(50033, 0);
@@ -970,7 +973,7 @@ void patchResolution(int x, int y)
 		placeSLP(50101, 0);
 		placeSLP(50102, 0);
 	}
-	//#endif
+
 
 	if (newYsize >= 1024)
 	{

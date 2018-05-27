@@ -202,6 +202,63 @@ _worker_bio:
 	}
 }
 
+int __stdcall isJediTemple(short id)
+{
+	switch (id)
+	{
+	case 30:
+	case 31:
+	case 104:
+	case 3593:
+	case 3594:
+	case 3595:
+		return true;
+	default:
+		return false;
+	}
+}
+
+__declspec(naked) void jedi_temple_id_1() //0048BC9F
+{
+	__asm
+	{
+		push    ecx
+		push    edx
+		mov     ax, word ptr [edx + 18h]
+		push    eax
+		call    isJediTemple
+		pop     edx
+		pop     ecx
+		test    eax, eax
+		jz      _not_temple_1
+		mov     eax, 0048BCA6h
+		jmp     eax
+_not_temple_1:
+		mov     eax, 0048BCCEh
+		jmp     eax
+	}
+}
+
+__declspec(naked) void jedi_temple_id_2() //0048BBA4
+{
+	__asm
+	{
+		push    ecx
+		push    edx
+		push    esi
+		call    isJediTemple
+		pop     edx
+		pop     ecx
+		test    eax, eax
+		jz      _not_temple_2
+		mov     eax, 0048BBAAh
+		jmp     eax
+_not_temple_2:
+		mov     eax, 0048BBD2h
+		jmp     eax
+	}
+}
+
 void setLangDllHooks()
 {
 	setInt(0x0048BB21, 4);		//worker names, worker name offset nearby
@@ -219,6 +276,9 @@ void setLangDllHooks()
 
 	setHook((void*)0x0048BB76, cargoTrader_langdll_1);
 	setHook((void*)0x0048BC71, cargoTrader_langdll_2);
+
+	//setHook((void*)0x0048BC9F, jedi_temple_id_1);
+	//setHook((void*)0x0048BBA4, jedi_temple_id_2);
 
 	setHook((void*)0x0054BA2B, medic_worker);
 	setByte(0x0054B3E9, CIV_COUNT + 1);			//wrong icon (civ > 8) fix

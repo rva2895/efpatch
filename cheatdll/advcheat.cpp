@@ -120,36 +120,6 @@ __declspec(naked) void __stdcall takeControl(int p)
 }
 #pragma warning(pop)
 
-//6A35D8 <- chat this
-
-void __stdcall sendChat(char* s, int p)
-{
-	__asm
-	{
-		mov     eax, 006A35D8h
-		mov     ecx, [eax]
-		mov     edx, s
-		mov     eax, p
-		push    0
-		push    0
-		push    eax			//player
-		push    edx			//str
-		push    0			//int
-		mov     eax, 0042D5E0h
-		call    eax
-	}
-}
-
-void __cdecl chat(char* format, ...)
-{
-	char s[0x100];
-	va_list ap;
-	va_start(ap, format);
-	vsprintf(s, format, ap);
-	sendChat(s, -1);
-	va_end(ap);
-}
-
 int __stdcall checkCheats(char* s2)
 {
 	char dummy[100];

@@ -178,7 +178,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CHEATDLL_CC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -266,8 +266,10 @@
     <ClInclude Include="mapcopy.h" />
     <ClInclude Include="mapsize.h" />
     <ClInclude Include="memfunc.h" />
+    <ClInclude Include="minimap.h" />
     <ClInclude Include="negdecay.h" />
     <ClInclude Include="objpanel.h" />
+    <ClInclude Include="oos.h" />
     <ClInclude Include="population.h" />
     <ClInclude Include="processunit.h" />
     <ClInclude Include="registry.h" />
@@ -359,9 +361,11 @@
     <ClCompile Include="mapcopy.cpp" />
     <ClCompile Include="mapsize.cpp" />
     <ClCompile Include="memfunc.cpp" />
+    <ClCompile Include="minimap.cpp" />
     <ClCompile Include="negdecay.cpp" />
     <ClCompile Include="objpanel.cpp" />
     <ClCompile Include="objpaneldraw.cpp" />
+    <ClCompile Include="oos.cpp" />
     <ClCompile Include="population.cpp" />
     <ClCompile Include="processunit.cpp" />
     <ClCompile Include="registry.cpp" />

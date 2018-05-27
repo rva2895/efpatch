@@ -11,6 +11,7 @@ char hotkeys[] = {
 	6,  5,  7, //aa battery
 	7,  5,  8, //mine
 	8, 13,  1, //cargo freighter
+	9, 12,  3  //nightsister hunter
 };
 
 int hotkeyTestRet;
@@ -23,7 +24,7 @@ __declspec(naked) void hotkeyTest() //00563010, 005625D0
 		push    ecx
 		mov     eax, [esp + 8]
 		mov     byte ptr [esp + 3], 0
-		cmp     eax, 8
+		cmp     eax, 9
 		ja      _noHK
 		test    eax, eax
 		jz      _noHK
@@ -85,6 +86,7 @@ void setGroupNumbers()
 	setByte(0x00561478, 7);  //7
 	setByte(0x00561483, 6);  //8
 	setByte(0x00561499, 5);  //10
+	setByte(0x005614AF, 4);  //12
 	setByte(0x005614BA, 2);  //13
 	setByte(0x005614F1, 4);  //18
 }
@@ -134,6 +136,11 @@ __declspec(naked) void hotkeyOptionsLoad() //005625C1
 		push    70           //cargo freighter
 		push    1            //id
 		push    13           //group
+		mov     ecx, esi
+		call    edi
+		push    78           //nightsister hunter
+		push    3            //id
+		push    12           //group
 		mov     ecx, esi
 		call    edi
 
@@ -192,6 +199,11 @@ __declspec(naked) void hotkeyDefaultSet() //00561C72
 
 		push    1            //cargo freighter
 		push    13
+		mov     ecx, esi
+		call    edi
+
+		push    3            //nightsister hunter
+		push    12
 		mov     ecx, esi
 		call    edi
 
@@ -337,6 +349,23 @@ __declspec(naked) void hotkeyDefaultCargoFreighter()
 	}
 }
 
+__declspec(naked) void hotkeyDefaultNightsisterHunter()
+{
+	__asm
+	{
+		push    16305
+		push    0
+		push    0
+		push    0
+		push    44h
+		push    3
+		push    12
+		mov     eax, 00486BC0h
+		call    eax
+		retn    8
+	}
+}
+
 int hotkeyDefaultsGroup5[] =  //build defense
 {
 	0x005644CA,
@@ -379,6 +408,11 @@ int hotkeyDefaultsGroup10[] =  //mech factory
 	0x00564803,
 	(int)&hotkeyDefaultTransportMech
 };
+
+//int hotkeyDefaultsGroup12[] =  //jedi temple
+//{
+
+//};
 
 int hotkeyDefaultsGroup13[] =  //spaceport
 {
@@ -425,6 +459,21 @@ _locret_13:
 	}
 }
 
+__declspec(naked) void group12() //00564883
+{
+	__asm
+	{
+		sub     eax, 2
+		jz      _jump_2
+		cmp     eax, 1
+		jz      hotkeyDefaultNightsisterHunter
+		ret     8
+_jump_2:
+		mov     eax, 0056488Ch
+		jmp     eax
+	}
+}
+
 #endif
 
 void setHotkeyHooks()
@@ -453,5 +502,6 @@ void setHotkeyHooks()
 	setHook((void*)0x00564ACF, &group18_fix);
 
 	setHook((void*)0x005648C2, group13);
+	setHook((void*)0x00564883, group12);
 #endif
 }

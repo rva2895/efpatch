@@ -275,6 +275,9 @@ void __stdcall e_alliance(effect* p, int)
 
 bool check_data(char* str)
 {
+	if (!str)
+		return false;
+
 	std::regex r("^([^ \t]+) ([^ \t]+) ([0-9]+ )?([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?)$",
 		std::regex_constants::icase);
 

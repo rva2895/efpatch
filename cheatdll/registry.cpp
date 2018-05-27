@@ -19,7 +19,11 @@ CONFIG_DATA cd_default =
 	-1,  //y
 	0,   //window mode
 	0,   //large maps
-	1    //crash reporting
+	1,   //crash reporting
+	0,   //grid terrain
+	0,   //small trees
+	0,   //minimap 7
+	0    //large text
 };
 
 void regGet (CONFIG_DATA* cd)
@@ -193,6 +197,42 @@ void regGet (CONFIG_DATA* cd)
 			&size))
 			cd->crashReporting = cd_default.crashReporting;
 
+		if (RegQueryValueEx(
+			hKey,
+			"Grid Terrain",
+			0,
+			&type,
+			(BYTE*)&cd->gridTerrain,
+			&size))
+			cd->gridTerrain = cd_default.gridTerrain;
+
+		if (RegQueryValueEx(
+			hKey,
+			"Small Trees",
+			0,
+			&type,
+			(BYTE*)&cd->smallTrees,
+			&size))
+			cd->smallTrees = cd_default.smallTrees;
+
+		if (RegQueryValueEx(
+			hKey,
+			"Dark Grey",
+			0,
+			&type,
+			(BYTE*)&cd->minimap7,
+			&size))
+			cd->minimap7 = cd_default.minimap7;
+
+		if (RegQueryValueEx(
+			hKey,
+			"Large Text",
+			0,
+			&type,
+			(BYTE*)&cd->largeText ,
+			&size))
+			cd->largeText = cd_default.largeText;
+
 		RegCloseKey (hKey);
 		RegCloseKey (hKeyCU);
 	}
@@ -354,6 +394,38 @@ void regSet (CONFIG_DATA* cd)
 			type,
 			(BYTE*)&cd->crashReporting,
 			sizeof(cd->crashReporting));
+
+		RegSetValueEx(
+			hKey,
+			"Grid Terrain",
+			0,
+			type,
+			(BYTE*)&cd->gridTerrain,
+			sizeof(cd->gridTerrain));
+
+		RegSetValueEx(
+			hKey,
+			"Small Trees",
+			0,
+			type,
+			(BYTE*)&cd->smallTrees,
+			sizeof(cd->smallTrees));
+
+		RegSetValueEx(
+			hKey,
+			"Dark Grey",
+			0,
+			type,
+			(BYTE*)&cd->minimap7,
+			sizeof(cd->minimap7));
+
+		RegSetValueEx(
+			hKey,
+			"Large Text",
+			0,
+			type,
+			(BYTE*)&cd->largeText,
+			sizeof(cd->largeText));
 
 		RegCloseKey (hKey);
 		RegCloseKey (hKeyCU);

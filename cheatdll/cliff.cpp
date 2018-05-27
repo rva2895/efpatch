@@ -414,8 +414,59 @@ __declspec(naked) void onCliffPaint() //005CB1B0
 	}
 }
 
+#define RMS_CLIFF_TYPE_ID 256
+
+__declspec(naked) void onRmsCliff() //004E3780
+{
+	__asm
+	{
+		mov     eax, [esp + 4]
+		mov     eax, [eax + 68h]
+		cmp     eax, RMS_CLIFF_TYPE_ID
+		jz      _set_cliff
+		mov     edx, 004E3787h
+		jmp     edx
+_set_cliff:
+		mov     edx, scen_ptr
+		mov     eax, [ecx + 46678h]
+		push    edx
+		push    eax
+		call    setCliffType
+		mov     edx, 004E37F7h
+		jmp     edx
+	}
+}
+
+char cliff_type_str[] = "cliff_type";
+
+__declspec(naked) void onRmsCliffTokenRegister() //004E1096
+{
+	__asm
+	{
+		mov     eax, 004E1D40h
+		call    eax
+		//register cliff type
+		xor     ecx, ecx
+		push    ecx
+		push    ecx
+		push    ecx
+		push    2
+		push    RMS_CLIFF_TYPE_ID
+		push    ecx
+		push    offset cliff_type_str
+		mov     ecx, esi
+		mov     eax, 004E1D40h
+		call    eax
+		mov     eax, 004E109Bh
+		jmp     eax
+	}
+}
+
 void setCliffTypeHooks()
 {
 	//setHook((void*)0x005CB1B0, &onCliffPaint);
 	setHook((void*)0x005C9D57, scen_ptr_hook);
+
+	setHook((void*)0x004E3780, onRmsCliff);
+	setHook((void*)0x004E1096, onRmsCliffTokenRegister);
 }
