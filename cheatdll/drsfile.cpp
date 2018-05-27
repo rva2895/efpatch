@@ -55,6 +55,7 @@ void* DRS::getFile (int id, int* size)
 			if (tEntries[i][j].id == id)
 			{
 				data = malloc (tEntries[i][j].size);
+				*size = tEntries[i][j].size;
 				fseek (f, tEntries[i][j].offset, SEEK_SET);
 				fread (data, tEntries[i][j].size, 1, f);
 			}

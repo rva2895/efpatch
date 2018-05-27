@@ -5,9 +5,9 @@
 
 #include <string>
 
-#ifdef _CC_COMPATIBLE
-#define CHEATDLL_NOLOG
-#endif
+//#ifdef _CC_COMPATIBLE
+//#define CHEATDLL_NOLOG
+//#endif
 
 FILE* f;
 bool loggingEnabled;

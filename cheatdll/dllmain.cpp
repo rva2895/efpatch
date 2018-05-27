@@ -61,6 +61,8 @@
 #include "timeline.h"
 #include "langdll.h"
 #include "cargotrader.h"
+#include "minimap.h"
+#include "oos.h"
 #include "registry.h"
 #include "crashreporter.h"
 #include "rundll.h"
@@ -232,7 +234,7 @@ void getSettings()
 {
 	regGet(&cd);
 
-	bool key = GetAsyncKeyState(VK_SHIFT);
+	bool key = GetKeyState(VK_SHIFT);
 
 	if (cd.askAtStartup || key)
 	{
@@ -297,9 +299,9 @@ void setHooksCC()
 		//		MB_ICONERROR);
 	}
 
-//#ifdef _DEBUG
+#ifndef _CHEATDLL_CC
 	setAdvCheatHooks();
-//#endif
+#endif
 
 		//Trigger object overflow fix
 		//setByte(0x5F2AF8, 0x65);
@@ -336,12 +338,14 @@ void setHooksCC()
 	else
 #endif
 #ifndef _CC_COMPATIBLE
+#ifndef _CHEATDLL_CC
 		setMapSizeHooks_legacy();
+#endif
 #endif
 
 #ifdef _CHEATDLL_CC
 #ifndef _CC_COMPATIBLE
-	setTerrainGenHooks();
+	//setTerrainGenHooks();		//Enabled this when using +1 terrain DAT!
 	setSaveGameVersionHooks();
 #endif
 #endif
@@ -370,6 +374,22 @@ void setHooksCC()
 #endif
 
 	setGameSpeedHooks();
+
+#ifdef _CHEATDLL_CC
+#ifndef _CC_COMPATIBLE
+	//setExtraTerrainHooks_CC();		//Enabled this when using +1 terrain DAT!
+#endif
+#endif
+
+	if (cd.minimap7)
+		setMinimapHooks();
+
+	if (cd.largeText)
+		setInt(0x004276F6, 116);
+
+	setStartupLoadHooks(cd.gameVersion);
+
+	//setOOSHooks();
 }
 
 __declspec(naked) void sc1Hook()
@@ -383,13 +403,15 @@ __declspec(naked) void sc1Hook()
 	}
 }
 
+char efDatabank[] = "stream\\ef_databank%d.mp3";
+char efCiv[] = "stream\\ef_civ%d.mp3";
+
 void setHooksEF()
 {
 	//setHook ((void*)0x005E55DB, &sc1Hook);
 
 	log("setHooksEF() started");
 
-	setStartupLoadHooks();
 	setLangDllHooks();
 
 	setExtraTerrainHooks();															//!!!
@@ -467,6 +489,10 @@ void setHooksEF()
 
 	setCargoTraderHooks();
 
+	setInt(0x005174AF, (DWORD)efCiv);
+	setInt(0x0051B2CC, (DWORD)efCiv);
+	setInt(0x0050A37C, (DWORD)efDatabank);
+
 	log("setHooks() finished");
 }
 
@@ -480,7 +506,8 @@ char verStr8[] = "1.8e";
 char verStr9[] = "1.9e";
 char ver1x[] = "1.X";
 
-char verCC3 [] = "1.3";
+char verCC2[] = "1.2";
+char verCC3[] = "1.3";
 char verCC4[] = "1.4";
 char verCC5[] = "1.5";
 
@@ -538,18 +565,33 @@ __declspec(naked) void verHookCC() //0042C3E1
 	__asm
 	{
 		dec     eax
+		jz      _1_2
+		dec     eax
 		jz      _1_3
+		dec     eax
+		jz      _1_4
+		dec     eax
+		jz      _1_5
 		mov     eax, 00689BA8h
+		ret     4
+_1_2:
+		mov     eax, offset verCC2
 		ret     4
 _1_3:
 		mov     eax, offset verCC3
+		ret     4
+_1_4:
+		mov     eax, offset verCC4
+		ret     4
+_1_5:
+		mov     eax, offset verCC5
 		ret     4
 	}
 }
 
 void updateVersionEF()
 {
-	setByte(0x00689534, 4); //EF 1.3e
+	setByte(0x00689534, 6); //EF 1.5e
 	//strcpy ((char*)0x00689BA4, verStr);
 	setHook((void*)0x0042C3E1, &verHookEF);
 }
@@ -557,7 +599,7 @@ void updateVersionEF()
 void updateVersionCC()
 {
 #ifndef _CC_COMPATIBLE
-	setByte(0x00689534, 3); //CC 1.3
+	setByte(0x00689534, 3); //CC 1.2
 	//strcpy ((char*)0x00689BA4, verStr);
 	setHook((void*)0x0042C3E1, &verHookCC);
 #endif // !_CC_COMPATIBLE
@@ -646,9 +688,9 @@ BOOL __stdcall DllMain(HMODULE hModule,
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-#ifndef _CHEATDLL_CC
+//#ifndef _CHEATDLL_CC
 		fixCurrentDir();   //for EF
-#endif
+//#endif
 
 		initLog();
 		log("===============================================");

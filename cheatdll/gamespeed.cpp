@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "advcheat.h"
 
 void (__thiscall* setGameSpeed) (void* this_, float spd) =
 	(void(__thiscall*) (void*, float))0x005BD6B0;

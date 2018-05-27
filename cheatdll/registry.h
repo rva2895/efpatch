@@ -26,6 +26,10 @@ struct CONFIG_DATA
 	int windowMode;
 	int largeMaps;
 	int crashReporting;
+	int gridTerrain;
+	int smallTrees;
+	int minimap7;
+	int largeText;
 };
 
 void regGet (CONFIG_DATA*);

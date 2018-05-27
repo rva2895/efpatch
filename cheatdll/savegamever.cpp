@@ -118,9 +118,9 @@ void __stdcall displayVersionError(int ptr)
 {
 	char buf[0x100];
 	if (old_save_file_ver2)
-		sprintf(buf, "This game was recorded with a different version of balance patch.\n"
+		sprintf(buf, "This game was recorded with a different version of the game\n"
 			"Current version: %s, "
-			"recorded game version: older than 1.3.3 or original (no patch)",
+			"recorded game version: 1.1",
 			current_version);
 	else
 		sprintf(buf, "This game was recorded with a different version of balance patch.\n"

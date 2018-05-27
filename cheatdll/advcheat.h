@@ -5,8 +5,6 @@ void restoreAll ();
 
 void setAdvCheatHooks ();
 
-void __cdecl chat(char* format, ...);
-
 class sel_iterator //returns NULL when points at end
 {
 private:

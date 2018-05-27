@@ -48,7 +48,7 @@ void editor_autosave()
 	{
 		log("Editor autosave: scenario -> autosave.sc1");
 		saveScen();
-		paint_test();
+		//paint_test();
 	}
 	else
 	{

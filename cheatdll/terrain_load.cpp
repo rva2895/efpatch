@@ -2,7 +2,7 @@
 
 #include "terrain.h"
 
-int ver;
+int t_ver;
 
 void (__thiscall* terrain1_load) (void* this_, int language_dll_id, int terrain) =
 	(void(__thiscall*) (void*, int, int))0x004C82D0;
@@ -66,7 +66,7 @@ void __stdcall terrain1_(void* this_)
 	//terrain1_load(this_, 10931, 54);
 	//terrain1_load(this_, 1, 55);
 	//terrain1_load(this_, 2, 56);
-	if (ver)
+	if (t_ver == VER_EF)
 	{
 		terrain1_load(this_, 2707, 55);
 		terrain1_load(this_, 2724, 56);
@@ -183,7 +183,7 @@ void __stdcall terrain2_(void* this_)
 	terrain2_load(this_, 0x29B7, 0x33);
 	terrain2_load(this_, 0x29B8, 0x34);
 
-	if (ver)	//EF terrains
+	if (t_ver == VER_EF)	//EF terrains
 	{
 		terrain2_load(this_, 2707, 55);
 		terrain2_load(this_, 2724, 56);
@@ -255,7 +255,7 @@ __declspec(naked) int terrain2()
 
 void setTerrainLoadHooks(int ver)
 {
-	::ver = ver;
+	t_ver = ver;
 
 	setHook((void*)0x0052A30A, terrain1);
 	setHook((void*)0x0053B3C1, terrain2);

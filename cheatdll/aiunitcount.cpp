@@ -398,18 +398,20 @@ __declspec(naked) void ctrInit() //004BFEDF
 		shl     eax, 1
 		push    eax
 		call    ds:[malloc]
-		mov     [ebp + 1038h], eax
 		push    0
 		push    eax
+		add     eax, 100h
+		mov     [ebp + 1038h], eax
 		call    ds:[_memset]
 		add     esp, 8
 		mov     ecx, [esp]  //
 		shl     ecx, 2      //
 		mov     [esp], ecx  //
 		call    ds:[malloc]
-		mov     [ebp + 2F0h], eax
 		push    0
 		push    eax
+		add     eax, 100h
+		mov     [ebp + 2F0h], eax
 		call    ds:[_memset]
 		lea     eax, [ebp + 1CB8h]
 		push    0C8h
@@ -444,8 +446,9 @@ __declspec(naked) void ctrReadSave() //004BF665
 		shl     ebx, 1
 		push    ebx
 		call    ds:[malloc]
-		mov     [esi + 2F0h], eax
 		mov     edx, eax
+		add     eax, 100h
+		mov     [esi + 2F0h], eax
 		mov     ecx, ebp
 		call    edi
 		push    0C8h
@@ -454,8 +457,9 @@ __declspec(naked) void ctrReadSave() //004BF665
 		call    edi
 		push    ebx
 		call    ds:[malloc]
-		mov     [esi + 1038h], eax
 		mov     edx, eax
+		add     eax, 100h
+		mov     [esi + 1038h], eax
 		mov     ecx, ebp
 		call    edi
 		shr     ebx, 1
@@ -490,6 +494,7 @@ __declspec(naked) void ctrWriteSave() //004C1C55
 		call    ebp              //write count
 		push    edi
 		mov     edx, [ebx + 2F0h]
+		sub     edx, 100h
 		mov     ecx, esi
 		call    ebp
 		push    0C8h
@@ -498,6 +503,7 @@ __declspec(naked) void ctrWriteSave() //004C1C55
 		call    ebp
 		push    edi
 		mov     edx, [ebx + 1038h]
+		sub     edx, 100h
 		mov     ecx, esi
 		call    ebp
 		shr     edi, 1
@@ -640,9 +646,11 @@ __declspec(naked) void ctr_free() //005CDCDF
 	__asm
 	{
 		mov     eax, [esi + 2F0h]
+		sub     eax, 100h
 		push    eax
 		call    ds:[free]
 		mov     eax, [esi + 1038h]
+		sub     eax, 100h
 		push    eax
 		call    ds:[free]
 		mov     eax, [esi + 103Ch]

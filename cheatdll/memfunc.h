@@ -31,6 +31,9 @@ struct SET_HOOK_ASSIGN
 	void* newAddr;
 };
 
+void __stdcall sendChat(char* s, int p);
+void __cdecl chat(char* format, ...);
+
 //void myCrtStartup ();
 
 
