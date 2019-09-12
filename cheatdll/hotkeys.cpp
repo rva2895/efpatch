@@ -14,8 +14,8 @@ char hotkeys[] = {
 	9, 12,  3  //nightsister hunter
 };
 
-int hotkeyTestRet;
-int hotkeyTestCont;
+void* hotkeyTestRet;
+void* hotkeyTestCont;
 
 __declspec(naked) void hotkeyTest() //00563010, 005625D0
 {
@@ -47,12 +47,11 @@ __declspec(naked) void hotkeyTest() //00563010, 005625D0
 
 		mov     eax, hotkeyTestRet
 		push    eax
-		push    00486B20h
-		ret
+		mov     eax, 00486B20h
+		jmp     eax
 _noHK:
 		mov     edx, hotkeyTestCont
-		push    edx
-		ret
+		jmp     edx
 	}
 }
 
@@ -80,16 +79,18 @@ __declspec(naked) void hotkeyTestBldg() //005625D0
 	}
 }
 
+#pragma optimize( "s", on )
 void setGroupNumbers()
 {
-	setByte(0x00561462, 9);  //5
-	setByte(0x00561478, 7);  //7
-	setByte(0x00561483, 6);  //8
-	setByte(0x00561499, 5);  //10
-	setByte(0x005614AF, 4);  //12
-	setByte(0x005614BA, 2);  //13
-	setByte(0x005614F1, 4);  //18
+	writeByte(0x00561462, 9);  //5
+	writeByte(0x00561478, 7);  //7
+	writeByte(0x00561483, 6);  //8
+	writeByte(0x00561499, 5);  //10
+	writeByte(0x005614AF, 4);  //12
+	writeByte(0x005614BA, 2);  //13
+	writeByte(0x005614F1, 4);  //18
 }
+#pragma optimize( "", on )
 
 __declspec(naked) void hotkeyOptionsLoad() //005625C1
 {
@@ -366,7 +367,7 @@ __declspec(naked) void hotkeyDefaultNightsisterHunter()
 	}
 }
 
-int hotkeyDefaultsGroup5[] =  //build defense
+DWORD hotkeyDefaultsGroup5[] =  //build defense
 {
 	0x005644CA,
 	0x005644E3,
@@ -375,11 +376,11 @@ int hotkeyDefaultsGroup5[] =  //build defense
 	0x0056452E,
 	0x00564547,
 	0x00564560,
-	(int)&hotkeyDefaultAABattery,
-	(int)&hotkeyDefaultMine
+	(DWORD)&hotkeyDefaultAABattery,
+	(DWORD)&hotkeyDefaultMine
 };
 
-int hotkeyDefaultsGroup7[] =  //shipyard
+DWORD hotkeyDefaultsGroup7[] =  //shipyard
 {
 	0x0056461E,
 	0x00564637,
@@ -387,37 +388,37 @@ int hotkeyDefaultsGroup7[] =  //shipyard
 	0x00564669,
 	0x00564682,
 	0x0056469B,
-	(int)&hotkeyDefaultMonitor
+	(DWORD)&hotkeyDefaultMonitor
 };
 
-int hotkeyDefaultsGroup8[] =  //airbase
+DWORD hotkeyDefaultsGroup8[] =  //airbase
 {
 	0x005646C8,
 	0x005646E1,
 	0x005646FA,
 	0x00564713,
-	(int)&hotkeyDefaultInterceptor,
-	(int)&hotkeyDefaultAttacker
+	(DWORD)&hotkeyDefaultInterceptor,
+	(DWORD)&hotkeyDefaultAttacker
 };
 
-int hotkeyDefaultsGroup10[] =  //mech factory
+DWORD hotkeyDefaultsGroup10[] =  //mech factory
 {
 	0x005647B8,
 	0x005647D1,
 	0x005647EA,
 	0x00564803,
-	(int)&hotkeyDefaultTransportMech
+	(DWORD)&hotkeyDefaultTransportMech
 };
 
-//int hotkeyDefaultsGroup12[] =  //jedi temple
+//DWORD hotkeyDefaultsGroup12[] =  //jedi temple
 //{
 
 //};
 
-int hotkeyDefaultsGroup13[] =  //spaceport
+DWORD hotkeyDefaultsGroup13[] =  //spaceport
 {
 	0x005648CA,
-	(int)&hotkeyDefaultCargoFreighter
+	(DWORD)&hotkeyDefaultCargoFreighter
 };
 
 __declspec(naked) void group18_fix() //00564ACF
@@ -476,32 +477,34 @@ _jump_2:
 
 #endif
 
+#pragma optimize( "s", on )
 void setHotkeyHooks()
 {
 #ifndef _CHEATDLL_CC
 	setGroupNumbers();
 
-	setHook((void*)0x005625C1, &hotkeyOptionsLoad);
-	setHook((void*)0x00563010, &hotkeyTestUnit);
-	setHook((void*)0x005625D0, &hotkeyTestBldg);
+	setHook((void*)0x005625C1, hotkeyOptionsLoad);
+	setHook((void*)0x00563010, hotkeyTestUnit);
+	setHook((void*)0x005625D0, hotkeyTestBldg);
 
-	setHook((void*)0x00561C72, &hotkeyDefaultSet);
+	setHook((void*)0x00561C72, hotkeyDefaultSet);
 
-	setByte(0x005644BC, 8);
-	setInt(0x005644C6, (int)hotkeyDefaultsGroup5);
+	writeByte(0x005644BC, 8);
+	writeDword(0x005644C6, (DWORD)hotkeyDefaultsGroup5);
 
-	setByte(0x00564610, 6);
-	setInt(0x0056461A, (int)hotkeyDefaultsGroup7);
+	writeByte(0x00564610, 6);
+	writeDword(0x0056461A, (DWORD)hotkeyDefaultsGroup7);
 
-	setByte(0x005646BA, 5);
-	setInt(0x005646C4, (int)hotkeyDefaultsGroup8);
+	writeByte(0x005646BA, 5);
+	writeDword(0x005646C4, (DWORD)hotkeyDefaultsGroup8);
 
-	setByte(0x005647AA, 4);
-	setInt(0x005647B4, (int)hotkeyDefaultsGroup10);
+	writeByte(0x005647AA, 4);
+	writeDword(0x005647B4, (DWORD)hotkeyDefaultsGroup10);
 
-	setHook((void*)0x00564ACF, &group18_fix);
+	setHook((void*)0x00564ACF, group18_fix);
 
 	setHook((void*)0x005648C2, group13);
 	setHook((void*)0x00564883, group12);
 #endif
 }
+#pragma optimize( "", on )

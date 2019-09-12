@@ -12,17 +12,27 @@ void expl4();
 short* explIDs;
 int nExplIDs;
 
+#pragma optimize( "s", on )
+void expl_droid_hooks()
+{
+	setHook((void*)0x0040215F, &expl1);
+	setHook((void*)0x0055A881, &expl2);
+	setHook((void*)0x0055BE40, &expl3);
+	setHook((void*)0x005B6DF2, &expl4);
+}
+#pragma optimize( "", on )
+
 void initExplDroid()
 {
 	log("Loading suicide attack unit list");
 	FILE* f = fopen("data\\expl.txt", "rt");
 	if (f)
 	{
-		int id;
+		short id;
 		nExplIDs = 0;
 		explIDs = 0;
 
-		while (fscanf(f, "%d", &id) > 0)
+		while (fscanf(f, "%hd", &id) > 0)
 		{
 			nExplIDs++;
 			explIDs = (short*)realloc(explIDs, nExplIDs * sizeof(short));
@@ -31,10 +41,7 @@ void initExplDroid()
 
 		fclose(f);
 
-		setHook((void*)0x0040215F, &expl1);
-		setHook((void*)0x0055A881, &expl2);
-		setHook((void*)0x0055BE40, &expl3);
-		setHook((void*)0x005B6DF2, &expl4);
+		expl_droid_hooks();
 	}
 	else
 		log("Warning: expl.txt not found, using default settings");

@@ -81,13 +81,14 @@ struct COLOR_NAME_ASSIGN
 
 COLOR_NAME_ASSIGN COLOR_NAMES[] =
 {
-	135, "WHITE",
+	7,   "WHITE",
 	0,   "BLACK",
 	244, "GOLD",
-	133, "SILVER",
+	6,   "SILVER",
 	11,  "SLATE",
 	118, "PINK",
-	32,  "MAROON",
+	//32,  "MAROON",
+	30,  "MAROON",
 	15,  "BROWN",
 	104, "TAN",
 	47,  "SAND",
@@ -95,12 +96,19 @@ COLOR_NAME_ASSIGN COLOR_NAMES[] =
 	46,  "RUST",
 	238, "LIME",
 	158, "OLIVE",
-	180, "FOREST",
+	179, "FOREST",
 	103, "MINT",
-	2,   "SEABLUE",
+	132, "SEABLUE",
 	22,  "SKYBLUE",
 	16,  "NAVY",
-	113, "PLUM"
+	113, "PLUM",
+	//new
+	6,   "GRAY",
+	129, "VIOLET",
+	254, "CRIMSON",
+	207, "SEAGREEN",
+	251, "TEAL",
+	251, "CYAN"
 };
 
 int getIndexByName(char* name)
@@ -180,8 +188,12 @@ int getColor(char* str)
 	}
 }
 
+#pragma optimize( "s", on )
 void setTextColorHooks()
 {
 	setHook((void*)0x004F9C5C, colors1);
 	setHook((void*)0x004F967A, colors2);
+
+	writeByte(0x004F2B50, 6);
 }
+#pragma optimize( "", on )

@@ -5,7 +5,7 @@
 
 char aSwbg[] = "swbg";
 
-char* aDrsWide[] =
+/*char* aDrsWide[] =
 {
 	"sounds_x1.drs",
 	"sounds_x2.drs",
@@ -35,7 +35,39 @@ char* aDrsNoWide[] =
 	"interfac_x2.drs",
 	"interfac.drs",
 	"interfac_x1.drs",
-	//"gamedata.drs",
+	"gamedata_x2.drs"
+};*/
+
+char* aDrsWide[] =
+{
+	"sounds_x1.drs",
+	"sounds_x2.drs",
+	"graphics_p1.drs",
+	"graphics_x1_p1.drs",
+	"graphics_x2.drs",
+	"terrain_p1.drs",
+	"terrain_x1_p1.drs",
+	"terrain_x2.drs",
+	"wide_p1.drs",
+	"interfac_x2.drs",
+	"interfac_p1.drs",
+	"interfac_x1_p1.drs",
+	"gamedata_x2.drs"
+};
+
+char* aDrsNoWide[] =
+{
+	"sounds_x1.drs",
+	"sounds_x2.drs",
+	"graphics_p1.drs",
+	"graphics_x1_p1.drs",
+	"graphics_x2.drs",
+	"terrain_p1.drs",
+	"terrain_x1_p1.drs",
+	"terrain_x2.drs",
+	"interfac_x2.drs",
+	"interfac_p1.drs",
+	"interfac_x1_p1.drs",
 	"gamedata_x2.drs"
 };
 
@@ -156,8 +188,8 @@ void setDRSLoadHooks(int ver, bool wide)
 	else
 		return;
 
-	setHook((void*)0x005E4B78, &loadDRSHook);
+	setHook((void*)0x005E4B78, loadDRSHook);
 
 	//heap corruption
-	setHook((void*)0x004D4FE8, &drsHeaderEnd);
+	setHook((void*)0x004D4FE8, drsHeaderEnd);
 }

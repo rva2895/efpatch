@@ -39,7 +39,9 @@ __declspec(naked) void registerSNX() //00577B59
 	}
 }
 
+#pragma optimize( "s", on )
 void setAISNXHooks()
 {
 	setHook((void*)0x00577B59, registerSNX);
 }
+#pragma optimize( "", on )

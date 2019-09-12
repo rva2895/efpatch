@@ -6,6 +6,10 @@
 #include "terrain.h"
 #include "crashreporter.h"
 #include "registry.h"
+#include "palette.h"
+#include "rec.h"
+
+#ifndef TARGET_VOOBLY
 
 #include <CrashRpt.h>
 
@@ -38,11 +42,13 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
 
 	log("WinMain_dll called");
 
-	//InitCommo
+#ifndef _CHEATDLL_CC
+	installPalette();
+#endif
 
 	initialSetup();
 
-	setInt(0x00426509, (int)&WndProc_dll);
+	writeDword(0x00426509, (DWORD)&WndProc_dll);
 
 	int retval;
 
@@ -110,6 +116,30 @@ __declspec(naked) void __stdcall update_editor_bk()
 	}
 }
 
+extern bool rec_cache_invalid;
+
+__declspec(naked) void __stdcall update_window(void* wnd)
+{
+	__asm
+	{
+		mov     ecx, [esp + 4]
+		mov     eax, [ecx + 18h]
+		mov     edx, [ecx + 14h]
+		//push    eax
+		//push    edx
+		//mov     eax, [ecx]
+		//call    dword ptr[eax + 5Ch]
+
+		mov     ecx, [esp + 4]
+		push    1
+		mov     eax, [ecx]
+		call    dword ptr[eax + 2Ch]
+		ret     4
+	}
+}
+
+HWND hWnd_global;
+
 int terrain_paint_mode = 0;	//default
 
 int CALLBACK WndProc_dll(HWND hWnd,
@@ -117,6 +147,14 @@ int CALLBACK WndProc_dll(HWND hWnd,
 	WPARAM wParam,
 	LPARAM lParam)
 {
+	hWnd_global = hWnd;
+
+	//
+	//if ((msg == WM_ACTIVATE) && (LOWORD(wParam) == WA_INACTIVE))
+	//{
+	//	return 0;
+	//}
+	//
 	if (msg == WM_KEYDOWN)
 	{
 		if (isEditor)
@@ -140,6 +178,7 @@ int CALLBACK WndProc_dll(HWND hWnd,
 					editorstatus_isValid = false;
 				}
 			}*/
+			
 #ifndef _CHEATDLL_CC
 			if (LOWORD(wParam) == 'Q')						//cliff type
 			{
@@ -164,6 +203,16 @@ int CALLBACK WndProc_dll(HWND hWnd,
 				editorstatus_isValid = true;
 			}
 		}
+		else
+		{
+			if ((LOWORD(wParam) >= '1') && (LOWORD(wParam) <= '9')) //rec switch player
+			{
+				//if (short x = GetKeyState(VK_MENU))
+				//{
+					recSwitch(LOWORD(wParam)-0x30);
+				//}
+			}
+		}
 	}
 	if (msg == WM_TIMER)
 	{
@@ -173,9 +222,15 @@ int CALLBACK WndProc_dll(HWND hWnd,
 			editorstatus_isValid = false;
 		}
 	}
+	if (msg == WM_APP + 1000) //updatebk
+	{
+		if (!rec_cache_invalid)
+			update_window((void*)wParam);
+	}
 
 	if (!hWnd_main)
 		hWnd_main = hWnd;
 
 	return WndProc_exe(hWnd, msg, wParam, lParam);
 }
+#endif

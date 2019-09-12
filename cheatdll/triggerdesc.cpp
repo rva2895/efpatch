@@ -58,7 +58,7 @@ const char* effectNames[] =
 	"AI Script Goal",
 	"Create Object",
 	"Task Object",
-	"Declare Victory",
+	"Victory",
 	"Kill Object",
 	"Remove Object",
 	"Scroll View",		//0x10
@@ -67,7 +67,7 @@ const char* effectNames[] =
 	"Patrol",
 	"Instr",
 	"Clear Instructions",
-	"Freeze Unit",
+	"Stance",
 	"Enable Adv Btns",
 	"Damage Object",	//0x18
 	"Place Foundation",
@@ -92,6 +92,8 @@ const char* effectNames[] =
 	"Prop",
 	"Explore",
 	"Var",
+	"Terrain",
+	"Defeat",
 	"Breakpoint"
 #endif
 };
@@ -253,6 +255,35 @@ void __stdcall e_player(effect* p, int)
 	sprintf(s + strlen(s), " (P%d)", p->source_player);
 }
 
+void __stdcall e_stance(effect* p, int)
+{
+	char* st;
+	if (p->ai_trigger_number == -1)
+		sprintf(s + strlen(s), " (%s)", "Freeze Unit");
+	else
+	{
+		switch (p->ai_trigger_number)
+		{
+		case 1:
+			st = "Aggressive";
+			break;
+		case 2:
+			st = "Defensive";
+			break;
+		case 3:
+			st = "Stand Ground";
+			break;
+		case 4:
+			st = "No Attack";
+			break;
+		default:
+			st = "";
+			break;
+		}
+		sprintf(s + strlen(s), " (%s)", st);
+	}
+}
+
 void* getTrigger(int i)
 {
 	void* (__thiscall* f) (void*, int) = (void* (__thiscall*) (void*, int))0x5F5F20;
@@ -273,17 +304,17 @@ void __stdcall e_alliance(effect* p, int)
 	sprintf(s + strlen(s), " (P%d->P%d: %s)", p->source_player, p->target_player, alliance_states[p->alliance]);
 }
 
-bool check_data(char* str)
+bool check_data(char* str_)
 {
-	if (!str)
+	if (!str_)
 		return false;
 
 	std::regex r("^([^ \t]+) ([^ \t]+) ([0-9]+ )?([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?)$",
 		std::regex_constants::icase);
 
 	std::smatch h;
-	std::string s(str);
-	if (std::regex_match(s, h, r))
+	std::string str(str_);
+	if (std::regex_match(str, h, r))
 	{
 		std::ssub_match h_sub = h[1];
 		std::string match = h_sub.str();
@@ -326,6 +357,13 @@ void __stdcall e_str_data(effect* p, int)
 		sprintf(s + strlen(s), " (<syntax error>)");
 }
 
+extern char* terrain_names[];
+
+void __stdcall e_terrain(effect* p, int)
+{
+	sprintf(s + strlen(s), " (%s)", terrain_names[p->ai_trigger_number]);
+}
+
 void(__stdcall* effectPrint[]) (effect*, int) =
 {
 	nullsub, //none
@@ -341,7 +379,7 @@ void(__stdcall* effectPrint[]) (effect*, int) =
 	nullsub, //ai script goal
 	nullsub, //create object
 	nullsub, //task object
-	e_player, //declare victory
+	e_player, //victory
 	nullsub, //kill object
 	nullsub, //remove object
 	nullsub, //scroll view
@@ -350,7 +388,7 @@ void(__stdcall* effectPrint[]) (effect*, int) =
 	nullsub, //patrol
 	e_str, //display inst
 	nullsub, //clear inst
-	nullsub, //freeze unit
+	e_stance, //freeze unit
 	nullsub, //enable adv buttons
 	e_quantity, //damage obj
 	nullsub, //place fnd
@@ -375,6 +413,8 @@ void(__stdcall* effectPrint[]) (effect*, int) =
 	e_str_data, //change prop obj
 	e_player, //explore
 	e_str, //change var
+	e_terrain, //terrain
+	e_player, //defeat
 	nullsub //breakpoint
 #endif
 };

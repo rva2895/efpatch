@@ -9,3 +9,5 @@ void setExtraTerrainHooks_CC();
 void setTerrainLoadHooks(int);
 
 void terrain_transition_change(int);
+
+void setTerrainBlendHooks();

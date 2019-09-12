@@ -102,11 +102,11 @@ void setJediMasterHooks()
 	FILE* f = fopen("data\\master.txt", "rt");
 	if (f)
 	{
-		int id;
+		short id;
 		nMasters = 0;
 		masters = 0;
 
-		while (fscanf(f, "%d", &id) > 0)
+		while (fscanf(f, "%hd", &id) > 0)
 		{
 			nMasters++;
 			masters = (short*)realloc(masters, nMasters * sizeof(short));
@@ -124,11 +124,11 @@ void setJediMasterHooks()
 	f = fopen("data\\padawan.txt", "rt");
 	if (f)
 	{
-		int id;
+		short id;
 		nPadawans = 0;
 		padawans = 0;
 
-		while (fscanf(f, "%d", &id) > 0)
+		while (fscanf(f, "%hd", &id) > 0)
 		{
 			nPadawans++;
 			padawans = (short*)realloc(padawans, nPadawans * sizeof(short));

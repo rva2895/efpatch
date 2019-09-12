@@ -38,7 +38,7 @@ __declspec(naked) void rmsListLoadHook() //0052A2BE
 		mov     ecx, [esi]
 		push    1Fh
 		push    2A8Eh
-		mov     eax, 4C82D0h
+		mov     eax, 004C82D0h
 		call    eax
 
 		push    edi
@@ -58,7 +58,7 @@ cont1:
 		movsx   eax, ax
 		push    eax
 		mov     ecx, [esi]
-		mov     eax, 4C82D0h
+		mov     eax, 004C82D0h
 		call    eax
 		inc     ebx
 		add     edi, 4
@@ -66,7 +66,7 @@ cont1:
 end1:
 		//
 		call    rmsNameHookLoad
-		mov     edi, 4C82D0h
+		mov     edi, 004C82D0h
 		xor     ebx, ebx
 
 cont:
@@ -109,15 +109,15 @@ __declspec(naked) void rmsNameLoad() //004D392C
 
 void rmsNameHookLoad()
 {
-	setHook((void*)0x004D392C, &rmsNameLoad);
+	setHook((void*)0x004D392C, rmsNameLoad);
 }
 
 void rmsNameHookUnload()
 {
-	setInt(0x004D392C, 0x00010068);
-	setInt(0x004D3930, 0x8B515000);
-	setInt(0x004D3934, 0x3D86E8CE);
-	setInt(0x004D3938, 0x848BFFFE);
+	writeDword(0x004D392C, 0x00010068);
+	writeDword(0x004D3930, 0x8B515000);
+	writeDword(0x004D3934, 0x3D86E8CE);
+	writeDword(0x004D3938, 0x848BFFFE);
 }
 
 void findFiles()
@@ -153,8 +153,10 @@ void findFiles()
 	log("Found %d .rms files", nFiles);
 }
 
+#pragma optimize( "s", on )
 void setRmsEditorHooks()
 {
 	findFiles();
-	setHook((void*)0x0052A2BE, &rmsListLoadHook);
+	setHook((void*)0x0052A2BE, rmsListLoadHook);
 }
+#pragma optimize( "", on )

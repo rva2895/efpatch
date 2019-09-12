@@ -2,7 +2,7 @@
 
 #include "revertToX1.h"
 
-BYTE_ASSIGN revertX1 [] =
+BYTE_ASSIGN revertX1[] =
 {
 	{0x1C593, 0x66},	//ground-to-air
 	{0x1C594, 0x81},
@@ -142,10 +142,10 @@ BYTE_ASSIGN revertX1 [] =
 	{0x29E55F, 0x31}
 };
 
-void revertToX1 ()
+void revertToX1()
 {
-	log ("Restoring x1 state...");
+	log("Restoring x1 state...");
 
-	for (int i = 0; i < (sizeof(revertX1)/sizeof(revertX1[0])); i++)
-		setByteF (revertX1[i].addr, revertX1[i].val);
+	for (int i = 0; i < (sizeof(revertX1) / sizeof(revertX1[0])); i++)
+		writeByteF(revertX1[i].addr, revertX1[i].val);
 }

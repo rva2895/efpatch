@@ -3,7 +3,7 @@
 
 #include <regex>
 
-#pragma message("---NOTE TO SELF---: Complete UNIT and PROPOBJ struct definition")
+#pragma message("***trigger_unit.cpp: ---NOTE TO SELF---: Complete UNIT and PROPOBJ struct definition")
 
 void patch_trigger(trigger* t, int player, float x, float y)
 {
@@ -98,8 +98,11 @@ void __stdcall trigger_process2(trigger* t, int arg0)
 			sscanf(match.c_str(), "%d", &player);
 
 			void* ptr = *(void**)(*(int*)(*(int*)(*(int*)(*(int*)(*(int*)(0x6A3684) + 0x17B4) + 0x126C) + 0x4C) + player * 4) + 0x78);
-			UNIT** units = *(UNIT***)((int)ptr + 4);
+			UNIT** units_ptr = *(UNIT***)((int)ptr + 4);
 			int n = *(int*)((int)ptr + 8);
+
+			UNIT** units = (UNIT**)malloc(sizeof(UNIT*)*n);
+			memcpy(units, units_ptr, sizeof(UNIT*)*n);
 
 			for (int i = 0; i < n; i++)
 			{
@@ -111,6 +114,8 @@ void __stdcall trigger_process2(trigger* t, int arg0)
 					trigger_process(t, arg0);
 				}
 			}
+
+			free(units);
 		}
 	}
 	else
@@ -133,5 +138,5 @@ __declspec(naked) void on_trigger() //005F54D2
 
 void setTriggerUnitHooks()
 {
-	setHook((void*)0x005F54D2, &on_trigger);
+	//setHook((void*)0x005F54D2, &on_trigger);
 }

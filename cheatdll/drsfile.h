@@ -2,6 +2,9 @@
 
 #include "stdafx.h"
 
+#define DRS_BIN 0x62696E61
+#define DRS_SLP 0x736C7020
+
 struct DRS_header
 {
 	char copyright[0x3C];
@@ -39,19 +42,27 @@ private:
 	DRS_tableInfo* tInfo;
 	DRS_tableEntry** tEntries;
 
+	int current_pos;
+
 public:
 	DRS();
 	//DRS (const char* filename);
 	~DRS();
 
+	void setFileName(const char* filename);
+	void addFile(void* data, int size, int id, unsigned long table);
+
 	char* listFiles(int* count);
 	void* getFile(int id, int* size);
+	int extractFiles();
 	int getFileOffset(int id);
 	int getTableEntryOffset(int id);
 
 	void writeInt(int offset, int val);
 
 	bool loadDRS(const char* filename);
+
+	bool writeDRS();
 
 	void unload();
 	void load();

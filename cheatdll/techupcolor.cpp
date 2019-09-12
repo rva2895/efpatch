@@ -2,63 +2,50 @@
 
 #include "techupcolor.h"
 
-void setTechUpColorHooks ()
-{
-#ifdef _DEBUG
-	log ("Setting tech up player colour hooks...");
-#endif
-
-	setHook ((void*)0x005E9956, &beforeNotify);
-	setHook ((void*)0x005E9995, &afterNotify);
-}
-
-__declspec(naked) int beforeNotify () //put on 005E9956
+#pragma warning(push)
+#pragma warning(disable:4100)
+__declspec(naked) void __stdcall sendTechChat2(int player, char* s, int unk)
 {
 	__asm
 	{
-		push    ebx
+		mov     eax, [esp + 0Ch]    //unk
+		mov     ecx, [esp + 8]    //str
+		mov     edx, [esp + 4]  //player
+		push    0
+		push    eax
 		push    edx
-
-		mov     ebx, setByte
-
-		push    57h         //push edi
-		push    004F9AFBh
-		call    ebx
-		push    90h         //nop
-		push    004F9AFCh
-		call    ebx
-		add     esp, 10h
-
-		pop     edx
-		pop     ebx
-		mov     eax, [edx + 4Ch]
-		mov     ecx, [eax + edi * 4]
-
-		push    005E995Ch
-		ret
+		push    ecx
+		mov     ecx, 006A35D8h
+		mov     ecx, [ecx]
+		push    0
+		mov     eax, 0042D5E0h
+		call    eax
+		retn    0Ch
 	}
 }
+#pragma warning(pop)
 
-__declspec(naked) int afterNotify () //put on 005E9995
+__declspec(naked) void onTechUpSend() //005E9990
 {
 	__asm
 	{
-		push    ebx
-
-		mov     ebx, setByte
-
-		push    6Ah         //push
-		push    004F9AFBh
-		call    ebx
-		push    0FFh        //-1
-		push    004F9AFCh
-		call    ebx
-		add     esp, 10h
-
-		pop     ebx
-		mov     ecx, [esi + 420h]
-
-		push    005E999Bh
-		ret
+		//mov     edx, [esi + 420h]
+		//mov     eax, [edx + 4Ch]
+		//mov     ecx, [eax + edi * 4]
+		//mov     eax, [ecx + 0A0h]
+		//push    eax
+		//
+		push    edi
+		//
+		call    sendTechChat2
+		mov     eax, 005E9995h
+		jmp     eax
 	}
 }
+
+#pragma optimize( "s", on )
+void setTechUpColorHooks()
+{
+	setHook((void*)0x005E9990, onTechUpSend);
+}
+#pragma optimize( "", on )

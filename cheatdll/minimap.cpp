@@ -47,9 +47,11 @@ _not_grey2:
 	}
 }
 
+#pragma optimize( "s", on )
 void setMinimapHooks()
 {
 	//setHook((void*)0x005F8E72, &onMinimapGrey);
 	//setHook((void*)0x005F9EAC, &onMinimapGrey_1);
 	//setHook((void*)0x005F9F05, &onMinimapGrey_2);
 }
+#pragma optimize( "", on )

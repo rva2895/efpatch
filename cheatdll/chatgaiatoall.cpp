@@ -44,8 +44,11 @@ toDefault_sound:
 	}
 }
 
+
+#pragma optimize( "s", on )
 void setChatGaiaToAllHooks()
 {
 	setHook((void*)0x005F3049, srcPlayerCheck_chat);
 	setHook((void*)0x005F310C, srcPlayerCheck_sound);
 }
+#pragma optimize( "", on )

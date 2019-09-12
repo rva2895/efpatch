@@ -93,6 +93,7 @@ _noBuilders:
 	}
 }
 
+#pragma optimize( "s", on )
 void setAIBuildersCntrHooks()
 {
 	setHook((void*)0x00413870, cntrSet);
@@ -100,3 +101,4 @@ void setAIBuildersCntrHooks()
 	setHook((void*)0x00413ADA, cntrContinue);
 	setHook((void*)0x0059F3EF, queryCntr);
 }
+#pragma optimize( "", on )

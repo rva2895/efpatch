@@ -137,6 +137,8 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
 	s->ReleaseDC(hdc);
 }
 
+#pragma warning(push)
+#pragma warning(disable:4100)
 __declspec(naked) void __fastcall window_getSurface(void* wnd)
 {
 	__asm
@@ -145,6 +147,7 @@ __declspec(naked) void __fastcall window_getSurface(void* wnd)
 		ret
 	}
 }
+#pragma warning(pop)
 
 __declspec(naked) void hook2() //00531271
 {

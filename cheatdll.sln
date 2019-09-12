@@ -17,6 +17,8 @@ Global
 		Release_cc_compatible|x64 = Release_cc_compatible|x64
 		Release_cc|Win32 = Release_cc|Win32
 		Release_cc|x64 = Release_cc|x64
+		Release_Voobly|Win32 = Release_Voobly|Win32
+		Release_Voobly|x64 = Release_Voobly|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
@@ -33,6 +35,9 @@ Global
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_cc|Win32.ActiveCfg = Release_cc|Win32
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_cc|Win32.Build.0 = Release_cc|Win32
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_cc|x64.ActiveCfg = Release_cc|Win32
+		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_Voobly|Win32.ActiveCfg = Release_Voobly|Win32
+		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_Voobly|Win32.Build.0 = Release_Voobly|Win32
+		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_Voobly|x64.ActiveCfg = Release_Voobly|Win32
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release|Win32.ActiveCfg = Release|Win32
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release|Win32.Build.0 = Release|Win32
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release|x64.ActiveCfg = Release|Win32
@@ -52,6 +57,8 @@ Global
 		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_cc|Win32.Build.0 = Release|Win32
 		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_cc|x64.ActiveCfg = Release|x64
 		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_cc|x64.Build.0 = Release|x64
+		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_Voobly|Win32.ActiveCfg = Release|Win32
+		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_Voobly|x64.ActiveCfg = Release|x64
 		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release|Win32.ActiveCfg = Release|Win32
 		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release|Win32.Build.0 = Release|Win32
 		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release|x64.ActiveCfg = Release|x64

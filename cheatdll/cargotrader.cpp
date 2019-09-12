@@ -40,18 +40,19 @@ loc_5F9021:
 	}
 }
 
+#pragma optimize( "s", on )
 void setCargoTraderHooks()
 {
-	DWORD c;
-	WriteProcessMemory(GetCurrentProcess(), (void*)0x0041ECF9, c_edx, 6, &c);
-	WriteProcessMemory(GetCurrentProcess(), (void*)0x00572C08, c_edx, 6, &c);
-	WriteProcessMemory(GetCurrentProcess(), (void*)0x00572CA2, c_edx, 6, &c);
-	WriteProcessMemory(GetCurrentProcess(), (void*)0x00572D5A, c_edx, 6, &c);
-	WriteProcessMemory(GetCurrentProcess(), (void*)0x00572F55, c_edx, 6, &c);
-	WriteProcessMemory(GetCurrentProcess(), (void*)0x00573134, c_edx, 6, &c);
+	writeData(0x0041ECF9, c_edx, 6);
+	writeData(0x00572C08, c_edx, 6);
+	writeData(0x00572CA2, c_edx, 6);
+	writeData(0x00572D5A, c_edx, 6);
+	writeData(0x00572F55, c_edx, 6);
+	writeData(0x00573134, c_edx, 6);
 	c_edx[2] = 0x7B;
-	WriteProcessMemory(GetCurrentProcess(), (void*)0x00572E72, c_edx, 6, &c);
+	writeData(0x00572E72, c_edx, 6);
 
 	setHook((void*)0x005CED83, cargoTrader_1);
 	setHook((void*)0x005F901A, cargoTrader_2);
 }
+#pragma optimize( "", on )

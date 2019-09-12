@@ -117,6 +117,7 @@ __declspec(naked) void onAIPopCap() //0057F13A
 	}
 }
 
+#pragma optimize( "s", on )
 void setPopulationHooks()
 {
 	setHook((void*)0x00520273, createPopList);
@@ -128,30 +129,31 @@ void setPopulationHooks()
 	setHook((void*)0x005202AD, getPopCap_fix1);
 
 	//fix 75 -> 15 (75/5)
-	setByte(0x004F1ADE, 15);
-	setByte(0x00508B8E, 15);
-	setByte(0x00520846, 15);
-	setByte(0x005E424E, 15);
-	setByte(0x005EC382, 15);
+	writeByte(0x004F1ADE, 15);
+	writeByte(0x00508B8E, 15);
+	writeByte(0x00520846, 15);
+	writeByte(0x005E424E, 15);
+	writeByte(0x005EC382, 15);
 
 
 	//getPopCap and eax, 0FFh
-	//setInt(0x005202B9, 0xFFFFFFFF); //useless
-	setInt(0x004412D8, 0xFFFFFFFF);
-	setInt(0x0051E58E, 0xFFFFFFFF);
-	setInt(0x00541D47, 0xFFFFFFFF);
-	setInt(0x0057F136, 0xFFFFFFFF);
-	setInt(0x005FECBA, 0xFFFFFFFF);
-	setInt(0x00601366, 0xFFFFFFFF);
-	setInt(0x0060270D, 0xFFFFFFFF);
-	setInt(0x006031D1, 0xFFFFFFFF);
+	//writeDword(0x005202B9, 0xFFFFFFFF); //useless
+	writeDword(0x004412D8, 0xFFFFFFFF);
+	writeDword(0x0051E58E, 0xFFFFFFFF);
+	writeDword(0x00541D47, 0xFFFFFFFF);
+	writeDword(0x0057F136, 0xFFFFFFFF);
+	writeDword(0x005FECBA, 0xFFFFFFFF);
+	writeDword(0x00601366, 0xFFFFFFFF);
+	writeDword(0x0060270D, 0xFFFFFFFF);
+	writeDword(0x006031D1, 0xFFFFFFFF);
 
 	//print new pop steps
-	setByte(0x0052029E, 5);
-	setByte(0x005202A1, 0xC8); //1000 / 5 = 200
-	setByte(0x005202A2, 0x00);
+	writeByte(0x0052029E, 5);
+	writeByte(0x005202A1, 0xC8); //1000 / 5 = 200
+	writeByte(0x005202A2, 0x00);
 
 	//editor pop limit
-	setInt(0x005CF063, (int)&f1000);
-	setInt(0x005CF074, *(int*)&f1000);
+	writeDword(0x005CF063, (DWORD)&f1000);
+	writeDword(0x005CF074, *(DWORD*)&f1000);
 }
+#pragma optimize( "", on )

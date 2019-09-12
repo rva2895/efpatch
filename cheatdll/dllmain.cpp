@@ -63,11 +63,28 @@
 #include "cargotrader.h"
 #include "minimap.h"
 #include "oos.h"
+#include "campaign.h"
+#include "patrol.h"
+#include "attackstance.h"
+#include "medic.h"
+#include "palette.h"
+#include "rec.h"
+#include "hotkeyjump.h"
 #include "registry.h"
 #include "crashreporter.h"
 #include "rundll.h"
+#include "recbrowse.h"
+#include "elevation.h"
+#include "network.h"
+#include "core.h"
+#include "recordrestore.h"
+#include "mouseoverride.h"
+#include "notify.h"
+#ifdef TARGET_VOOBLY
+#include "iuserpatch.h"
+#endif
 
-__declspec(naked) int pathFindHook()
+/*__declspec(naked) int pathFindHook()
 {
 	__asm
 	{
@@ -127,106 +144,7 @@ __declspec(naked) int flash()
 		pop  ebx
 		ret  10h
 	}
-}
-
-int retPntPnt;
-int unitPtrPtr;
-int counter;
-int nextUnitPtrPtr;
-
-__declspec(naked) int patrol ()
-{
-	__asm
-	{
-		mov     eax, retPnt
-		mov     retPntPnt, eax
-		mov     eax, [esp+10h] //counter
-		test    eax, eax
-		jz      zeroUnits
-		mov     counter, eax
-		/*push   ebx
-		push   edi
-		push   edx
-	}
-	log ("Executing patrol trigger effect, unit count: %d", counter);
-	__asm
-	{
-		pop     edx
-		pop     edi
-		pop     ebx*/
-		xor     esi, esi
-		cmp     eax, ebx
-		jle     defCase //jumptable 005F2B53 default case
-		lea     ecx, [esp+134h] //unitPtr
-		mov     unitPtrPtr, ecx
-		mov     nextUnitPtrPtr, ecx
-continute:
-		lea     ecx, [edi+1Ch] //force field Set Objects...
-		mov     dword ptr [ecx], 1
-		/*push   ebx
-		push   edi
-		push   edx
-	}
-	log ("Patroling unit 0x%X", *(int*)unitPtrPtr);
-	__asm
-	{
-		pop     edx
-		pop     edi
-		pop     ebx*/
-		
-		push    0x5F3926
-		ret
-retPnt:
-		mov     eax, nextUnitPtrPtr
-		add     eax, 4
-		mov     nextUnitPtrPtr, eax
-		mov     eax, [eax]
-		mov     ecx, unitPtrPtr
-		mov     [ecx], eax
-
-		//mov     eax, unitPtrPtr
-		//mov     eax, [eax]
-		//mov     eax, [ebx]
-		//mov     ecx, unitPtrPtr
-		//mov     [ecx], eax
-		jmp     continute
-zeroUnits:
-		push    0x5F3DB1
-		ret
-
-defCase:
-		push    0x5F3DB1
-		ret
-	}
-}
-
-void (__stdcall *patrolFunc) () = (void (__stdcall *)())0x0044EB40;
-
-__declspec(naked) int origPatrolEnding ()
-{
-	__asm
-	{
-		call    patrolFunc
-		mov     eax, counter
-		dec     eax
-		jz      retrn
-		cmp     eax, -1
-		jz      retrn
-		mov     counter, eax
-		//
-		//mov     eax, [esp+10h]
-		//inc     esi
-		//add     ebx, 4
-		//cmp     esi, eax
-		//jnl     retrn
-		mov     eax, retPntPnt
-		push    eax
-		ret
-retrn:
-		push    005F3DB1h
-		ret
-	}
-}
+}*/
 
 CONFIG_DATA cd;
 
@@ -244,15 +162,20 @@ void getSettings()
 	}
 }
 
-//int cntr = 0;
+char* cmdline = 0;
+bool normalmouse = false;
 
 void __stdcall fixCur(HWND hWnd, LPRECT rect)
 {
+	if (!cmdline)
+	{
+		cmdline = GetCommandLine();
+		if (strstr(cmdline, "NORMALMOUSE"))
+			normalmouse = true;
+	}
 	GetClientRect(hWnd, rect);
-	SetCursor(0);
-	//cntr++;
-	//if (!(cntr % 1000))
-	//	MessageBox (hWnd, "1000 calls", "wow thats a lot", 0);
+	if (!normalmouse)
+		SetCursor(0);
 }
 
 __declspec(naked) void wndtmp() //00616C0F
@@ -264,18 +187,28 @@ __declspec(naked) void wndtmp() //00616C0F
 	}
 }
 
+#pragma optimize( "s", on )
 void setHooksCC()
 {
 	log("Setting EF-independent hooks...");
 
-	DWORD wt;
-	WriteProcessMemory(GetCurrentProcess(), (void*)0x0068F14C, "error.txt\0", 10, &wt);
+	//read-only fix for data\*.dat
+	writeDword(0x004D5B62, GENERIC_READ);
+
+	
+	//renderer fix (THIS_COD)
+	BYTE* nops = (BYTE*)malloc(25);
+	memset(nops, 0x90, 25);
+	writeData(0x0064DC8D, nops, 25);
+	writeData(0x0068F14C, "error.txt\0", 10);
+	free(nops);
 
 	setTimelineHooks();
 
 	setScrollHooks();
 	setMapCopyHooks();
 
+#ifndef TARGET_VOOBLY
 	if (cd.windowMode)
 	{
 		if (LoadLibrary("wndmode.dll"))
@@ -285,35 +218,34 @@ void setHooksCC()
 
 		setHook((void*)0x00616C0F, &wndtmp);
 
-		setByte(0x0047166E, 0x90);
-		setByte(0x0047166F, 0x90);
-		setInt(0x00471670, 0x90909090);
-		setInt(0x00471674, 0x90909090);
-		setInt(0x00471678, 0x90909090);
-		setInt(0x0047167C, 0x90909090);
-		setByte(0x00471680, 0x90);
-		setByte(0x00471681, 0x90);
-		//}
-		//else
-		//	MessageBox (0, "Cannot open wndmode.dll. Window mode disabled.", "Error",
-		//		MB_ICONERROR);
+		writeByte(0x0047166E, 0x90);
+		writeByte(0x0047166F, 0x90);
+		writeDword(0x00471670, 0x90909090);
+		writeDword(0x00471674, 0x90909090);
+		writeDword(0x00471678, 0x90909090);
+		writeDword(0x0047167C, 0x90909090);
+		writeByte(0x00471680, 0x90);
+		writeByte(0x00471681, 0x90);
 	}
+#endif
 
+#ifndef TARGET_VOOBLY
 #ifndef _CHEATDLL_CC
 	setAdvCheatHooks();
 #endif
+#endif
 
 		//Trigger object overflow fix
-		//setByte(0x5F2AF8, 0x65);
-		//setByte(0x5F2AF9, 0x11);
-		//setByte(0x5F2B02, 0x65);
-		//setByte(0x5F2B03, 0x11);
-		//setByte(0x5F2C5F, 0x65);
-		//setByte(0x5F2C60, 0x11);
-		//setByte(0x5F3DB5, 0x65);
-		//setByte(0x5F3DB6, 0x11);
-		//setByte(0x5F3DC8, 0x65);
-		//setByte(0x5F3DC9, 0x11);
+		//writeByte(0x5F2AF8, 0x65);
+		//writeByte(0x5F2AF9, 0x11);
+		//writeByte(0x5F2B02, 0x65);
+		//writeByte(0x5F2B03, 0x11);
+		//writeByte(0x5F2C5F, 0x65);
+		//writeByte(0x5F2C60, 0x11);
+		//writeByte(0x5F3DB5, 0x65);
+		//writeByte(0x5F3DB6, 0x11);
+		//writeByte(0x5F3DC8, 0x65);
+		//writeByte(0x5F3DC9, 0x11);
 
 	if (cd.useAltCivLetter)
 		setAltCivLetter();
@@ -332,6 +264,7 @@ void setHooksCC()
 
 	setEditorEnhHooks();
 
+#ifndef TARGET_VOOBLY
 #ifndef _CHEATDLL_CC
 	if (cd.largeMaps)
 		setMapSizeHooks();
@@ -341,6 +274,9 @@ void setHooksCC()
 #ifndef _CHEATDLL_CC
 		setMapSizeHooks_legacy();
 #endif
+#endif
+#else
+	setMapSizeHooks_legacy();
 #endif
 
 #ifdef _CHEATDLL_CC
@@ -353,7 +289,9 @@ void setHooksCC()
 	setFileNameHooks(cd.gameVersion);
 
 #ifndef _CC_COMPATIBLE
-	setPopulationHooks();
+
+	if (cd.gameVersion)
+		setPopulationHooks();
 
 	setResearchRepeatHooks();
 
@@ -364,7 +302,9 @@ void setHooksCC()
 	if (cd.editorAutosave)
 		setAutosaveHooks(cd.editorAutosaveInterval);
 
+#ifndef TARGET_VOOBLY
 	setDRSLoadHooks(cd.gameVersion, cd.widescrnEnabled);
+#endif
 
 	setTriggerDescHooks();
 
@@ -385,12 +325,28 @@ void setHooksCC()
 		setMinimapHooks();
 
 	if (cd.largeText)
-		setInt(0x004276F6, 116);
+		writeDword(0x004276F6, 116);
 
+#ifndef TARGET_VOOBLY
 	setStartupLoadHooks(cd.gameVersion);
+#endif
 
+	setRecHooks();
+	setHotkeyJumpHooks();
 	//setOOSHooks();
+
+	setRecBrowseHooks();
+	setElevationHooks();
+
+	setNetworkHooks();
+
+	setCoreHooks();
+	setRecordRestoreHooks();
+	setMouseOverrideHooks();
+
+	setNotifyHooks();
 }
+#pragma optimize( "", on )
 
 __declspec(naked) void sc1Hook()
 {
@@ -405,9 +361,17 @@ __declspec(naked) void sc1Hook()
 
 char efDatabank[] = "stream\\ef_databank%d.mp3";
 char efCiv[] = "stream\\ef_civ%d.mp3";
+char efShadow[] = "data\\shadow_x2.col";
+char efBlendomatic[] = "data\\blendomatic_x2.dat";
+char efICM[] = "data\\view_icm_x2.dat";
 
+#pragma optimize( "s", on )
 void setHooksEF()
 {
+	//filename hooks
+	writeDword(0x0042E0CE, (DWORD)efShadow);
+	writeDword(0x00609CEB, (DWORD)efBlendomatic);
+	writeDword(0x00609ABA, (DWORD)efICM);
 	//setHook ((void*)0x005E55DB, &sc1Hook);
 
 	log("setHooksEF() started");
@@ -434,8 +398,8 @@ void setHooksEF()
 
 	setDecayHooks();
 
-	//setByte (0x00444A10, 0xE8); //remove 1.0f check in getDamage function
-	//setByte (0x00444A11, 0x13);
+	//writeByte (0x00444A10, 0xE8); //remove 1.0f check in getDamage function
+	//writeByte (0x00444A11, 0x13);
 
 	setGameModeHooks();
 
@@ -464,37 +428,46 @@ void setHooksEF()
 
 	setCliffTypeHooks();
 
+	setPatrolHooks();
+	setAttackStanceHooks();
+	setMedicHooks();
+
 	//setTriggerUnitHooks();
 
 	//disabled units crash
-	setByte(0x00539793, 0x02); //esp
-	setByte(0x005397B8, 0x02);
-	setByte(0x005399EE, 0x02);
-	setByte(0x00539C50, 0x02);
-	setByte(0x00539E74, 0x02);
-	setByte(0x005397FE, 0x02); //arg_0
-	setByte(0x00539914, 0x02); //arg_4
-	setByte(0x005399AD, 0x02);
-	setByte(0x00539B56, 0x02);
-	setByte(0x00539C2C, 0x02);
-	setByte(0x00539D71, 0x02);
-	setByte(0x00539E50, 0x02);
-	setByte(0x00539AE0, 0x88); //Dest
-	setByte(0x00539B00, 0x84);
-	setByte(0x005397E1, CIV_COUNT + 1);
-	setByte(0x005397D0, 0xE0);
+	writeByte(0x00539793, 0x02); //esp
+	writeByte(0x005397B8, 0x02);
+	writeByte(0x005399EE, 0x02);
+	writeByte(0x00539C50, 0x02);
+	writeByte(0x00539E74, 0x02);
+	writeByte(0x005397FE, 0x02); //arg_0
+	writeByte(0x00539914, 0x02); //arg_4
+	writeByte(0x005399AD, 0x02);
+	writeByte(0x00539B56, 0x02);
+	writeByte(0x00539C2C, 0x02);
+	writeByte(0x00539D71, 0x02);
+	writeByte(0x00539E50, 0x02);
+	writeByte(0x00539AE0, 0x88); //Dest
+	writeByte(0x00539B00, 0x84);
+	writeByte(0x005397E1, CIV_COUNT + 1);
+	writeByte(0x005397D0, 0xE0);
 
 	//if (!cd.animatedWater)
 	//	setAnimatedTerrainHooks();
 
 	setCargoTraderHooks();
 
-	setInt(0x005174AF, (DWORD)efCiv);
-	setInt(0x0051B2CC, (DWORD)efCiv);
-	setInt(0x0050A37C, (DWORD)efDatabank);
+	writeDword(0x005174AF, (DWORD)efCiv);
+	writeDword(0x0051B2CC, (DWORD)efCiv);
+	writeDword(0x0050A37C, (DWORD)efDatabank);
+
+	//setCampaignHooks();
+
+	setPaletteHooks();
 
 	log("setHooks() finished");
 }
+#pragma optimize( "", on )
 
 char verStr2[] = "1.2e";
 char verStr3[] = "1.3e";
@@ -591,18 +564,20 @@ _1_5:
 
 void updateVersionEF()
 {
-	setByte(0x00689534, 6); //EF 1.5e
+	writeByte(0x00689534, 7); //EF 1.6e
 	//strcpy ((char*)0x00689BA4, verStr);
 	setHook((void*)0x0042C3E1, &verHookEF);
 }
 
 void updateVersionCC()
 {
+#ifndef TARGET_VOOBLY
 #ifndef _CC_COMPATIBLE
-	setByte(0x00689534, 3); //CC 1.2
+	writeByte(0x00689534, 3); //CC 1.2
 	//strcpy ((char*)0x00689BA4, verStr);
 	setHook((void*)0x0042C3E1, &verHookCC);
 #endif // !_CC_COMPATIBLE
+#endif
 }
 
 void fixCurrentDir()
@@ -617,11 +592,19 @@ void fixCurrentDir()
 
 void* new_memory_pages;
 
+#ifdef TARGET_VOOBLY
+extern bool expanding_fronts;
+#endif
+
 void initialSetup()
 {
 	new_memory_pages = VirtualAlloc(0, 0x1000, MEM_COMMIT, PAGE_READWRITE);
 
 	getSettings();
+
+#ifdef TARGET_VOOBLY
+	cd.gameVersion = expanding_fronts;
+#endif
 
 	log("Settings (1/4): fps = %d, ds = %d, b = %d, to = %d, v = %d, a = %d",
 		cd.useFPS, cd.useDShook, cd.nBufs, cd.timeout, cd.gameVersion, cd.askAtStartup);
@@ -632,9 +615,7 @@ void initialSetup()
 	log("Settings (4/4): large = %d, crash = %d",
 		cd.largeMaps, cd.crashReporting);
 
-#ifdef _DEBUG
 	setTestHook();
-#endif // _DEBUG
 
 #ifndef _CHEATDLL_CC
 	switch (cd.gameVersion)
@@ -647,7 +628,7 @@ void initialSetup()
 		break;
 	case VER_EF:
 		//revertToX1 ();               //remove!!!! <---
-		setByte(0x289BA4, 0x32);
+		writeByte(0x289BA4, 0x32);
 		setHooksCC();
 		setHooksEF();
 
@@ -664,27 +645,49 @@ void initialSetup()
 	updateVersionCC();
 #endif
 
+#ifndef TARGET_VOOBLY
 	if (cd.widescrnEnabled)
 		resolutionTool(cd.xres, cd.yres);
+#endif
 
-#ifndef _CHEATDLL_CC
+/*#ifndef _CHEATDLL_CC
 	if (cd.useDShook)
 		initDsoundhook();
-#endif
+#endif*/
+
+#ifndef TARGET_VOOBLY
 	if (!cd.useFPS)
+		writeByte(0x0061E92C, 0x20);
+	else
 	{
-		unsigned char fps = 0x20;
-		WriteProcessMemory(GetCurrentProcess(), (void*)0x61E92C, &fps, 1, 0);
+		unsigned long interval = 100;
+		writeDword(0x005DDBA4, 100);
+		writeDword(0x005DDB7B, 100);
+		writeWord(0x005DDB73, 0x9090);
 	}
+#else
+	//fps and UI bar
+	writeByte(0x0061E92C, 0x10);
+	writeDword(0x005DDBA4, 100);
+	writeDword(0x005DDB7B, 100);
+	writeWord(0x005DDB73, 0x9090);
+#endif
+
+	writeDword(0x004CCAD0, 15000);
 
 	log("Initial setup complete, returning");
+
+	//FlushInstructionCache(GetCurrentProcess(), NULL, NULL);
 }
 
+#ifndef TARGET_VOOBLY
 BOOL __stdcall DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,
 	LPVOID lpReserved
 )
 {
+	UNREFERENCED_PARAMETER(lpReserved);
+	UNREFERENCED_PARAMETER(hModule);
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
@@ -729,3 +732,4 @@ BOOL __stdcall DllMain(HMODULE hModule,
 	}
 	return TRUE;
 }
+#endif

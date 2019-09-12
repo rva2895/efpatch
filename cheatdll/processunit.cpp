@@ -155,10 +155,12 @@ __declspec(naked) void __stdcall process_effect(void* effect, int game_ptr)
 	}
 }
 
+#pragma optimize( "s", on )
 void setProcessUnitHooks ()
 {
 	//setHook ((void*)0x0055A760, &_type70);
 	setHook ((void*)0x0055A974, regenFix);
 }
+#pragma optimize( "", on )
 
 #pragma warning(pop)

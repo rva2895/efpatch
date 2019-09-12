@@ -46,6 +46,7 @@ __declspec(naked) void onMPSaveFileName() //00433845
 	}
 }
 
+#pragma optimize( "s", on )
 void setFileNameHooks(int ver) //00433877 - mp save filename
 {
 	strcpy(recCC, __REC_FILENAME__);
@@ -53,6 +54,7 @@ void setFileNameHooks(int ver) //00433877 - mp save filename
 	if (ver)	//EF
 		recCC[strlen(recCC) - 1] = '2';
 
-	setHook((void*)0x005ED479, &onRecFileName);
-	setHook((void*)0x00433845, &onMPSaveFileName);
+	setHook((void*)0x005ED479, onRecFileName);
+	setHook((void*)0x00433845, onMPSaveFileName);
 }
+#pragma optimize( "", on )

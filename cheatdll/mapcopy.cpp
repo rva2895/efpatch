@@ -81,6 +81,7 @@ __declspec(naked) void onChangeCurrentTool() //0052D394
 	}
 }
 
+#pragma optimize( "s", on )
 void setMapCopyHooks()
 {
 	//setHook((void*)0x005CE523, onMapCopySetRotation);
@@ -88,3 +89,4 @@ void setMapCopyHooks()
 	setHook((void*)0x0060CBD5, onSetShape);
 	setHook((void*)0x0052D394, onChangeCurrentTool);
 }
+#pragma optimize( "", on )

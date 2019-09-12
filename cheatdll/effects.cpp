@@ -32,22 +32,46 @@ __declspec(naked) void effectParams()
 		mov     [ebx + 14h], al         //obj group
 		mov     [ebx + 15h], al         //obj type
 
-		//mov     ebx, [edx + 78h]      //snap view
-		//mov     [ebx + 0Eh], al       //x
-		//mov     [ebx + 0Fh], al       //y
+		mov     ebx, [edx + 0B8h]       //terrain effect
+		mov     [ebx + 0h], al          //terrain id
+		mov     [ebx + 10h], al         //area
+		mov     [ebx + 11h], al
+		mov     [ebx + 12h], al
+		mov     [ebx + 13h], al
 
-		mov     ebx, [edx + 04Ch]
-		//mov     [ebx+4], al
-		//mov     [ebx+6], al
-		//mov     [ebx+7], al
-		//mov     [ebx+10h], al
-		//mov     [ebx+11h], al
-		//mov     [ebx+12h], al
-		//mov     [ebx+13h], al
-		//mov     [ebx+14h], al
-		//mov     [ebx+15h], al
+		mov     ebx, [edx + 0BCh]       //terrain effect
+		mov     [ebx + 7], al           //player
 
-		mov     ebx, [edx + 8h]     //research tech
+		//
+
+		mov     ebx, [edx + 78h]        //snap view
+		mov     [ebx + 0Eh], al         //x
+		mov     [ebx + 0Fh], al         //y
+		mov     [ebx + 4], al           //set object fix
+		mov     [ebx + 5], al
+
+		mov     ebx, [edx + 40h]        //scroll view
+		mov     [ebx + 0Eh], al         //x
+		mov     [ebx + 0Fh], al         //y
+		mov     [ebx + 4], al           //set object fix
+		mov     [ebx + 5], al
+
+		mov     ebx, [edx + 4Ch]        //patrol
+		mov     [ebx + 4], al
+		mov     [ebx + 5], al
+		mov     [ebx + 6], al
+		mov     [ebx + 7], al
+		mov     [ebx + 10h], al
+		mov     [ebx + 11h], al
+		mov     [ebx + 12h], al
+		mov     [ebx + 13h], al
+		mov     [ebx + 14h], al
+		mov     [ebx + 15h], al
+
+		mov     ebx, [edx + 58h]        //freeze unit (attack stance)
+		mov     [ebx + 0h], al
+
+		mov     ebx, [edx + 8h]         //research tech
 		mov     [ebx + 0h], al
 
 		//mov     ebx, [edx + 2Ch]  //create object
@@ -72,11 +96,15 @@ __declspec(naked) void effectParams()
 	}
 }
 
+int snapscroll_changed_location;
+
 __declspec(naked) void effectSnapView_new()
 {
 	__asm
 	{
-		//esp+134h
+		mov     ecx, [edi + 44h]
+		cmp     ecx, -1
+		jnz     _snapview_noobject
 		mov     ecx, [esp + 134h]          //location_object
 		test    ecx, ecx
 		jz      _snapview_noobject
@@ -88,19 +116,77 @@ __declspec(naked) void effectSnapView_new()
 		call    esi
 		fstp    st
 		mov     [edi + 44h], eax
-		fld     dword ptr [ecx + 48h]
+		fld     dword ptr [ecx + 4Ch]
 		call    esi
 		fstp    st
 		mov     [edi + 48h], eax
+		xor     ecx, ecx
+		inc     ecx
+		mov     snapscroll_changed_location, ecx
 _snapview_noobject:
 		mov     ecx, 005F376Dh
 		jmp     ecx
 	}
 }
 
+__declspec(naked) void effectScrollView_new()
+{
+	__asm
+	{
+		mov     ecx, [edi + 44h]
+		cmp     ecx, -1
+		jnz     _scrollview_noobject
+		mov     ecx, [esp + 134h]          //location_object
+		test    ecx, ecx
+		jz      _scrollview_noobject
+		mov     eax, [ecx + 14h]
+		cmp     byte ptr [eax + 4], 3Ch    //type 60
+		jz      _scrollview_noobject
+		mov     esi, 00632BACh             //ftol
+		fld     dword ptr [ecx + 48h]
+		call    esi
+		fstp    st
+		mov     [edi + 44h], eax
+		fld     dword ptr [ecx + 4Ch]
+		call    esi
+		fstp    st
+		mov     [edi + 48h], eax
+		xor     ecx, ecx
+		inc     ecx
+		mov     snapscroll_changed_location, ecx
+_scrollview_noobject :
+		mov     ecx, 005F3749h
+		jmp     ecx
+	}
+}
+
+__declspec(naked) void snapscroll_finish()
+{
+	__asm
+	{
+		mov     ecx, snapscroll_changed_location
+		test    ecx, ecx
+		jz      _snapscroll_no_change_location
+		xor     ecx, ecx
+		dec     ecx
+		mov     [edi + 44h], ecx
+		mov     [edi + 48h], ecx
+_snapscroll_no_change_location:
+		mov     ecx, 005F3DB1h
+		jmp     ecx
+	}
+}
+
+void snapscroll_setJMP(DWORD jmp_location)
+{
+	writeDword(jmp_location + 1, (DWORD)&snapscroll_finish - (jmp_location + 5));
+}
+
 char aChangeGlobalUnit[] = "Change Unit Property Object";
 char aExplore[] = "Explore Area";
 char aUnitVar[] = "Change Unit Variable";
+char aTerrain[] = "Change Terrain";
+char aDefeat[] = "Declare Defeat";
 char aBreakpoint[] = "Breakpoint";
 
 __declspec(naked) void triggerDisplayHook()
@@ -125,9 +211,21 @@ __declspec(naked) void triggerDisplayHook()
 		mov     eax, 4C82A0h
 		call    eax
 
+		mov     ecx, [edi + 0E24h]
+		push    2Eh
+		push    offset aTerrain
+		mov     eax, 4C82A0h
+		call    eax
+
+		mov     ecx, [edi + 0E24h]
+		push    2Fh
+		push    offset aDefeat
+		mov     eax, 4C82A0h
+		call    eax
+
 #ifdef _DEBUG
 		mov     ecx, [edi + 0E24h]      //breakpoint
-		push    2Eh
+		push    30h
 		push    offset aBreakpoint
 		mov     eax, 4C82A0h
 		call    eax
@@ -210,6 +308,61 @@ endLoc:
 	}
 }
 
+int (__thiscall* map_updateBlend)(void *map, int, int, int x1, int y1, int x2, int y2, int, int, int) =
+	(int(__thiscall*) (void *map, int, int, int x1, int y1, int x2, int y2, int, int, int))0x00495F80;
+
+void __stdcall effectTerrain_2(void* map, int x1, int x2, int y1, int y2, char t)
+{
+	char** tiles = *(char***)((DWORD)map + 0xBF18);
+	char* col;
+	for (int j = y1; j <= y2; j++)
+	{
+		col = *(tiles + j);
+		for (int i = x1; i <= x2; i++)
+		{
+			col[i * 32 + 5] = t;
+		}
+	}
+	map_updateBlend(map, 0, 0, x1, y1, x2, y2, 0, 0, 0);
+}
+
+__declspec(naked) void effectTerrain()
+{
+	__asm
+	{
+		mov     eax, 006A3684h
+		mov     eax, [eax]
+		mov     eax, [eax + 420h]
+		mov     eax, [eax + 34h]
+		push    [edi + 0Ch]
+		push    [edi + 58h]
+		push    [edi + 50h]
+		push    [edi + 54h]
+		push    [edi + 4Ch]
+		push    eax
+		call    effectTerrain_2
+		
+		mov     ebx, 005F3DB1h
+		jmp     ebx
+	}
+}
+
+__declspec(naked) void effectDefeat()
+{
+	__asm
+	{
+		mov     ecx, [esp + 14h] //player
+		test    ecx, ecx
+		jz      _defeat_end
+		mov     edx, [ecx]
+		push    2
+		call    dword ptr [edx + 8]
+_defeat_end:
+		mov     ecx, 005F3DB1h
+		jmp     ecx
+	}
+}
+
 __declspec(naked) void effectBreakpoint()
 {
 	__asm
@@ -220,52 +373,59 @@ __declspec(naked) void effectBreakpoint()
 	}
 }
 
+#pragma optimize( "s", on )
 void setEffectHooks()
 {
-	int adrBuf = ((int)&advTriggerEffect - 0x7B3199);
+	DWORD adrBuf = ((DWORD)&advTriggerEffect - 0x007B3199);
 
-	//setByte(0x007B3188, 0x90); //change unit data - remove type check
-	//setByte(0x007B3189, 0x90);
+	//writeByte(0x007B3188, 0x90); //change unit data - remove type check
+	//writeByte(0x007B3189, 0x90);
 
-	int adrChangePropertyObjectEffect = (int)&changePropertyObjectHook;
+	DWORD adrChangePropertyObjectEffect = (DWORD)&changePropertyObjectHook;
 	//int adrSetVarEffect = (int)&setVarEffect;
 
-	//int patrolAddr = (int)&patrol;
-
-	setHook((void*)0x007B2A9B, &effectParams);
-	setHook((void*)0x007B2388, &triggerDisplayHook);
-
-	//snap view
-	//setByte(0x005F5B10, 0x42);
-	//setByte(0x005F5B19, 0x42);
+	setHook((void*)0x007B2A9B, effectParams);
+	setHook((void*)0x007B2388, triggerDisplayHook);
 
 	//setHook ((void*)0x007B2ABF, &setVarHook);
 
-	int nEffects = 0x2E;
+	int nEffects = 0x30;
 #ifdef _DEBUG
 	nEffects++;
 #endif // _DEBUG
 
-	setByte(0x005F2B4C, nEffects); //effect count, old = 2d
-	//setByte (0x0053BD37, 0x28);
+	writeByte(0x005F2B4C, nEffects); //effect count, old = 2d
+	//writeByte (0x0053BD37, 0x28);
 
-	setByte(0x005F5575, (nEffects + 1) * 4);
-	setByte(0x005F550C, (nEffects + 1) * 4);
+	writeByte(0x005F5575, (nEffects + 1) * 4);
+	writeByte(0x005F550C, (nEffects + 1) * 4);
 
-	setByte(0x005F53AF, (nEffects + 1) * 4 - 8);
+	writeByte(0x005F53AF, (nEffects + 1) * 4 - 8);
 
-	WriteProcessMemory(GetCurrentProcess(), (void*)0x7B22F8, &adrChangePropertyObjectEffect, 4, 0); //changepropobj effect
-	//WriteProcessMemory (GetCurrentProcess (), (void*)0x7B22FC, &adrSetVarEffect, 4, 0); //setvar effect
+	writeDword(0x007B22E8, (DWORD)&adrChangePropertyObjectEffect); //changepropobj effect
+	//WriteProcessMemory (GetCurrentProcess (), (void*)0x7B22EC, &adrSetVarEffect, 4, 0); //setvar effect
 
-	WriteProcessMemory(GetCurrentProcess(), (void*)0x7B3195, &adrBuf, 4, 0); //wtf???
+	writeDword(0x007B3195, (DWORD)&adrBuf); //wtf???
 
-	setInt(0x7B22FC, (int)&effectExploreArea);
-	setInt(0x7B2300, (int)&effectUnitVar);
+	writeDword(0x007B22EC, (DWORD)&effectExploreArea);
+	writeDword(0x007B22F0, (DWORD)&effectUnitVar);
+	writeDword(0x007B22F4, (DWORD)&effectTerrain);
+	writeDword(0x007B22F8, (DWORD)&effectDefeat);
 #ifdef _DEBUG
-	setInt(0x7B2304, (int)&effectBreakpoint);
+	writeDword(0x007B22FC, (DWORD)&effectBreakpoint);
 #endif // _DEBUG
+	
+	writeDword(0x007B2240 + 29 * 4, (DWORD)&effectSnapView_new);
+	writeDword(0x007B2240 + 15 * 4, (DWORD)&effectScrollView_new);
+	for (DWORD p = 0x005F5B09; p < 0x005F5B1B; p++)
+		writeByte(p, 0x90);
+	for (DWORD p = 0x005F5AEE; p < 0x005F5B00; p++)
+		writeByte(p, 0x90);
 
-	//setInt(0x7B2250 + 29*4, (int)&effectSnapView_new);
-
-	//WriteProcessMemory (GetCurrentProcess (), (void*)(0x7B2250+(18*4)), &patrolAddr, 4, 0); //new patrol effect addr
+	snapscroll_setJMP(0x005F374F+1);
+	snapscroll_setJMP(0x005F3768);
+	snapscroll_setJMP(0x005F3773+1);
+	snapscroll_setJMP(0x005F37AD+1);
+	snapscroll_setJMP(0x005F37BC);
 }
+#pragma optimize( "", on )

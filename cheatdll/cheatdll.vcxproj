@@ -17,6 +17,10 @@
       <Configuration>Release_cc</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_Voobly|Win32">
+      <Configuration>Release_Voobly</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -42,6 +46,13 @@
     <PlatformToolset>v140_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Voobly|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -74,6 +85,9 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_Voobly|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_cc|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -93,6 +107,10 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>efpatch</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Voobly|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>userpatch</TargetName>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_cc|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>efpatch</TargetName>
@@ -108,14 +126,16 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\Documents\zlib-1.2.11;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ManifestFile>cheatdll.manifest</ManifestFile>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>C:\Users\Vasya\Documents\zlib-1.2.11\contrib\vstudio\vc14\x86\ZlibStatReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -128,14 +148,15 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CHEATDLL_CC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\Documents\zlib-1.2.11;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ManifestFile>cheatdll.manifest</ManifestFile>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>C:\Users\Vasya\Documents\zlib-1.2.11\contrib\vstudio\vc14\x86\ZlibStatRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -151,19 +172,59 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\Documents\zlib-1.2.11;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <StringPooling>true</StringPooling>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>winmm.lib;ComCtl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;zlibstat.lib;ComCtl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalManifestDependencies>"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'";%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <SetChecksum>true</SetChecksum>
+      <AdditionalLibraryDirectories>C:\Users\Vasya\Documents\zlib-1.2.11\contrib\vstudio\vc14\x86\ZlibStatReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Voobly|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;TARGET_VOOBLY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StructMemberAlignment>4Bytes</StructMemberAlignment>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\Documents\zlib-1.2.11;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <StringPooling>true</StringPooling>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <AdditionalOptions>
+      </AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>winmm.lib;zlibstat.lib;ComCtl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalManifestDependencies>"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'";%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
+      <SetChecksum>true</SetChecksum>
+      <AdditionalLibraryDirectories>C:\Users\Vasya\Documents\zlib-1.2.11\contrib\vstudio\vc14\x86\ZlibStatReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -179,15 +240,18 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CHEATDLL_CC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\Documents\zlib-1.2.11;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <StringPooling>true</StringPooling>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>C:\Users\Vasya\Documents\zlib-1.2.11\contrib\vstudio\vc14\x86\ZlibStatRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>cheatdll_commctrl.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -203,15 +267,18 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CHEATDLL_CC;_CC_COMPATIBLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\Documents\zlib-1.2.11;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <StringPooling>true</StringPooling>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>C:\Users\Vasya\Documents\zlib-1.2.11\contrib\vstudio\vc14\x86\ZlibStatRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>cheatdll_commctrl.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -219,8 +286,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
-    <None Include="widescrn_x2_template_1024" />
-    <None Include="widescrn_x2_template_1280" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="advcheat.h" />
@@ -231,7 +296,9 @@
     <ClInclude Include="aisnx.h" />
     <ClInclude Include="aiunitcount.h" />
     <ClInclude Include="animatedterrain.h" />
+    <ClInclude Include="attackstance.h" />
     <ClInclude Include="autosave.h" />
+    <ClInclude Include="campaign.h" />
     <ClInclude Include="cargotrader.h" />
     <ClInclude Include="casts.h" />
     <ClInclude Include="chatgaiatoall.h" />
@@ -243,6 +310,7 @@
     <ClInclude Include="configurator.h" />
     <ClInclude Include="consts.h" />
     <ClInclude Include="convert.h" />
+    <ClInclude Include="core.h" />
     <ClInclude Include="crashreporter.h" />
     <ClInclude Include="drs.h" />
     <ClInclude Include="drsfile.h" />
@@ -253,25 +321,39 @@
     <ClInclude Include="editpropertyobject.h" />
     <ClInclude Include="effects.h" />
     <ClInclude Include="effectUnitVar.h" />
+    <ClInclude Include="elevation.h" />
     <ClInclude Include="expldroid.h" />
     <ClInclude Include="filenames.h" />
     <ClInclude Include="flare.h" />
     <ClInclude Include="gamemode.h" />
     <ClInclude Include="gamespeed.h" />
+    <ClInclude Include="hotkeyjump.h" />
     <ClInclude Include="hotkeys.h" />
     <ClInclude Include="icons.h" />
+    <ClInclude Include="iuserpatch.h" />
     <ClInclude Include="jedimaster.h" />
     <ClInclude Include="langdll.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="mapcopy.h" />
     <ClInclude Include="mapsize.h" />
-    <ClInclude Include="memfunc.h" />
+    <ClInclude Include="medic.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="mg1file.h" />
     <ClInclude Include="minimap.h" />
+    <ClInclude Include="mouseoverride.h" />
     <ClInclude Include="negdecay.h" />
+    <ClInclude Include="network.h" />
+    <ClInclude Include="notify.h" />
     <ClInclude Include="objpanel.h" />
     <ClInclude Include="oos.h" />
+    <ClInclude Include="palette.h" />
+    <ClInclude Include="patrol.h" />
     <ClInclude Include="population.h" />
     <ClInclude Include="processunit.h" />
+    <ClInclude Include="radius_effect.h" />
+    <ClInclude Include="rec.h" />
+    <ClInclude Include="recbrowse.h" />
+    <ClInclude Include="recordrestore.h" />
     <ClInclude Include="registry.h" />
     <ClInclude Include="rescheat.h" />
     <ClInclude Include="researchrepeat.h" />
@@ -283,6 +365,7 @@
     <ClInclude Include="rundll.h" />
     <ClInclude Include="savegamever.h" />
     <ClInclude Include="scroll.h" />
+    <ClInclude Include="slp.h" />
     <ClInclude Include="spregen.h" />
     <ClInclude Include="startupload.h" />
     <ClInclude Include="stdafx.h" />
@@ -298,6 +381,7 @@
     <ClInclude Include="trigger_unit.h" />
     <ClInclude Include="versionselect.h" />
     <ClInclude Include="votepanel.h" />
+    <ClInclude Include="wndproc.h" />
     <ClInclude Include="zannfort.h" />
   </ItemGroup>
   <ItemGroup>
@@ -309,7 +393,9 @@
     <ClCompile Include="aisnx.cpp" />
     <ClCompile Include="aiunitcount.cpp" />
     <ClCompile Include="animatedterrain.cpp" />
+    <ClCompile Include="attackstance.cpp" />
     <ClCompile Include="autosave.cpp" />
+    <ClCompile Include="campaign.cpp" />
     <ClCompile Include="cargotrader.cpp" />
     <ClCompile Include="casts.cpp" />
     <ClCompile Include="chatgaiatoall.cpp" />
@@ -321,6 +407,7 @@
     <ClCompile Include="conditions.cpp" />
     <ClCompile Include="configurator.cpp" />
     <ClCompile Include="convert.cpp" />
+    <ClCompile Include="core.cpp" />
     <ClCompile Include="crashreporter.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -330,9 +417,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug_cc|Win32'">
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release_Voobly|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release_cc|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release_cc_compatible|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_Voobly|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_cc|Win32'">
       </PrecompiledHeader>
@@ -348,26 +438,41 @@
     <ClCompile Include="editpropertyobject.cpp" />
     <ClCompile Include="effects.cpp" />
     <ClCompile Include="effectUnitVar.cpp" />
+    <ClCompile Include="elevation.cpp" />
     <ClCompile Include="expldroid.cpp" />
     <ClCompile Include="filenames.cpp" />
     <ClCompile Include="flare.cpp" />
     <ClCompile Include="gamemode.cpp" />
     <ClCompile Include="gamespeed.cpp" />
+    <ClCompile Include="hotkeyjump.cpp" />
     <ClCompile Include="hotkeys.cpp" />
     <ClCompile Include="icons.cpp" />
+    <ClCompile Include="iuserpatch.cpp" />
     <ClCompile Include="jedimaster.cpp" />
+    <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="langdll.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="mapcopy.cpp" />
     <ClCompile Include="mapsize.cpp" />
-    <ClCompile Include="memfunc.cpp" />
+    <ClCompile Include="medic.cpp" />
+    <ClCompile Include="common.cpp" />
+    <ClCompile Include="mg1file.cpp" />
     <ClCompile Include="minimap.cpp" />
+    <ClCompile Include="mouseoverride.cpp" />
     <ClCompile Include="negdecay.cpp" />
+    <ClCompile Include="network.cpp" />
+    <ClCompile Include="notify.cpp" />
     <ClCompile Include="objpanel.cpp" />
     <ClCompile Include="objpaneldraw.cpp" />
     <ClCompile Include="oos.cpp" />
+    <ClCompile Include="palette.cpp" />
+    <ClCompile Include="patrol.cpp" />
     <ClCompile Include="population.cpp" />
     <ClCompile Include="processunit.cpp" />
+    <ClCompile Include="radius_effect.cpp" />
+    <ClCompile Include="rec.cpp" />
+    <ClCompile Include="recbrowse.cpp" />
+    <ClCompile Include="recordrestore.cpp" />
     <ClCompile Include="registry.cpp" />
     <ClCompile Include="rescheat.cpp" />
     <ClCompile Include="researchrepeat.cpp" />
@@ -378,17 +483,20 @@
     <ClCompile Include="rundll.cpp" />
     <ClCompile Include="savegamever.cpp" />
     <ClCompile Include="scroll.cpp" />
+    <ClCompile Include="slp.cpp" />
     <ClCompile Include="spregen.cpp" />
     <ClCompile Include="startupload.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug_cc|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_Voobly|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_cc|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_cc_compatible|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="techupcolor.cpp" />
     <ClCompile Include="terrain.cpp" />
+    <ClCompile Include="terrain_blend.cpp" />
     <ClCompile Include="terrain_gen.cpp" />
     <ClCompile Include="terrain_load.cpp" />
     <ClCompile Include="test.cpp" />
@@ -398,6 +506,7 @@
     <ClCompile Include="trigger_unit.cpp" />
     <ClCompile Include="versionselect.cpp" />
     <ClCompile Include="votepanel.cpp" />
+    <ClCompile Include="wndproc.cpp" />
     <ClCompile Include="zannfort.cpp" />
   </ItemGroup>
   <ItemGroup>
