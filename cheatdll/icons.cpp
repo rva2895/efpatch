@@ -19,10 +19,10 @@ __declspec(naked) void newIconsEditor()
 
 		push    CIV_ICON_OFFSET
 		push    005337EFh
-		call    setByte                  //buildings (load scenario routine)
+		call    writeByte                //buildings (load scenario routine)
 		push    CIV_COUNT+1
 		push    0053386Bh
-		call    setByte                  //civ counter (loop counter) (load game routine)
+		call    writeByte                //civ counter (loop counter) (load game routine)
 
 		push    CIV_ICON_OFFSET*4
 		call    ds:[malloc]              //allocate new buffer for icons
@@ -199,7 +199,7 @@ __declspec(naked) void newIconsGame()
 		push    esi
 		push    edi
 
-		mov     esi, setByte
+		mov     esi, writeByte
 		mov     edi, CIV_COUNT+1
 
 		push    CIV_ICON_OFFSET
@@ -512,6 +512,7 @@ _not_unit_civ9_10:
 	}
 }
 
+#pragma optimize( "s", on )
 void fixIconLoadingRoutines()
 {
 	setHook((void*)0x004F3111, newIconsGame);
@@ -562,5 +563,6 @@ void fixIconLoadingRoutines()
 	techTreeUnit = malloc(CIV_ICON_OFFSET);
 	techTreeTech = malloc(CIV_ICON_OFFSET);
 
-	setByte(0x00463402, CIV_COUNT + 1);
+	writeByte(0x00463402, CIV_COUNT + 1);
 }
+#pragma optimize( "", on )

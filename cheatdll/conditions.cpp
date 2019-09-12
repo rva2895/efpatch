@@ -85,25 +85,27 @@ cYes:
 	}
 }
 
+#pragma optimize( "s", on )
 void setConditionNumbers()
 {
-	setByte(0x005F538A, 0x60 + 4 * NEW_COND);
-	setByte(0x005F5505, 0x60 + 4 * NEW_COND);
-	setByte(0x005F5548, 0x60 + 4 * NEW_COND);
-	setByte(0x0053BD77, 0x18 + NEW_COND);
+	writeByte(0x005F538A, 0x60 + 4 * NEW_COND);
+	writeByte(0x005F5505, 0x60 + 4 * NEW_COND);
+	writeByte(0x005F5548, 0x60 + 4 * NEW_COND);
+	writeByte(0x0053BD77, 0x18 + NEW_COND);
 
-	setByte(0x005F5565, 0x17 + NEW_COND);
-	setByte(0x005F554E, 0x17 + NEW_COND);
+	writeByte(0x005F5565, 0x17 + NEW_COND);
+	writeByte(0x005F554E, 0x17 + NEW_COND);
 
-	setInt(0x005F1E21, (int)condJMPTable);
-	setByte(0x005F1E17, 0x16 + NEW_COND);
+	writeDword(0x005F1E21, (DWORD)condJMPTable);
+	writeByte(0x005F1E17, 0x16 + NEW_COND);
 
-	condJMPTable[0x17] = (int)&cond1;
-	condJMPTable[0x18] = (int)&conditionAreaExplored;
-	condJMPTable[0x19] = (int)&conditionAlliance;
-	condJMPTable[0x1A] = (int)&conditionVariable;
-	condJMPTable[0x1B] = (int)&conditionVariable;
+	condJMPTable[0x17] = (DWORD)&cond1;
+	condJMPTable[0x18] = (DWORD)&conditionAreaExplored;
+	condJMPTable[0x19] = (DWORD)&conditionAlliance;
+	condJMPTable[0x1A] = (DWORD)&conditionVariable;
+	condJMPTable[0x1B] = (DWORD)&conditionVariable;
 }
+#pragma optimize( "", on )
 
 __declspec(naked) void condParams() //005F5DD1
 {
@@ -537,7 +539,7 @@ float __fastcall getval_garrison(UNIT* unit)
 float __fastcall getval_reload_percent(UNIT* unit)
 {
 	int propObj = (int)unit->prop_object;
-	float reloadTime = *(short*)(propObj + 0x150);
+	float reloadTime = *(float*)(propObj + 0x150);
 	return getval_reload(unit) / reloadTime * 100;
 }
 
@@ -694,7 +696,11 @@ void* unitContainter_countUnits_garrisoned;
 
 void reloc(void* src, void* dst)
 {
+#ifndef TARGET_VOOBLY
 	*(unsigned long*)src = (unsigned long)dst - ((unsigned long)src + 4);
+#else
+	writeDword((DWORD)src, (DWORD)dst - (DWORD)src + 4);
+#endif
 }
 
 __declspec(naked) void unitContainter_countUnits_wrapper()
@@ -722,6 +728,7 @@ _count_garrisoned:
 
 extern void* new_memory_pages;
 
+#pragma optimize( "s", on )
 void make_counter_functions()
 {
 	DWORD r;
@@ -743,11 +750,15 @@ void make_counter_functions()
 	setHook((char*)unitContainter_countUnits_ungarrisoned + 0x0A3, (char*)unitContainter_countUnits_ungarrisoned + 0x134);
 	setHook((char*)unitContainter_countUnits_garrisoned + 0x0D1, (char*)unitContainter_countUnits_garrisoned + 0x134);
 
+#ifndef TARGET_VOOBLY
 	VirtualProtect((void*)0x005F207E, 0x10, PAGE_READWRITE, &r);
 	reloc((void*)0x005F207E, &unitContainter_countUnits_wrapper);
 	VirtualProtect((void*)0x005F207E, 0x10, PAGE_EXECUTE_READ, &r);
 
 	VirtualProtect(unitContainter_countUnits_ungarrisoned, 0x1000, PAGE_EXECUTE_READ, &r);
+#else
+	reloc((void*)0x005F207E, &unitContainter_countUnits_wrapper);
+#endif
 }
 
 void setConditionHooks()
@@ -765,3 +776,4 @@ void setConditionHooks()
 
 	make_counter_functions();
 }
+#pragma optimize( "", on )

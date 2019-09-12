@@ -2,7 +2,7 @@
 
 #include "negdecay.h"
 
-__declspec(naked) int negDecay()  //put on 0054F123
+__declspec(naked) int negDecay() //0054F123
 {
 	__asm
 	{
@@ -25,6 +25,6 @@ jump:
 
 void setDecayHooks()
 {
-	setByte(0x54F0F6, 0x40);
+	writeByte(0x54F0F6, 0x40);
 	setHook((void*)0x0054F123, negDecay);
 }

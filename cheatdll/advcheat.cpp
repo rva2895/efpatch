@@ -27,17 +27,6 @@ extern char* (__cdecl *strupr__)(char *String);*/
 int (__thiscall* unit_detach) (UNIT* unit) =
 	(int (__thiscall*) (UNIT*))0x0055F350;
 
-void* (__thiscall* global_getCurrentPlayer) (void* globalPtr) =
-	(void* (__thiscall*) (void*))0x00428750;
-
-void (__thiscall* player_clearSelection) (void* player) =
-	(void (__thiscall*) (void*))0x004C3050;
-
-void* getCurrentPlayer()
-{
-	return global_getCurrentPlayer(*(void**)0x006A3684);
-}
-
 void prepareToEngageCheatCreateUnit(int unitId)
 {
 #ifdef _DEBUG
@@ -120,12 +109,19 @@ __declspec(naked) void __stdcall takeControl(int p)
 }
 #pragma warning(pop)
 
+//
+bool time_collect = false;
+bool time_stage_find = false;
+extern volatile bool answer;
+extern volatile bool answer_flag;
+//
+
 int __stdcall checkCheats(char* s2)
 {
 	char dummy[100];
 	char s[0x100];
 	strcpy(s, s2);
-	strupr(s);
+	_strupr(s);
 	int id;
 #ifdef _DEBUG
 	log("Scanning chat...");
@@ -237,6 +233,30 @@ int __stdcall checkCheats(char* s2)
 				advTriggerEffectActual(unit->prop_object, "ADD Armor 3 1");
 				advTriggerEffectActual(unit->prop_object, "ADD Armor 4 1");
 			}
+		return true;
+	}
+	//
+	if (strstr(s, "/START"))
+	{
+		time_collect = true;
+		return true;
+	}
+	if (strstr(s, "/STOP"))
+	{
+		time_collect = false;
+		time_stage_find = true;
+		return true;
+	}
+	if (strstr(s, "/YES"))
+	{
+		answer = true;
+		answer_flag = true;
+		return true;
+	}
+	if (strstr(s, "/NO"))
+	{
+		answer = false;
+		answer_flag = true;
 		return true;
 	}
 

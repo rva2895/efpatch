@@ -9,184 +9,136 @@
 //3 - save
 //4 - dropped
 //5 - waiting (?)
+#define ST_WAIT 0
+#define ST_NONE 1
+#define ST_CONT 2
+#define ST_SAVE 3
+#define ST_DROP 4
+#define ST_PEND 5
 
-__declspec(naked) void getGameCanContinue_fix () //0046F030
+int getVoteResult(int votes[8])
+{
+	int s = 0;
+	int c = 0;
+	int w = 0;
+	int n = 0;
+	for (int i = 0; i < 8; i++)
+	{
+		switch (votes[i])
+		{
+		case ST_WAIT:
+			w++;
+			break;
+		case ST_CONT:
+			c++;
+			break;
+		case ST_SAVE:
+			s++;
+			break;
+		default:
+			break;
+		}
+	}
+	n = s + c + w;
+	if (w > n / 2)
+		return ST_WAIT;
+	else if (s > n / 2)
+		return ST_SAVE;
+	else if (c > n / 2)
+		return ST_CONT;
+	else
+		return ST_WAIT;
+}
+
+int __fastcall getGameCanContinue2(int votes[8])
+{
+	return getVoteResult(votes) == ST_CONT;
+}
+
+int __fastcall getGameCanSaveAndExit2(int votes[8])
+{
+	return getVoteResult(votes) == ST_SAVE;
+}
+
+__declspec(naked) void getGameCanContinue_fix2() //0046F030
 {
 	__asm
 	{
-		push    ecx
-		push    ebx
-		//first: count players
-		xor     edi, edi
-		xor     ecx, ecx
-		xor     eax, eax
-count_players:
-		mov     ebx, dword ptr [edx]
-		cmp     ebx, 5
-		jz      not_enough_votes  //waiting for vote: don't continue
-		cmp     ebx, 1   //only count if exists
-		setnz   al
-		add     edi, eax
-		cmp     ebx, 4   //don't count if dropped
-		setz    al
-		sub     edi, eax
-		cmp     ebx, 2   //voted continue
-		setz    al
-		add     ecx, eax
-		inc     esi
-		add     edx, 4
-		cmp     esi, 9
-		jl      count_players
-		//edi: players count
-		//ecx: voted continue
-		xor     eax, eax
-		shr     edi, 1
-		adc     edi, eax
-		//edi - votes required
-		cmp     ecx, edi
-		jl      not_enough_votes
-		//can continue
-		pop     ebx
-		pop     ecx
+		mov     esi, ecx
+		mov     ecx, edx
+		call    getGameCanContinue2
+		mov     ecx, esi
+		test    eax, eax
+		jz      _cannot_continue
 		mov     eax, 0046F055h
 		jmp     eax
-not_enough_votes:
-		pop     ebx
-		pop     ecx
+_cannot_continue:
 		mov     eax, 0046F1AEh
 		jmp     eax
 	}
 }
 
-__declspec(naked) void getGameCanSaveAndExit_fix () //0046F1CE
+__declspec(naked) void getGameCanSaveAndExit_fix2() //0046F1CE
 {
 	__asm
 	{
-		push    edi
-		push    ebx
-		push    esi
-		//first: see if can continue
-		xor     esi, esi
-		xor     edi, edi
-		xor     eax, eax
-count_players2:
-		mov     ebx, dword ptr [ecx]
-		cmp     ebx, 5
-		jz      not_enough_votes2  //waiting for vote: don't continue
-		cmp     ebx, 1   //only count if exists
-		setnz   al
-		add     edi, eax
-		cmp     ebx, 4   //don't count if dropped
-		setz    al
-		sub     edi, eax
-		cmp     ebx, 2   //voted continue
-		setz    al
-		add     esi, eax
-		inc     edx
-		add     ecx, 4
-		cmp     edx, 9
-		jl      count_players2
-		//edi: players count
-		//esi: voted continue
-		xor     eax, eax
-		shr     edi, 1
-		adc     edi, eax
-		//edi - votes required
-		cmp     esi, edi
-		jl      not_enough_votes2
-		//can continue - can't save
-		pop     esi
-		pop     ebx
-		pop     edi
-		mov     eax, 0046F231h
-		jmp     eax
-not_enough_votes2:
-
-		pop     esi
-		pop     ebx
-
-		lea     ecx, [ebx+8ECh]
-		mov     edx, 1
-
-		push    ebx
-		push    esi
-
-		//can't continue: try save
-		xor     edi, edi
-		xor     eax, eax
-		xor     esi, esi
-count_players3:
-		mov     ebx, dword ptr [ecx]
-		cmp     ebx, 5
-		jz      not_enough_votes3  //waiting for vote: don't continue
-		cmp     ebx, 1   //only count if exists
-		setnz   al
-		add     edi, eax
-		cmp     ebx, 4   //don't count if dropped
-		setz    al
-		sub     edi, eax
-		cmp     ebx, 3   //voted save
-		setz    al
-		add     esi, eax
-		inc     edx
-		add     ecx, 4
-		cmp     edx, 9
-		jl      count_players3
-		//edi: players count
-		//esi: voted save
-		xor     eax, eax
-		shr     edi, 1
-		adc     edi, eax
-		//edi - votes required
-		cmp     esi, edi
-		jl      not_enough_votes3
-
-		//can save
-		pop     esi
-		pop     ebx
-		pop     edi
+		call    getGameCanSaveAndExit2
+		test    eax, eax
+		jz      _cannot_save
 		mov     eax, 0046F1E7h
 		jmp     eax
-not_enough_votes3:
-		pop     esi
-		pop     ebx
-		pop     edi
+_cannot_save:
 		mov     eax, 0046F231h
 		jmp     eax
 	}
 }
 
-__declspec(naked) void statusCheck_fix () //0046EC0E
+__declspec(naked) void statusCheck_fix1() //0046E008
 {
 	__asm
 	{
-		xor     esi, esi
-		//inc     esi
-_check_status:
-		mov     ecx, 006A35E0h
-		mov     ecx, [ecx]
-		push    esi
-		mov     eax, 43AF40h
-		call    eax
-		cmp     eax, 2
-		setz    al
-		and     eax, 1
-		adc     edi, eax
+		mov     [esp + 19Ch], esi
 		inc     esi
-		cmp     esi, 9
-		jl      _check_status
-		mov     ecx, 0046EC28h
-		jmp     ecx
+		mov     eax, 0046E00Fh
+		jmp     eax
 	}
 }
 
-void setVotePanelHooks ()
+__declspec(naked) void statusCheck_fix2() //0046EC0A
 {
-	setHook ((void*)0x0046F030, &getGameCanContinue_fix);
-	setHook ((void*)0x0046F1CE, &getGameCanSaveAndExit_fix);
-
-	setHook ((void*)0x0046EC0E, &statusCheck_fix);
-
-	setByte (0x0046E072, 9);
-	//setByte (0x0043AF44, 0x40);
+	__asm
+	{
+		test    eax, eax
+		jz      short loc_46EC79
+		xor     esi, esi
+		inc     esi
+		mov     eax, 0046EC10h
+		jmp     eax
+loc_46EC79:
+		mov     eax, 0046EC79h
+		jmp     eax
+	}
 }
+
+#pragma optimize( "s", on )
+void setVotePanelHooks()
+{
+	setHook((void*)0x0046F030, getGameCanContinue_fix2);
+	setHook((void*)0x0046F1CE, getGameCanSaveAndExit_fix2);
+
+	//setHook((void*)0x0046EC0E, statusCheck_fix);
+
+	//writeByte(0x0046E072, 9); ???
+	//writeByte (0x0043AF44, 0x40);
+
+	setHook((void*)0x0046E008, statusCheck_fix1);
+	writeByte(0x0046E072, 9);
+	setHook((void*)0x0046EC0A, statusCheck_fix2);
+	writeByte(0x0046EC25, 9);
+	
+	//save and exit 31 F6 46 90 90 90
+	writeDword(0x0046EFC7, 0x90909046);
+	writeByte(0x046EFC5, 0x31);
+	writeByte(0x046EFC6, 0xF6);
+}
+#pragma optimize( "", on )

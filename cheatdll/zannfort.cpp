@@ -21,7 +21,8 @@ __declspec(naked) void* __stdcall getPropertyObject2(void* player, int id)
 		ret     8
 	}
 }
-
+#pragma warning(push)
+#pragma warning(disable:4100)
 __declspec(naked) float* __fastcall player_getResources(void* player)
 {
 	__asm
@@ -30,6 +31,7 @@ __declspec(naked) float* __fastcall player_getResources(void* player)
 		ret
 	}
 }
+#pragma warning(pop)
 
 char zann_str_1[] = "MUL Cost2Amount 0.95";
 
@@ -134,8 +136,10 @@ __declspec(naked) void onFortDestroyed() //00554D9C
 	}
 }
 
+#pragma optimize( "s", on )
 void setZannFortHooks()
 {
 	setHook((void*)0x00554B81, onFortBuilt);
 	setHook((void*)0x00554D9C, onFortDestroyed);
 }
+#pragma optimize( "", on )

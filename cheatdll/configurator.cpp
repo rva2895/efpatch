@@ -4,6 +4,7 @@
 #include "registry.h"
 #include "resource.h"
 #include "resolution.h"
+#include "palette.h"
 
 #include <CommCtrl.h>
 
@@ -221,7 +222,7 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 					EnableMenuItem(GetSystemMenu(hWndDlg, FALSE), SC_CLOSE,
 						MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 					EnableWindow(GetDlgItem(hWndDlg, IDOK), FALSE);
-					patchResolution(x, y);
+					resolutionTool(x, y);
 				}
 
 				processIDOK(hWndDlg);
@@ -282,6 +283,9 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 
 void __stdcall launchConfigurator(HWND hWnd)
 {
+#ifndef _CHEATDLL_CC
+	installPalette();
+#endif
 	DialogBox(GetModuleHandle("efpatch.dll"), MAKEINTRESOURCE(IDD_DIALOG_CONFIG), hWnd, ConfigDlgProc);
 }
 

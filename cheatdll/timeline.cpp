@@ -20,11 +20,13 @@ timeline_colors colors[8] =
 	{ 0x005E1F98, 0x005E1F9D, 0x2E4EF4, 0x0019AD }
 };
 
+#pragma optimize( "s", on )
 void setTimelineHooks()
 {
 	for (int i = 0; i < 8; i++)
 	{
-		setInt(colors[i].offset1, colors[i].color1);
-		setInt(colors[i].offset2, colors[i].color2);
+		writeDword(colors[i].offset1, colors[i].color1);
+		writeDword(colors[i].offset2, colors[i].color2);
 	}
 }
+#pragma optimize( "", on )

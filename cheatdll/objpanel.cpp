@@ -53,8 +53,8 @@ __declspec(naked) void secondCol1() //005DB8B4
 		jng     end1
 		add     edx, 6Ch    //x offset for 2nd col
 end1:
-		push    005DB8BAh
-		ret
+		mov     ecx, 005DB8BAh
+		jmp     ecx
 	}
 }
 
@@ -69,8 +69,8 @@ __declspec(naked) void secondCol2() //005DB894
 end2:
 		lea     ecx, [ecx + ecx * 8]
 		shl     eax, 2
-		push    005DB89Ah
-		ret
+		mov     edx, 005DB89Ah
+		jmp     edx
 	}
 }
 
@@ -85,8 +85,8 @@ __declspec(naked) void secondColtxty() //005DBAC0
 		sub     ecx, 4
 endy:
 		lea     ecx, [ecx + ecx * 8]
-		push    005DBAC7h
-		ret
+		mov     eax, 005DBAC7h
+		jmp     eax
 	}
 }
 
@@ -102,8 +102,8 @@ endx:
 		mov     edx, [esi + 20h]
 		push    ecx
 		mov     eax, [edx + 38h]
-		push    005DBAEAh
-		ret
+		mov     ecx, 005DBAEAh
+		jmp     ecx
 	}
 }
 
@@ -112,16 +112,14 @@ __declspec(naked) void objPanelHook() //005DB3CE
 	__asm
 	{
 		mov     ecx, [ebp + 858h]
-		//push    ebp
 		push    ecx
 		call    objPanel
 		add     esp, 4
-		//pop     ebp
 		mov     eax, 6A3684h
 		mov     eax, [eax]
 		mov     ecx, [eax + 17B4h]
-		push    005DB3D9h
-		ret
+		mov     edx, 005DB3D9h
+		jmp     edx
 	}
 }
 
@@ -150,8 +148,8 @@ curPend:
 		push    esi
 		push    edi
 		xor     edi, edi
-		push    005D98B4h
-		ret
+		mov     eax, 005D98B4h
+		jmp     eax
 	}
 }
 
@@ -162,8 +160,8 @@ __declspec(naked) void langDllList() //005DBB13
 		mov     ebx, langDllPopup
 		mov     [ebx + eax * 4], ecx
 		pop     ebx
-		push    005DBB1Bh
-		ret
+		mov     ecx, 005DBB1Bh
+		jmp     ecx
 	}
 }
 
@@ -173,8 +171,8 @@ __declspec(naked) void langDllRead1() //005DF2D9
 	{
 		mov     esi, langDllPopup
 		mov     eax, [esi + eax * 4]
-		push    005DF2E0h
-		ret
+		mov     ebx, 005DF2E0h
+		jmp     ebx
 	}
 }
 
@@ -184,8 +182,8 @@ __declspec(naked) void langDllRead2() //005DF2F3
 	{
 		mov     esi, langDllPopup
 		mov     eax, [esi + ecx * 4]
-		push    005DF2FAh
-		ret
+		mov     ebx, 005DF2FAh
+		jmp     ebx
 	}
 }
 
@@ -204,8 +202,8 @@ __declspec(naked) void popup1() //005DF2B4
 noflag1:
 		mov     secondColFlag, edx
 		cmp     eax, ecx
-		push    005DF2BAh
-		ret
+		mov     edx, 005DF2BAh
+		jmp     edx
 	}
 }
 
@@ -237,8 +235,10 @@ popupCont:
 noflag2:
 		add     eax, ebp
 		mov     edx, [esi + 10h]
-		push    005DF280h
-		ret
+		mov     [esp + 10h], ecx
+		add     eax, edx
+		mov     edx, 005DF286h
+		jmp     edx
 	}
 }
 
@@ -252,8 +252,8 @@ __declspec(naked) void setItemCounter() //005D98A0
 		mov     ebp, esp
 		and     esp, 0FFFFFFF8h
 		sub     esp, 190h
-		push    005D98ACh
-		ret
+		mov     eax, 005D98ACh
+		jmp     eax
 	}
 }
 
@@ -267,8 +267,8 @@ __declspec(naked) void incItemCounter() //005DB840
 		inc     esi
 		mov     itemCounter, esi
 		mov     esi, ecx
-		push    005DB846h
-		ret
+		mov     eax, 005DB846h
+		jmp     eax
 	}
 }
 
@@ -279,8 +279,8 @@ __declspec(naked) void clearStartEbp() //005DF253
 		xor     eax, eax
 		mov     startEbp, eax
 		mov     eax, [esi + 838h]
-		push    005DF259h
-		ret
+		mov     edx, 005DF259h
+		jmp     edx
 	}
 }
 
@@ -340,6 +340,7 @@ unit_ok:
 	}
 }
 
+#pragma optimize( "s", on )
 void fixObjPanelDrawFunction()
 {
 	setHook((void*)0x005DB8B4, secondCol1);
@@ -351,13 +352,13 @@ void fixObjPanelDrawFunction()
 	setHook((void*)0x005DB3CE, objPanelHook);
 
 	setHook((void*)0x005D98AE, obtainPtr);
-	setByte(0x005DB860, 7);
+	writeByte(0x005DB860, 7);
 
 	setHook((void*)0x005D98A0, setItemCounter);
 	setHook((void*)0x005DB840, incItemCounter);
 
-	setByte(0x005DF2B7, 0x11);
-	setByte(0x005DF298, 0x10);
+	writeByte(0x005DF2B7, 0x11);
+	writeByte(0x005DF298, 0x10);
 
 	langDllAlloc();
 
@@ -376,3 +377,5 @@ void setObjectPanelHooks()
 {
 	fixObjPanelDrawFunction();
 }
+#pragma optimize( "", on )
+

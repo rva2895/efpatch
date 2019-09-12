@@ -809,6 +809,7 @@ _good:
 	}
 }
 
+#pragma optimize( "s", on )
 void setCastHooks()
 {
 	//testAddr = (int)&readDatTest2;
@@ -838,3 +839,4 @@ void setCastHooks()
 
 	//setHook ((void*)0x0058A170, oldNullsub);
 }
+#pragma optimize( "", on )

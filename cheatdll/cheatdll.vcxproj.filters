@@ -52,8 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
-    <None Include="widescrn_x2_template_1024" />
-    <None Include="widescrn_x2_template_1280" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="advcheat.h">
@@ -96,9 +94,6 @@
       <Filter>Заголовочные файлы\editor</Filter>
     </ClInclude>
     <ClInclude Include="log.h">
-      <Filter>Заголовочные файлы\misc</Filter>
-    </ClInclude>
-    <ClInclude Include="memfunc.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
     <ClInclude Include="configurator.h">
@@ -284,6 +279,66 @@
     <ClInclude Include="oos.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
+    <ClInclude Include="campaign.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="radius_effect.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="network.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="slp.h">
+      <Filter>Заголовочные файлы\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="patrol.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="attackstance.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="medic.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="palette.h">
+      <Filter>Заголовочные файлы\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="rec.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="hotkeyjump.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="recbrowse.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="mg1file.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="elevation.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="core.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="recordrestore.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="mouseoverride.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="notify.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="iuserpatch.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="wndproc.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="advcheat.cpp">
@@ -352,9 +407,6 @@
     <ClCompile Include="log.cpp">
       <Filter>Файлы исходного кода\misc</Filter>
     </ClCompile>
-    <ClCompile Include="memfunc.cpp">
-      <Filter>Файлы исходного кода\misc</Filter>
-    </ClCompile>
     <ClCompile Include="negdecay.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
@@ -387,9 +439,6 @@
     </ClCompile>
     <ClCompile Include="techupcolor.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="terrain.cpp">
-      <Filter>Файлы исходного кода\editor</Filter>
     </ClCompile>
     <ClCompile Include="terrain_load.cpp">
       <Filter>Файлы исходного кода\editor</Filter>
@@ -513,6 +562,75 @@
     </ClCompile>
     <ClCompile Include="oos.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="campaign.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="radius_effect.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain_blend.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="network.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="slp.cpp">
+      <Filter>Файлы исходного кода\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="patrol.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="attackstance.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="medic.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="palette.cpp">
+      <Filter>Файлы исходного кода\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="rec.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="hotkeyjump.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="recbrowse.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="mg1file.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="elevation.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="core.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="recordrestore.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="mouseoverride.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="notify.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="iuserpatch.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="common.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="wndproc.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="keyboard.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

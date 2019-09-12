@@ -21,24 +21,24 @@ __declspec(naked) void afterLoadHook() //005EC3DF
 		mov     eax, 1
 		push    8Bh
 		push    005EC3DFh
-		call    setByte
+		call    writeByte
 		push    75EB3BE8h
 		push    005EC3E0h
-		call    setInt
+		call    writeDword
 		push    3Ch
 		push    005EC3E4h
-		call    setByte
+		call    writeByte
 		retn    20h
 	}
 }
 
-char* getCmdFilename (char* s)
+char* getCmdFilename(char* s)
 {
-	char* p = s + strlen (s) - 1;
+	char* p = s + strlen(s) - 1;
 	bool k = (*p == '\"');
 	if (k)
 		*p = 0;
-	while ( k?(*p!='\"'):(*p!=' ') )
+	while (k ? (*p != '\"') : (*p != ' '))
 		p--;
 	p++;
 	//if (k)
@@ -106,7 +106,7 @@ __declspec(naked) void hookLoadSave() //005E5652
 _yes_cmd_line_save:
 		push    eax
 	}
-	setHook((void*)0x0061D928, &onLoadSave);
+	setHook((void*)0x0061D928, onLoadSave);
 	__asm
 	{
 		mov     ecx, ebp
@@ -137,8 +137,8 @@ __declspec(naked) void hookLoadScen() //005E5636
 		push    005E55F4h
 		jmp     eax
 _noCmdLine_save:
-		push    005E5652h
-		ret
+		mov     eax, 005E5652h
+		jmp     eax
 	}
 }
 
@@ -148,23 +148,23 @@ __declspec(naked) void scenAbsPath() //00620F07
 	{
 		push    8Ah
 		push    00620F07h
-		call    setByte
+		call    writeByte
 		push    01502484h
 		push    00620F08h
-		call    setInt
+		call    writeDword
 		push    0
 		push    00620F0Ch
-		call    setByte
+		call    writeByte
 		add     esp, 18h
 		mov     eax, 1
-		push    00620F3Dh
-		ret
+		mov     ecx, 00620F3Dh
+		jmp     ecx
 	}
 }
 
 void __stdcall setAbsScen()
 {
-	setHook((void*)0x00620F07, &scenAbsPath);
+	setHook((void*)0x00620F07, scenAbsPath);
 }
 
 __declspec(naked) void rec_filename_fix() //0061DACF
@@ -176,13 +176,13 @@ __declspec(naked) void rec_filename_fix() //0061DACF
 		push    edx
 		push    50h
 		push    0061DACFh
-		call    setByte
+		call    writeByte
 		push    16148A8Bh
 		push    0061DAD0h
-		call    setInt
+		call    writeDword
 		push    0A5E80000h
 		push    0061DAD4h
-		call    setInt
+		call    writeDword
 		add     esp, 4 * 6
 		pop     edx
 		mov     ecx, [edx + 1614h]
@@ -193,9 +193,9 @@ __declspec(naked) void rec_filename_fix() //0061DACF
 
 __declspec(naked) void __stdcall onLoadSave() //0061D928
 {
-	setInt(0x0061D928, 0x008000BA);
-	setInt(0x0061D92C, 0x248C8D00);
-	setHook((void*)0x0061DACF, &rec_filename_fix);
+	writeDword(0x0061D928, 0x008000BA);
+	writeDword(0x0061D92C, 0x248C8D00);
+	setHook((void*)0x0061DACF, rec_filename_fix);
 	__asm
 	{
 		lea     ecx, [esp + 0B1h]
@@ -206,6 +206,7 @@ __declspec(naked) void __stdcall onLoadSave() //0061D928
 	}
 }
 
+#pragma optimize( "s", on )
 void setStartupLoadHooks(int ver)
 {
 	if (ver)	//EF
@@ -213,7 +214,8 @@ void setStartupLoadHooks(int ver)
 		sz_ga1[3] = '2';
 		sz_mg1[3] = '2';
 	}
-	setHook((void*)0x005E5652, &hookLoadSave);
-	setHook((void*)0x005E5636, &hookLoadScen);
-	//setByte(0x0061D930, 0xB1);
+	setHook((void*)0x005E5652, hookLoadSave);
+	setHook((void*)0x005E5636, hookLoadScen);
+	//writeByte(0x0061D930, 0xB1);
 }
+#pragma optimize( "", on )

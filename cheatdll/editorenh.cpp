@@ -121,6 +121,8 @@ __declspec(naked) void __fastcall flush_ai_trigger_dropdown(void*)
 void(__thiscall* window_dropdown_addText) (void*, char*, int) =
 	(void(__thiscall*) (void*, char*, int)) 0x004C82A0;
 
+extern char* terrain_names[];
+
 void* __stdcall getEffectParams_hook(void* _this, effect* e)
 {
 	//quantity
@@ -140,9 +142,9 @@ void* __stdcall getEffectParams_hook(void* _this, effect* e)
 		window_setRect(*(void**)((int)_this + 0xED0), 0x190, 0x16, 0xC8, 0x14);
 		break;
 	case 0xA:		//ai script goal
-		setByte(0x0052A8F6, 0x8D);
-		setByte(0x0052A8F7, 0x4C);
-		setInt(0x0052A8F8, 0x0A6A1024);
+		writeByte(0x0052A8F6, 0x8D);
+		writeByte(0x0052A8F7, 0x4C);
+		writeDword(0x0052A8F8, 0x0A6A1024);
 		flush_ai_trigger_dropdown(_this);
 		setHook((void*)0x0052A8F6, (void*)0x0052A943);	//remove ai trigger dropdown init
 		//ai trigger hlp
@@ -163,11 +165,36 @@ void* __stdcall getEffectParams_hook(void* _this, effect* e)
 		//obj list type
 		window_setRect(*(void**)((int)_this + 0xE5C), 0xE6, 0x50, 0x96, 0x14);
 		break;
+	case 0x2E:		//terrain
+		flush_ai_trigger_dropdown(_this);
+		for (int i = 0; i < 176; i++)
+			if (((i < 104) || (i > 128)) && (i != 53))
+				window_dropdown_addText(*(void**)((int)_this + 0xED0), terrain_names[i], i);
+		//ai trigger hlp
+		window_setRect(*(void**)((int)_this + 0xECC), 0x182, 2, 0xC8, 0x14);
+		window_setText(*(void**)((int)_this + 0xECC), "Terrain", 0);
+		//ai trigger
+		window_setRect(*(void**)((int)_this + 0xED0), 0x182, 0x16, 0xC8, 0x14);
+		break;
+		break;
 	case 0x12:		//change ownership
 		//obj list type hlp
 		window_setRect(*(void**)((int)_this + 0xE58), 0x181, 0x67, 0x96, 0x14);
 		//obj list type
 		window_setRect(*(void**)((int)_this + 0xE5C), 0x181, 0x7B, 0x96, 0x14);
+		break;
+	case 0x16:      //freeze unit
+		flush_ai_trigger_dropdown(_this);
+		window_dropdown_addText(*(void**)((int)_this + 0xED0), "Freeze unit", -1);
+		window_dropdown_addText(*(void**)((int)_this + 0xED0), "Aggressive", 1);
+		window_dropdown_addText(*(void**)((int)_this + 0xED0), "Defensive", 2);
+		window_dropdown_addText(*(void**)((int)_this + 0xED0), "Stand Ground", 3);
+		window_dropdown_addText(*(void**)((int)_this + 0xED0), "No Attack", 4);
+		//ai trigger hlp
+		window_setRect(*(void**)((int)_this + 0xECC), 0x238, 2, 0xC8, 0x14);
+		window_setText(*(void**)((int)_this + 0xECC), "Stance", 0);
+		//ai trigger
+		window_setRect(*(void**)((int)_this + 0xED0), 0x238, 0x16, 0xC8, 0x14);
 		break;
 	default:
 		//timer hlp
@@ -245,8 +272,8 @@ void* __stdcall getConditionParams_hook(void* _this, condition* c)
 		window_setRect(*(void**)((int)_this + 0xED8), 0x240, 0x16, 0xC8, 0x14);
 		break;
 	case 0xC:		//ai signal
-		setByte(0x0052A977, 0x8D);
-		setInt(0x0052A978, 0x6A102444);
+		writeByte(0x0052A977, 0x8D);
+		writeDword(0x0052A978, 0x6A102444);
 		flush_ai_signal_dropdown(_this);
 		setHook((void*)0x0052A977, (void*)0x0052A9C4);
 		//ai signal hlp
@@ -341,6 +368,7 @@ __declspec(naked) void getConditionParams_new()
 	}
 }
 
+#pragma optimize( "s", on )
 void setEditorEnhHooks()
 {
 	setHook((void*)0x00618FEE, &noTerrainRestrictionHook);
@@ -351,10 +379,11 @@ void setEditorEnhHooks()
 	setHook((void*)0x0052A977, (void*)0x0052A9C4);	//remove ai signal dropdown init
 	setHook((void*)0x0052A8F6, (void*)0x0052A943);	//remove ai trigger dropdown init
 
-	setInt(0x0053C2E4, (int)&getEffectParams_new - 0x0053C2E8);
-	setInt(0x0053DD6B, (int)&getConditionParams_new - 0x0053DD6F);
-	setInt(0x0053C26F, (int)&getConditionParams_new - 0x0053C273);
+	writeDword(0x0053C2E4, (DWORD)&getEffectParams_new - 0x0053C2E8);
+	writeDword(0x0053DD6B, (DWORD)&getConditionParams_new - 0x0053DD6F);
+	writeDword(0x0053C26F, (DWORD)&getConditionParams_new - 0x0053C273);
 #endif
 
-	setByte(0x00496A0B, 0xEB); //terrain paint crash
+	writeByte(0x00496A0B, 0xEB); //terrain paint crash
 }
+#pragma optimize( "", on )

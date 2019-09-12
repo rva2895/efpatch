@@ -682,6 +682,7 @@ __declspec(naked) void buf2_free() //0059544F
 	}
 }
 
+#pragma optimize( "s", on )
 void setAIUnitCountHooks()
 {
 	setHook((void*)0x004C2B7B, ctr1);
@@ -734,6 +735,7 @@ void setAIUnitCountHooks()
 	setHook((void*)0x005CDCDF, ctr_free);
 	setHook((void*)0x0059544F, buf2_free);
 
-	setInt(0x004C4251, unitCount);
-	setInt(0x004C4361, unitCount);
+	writeDword(0x004C4251, unitCount);
+	writeDword(0x004C4361, unitCount);
 }
+#pragma optimize( "", on )

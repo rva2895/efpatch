@@ -1,9 +1,11 @@
 #pragma once
 
-void scanChat ();
-void restoreAll ();
+void scanChat();
+void restoreAll();
 
-void setAdvCheatHooks ();
+void setAdvCheatHooks();
+
+void __stdcall takeControl(int p);
 
 class sel_iterator //returns NULL when points at end
 {

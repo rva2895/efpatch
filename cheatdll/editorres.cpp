@@ -239,8 +239,8 @@ __declspec(naked) void resLoad() //004D392C
 
 void resLoadRestore()
 {
-	setInt(0x004D392C, 0x10068);
-	setInt(0x004D3930, 0x8B515000);
+	writeDword(0x004D392C, 0x10068);
+	writeDword(0x004D3930, 0x8B515000);
 }
 
 __declspec(naked) void resLoadF()
@@ -282,9 +282,11 @@ end:
 	}
 }
 
+#pragma optimize( "s", on )
 void setResListHooks()
 {
 	//setHook ((void*)0x004D392C, resLoad);
 	setHook((void*)0x0052A6DE, resLoadHook);
 	setHook((void*)0x0052A7B4, resLoadHook);
 }
+#pragma optimize( "", on )

@@ -5,13 +5,19 @@
 
 #pragma once
 
+#ifdef TARGET_VOOBLY
+//#define CHEATDLL_NOLOG
+
+#endif
+
 #include "targetver.h"
 
 #define WIN32_LEAN_AND_MEAN             // Исключите редко используемые компоненты из заголовков Windows
 // Файлы заголовков Windows:
 #include <windows.h>
 
-
+#include <vector>
+#include <string>
 
 // TODO: Установите здесь ссылки на дополнительные заголовки, требующиеся для программы
 
@@ -20,6 +26,11 @@
 #include <string.h>
 
 #include "consts.h"
-#include "memfunc.h"
+#include "common.h"
+#ifdef TARGET_VOOBLY
+#include "iuserpatch.h"
+#endif
 #include "structs.h"
 #include "log.h"
+
+//#define ZLIB_WINAPI

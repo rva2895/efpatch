@@ -47,11 +47,11 @@ void setConvertHooks()
 	FILE* f = fopen("data\\unconv.txt", "rt");
 	if (f)
 	{
-		int id;
+		short id;
 		nUnconv = 0;
 		unconv = 0;
 
-		while (fscanf(f, "%d", &id) > 0)
+		while (fscanf(f, "%hd", &id) > 0)
 		{
 			nUnconv++;
 			unconv = (short*)realloc(unconv, nUnconv * sizeof(short));

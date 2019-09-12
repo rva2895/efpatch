@@ -14,8 +14,8 @@ __declspec(naked) void langdll_1() //0048BB12
 _high_civ_1:
 		movsx   ecx, byte ptr [ecx + 1]
 		sub     ecx, ebp
-		push    0048BB1Ah
-		ret
+		mov     eax, 0048BB1Ah
+		jmp     eax
 	}
 }
 
@@ -32,8 +32,8 @@ __declspec(naked) void langdll_2() //0048BB62
 _high_civ_2:
 		movsx   ecx, byte ptr [ecx + 1]
 		sub     ecx, edx
-		push    0048BB6Ah
-		ret
+		mov     eax, 0048BB6Ah
+		jmp     eax
 	}
 }
 
@@ -50,8 +50,8 @@ __declspec(naked) void langdll_3() //0048BB90
 _high_civ_3:
 		movsx   ecx, byte ptr [ecx + 1]
 		sub     ecx, edx
-		push    0048BB98h
-		ret
+		mov     eax, 0048BB98h
+		jmp     eax
 	}
 }
 
@@ -68,8 +68,8 @@ __declspec(naked) void langdll_4() //0048BBBE
 _high_civ_4:
 		movsx   ecx, byte ptr [ecx + 1]
 		sub     ecx, edx
-		push    0048BBC6h
-		ret
+		mov     eax, 0048BBC6h
+		jmp     eax
 	}
 }
 
@@ -86,8 +86,8 @@ __declspec(naked) void langdll_1_1() //0048BC12
 _high_civ_1_1:
 		movsx   ecx, byte ptr [ecx + 1]
 		sub     ecx, ebp
-		push    0048BC1Ah
-		ret
+		mov     eax, 0048BC1Ah
+		jmp     eax
 	}
 }
 
@@ -104,8 +104,8 @@ __declspec(naked) void langdll_2_1() //0048BC5D
 _high_civ_2_1:
 		movsx   ecx, byte ptr [ecx + 1]
 		sub     ecx, edx
-		push    0048BC65h
-		ret
+		mov     eax, 0048BC65h
+		jmp     eax
 	}
 }
 
@@ -122,8 +122,8 @@ __declspec(naked) void langdll_3_1() //0048BC8B
 _high_civ_3_1:
 		movsx   ecx, byte ptr [ecx + 1]
 		sub     ecx, edx
-		push    0048BC93h
-		ret
+		mov     eax, 0048BC93h
+		jmp     eax
 	}
 }
 
@@ -140,8 +140,8 @@ __declspec(naked) void langdll_4_1() //0048BCBA
 _high_civ_4_1:
 		movsx   ecx, byte ptr [ecx + 1]
 		sub     ecx, edx
-		push    0048BCC2h
-		ret
+		mov     eax, 0048BCC2h
+		jmp     eax
 	}
 }
 
@@ -151,11 +151,11 @@ __declspec(naked) void cargoTrader_langdll_1() //0048BB76
 	{
 		cmp     si, 931
 		jnz     short loc_48BBA4
-		push    0048BB7Ch
-		ret
+		mov     eax, 0048BB7Ch
+		jmp     eax
 loc_48BBA4:
-		push    0048BBA4h
-		ret
+		mov     eax, 0048BBA4h
+		jmp     eax
 	}
 }
 
@@ -165,11 +165,11 @@ __declspec(naked) void cargoTrader_langdll_2() //0048BC71
 	{
 		cmp     word ptr [edx + 18h], 931
 		jnz     short loc_48BC9F
-		push    0048BC77h
-		ret
+		mov     eax, 0048BC77h
+		jmp     eax
 loc_48BC9F:
-		push    00048BC9Fh
-		ret
+		mov     eax, 00048BC9Fh
+		jmp     eax
 	}
 }
 
@@ -194,11 +194,11 @@ _high_civ_medic:
 		jz      _worker_bio
 		sub     ecx, 4
 		jz      _worker_bio
-		push    0054BA44h
-		ret
+		mov     ecx, 0054BA44h
+		jmp     ecx
 _worker_bio:
-		push    0054BA49h
-		ret
+		mov     ecx, 0054BA49h
+		jmp     ecx
 	}
 }
 
@@ -259,10 +259,11 @@ _not_temple_2:
 	}
 }
 
+#pragma optimize( "s", on )
 void setLangDllHooks()
 {
-	setInt(0x0048BB21, 4);		//worker names, worker name offset nearby
-	setInt(0x0048BC21, 4);
+	writeDword(0x0048BB21, 4);		//worker names, worker name offset nearby
+	writeDword(0x0048BC21, 4);
 
 	setHook((void*)0x0048BB12, langdll_1);
 	setHook((void*)0x0048BB62, langdll_2);
@@ -281,5 +282,6 @@ void setLangDllHooks()
 	//setHook((void*)0x0048BBA4, jedi_temple_id_2);
 
 	setHook((void*)0x0054BA2B, medic_worker);
-	setByte(0x0054B3E9, CIV_COUNT + 1);			//wrong icon (civ > 8) fix
+	writeByte(0x0054B3E9, CIV_COUNT + 1);			//wrong icon (civ > 8) fix
 }
+#pragma optimize( "", on )

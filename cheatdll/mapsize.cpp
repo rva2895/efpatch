@@ -8,7 +8,7 @@ __declspec(naked) void onEditorMapSize_legacy() //0052A123
 	__asm
 	{
 		push    esi
-		mov     esi, 4C82D0h
+		mov     esi, 004C82D0h
 		mov     ecx, [edi]
 		push    0
 		push    2978h	//giant
@@ -18,8 +18,8 @@ __declspec(naked) void onEditorMapSize_legacy() //0052A123
 		push    2979h	//huge
 		call    esi
 		pop     esi
-		push    0052A131h
-		ret
+		mov     ecx, 0052A131h
+		jmp     ecx
 	}
 }
 
@@ -28,7 +28,7 @@ __declspec(naked) void onEditorMapSize() //0052A123
 	__asm
 	{
 		push    esi
-		mov     esi, 4C82D0h
+		mov     esi, 004C82D0h
 		mov     ecx, [edi]
 		push    0
 		push    2978h	//giant 240
@@ -58,8 +58,8 @@ __declspec(naked) void onEditorMapSize() //0052A123
 		push    10609	//titanic 640
 		call    esi
 		pop     esi
-		push    0052A131h
-		ret
+		mov     ecx, 0052A131h
+		jmp     ecx
 	}
 }
 
@@ -68,8 +68,8 @@ __declspec(naked) void jmp_320()
 	__asm
 	{
 		mov     esi, 320
-		push    0052EC76h
-		ret
+		mov     ecx, 0052EC76h
+		jmp     ecx
 	}
 }
 
@@ -78,8 +78,8 @@ __declspec(naked) void jmp_400()
 	__asm
 	{
 		mov     esi, 400
-		push    0052EC76h
-		ret
+		mov     ecx, 0052EC76h
+		jmp     ecx
 	}
 }
 
@@ -88,8 +88,8 @@ __declspec(naked) void jmp_480()
 	__asm
 	{
 		mov     esi, 480
-		push    0052EC76h
-		ret
+		mov     ecx, 0052EC76h
+		jmp     ecx
 	}
 }
 
@@ -98,8 +98,8 @@ __declspec(naked) void jmp_560()
 	__asm
 	{
 		mov     esi, 560
-		push    0052EC76h
-		ret
+		mov     ecx, 0052EC76h
+		jmp     ecx
 	}
 }
 
@@ -108,12 +108,12 @@ __declspec(naked) void jmp_640()
 	__asm
 	{
 		mov     esi, 640
-		push    0052EC76h
-		ret
+		mov     ecx, 0052EC76h
+		jmp     ecx
 	}
 }
 
-int map_sizes_jmp[] =
+DWORD map_sizes_jmp[] =
 {
 	0x52EC2D,
 	0x52EC46,
@@ -122,11 +122,11 @@ int map_sizes_jmp[] =
 	0x52EC61,
 	0x52EC6A,
 	0x52EC71,
-	(int)(&jmp_320),
-	(int)(&jmp_400),
-	(int)(&jmp_480),
-	(int)(&jmp_560),
-	(int)(&jmp_640)
+	(DWORD)(&jmp_320),
+	(DWORD)(&jmp_400),
+	(DWORD)(&jmp_480),
+	(DWORD)(&jmp_560),
+	(DWORD)(&jmp_640)
 };
 
 int mapsize_current_sel = 0;
@@ -534,8 +534,8 @@ loc_4BE68A:
 
 void fix_sub_4bd6a0()
 {
-	setByte(0x004BDFD3, 0x22);
-	setByte(0x004BE129, 0x22);
+	writeByte(0x004BDFD3, 0x22);
+	writeByte(0x004BE129, 0x22);
 
 }
 
@@ -663,22 +663,15 @@ __declspec(naked) void p7_() //004BEB9E
 	}
 }
 
-//__declspec(naked) void p8_() //
-//{
-//	__asm
-//	{
-//	}
-//}
-
 void fix_sub_4be980()
 {
-	setInt(0x004BEC4C, (int)&p3_x);
-	setInt(0x004BEC5C, (int)&p6_x);
-	setByte(0x004BEBAF, 0x1E);
-	setInt(0x4BEBB2, 0xFFFF);
-	setInt(0x4BEBB8, 0xFFFF);
+	writeDword(0x004BEC4C, (DWORD)&p3_x);
+	writeDword(0x004BEC5C, (DWORD)&p6_x);
+	writeByte(0x004BEBAF, 0x1E);
+	writeDword(0x4BEBB2, 0xFFFF);
+	writeDword(0x4BEBB8, 0xFFFF);
 	
-	//setByte(0x004BEBC4, 16);
+	//writeByte(0x004BEBC4, 16);
 }
 
 void __stdcall map_init()
@@ -1382,6 +1375,7 @@ __declspec(naked) void waypoint_fix() //0044BDD0
 	}
 }
 
+#pragma optimize( "s", on )
 void setMapSizeHooks()
 {
 	//setHook((void*)0x004B1639, &collision_test_1);
@@ -1389,8 +1383,8 @@ void setMapSizeHooks()
 
 	setHook((void*)0x0052A123, &onEditorMapSize);
 
-	setInt(0x0052EC29, (int)map_sizes_jmp);
-	setByte(0x0052EC23, sizeof(map_sizes_jmp) / sizeof(map_sizes_jmp[0]) - 1);
+	writeDword(0x0052EC29, (DWORD)map_sizes_jmp);
+	writeByte(0x0052EC23, sizeof(map_sizes_jmp) / sizeof(map_sizes_jmp[0]) - 1);
 
 	mapptr_2 = (int*)malloc(sizeof(int*) * (MAP_MAX+1));
 	mapptr = mapptr_2 + 1;
@@ -1404,203 +1398,203 @@ void setMapSizeHooks()
 
 	//
 
-	setHook((void*)0x004BD63E, &map_init_hook);
-	setHook((void*)0x004BDA3B, &facet_clear_hook);
+	setHook((void*)0x004BD63E, map_init_hook);
+	setHook((void*)0x004BDA3B, facet_clear_hook);
 
 	//
 
-	setInt(0x004BDD45, map_offset + o_n);
-	setInt(0x004BDD4C, map_offset + cn_n);
+	writeDword(0x004BDD45, map_offset + o_n);
+	writeDword(0x004BDD4C, map_offset + cn_n);
 
-	setInt(0x004BDD5B, map_offset + o_n);
-	setInt(0x004BDD66, map_offset + o_x);
-	setInt(0x004BDD6D, map_offset + o_x);
-	setInt(0x004BDD74, map_offset + o_n);
-	setInt(0x004BDD7B, map_offset + o_n);
+	writeDword(0x004BDD5B, map_offset + o_n);
+	writeDword(0x004BDD66, map_offset + o_x);
+	writeDword(0x004BDD6D, map_offset + o_x);
+	writeDword(0x004BDD74, map_offset + o_n);
+	writeDword(0x004BDD7B, map_offset + o_n);
 
-	setInt(0x004BE5F6, map_offset + o_x);
-	setInt(0x004BE5FD, map_offset + o_x);
-	setInt(0x004BE604, map_offset + o_n);
-	setInt(0x004BE60D, map_offset + o_n);
+	writeDword(0x004BE5F6, map_offset + o_x);
+	writeDword(0x004BE5FD, map_offset + o_x);
+	writeDword(0x004BE604, map_offset + o_n);
+	writeDword(0x004BE60D, map_offset + o_n);
 
-	setInt(0x004BE627, map_offset + o_n);
+	writeDword(0x004BE627, map_offset + o_n);
 
-	setInt(0x004BE7B3, map_offset + o_x);
-	setInt(0x004BE7BA, map_offset + o_x);
-	setInt(0x004BE7C1, map_offset + o_n);
-	setInt(0x004BE7CA, map_offset + o_n);
+	writeDword(0x004BE7B3, map_offset + o_x);
+	writeDword(0x004BE7BA, map_offset + o_x);
+	writeDword(0x004BE7C1, map_offset + o_n);
+	writeDword(0x004BE7CA, map_offset + o_n);
 
-	setInt(0x004BE7E4, map_offset + o_n);
+	writeDword(0x004BE7E4, map_offset + o_n);
 
-	setInt(0x004BDEBB, map_cost_offset);
-	setInt(0x004BDF8F, map_cost_offset);
-	setInt(0x004BE558, map_cost_offset);
-	setInt(0x004BE56B, map_cost_offset);
-	setInt(0x004BE6D8, map_cost_offset);
+	writeDword(0x004BDEBB, map_cost_offset);
+	writeDword(0x004BDF8F, map_cost_offset);
+	writeDword(0x004BE558, map_cost_offset);
+	writeDword(0x004BE56B, map_cost_offset);
+	writeDword(0x004BE6D8, map_cost_offset);
 
 	//edit all references to array:
-	setInt(0x41C30E, (int)mapptr);
-	setInt(0x41E3DA, (int)mapptr);
-	setInt(0x420EB0, (int)mapptr);
-	setInt(0x444E45, (int)mapptr);
-	setInt(0x444E9D, (int)mapptr);
-	setInt(0x444ED5, (int)mapptr);
-	setInt(0x444F25, (int)mapptr);
-	setInt(0x4464F7, (int)mapptr);
-	setInt(0x446518, (int)mapptr);
-	setInt(0x456566, (int)mapptr);
+	writeDword(0x41C30E, (DWORD)mapptr);
+	writeDword(0x41E3DA, (DWORD)mapptr);
+	writeDword(0x420EB0, (DWORD)mapptr);
+	writeDword(0x444E45, (DWORD)mapptr);
+	writeDword(0x444E9D, (DWORD)mapptr);
+	writeDword(0x444ED5, (DWORD)mapptr);
+	writeDword(0x444F25, (DWORD)mapptr);
+	writeDword(0x4464F7, (DWORD)mapptr);
+	writeDword(0x446518, (DWORD)mapptr);
+	writeDword(0x456566, (DWORD)mapptr);
 
-	setInt(0x456CBD, (int)mapptr);
-	setInt(0x46FCC4, (int)mapptr);
-	setInt(0x46FF43, (int)mapptr);
-	setInt(0x4701A7, (int)mapptr);
-	setInt(0x47026F, (int)mapptr);
-	setInt(0x4702CE, (int)mapptr);
-	setInt(0x47046B, (int)mapptr);
-	setInt(0x55079D, (int)mapptr);
-	setInt(0x5508C8, (int)mapptr);
-	setInt(0x55094A, (int)mapptr);
+	writeDword(0x456CBD, (DWORD)mapptr);
+	writeDword(0x46FCC4, (DWORD)mapptr);
+	writeDword(0x46FF43, (DWORD)mapptr);
+	writeDword(0x4701A7, (DWORD)mapptr);
+	writeDword(0x47026F, (DWORD)mapptr);
+	writeDword(0x4702CE, (DWORD)mapptr);
+	writeDword(0x47046B, (DWORD)mapptr);
+	writeDword(0x55079D, (DWORD)mapptr);
+	writeDword(0x5508C8, (DWORD)mapptr);
+	writeDword(0x55094A, (DWORD)mapptr);
 
-	setInt(0x553396, (int)mapptr);
-	setInt(0x553602, (int)mapptr);
-	setInt(0x5537F2, (int)mapptr);
-	setInt(0x555DCF, (int)mapptr);
-	setInt(0x556468, (int)mapptr);
-	setInt(0x5F9825, (int)mapptr);
-	setInt(0x5F9DFA, (int)mapptr);
-	setInt(0x60DE9F, (int)mapptr);
-	setInt(0x60FD1B, (int)mapptr);
-	setInt(0x60FD70, (int)mapptr);
+	writeDword(0x553396, (DWORD)mapptr);
+	writeDword(0x553602, (DWORD)mapptr);
+	writeDword(0x5537F2, (DWORD)mapptr);
+	writeDword(0x555DCF, (DWORD)mapptr);
+	writeDword(0x556468, (DWORD)mapptr);
+	writeDword(0x5F9825, (DWORD)mapptr);
+	writeDword(0x5F9DFA, (DWORD)mapptr);
+	writeDword(0x60DE9F, (DWORD)mapptr);
+	writeDword(0x60FD1B, (DWORD)mapptr);
+	writeDword(0x60FD70, (DWORD)mapptr);
 
-	setInt(0x60FD9C, (int)mapptr);
-	setInt(0x610AC4, (int)mapptr);
-	setInt(0x614072, (int)mapptr);
-	setInt(0x61543A, (int)mapptr);
-	setInt(0x6154BE, (int)mapptr);
-	setInt(0x6154FB, (int)mapptr);
-	setInt(0x61557A, (int)mapptr);
-	setInt(0x615714, (int)mapptr);
-	setInt(0x61595F, (int)mapptr);
-	setInt(0x615AD1, (int)mapptr);
+	writeDword(0x60FD9C, (DWORD)mapptr);
+	writeDword(0x610AC4, (DWORD)mapptr);
+	writeDword(0x614072, (DWORD)mapptr);
+	writeDword(0x61543A, (DWORD)mapptr);
+	writeDword(0x6154BE, (DWORD)mapptr);
+	writeDword(0x6154FB, (DWORD)mapptr);
+	writeDword(0x61557A, (DWORD)mapptr);
+	writeDword(0x615714, (DWORD)mapptr);
+	writeDword(0x61595F, (DWORD)mapptr);
+	writeDword(0x615AD1, (DWORD)mapptr);
 
-	setInt(0x615C69, (int)mapptr);
-	setInt(0x615DF2, (int)mapptr);
-	setInt(0x615F2B, (int)mapptr);
-	setInt(0x615F5A, (int)mapptr);
-	setInt(0x61601B, (int)mapptr);
-
-	//
-
-	setInt(0x419FA8, (int)mapptr_2);
-	setInt(0x41A027, (int)mapptr_2);
-	setInt(0x443B7A, (int)mapptr_2);
-	setInt(0x443E62, (int)mapptr_2);
-	setInt(0x443EC5, (int)mapptr_2);
-	setInt(0x444D81, (int)mapptr_2);
-	setInt(0x444F7A, (int)mapptr_2);
-	setInt(0x4464F0, (int)mapptr_2);
-	setInt(0x446559, (int)mapptr_2);
-	setInt(0x60FD06, (int)mapptr_2);
-
-	setInt(0x60FDB6, (int)mapptr_2);
-	setInt(0x60FDEF, (int)mapptr_2);
-	setInt(0x60FE1F, (int)mapptr_2);
-	setInt(0x614647, (int)mapptr_2);
-	setInt(0x61470E, (int)mapptr_2);
+	writeDword(0x615C69, (DWORD)mapptr);
+	writeDword(0x615DF2, (DWORD)mapptr);
+	writeDword(0x615F2B, (DWORD)mapptr);
+	writeDword(0x615F5A, (DWORD)mapptr);
+	writeDword(0x61601B, (DWORD)mapptr);
 
 	//
 
-	setInt(0x60FD2B, (int)mapptr_3);
-	setInt(0x60FDD2, (int)mapptr_3);
-	setInt(0x60FE03, (int)mapptr_3);
-	setInt(0x60FE37, (int)mapptr_3);
+	writeDword(0x419FA8, (DWORD)mapptr_2);
+	writeDword(0x41A027, (DWORD)mapptr_2);
+	writeDword(0x443B7A, (DWORD)mapptr_2);
+	writeDword(0x443E62, (DWORD)mapptr_2);
+	writeDword(0x443EC5, (DWORD)mapptr_2);
+	writeDword(0x444D81, (DWORD)mapptr_2);
+	writeDword(0x444F7A, (DWORD)mapptr_2);
+	writeDword(0x4464F0, (DWORD)mapptr_2);
+	writeDword(0x446559, (DWORD)mapptr_2);
+	writeDword(0x60FD06, (DWORD)mapptr_2);
+
+	writeDword(0x60FDB6, (DWORD)mapptr_2);
+	writeDword(0x60FDEF, (DWORD)mapptr_2);
+	writeDword(0x60FE1F, (DWORD)mapptr_2);
+	writeDword(0x614647, (DWORD)mapptr_2);
+	writeDword(0x61470E, (DWORD)mapptr_2);
 
 	//
 
-	setInt(0x58355C, MAP_MAX);
-	setInt(0x583561, MAP_MAX);
-
-	setInt(0x581923, MAP_MAX);
-	setInt(0x581928, MAP_MAX);
+	writeDword(0x60FD2B, (DWORD)mapptr_3);
+	writeDword(0x60FDD2, (DWORD)mapptr_3);
+	writeDword(0x60FE03, (DWORD)mapptr_3);
+	writeDword(0x60FE37, (DWORD)mapptr_3);
 
 	//
 
-	setHook((void*)0x004BDCDE, &p1);
-	setHook((void*)0x004BDD97, &p2);
-	setHook((void*)0x004BE58C, &p3);
-	setHook((void*)0x004BE5C6, &p4);
-	setHook((void*)0x004BE631, &p5);
-	setHook((void*)0x004BE73F, &p6);
-	setHook((void*)0x004BE787, &p7);
-	setHook((void*)0x004BE7EF, &p8);
-	setHook((void*)0x004BDAEF, &p9);
-	setHook((void*)0x004BDB9E, &p10);
-	setHook((void*)0x004BDCB6, &p11);
-	setHook((void*)0x004BDAC8, &p12);
-	setHook((void*)0x004BE48D, &p13);
-	setHook((void*)0x004BDFB0, &p14);
-	setHook((void*)0x004BE103, &p15);
-	setHook((void*)0x004BE543, &p16);
-	setHook((void*)0x004BE64F, &p17);
+	writeDword(0x58355C, MAP_MAX);
+	writeDword(0x583561, MAP_MAX);
 
-	setHook((void*)0x004BE9A5, &p1_);
-	setHook((void*)0x004BEB56, &p2_);
-	setHook((void*)0x004BEB6C, &p3_);
-	setHook((void*)0x004BEB76, &p4_);
-	setHook((void*)0x004BEB7E, &p5_);
-	setHook((void*)0x004BEB94, &p6_);
-	setHook((void*)0x004BEB9E, &p7_);
+	writeDword(0x581923, MAP_MAX);
+	writeDword(0x581928, MAP_MAX);
+
+	//
+
+	setHook((void*)0x004BDCDE, p1);
+	setHook((void*)0x004BDD97, p2);
+	setHook((void*)0x004BE58C, p3);
+	setHook((void*)0x004BE5C6, p4);
+	setHook((void*)0x004BE631, p5);
+	setHook((void*)0x004BE73F, p6);
+	setHook((void*)0x004BE787, p7);
+	setHook((void*)0x004BE7EF, p8);
+	setHook((void*)0x004BDAEF, p9);
+	setHook((void*)0x004BDB9E, p10);
+	setHook((void*)0x004BDCB6, p11);
+	setHook((void*)0x004BDAC8, p12);
+	setHook((void*)0x004BE48D, p13);
+	setHook((void*)0x004BDFB0, p14);
+	setHook((void*)0x004BE103, p15);
+	setHook((void*)0x004BE543, p16);
+	setHook((void*)0x004BE64F, p17);
+
+	setHook((void*)0x004BE9A5, p1_);
+	setHook((void*)0x004BEB56, p2_);
+	setHook((void*)0x004BEB6C, p3_);
+	setHook((void*)0x004BEB76, p4_);
+	setHook((void*)0x004BEB7E, p5_);
+	setHook((void*)0x004BEB94, p6_);
+	setHook((void*)0x004BEB9E, p7_);
 
 	fix_sub_4bd6a0();
 	fix_sub_4be980();
 
-	setHook((void*)0x004BDDBA, &facet1);
-	setHook((void*)0x004BDF60, &facet2);
-	setHook((void*)0x004BEBC2, &facet3);
+	setHook((void*)0x004BDDBA, facet1);
+	setHook((void*)0x004BDF60, facet2);
+	setHook((void*)0x004BEBC2, facet3);
 
 	//fix path finding on the right side: 8 to 10 bit shift
-	setByte(0x004B0A41, 10);
-	setHook((void*)0x004B0987, &onPathFind_shift);
+	writeByte(0x004B0A41, 10);
+	setHook((void*)0x004B0987, onPathFind_shift);
 
 	//100h consts
-	setInt(0x00615F4C, MAP_MAX);
-	setInt(0x00615F53, MAP_MAX);
+	writeDword(0x00615F4C, MAP_MAX);
+	writeDword(0x00615F53, MAP_MAX);
 
-	//setInt(0x00609999, MAP_MAX);	//check!
-	//setInt(0x00609A46, MAP_MAX);	//
-	//setInt(0x0060A10C, MAP_MAX);
+	//writeDword(0x00609999, MAP_MAX);	//check!
+	//writeDword(0x00609A46, MAP_MAX);	//
+	//writeDword(0x0060A10C, MAP_MAX);
 
 	//RM
-	//setInt(0x005CB15B, MAP_MAX);
+	//writeDword(0x005CB15B, MAP_MAX);
 
 	//FFFCFF00h constant -> FFFCFC00h
-	setInt(0x004B19E6, 0xFFFCFC00);
-	setInt(0x004B1ACB, 0xFFFCFC00);
-	setByte(0x004B19EC, 10);
-	setInt(0x004B1ACB, 0xFFFCFC00);
-	setByte(0x004B1AD1, 10);
-	setInt(0x004B1BA9, 0xFFFCFC00);
-	setByte(0x004B1BAF, 10);
-	setInt(0x004B1CB2, 0xFFFCFC00);
-	setByte(0x004B1CC3, 10);
+	writeDword(0x004B19E6, 0xFFFCFC00);
+	writeDword(0x004B1ACB, 0xFFFCFC00);
+	writeByte(0x004B19EC, 10);
+	writeDword(0x004B1ACB, 0xFFFCFC00);
+	writeByte(0x004B1AD1, 10);
+	writeDword(0x004B1BA9, 0xFFFCFC00);
+	writeByte(0x004B1BAF, 10);
+	writeDword(0x004B1CB2, 0xFFFCFC00);
+	writeByte(0x004B1CC3, 10);
 
-	setByte(0x004A9163, 10);
-	setByte(0x004A9B4F, 10);
+	writeByte(0x004A9163, 10);
+	writeByte(0x004A9B4F, 10);
 
 	//movsx -> movzx
-	setByte(0x0060BE42, 0xB7);
-	setByte(0x0060DE66, 0xB7);
-	setByte(0x00611290, 0xB7);
-	setByte(0x00491D34, 0xB7);
-	setByte(0x0060D09F, 0xB7);
-	setByte(0x0042B584, 0xB7);
+	writeByte(0x0060BE42, 0xB7);
+	writeByte(0x0060DE66, 0xB7);
+	writeByte(0x00611290, 0xB7);
+	writeByte(0x00491D34, 0xB7);
+	writeByte(0x0060D09F, 0xB7);
+	writeByte(0x0042B584, 0xB7);
 
-	/*setByte(0x0060BE57, 0xB7);
-	setByte(0x0060DE6B, 0xB7);
-	setByte(0x006112AD, 0xB7);
-	setByte(0x00491D52, 0xB7);
-	setByte(0x0060D0B5, 0xB7);
-	setByte(0x0042B588, 0xB7);*/
+	/*writeByte(0x0060BE57, 0xB7);
+	writeByte(0x0060DE6B, 0xB7);
+	writeByte(0x006112AD, 0xB7);
+	writeByte(0x00491D52, 0xB7);
+	writeByte(0x0060D0B5, 0xB7);
+	writeByte(0x0042B588, 0xB7);*/
 
 	//search for resources
 	setHook((void*)0x006150CB, findres_onX);
@@ -1617,17 +1611,17 @@ void setMapSizeHooks()
 	setHook((void*)0x00584A5A, ai_findres_load);
 
 	//search for targets
-	setHook((void*)0x00614AC1, &visible_unit_managerOnX);
-	setHook((void*)0x00614AEC, &visible_unit_managerOnY);
-	setHook((void*)0x00614B43, &visible_unit_managerOnPlayer);
-	setHook((void*)0x00614966, &visible_unit_managerUpdate);
+	setHook((void*)0x00614AC1, visible_unit_managerOnX);
+	setHook((void*)0x00614AEC, visible_unit_managerOnY);
+	setHook((void*)0x00614B43, visible_unit_managerOnPlayer);
+	setHook((void*)0x00614966, visible_unit_managerUpdate);
 
 	//visible unit ptr
-	setHook((void*)0x0041BCC6, &visible_unit_ptr_fix_1);
+	setHook((void*)0x0041BCC6, visible_unit_ptr_fix_1);
 
 	//save load fix
-	setInt(0x00583BF2, MAP_MAX);
-	setInt(0x00583BE7, MAP_MAX);
+	writeDword(0x00583BF2, MAP_MAX);
+	writeDword(0x00583BE7, MAP_MAX);
 
 	//standard game list
 	setHook((void*)0x00520043, maplist_make);
@@ -1668,17 +1662,19 @@ void setMapSizeHooks()
 	setHook((void*)0x0044BDD0, waypoint_fix);
 
 	//map zone pool
-	setInt(0x00624DC7, 0x200);
+	writeDword(0x00624DC7, 0x200);
 }
 
 void setMapSizeHooks_legacy()
 {
-	setHook((void*)0x0052A123, &onEditorMapSize_legacy);
+	setHook((void*)0x0052A123, onEditorMapSize_legacy);
 
 	setHook((void*)0x0058670C, ai_findres_save);
 	setHook((void*)0x00584A5A, ai_findres_load);
 
 	//save load fix
-	setInt(0x00583BF2, MAP_MAX);
-	setInt(0x00583BE7, MAP_MAX);
+	writeDword(0x00583BF2, MAP_MAX);
+	writeDword(0x00583BE7, MAP_MAX);
 }
+
+#pragma optimize( "", on )

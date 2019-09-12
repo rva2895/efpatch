@@ -319,7 +319,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
 		mov     ebx, [ebp + 8]
 		mov     esi, ebx
 		add     esi, 9
-		mov     edi, setByte
+		mov     edi, writeByte
 		push    ebx
 		push    005CAFF5h
 		call    edi
@@ -462,6 +462,7 @@ __declspec(naked) void onRmsCliffTokenRegister() //004E1096
 	}
 }
 
+#pragma optimize( "s", on )
 void setCliffTypeHooks()
 {
 	//setHook((void*)0x005CB1B0, &onCliffPaint);
@@ -470,3 +471,4 @@ void setCliffTypeHooks()
 	setHook((void*)0x004E3780, onRmsCliff);
 	setHook((void*)0x004E1096, onRmsCliffTokenRegister);
 }
+#pragma optimize( "", on )
