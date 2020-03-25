@@ -80,6 +80,11 @@
 #include "recordrestore.h"
 #include "mouseoverride.h"
 #include "notify.h"
+#include "wndmode.h"
+#include "create_object.h"
+#include "rms_tokens.h"
+#include "hotkey.h"
+#include "overlay.h"
 #ifdef TARGET_VOOBLY
 #include "iuserpatch.h"
 #endif
@@ -162,31 +167,6 @@ void getSettings()
 	}
 }
 
-char* cmdline = 0;
-bool normalmouse = false;
-
-void __stdcall fixCur(HWND hWnd, LPRECT rect)
-{
-	if (!cmdline)
-	{
-		cmdline = GetCommandLine();
-		if (strstr(cmdline, "NORMALMOUSE"))
-			normalmouse = true;
-	}
-	GetClientRect(hWnd, rect);
-	if (!normalmouse)
-		SetCursor(0);
-}
-
-__declspec(naked) void wndtmp() //00616C0F
-{
-	__asm
-	{
-		push    00616C15h
-		jmp     fixCur
-	}
-}
-
 #pragma optimize( "s", on )
 void setHooksCC()
 {
@@ -210,23 +190,7 @@ void setHooksCC()
 
 #ifndef TARGET_VOOBLY
 	if (cd.windowMode)
-	{
-		if (LoadLibrary("wndmode.dll"))
-			log("Loaded wndmode.dll");
-		else
-			log("No wndmode.dll. Using ddraw window mode if possible");
-
-		setHook((void*)0x00616C0F, &wndtmp);
-
-		writeByte(0x0047166E, 0x90);
-		writeByte(0x0047166F, 0x90);
-		writeDword(0x00471670, 0x90909090);
-		writeDword(0x00471674, 0x90909090);
-		writeDword(0x00471678, 0x90909090);
-		writeDword(0x0047167C, 0x90909090);
-		writeByte(0x00471680, 0x90);
-		writeByte(0x00471681, 0x90);
-	}
+		setWndModeHooks();
 #endif
 
 #ifndef TARGET_VOOBLY
@@ -335,7 +299,7 @@ void setHooksCC()
 	setHotkeyJumpHooks();
 	//setOOSHooks();
 
-	setRecBrowseHooks();
+	//setRecBrowseHooks();
 	setElevationHooks();
 
 	setNetworkHooks();
@@ -345,6 +309,23 @@ void setHooksCC()
 	setMouseOverrideHooks();
 
 	setNotifyHooks();
+
+	//disabled ungrouped AI alliance
+	writeByte(0x0061E2EB, 0xEB);
+
+	setHotkeyHooks();
+
+	setOverlayHooks();
+
+	//MP mouse lag
+	writeByte(0x0049F686, 0x0C);
+	writeWord(0x0049F906, 0x9090);
+	writeByte(0x00429541, 0xEB);
+
+	//wndproc loop delay
+	writeDword(0x00425EA6, 0x0674023C);
+	writeDword(0x00425EAA, 0x013C042C);
+	writeByte(0x00425EAE, 0x77);
 }
 #pragma optimize( "", on )
 
@@ -364,6 +345,8 @@ char efCiv[] = "stream\\ef_civ%d.mp3";
 char efShadow[] = "data\\shadow_x2.col";
 char efBlendomatic[] = "data\\blendomatic_x2.dat";
 char efICM[] = "data\\view_icm_x2.dat";
+
+char efDll[] = "language_x0.dll";
 
 #pragma optimize( "s", on )
 void setHooksEF()
@@ -418,7 +401,7 @@ void setHooksEF()
 
 	setAIHooks();
 
-	setHotkeyHooks();
+	setHotkeysHooks();
 
 	setZannFortHooks();
 
@@ -427,6 +410,9 @@ void setHooksEF()
 	//setTerrainAmount ();
 
 	setCliffTypeHooks();
+
+	setRmsTokenHooks();
+	setRmsCreateObjectHooks();
 
 	setPatrolHooks();
 	setAttackStanceHooks();
@@ -461,9 +447,23 @@ void setHooksEF()
 	writeDword(0x0051B2CC, (DWORD)efCiv);
 	writeDword(0x0050A37C, (DWORD)efDatabank);
 
-	//setCampaignHooks();
+	setCampaignHooks();
 
 	setPaletteHooks();
+
+	writeDword(0x0042467D, (DWORD)efDll);
+
+	//
+	//HMODULE m = LoadLibrary("dxmci.dll");
+	//DWORD d = (DWORD) GetProcAddress(m, "MCIWndCreateA2");
+	
+	//writeDword(0x005E832A, d - 0x005E832E);
+	//((HWND(__cdecl*) (HWND, HINSTANCE, DWORD, LPCSTR)) (d)) (0, 0, 0,
+	//	"avi\\test.mp4");
+	//MessageBox(0, "OK", "OK", 0);
+	//writeByte(0x005F0C28, 32);
+	//writeByte(0x005F0C10, 32);
+	//
 
 	log("setHooks() finished");
 }

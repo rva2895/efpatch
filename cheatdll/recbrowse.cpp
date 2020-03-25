@@ -115,6 +115,8 @@ DWORD WINAPI rec_cache_thread(void*)
 					rd.team_1[i] = team.names[i];
 					rd.team_1_colors[i] = team.colors[i];
 					rd.team_1_civs[i] = team.civs[i];
+					rd.team_1_cc_x[i] = team.cc_x[i];
+					rd.team_1_cc_y[i] = team.cc_y[i];
 				}
 
 				team = mg1.getTeam2();
@@ -124,15 +126,12 @@ DWORD WINAPI rec_cache_thread(void*)
 					rd.team_2[i] = team.names[i];
 					rd.team_2_colors[i] = team.colors[i];
 					rd.team_2_civs[i] = team.civs[i];
+					rd.team_2_cc_x[i] = team.cc_x[i];
+					rd.team_2_cc_y[i] = team.cc_y[i];
 				}
+				rd.map_x = mg1.d.map_x;
 				rd.version = mg1.version;
 			}
-			else
-				if (mg1.hasAI)
-				{
-					rd.hasAI = true;
-					rd.version = mg1.version;
-				}
 
 			//rec_cache->ack_queue(rd.file);
 			rec_cache->add_rec_data(rd);
@@ -287,7 +286,7 @@ void* wnd_list;
 HFONT font_bk;
 
 bool loaded_player_brushes = false;
-HBRUSH hb[8];
+HBRUSH hb[9];
 HWND hWndPlayers;
 
 char colors[16];
@@ -412,6 +411,16 @@ int screenToMap_y(int x, int y, int view_x, int view_y, int m)
 		(float)x * m / (float)view_x;
 }
 
+int mapToScreen_x(int x, int y, int view_x, int view_y, int m)
+{
+	return (x + y) * view_x / (2 * m);
+}
+
+int mapToScreen_y(int x, int y, int view_x, int view_y, int m)
+{
+	return (x - y) * (view_x / 2) / (2 * m) + view_x / 4;
+}
+
 HBITMAP make_bitmap(int x, int y, int view_x, int view_y, TILE* map)
 {
 	void* data = malloc(view_x*view_y * 4);
@@ -498,6 +507,23 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
 	int color_box_dist = y > 900 ? 40 : 30;
 	int team_dist = y > 900 ? 20 : 15;
 
+	int cc_size = 0;
+	y > 900 ? 6 : 4;
+	if (x <= 1024)
+		cc_size = 4;
+	else if (x <= 1280)
+		cc_size = 5;
+	else if (x <= 1600)
+		cc_size = 6;
+	else if (x <= 1920)
+		cc_size = 7;
+	else
+		cc_size = 9;
+
+	int text_offset = y > 900 ? 7 : 3;
+	int color_box_offset = y > 900 ? 17 : 10;
+	int player_name_offset = y > 900 ? 42 : 32;
+
 	r.left = 515 * (x / 800.0); //was 535
 	r.right = 760 * (x / 800.0);
 	r.top = 110 * (y / 600.0);
@@ -537,6 +563,24 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
 
 	REC_DATA rd = rec_cache->get_rec_data(filename, 2);
 
+	//draw playersplayers
+	if (!loaded_player_brushes)
+	{
+		hb[0] = CreateSolidBrush(RGB(0, 0, 255));
+		hb[1] = CreateSolidBrush(RGB(255, 0, 0));
+		hb[2] = CreateSolidBrush(RGB(0, 255, 0));
+		hb[3] = CreateSolidBrush(RGB(255, 255, 0));
+		hb[4] = CreateSolidBrush(RGB(0, 255, 255));
+		hb[5] = CreateSolidBrush(RGB(255, 0, 255));
+		hb[6] = CreateSolidBrush(RGB(48, 48, 48));
+		//hb[6] = CreateSolidBrush(RGB(127, 127, 127));
+		//hb[7] = CreateSolidBrush(RGB(255, 127, 0));
+		hb[7] = CreateSolidBrush(RGB(128, 0, 0));
+		hb[8] = CreateSolidBrush(RGB(255, 255, 255));
+
+		loaded_player_brushes = true;
+	}
+
 	char str[0x100];
 	if (rd.exists)
 		if (rd.valid)
@@ -557,25 +601,58 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
 
 			SelectObject(hdcMem, oldBitmap);
 			DeleteDC(hdcMem);
+
+			RECT r_cc;
+			for (int i = 0; i < rd.n_team1; i++)
+			{
+				if ((rd.team_1_cc_x[i] != -1) && (rd.team_1_cc_y[i] != -1))
+				{
+					r_cc.left = r.left + mapToScreen_x(rd.team_1_cc_x[i], rd.team_1_cc_y[i], r.right - r.left, r.bottom - r.top, rd.map_x) - cc_size;
+					r_cc.right = r.left + mapToScreen_x(rd.team_1_cc_x[i], rd.team_1_cc_y[i], r.right - r.left, r.bottom - r.top, rd.map_x) + cc_size;
+					r_cc.top = r.top + mapToScreen_y(rd.team_1_cc_x[i], rd.team_1_cc_y[i], r.right - r.left, r.bottom - r.top, rd.map_x) - cc_size;
+					r_cc.bottom = r.top + mapToScreen_y(rd.team_1_cc_x[i], rd.team_1_cc_y[i], r.right - r.left, r.bottom - r.top, rd.map_x) + cc_size;
+
+					HBRUSH hb_c;
+					if ((rd.team_1_colors[i] >= 0) && (rd.team_1_colors[i] < 8))
+						hb_c = hb[rd.team_1_colors[i]];
+					else
+						hb_c = hb[rd.team_1_colors[8]];
+					FillRect(hdc, &r_cc, hb_c);
+				}
+			}
+			for (int i = 0; i < rd.n_team2; i++)
+			{
+				if ((rd.team_2_cc_x[i] != -1) && (rd.team_2_cc_y[i] != -1))
+				{
+					r_cc.left = r.left + mapToScreen_x(rd.team_2_cc_x[i], rd.team_2_cc_y[i], r.right - r.left, r.bottom - r.top, rd.map_x) - cc_size;
+					r_cc.right = r.left + mapToScreen_x(rd.team_2_cc_x[i], rd.team_2_cc_y[i], r.right - r.left, r.bottom - r.top, rd.map_x) + cc_size;
+					r_cc.top = r.top + mapToScreen_y(rd.team_2_cc_x[i], rd.team_2_cc_y[i], r.right - r.left, r.bottom - r.top, rd.map_x) - cc_size;
+					r_cc.bottom = r.top + mapToScreen_y(rd.team_2_cc_x[i], rd.team_2_cc_y[i], r.right - r.left, r.bottom - r.top, rd.map_x) + cc_size;
+
+					HBRUSH hb_c;
+					if ((rd.team_2_colors[i] >= 0) && (rd.team_2_colors[i] < 8))
+						hb_c = hb[rd.team_2_colors[i]];
+					else
+						hb_c = hb[rd.team_2_colors[8]];
+					FillRect(hdc, &r_cc, hb_c);
+				}
+			}
 		}
 		else
-			if (rd.hasAI)
-				sprintf(str, "Preview for recordings with AIs is not available");
-			else
-				sprintf(str, "Invalid");
+			sprintf(str, "Invalid");
 	else
 		sprintf(str, "Loading...");
 
 	r.top += (r.right - r.left) / 2 + map_edge_dist;
 
-	r.left += 2;
+	r.left += text_offset;
 
 	HANDLE hOld = SelectObject(hdc, font_bk);
 	SetBkMode(hdc, TRANSPARENT);
 	SetTextColor(hdc, RGB(255, 255, 255));
 	DrawText(hdc, str, strlen(str), &r, DT_LEFT | DT_WORDBREAK);
 
-	r.left -= 2;
+	r.left -= text_offset;
 
 	RECT r_ver;
 	r_ver.right = r.right;
@@ -601,27 +678,13 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
 
 	r.top += 30;
 
-	//draw playersplayers
-	if (!loaded_player_brushes)
-	{
-		hb[0] = CreateSolidBrush(RGB(0, 0, 255));
-		hb[1] = CreateSolidBrush(RGB(255, 0, 0));
-		hb[2] = CreateSolidBrush(RGB(0, 255, 0));
-		hb[3] = CreateSolidBrush(RGB(255, 255, 0));
-		hb[4] = CreateSolidBrush(RGB(0, 255, 255));
-		hb[5] = CreateSolidBrush(RGB(255, 0, 255));
-		hb[6] = CreateSolidBrush(RGB(127, 127, 127));
-		hb[7] = CreateSolidBrush(RGB(255, 127, 0));
-		loaded_player_brushes = true;
-	}
-
 	RECT color_box;
-	color_box.left = r.left + 10;
+	color_box.left = r.left + color_box_offset;
 	color_box.top = r.top + 10;
 	color_box.right = color_box.left + color_box_size;
 	color_box.bottom = color_box.top + color_box_size;
 	RECT player_name;
-	player_name.left = r.left + 32;
+	player_name.left = r.left + player_name_offset;
 	player_name.top = r.top + (y > 900 ? 10 : 8);
 	player_name.right = r.right - 10;
 	player_name.bottom = player_name.top + 20;
@@ -632,7 +695,12 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
 
 	for (int i = 0; i < rd.n_team1; i++)
 	{
-		FillRect(hdc, &color_box, hb[rd.team_1_colors[i]]);
+		HBRUSH hb_c;
+		if ((rd.team_1_colors[i] >= 0) && (rd.team_1_colors[i] < 8))
+			hb_c = hb[rd.team_1_colors[i]];
+		else
+			hb_c = hb[rd.team_1_colors[8]];
+		FillRect(hdc, &color_box, hb_c);
 		MoveToEx(hdc, color_box.left, color_box.top, NULL);
 		LineTo(hdc, color_box.left, color_box.bottom);
 		LineTo(hdc, color_box.right, color_box.bottom);
@@ -650,7 +718,12 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
 	player_name.bottom += team_dist;
 	for (int i = 0; i < rd.n_team2; i++)
 	{
-		FillRect(hdc, &color_box, hb[rd.team_2_colors[i]]);
+		HBRUSH hb_c;
+		if ((rd.team_2_colors[i] >= 0) && (rd.team_2_colors[i] < 8))
+			hb_c = hb[rd.team_2_colors[i]];
+		else
+			hb_c = hb[rd.team_2_colors[8]];
+		FillRect(hdc, &color_box, hb_c);
 		MoveToEx(hdc, color_box.left, color_box.top, NULL);
 		LineTo(hdc, color_box.left, color_box.bottom);
 		LineTo(hdc, color_box.right, color_box.bottom);

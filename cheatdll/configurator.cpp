@@ -140,7 +140,7 @@ void getSettings(HWND hWnd)
 	CheckDlgButton(hWnd, IDC_CHECK_GREY, cd.minimap7);
 	CheckDlgButton(hWnd, IDC_CHECK_LARGETEXT, cd.largeText);
 
-	EnableWindow(GetDlgItem(hWnd, IDC_CHECK_GREY), FALSE);
+	//EnableWindow(GetDlgItem(hWnd, IDC_CHECK_GREY), FALSE);
 	EnableWindow(GetDlgItem(hWnd, IDC_CHECK_DSH), FALSE);
 	EnableWindow(GetDlgItem(hWnd, IDC_EDIT1), FALSE);
 	EnableWindow(GetDlgItem(hWnd, IDC_EDIT2), FALSE);

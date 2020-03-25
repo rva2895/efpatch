@@ -54,9 +54,9 @@ unsigned char colors_to_replace[] =
 	134, 7,
 	135, 255,
 	180, 179,
-	212, 176,
 	206, 0,
 	207, 209,
+	212, 176,
 	235, 52,
 	237, 55,
 	243, 68,
@@ -130,6 +130,7 @@ bool slp_interfac(int id)
 	case 50738:
 	case 50739:
 	case 50745:		//NEW
+	case 50746:		//VERY NEW
 	case 50749:		//NEW
 	case 50751:
 	case 50754:
@@ -139,6 +140,7 @@ bool slp_interfac(int id)
 	case 50789:
 	case 50790:
 	case 50791:
+	case 50792:		//VERY NEW
 	case 51000:		//cursor
 	case 51001:
 	case 51002:
@@ -169,7 +171,9 @@ bool slp_interfac(int id)
 	case 51148:
 	case 53002:		//NEW
 	case 53003:		//icon outline?
+	case 53004:		//VERY NEW
 	case 53008:		//rec interface
+	case 53009:		//VERY NEW, maybe wrong?
 	case 53011:		//mp stat text indicators
 	case 53201:
 	case 53203:
@@ -231,15 +235,15 @@ unsigned int getAffinityCount()
 void patch_drs_palette(const char* filename, const char* main_dir)
 {
 	log("Loading DRS...");
-	char s[0x100];
+	char err[0x100];
 	DRS* drs;
 	drs = new DRS();
 	SetCurrentDirectory(main_dir);
 	SetCurrentDirectory("data");
 	if (!drs->loadDRS(filename))
 	{
-		sprintf(s, "Cannot load %s.\nCheck installation integrity.", filename);
-		MessageBox(NULL, s, "Error", MB_ICONERROR);
+		sprintf(err, "Cannot load %s.\nCheck installation integrity.", filename);
+		MessageBox(NULL, err, "Error", MB_ICONERROR);
 		exit(0);
 	}
 	SetCurrentDirectory(getenv("temp"));
@@ -251,8 +255,8 @@ void patch_drs_palette(const char* filename, const char* main_dir)
 	log("Extracting files...");
 	if (drs->extractFiles() == 0)
 	{
-		sprintf(s, "Cannot create temporary file.\nMake sure there is at least 200MB free in TEMP folder", filename);
-		MessageBox(NULL, s, "Error", MB_ICONERROR);
+		sprintf(err, "Cannot create temporary file.\nMake sure there is at least 200MB free in TEMP folder");
+		MessageBox(NULL, err, "Error", MB_ICONERROR);
 		exit(0);
 	}
 	delete drs;
@@ -369,8 +373,8 @@ void patch_drs_palette(const char* filename, const char* main_dir)
 	log("Added %d files to DRS, writing...", nDrsFiles);
 	if (!drs->writeDRS())
 	{
-		sprintf(s, "Cannot create DRS file.\nMake sure there is at least 500MB free in Game folder", filename);
-		MessageBox(NULL, s, "Error", MB_ICONERROR);
+		sprintf(err, "Cannot create DRS file.\nMake sure there is at least 500MB free in Game folder");
+		MessageBox(NULL, err, "Error", MB_ICONERROR);
 		exit(0);
 	}
 	delete drs;
@@ -450,7 +454,7 @@ void installPalette()
 	{
 		fread(&ver, sizeof(char), 1, f);
 		fclose(f);
-		if (ver == '2')
+		if (ver == '3')
 		{
 			log("Palette already created");
 			return;
@@ -459,7 +463,7 @@ void installPalette()
 	log("Palette not found, creating DRS...");
 	DialogBox(GetModuleHandle("efpatch.dll"), MAKEINTRESOURCE(IDD_DIALOG_PALETTE), NULL, PaletteDlgProc);
 	f = fopen("data\\palette", "wb");
-	ver = '2';
+	ver = '3';
 	fwrite(&ver, sizeof(char), 1, f);
 	fclose(f);
 }
@@ -508,6 +512,50 @@ void fix_selection_box_color()
 	writeDword(0x005016C1, 68);
 	writeDword(0x005017A1, 68);
 	writeDword(0x00502641, 68);
+
+	//tech tree lines
+	writeDword(0x00462844, 7);
+
+	//rec interface lines
+	writeDword(0x004F3833, 0);
+	writeDword(0x004F3838, 1);
+	writeDword(0x004F383D, 1);
+	writeDword(0x004F3842, 4);
+	writeDword(0x004F3847, 4);
+	writeDword(0x004F384C, 6);
+	writeByte(0x004F3851, 133);
+
+	writeDword(0x004F38EF, 0);
+	writeDword(0x004F38F4, 1);
+	writeDword(0x004F38F9, 1);
+	writeDword(0x004F3904, 4);
+	writeDword(0x004F3909, 4);
+	writeDword(0x004F390E, 6);
+	writeByte(0x004F3913, 133);
+
+	writeDword(0x004F39B4, 0);
+	writeDword(0x004F39B9, 1);
+	writeDword(0x004F39BE, 1);
+	writeDword(0x004F39C3, 4);
+	writeDword(0x004F39C8, 4);
+	writeDword(0x004F39CD, 6);
+	writeByte(0x004F39D2, 133);
+
+	writeDword(0x004F3A72, 0);
+	writeDword(0x004F3A77, 1);
+	writeDword(0x004F3A7C, 1);
+	writeDword(0x004F3A81, 4);
+	writeDword(0x004F3A86, 4);
+	writeDword(0x004F3A8B, 6);
+	writeByte(0x004F3A90, 133);
+
+	writeDword(0x004F3B34, 0);
+	writeDword(0x004F3B39, 1);
+	writeDword(0x004F3B3E, 1);
+	writeDword(0x004F3B43, 4);
+	writeDword(0x004F3B48, 4);
+	writeDword(0x004F3B4D, 6);
+	writeByte(0x004F3B52, 133);
 }
 
 void setPaletteHooks()

@@ -4,6 +4,8 @@
 
 int t_ver;
 
+char** terrain_names = 0;
+
 int* terrain_language_dll = 0;
 extern BYTE* terrain_array;
 int terrains_loaded = 0;
@@ -193,6 +195,27 @@ void loadTerrainTxt()
 			;
 		log("Loaded %d terrains", terrains_loaded);
 		fclose(f);
+
+		HMODULE lang = LoadLibrary("language.dll");
+		HMODULE lang_x2 = LoadLibrary("language_x2.dll");
+
+		terrain_names = (char**)malloc(terrains_loaded*sizeof(char**));
+		for (int i = 0; i < terrains_loaded; i++)
+		{
+			char buf[0x100];
+			int n = language_dll_load(terrain_language_dll[i], buf, 0xFF);
+			if (n > 0)
+			{
+				terrain_names[i] = (char*)malloc(n + 1);
+				strcpy(terrain_names[i], buf);
+			}
+			else
+				terrain_names[i] = "FORBIDDEN";
+			log("Terrain name %d - %s", i, terrain_names[i]);
+		}
+
+		FreeLibrary(lang);
+		FreeLibrary(lang_x2);
 	}
 	else
 	{

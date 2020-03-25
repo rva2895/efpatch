@@ -5,6 +5,7 @@
 #include "aibuilders.h"
 #include "aisnx.h"
 #include "aicommandunits.h"
+#include "aigoals.h"
 
 void setAIHooks()
 {
@@ -13,4 +14,6 @@ void setAIHooks()
 	setAISNXHooks();
 
 	setAICommandUnitsHooks();
+
+	setAIGoalsHooks();
 }

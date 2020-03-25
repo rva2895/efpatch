@@ -5,7 +5,7 @@
 #include "drsfile.h"
 #include "slp.h"
 
-#define RESOLUTION_TOOL_VERSION 100004
+#define RESOLUTION_TOOL_VERSION 100005
 
 void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
 {
@@ -442,6 +442,8 @@ void patchResolution(int x, int y, DRS* drs)
 #ifndef _CHEATDLL_CC
 		parseSLP(&x0, &x1, &x2, drs, 51149, x, y);
 		parseSLP(&x0, &x1, &x2, drs, 51150, x, y);
+		parseSLP(&x0, &x1, &x2, drs, 51151, x, y);
+		parseSLP(&x0, &x1, &x2, drs, 51152, x, y);
 #endif
 	}
 	else if (y >= 768)
@@ -459,6 +461,8 @@ void patchResolution(int x, int y, DRS* drs)
 #ifndef _CHEATDLL_CC
 		parseSLP(&x0, &x1, &x2, drs, 51129, x, y);
 		parseSLP(&x0, &x1, &x2, drs, 51130, x, y);
+		parseSLP(&x0, &x1, &x2, drs, 51131, x, y);
+		parseSLP(&x0, &x1, &x2, drs, 51132, x, y);
 #endif
 	}
 	drs->writeDRS();

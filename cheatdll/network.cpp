@@ -898,6 +898,7 @@ void setNetworkHooks()
 	writeWord(0x004373A6, 0x1BEB);
 
 	writeWord(0x00438C10, 0x08C2);
+	writeByte(0x00438C12, 0x00);
 
 	writeByte(0x00438CE0, 0xC3);
 

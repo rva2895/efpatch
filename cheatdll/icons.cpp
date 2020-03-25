@@ -564,5 +564,18 @@ void fixIconLoadingRoutines()
 	techTreeTech = malloc(CIV_ICON_OFFSET);
 
 	writeByte(0x00463402, CIV_COUNT + 1);
+
+	//new EF icon offsets
+	writeDword(0x00463314, 53300);	//bldg
+	writeDword(0x00463370, 53330);	//unit
+	writeDword(0x004633CC, 53360);	//tech
+
+	writeDword(0x004F3143, 53300);	//bldg
+	writeDword(0x004F319F, 53330);	//unit
+	writeDword(0x004F31FB, 53360);	//tech
+
+	writeDword(0x005337CB, 53300);	//bldg
+	writeDword(0x00533830, 53330);	//unit
+	//writeDword(0x004F31FB, 53360);	//tech
 }
 #pragma optimize( "", on )

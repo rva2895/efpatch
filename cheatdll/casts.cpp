@@ -618,7 +618,7 @@ int __stdcall strcmp_wr(char* s1, char* s2)
 }
 
 const char oldVer[] = "VER 9.4";
-const char newVer[] = "VER 9.7";
+const char newVer[] = "VER 9.8";
 
 __declspec(naked) void verLoadHook() //0061D9A5
 {

@@ -3,10 +3,12 @@
 #include "test.h"
 #include "log.h"
 #include "advcheat.h"
+#include "rundll.h"
 
 #include <process.h>
 #include <MMSystem.h>
 #include <vector>
+#include <string>
 
 /*__declspec(naked) int someText()
 {
@@ -104,16 +106,16 @@ __declspec(naked) int onReadDat()
 	{
 		mov     ecx, data
 		mov     ecx, [ecx]
-		cmp     cx, 995
+		cmp     ecx, 3ACCFF22h
 		jnz     _end
 		int     3
-		push    eax
-		push    0
-		push    offset title
-		push    offset text
-		push    0
-		call    ds:[MessageBoxA]
-		pop     eax
+		//push    eax
+		//push    0
+		//push    offset title
+		//push    offset text
+		//push    0
+		//call    ds:[MessageBoxA]
+		//pop     eax
 _end:
 		mov     ecx, retSave
 		jmp     ecx
@@ -177,6 +179,14 @@ int (__cdecl* fscanf2)(FILE *File, const char *Format, ...) =
 char* (__cdecl* fgets2)(char *Buf, int MaxCount, FILE *File) =
 	(char* (__cdecl*) (char*, int, FILE*))0x0063303A;
 
+extern std::string rms_error_1;
+extern std::string rms_error_2;
+
+extern bool isEditor;
+
+extern bool editorstatus_isValid;
+bool rms_first_error = false;
+
 char* log_int_s = NULL;
 __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
 {
@@ -198,6 +208,19 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
 		return;
 
 	//
+	char b[0x100];
+	bool rms_flag = false;
+
+	if (!strcmp(fmt, "------Opening script (%s)."))
+	{
+		//rms_begin = true;
+		rms_error_1 = "RMS: No errors";
+		rms_error_2 = "";
+		if (isEditor)
+			update_editor_bk();
+		rms_first_error = true;
+	}
+
 	if (rms_f && (rms_f != (FILE*)-1))
 	{
 		pos = ftell2(rms_f);
@@ -215,6 +238,13 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
 			free(d);
 			fseek2(rms_f, pos, SEEK_SET);
 			log("** RMS, line %d:\n\n%s", lines, log_int_s);
+			if (rms_first_error)
+			{
+				sprintf(b, "RMS: line %d: %s", lines, log_int_s);
+				rms_error_1 = b;
+				rms_flag = true;
+				rms_first_error = false;
+			}
 		}
 	}
 	//
@@ -222,6 +252,12 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
 	va_start(ap, fmt);
 	vsprintf(log_int_s, fmt, ap);
 	log_internal("%s", log_int_s);
+	if (rms_flag)
+	{
+		sprintf(b, "%s", log_int_s);
+		rms_error_2 = b;
+		rms_flag = false;
+	}
 	va_end(ap);
 }
 
@@ -670,7 +706,7 @@ void thread_scroll(void*)
 {
 	float x = 10;
 	float y = 10;
-	float step = 0.02;
+	float step = 0.02f;
 	DWORD d = 16;
 	Sleep(15000);
 	DWORD prev_time = timeGetTime();
@@ -730,12 +766,37 @@ __declspec(naked) void onScroll2() //0060BE1C
 	}
 }
 
+void __stdcall add_drs(char* name, int id)
+{
+	FILE* f = fopen("drs.txt", "at+");
+	fprintf(f, "%d,%s\n", id, name);
+	fclose(f);
+}
+
+__declspec(naked) void loadDRSHookT() //00542870
+{
+	__asm
+	{
+		push    ecx
+		mov     eax, [esp + 0Ch]
+		push    eax
+		mov     eax, [esp + 0Ch]
+		push    eax
+		call    add_drs
+		pop     ecx
+		sub     esp, 104h
+		mov     eax, 00542876h
+		jmp     eax
+	}
+}
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
+	//setHook((void*)0x00542870, loadDRSHookT);
 	//timeGetTime
 	//interceptTime();
-	interceptTextOut();
+	//interceptTextOut();
 
 	//setHook((void*)0x0060BCFF, onScroll);
 	//setHook((void*)0x0060BE1C, onScroll2);
@@ -809,7 +870,7 @@ void setTestHook()
 	setHook((void*)0x004E1801, rms_fptr);
 	setHook((void*)0x004E1951, rms_fptr_close);
 
-	//setHook ((void*)0x004D5550, &readDatHook);
+	//setHook ((void*)0x004D5550, readDatHook);
 
 	setHook((void*)0x00438140, onChat);
 }

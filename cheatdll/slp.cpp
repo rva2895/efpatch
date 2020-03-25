@@ -306,6 +306,16 @@ int get_st(int id)
 	case 51123:
 	case 51125:
 		return 416;
+	//FO, RS 768
+	case 51131:
+		return 426;
+	case 51132:
+		return 416;
+		//FO, RS 1024:
+	case 51151:
+		return 576;
+	case 51152:
+		return 526;
 	default:
 		return 0;
 	}

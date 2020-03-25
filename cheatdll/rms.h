@@ -1,8 +1,8 @@
 #pragma once
 
-void rmsNameHookLoad ();
-void rmsNameHookUnload ();
-void setRmsEditorHooks ();
+void rmsNameHookLoad();
+void rmsNameHookUnload();
+void setRmsEditorHooks();
 
 struct RMS_ASSIGN
 {

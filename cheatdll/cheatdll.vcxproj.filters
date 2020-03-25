@@ -49,6 +49,12 @@
     <Filter Include="Заголовочные файлы\graphics">
       <UniqueIdentifier>{a214b077-c60a-4cc3-893c-12497fcf6e39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы исходного кода\rms">
+      <UniqueIdentifier>{33926e2c-2ef2-4f1e-9c1a-317416e573d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\rms">
+      <UniqueIdentifier>{97344b17-9c5e-4781-9e4c-073b43858c62}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -337,6 +343,24 @@
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
     <ClInclude Include="wndproc.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="wndmode.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="create_object.h">
+      <Filter>Заголовочные файлы\rms</Filter>
+    </ClInclude>
+    <ClInclude Include="rms_tokens.h">
+      <Filter>Заголовочные файлы\rms</Filter>
+    </ClInclude>
+    <ClInclude Include="aigoals.h">
+      <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="hotkey.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="overlay.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
   </ItemGroup>
@@ -630,6 +654,24 @@
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
     <ClCompile Include="keyboard.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="wndmode.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="create_object.cpp">
+      <Filter>Файлы исходного кода\rms</Filter>
+    </ClCompile>
+    <ClCompile Include="rms_tokens.cpp">
+      <Filter>Файлы исходного кода\rms</Filter>
+    </ClCompile>
+    <ClCompile Include="aigoals.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="hotkey.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="overlay.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>

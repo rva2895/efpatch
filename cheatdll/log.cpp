@@ -166,6 +166,14 @@ void __cdecl log(const char* format, ...)
 		vfprintf(f, format, ap);
 		//memset (lastLogs [logged % 3], 0, 500);
 		vsprintf(lastLogs[logged % 12], format, ap);
+		//
+#ifdef _DEBUG
+		char lastStr[500];
+		strcpy(lastStr, lastLogs[logged % 12]);
+		strcat(lastStr, "\x0A");
+		OutputDebugString(lastStr);
+#endif
+		//
 		logged++;
 		fputs("\x0A", f);
 		va_end(ap);
@@ -203,6 +211,14 @@ void __cdecl log_internal(const char* format, ...)
 		vfprintf(f, format, ap);
 		//memset (lastLogs [logged % 3], 0, 500);
 		vsprintf(lastLogs[logged % 12], format, ap);
+		//
+#ifdef _DEBUG
+		char lastStr[500];
+		strcpy(lastStr, lastLogs[logged % 12]);
+		strcat(lastStr, "\x0A");
+		OutputDebugString(lastStr);
+#endif
+		//
 		logged++;
 		fputs("\x0A", f);
 		va_end(ap);

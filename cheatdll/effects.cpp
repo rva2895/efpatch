@@ -381,7 +381,6 @@ void setEffectHooks()
 	//writeByte(0x007B3188, 0x90); //change unit data - remove type check
 	//writeByte(0x007B3189, 0x90);
 
-	DWORD adrChangePropertyObjectEffect = (DWORD)&changePropertyObjectHook;
 	//int adrSetVarEffect = (int)&setVarEffect;
 
 	setHook((void*)0x007B2A9B, effectParams);
@@ -402,10 +401,10 @@ void setEffectHooks()
 
 	writeByte(0x005F53AF, (nEffects + 1) * 4 - 8);
 
-	writeDword(0x007B22E8, (DWORD)&adrChangePropertyObjectEffect); //changepropobj effect
+	writeDword(0x007B22E8, (DWORD)&changePropertyObjectHook); //changepropobj effect
 	//WriteProcessMemory (GetCurrentProcess (), (void*)0x7B22EC, &adrSetVarEffect, 4, 0); //setvar effect
 
-	writeDword(0x007B3195, (DWORD)&adrBuf); //wtf???
+	writeDword(0x007B3195, (DWORD)adrBuf); //wtf???
 
 	writeDword(0x007B22EC, (DWORD)&effectExploreArea);
 	writeDword(0x007B22F0, (DWORD)&effectUnitVar);

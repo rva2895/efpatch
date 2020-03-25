@@ -15,6 +15,8 @@ typedef struct _playerinfo
 	char* name;
 	int civ;
 	int color;
+	float cc_x;
+	float cc_y;
 } PLAYERINFO;
 
 typedef struct _team
@@ -23,6 +25,8 @@ typedef struct _team
 	char* names[8];
 	char colors[8];
 	char civs[8];
+	float cc_x[8];
+	float cc_y[8];
 } TEAM;
 
 class MG1
@@ -31,7 +35,6 @@ private:
 	char* map_type;
 public:
 	bool loaded;
-	bool hasAI;
 	DWORD version;
 	char* p;
 	void readN(void*, int);

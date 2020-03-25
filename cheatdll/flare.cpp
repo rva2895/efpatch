@@ -149,12 +149,12 @@ __declspec(naked) void onChangeState() //005F8C29
 #pragma optimize( "s", on )
 void setFlareHooks()
 {
-	setHook((void*)0x005F9416, &onGetColor);
-	setHook((void*)0x005F943B, &onDrawX);
-	setHook((void*)0x005BCAC0, &onCreateFlare);
-	setHook((void*)0x005F8C29, &onChangeState);
+	setHook((void*)0x005F9416, onGetColor);
+	setHook((void*)0x005F943B, onDrawX);
+	setHook((void*)0x005BCAC0, onCreateFlare);
+	setHook((void*)0x005F8C29, onChangeState);
 
-	setHook((void*)0x005F971B, &insideDrawFlare);
+	setHook((void*)0x005F971B, insideDrawFlare);
 }
 #pragma optimize( "", on )
 

@@ -114,6 +114,20 @@ void* __stdcall getCurrentPlayer()
 	return global_getCurrentPlayer(*(void**)0x006A3684);
 }
 
+int __stdcall language_dll_load(UINT id, char* buf, int nmax)
+{
+	//HMODULE lang = GetModuleHandle("language_x2.dll");
+	//if (!lang)
+	//	LoadLibrary("language_x2.dll");
+	//int e = GetLastError();
+	int n = LoadString(GetModuleHandle("language_x2.dll"), id, buf, nmax);
+	//e = GetLastError();
+	if (n == 0)
+		return LoadString(GetModuleHandle("language.dll"), id, buf, nmax);
+	else
+		return n;
+}
+
 //6A35D8 <- chat this
 
 void __stdcall sendChat(char* s, int p)

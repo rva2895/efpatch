@@ -293,6 +293,7 @@
     <ClInclude Include="ai.h" />
     <ClInclude Include="aibuilders.h" />
     <ClInclude Include="aicommandunits.h" />
+    <ClInclude Include="aigoals.h" />
     <ClInclude Include="aisnx.h" />
     <ClInclude Include="aiunitcount.h" />
     <ClInclude Include="animatedterrain.h" />
@@ -312,6 +313,7 @@
     <ClInclude Include="convert.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="crashreporter.h" />
+    <ClInclude Include="create_object.h" />
     <ClInclude Include="drs.h" />
     <ClInclude Include="drsfile.h" />
     <ClInclude Include="dsoundhook.h" />
@@ -327,6 +329,7 @@
     <ClInclude Include="flare.h" />
     <ClInclude Include="gamemode.h" />
     <ClInclude Include="gamespeed.h" />
+    <ClInclude Include="hotkey.h" />
     <ClInclude Include="hotkeyjump.h" />
     <ClInclude Include="hotkeys.h" />
     <ClInclude Include="icons.h" />
@@ -346,6 +349,7 @@
     <ClInclude Include="notify.h" />
     <ClInclude Include="objpanel.h" />
     <ClInclude Include="oos.h" />
+    <ClInclude Include="overlay.h" />
     <ClInclude Include="palette.h" />
     <ClInclude Include="patrol.h" />
     <ClInclude Include="population.h" />
@@ -362,6 +366,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="revertToX1.h" />
     <ClInclude Include="rms.h" />
+    <ClInclude Include="rms_tokens.h" />
     <ClInclude Include="rundll.h" />
     <ClInclude Include="savegamever.h" />
     <ClInclude Include="scroll.h" />
@@ -381,6 +386,7 @@
     <ClInclude Include="trigger_unit.h" />
     <ClInclude Include="versionselect.h" />
     <ClInclude Include="votepanel.h" />
+    <ClInclude Include="wndmode.h" />
     <ClInclude Include="wndproc.h" />
     <ClInclude Include="zannfort.h" />
   </ItemGroup>
@@ -390,6 +396,7 @@
     <ClCompile Include="ai.cpp" />
     <ClCompile Include="aibuilders.cpp" />
     <ClCompile Include="aicommandunits.cpp" />
+    <ClCompile Include="aigoals.cpp" />
     <ClCompile Include="aisnx.cpp" />
     <ClCompile Include="aiunitcount.cpp" />
     <ClCompile Include="animatedterrain.cpp" />
@@ -409,6 +416,7 @@
     <ClCompile Include="convert.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="crashreporter.cpp" />
+    <ClCompile Include="create_object.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug_cc|Win32'">false</CompileAsManaged>
@@ -444,6 +452,7 @@
     <ClCompile Include="flare.cpp" />
     <ClCompile Include="gamemode.cpp" />
     <ClCompile Include="gamespeed.cpp" />
+    <ClCompile Include="hotkey.cpp" />
     <ClCompile Include="hotkeyjump.cpp" />
     <ClCompile Include="hotkeys.cpp" />
     <ClCompile Include="icons.cpp" />
@@ -465,6 +474,7 @@
     <ClCompile Include="objpanel.cpp" />
     <ClCompile Include="objpaneldraw.cpp" />
     <ClCompile Include="oos.cpp" />
+    <ClCompile Include="overlay.cpp" />
     <ClCompile Include="palette.cpp" />
     <ClCompile Include="patrol.cpp" />
     <ClCompile Include="population.cpp" />
@@ -480,6 +490,7 @@
     <ClCompile Include="resolution.cpp" />
     <ClCompile Include="revertToX1.cpp" />
     <ClCompile Include="rms.cpp" />
+    <ClCompile Include="rms_tokens.cpp" />
     <ClCompile Include="rundll.cpp" />
     <ClCompile Include="savegamever.cpp" />
     <ClCompile Include="scroll.cpp" />
@@ -506,6 +517,7 @@
     <ClCompile Include="trigger_unit.cpp" />
     <ClCompile Include="versionselect.cpp" />
     <ClCompile Include="votepanel.cpp" />
+    <ClCompile Include="wndmode.cpp" />
     <ClCompile Include="wndproc.cpp" />
     <ClCompile Include="zannfort.cpp" />
   </ItemGroup>

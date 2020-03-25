@@ -2,186 +2,6 @@
 
 #include "terrain.h"
 
-char* terrain_names[] =
-{
-	"Grass 1",
-	"Water Shallow",
-	"Shore",
-	"Metal 1",
-	"Shallows",
-	"Leaves",
-	"Dirt 1",
-	"Farm",
-	"Farm (depleted)",
-	"Grass 3",
-	"Tree (Strange)",
-	"Dirt 2",
-	"Grass 2",
-	"Tree (Barren)",
-	"Sand",
-	"Cloud Tops",
-	"Starfield",
-	"Tree (Pine)",
-	"Tree (Oak)",
-	"Tree (Twisted)",
-	"Tree (Palm)",
-	"Tree (Redwood)",
-	"Water Medium",
-	"Water Deep",
-	"Road 1",
-	"Road 2",
-	"Red Desert",
-	"Foundation",
-	"Water (walkable)",
-	"Farm (build)",
-	"Gungan Farm (build)",
-	"Gungan Farm (depleted)",
-	"Snow",
-	"Snow w/Rock",
-	"Snow w/Metal",
-	"Ice",
-	"Foundation (snow)",
-	"Ice (shore)",
-	"Road 3",
-	"Metal 2",
-	"Unbuildable",
-	"Grass 4",
-	"Rock 1",
-	"Metal 3",
-	"Rock 2",
-	"Sand w/Rock",
-	"Sand 2",
-	"Snow w/Dirt",
-	"Gungan Farm",
-	"Metal w/Carbon",
-	"Rock w/Carbon",
-	"Lava",
-	"Volcanic Rock",	//CC ENDS HERE
-	"<placeholder>",
-	"Sand w/Rock 2",
-	"Snow w/Grass",
-	"Blank",
-	"Black Sand 1",
-	"Black Sand 2",
-	"Marsh",
-	"Mud w/Grass",
-	"Sand w/Grass",
-	"Seabed",
-	"Snow 2",
-	"Soil",
-	"Volcanic Cracks",
-	"Grass 4",
-	"Pavement 1",
-	"Pavement 2",
-	"Floor 1",
-	"Moss",
-	"Road 4",
-	"Rock 3",
-	"Tree (Blba)",
-	"Tree (Boffa)",
-	"Tree (Bubse)",
-	"Tree (Felucia)",
-	"Tree (Fir)",
-	"Tree (Flutevine)",
-	"Tree (Holly)",
-	"Tree (Jungle)",
-	"Tree (Juniper)",
-	"Tree (Larch)",
-	"Tree (Marsh)",
-	"Tree (Snow Fir)",
-	"Tree (Stone Pine)",
-	"Tree (Tropical)",
-	"Carbon Rocks (Frost)",
-	"Carbon Rocks (Green)",
-	"Carbon Rocks (Brown)",
-	"Carbon Rocks (Snow)",
-	"Salt w/Rock",
-	"Carbon Rocks (Black)",
-	"Floor 2",
-	"Floor 3",
-	"Floor 4",
-	"Metal 4",
-	"Metal 5",
-	"Metal 6",
-	"Metal 7",
-	"Rock 4",
-	"Salt",
-	"Sand 3",
-	"Sand w/Grass 2",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"FORBIDDEN",
-	"Red Desert 2",
-	"Red Desert 3",
-	"Road 5",
-	"Rock 5",
-	"Seabed 2",
-	"Snow w/Rock 2",
-	"Snow w/Rock 3",
-	"Metal 8",
-	"Wood 1",
-	"Wood 2",
-	"Water Tropical (Shallow)",
-	"Water Tropical (Medium)",
-	"Water Tropical (Deep)",
-	"Water Tropical Shallows",
-	"Mud",
-	"Asteroid Rock 1",
-	"Asteroid Rock 2",
-	"Asteroid Rock 3",
-	"Barren 1",
-	"Barren 2",
-	"Lava Rock",
-	"Rock w/Fungus 1",
-	"Rock w/Fungus 2",
-	"Grass 5",
-	"Grass 6",
-	"Grass 7",
-	"Grass 8",
-	"Gravel",
-	"Ice 2",
-	"Ice 3",
-	"Ice 4",
-	"Ice 5",
-	"Mud 2",
-	"Mud 3",
-	"Mud Rock 1",
-	"Mud Rock 2",
-	"Pavement 3",
-	"Red Desert 4",
-	"Road 6",
-	"Road 7",
-	"Sand w/Grass 3",
-	"Sandstone",
-	"Sludge",
-	"Dirt 3",
-	"Wood 3",
-	"Yellow Plains 2",
-	"Metal 9"
-};
-
 #ifndef _CHEATDLL_CC
 #define TERRAIN_COUNT 252
 #else
@@ -242,6 +62,9 @@ BYTE indirect_table_water[] =	//starts from 1 (TERR-WATER1)
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
@@ -249,7 +72,7 @@ BYTE indirect_table_water[] =	//starts from 1 (TERR-WATER1)
 
 //BYTE indirect_table_water_2[TERR_MAX_CONST+1];
 
-void terrain_transition_change(int state)
+/*void terrain_transition_change(int state)
 {
 	//writeByte(0x005CBE20, state ? 0xFF : 2);
 	indirect_table_water[0] = state;	//WATER1
@@ -257,7 +80,7 @@ void terrain_transition_change(int state)
 	indirect_table_water[21] = state;	//WATER2
 	indirect_table_water[22] = state;	//WATER3
 	indirect_table_water[58] = state;	//MARSH
-	/*for (int i = 0; i < sizeof(indirect_table_water); i++)
+	for (int i = 0; i < sizeof(indirect_table_water); i++)
 		switch (i)
 		{
 		case 0:
@@ -268,8 +91,9 @@ void terrain_transition_change(int state)
 			break;
 		default:
 			indirect_table_water[i] = !state;
-		}*/
+		}
 }
+*/
 
 __declspec(naked) void ice_terrain_fix() //005CBCCE
 {
@@ -786,6 +610,66 @@ __declspec(naked) void terrain_read_dat_split() //0048FAFC
 	}
 }
 
+int __fastcall isCarbon(char terrain)
+{
+	switch (terrain)
+	{
+	case 10:
+	case 13:
+	case 17:
+	case 18:
+	case 19:
+	case 20:
+	case 21:
+	case 49:
+	case 50:
+	case 73:
+	case 74:
+	case 75:
+	case 76:
+	case 77:
+	case 78:
+	case 79:
+	case 80:
+	case 81:
+	case 82:
+	case 83:
+	case 84:
+	case 85:
+	case 86:
+	case 87:
+	case 88:
+	case 89:
+	case 90:
+	case 92:
+	case 176:
+	case 177:
+	case 178:
+	case 179:
+		return true;
+		break;
+	default:
+		return false;
+		break;
+	}
+}
+
+__declspec(naked) void onResourceFound_carbon() //005856DE
+{
+	__asm
+	{
+		mov     ecx, eax
+		call    isCarbon
+		test    eax, eax
+		jnz     found_carbon
+		mov     eax, 00585726h
+		jmp     eax
+found_carbon:
+		mov     eax, 0058570Bh
+		jmp     eax
+	}
+}
+
 #pragma optimize( "s", on )
 void setExtraTerrainHooks()
 {
@@ -981,6 +865,8 @@ void setExtraTerrainHooks()
 	setHook((void*)0x0060DC77, terrain_forbidden_ids_2);
 	setHook((void*)0x00497141, terrain_memory_fix);
 	setHook((void*)0x005006F4, terrain_sound_fix);
+
+	setHook((void*)0x005856DE, onResourceFound_carbon);
 }
 
 void setExtraTerrainHooks_CC()
