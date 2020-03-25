@@ -8,6 +8,7 @@
 #include "registry.h"
 #include "palette.h"
 #include "rec.h"
+#include "overlay.h"
 
 #ifndef TARGET_VOOBLY
 
@@ -211,6 +212,10 @@ int CALLBACK WndProc_dll(HWND hWnd,
 				//{
 					recSwitch(LOWORD(wParam)-0x30);
 				//}
+			}
+			if (LOWORD(wParam) == VK_F8)						//rec overlay
+			{
+				overlay_switch();
 			}
 		}
 	}

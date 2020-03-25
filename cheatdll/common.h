@@ -20,6 +20,8 @@ extern int (__thiscall* player_scrollView)(void*, float, float, int);
 
 void* __stdcall getCurrentPlayer();
 
+int __stdcall language_dll_load(UINT id, char* buf, int nmax);
+
 int __stdcall getWindowX();
 int __stdcall getWindowY();
 

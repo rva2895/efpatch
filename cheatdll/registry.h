@@ -32,5 +32,5 @@ struct CONFIG_DATA
 	int largeText;
 };
 
-void regGet (CONFIG_DATA*);
-void regSet (CONFIG_DATA*);
+void regGet(CONFIG_DATA*);
+void regSet(CONFIG_DATA*);

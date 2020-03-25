@@ -490,10 +490,10 @@ void setGameSpeedHooks()
 	//setHook((void*)0x005E01E6, onPrintTime);
 
 	//setHook((void*)0x00471CB0, onDrawScreen); //obsolete
-	setHook((void*)0x00428B02, onDrawScreen2);
+	//setHook((void*)0x00428B02, onDrawScreen2);
 	//setHook((void*)0x004B6A00, onDrawView);
-	setHook((void*)0x005FC160, onDrawView2);
+	//setHook((void*)0x005FC160, onDrawView2);
 
-	setHook((void*)0x004C2010, onScrollView);
+	//setHook((void*)0x004C2010, onScrollView);
 }
 #pragma optimize( "", on )

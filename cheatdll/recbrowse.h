@@ -8,7 +8,6 @@ struct REC_DATA
 {
 	bool exists;
 	bool valid;
-	bool hasAI;
 	DWORD version;
 	std::string file;
 	HBITMAP map;
@@ -22,6 +21,13 @@ struct REC_DATA
 	char team_1_civs[8];
 	char team_2_colors[8];
 	char team_2_civs[8];
+
+	float team_1_cc_x[8];
+	float team_1_cc_y[8];
+	float team_2_cc_x[8];
+	float team_2_cc_y[8];
+
+	int map_x;
 };
 
 #define CACHE_SIZE 100

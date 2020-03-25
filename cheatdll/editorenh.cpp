@@ -121,7 +121,7 @@ __declspec(naked) void __fastcall flush_ai_trigger_dropdown(void*)
 void(__thiscall* window_dropdown_addText) (void*, char*, int) =
 	(void(__thiscall*) (void*, char*, int)) 0x004C82A0;
 
-extern char* terrain_names[];
+extern char** terrain_names;
 
 void* __stdcall getEffectParams_hook(void* _this, effect* e)
 {
@@ -167,7 +167,7 @@ void* __stdcall getEffectParams_hook(void* _this, effect* e)
 		break;
 	case 0x2E:		//terrain
 		flush_ai_trigger_dropdown(_this);
-		for (int i = 0; i < 176; i++)
+		for (int i = 0; i < 198; i++)
 			if (((i < 104) || (i > 128)) && (i != 53))
 				window_dropdown_addText(*(void**)((int)_this + 0xED0), terrain_names[i], i);
 		//ai trigger hlp

@@ -14,8 +14,18 @@ char* find_player_info_end(char* d, char* p, int n_players, int total)
 	bool diplo_bad = true;
 	while (diplo_bad)
 	{
-		while (memcmp(p, "\x00\x0B\x01\x0B", 4) && ((p - d) < (total - (4 + 2 + n_players + 9 * 4))))
+		//while (memcmp(p, "\x00\x0B\x01\x0B", 4) && ((p - d) < (total - (4 + 2 + n_players + 9 * 4))))
+		//	p++;
+
+		while (memcmp(p, "\x00\x0B\x01\x0B", 4) && memcmp(p, "\x00\x0B\x03\x0B", 4) &&
+			((p - d) < (total - (4 + 2 + n_players + 9 * 4))))
 			p++;
+
+		//while (memcmp(p, "\x00\x0B", 2) && ((p - d) < (total - (2 + 2 + n_players + 9 * 4))))
+		//	p++;
+
+		//if ((p - d) >= (total - (2 + 2 + n_players + 9 * 4)))
+		//	return 0;
 
 		if ((p - d) >= (total - (2 + 4 + n_players + 9 * 4)))
 			return 0;
@@ -64,6 +74,9 @@ char* find_player_info_end(char* d, char* p, int n_players, int total)
 
 MG1::MG1(const char* filename)
 {
+	//if (strstr(filename, "03`18`06"))
+	//	__debugbreak();
+
 	loaded = false;
 	d.map = NULL;
 	d.players = NULL;
@@ -173,14 +186,24 @@ MG1::MG1(const char* filename)
 		break;
 	}
 	skip(4);
-	if (read4()) //if AI data exists...
+	if (read4()) //if AI data exists
 	{
-		hasAI = true;
-		free(dst);
-		return;
+		skip(2);
+		int num_string = read2();
+		skip(4);
+		for (int i = 0; i < num_string; i++)
+			skip(read4());
+		skip(6);
+		for (int i = 0; i < 8; i++)
+		{
+			skip(10);
+			int num_rule = read2();
+			skip(4);
+			for (int j = 0; j < num_rule; j++)
+				skip(400+192);
+		}
+		skip(5544+320);
 	}
-	else
-		hasAI = false;
 
 	skip(4);
 	d.game_speed = read4();
@@ -240,24 +263,49 @@ MG1::MG1(const char* filename)
 		//while (memcmp(p, "\x00\x0B\x00\x02\x00\x00\x00\x02\x00\x00\x00\x0B", 0x0C) && ((p - dst) < (total - 0x0C)))
 		//	p++;
 
+		d.players[pl].cc_x = -1;
+		d.players[pl].cc_y = -1;
+
+		char* p_test;
+
 		if (pl == (d.number_of_players - 1))
-			break;
-
-		char* p_test = find_player_info_end((char*)dst, p, d.number_of_players, total);
-
-		//overflow
-		if (!p_test)
+			p_test = (char*)dst + total - 40;
+		else
 		{
-			for (int i = 0; i <= pl; i++)
+			p_test = find_player_info_end((char*)dst, p, d.number_of_players, total);
+
+			//overflow
+			if (!p_test)
 			{
-				free(d.players[0].name);
-				d.players[0].name = 0;
+				for (int i = 0; i <= pl; i++)
+				{
+					free(d.players[0].name);
+					d.players[0].name = 0;
+				}
+				free(dst);
+				dst = 0;
+				free(d.players);
+				d.players = 0;
+				return;
 			}
-			free(dst);
-			dst = 0;
-			free(d.players);
-			d.players = 0;
-			return;
+		}
+
+		//find CC
+		char* p_cc = p;
+		for (; p_cc < p_test; p_cc++)
+		{
+			if (*p_cc == 80)
+				if (*(short*)(p_cc + 2) == 109)
+				{
+					float cc_y = *(float*)(p_cc + 31);
+					float cc_x = *(float*)(p_cc + 35);
+					if ((cc_x > 0) && (cc_x < d.map_x) && (cc_y > 0) && (cc_y < d.map_y))
+					{
+						d.players[pl].cc_x = cc_x;
+						d.players[pl].cc_y = cc_y;
+						break;
+					}
+				}
 		}
 
 		p = p_test;
@@ -353,28 +401,6 @@ MG1::MG1(const char* filename)
 		case 1: //command
 			len = read4();
 			command = read4();
-			/*if ((d.duration < (30 * 60 * 1000)) && (command == 0x77))
-			{
-				skip(4);
-				int id = read2();
-				int count = read2();
-				switch (id)
-				{
-				case 305:
-				case 438:
-				case 440:
-				case 442:
-				case 444:
-				case 446:
-				case 1540:
-				case 1544:
-					cnt += count;
-					break;
-				default:
-					break;
-				}
-				skip(len - 4 - 2 - 2);
-			}*/
 			skip(len);
 			break;
 		case 2: //sync
@@ -472,6 +498,8 @@ TEAM MG1::getTeam1()
 			t.colors[j] = d.players[i].color;
 			t.names[j] = d.players[i].name;
 			t.civs[j] = d.players[i].civ;
+			t.cc_x[j] = d.players[i].cc_x;
+			t.cc_y[j] = d.players[i].cc_y;
 			j++;
 		}
 	return t;
@@ -489,6 +517,8 @@ TEAM MG1::getTeam2()
 			t.colors[j] = d.players[i].color;
 			t.names[j] = d.players[i].name;
 			t.civs[j] = d.players[i].civ;
+			t.cc_x[j] = d.players[i].cc_x;
+			t.cc_y[j] = d.players[i].cc_y;
 			j++;
 		}
 	return t;

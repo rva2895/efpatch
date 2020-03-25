@@ -2,6 +2,7 @@
 
 #include "editorstatus.h"
 #include <ddraw.h>
+#include <string>
 
 extern HWND hWnd_main;
 
@@ -58,6 +59,9 @@ char status_Off[] = "Off";
 
 extern int cliff_type;
 extern int terrain_paint_mode;
+
+std::string rms_error_1;
+std::string rms_error_2;
 
 void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
 {
@@ -131,6 +135,13 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
 	r.right += 160;
 	r.left += 160;
 	DrawText_outline(hdc, &r, buf);
+
+	//rms stuff
+	r.left = 600;
+	r.right = getWindowX();
+	sprintf(buf, "%s%s", rms_error_1.c_str(), rms_error_2.c_str());
+	DrawText_outline(hdc, &r, buf);
+	//
 
 	editorstatus_isValid = true;
 

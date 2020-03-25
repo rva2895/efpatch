@@ -161,7 +161,7 @@ assign dataIdentifiers[] =
 	{"MissileSpawningAreaWidth",                       0x1AC,  T_FLOAT},
 	{"MissileSpawningAreaLength",                      0x1B0,  T_FLOAT},
 	{"MissileSpawningRandomness",                      0x1B4,  T_FLOAT},
-	{"MissileDuplUnit",                                0x1B8,  T_INT16},
+	{"MissileDuplUnit",                                0x1B8,  T_INT32},
 	{"SpecialGraphics",                                0x1BC,  T_INT32},
 	{"SpecialAbility", /*+0x1C0*/                      0x1C0,  T_INT8 },
 	{"HeroMode",                                       0x1C1,  T_INT8 }, //type 70 ends here

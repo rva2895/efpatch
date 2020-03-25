@@ -69,7 +69,8 @@ __declspec(naked) void onButtonSet() //0050EEFF
 		call    dword ptr [edx + 28h]
 
 		mov     ecx, ef_campaign_button
-		push    34612   //text
+		//push    34612   //text
+		push    240
 		push    0
 		mov     eax, 004C4F80h
 		call    eax
@@ -99,7 +100,8 @@ __declspec(naked) void onHelpText() //0050F294
 	{
 		mov     ecx, ef_campaign_button
 		push    0FFFFFFFFh
-		push    31153
+		//push    31153
+		push    241
 		push    ecx
 		mov     ecx, esi
 		mov     eax, 004BB970h
@@ -239,7 +241,8 @@ _ef_mode_3:
 		mov     edi, offset a2cam
 		or      ecx, 0FFFFFFFFh
 		xor     eax, eax
-		mov     [esp + 18h], 0C8h     //34928 + this_n = language DLL offset of campaign and scen titles
+		//mov     [esp + 18h], 0C8h     //34928 + this_n = language DLL offset of campaign and scen titles
+		mov     [esp + 18h], 0ACh
 		push    00507F80h
 		ret
 	}
@@ -286,7 +289,8 @@ int __stdcall mode_5_in(int mode, int v9) //returns offset, 34935 + this_n = cam
 		offset = 310;
 		break;
 	case 3:
-		offset = 210;
+		//offset = 210;
+		offset = 211;
 		break;
 	default:
 		offset = 0;
@@ -450,18 +454,19 @@ _ef_mode_B_cont:
 
 char a2[] = "2";
 
-__declspec(naked) void mode_C() //0052461F
+__declspec(naked) void mode_C() //0052461B
 {
 	__asm
 	{
 		cmp     eax, 3
+		lea     eax, [esp + 10h]
 		jz      _ef_mode_C
 		push    00691D4Ch
 		jmp     _ef_mode_C_cont
 _ef_mode_C:
 		push    offset a2
 _ef_mode_C_cont:
-		push    ecx
+		push    eax
 		mov     eax, 00524625h
 		jmp     eax
 	}
@@ -490,5 +495,5 @@ void setCampaignHooks()
 	setHook((void*)0x0050928C, mode_9);
 	setHook((void*)0x0052440E, mode_A);
 	setHook((void*)0x0052459A, mode_B);
-	setHook((void*)0x0052461F, mode_C);
+	setHook((void*)0x0052461B, mode_C);
 }

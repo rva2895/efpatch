@@ -235,8 +235,20 @@ int __stdcall checkCheats(char* s2)
 			}
 		return true;
 	}
+	if (strstr(s, "ULTIMATE POWER IN THE UNIVERSE"))
+	{
+		restoreCheatFlag = 1;
+		prepareToEngageCheatCreateUnit(1802);
+		return false;
+	}
+	if (strstr(s, "UNLIMITED POWER"))
+	{
+		restoreCheatFlag = 1;
+		prepareToEngageCheatResearchTech(810);
+		return false;
+	}
 	//
-	if (strstr(s, "/START"))
+	/*if (strstr(s, "/START"))
 	{
 		time_collect = true;
 		return true;
@@ -258,12 +270,12 @@ int __stdcall checkCheats(char* s2)
 		answer = false;
 		answer_flag = true;
 		return true;
-	}
+	}*/
 
 	return false;
 }
 
-void __declspec(naked) scanChat() //put on sub at 0x005ED970
+__declspec(naked) void scanChat() //put on sub at 0x005ED970
 {
 	__asm
 	{
@@ -286,13 +298,40 @@ _no_chat:
 	}
 }
 
+extern float const_f_zero;
+
+__declspec(naked) void checkPowerResource() //0054BE05
+{
+	__asm
+	{
+		mov     ecx, [esi + 18h]
+		mov     ecx, [ecx + 0ACh]
+		fld     dword ptr [ecx + 211 * 4]
+		push    eax
+		fcomp   const_f_zero
+		fnstsw  ax
+		test    ah, 41h
+		pop     eax
+		jz      always_powered
+		mov     esi, [esi + 18h]
+		shl     edi, 5
+		mov     edx, 0054BE0Bh
+		jmp     edx
+always_powered:
+		mov     edx, 0054BE36h
+		jmp     edx
+	}
+}
+
 void setAdvCheatHooks()
 {
 #ifdef _DEBUG
 	log("Setting adv cheat hooks...");
 #endif
 
-	setHook((void*)0x005ED970, &scanChat);
+	setHook((void*)0x005ED970, scanChat);
+
+	setHook((void*)0x0054BE05, checkPowerResource);
 }
 
 sel_iterator::sel_iterator(void* player_)

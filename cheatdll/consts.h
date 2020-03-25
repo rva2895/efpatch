@@ -5,7 +5,7 @@
 #define CIV_COUNT 8
 #else
 #define UNIT_COUNT 5000
-#define CIV_COUNT 10
+#define CIV_COUNT 12
 #endif
 
 #define _BALANCE_PATCH_VER "1.2"

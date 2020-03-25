@@ -478,7 +478,7 @@ _jump_2:
 #endif
 
 #pragma optimize( "s", on )
-void setHotkeyHooks()
+void setHotkeysHooks()
 {
 #ifndef _CHEATDLL_CC
 	setGroupNumbers();
