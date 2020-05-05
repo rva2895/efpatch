@@ -213,10 +213,10 @@ int CALLBACK WndProc_dll(HWND hWnd,
 					recSwitch(LOWORD(wParam)-0x30);
 				//}
 			}
-			if (LOWORD(wParam) == VK_F8)						//rec overlay
+			/*if (LOWORD(wParam) == VK_F8)						//rec overlay
 			{
 				overlay_switch();
-			}
+			}*/
 		}
 	}
 	if (msg == WM_TIMER)

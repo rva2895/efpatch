@@ -450,12 +450,14 @@ _no_overlay_delete:
 	}
 }
 
+#pragma optimize( "s", on )
 void setOverlayHooks()
 {
 	setHook((void*)0x004F45C1, onOverlayCreate);
 	setHook((void*)0x004F5F52, onOverlayDelete);
 	setHook((void*)0x004F583C, onOverlayInit);
 }
+#pragma optimize( "", on )
 
 __declspec(naked) void __stdcall overlay_on()
 {

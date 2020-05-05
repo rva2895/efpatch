@@ -863,6 +863,7 @@ _not_loadbk:
 	}
 }
 
+#pragma optimize( "s", on )
 void setRecBrowseHooks()
 {
 	void init_listbk();
@@ -876,3 +877,4 @@ void setRecBrowseHooks()
 	writeByte(0x0050A5E2, 40); //x
 	writeDword(0x0050A5DB, 435); //width, was 415
 }
+#pragma optimize( "", on )

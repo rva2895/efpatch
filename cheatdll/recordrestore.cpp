@@ -251,6 +251,7 @@ loc_5E036C:
 	}
 }
 
+#pragma optimize( "s", on )
 void setRecordRestoreHooks()
 {
 	writeByte(0x005BB4D4, 2);
@@ -270,3 +271,4 @@ void setRecordRestoreHooks()
 	setHook((void*)0x0050AC47, recrestore11);
 	setHook((void*)0x0042EAA8, recrestore12);
 }
+#pragma optimize( "", on )

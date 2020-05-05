@@ -132,19 +132,22 @@ void __cdecl objPanel(UNIT* unit)
 	}*/
 
 	//has units inside - hide
-	int garrisoned = *(int*)((int)unit + 0x30);
+	DWORD garrisoned = *(DWORD*)((DWORD)unit + 0x30);
 	if (garrisoned)
 		if (*(int*)(garrisoned + 4) > 0)
 			return;
 
 	//incomplete foundation - hide
 	if (unit->prop_object->type == 80)
-	{
-		if (*(float*)((int)unit + 0x230) < unit->prop_object->train_time)
+		if (*(float*)((DWORD)unit + 0x230) < unit->prop_object->train_time)
 			return;
-	}
 
-	//TODO: when bldg is researching/building
+	//building has units in queue - hide
+	if (unit->prop_object->type == 80)
+		if (*(short*)((DWORD)unit + 0x1FC) > 0)
+			return;
+
+	//TODO: when building is researching
 
 	if (unit->prop_object->type >= 70)
 	{

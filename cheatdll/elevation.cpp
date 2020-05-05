@@ -117,6 +117,7 @@ __declspec(naked) void onElevation5() //005062D4
 	}
 }
 
+#pragma optimize( "s", on )
 void setElevationHooks()
 {
 	writeDword(0x00502509, (DWORD)&sub_7D0230 - 0x0050250D);
@@ -129,5 +130,6 @@ void setElevationHooks()
 	setHook((void*)0x005061EE, onElevation4);
 	setHook((void*)0x005062D4, onElevation5);
 }
+#pragma optimize( "", on )
 
 //TODO: gather point

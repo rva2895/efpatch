@@ -79,8 +79,10 @@ loc_7C4259:
 	}
 }
 
+#pragma optimize( "s", on )
 void setHotkeyHooks()
 {
 	setHook((void*)0x004C61D4, keydown_1);
 	setHook((void*)0x004C65DF, keydown_2);
 }
+#pragma optimize( "", on )

@@ -3,15 +3,16 @@
 #ifndef _CHEATDLL_CC
 
 char hotkeys[] = {
-	1,  7,  6, //monitor
-	2,  8,  4, //interceptor
-	3,  8,  5, //attacker
-	4, 10,  4, //transport mech
-	5, 18,  3, //vornskyr
-	6,  5,  7, //aa battery
-	7,  5,  8, //mine
-	8, 13,  1, //cargo freighter
-	9, 12,  3  //nightsister hunter
+	 1,  7,  6, //monitor
+	 2,  8,  3, //interceptor        4 -> 3
+	 3,  8,  4, //attacker           5 -> 4
+	 4, 10,  4, //transport mech
+	 5, 18,  3, //vornskyr
+	 6,  5,  7, //aa battery
+	 7,  5,  8, //mine
+	 8, 13,  1, //cargo freighter
+	 9, 12,  2, //nightsister hunter 3 -> 2
+	10, 12,  1  //new master
 };
 
 void* hotkeyTestRet;
@@ -24,7 +25,7 @@ __declspec(naked) void hotkeyTest() //00563010, 005625D0
 		push    ecx
 		mov     eax, [esp + 8]
 		mov     byte ptr [esp + 3], 0
-		cmp     eax, 9
+		cmp     eax, 10             // 9 -> 10
 		ja      _noHK
 		test    eax, eax
 		jz      _noHK
@@ -84,9 +85,9 @@ void setGroupNumbers()
 {
 	writeByte(0x00561462, 9);  //5
 	writeByte(0x00561478, 7);  //7
-	writeByte(0x00561483, 6);  //8
+	writeByte(0x00561483, 5);  //8  6 -> 5
 	writeByte(0x00561499, 5);  //10
-	writeByte(0x005614AF, 4);  //12
+	writeByte(0x005614AF, 3);  //12 4 -> 3
 	writeByte(0x005614BA, 2);  //13
 	writeByte(0x005614F1, 4);  //18
 }
@@ -105,12 +106,12 @@ __declspec(naked) void hotkeyOptionsLoad() //005625C1
 		mov     ecx, esi
 		call    edi
 		push    17508        //interceptor
-		push    4            //id
+		push    3            //id           4 -> 3
 		push    8            //group
 		mov     ecx, esi
 		call    edi
-		push    10241        //attacker
-		push    5            //id
+		push    461          //attacker
+		push    4            //id           5 -> 4
 		push    8            //group
 		mov     ecx, esi
 		call    edi
@@ -140,7 +141,7 @@ __declspec(naked) void hotkeyOptionsLoad() //005625C1
 		mov     ecx, esi
 		call    edi
 		push    78           //nightsister hunter
-		push    3            //id
+		push    2            //id           3 -> 2
 		push    12           //group
 		mov     ecx, esi
 		call    edi
@@ -168,12 +169,12 @@ __declspec(naked) void hotkeyDefaultSet() //00561C72
 		mov     ecx, esi
 		call    edi
 
-		push    4            //interceptor
+		push    3            //interceptor          4 -> 3
 		push    8
 		mov     ecx, esi
 		call    edi
 
-		push    5            //attacker
+		push    4            //attacker             5 -> 4
 		push    8
 		mov     ecx, esi
 		call    edi
@@ -203,7 +204,7 @@ __declspec(naked) void hotkeyDefaultSet() //00561C72
 		mov     ecx, esi
 		call    edi
 
-		push    3            //nightsister hunter
+		push    2            //nightsister hunter 3 -> 2
 		push    12
 		mov     ecx, esi
 		call    edi
@@ -240,7 +241,7 @@ __declspec(naked) void hotkeyDefaultInterceptor()
 		push    0
 		push    0
 		push    57h
-		push    4
+		push    3		//4 -> 3
 		push    8
 		mov     eax, 00486BC0h
 		call    eax
@@ -257,7 +258,7 @@ __declspec(naked) void hotkeyDefaultAttacker()
 		push    0
 		push    0
 		push    46h
-		push    5
+		push    4		//5 -> 4
 		push    8
 		mov     eax, 00486BC0h
 		call    eax
@@ -359,7 +360,7 @@ __declspec(naked) void hotkeyDefaultNightsisterHunter()
 		push    0
 		push    0
 		push    44h
-		push    3
+		push    2		//3 -> 2
 		push    12
 		mov     eax, 00486BC0h
 		call    eax
@@ -396,7 +397,7 @@ DWORD hotkeyDefaultsGroup8[] =  //airbase
 	0x005646C8,
 	0x005646E1,
 	0x005646FA,
-	0x00564713,
+	//0x00564713,
 	(DWORD)&hotkeyDefaultInterceptor,
 	(DWORD)&hotkeyDefaultAttacker
 };
@@ -464,7 +465,7 @@ __declspec(naked) void group12() //00564883
 {
 	__asm
 	{
-		sub     eax, 2
+		sub     eax, 1
 		jz      _jump_2
 		cmp     eax, 1
 		jz      hotkeyDefaultNightsisterHunter
@@ -495,7 +496,7 @@ void setHotkeysHooks()
 	writeByte(0x00564610, 6);
 	writeDword(0x0056461A, (DWORD)hotkeyDefaultsGroup7);
 
-	writeByte(0x005646BA, 5);
+	writeByte(0x005646BA, 4);	//5 -> 4
 	writeDword(0x005646C4, (DWORD)hotkeyDefaultsGroup8);
 
 	writeByte(0x005647AA, 4);
@@ -505,6 +506,11 @@ void setHotkeysHooks()
 
 	setHook((void*)0x005648C2, group13);
 	setHook((void*)0x00564883, group12);
+	//new master id: 2 -> 1
+	writeByte(0x00562467, 1);
+	writeByte(0x0056489A, 1);
+	//*.hki -> *.hk2
+	writeByte(0x0068EF6F, 0x32);
 #endif
 }
 #pragma optimize( "", on )

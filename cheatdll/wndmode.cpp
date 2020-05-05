@@ -55,6 +55,7 @@ __declspec(naked) void wndtmp() //00616C0F
 	}
 }
 
+#pragma optimize( "s", on )
 void setWndModeHooks()
 {
 	if (LoadLibrary("wndmode.dll"))
@@ -77,3 +78,4 @@ void setWndModeHooks()
 	setHook((void*)0x00462352, onTechTreeCreate);
 	setHook((void*)0x00463F68, onTechTreeDestroy);
 }
+#pragma optimize( "", on )

@@ -85,6 +85,7 @@
 #include "rms_tokens.h"
 #include "hotkey.h"
 #include "overlay.h"
+#include "menu.h"
 #ifdef TARGET_VOOBLY
 #include "iuserpatch.h"
 #endif
@@ -157,7 +158,7 @@ void getSettings()
 {
 	regGet(&cd);
 
-	bool key = GetKeyState(VK_SHIFT);
+	bool key = GetKeyState(VK_SHIFT) & 0x8000;
 
 	if (cd.askAtStartup || key)
 	{
@@ -315,7 +316,7 @@ void setHooksCC()
 
 	setHotkeyHooks();
 
-	setOverlayHooks();
+	//setOverlayHooks();
 
 	//MP mouse lag
 	writeByte(0x0049F686, 0x0C);
@@ -345,6 +346,7 @@ char efCiv[] = "stream\\ef_civ%d.mp3";
 char efShadow[] = "data\\shadow_x2.col";
 char efBlendomatic[] = "data\\blendomatic_x2.dat";
 char efICM[] = "data\\view_icm_x2.dat";
+char efMenubk[] = "stream\\ef_menu_skb.mp3";
 
 char efDll[] = "language_x0.dll";
 
@@ -446,8 +448,9 @@ void setHooksEF()
 	writeDword(0x005174AF, (DWORD)efCiv);
 	writeDword(0x0051B2CC, (DWORD)efCiv);
 	writeDword(0x0050A37C, (DWORD)efDatabank);
+	writeDword(0x0050DAE9, (DWORD)efMenubk);
 
-	setCampaignHooks();
+	//setCampaignHooks();
 
 	setPaletteHooks();
 
@@ -464,6 +467,8 @@ void setHooksEF()
 	//writeByte(0x005F0C28, 32);
 	//writeByte(0x005F0C10, 32);
 	//
+
+	setMenuHooks();
 
 	log("setHooks() finished");
 }
@@ -525,7 +530,7 @@ _1_7e:
 		mov     eax, offset verStr7
 		ret     4
 _1_8e:
-		mov     eax, offset verStr9
+		mov     eax, offset verStr8
 		ret     4
 _1_9e:
 		mov     eax, offset verStr9
@@ -564,7 +569,7 @@ _1_5:
 
 void updateVersionEF()
 {
-	writeByte(0x00689534, 7); //EF 1.6e
+	writeByte(0x00689534, 8); //EF 1.7e
 	//strcpy ((char*)0x00689BA4, verStr);
 	setHook((void*)0x0042C3E1, &verHookEF);
 }

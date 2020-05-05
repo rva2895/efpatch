@@ -9,6 +9,7 @@
 #include <MMSystem.h>
 #include <vector>
 #include <string>
+#include <map>
 
 /*__declspec(naked) int someText()
 {
@@ -106,9 +107,9 @@ __declspec(naked) int onReadDat()
 	{
 		mov     ecx, data
 		mov     ecx, [ecx]
-		cmp     ecx, 3ACCFF22h
+		cmp     cx, 9852
 		jnz     _end
-		int     3
+		//int     3
 		//push    eax
 		//push    0
 		//push    offset title
@@ -790,9 +791,118 @@ __declspec(naked) void loadDRSHookT() //00542870
 	}
 }
 
+float old_val;
+float new_val;
+
+float glitched_res = 0;
+
+void __stdcall check_res()
+{
+	if (old_val < new_val)
+		//__debugbreak();
+	{
+		glitched_res += (new_val - old_val);
+	}
+}
+
+__declspec(naked) void repair_test() //005D0D59
+{
+	__asm
+	{
+		fmul    dword ptr [esp+10h]
+		fsubr   dword ptr [ecx]
+		
+		push    eax
+		push    ecx
+		push    edx
+		mov     eax, [ecx]
+		mov     old_val, eax
+
+		fstp    dword ptr [ecx]
+		
+		mov     eax, [ecx]
+		mov     new_val, eax
+
+		call    check_res
+
+		pop     edx
+		pop     ecx
+		pop     eax
+
+		push    005D0D61h
+		ret
+	}
+}
+
+/*struct function_data
+{
+	BYTE original_data[11];
+};
+
+//std::map<std::pair<DWORD, function_data>> functions;
+std::map<DWORD, function_data> functions;
+
+DWORD __stdcall record_function_call(DWORD caller, DWORD function)
+{
+
+}
+
+DWORD __stdcall record_function_return()
+{
+
+}
+
+__declspec(naked) void on_function_return()
+{
+	__asm
+	{
+
+	}
+}
+
+__declspec(naked) void on_function_call()
+{
+	__asm
+	{
+		push    ecx
+		push    edx
+		mov     eax, [esp + 0Ch] //function
+		mov     ecx, [esp + 10h] //caller
+		push    eax
+		push    ecx
+		call    record_function_call
+		push    eax
+		push    edi
+		push    esi
+		push    0C8763E65h
+		sub     esp, 100h
+		mov     [esp], on_function_return
+		lea     esi, [esp + 120h]
+		lea     edi, [esp + 4]
+		mov     ecx, 60
+		movsd
+		mov     eax, [esp + 118h]
+		jmp     eax
+	}
+}
+
+void __stdcall add_function(DWORD addr)
+{
+	function_data fd;
+	DWORD r;
+	ReadProcessMemory(GetCurrentProcess(), (void*)addr, fd.original_data, 11, &r);
+	writeByte(addr, 0xE8); //call
+	writeDword(addr + 1, 0); //$+0
+	writeByte(addr + 5, 0x68); //push
+	writeDword(addr + 6, (DWORD)&on_function_call); //address
+	writeByte(addr + 10, 0xC3); //ret
+}*/
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
+	//setHook((void*)0x005D0D59, repair_test);
+
 	//setHook((void*)0x00542870, loadDRSHookT);
 	//timeGetTime
 	//interceptTime();
@@ -870,8 +980,11 @@ void setTestHook()
 	setHook((void*)0x004E1801, rms_fptr);
 	setHook((void*)0x004E1951, rms_fptr_close);
 
-	//setHook ((void*)0x004D5550, readDatHook);
-
 	setHook((void*)0x00438140, onChat);
+
+	//
+#ifdef _DEBUG
+	setHook((void*)0x004D5550, readDatHook);
+#endif
 }
 #pragma optimize( "", on )

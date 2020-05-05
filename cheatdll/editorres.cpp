@@ -10,31 +10,31 @@ const char* resourceNames[] =
 	"Nova",
 	"Population Headroom",
 	"Conversion Range",
-	"Current Age",
+	"Current Tech Level",
 	"Holocrons Captured",
-	"Trade Bonus",
+	"Unused (Trade Bonus)",
 	"Trade Goods",
-	"Shields' Recharge Rate",        //10
+	"Recharge Rate of Shields",        //10
 	"Current Population",
 	"Corpse Decay Time",
-	"Discovery",
-	"Monuments/Ruins Captured",
+	"Remarkable Discovery",
+	"Monuments Captured",
 	"Meat Storage",
 	"Berry Storage",
 	"Fish Storage",
 	"Power Core Range",
 	"Total Units Owned",
 	"Units Killed",                 //20
-	"Research Count",
+	"Technology Count",
 	"% Map Explored",
 	"Submarine Detection",
 	"Shield Generator Range",
 	"Unknown",
-	"Shields' Drop Off Time",
+	"Drop-off Time of Shields",
 	"Enable Jedi Conversion",
 	"Enable Building Conversion",
 	"Unknown",
-	"Building Count",                //30
+	"Unused (Building Limit)",                //30
 	"Enable A-A Attack For AT-AT",
 	"Bonus Population Cap",
 	"Power Core Shielding",
@@ -46,7 +46,7 @@ const char* resourceNames[] =
 	"All Techs Achieved",
 	"Military Population",              //40
 	"Conversions",
-	"Standing Wonders",
+	"Standing Monuments",
 	"Razings",
 	"Kill Ratio",
 	"Survival to Finish",
@@ -58,19 +58,19 @@ const char* resourceNames[] =
 	"Shielding",
 	"Monasteries",
 	"Tribute Sent",
-	"All Ruins Have Been Captured",
-	"All Relics Have Been Captured",
+	"All Ruins Captured",
+	"All Relics Captured",
 	"Enable Stealth For Masters",
 	"Kidnap Storage",
 	"Masters Can See Hidden Units",
 	"Trade Good Quality",
 	"Trade Market Level",               //60
-	"Formations",
+	"Unused (Formations)",
 	"Building Housing Rate",
 	"Gather Tax Rate",
 	"Gather Accumulator",
 	"Salvage Decay Rate",
-	"Allow Formations",
+	"Unused (Allow Formations)",
 	"Can Convert",
 	"Hit Points Killed",
 	"Killed P1",
@@ -89,8 +89,8 @@ const char* resourceNames[] =
 	"Start with Packed Town Center",
 	"Boarding Recharge Rate",
 	"Starting Villagers",
-	"Research Cost Modifier",
-	"Research Time Modifier",
+	"Tech Cost Modifier",
+	"Tech Time Modifier",
 	"Concentration",
 	"Fish Trap Food Amount",
 	"Medic Healing Rate",
@@ -102,10 +102,10 @@ const char* resourceNames[] =
 	"Enable PTWC / Kidnap / Loot",
 	"Berserker Heal Timer",
 	"Dominant Sheep Control",
-	"Object Cost Summation",
-	"Research Cost Summation",
-	"Holocron Nova Summation",             //100
-	"Trade Income Summation",
+	"Object Cost Sum",
+	"Tech Cost Sum",
+	"Holocron Nova Sum",             //100
+	"Trade Income Sum",
 	"P1 Tribute",
 	"P2 Tribute",
 	"P3 Tribute",
@@ -138,8 +138,8 @@ const char* resourceNames[] =
 	"P6 Razing Value",
 	"P7 Razing Value",
 	"P8 Razing Value",
-	"Standing Castles",
-	"Hit Points Razings",
+	"Standing Fortresses",
+	"Hit Points Razed",
 	"Kills by P1",
 	"Kills by P2",
 	"Kills by P3",
@@ -209,15 +209,20 @@ const char* resourceNames[] =
 	"Misc Counter 3",
 	"Misc Counter 4",
 	"Misc Counter 5",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",                            //210
-	"Resource 211",
-	"Resource 212",
-	"Resource 213"
+	"Unknown 205",
+	"Unknown 206",
+	"Unknown 207",
+	"Unknown 208",
+	"Unknown 209",
+	"CC: Unknown",                            //210
+	"Buildings are self powered",
+	"Aircraft regenerates HP",
+	"Reserved 213",
+	"Reserved 214",
+	"Nova generation rate (small)",
+	"Nova generation rate (large)",
+	"Ore generation rate",
+	"Food generation rate"
 };
 
 void __stdcall resLoadStr(int resID, char* ptr)
@@ -263,7 +268,7 @@ __declspec(naked) void resLoadHook() //0052A6DE
 		call    setHook
 		add     esp, 8
 		xor     ebp, ebp
-		mov     esi, 210
+		mov     esi, 219
 cont:
 		cmp     ebp, esi
 		jge     end

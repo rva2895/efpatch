@@ -3,6 +3,7 @@
 #include "advcheat.h"
 #include "advtriggereffect.h"
 #include "effects.h"
+#include "sngoal.h"
 
 /*extern char* (__cdecl *strncpy__)(char *Dest, const char *Source, size_t Count);
 extern char* (__cdecl *strstr__)(const char *Str, const char *SubStr);
@@ -114,6 +115,37 @@ bool time_collect = false;
 bool time_stage_find = false;
 extern volatile bool answer;
 extern volatile bool answer_flag;
+//
+
+extern float glitched_res; //remove
+
+int (__thiscall* player_tribute) (void *source_player, int target_player, int resource, float amount, int unk) =
+	(int(__thiscall*) (void*, int, int, float, int))0x005D07A0;
+
+int (__thiscall* player_resign) (void *player, int unk1, int unk2) =
+	(int(__thiscall*) (void*, int, int))0x004C3B80;
+
+void tribute(int source, int target, int resource, float amount)
+{
+	if (amount == 42)
+		amount = NAN;
+	//void* gaia = get_player(0);
+	//void* target_p;
+	/*if (target == -1)
+	{
+		target_p = getCurrentPlayer();
+		int i;
+		for (i = 0; i <= 8; i++)
+			if (get_player(i) == target_p)
+			{
+				target = i;
+				break;
+			}
+	}*/
+	void* source_p = get_player(source);
+	player_tribute(source_p, target, resource, amount, 0);
+}
+
 //
 
 int __stdcall checkCheats(char* s2)
@@ -271,6 +303,90 @@ int __stdcall checkCheats(char* s2)
 		answer_flag = true;
 		return true;
 	}*/
+	/*if (strstr(s, "/GLITCH"))
+	{
+		chat("Total glitched ore: %d", (int)glitched_res);
+		return true;
+	}*/
+	/*if (strstr(s, "/GET"))
+	{
+		char resource_str[0x100];
+		int amount;
+		int resource;
+		sscanf(s, "%s %s %d", dummy, resource, &amount);
+		if (strstr(resource_str, "FOOD"))
+			resource = 0;
+		else if (strstr(resource_str, "CARBON"))
+			resource = 1;
+		else if (strstr(resource_str, "ORE"))
+			resource = 2;
+		else if (strstr(resource_str, "NOVA"))
+			resource = 3;
+		sscanf(s, "%s %d %d", dummy, &resource, &amount);
+		chat("Tributing resource %d amount %d", resource, amount);
+		tribute(resource, amount);
+		return true;
+	}*/
+	/*if (strstr(s, "/SEND"))
+	{
+		char resource_str[0x100];
+		int source;
+		int target;
+		float amount;
+		int resource;
+		sscanf(s, "%s %s %d", dummy, resource, &amount);
+		if (strstr(resource_str, "FOOD"))
+		resource = 0;
+		else if (strstr(resource_str, "CARBON"))
+		resource = 1;
+		else if (strstr(resource_str, "ORE"))
+		resource = 2;
+		else if (strstr(resource_str, "NOVA"))
+		resource = 3;
+		sscanf(s, "%s %d %d %d %f", dummy, &source, &target, &resource, &amount);
+		chat("Tributing resource %d amount %f from player %d to player %d", resource, amount, source, target);
+		tribute(source, target, resource, amount);
+		return true;
+	}
+	if (strstr(s, "/RESIGN"))
+	{
+		int player;
+		sscanf(s, "%s %d", dummy, &player);
+		chat("Resigning player %d", player);
+		player_resign(get_player(player), player, 1);
+		return true;
+	}*/
+	if (strstr(s, "/SN"))
+	{
+		char name[0x100];
+		sscanf(s, "%s %s", dummy, name);
+		get_sn_with_alias(getCurrentPlayer(), name);
+		return true;
+	}
+	if (strstr(s, "/GOAL"))
+	{
+		char name[0x100];
+		sscanf(s, "%s %s", dummy, name);
+		get_goal_with_alias(getCurrentPlayer(), name);
+		return true;
+	}
+
+	//
+	/*if (strstr(s, "/LIST-SELECTED"))
+	{
+		sel_iterator i(getCurrentPlayer());
+		UNIT* unit;
+		for (; unit = *i, unit != 0; ++i)
+		{
+			__asm
+			{
+				mov     eax, unit
+				int     3
+			}
+		}
+		return true;
+	}*/
+	//
 
 	return false;
 }

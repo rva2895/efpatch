@@ -38,37 +38,40 @@ BYTE* terrain_array = 0;
 
 BYTE indirect_table_water[] =	//starts from 1 (TERR-WATER1)
 {
-	0, 1, 1, 0,
-	1, 1, 1, 1,
-	1, 1, 1, 1,
-	1, 1, 1, 1,
-	1, 1, 1, 1,
-	1, 0, 0,				//WATER2 and WATER3
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 0,		//MARSH
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-	0, 0, 0,                //TROPICAL SHALLOWS
-	1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+	/*   1 */ 0, 1, 1, 0,
+	/*     */ 1, 1, 1, 1,
+	/*     */ 1, 1, 1, 1,
+	/*     */ 1, 1, 1, 1,
+	/*     */ 1, 1, 1, 1,
+	/*     */ 1, 0, 0,				//WATER2 and WATER3
+	/*     */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/*     */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/*     */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/*     */ 1, 1, 1, 1, 1, 0,		//MARSH
+	/*  60 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/*  70 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/*  80 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/*  90 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 100 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 110 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 120 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 130 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+	/* 140 */ 0, 0, 0,                //TROPICAL SHALLOWS
+	/* 143 */ 1, 1, 1, 1, 1, 1, 1,
+	/* 150 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 160 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 170 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 180 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 190 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 200 */ 1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
+	/* 210 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 220 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 230 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 240 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/* 250 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
-#define TERR_MAX_CONST 141 //before TROPICALSHALLOWS, used for indirect table water
+#define TERR_MAX_CONST 240 //before TROPICALSHALLOWS, used for indirect table water
 
 //BYTE indirect_table_water_2[TERR_MAX_CONST+1];
 
@@ -124,6 +127,8 @@ __declspec(naked) void snow_terrain_fix_1() //005CBE92
 		jb      _not_snow1
 		cmp     dl, 22h
 		jbe     _snow1
+		cmp     dl, 36
+		jz      _snow1
 		cmp     dl, 47
 		jz      _snow1
 		cmp     dl, 55
@@ -133,6 +138,8 @@ __declspec(naked) void snow_terrain_fix_1() //005CBE92
 		cmp     dl, 134
 		jz      _snow1
 		cmp     dl, 135
+		jz      _snow1
+		cmp     dl, 195
 		jz      _snow1
 _not_snow1:
 		push    005CBEA1h
@@ -151,6 +158,8 @@ __declspec(naked) void snow_terrain_fix_2() //005CBEAF
 		jb      _not_snow2
 		cmp     dl, 22h
 		jbe     _snow2
+		cmp     dl, 36
+		jz      _snow2
 		cmp     dl, 47
 		jz      _snow2
 		cmp     dl, 55
@@ -160,6 +169,8 @@ __declspec(naked) void snow_terrain_fix_2() //005CBEAF
 		cmp     dl, 134
 		jz      _snow2
 		cmp     dl, 135
+		jz      _snow2
+		cmp     dl, 195
 		jz      _snow2
 _not_snow2:
 		push    005CBEC3h
@@ -178,6 +189,8 @@ __declspec(naked) void snow_terrain_fix_3() //005CBF42
 		jb      _not_snow3
 		cmp     bl, 22h
 		jbe     _snow3
+		cmp     bl, 36
+		jz      _snow3
 		cmp     bl, 47
 		jz      _snow3
 		cmp     bl, 55
@@ -187,6 +200,8 @@ __declspec(naked) void snow_terrain_fix_3() //005CBF42
 		cmp     bl, 134
 		jz      _snow3
 		cmp     bl, 135
+		jz      _snow3
+		cmp     bl, 195
 		jz      _snow3
 _not_snow3:
 		push    005CBF51h
@@ -205,6 +220,8 @@ __declspec(naked) void snow_terrain_fix_4() //005CBF5D
 		jb      _not_snow4
 		cmp     dl, 22h
 		jbe     _snow4
+		cmp     dl, 36
+		jz      _snow4
 		cmp     dl, 47
 		jz      _snow4
 		cmp     dl, 55
@@ -214,6 +231,8 @@ __declspec(naked) void snow_terrain_fix_4() //005CBF5D
 		cmp     dl, 134
 		jz      _snow4
 		cmp     dl, 135
+		jz      _snow4
+		cmp     dl, 195
 		jz      _snow4
 _not_snow4:
 		push    005CBF6Ch
@@ -232,6 +251,8 @@ __declspec(naked) void snow_terrain_fix_5() //005CBF7A
 		jb      _not_snow5
 		cmp     dl, 22h
 		jbe     _snow5
+		cmp     dl, 36
+		jz      _snow5
 		cmp     dl, 47
 		jz      _snow5
 		cmp     dl, 55
@@ -241,6 +262,8 @@ __declspec(naked) void snow_terrain_fix_5() //005CBF7A
 		cmp     dl, 134
 		jz      _snow5
 		cmp     dl, 135
+		jz      _snow5
+		cmp     dl, 195
 		jz      _snow5
 _not_snow5:
 		push    005CBF8Eh
@@ -259,6 +282,8 @@ __declspec(naked) void snow_terrain_fix_6() //005CC011
 		jb      _not_snow6
 		cmp     bl, 22h
 		jbe     _snow6
+		cmp     bl, 36
+		jz      _snow6
 		cmp     bl, 47
 		jz      _snow6
 		cmp     bl, 55
@@ -268,6 +293,8 @@ __declspec(naked) void snow_terrain_fix_6() //005CC011
 		cmp     bl, 134
 		jz      _snow6
 		cmp     bl, 135
+		jz      _snow6
+		cmp     bl, 195
 		jz      _snow6
 _not_snow6:
 		push    005CC020h
@@ -286,6 +313,8 @@ __declspec(naked) void snow_terrain_fix_7() //005CC02C
 		jb      _not_snow7
 		cmp     dl, 22h
 		jbe     _snow7
+		cmp     dl, 36
+		jz      _snow7
 		cmp     dl, 47
 		jz      _snow7
 		cmp     dl, 55
@@ -295,6 +324,8 @@ __declspec(naked) void snow_terrain_fix_7() //005CC02C
 		cmp     dl, 134
 		jz      _snow7
 		cmp     dl, 135
+		jz      _snow7
+		cmp     dl, 195
 		jz      _snow7
 _not_snow7:
 		push    005CC03Bh
@@ -313,6 +344,8 @@ __declspec(naked) void snow_terrain_fix_8() //005CC049
 		jb      _not_snow8
 		cmp     al, 22h
 		jbe     _snow8
+		cmp     al, 36
+		jz      _snow8
 		cmp     al, 47
 		jz      _snow8
 		cmp     al, 55
@@ -322,6 +355,8 @@ __declspec(naked) void snow_terrain_fix_8() //005CC049
 		cmp     al, 134
 		jz      _snow8
 		cmp     al, 135
+		jz      _snow8
+		cmp     al, 195
 		jz      _snow8
 _not_snow8:
 		push    005CC05Ah
@@ -340,6 +375,8 @@ __declspec(naked) void snow_terrain_fix_9() //005CC095
 		jb      _not_snow9
 		cmp     dl, 22h
 		jbe     _snow9
+		cmp     dl, 36
+		jz      _snow9
 		cmp     dl, 47
 		jz      _snow9
 		cmp     dl, 55
@@ -350,11 +387,108 @@ __declspec(naked) void snow_terrain_fix_9() //005CC095
 		jz      _snow9
 		cmp     dl, 135
 		jz      _snow9
+		cmp     dl, 195
+		jz      _snow9
 _not_snow9:
 		push    005CC1F6h
 		ret
 _snow9:
 		push    005CC0ACh
+		ret
+	}
+}
+
+//new
+
+__declspec(naked) void snow_terrain_fix_10() //004E4519
+{
+	__asm
+	{
+		cmp     bl, 20h
+		jb      _not_snow10
+		cmp     bl, 22h
+		jbe     _snow10
+		cmp     bl, 36
+		jz      _snow10
+		cmp     bl, 47
+		jz      _snow10
+		cmp     bl, 55
+		jz      _snow10
+		cmp     bl, 63
+		jz      _snow10
+		cmp     bl, 134
+		jz      _snow10
+		cmp     bl, 135
+		jz      _snow10
+		cmp     bl, 195
+		jz      _snow10
+_not_snow10:
+		push    004E4684h
+		ret
+_snow10:
+		push    004E4530h
+		ret
+	}
+}
+
+__declspec(naked) void snow_terrain_fix_11() //004E6209
+{
+	__asm
+	{
+		cmp     bl, 20h
+		jb      _not_snow11
+		cmp     bl, 22h
+		jbe     _snow11
+		cmp     bl, 36
+		jz      _snow11
+		cmp     bl, 47
+		jz      _snow11
+		cmp     bl, 55
+		jz      _snow11
+		cmp     bl, 63
+		jz      _snow11
+		cmp     bl, 134
+		jz      _snow11
+		cmp     bl, 135
+		jz      _snow11
+		cmp     bl, 195
+		jz      _snow11
+_not_snow11:
+		push    004E6374h
+		ret
+_snow11:
+		push    004E6220h
+		ret
+	}
+}
+
+__declspec(naked) void snow_terrain_fix_12() //00554995
+{
+	__asm
+	{
+		cmp     cl, 20h
+		jb      _not_snow12
+		cmp     cl, 22h
+		jbe     _snow12
+		cmp     cl, 36
+		jz      _snow12
+		cmp     cl, 47
+		jz      _snow12
+		cmp     cl, 55
+		jz      _snow12
+		cmp     cl, 63
+		jz      _snow12
+		cmp     cl, 134
+		jz      _snow12
+		cmp     cl, 135
+		jz      _snow12
+		cmp     cl, 195
+		jz      _snow12
+_not_snow12:
+		push    005549CCh
+		ret
+_snow12:
+		push    005549AEh
 		ret
 	}
 }
@@ -762,6 +896,67 @@ void setExtraTerrainHooks()
 	writeDword(0x005CC30F, (DWORD)indirect_table_water);
 	writeDword(0x005CC336, (DWORD)indirect_table_water);
 
+	//new
+	//5
+	writeDword(0x004E43DA, (DWORD)indirect_table_water);
+	writeDword(0x004E4403, (DWORD)indirect_table_water);
+	writeDword(0x004E4430, (DWORD)indirect_table_water);
+	writeDword(0x004E4455, (DWORD)indirect_table_water);
+	writeDword(0x004E447A, (DWORD)indirect_table_water);
+	writeDword(0x004E44A7, (DWORD)indirect_table_water);
+	writeDword(0x004E44CC, (DWORD)indirect_table_water);
+	writeDword(0x004E44F1, (DWORD)indirect_table_water);
+	writeDword(0x004E454C, (DWORD)indirect_table_water);
+	writeDword(0x004E4573, (DWORD)indirect_table_water);
+	writeDword(0x004E459D, (DWORD)indirect_table_water);
+	writeDword(0x004E45C2, (DWORD)indirect_table_water);
+	writeDword(0x004E45E9, (DWORD)indirect_table_water);
+	writeDword(0x004E4617, (DWORD)indirect_table_water);
+	writeDword(0x004E463C, (DWORD)indirect_table_water);
+	writeDword(0x004E4663, (DWORD)indirect_table_water);
+	writeDword(0x004E468E, (DWORD)indirect_table_water);
+	writeDword(0x004E46B5, (DWORD)indirect_table_water);
+	writeDword(0x004E46DC, (DWORD)indirect_table_water);
+	writeDword(0x004E4706, (DWORD)indirect_table_water);
+	writeDword(0x004E472B, (DWORD)indirect_table_water);
+	writeDword(0x004E4752, (DWORD)indirect_table_water);
+	writeDword(0x004E4780, (DWORD)indirect_table_water);
+	writeDword(0x004E47A5, (DWORD)indirect_table_water);
+	writeDword(0x004E47CC, (DWORD)indirect_table_water);
+
+	//6
+	writeDword(0x004E60CA, (DWORD)indirect_table_water);
+	writeDword(0x004E60F3, (DWORD)indirect_table_water);
+	writeDword(0x004E6120, (DWORD)indirect_table_water);
+	writeDword(0x004E6145, (DWORD)indirect_table_water);
+	writeDword(0x004E616A, (DWORD)indirect_table_water);
+	writeDword(0x004E6197, (DWORD)indirect_table_water);
+	writeDword(0x004E61BC, (DWORD)indirect_table_water);
+	writeDword(0x004E61E1, (DWORD)indirect_table_water);
+	writeDword(0x004E623C, (DWORD)indirect_table_water);
+	writeDword(0x004E6263, (DWORD)indirect_table_water);
+	writeDword(0x004E628D, (DWORD)indirect_table_water);
+	writeDword(0x004E62B2, (DWORD)indirect_table_water);
+	writeDword(0x004E62D9, (DWORD)indirect_table_water);
+	writeDword(0x004E6307, (DWORD)indirect_table_water);
+	writeDword(0x004E632C, (DWORD)indirect_table_water);
+	writeDword(0x004E6353, (DWORD)indirect_table_water);
+	writeDword(0x004E637E, (DWORD)indirect_table_water);
+	writeDword(0x004E63A5, (DWORD)indirect_table_water);
+	writeDword(0x004E63CC, (DWORD)indirect_table_water);
+	writeDword(0x004E63F6, (DWORD)indirect_table_water);
+	writeDword(0x004E641B, (DWORD)indirect_table_water);
+	writeDword(0x004E6442, (DWORD)indirect_table_water);
+	writeDword(0x004E6470, (DWORD)indirect_table_water);
+	writeDword(0x004E6495, (DWORD)indirect_table_water);
+	writeDword(0x004E64BC, (DWORD)indirect_table_water);
+
+	//7
+	writeDword(0x005CAA88, (DWORD)indirect_table_water);
+
+	//8
+	writeDword(0x005CC910, (DWORD)indirect_table_water);
+
 	//1
 	writeByte(0x005CCA60, TERR_MAX_CONST);
 	writeByte(0x005CCAAF, TERR_MAX_CONST);
@@ -815,6 +1010,67 @@ void setExtraTerrainHooks()
 	writeByte(0x005CC308, TERR_MAX_CONST);
 	writeByte(0x005CC32F, TERR_MAX_CONST);
 
+	//new
+	//5
+	writeByte(0x004E43D3, TERR_MAX_CONST);
+	writeByte(0x004E43FC, TERR_MAX_CONST);
+	writeByte(0x004E4429, TERR_MAX_CONST);
+	writeByte(0x004E444E, TERR_MAX_CONST);
+	writeByte(0x004E4473, TERR_MAX_CONST);
+	writeByte(0x004E44A0, TERR_MAX_CONST);
+	writeByte(0x004E44C5, TERR_MAX_CONST);
+	writeByte(0x004E44EA, TERR_MAX_CONST);
+	writeByte(0x004E4545, TERR_MAX_CONST);
+	writeByte(0x004E456C, TERR_MAX_CONST);
+	writeByte(0x004E4596, TERR_MAX_CONST);
+	writeByte(0x004E45BB, TERR_MAX_CONST);
+	writeByte(0x004E45E2, TERR_MAX_CONST);
+	writeByte(0x004E4610, TERR_MAX_CONST);
+	writeByte(0x004E4635, TERR_MAX_CONST);
+	writeByte(0x004E465C, TERR_MAX_CONST);
+	writeByte(0x004E4687, TERR_MAX_CONST);
+	writeByte(0x004E46AE, TERR_MAX_CONST);
+	writeByte(0x004E46D5, TERR_MAX_CONST);
+	writeByte(0x004E46FF, TERR_MAX_CONST);
+	writeByte(0x004E4724, TERR_MAX_CONST);
+	writeByte(0x004E474B, TERR_MAX_CONST);
+	writeByte(0x004E4779, TERR_MAX_CONST);
+	writeByte(0x004E479E, TERR_MAX_CONST);
+	writeByte(0x004E47C5, TERR_MAX_CONST);
+
+	//6
+	writeByte(0x004E60C3, TERR_MAX_CONST);
+	writeByte(0x004E60EC, TERR_MAX_CONST);
+	writeByte(0x004E6119, TERR_MAX_CONST);
+	writeByte(0x004E613E, TERR_MAX_CONST);
+	writeByte(0x004E6163, TERR_MAX_CONST);
+	writeByte(0x004E6190, TERR_MAX_CONST);
+	writeByte(0x004E61B5, TERR_MAX_CONST);
+	writeByte(0x004E61DA, TERR_MAX_CONST);
+	writeByte(0x004E6235, TERR_MAX_CONST);
+	writeByte(0x004E625C, TERR_MAX_CONST);
+	writeByte(0x004E6286, TERR_MAX_CONST);
+	writeByte(0x004E62AB, TERR_MAX_CONST);
+	writeByte(0x004E62D2, TERR_MAX_CONST);
+	writeByte(0x004E6300, TERR_MAX_CONST);
+	writeByte(0x004E6325, TERR_MAX_CONST);
+	writeByte(0x004E634C, TERR_MAX_CONST);
+	writeByte(0x004E6377, TERR_MAX_CONST);
+	writeByte(0x004E639E, TERR_MAX_CONST);
+	writeByte(0x004E63C5, TERR_MAX_CONST);
+	writeByte(0x004E63EF, TERR_MAX_CONST);
+	writeByte(0x004E6414, TERR_MAX_CONST);
+	writeByte(0x004E643B, TERR_MAX_CONST);
+	writeByte(0x004E6469, TERR_MAX_CONST);
+	writeByte(0x004E648E, TERR_MAX_CONST);
+	writeByte(0x004E64B5, TERR_MAX_CONST);
+
+	//7
+	writeByte(0x005CAA81, TERR_MAX_CONST);
+
+	//8
+	writeByte(0x005CC909, TERR_MAX_CONST);
+
 	setHook((void*)0x005CBE92, snow_terrain_fix_1);
 	setHook((void*)0x005CBEAF, snow_terrain_fix_2);
 	setHook((void*)0x005CBF42, snow_terrain_fix_3);
@@ -824,6 +1080,9 @@ void setExtraTerrainHooks()
 	setHook((void*)0x005CC02C, snow_terrain_fix_7);
 	setHook((void*)0x005CC049, snow_terrain_fix_8);
 	setHook((void*)0x005CC095, snow_terrain_fix_9);
+	setHook((void*)0x004E4519, snow_terrain_fix_10);
+	setHook((void*)0x004E6209, snow_terrain_fix_11);
+	setHook((void*)0x00554995, snow_terrain_fix_12);
 
 	setHook((void*)0x005CBCCE, ice_terrain_fix);
 

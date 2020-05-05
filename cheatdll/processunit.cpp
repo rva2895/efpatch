@@ -51,11 +51,16 @@ __declspec(naked) void regenFix() //0055A974
 		jnz     _regenAllowed
 		mov     eax, [esi + 14h]
 		mov     ax, [eax + 1Eh]
-		cmp     ax, 48
-		jnz      _regenNotAllowed
+		cmp     ax, 43					//bomber
+		jz      _regenClassAllowed
+		cmp     ax, 48					//fighter
+		jz      _regenClassAllowed
+		cmp     ax, 59					//air transport
+		jnz     _regenNotAllowed
+_regenClassAllowed:
 		mov     eax, [esi + 18h]
 		mov     eax, [eax + 0ACh]
-		fld     dword ptr [eax + 350h]
+		fld     dword ptr [eax + 350h]	//resource 212
 		_emit   0xD8    //compare to 0
 		_emit   0x1D
 		_emit   0xA4
@@ -66,11 +71,11 @@ __declspec(naked) void regenFix() //0055A974
 		test    ah, 41h
 		jz      _regenAllowed
 _regenNotAllowed:
-		push    0055AA6Fh
-		ret
+		mov     eax, 0055AA6Fh
+		jmp     eax
 _regenAllowed:
-		push    0055A97Ch
-		ret
+		mov     eax, 0055A97Ch
+		jmp     eax
 	}
 }
 
