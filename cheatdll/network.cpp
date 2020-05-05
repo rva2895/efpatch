@@ -827,6 +827,7 @@ __declspec(naked) void network23() //004352A0
 
 //setHook((void*)0x00434623, network21);
 
+#pragma optimize( "s", on )
 void setNetworkHooks()
 {
 	writeDword(0x004473AC, 0xFFFFFA24);
@@ -946,5 +947,6 @@ void setNetworkHooks()
 	//writeWord(0x0046F000, 0x9090);
 	//writeWord(0x0046EF0B, 0x9066);
 }
+#pragma optimize( "", on )
 
 //check stack of sub 435550

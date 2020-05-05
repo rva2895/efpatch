@@ -70,11 +70,13 @@ __declspec(naked) void onRecChat() //0061FCD0
 	}
 }
 
+#pragma optimize( "s", on )
 void setRecHooks()
 {
 	setHook((void*)0x0045E425, onMenuInit);
 	setHook((void*)0x0061FCD0, onRecChat);
 }
+#pragma optimize( "", on )
 
 void recSwitch(int p)
 {

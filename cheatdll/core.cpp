@@ -148,6 +148,7 @@ __declspec(naked) void core7() //00606970
 
 //
 
+#pragma optimize( "s", on )
 void setCoreHooks()
 {
 	setHook((void*)0x00606920, core1);
@@ -159,6 +160,5 @@ void setCoreHooks()
 	setHook((void*)0x00606970, core7);
 
 	setHook((void*)0x005FD030, (void*)0x00619FB0);
-
-
 }
+#pragma optimize( "", on )

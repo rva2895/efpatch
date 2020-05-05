@@ -262,8 +262,24 @@ _not_temple_2:
 #pragma optimize( "s", on )
 void setLangDllHooks()
 {
-	writeDword(0x0048BB21, 4);		//worker names, worker name offset nearby
-	writeDword(0x0048BC21, 4);
+	writeDword(0x0048BB21, 6);		//worker names, worker name offset nearby
+	writeDword(0x0048BC21, 6);
+
+	//worker names
+	writeDword(0x0048BB26, 34600 + 0x10000);
+	writeDword(0x0048BC26, 34600 + 0x10000 + 1000);
+
+	//cargo names
+	writeDword(0x0048BB9C, 34421 + 0x10000);
+	writeDword(0x0048BC97, 34421 + 0x10000 + 1000);
+
+	//commander names
+	writeDword(0x0048BB6E, 34401 + 0x10000);
+	writeDword(0x0048BC69, 34401 + 0x10000 + 1000);
+
+	//temple names
+	writeDword(0x0048BBCA, 34381 + 0x10000); //34441 -> 34381
+	writeDword(0x0048BCC6, 34381 + 0x10000 + 1000);
 
 	setHook((void*)0x0048BB12, langdll_1);
 	setHook((void*)0x0048BB62, langdll_2);

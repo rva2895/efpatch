@@ -383,6 +383,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
 
 void patch_palette(void* p)
 {
+	UNREFERENCED_PARAMETER(p);
 	nProc = getAffinityCount();
 	slp_optimize_event = (HANDLE*)malloc(nProc * sizeof(HANDLE));
 	char dir[MAX_PATH+1];

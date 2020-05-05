@@ -19,11 +19,14 @@ extern void (__thiscall* player_clearSelection)(void*);
 extern int (__thiscall* player_scrollView)(void*, float, float, int);
 
 void* __stdcall getCurrentPlayer();
+void* __fastcall get_player(int);
 
 int __stdcall language_dll_load(UINT id, char* buf, int nmax);
 
 int __stdcall getWindowX();
 int __stdcall getWindowY();
+
+int __stdcall get_sn(void* player, int sn);
 
 struct BYTE_ASSIGN
 {

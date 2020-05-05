@@ -363,6 +363,15 @@
     <ClInclude Include="overlay.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
+    <ClInclude Include="sngoal.h">
+      <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="ailog.h">
+      <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="menu.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="advcheat.cpp">
@@ -672,6 +681,18 @@
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
     <ClCompile Include="overlay.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="sngoal.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="ailog.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="aipower.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="menu.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>

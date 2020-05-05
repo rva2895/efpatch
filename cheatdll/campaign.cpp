@@ -472,6 +472,7 @@ _ef_mode_C_cont:
 	}
 }
 
+#pragma optimize( "s", on )
 void setCampaignHooks()
 {
 	writeDword(0x00511294, (DWORD)onButtonTest);
@@ -497,3 +498,4 @@ void setCampaignHooks()
 	setHook((void*)0x0052459A, mode_B);
 	setHook((void*)0x0052461B, mode_C);
 }
+#pragma optimize( "", on )

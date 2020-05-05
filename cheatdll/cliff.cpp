@@ -437,13 +437,28 @@ _set_cliff:
 	}
 }
 
+__declspec(naked) void onResetCliffType() //004DFA63
+{
+	__asm
+	{
+		mov     edx, scen_ptr
+		mov     eax, 108h
+		push    edx
+		push    eax
+		call    setCliffType
+		mov     ecx, [ebp + 140h]
+		mov     edx, 004DFA69h
+		jmp     edx
+	}
+}
+
 
 #pragma optimize( "s", on )
 void setCliffTypeHooks()
 {
 	//setHook((void*)0x005CB1B0, &onCliffPaint);
 	setHook((void*)0x005C9D57, scen_ptr_hook);
-
 	setHook((void*)0x004E3780, onRmsCliff);
+	setHook((void*)0x004DFA63, onResetCliffType);
 }
 #pragma optimize( "", on )

@@ -236,7 +236,7 @@ struct UNIT
 	void* player;
 	int unk1C;
 	int unk20;			//20
-	int unk24;
+	void* graphics_object;
 	int unk28;
 	int unk2C;
 	int unk30;			//30

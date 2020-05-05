@@ -33,45 +33,36 @@ __declspec(naked) float* __fastcall player_getResources(void* player)
 }
 #pragma warning(pop)
 
-char zann_str_1[] = "MUL Cost2Amount 0.95";
+char zann_str_1[] = "MUL Cost2Amount 0.75";
 
-void zann_resetCosts(void* c)
+void zann_resetCosts1(void* c)
 {
-	advTriggerEffectActual(getPropertyObject2(c, 2544), "SET Cost2Amount 160");
-	advTriggerEffectActual(getPropertyObject2(c, 2546), "SET Cost2Amount 160");
-	advTriggerEffectActual(getPropertyObject2(c, 1775), "SET Cost2Amount 200");
-	advTriggerEffectActual(getPropertyObject2(c, 1777), "SET Cost2Amount 200");
-	advTriggerEffectActual(getPropertyObject2(c, 1779), "SET Cost2Amount 600");
+	//set to 1/4
+	advTriggerEffectActual(getPropertyObject2(c, 2544), "SET Cost2Amount 40"); //base 160
+	advTriggerEffectActual(getPropertyObject2(c, 2546), "SET Cost2Amount 40"); //base 160
+	advTriggerEffectActual(getPropertyObject2(c, 1775), "SET Cost2Amount 50"); //base 200
+	advTriggerEffectActual(getPropertyObject2(c, 1777), "SET Cost2Amount 50"); //base 200
+	advTriggerEffectActual(getPropertyObject2(c, 1779), "SET Cost2Amount 150"); //base 600
 }
 
-void __stdcall zannfort_onBuild(void* c)
+void zann_resetCosts2(void* c)
+{
+	//add 3/4
+	advTriggerEffectActual(getPropertyObject2(c, 2544), "ADD Cost2Amount 120"); //base 160
+	advTriggerEffectActual(getPropertyObject2(c, 2546), "ADD Cost2Amount 120"); //base 160
+	advTriggerEffectActual(getPropertyObject2(c, 1775), "ADD Cost2Amount 150"); //base 200
+	advTriggerEffectActual(getPropertyObject2(c, 1777), "ADD Cost2Amount 150"); //base 200
+	advTriggerEffectActual(getPropertyObject2(c, 1779), "ADD Cost2Amount 450"); //base 600
+}
+
+void __stdcall zannfort_onChange(void* c)
 {
 	//research* res = (research*)**((void***)c + 2);
 	//removeCheckResearchedOnce();
 	//researchTech(c, 800);
-	int nForts = player_getResources(c)[134];		//standing forts
+	int nForts = (int)player_getResources(c)[134];		//standing forts
 
-	zann_resetCosts(c);
-
-	for (int i = 0; i < nForts; i++)
-	{
-		advTriggerEffectActual(getPropertyObject2(c, 2544), zann_str_1);
-		advTriggerEffectActual(getPropertyObject2(c, 2546), zann_str_1);
-		advTriggerEffectActual(getPropertyObject2(c, 1775), zann_str_1);
-		advTriggerEffectActual(getPropertyObject2(c, 1777), zann_str_1);
-		advTriggerEffectActual(getPropertyObject2(c, 1779), zann_str_1);
-	}
-}
-
-void __stdcall zannfort_onDestroy(void* c)
-{
-	//research* res = (research*)**((void***)c + 2);
-	//research* r = &res[9];
-	//removeCheckResearchedOnce();
-	//researchTech(c, 801);
-	int nForts = player_getResources(c)[134];		//standing forts
-
-	zann_resetCosts(c);
+	zann_resetCosts1(c);
 
 	for (int i = 0; i < nForts; i++)
 	{
@@ -81,9 +72,11 @@ void __stdcall zannfort_onDestroy(void* c)
 		advTriggerEffectActual(getPropertyObject2(c, 1777), zann_str_1);
 		advTriggerEffectActual(getPropertyObject2(c, 1779), zann_str_1);
 	}
+
+	zann_resetCosts2(c);
 }
 
-__declspec(naked) void onNewFort() //00554B8A
+/*__declspec(naked) void onNewFort() //00554B8A
 {
 	__asm
 	{
@@ -106,7 +99,7 @@ __declspec(naked) void onNewFort() //00554B8A
 		push    00554B9Dh
 		jmp     eax
 	}
-}
+}*/
 
 __declspec(naked) void onFortBuilt() //00554B81
 {
@@ -116,9 +109,9 @@ __declspec(naked) void onFortBuilt() //00554B81
 		mov     ecx, [esi + 18h]
 		//mov     ecx, [ecx + 1D94h]
 		push    ecx
-		call    zannfort_onBuild
-		push    00554B87h
-		ret
+		call    zannfort_onChange
+		mov     eax, 00554B87h
+		jmp     eax
 	}
 }
 
@@ -130,9 +123,9 @@ __declspec(naked) void onFortDestroyed() //00554D9C
 		mov     ecx, [esi + 18h]
 		//mov     ecx, [ecx + 1D94h]
 		push    ecx
-		call    zannfort_onDestroy
-		push    00554DA2h
-		ret
+		call    zannfort_onChange
+		mov     eax, 00554DA2h
+		jmp     eax
 	}
 }
 

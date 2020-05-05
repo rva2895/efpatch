@@ -472,23 +472,64 @@ __declspec(naked) void iconTCMounted()
 	}
 }
 
+int __fastcall get_icon_tc_mounted_tech(int civ, int normal_id)
+{
+	switch (civ)
+	{
+	case 9:
+		return 613; //avail-taniz
+	case 10:
+		return 742; //avail-tanio
+	case 11:
+		return 813; //avail-tanifo
+	case 12:
+		return 873; //avail-tanirs
+	default:
+		return normal_id;
+	}
+}
+
 __declspec(naked) void iconTCMounted_id_tech() //005051E0
 {
 	__asm
 	{
+		//mov     edx, [esp + ecx * 4 + 3Ch]
+		//sub     ecx, 9
+		//jnz     _tech_civ10
+		//mov     edx, 613		//avail-taniz
+		//jmp     _not_tech_civ9_10
+//_tech_civ10:
+		//dec     ecx
+		//jnz     _not_tech_civ9_10
+		//mov     edx, 742		//avail-tanio
+//_not_tech_civ9_10:
+		//mov     ecx, [ebp + 1D94h]
+		//mov     eax, 005051EAh
+		//jmp     eax
+
 		mov     edx, [esp + ecx * 4 + 3Ch]
-		sub     ecx, 9
-		jnz     _tech_civ10
-		mov     edx, 613		//avail-taniz
-		jmp     _not_tech_civ9_10
-_tech_civ10:
-		dec     ecx
-		jnz     _not_tech_civ9_10
-		mov     edx, 742		//avail-tanio
-_not_tech_civ9_10:
+		call    get_icon_tc_mounted_tech
 		mov     ecx, [ebp + 1D94h]
-		mov     eax, 005051EAh
-		jmp     eax
+		push    eax
+		mov     edx, 005051EBh
+		jmp     edx
+	}
+}
+
+int __fastcall get_icon_tc_mounted_unit(int civ, int normal_id)
+{
+	switch (civ)
+	{
+	case 9:
+		return 1748; //unit-taniz
+	case 10:
+		return 4056; //unit-tanio
+	case 11:
+		return 4586; //unit-tanifo
+	case 12:
+		return 4703; //unit-tanirs
+	default:
+		return normal_id;
 	}
 }
 
@@ -496,16 +537,26 @@ __declspec(naked) void iconTCMounted_id_unit() //00505276
 {
 	__asm
 	{
-		mov     ebx, [esp + eax * 4 + 3Ch]
-		sub     eax, 9
-		jnz     _unit_civ10
-		mov     ebx, 1748		//unit-taniz
-		jmp     _not_unit_civ9_10
-_unit_civ10:
-		dec     eax
-		jnz     _not_unit_civ9_10
-		mov     ebx, 4056		//unit-tanio
-_not_unit_civ9_10:
+		//mov     ebx, [esp + eax * 4 + 3Ch]
+		//sub     eax, 9
+		//jnz     _unit_civ10
+		//mov     ebx, 1748		//unit-taniz
+		//jmp     _not_unit_civ9_10
+//_unit_civ10:
+		//dec     eax
+		//jnz     _not_unit_civ9_10
+		//mov     ebx, 4056		//unit-tanio
+//_not_unit_civ9_10:
+		//lea     edx, [esp + 32h]
+		//mov     eax, 0050527Eh
+		//jmp     eax
+
+		mov     edx, [esp + eax * 4 + 3Ch]
+		mov     ebx, ecx
+		mov     ecx, eax
+		call    get_icon_tc_mounted_unit
+		mov     ecx, ebx
+		mov     ebx, eax
 		lea     edx, [esp + 32h]
 		mov     eax, 0050527Eh
 		jmp     eax

@@ -736,6 +736,7 @@ loc_5582D8:
 	}
 }
 
+#pragma optimize( "s", on )
 void setMouseOverrideHooks()
 {
 	writeDword(0x006169AD, 0x9090C033);		//xor eax, eax
@@ -762,3 +763,4 @@ void setMouseOverrideHooks()
 	writeWord(0x004B6F97, 0x9090);
 	writeByte(0x004B6F99, 0x90);
 }
+#pragma optimize( "", on )

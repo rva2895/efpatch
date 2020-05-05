@@ -95,6 +95,7 @@ locret_58AA78:
 	}
 }
 
+#pragma optimize( "s", on )
 void setAIGoalsHooks()
 {
 	writeDword(0x00583646, AI_GOAL_MAX);
@@ -106,3 +107,4 @@ void setAIGoalsHooks()
 	setHook((void*)0x0058AA40, aigoal_goal);
 	setHook((void*)0x0058AA60, aigoal_set_goal);
 }
+#pragma optimize( "", on )
