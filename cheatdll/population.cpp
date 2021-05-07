@@ -39,7 +39,7 @@ createPopListCont:
 	}
 }
 
-float f1000 = 1000.0;
+const float f1000 = 1000.0;
 
 __declspec(naked) void getPopCap_new() //005EF1B0
 {

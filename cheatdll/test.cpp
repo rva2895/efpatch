@@ -98,8 +98,8 @@ __declspec(naked) int triggerLogHook() //005F54D2
 int retSave;
 int data;
 
-char title[] = "DAT";
-char text[] = "read";
+const char title[] = "DAT";
+const char text[] = "read";
 
 __declspec(naked) int onReadDat()
 {
@@ -512,7 +512,7 @@ std::vector<void*> addresses;
 
 std::vector<void*> adr_test;
 
-void add_addr(void* a)
+void __stdcall add_addr(void* a)
 {
 	for (auto it = addresses.begin(); it != addresses.end(); ++it)
 		if (*it == a)
@@ -529,6 +529,12 @@ int right;
 volatile bool answer_flag = false;
 volatile bool answer = false;
 
+void msg_box(const char* s, int formal)
+{
+	UNREFERENCED_PARAMETER(formal);
+	MessageBox(0, s, "Message", 0);
+}
+
 bool check(int l, int r)
 {
 	left = l;
@@ -536,7 +542,7 @@ bool check(int l, int r)
 	answer_flag = false;
 	char s[0x100];
 	sprintf(s, "Checking %d - %d, condition met? [/yes] [/no]", l, r);
-	sendChat(s, 0);
+	msg_box(s, 0);
 	while (!answer_flag)
 		;
 	return answer;
@@ -579,10 +585,10 @@ void time_find(void*)
 	if (p != -1)
 	{
 		sprintf(s, "Found at 0x%X", addresses[p]);
-		sendChat(s, 0);
+		msg_box(s, 0);
 	}
 	else
-		sendChat("Not found!", 0);
+		msg_box("Not found!", 0);
 }
 
 bool thread_begun = false;
@@ -631,6 +637,8 @@ DWORD __stdcall Intercept_timeGetTime()
 		for (int i = left; i <= right; i++)
 			if (addresses[i] == _ReturnAddress())
 				retval *= 10;
+	//retval *= 10;
+	//li->QuadPart *= 10;
 
 	return retval;
 }
@@ -898,10 +906,42 @@ void __stdcall add_function(DWORD addr)
 	writeByte(addr + 10, 0xC3); //ret
 }*/
 
+//int control_source;
+//int control_target = 1;
+//bool control_initiated = false;
+
+//for takecontrol
+/*__declspec(naked) void onSync() //00432DFF
+{
+	__asm
+	{
+		mov      al, control_initiated
+		test     al, al
+		jz       _no_control
+		push     ecx
+		push     control_source
+		call     takeControl
+		pop      ecx
+		mov      eax, 004496A0h
+		call     eax
+		mov      eax, control_target
+		push     eax
+		call     takeControl
+		mov      eax, 00432E04h
+		jmp      eax
+_no_control:
+		mov      eax, 004496A0h
+		call     eax
+		mov      eax, 00432E04h
+		jmp      eax
+	}
+}*/
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
 	//setHook((void*)0x005D0D59, repair_test);
+	//setHook((void*)0x00432DFF, onSync);
 
 	//setHook((void*)0x00542870, loadDRSHookT);
 	//timeGetTime

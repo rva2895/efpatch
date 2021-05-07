@@ -5,7 +5,7 @@
 void (__thiscall* setGameSpeed) (void* this_, float spd) =
 	(void(__thiscall*) (void*, float))0x005BD6B0;
 
-float game_speeds[] =
+const float game_speeds[] =
 {
 	0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0
 };
@@ -415,7 +415,7 @@ int __stdcall allow_screen_draw_test()
 	{
 		last_draw_game = t;
 		return true;
-		allow_screen_draw = true;
+		//allow_screen_draw = true;
 	}
 	else
 		return false;

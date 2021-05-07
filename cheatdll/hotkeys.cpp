@@ -2,7 +2,7 @@
 
 #ifndef _CHEATDLL_CC
 
-char hotkeys[] = {
+const char hotkeys[] = {
 	 1,  7,  6, //monitor
 	 2,  8,  3, //interceptor        4 -> 3
 	 3,  8,  4, //attacker           5 -> 4
@@ -18,7 +18,7 @@ char hotkeys[] = {
 void* hotkeyTestRet;
 void* hotkeyTestCont;
 
-__declspec(naked) void hotkeyTest() //00563010, 005625D0
+__declspec(naked) void hotkeyTest() //(00563010, 005625D0) <- offsets not used
 {
 	__asm
 	{
@@ -368,7 +368,7 @@ __declspec(naked) void hotkeyDefaultNightsisterHunter()
 	}
 }
 
-DWORD hotkeyDefaultsGroup5[] =  //build defense
+const DWORD hotkeyDefaultsGroup5[] =  //build defense
 {
 	0x005644CA,
 	0x005644E3,
@@ -381,7 +381,7 @@ DWORD hotkeyDefaultsGroup5[] =  //build defense
 	(DWORD)&hotkeyDefaultMine
 };
 
-DWORD hotkeyDefaultsGroup7[] =  //shipyard
+const DWORD hotkeyDefaultsGroup7[] =  //shipyard
 {
 	0x0056461E,
 	0x00564637,
@@ -392,7 +392,7 @@ DWORD hotkeyDefaultsGroup7[] =  //shipyard
 	(DWORD)&hotkeyDefaultMonitor
 };
 
-DWORD hotkeyDefaultsGroup8[] =  //airbase
+const DWORD hotkeyDefaultsGroup8[] =  //airbase
 {
 	0x005646C8,
 	0x005646E1,
@@ -402,7 +402,7 @@ DWORD hotkeyDefaultsGroup8[] =  //airbase
 	(DWORD)&hotkeyDefaultAttacker
 };
 
-DWORD hotkeyDefaultsGroup10[] =  //mech factory
+const DWORD hotkeyDefaultsGroup10[] =  //mech factory
 {
 	0x005647B8,
 	0x005647D1,
@@ -411,12 +411,12 @@ DWORD hotkeyDefaultsGroup10[] =  //mech factory
 	(DWORD)&hotkeyDefaultTransportMech
 };
 
-//DWORD hotkeyDefaultsGroup12[] =  //jedi temple
+//const DWORD hotkeyDefaultsGroup12[] =  //jedi temple
 //{
 
 //};
 
-DWORD hotkeyDefaultsGroup13[] =  //spaceport
+const DWORD hotkeyDefaultsGroup13[] =  //spaceport
 {
 	0x005648CA,
 	(DWORD)&hotkeyDefaultCargoFreighter

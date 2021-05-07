@@ -160,6 +160,8 @@ void setSaveGameVersionHooks()
 
 #include <stdio.h>
 
+#pragma warning(push)
+#pragma warning(disable:4100)
 __declspec(naked) void __stdcall errorScreen
 (char* s, int unk0, int x, int y, int unk1, void* ptr)
 {
@@ -175,6 +177,7 @@ __declspec(naked) void __stdcall errorScreen
 		jmp     eax
 	}
 }
+#pragma warning(pop)
 
 char ver[4];
 

@@ -95,3 +95,5 @@ char* __cdecl strupr__(char *String);*/
 //#define _malloc malloc
 //#define _free free
 //#define _exit exit
+
+int __stdcall getMapSize();

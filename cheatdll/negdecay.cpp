@@ -23,8 +23,10 @@ jump:
 	}
 }
 
+#pragma optimize( "s", on )
 void setDecayHooks()
 {
 	writeByte(0x54F0F6, 0x40);
 	setHook((void*)0x0054F123, negDecay);
 }
+#pragma optimize( "", on )

@@ -14,3 +14,13 @@
 
 #define VER_CC 0
 #define VER_EF 1
+
+#ifndef _CHEATDLL_CC
+#define TERRAIN_COUNT 252
+#else
+#ifdef _CC_COMPATIBLE
+#define TERRAIN_COUNT 53
+#else
+#define TERRAIN_COUNT 54
+#endif
+#endif

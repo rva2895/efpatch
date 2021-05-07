@@ -440,7 +440,6 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
 		SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
 		SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETPOS, slp_counter++, 0);
 		break;
-		break;
 	default:
 		return false;
 	}

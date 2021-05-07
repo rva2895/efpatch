@@ -111,6 +111,10 @@ __declspec(naked) void ondefconst() //00552FD0
 #pragma optimize( "s", on )
 void setAIHooks()
 {
+	//rule limit: 1000 -> 10000
+	writeDword(0x006055E2, 10000);
+	writeDword(0x00599462, 20000);
+
 	//setHook((void*)0x00552FD0, ondefconst);
 
 

@@ -169,6 +169,9 @@ int __stdcall maplist_getMapSize(short old_size)
 	case 10:
 		return 560;
 		break;
+	case 11:
+		return 640;
+		break;
 	default:
 		return old_size;
 	}
@@ -222,6 +225,10 @@ __declspec(naked) void maplist_make() //00520043
 		push    10
 		push    10610
 		call    edi
+		mov     ecx, [esi + 0B08h]	//640
+		push    11
+		push    10609
+		call    edi
 		pop     edi
 		mov     eax, 00520055h
 		jmp     eax
@@ -255,7 +262,7 @@ int* map_cost;
 #define o_y 2
 #define o_n 4
 
-__declspec(naked) void p1() //004BDCDE
+__declspec(naked) void p1() //004BDCDE, checked
 {
 	__asm
 	{
@@ -273,14 +280,15 @@ __declspec(naked) void p1() //004BDCDE
 		mov     ax, [edi + cn_x]
 		mov     dx, [edi + cn_y]
 		mov     word ptr [ebp + 22h], ax
-		mov     eax, [esi + cn_n]
+		//mov     eax, [esi + cn_n]
+		mov     eax, [edi + cn_n]						//new change !!!
 		mov     [ebp - 0Ah], dx
 		push    004BDD26h
 		ret
 	}
 }
 
-__declspec(naked) void p2() //004BDD97
+__declspec(naked) void p2() //004BDD97, checked
 {
 	__asm
 	{
@@ -298,7 +306,7 @@ __declspec(naked) void p2() //004BDD97
 
 //var_8+4
 
-__declspec(naked) void p3() //004BE58C
+__declspec(naked) void p3() //004BE58C, checked
 {
 	__asm
 	{
@@ -315,7 +323,7 @@ __declspec(naked) void p3() //004BE58C
 	}
 }
 
-__declspec(naked) void p4() //004BE5C6
+__declspec(naked) void p4() //004BE5C6, checked
 {
 	__asm
 	{
@@ -335,7 +343,7 @@ __declspec(naked) void p4() //004BE5C6
 	}
 }
 
-__declspec(naked) void p5() //004BE631
+__declspec(naked) void p5() //004BE631, checked, but watch out for EDI
 {
 	__asm
 	{
@@ -355,7 +363,7 @@ __declspec(naked) void p5() //004BE631
 //var_4B -> var_4A
 //arg_2F -> ebp + 36h
 
-__declspec(naked) void p6() //004BE73F
+__declspec(naked) void p6() //004BE73F, checked
 {
 	__asm
 	{
@@ -374,7 +382,7 @@ __declspec(naked) void p6() //004BE73F
 
 //arg_8 + 3 -> ebp + 12h
 
-__declspec(naked) void p7() //004BE787
+__declspec(naked) void p7() //004BE787, checked
 {
 	__asm
 	{
@@ -392,7 +400,7 @@ __declspec(naked) void p7() //004BE787
 	}
 }
 
-__declspec(naked) void p8() //004BE7EF
+__declspec(naked) void p8() //004BE7EF, checked
 {
 	__asm
 	{
@@ -410,7 +418,7 @@ __declspec(naked) void p8() //004BE7EF
 
 //
 
-__declspec(naked) void p9() //004BDAEF
+__declspec(naked) void p9() //004BDAEF, checked
 {
 	__asm
 	{
@@ -418,14 +426,14 @@ __declspec(naked) void p9() //004BDAEF
 		mov     [eax + cn_x], bx
 		mov     [ebp + 20h], ecx
 		mov     dword ptr [eax + o_n], 88CA6C00h
-		fild    [ebp + 20h]
+		fild    dword ptr [ebp + 20h]
 		mov     [ebp - 4Ch], bx
 		push    004BDB08h
 		ret
 	}
 }
 
-__declspec(naked) void p10() //004BDB9E
+__declspec(naked) void p10() //004BDB9E, checked
 {
 	__asm
 	{
@@ -437,7 +445,7 @@ __declspec(naked) void p10() //004BDB9E
 	}
 }
 
-__declspec(naked) void p11() //004BDCB6
+__declspec(naked) void p11() //004BDCB6, checked
 {
 	__asm
 	{
@@ -451,7 +459,7 @@ __declspec(naked) void p11() //004BDCB6
 	}
 }
 
-__declspec(naked) void p12() //004BDAC8
+__declspec(naked) void p12() //004BDAC8, checked
 {
 	__asm
 	{
@@ -469,7 +477,7 @@ __declspec(naked) void p12() //004BDAC8
 	}
 }
 
-__declspec(naked) void p13() //004BE48D
+__declspec(naked) void p13() //004BE48D, checked
 {
 	__asm
 	{
@@ -482,7 +490,7 @@ __declspec(naked) void p13() //004BE48D
 	}
 }
 
-__declspec(naked) void p14() //004BDFB0
+__declspec(naked) void p14() //004BDFB0, checked
 {
 	__asm
 	{
@@ -493,7 +501,7 @@ __declspec(naked) void p14() //004BDFB0
 	}
 }
 
-__declspec(naked) void p15() //004BE103
+__declspec(naked) void p15() //004BE103, checked
 {
 	__asm
 	{
@@ -505,7 +513,7 @@ __declspec(naked) void p15() //004BE103
 	}
 }
 
-__declspec(naked) void p16() //004BE543
+__declspec(naked) void p16() //004BE543, checked
 {
 	__asm
 	{
@@ -518,7 +526,7 @@ loc_4BE54B:
 	}
 }
 
-__declspec(naked) void p17() //004BE64F
+__declspec(naked) void p17() //004BE64F, checked
 {
 	__asm
 	{
@@ -532,11 +540,39 @@ loc_4BE68A:
 	}
 }
 
-void fix_sub_4bd6a0()
+__declspec(naked) void p18() //004BDFB6, new
 {
-	writeByte(0x004BDFD3, 0x22);
-	writeByte(0x004BE129, 0x22);
+	__asm
+	{
+		jnz     short loc_4BDFBD
+		cmp     eax, [ebp - 58h]
+		jz      short loc_4BDFD1
+loc_4BDFBD:
+		cmp     ebx, [ebp - 44h]
+		jl      short loc_4BDFD5
+		cmp     ebx, [ebp - 30h]
+		jg      short loc_4BDFD5
+		cmp     eax, [ebp - 34h]
+		jl      short loc_4BDFD5
+		cmp     eax, [ebp - 40h]
+		jg      short loc_4BDFD5
+loc_4BDFD1:
+		mov     word ptr [ebp + 22h], 1
+loc_4BDFD5:
+		push    004BDFD5h
+		ret
+	}
+}
 
+__declspec(naked) void p19() //004BE125, new
+{
+	__asm
+	{
+		mov     cx, 1
+		mov     word ptr [ebp + 22h], cx
+		push    004BE12Ah
+		ret
+	}
 }
 
 // ****************************************** */
@@ -1375,6 +1411,259 @@ __declspec(naked) void waypoint_fix() //0044BDD0
 	}
 }
 
+//build wall
+//[esi+3] | low [esi+0Ah]
+//[esi+4] | high [esi+0Ah]
+//[esi+5] | low [esi+0Bh]
+//[esi+6| | high [esi+0Bh]
+__declspec(naked) void wall_prepare_1() //005BD45E
+{
+	__asm
+	{
+		mov     [eax + 5], bl
+		shr     ebx, 8
+		mov     [eax + 6], dl
+		shr     edx, 4
+		and     ebx, 0Fh
+		and     edx, 0F0h
+		or      edx, ebx
+		mov     [eax + 0Bh], dl
+		mov     ecx, [esp + 20h]
+		mov     [eax + 3], cl
+		shr     ecx, 8
+		mov     edx, [esp + 24h]
+		mov     [eax + 4], dl
+		shr     edx, 4
+		and     ecx, 0Fh
+		and     edx, 0F0h
+		or      edx, ecx
+		mov     [eax + 0Ah], dl
+		mov     ecx, 005BD472h
+		jmp     ecx
+	}
+}
+
+__declspec(naked) void wall_prepare_2() //005BD563
+{
+	__asm
+	{
+		push    ecx
+		mov     [eax + 2], cl
+		mov     [eax + 3], bl
+		shr     ebx, 8
+		mov     ecx, [esp + 30h]
+		mov     [eax + 4], cl
+		shr     ecx, 4
+		and     ebx, 0Fh
+		and     ecx, 0F0h
+		or      ecx, ebx
+		mov     [eax + 0Ah], cl
+		mov     ebx, [esp + 34h]
+		mov     [eax + 5], bl
+		shr     ebx, 8
+		mov     [eax + 6], dl
+		shr     edx, 4
+		and     ebx, 0Fh
+		and     edx, 0F0h
+		or      edx, ebx
+		mov     [eax + 0Bh], dl
+		mov     edx, [esp + 3Ch]
+		mov     ecx, [esp + 14h]
+		push    ebp
+		push    eax
+		mov     byte ptr [eax], 69h
+		mov     [eax + 8], si
+		mov     [eax + 0Ch], edx
+		mov     edx, 005BD58Fh
+		jmp     edx
+	}
+}
+
+__declspec(naked) void wall_do_1() //005BA911
+{
+	__asm
+	{
+		mov     cl, [esi + 0Ah]
+		shl     ecx, 4
+		mov     cl, [esi + 4]
+		mov     dl, [esi + 0Ah]
+		shl     edx, 8
+		and     edx, 0F00h
+		mov     dl, [esi + 3]
+		mov     eax, 005BA917h
+		jmp     eax
+	}
+}
+
+__declspec(naked) void wall_do_2() //005BA9FA
+{
+	__asm
+	{
+		mov     al, [esi + 0Bh]
+		shl     eax, 4
+		mov     al, [esi + 6]
+		mov     cl, [esi + 0Ah]
+		shl     ecx, 4
+		mov     cl, [esi + 4]
+		mov     edi, 005BAA00h
+		jmp     edi
+	}
+}
+
+__declspec(naked) void wall_do_3() //005BAA0B
+{
+	__asm
+	{
+		mov     al, [esi + 0Bh]
+		shl     eax, 8
+		and     eax, 0F00h
+		mov     al, [esi + 5]
+		xor     edx, edx
+		mov     dl, [esi + 0Ah]
+		shl     edx, 8
+		and     edx, 0F00h
+		mov     dl, [esi + 3]
+		mov     ecx, 005BAA13h
+		jmp     ecx
+	}
+}
+
+__declspec(naked) void wall_do_4() //005BAA70
+{
+	__asm
+	{
+		mov     dl, [esi + 0Bh]
+		shl     edx, 4
+		mov     dl, [esi + 6]
+		mov     al, [esi + 0Ah]
+		shl     eax, 8
+		and     eax, 0F00h
+		mov     al, [esi + 3]
+		push    ecx
+		xor     ecx, ecx
+		mov     cl, [esi + 0Ah]
+		shl     ecx, 4
+		mov     cl, [esi + 4]
+		push    edi
+		push    edx
+		mov     edx, 005BAA7Eh
+		jmp     edx
+	}
+}
+
+__declspec(naked) void wall_do_5() //005BAA94
+{
+	__asm
+	{
+		mov     al, [esi + 0Bh]
+		shl     eax, 4
+		mov     al, [esi + 6]
+		push    1
+		lea     ecx, [esp + 34h]
+		push    0
+		xor     edx, edx
+		push    ecx
+		mov     dl, [esi + 0Bh]
+		shl     edx, 8
+		and     edx, 0F00h
+		mov     dl, [esi + 5]
+		mov     ecx, [esi + 0Ch]
+		push    edi
+		push    eax
+		push    edx
+		push    eax
+		xor     eax, eax
+		mov     al, [esi + 0Ah]
+		shl     eax, 8
+		and     eax, 0F00h
+		mov     al, [esi + 3]
+		mov     edx, 005BAAB1h
+		jmp     edx
+	}
+}
+
+__declspec(naked) void wall_do_6() //005BAAC4
+{
+	__asm
+	{
+		mov     al, [esi + 0Ah]
+		shl     eax, 4
+		mov     al, [esi + 4]
+		push    0
+		lea     edx, [esp + 34h]
+		push    1
+		xor     ecx, ecx
+		push    edx
+		mov     cl, [esi + 0Bh]
+		shl     ecx, 8
+		and     ecx, 0F00h
+		mov     cl, [esi + 5]
+		push    edi
+		push    eax
+		xor     edx, edx
+		mov     dl, [esi + 0Ah]
+		shl     edx, 8
+		and     edx, 0F00h
+		mov     dl, [esi + 3]
+		push    ecx
+		mov     ecx, 005BAADDh
+		jmp     ecx
+	}
+}
+
+__declspec(naked) void wall_do_7() //005BAAFC
+{
+	__asm
+	{
+		mov     dl, [esi + 0Bh]
+		shl     edx, 4
+		mov     dl, [esi + 6]
+		mov     al, [esi + 0Bh]
+		shl     eax, 8
+		and     eax, 0F00h
+		mov     al, [esi + 5]
+		push    ecx
+		xor     ecx, ecx
+		mov     cl, [esi + 0Ah]
+		shl     ecx, 4
+		mov     cl, [esi + 4]
+		push    edi
+		push    edx
+		mov     edx, 005BAB0Ah
+		jmp     edx
+	}
+}
+
+__declspec(naked) void wall_do_8() //005BAB2A
+{
+	__asm
+	{
+		mov     cl, [esi + 0Bh]
+		shl     ecx, 4
+		mov     cl, [esi + 6]
+		push    eax
+		push    edi
+		xor     edx, edx
+		mov     dl, [esi + 0Bh]
+		shl     edx, 8
+		and     edx, 0F00h
+		mov     dl, [esi + 5]
+		push    ecx
+		xor     eax, eax
+		xor     ecx, ecx
+		mov     al, [esi + 0Ah]
+		shl     eax, 4
+		mov     al, [esi + 4]
+		mov     cl, [esi + 0Ah]
+		shl     ecx, 8
+		and     ecx, 0F00h
+		mov     cl, [esi + 3]
+		push    edx
+		mov     edx, 005BAB40h
+		jmp     edx
+	}
+}
+
 #pragma optimize( "s", on )
 void setMapSizeHooks()
 {
@@ -1403,34 +1692,34 @@ void setMapSizeHooks()
 
 	//
 
-	writeDword(0x004BDD45, map_offset + o_n);
+	writeDword(0x004BDD45, map_offset + o_n);	//seen
 	writeDword(0x004BDD4C, map_offset + cn_n);
 
-	writeDword(0x004BDD5B, map_offset + o_n);
+	writeDword(0x004BDD5B, map_offset + o_n);	//seen
 	writeDword(0x004BDD66, map_offset + o_x);
 	writeDword(0x004BDD6D, map_offset + o_x);
 	writeDword(0x004BDD74, map_offset + o_n);
 	writeDword(0x004BDD7B, map_offset + o_n);
 
-	writeDword(0x004BE5F6, map_offset + o_x);
+	writeDword(0x004BE5F6, map_offset + o_x);	//seen
 	writeDword(0x004BE5FD, map_offset + o_x);
 	writeDword(0x004BE604, map_offset + o_n);
 	writeDword(0x004BE60D, map_offset + o_n);
 
-	writeDword(0x004BE627, map_offset + o_n);
+	writeDword(0x004BE627, map_offset + o_n);	//seen
 
-	writeDword(0x004BE7B3, map_offset + o_x);
+	writeDword(0x004BE7B3, map_offset + o_x);	//seen
 	writeDword(0x004BE7BA, map_offset + o_x);
 	writeDword(0x004BE7C1, map_offset + o_n);
 	writeDword(0x004BE7CA, map_offset + o_n);
 
-	writeDword(0x004BE7E4, map_offset + o_n);
+	writeDword(0x004BE7E4, map_offset + o_n);	//seen
 
-	writeDword(0x004BDEBB, map_cost_offset);
-	writeDword(0x004BDF8F, map_cost_offset);
-	writeDword(0x004BE558, map_cost_offset);
-	writeDword(0x004BE56B, map_cost_offset);
-	writeDword(0x004BE6D8, map_cost_offset);
+	writeDword(0x004BDEBB, map_cost_offset);	//seen
+	writeDword(0x004BDF8F, map_cost_offset);	//seen
+	writeDword(0x004BE558, map_cost_offset);	//seen
+	writeDword(0x004BE56B, map_cost_offset);	//seen
+	writeDword(0x004BE6D8, map_cost_offset);	//seen
 
 	//edit all references to array:
 	writeDword(0x41C30E, (DWORD)mapptr);
@@ -1536,6 +1825,8 @@ void setMapSizeHooks()
 	setHook((void*)0x004BE103, p15);
 	setHook((void*)0x004BE543, p16);
 	setHook((void*)0x004BE64F, p17);
+	setHook((void*)0x004BDFB6, p18);
+	setHook((void*)0x004BE125, p19);
 
 	setHook((void*)0x004BE9A5, p1_);
 	setHook((void*)0x004BEB56, p2_);
@@ -1545,7 +1836,6 @@ void setMapSizeHooks()
 	setHook((void*)0x004BEB94, p6_);
 	setHook((void*)0x004BEB9E, p7_);
 
-	fix_sub_4bd6a0();
 	fix_sub_4be980();
 
 	setHook((void*)0x004BDDBA, facet1);
@@ -1663,6 +1953,29 @@ void setMapSizeHooks()
 
 	//map zone pool
 	writeDword(0x00624DC7, 0x200);
+
+	//build wall
+	writeDword(0x005BD3F9, MAP_MAX);
+	writeDword(0x005BD403, MAP_MAX);
+	writeDword(0x005BD40B, MAP_MAX);
+	writeDword(0x005BD415, MAP_MAX);
+	writeDword(0x005BD41B, MAP_MAX);
+	writeDword(0x005BD422, MAP_MAX);
+	writeDword(0x005BD428, MAP_MAX);
+	writeDword(0x005BD42F, MAP_MAX);
+
+	writeDword(0x005BD533, MAP_MAX);
+
+	setHook((void*)0x005BD45E, wall_prepare_1);
+	setHook((void*)0x005BD563, wall_prepare_2);
+	setHook((void*)0x005BA911, wall_do_1);
+	setHook((void*)0x005BA9FA, wall_do_2);
+	setHook((void*)0x005BAA0B, wall_do_3);
+	setHook((void*)0x005BAA70, wall_do_4);
+	setHook((void*)0x005BAA94, wall_do_5);
+	setHook((void*)0x005BAAC4, wall_do_6);
+	setHook((void*)0x005BAAFC, wall_do_7);
+	setHook((void*)0x005BAB2A, wall_do_8);
 }
 
 void setMapSizeHooks_legacy()

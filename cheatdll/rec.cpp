@@ -46,14 +46,14 @@ _contMenu:
 }
 
 char* chatStr = (char*)0x007A20C0;
+char* chatStr_temp;
 
 void __stdcall recPrintChat(bool our)
 {
-	char s[512];
 	if (!our)
 	{
-		strcpy(s, chatStr);
-		sprintf(chatStr + 3, "<%s>", s + 3);
+		strcpy(chatStr_temp, chatStr);
+		sprintf(chatStr + 3, "<%s>", chatStr_temp + 3);
 	}
 }
 
@@ -73,6 +73,8 @@ __declspec(naked) void onRecChat() //0061FCD0
 #pragma optimize( "s", on )
 void setRecHooks()
 {
+	chatStr_temp = (char*)malloc(0x400);
+
 	setHook((void*)0x0045E425, onMenuInit);
 	setHook((void*)0x0061FCD0, onRecChat);
 }

@@ -2,7 +2,7 @@
 
 #include "revertToX1.h"
 
-BYTE_ASSIGN revertX1[] =
+const BYTE_ASSIGN revertX1[] =
 {
 	{0x1C593, 0x66},	//ground-to-air
 	{0x1C594, 0x81},

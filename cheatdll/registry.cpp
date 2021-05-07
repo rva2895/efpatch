@@ -2,7 +2,7 @@
 
 #include "registry.h"
 
-CONFIG_DATA cd_default =
+extern const CONFIG_DATA cd_default =
 {
 	1,   //fps
 	0,   //dsoundhook
@@ -24,17 +24,18 @@ CONFIG_DATA cd_default =
 	0,   //small trees
 	0,   //minimap 7
 	0    //large text
+	//"en" //lang
 };
 
-void regGet (CONFIG_DATA* cd)
+void regGet(CONFIG_DATA* cd)
 {
 	HKEY hKeyCU;
 	HKEY hKey;
 	unsigned long disposition;
-	unsigned long type,size;
+	unsigned long type, size;
 
-	long regResult = RegOpenCurrentUser (KEY_ALL_ACCESS, &hKeyCU);
-	regResult = RegCreateKeyEx (
+	long regResult = RegOpenCurrentUser(KEY_ALL_ACCESS, &hKeyCU);
+	regResult = RegCreateKeyEx(
 		hKeyCU,
 		REGPATH,
 		0,
@@ -48,211 +49,234 @@ void regGet (CONFIG_DATA* cd)
 	if (disposition == REG_CREATED_NEW_KEY)
 	{
 		*cd = cd_default;
+		RegCloseKey(hKey);
+		log("Created new registry key with default settings");
 	}
 	else
 	{
-	if (regResult == 0)
-	{
-		if (RegQueryValueEx(
-			hKey,
-			"Enable FPS",
-			0,
-			&type,
-			(BYTE*)&cd->useFPS,
-			&size))
+		if (regResult == 0)
+		{
+			size = sizeof(int);
+
+			if (RegQueryValueEx(
+				hKey,
+				"Enable FPS",
+				0,
+				&type,
+				(BYTE*)&cd->useFPS,
+				&size))
 				cd->useFPS = cd_default.useFPS;
-		
-		if (RegQueryValueEx(
-			hKey,
-			"Enable DSoundhook",
-			0,
-			&type,
-			(BYTE*)&cd->useDShook,
-			&size))
+
+			if (RegQueryValueEx(
+				hKey,
+				"Enable DSoundhook",
+				0,
+				&type,
+				(BYTE*)&cd->useDShook,
+				&size))
 				cd->useDShook = cd_default.useDShook;
-		
-		if (RegQueryValueEx(
-			hKey,
-			"Number of Buffers",
-			0,
-			&type,
-			(BYTE*)&cd->nBufs,
-			&size))
+
+			if (RegQueryValueEx(
+				hKey,
+				"Number of Buffers",
+				0,
+				&type,
+				(BYTE*)&cd->nBufs,
+				&size))
 				cd->nBufs = cd_default.nBufs;
-		
-		if (RegQueryValueEx(
-			hKey,
-			"Delay",
-			0,
-			&type,
-			(BYTE*)&cd->timeout,
-			&size))
+
+			if (RegQueryValueEx(
+				hKey,
+				"Delay",
+				0,
+				&type,
+				(BYTE*)&cd->timeout,
+				&size))
 				cd->timeout = cd_default.timeout;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Launch Version",
-			0,
-			&type,
-			(BYTE*)&cd->gameVersion,
-			&size))
+			if (RegQueryValueEx(
+				hKey,
+				"Launch Version",
+				0,
+				&type,
+				(BYTE*)&cd->gameVersion,
+				&size))
 				cd->gameVersion = cd_default.gameVersion;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Ask At Startup",
-			0,
-			&type,
-			(BYTE*)&cd->askAtStartup,
-			&size))
+			if (RegQueryValueEx(
+				hKey,
+				"Ask At Startup",
+				0,
+				&type,
+				(BYTE*)&cd->askAtStartup,
+				&size))
 				cd->askAtStartup = cd_default.askAtStartup;
-		
-		if (RegQueryValueEx(
-			hKey,
-			"Use Alternative List",
-			0,
-			&type,
-			(BYTE*)&cd->useAltCivLetter,
-			&size))
+
+			if (RegQueryValueEx(
+				hKey,
+				"Use Alternative List",
+				0,
+				&type,
+				(BYTE*)&cd->useAltCivLetter,
+				&size))
 				cd->useAltCivLetter = cd_default.useAltCivLetter;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Unlock Resources",
-			0,
-			&type,
-			(BYTE*)&cd->unlockResources,
-			&size))
+			if (RegQueryValueEx(
+				hKey,
+				"Unlock Resources",
+				0,
+				&type,
+				(BYTE*)&cd->unlockResources,
+				&size))
 				cd->unlockResources = cd_default.unlockResources;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Editor Autosave",
-			0,
-			&type,
-			(BYTE*)&cd->editorAutosave,
-			&size))
-			cd->editorAutosave = cd_default.editorAutosave;
+			if (RegQueryValueEx(
+				hKey,
+				"Editor Autosave",
+				0,
+				&type,
+				(BYTE*)&cd->editorAutosave,
+				&size))
+				cd->editorAutosave = cd_default.editorAutosave;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Editor Autosave Interval",
-			0,
-			&type,
-			(BYTE*)&cd->editorAutosaveInterval,
-			&size))
-			cd->editorAutosaveInterval = cd_default.editorAutosaveInterval;
+			if (RegQueryValueEx(
+				hKey,
+				"Editor Autosave Interval",
+				0,
+				&type,
+				(BYTE*)&cd->editorAutosaveInterval,
+				&size))
+				cd->editorAutosaveInterval = cd_default.editorAutosaveInterval;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Resolution Patch Enabled",
-			0,
-			&type,
-			(BYTE*)&cd->widescrnEnabled,
-			&size))
+			if (RegQueryValueEx(
+				hKey,
+				"Resolution Patch Enabled",
+				0,
+				&type,
+				(BYTE*)&cd->widescrnEnabled,
+				&size))
 				cd->widescrnEnabled = cd_default.widescrnEnabled;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Screen Size X",
-			0,
-			&type,
-			(BYTE*)&cd->xres,
-			&size))
+			if (RegQueryValueEx(
+				hKey,
+				"Screen Size X",
+				0,
+				&type,
+				(BYTE*)&cd->xres,
+				&size))
 				cd->xres = cd_default.xres;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Screen Size Y",
-			0,
-			&type,
-			(BYTE*)&cd->yres,
-			&size))
+			if (RegQueryValueEx(
+				hKey,
+				"Screen Size Y",
+				0,
+				&type,
+				(BYTE*)&cd->yres,
+				&size))
 				cd->yres = cd_default.yres;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Window Mode",
-			0,
-			&type,
-			(BYTE*)&cd->windowMode,
-			&size))
-			cd->windowMode = cd_default.windowMode;
+			if (RegQueryValueEx(
+				hKey,
+				"Window Mode",
+				0,
+				&type,
+				(BYTE*)&cd->windowMode,
+				&size))
+				cd->windowMode = cd_default.windowMode;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Large Maps",
-			0,
-			&type,
-			(BYTE*)&cd->largeMaps,
-			&size))
-			cd->largeMaps = cd_default.largeMaps;
+			if (RegQueryValueEx(
+				hKey,
+				"Large Maps",
+				0,
+				&type,
+				(BYTE*)&cd->largeMaps,
+				&size))
+				cd->largeMaps = cd_default.largeMaps;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Crash Reporting",
-			0,
-			&type,
-			(BYTE*)&cd->crashReporting,
-			&size))
-			cd->crashReporting = cd_default.crashReporting;
+			if (RegQueryValueEx(
+				hKey,
+				"Crash Reporting",
+				0,
+				&type,
+				(BYTE*)&cd->crashReporting,
+				&size))
+				cd->crashReporting = cd_default.crashReporting;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Grid Terrain",
-			0,
-			&type,
-			(BYTE*)&cd->gridTerrain,
-			&size))
-			cd->gridTerrain = cd_default.gridTerrain;
+			if (RegQueryValueEx(
+				hKey,
+				"Grid Terrain",
+				0,
+				&type,
+				(BYTE*)&cd->gridTerrain,
+				&size))
+				cd->gridTerrain = cd_default.gridTerrain;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Small Trees",
-			0,
-			&type,
-			(BYTE*)&cd->smallTrees,
-			&size))
-			cd->smallTrees = cd_default.smallTrees;
+			if (RegQueryValueEx(
+				hKey,
+				"Small Trees",
+				0,
+				&type,
+				(BYTE*)&cd->smallTrees,
+				&size))
+				cd->smallTrees = cd_default.smallTrees;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Dark Grey",
-			0,
-			&type,
-			(BYTE*)&cd->minimap7,
-			&size))
-			cd->minimap7 = cd_default.minimap7;
+			if (RegQueryValueEx(
+				hKey,
+				"Dark Grey",
+				0,
+				&type,
+				(BYTE*)&cd->minimap7,
+				&size))
+				cd->minimap7 = cd_default.minimap7;
 
-		if (RegQueryValueEx(
-			hKey,
-			"Large Text",
-			0,
-			&type,
-			(BYTE*)&cd->largeText ,
-			&size))
-			cd->largeText = cd_default.largeText;
+			if (RegQueryValueEx(
+				hKey,
+				"Large Text",
+				0,
+				&type,
+				(BYTE*)&cd->largeText,
+				&size))
+				cd->largeText = cd_default.largeText;
 
-		RegCloseKey (hKey);
-		RegCloseKey (hKeyCU);
+			/*char language[32];
+			size = 32;
+
+			if (RegQueryValueEx(
+				hKey,
+				"Language",
+				0,
+				&type,
+				(BYTE*)language,
+				&size))
+				cd->lang = cd_default.lang;
+			else
+			{
+				language[31] = 0;
+				cd->lang = language;
+			}*/
+			RegCloseKey(hKey);
+			log("Successfully read settings from the registry");
+		}
+		else
+		{
+			MessageBox(0, "Error: cannot access application registry key. Using default settings", "Error", MB_ICONEXCLAMATION);
+			*cd = cd_default;
+			log("Failed to create registry key, using default settings");
+		}
 	}
-	else
-	{
-	
-	}
-	}
 
+	RegCloseKey(hKeyCU);
 }
 
-void regSet (CONFIG_DATA* cd)
+void regSet(const CONFIG_DATA* cd)
 {
 	HKEY hKeyCU;
 	HKEY hKey;
 	unsigned long disposition;
 	unsigned long type;
 
-	long regResult = RegOpenCurrentUser (KEY_ALL_ACCESS, &hKeyCU);
-	regResult = RegCreateKeyEx (
+	long regResult = RegOpenCurrentUser(KEY_ALL_ACCESS, &hKeyCU);
+	regResult = RegCreateKeyEx(
 		hKeyCU,
 		REGPATH,
 		0,
@@ -274,7 +298,7 @@ void regSet (CONFIG_DATA* cd)
 			type,
 			(BYTE*)&cd->useFPS,
 			sizeof(cd->useFPS));
-		
+
 		RegSetValueEx(
 			hKey,
 			"Enable DSoundhook",
@@ -282,7 +306,7 @@ void regSet (CONFIG_DATA* cd)
 			type,
 			(BYTE*)&cd->useDShook,
 			sizeof(cd->useDShook));
-		
+
 		RegSetValueEx(
 			hKey,
 			"Number of Buffers",
@@ -290,7 +314,7 @@ void regSet (CONFIG_DATA* cd)
 			type,
 			(BYTE*)&cd->nBufs,
 			sizeof(cd->nBufs));
-		
+
 		RegSetValueEx(
 			hKey,
 			"Delay",
@@ -427,12 +451,23 @@ void regSet (CONFIG_DATA* cd)
 			(BYTE*)&cd->largeText,
 			sizeof(cd->largeText));
 
-		RegCloseKey (hKey);
-		RegCloseKey (hKeyCU);
+		/*type = REG_SZ;
+
+		RegSetValueEx(
+			hKey,
+			"Language",
+			0,
+			type,
+			(BYTE*)cd->lang.c_str(),
+			cd->lang.length() + 1);*/
+
+		RegCloseKey(hKey);
+		log("Successfully written settings to the registry");
 	}
 	else
 	{
-	
+		MessageBox(0, "Error: cannot access application registry key. Settings not saved", "Error", MB_ICONEXCLAMATION);
+		log("Failed to create registry key, settings not saved");
 	}
-
+	RegCloseKey(hKeyCU);
 }

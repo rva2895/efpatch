@@ -2,16 +2,6 @@
 
 #include "terrain.h"
 
-#ifndef _CHEATDLL_CC
-#define TERRAIN_COUNT 252
-#else
-#ifdef _CC_COMPATIBLE
-#define TERRAIN_COUNT 53
-#else
-#define TERRAIN_COUNT 54
-#endif
-#endif
-
 BYTE* terrain_array = 0;
 /*BYTE terrain_array[] =
 {

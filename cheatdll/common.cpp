@@ -157,3 +157,16 @@ void __cdecl chat(char* format, ...)
 	sendChat(s, -1);
 	va_end(ap);
 }
+
+__declspec(naked) int __stdcall getMapSize()
+{
+	__asm
+	{
+		mov     eax, 006A3684h
+		mov     eax, [eax]
+		mov     eax, [eax + 420h]
+		mov     eax, [eax + 34h]
+		mov     eax, [eax + 8]
+		ret
+	}
+}

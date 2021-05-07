@@ -71,7 +71,7 @@ __declspec(naked) void __stdcall window_setRect(void*, int, int, int, int)
 	}
 }
 
-__declspec(naked) void __stdcall window_setText(void*, char*, int)
+__declspec(naked) void __stdcall window_setText(void*, const char*, int)
 {
 	__asm
 	{
@@ -86,12 +86,12 @@ __declspec(naked) void __stdcall window_setText(void*, char*, int)
 	}
 }
 
-char szAmount[] = "Amount";
-char szTimer[] = "Timer";
-char szAllianceState[] = "Alliance State";
-char szTargetPlayer[] = "Target Player";
-char szQuantity[] = "Quantity";
-char szOptions[] = "Options";
+const char szAmount[] = "Amount";
+const char szTimer[] = "Timer";
+const char szAllianceState[] = "Alliance State";
+const char szTargetPlayer[] = "Target Player";
+const char szQuantity[] = "Quantity";
+const char szOptions[] = "Options";
 
 __declspec(naked) void __fastcall flush_ai_trigger_dropdown(void*)
 {
@@ -118,8 +118,8 @@ __declspec(naked) void __fastcall flush_ai_trigger_dropdown(void*)
 	}
 }
 
-void(__thiscall* window_dropdown_addText) (void*, char*, int) =
-	(void(__thiscall*) (void*, char*, int)) 0x004C82A0;
+void(__thiscall* window_dropdown_addText) (void*, const char*, int) =
+	(void(__thiscall*) (void*, const char*, int)) 0x004C82A0;
 
 extern char** terrain_names;
 extern int terrains_loaded;
@@ -176,7 +176,6 @@ void* __stdcall getEffectParams_hook(void* _this, effect* e)
 		window_setText(*(void**)((int)_this + 0xECC), "Terrain", 0);
 		//ai trigger
 		window_setRect(*(void**)((int)_this + 0xED0), 0x182, 0x16, 0xC8, 0x14);
-		break;
 		break;
 	case 0x12:		//change ownership
 		//obj list type hlp
@@ -240,7 +239,7 @@ __declspec(naked) void __fastcall flush_ai_signal_dropdown(void*)
 	}
 }
 
-char* var_names[] =
+const char* var_names[] =
 {
 	"HP",
 	"HPPercent",
@@ -372,9 +371,9 @@ __declspec(naked) void getConditionParams_new()
 #pragma optimize( "s", on )
 void setEditorEnhHooks()
 {
-	setHook((void*)0x00618FEE, &noTerrainRestrictionHook);
-	setHook((void*)0x00618F90, &noGridHook);
-	setHook((void*)0x0049539F, &removeUnitsFix);
+	setHook((void*)0x00618FEE, noTerrainRestrictionHook);
+	setHook((void*)0x00618F90, noGridHook);
+	setHook((void*)0x0049539F, removeUnitsFix);
 
 #ifndef _CC_COMPATIBLE
 	setHook((void*)0x0052A977, (void*)0x0052A9C4);	//remove ai signal dropdown init

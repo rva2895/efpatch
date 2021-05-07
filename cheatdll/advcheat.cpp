@@ -110,22 +110,23 @@ __declspec(naked) void __stdcall takeControl(int p)
 }
 #pragma warning(pop)
 
-//
-bool time_collect = false;
-bool time_stage_find = false;
-extern volatile bool answer;
-extern volatile bool answer_flag;
-//
-
 extern float glitched_res; //remove
 
-int (__thiscall* player_tribute) (void *source_player, int target_player, int resource, float amount, int unk) =
-	(int(__thiscall*) (void*, int, int, float, int))0x005D07A0;
+int (__thiscall* player_add_attribute) (void *player, int resource, float amount) =
+	(int(__thiscall*) (void*, int, float))0x004C3AE0; //0x005D07A0
 
-int (__thiscall* player_resign) (void *player, int unk1, int unk2) =
+int (__thiscall* player_command_resign) (void *player, int unk1, int unk2) =
 	(int(__thiscall*) (void*, int, int))0x004C3B80;
 
-void tribute(int source, int target, int resource, float amount)
+char (__thiscall* TRIBE_Player_Tech__undo_tech) (void *player_tech, __int16 tech_id) =
+	(char(__thiscall*) (void*, __int16))0x005BFDD2;
+
+void __stdcall player_undo_tech(void* player, short tech)
+{
+	TRIBE_Player_Tech__undo_tech(*(void**)((DWORD)player + 0x1D94), tech);
+}
+
+void tribute(int player, int resource, float amount)
 {
 	if (amount == 42)
 		amount = NAN;
@@ -142,11 +143,25 @@ void tribute(int source, int target, int resource, float amount)
 				break;
 			}
 	}*/
-	void* source_p = get_player(source);
-	player_tribute(source_p, target, resource, amount, 0);
+	void* source_p = get_player(player);
+	player_add_attribute(source_p, resource, amount);
 }
 
 //
+//extern int control_source;
+//extern int control_target;
+//extern bool control_initiated;
+
+int __stdcall getCurrentPlayerId()
+{
+	void* c = getCurrentPlayer();
+	for (int i = 0; i <= 8; i++)
+		if (c == get_player(i))
+			return i;
+	return -1;
+}
+
+prop_object* p;
 
 int __stdcall checkCheats(char* s2)
 {
@@ -176,15 +191,26 @@ int __stdcall checkCheats(char* s2)
 		prepareToEngageCheatResearchTech(id);
 		return false;
 	}
+	/*if (strstr(s, "/UNDO-TECH"))
+	{
+		restoreCheatFlag = 1;
+		sscanf(s, "%s %d", dummy, &id);
+		player_undo_tech(getCurrentPlayer(), id);
+		return true;
+	}*/
 	if (strstr(s, "/TAKE-CONTROL"))
 	{
 		restoreCheatFlag = 1;
 		sscanf(s, "%s %d", dummy, &id);
 		if ((id >= 0) && (id <= 8))
 		{
+			//if (!control_initiated)
+			//	control_source = getCurrentPlayerId();
 			player_clearSelection(getCurrentPlayer());
 			takeControl(id);
 			chat("Taking control of player %d", id);
+			//control_initiated = true;
+			//control_target = id;
 		}
 		return true;
 	}
@@ -229,6 +255,17 @@ int __stdcall checkCheats(char* s2)
 				unit_detach(unit);
 				unit->prop_object->unit_attribute |= 0x40;
 			}
+		return true;
+	}
+	if (strstr(s, "/GET-MASTER"))
+	{
+		sel_iterator i(getCurrentPlayer());
+		UNIT* unit;
+		for (; unit = *i, unit != 0; ++i)
+		{
+			p = unit->prop_object;
+			chat("0x%X", p);
+		}
 		return true;
 	}
 	if (strstr(s, "FORCEHEAL"))
@@ -306,6 +343,17 @@ int __stdcall checkCheats(char* s2)
 	/*if (strstr(s, "/GLITCH"))
 	{
 		chat("Total glitched ore: %d", (int)glitched_res);
+		return true;
+	}
+	if (strstr(s, "/GET"))
+	{
+		char resource_str[0x100];
+		float amount;
+		int resource;
+		int player;
+		sscanf(s, "%s %d %d %f", dummy, &player, &resource, &amount);
+		chat("Adding resource %d amount %f to player %d", resource, amount, player);
+		tribute(player, resource, amount);
 		return true;
 	}*/
 	/*if (strstr(s, "/GET"))
@@ -414,22 +462,21 @@ _no_chat:
 	}
 }
 
-extern float const_f_zero;
+extern const float const_f_zero;
 
 __declspec(naked) void checkPowerResource() //0054BE05
 {
 	__asm
 	{
-		mov     ecx, [esi + 18h]
-		mov     ecx, [ecx + 0ACh]
+		mov     esi, [esi + 18h]
+		mov     ecx, [esi + 0ACh]
 		fld     dword ptr [ecx + 211 * 4]
-		push    eax
+		mov     ecx, eax
 		fcomp   const_f_zero
 		fnstsw  ax
 		test    ah, 41h
-		pop     eax
+		mov     eax, ecx
 		jz      always_powered
-		mov     esi, [esi + 18h]
 		shl     edi, 5
 		mov     edx, 0054BE0Bh
 		jmp     edx
@@ -448,6 +495,9 @@ void setAdvCheatHooks()
 	setHook((void*)0x005ED970, scanChat);
 
 	setHook((void*)0x0054BE05, checkPowerResource);
+
+	//tech
+	//writeByte(0x005BFE08, 0xEB);
 }
 
 sel_iterator::sel_iterator(void* player_)

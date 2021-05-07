@@ -4,7 +4,7 @@
 #include "effects.h"
 #include "advtriggereffect.h"
 
-assign dataIdentifiers[] =
+const assign dataIdentifiers[] =
 {
 	{"Unknown000",                                     0x000,  T_INT32}, //ptr, //type 10+ (all units)
 	{"Type",                                           0x004,  T_INT8},
@@ -60,9 +60,9 @@ assign dataIdentifiers[] =
 	{"ResourceCapacity",                               0x08C,  T_INT16},
 	{"ResourceDecay",                                  0x090,  T_FLOAT},
 	{"Unknown 3A",                                     0x094,  T_FLOAT},
-	{"Unknown098",                                     0x098,  T_INT8 },
-	{"Unknown099",                                     0x099,  T_INT8 },
-	{"Unknown09A",                                     0x09A,  T_INT8 },
+	{"Resource1StoreMode",                             0x098,  T_INT8 }, //renamed
+	{"Resource2StoreMode",                             0x099,  T_INT8 }, //renamed
+	{"Resource3StoreMode",                             0x09A,  T_INT8 }, //renamed
 	{"BlastDefenseLevel",                              0x09B,  T_INT8 },
 	{"Unknown2InteractionModeMinimapMode",             0x09C,  T_INT8 }, //test
 	{"InteractionMode",                                0x09D,  T_INT8 },
