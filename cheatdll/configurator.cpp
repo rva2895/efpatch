@@ -5,8 +5,11 @@
 #include "resource.h"
 #include "resolution.h"
 #include "palette.h"
+#include "localisation.h"
 
 #include <CommCtrl.h>
+
+//std::vector<std::pair<std::string, std::string>> languages;
 
 void processIDOK(HWND hWnd)
 {
@@ -56,6 +59,13 @@ void processIDOK(HWND hWnd)
 
 	cd.minimap7 = IsDlgButtonChecked(hWnd, IDC_CHECK_GREY);
 	cd.largeText = IsDlgButtonChecked(hWnd, IDC_CHECK_LARGETEXT);
+
+	char* lang_str = (char*)malloc(0x100);
+	GetDlgItemText(hWnd, IDC_COMBO2, lang_str, 0x100);
+	//std::string lang_str_s = lang_str;
+	//for (int i = 0; i < languages.size(); i++)
+	//	if (languages[i].first == lang_str_s)
+	//		cd.lang = languages[i].second;
 
 	regSet(&cd);
 }
@@ -144,9 +154,13 @@ void getSettings(HWND hWnd)
 	EnableWindow(GetDlgItem(hWnd, IDC_CHECK_DSH), FALSE);
 	EnableWindow(GetDlgItem(hWnd, IDC_EDIT1), FALSE);
 	EnableWindow(GetDlgItem(hWnd, IDC_EDIT2), FALSE);
+
+	//languages = query_languages();
+	//for (int i = 0; i < languages.size(); i++)
+	//	SendMessage(GetDlgItem(hWnd, IDC_COMBO2), CB_ADDSTRING, 0, (LPARAM)languages[i].first.c_str());
 }
 
-extern CONFIG_DATA cd_default;
+extern const CONFIG_DATA cd_default;
 
 void processDefaults(HWND hWnd)
 {

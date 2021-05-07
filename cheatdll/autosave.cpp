@@ -26,7 +26,7 @@ void __stdcall editor_exit()
 	}
 }
 
-char name[] = "autosave.sc1";
+const char autosave_name[] = "autosave.sc1";
 
 __declspec(naked) void saveScen()
 {
@@ -34,7 +34,7 @@ __declspec(naked) void saveScen()
 	{
 		mov     ecx, 0x6A3684
 		mov     ecx, [ecx]
-		push    offset name
+		push    offset autosave_name
 		mov     ecx, [ecx + 420h]
 		mov     edx, [ecx]
 		call    dword ptr [edx + 100h]

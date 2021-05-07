@@ -79,7 +79,7 @@ struct COLOR_NAME_ASSIGN
 	char* name;
 };
 
-COLOR_NAME_ASSIGN COLOR_NAMES[] =
+const COLOR_NAME_ASSIGN COLOR_NAMES[] =
 {
 	7,   "WHITE",
 	0,   "BLACK",

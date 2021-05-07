@@ -2,7 +2,7 @@
 
 #include "civletter.h"
 
-BYTE_ASSIGN civLetterSet[] =
+const BYTE_ASSIGN civLetterSet[] =
 {
 	{0x0053A543, 0xBE},            //new offset of (E), (N) etc
 	{0x0053A544, 0x0A},            //strings for the editor
@@ -86,8 +86,8 @@ void fixCivLetterFunction()
 		writeByte(civLetterSet[i].addr, civLetterSet[i].val);
 }
 
-char ss1[] = "%s %s";
-char ss2[] = "!%s %s";
+const char ss1[] = "%s %s";
+const char ss2[] = "!%s %s";
 
 __declspec (naked) void altLetter1() //0053A874
 {

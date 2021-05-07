@@ -54,8 +54,8 @@ void DrawText_outline(HDC hdc, RECT* r, const char* str)
 	SelectObject(hdc, hOld);
 }
 
-char status_On[] = "On";
-char status_Off[] = "Off";
+const char status_On[] = "On";
+const char status_Off[] = "Off";
 
 extern int cliff_type;
 extern int terrain_paint_mode;
@@ -79,8 +79,8 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
 	r.top = 8;
 	r.bottom = RECT_Y + 8;
 	char buf[0x100];
-	char* status_grid = status_On;
-	char* status_collision = status_On;
+	const char* status_grid = status_On;
+	const char* status_collision = status_On;
 	if (placementSettings & 1)
 		status_collision = status_Off;
 	if (placementSettings & 2)
@@ -124,11 +124,11 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
 		break;
 	}
 
-	char* status_terrain;
+	/*char* status_terrain;
 	if (terrain_paint_mode)
 		status_terrain = status_On;
 	else
-		status_terrain = status_Off;
+		status_terrain = status_Off;*/
 
 	sprintf(buf, "Cliff: %s", cliff_txt);
 	//sprintf(buf, "Cliff: %s\nCounter = %d", cliff_txt, counter_);

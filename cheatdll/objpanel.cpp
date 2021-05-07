@@ -302,7 +302,7 @@ void langDllFree()
 	free(langDllPopup);
 }
 
-DWORD vtables[] =
+const DWORD vtables[] =
 {
 	0x00663110, //80
 	0x006635B0, //70

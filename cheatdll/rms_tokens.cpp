@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "rms_tokens.h"
 
-char cliff_type_str[] = "cliff_type";
-char resource_delta_str[] = "resource_delta";
+const char cliff_type_str[] = "cliff_type";
+const char resource_delta_str[] = "resource_delta";
 
 __declspec(naked) void onRmsCliffTokenRegister() //004E1096
 {

@@ -4,7 +4,7 @@
 
 unsigned char* tableU;
 
-ID_ASSIGNU idAssignU[] =
+const ID_ASSIGNU idAssignU[] =
 {
 	//   E,     G,     R,     N,     F,     W,     A,     C,     Z,     O,     I,     S
 	{ 0xB4,  0xB7,  0xE8,  0xCC,  0x34,  0xEF, 0x287, 0x28C, 0x9F5,  4064,  4629,  4770},  //padawan

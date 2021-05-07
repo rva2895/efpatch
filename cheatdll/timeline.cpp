@@ -8,7 +8,7 @@ struct timeline_colors
 	COLORREF color2;
 };
 
-timeline_colors colors[8] =
+const timeline_colors colors[8] =
 {
 	{ 0x005E1F44, 0x005E1F49, 0xCC9B82, 0x7F000A },
 	{ 0x005E1F50, 0x005E1F55, 0x0000FF, 0x000080 },

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-float flt_half = 0.5f;
+const float flt_half = 0.5f;
 
 __declspec(naked) void sub_7D0200()
 {
@@ -122,7 +122,7 @@ void setElevationHooks()
 {
 	writeDword(0x00502509, (DWORD)&sub_7D0230 - 0x0050250D);
 	writeDword(0x004FA309, (DWORD)&sub_7D0230 - 0x004FA30D);
-	//writeDword(0x0050688C, (DWORD)&sub_7D0230 - 0x00506890); //gather point
+	writeDword(0x0050688C, (DWORD)&sub_7D0230 - 0x00506890); //gather point
 
 	setHook((void*)0x005D14C6, onElevation1);
 	setHook((void*)0x00502017, onElevation2);
@@ -131,5 +131,3 @@ void setElevationHooks()
 	setHook((void*)0x005062D4, onElevation5);
 }
 #pragma optimize( "", on )
-
-//TODO: gather point

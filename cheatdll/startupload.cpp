@@ -6,7 +6,7 @@ char sz_ga1[] = ".GA1";
 char sz_mg1[] = ".MG1";
 char sz_sc1[] = ".SC1";
 
-char cmdLine[255];
+char* cmdLine;
 char* filename;
 
 __declspec(naked) void afterLoadHook() //005EC3DF
@@ -48,10 +48,9 @@ char* getCmdFilename(char* s)
 
 char* __stdcall checkCmdLine(char* ext)
 {
-	//MessageBox (0, "w", "w", 0);
-
 	char* cmdLine_ = GetCommandLine();
 
+	cmdLine = (char*)malloc(strlen(cmdLine_) + 1);
 	strcpy(cmdLine, cmdLine_);
 
 	_strupr(cmdLine);
@@ -60,11 +59,14 @@ char* __stdcall checkCmdLine(char* ext)
 	if (ext_start)
 	{
 		filename = getCmdFilename(cmdLine);
-		//MessageBox (0, filename, "asd", 0);
+		//free(cmdLine);
 		return filename;
 	}
 	else
+	{
+		free(cmdLine);
 		return 0;
+	}
 }
 
 /*__declspec(naked) void cmdLineHook () //005E55DB

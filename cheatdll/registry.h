@@ -30,7 +30,8 @@ struct CONFIG_DATA
 	int smallTrees;
 	int minimap7;
 	int largeText;
+	//std::string lang;
 };
 
 void regGet(CONFIG_DATA*);
-void regSet(CONFIG_DATA*);
+void regSet(const CONFIG_DATA*);

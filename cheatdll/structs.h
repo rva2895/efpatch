@@ -225,6 +225,13 @@ struct prop_object
 	//TODO: fill
 };
 
+struct vector3
+{
+	float x;
+	float y;
+	float z;
+};
+
 struct UNIT
 {
 	void* _vfptr;		//0
@@ -250,8 +257,94 @@ struct UNIT
 	float y;
 	int unk50;			//50
 	float resources;
+	int unk58;
+	int unk5C;
+	int unk60;			//60
+	int unk64;
+	int unk68;
+	int unk6C;
+	int unk70;			//70
+	int unk74;
+	int unk78;
+	int unk7C;
+	int unk80;			//80
+	int unk84;
+	int unk88;
+	int unk8C;
+	int unk90;			//90
+	int unk94;
+	int unk98;
+	int unk9C;
+	int unkA0;			//A0
+	int unkA4;
+	int unkA8;
+	int unkAC;
+	int unkB0;			//B0
+	int unkB4;
+	int unkB8;
+	int unkBC;
+	int unkC0;			//C0
+	int unkC4;
+	int unkC8;
+	int unkCC;
+	int unkD0;			//D0
+	int unkD4;
+	int unkD8;
+	int unkDC;
+	int unkE0;			//E0
+	int unkE4;
+	int unkE8;
+	int unkEC;
+	int unkF0;			//F0
+	int unkF4;
+	int unkF8;
+	int unkFC;
+	int unk100;			//100
+	int unk104;
+	int unk108;
+	int unk10C;
+	int unk110;			//110
+	int unk114;
+	int unk118;
+	int unk11C;
+	vector3* unk120;	//120
 	//TODO: fill
 
+	__declspec(noinline) float __thiscall unit_distance_to_position_new(float x_to, float y_to, float z_to)
+	{
+		float x_coll; // st7@1
+		float y_coll; // st6@1
+		float result; // st7@9
+		float xd; // [sp+4h] [bp+4h]@1
+		float yd; // [sp+4h] [bp+4h]@5
+
+		x_coll = x - x_to;
+		y_coll = y - y_to;
+		if (x_coll < 0.0)
+			x_coll = -x_coll;
+		if (y_coll < 0.0)
+			y_coll = -y_coll;
+		xd = x_coll - prop_object->collision_size_x;
+		yd = y_coll - prop_object->collision_size_y;
+		if (xd < 0.0)
+			xd = 0.0;
+		if (yd < 0.0)
+			yd = 0.0;
+		result = sqrt(xd * xd + yd * yd);
+		if (result < 0.0)
+			result = 0.0;
+
+		//cntrd++;
+		//if (cntrd % 100000 == 0)
+		//	chat("Called 100000 times since last msg, total = %d", cntrd);
+
+		return result;
+	}
+
+	__declspec(noinline) int __thiscall unit_unknown_moving_update_end()
+	{
+		return unk120 && sqrt(unk120->x*unk120->x + unk120->y*unk120->y + unk120->z*unk120->z) > 0.0;
+	}
 };
 
 struct trigger

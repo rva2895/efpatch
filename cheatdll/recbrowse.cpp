@@ -401,28 +401,33 @@ COLORREF get_color(char c)
 
 int screenToMap_x(int x, int y, int view_x, int view_y, int m)
 {
+	UNREFERENCED_PARAMETER(view_y);
 	return ((float)y - (float)view_x / 4) / ((float)view_x / 2) * m +
 		(float)x * m / (float)view_x;
 }
 
 int screenToMap_y(int x, int y, int view_x, int view_y, int m)
 {
+	UNREFERENCED_PARAMETER(view_y);
 	return -((float)y - (float)view_x / 4) / ((float)view_x / 2) * m +
 		(float)x * m / (float)view_x;
 }
 
 int mapToScreen_x(int x, int y, int view_x, int view_y, int m)
 {
+	UNREFERENCED_PARAMETER(view_y);
 	return (x + y) * view_x / (2 * m);
 }
 
 int mapToScreen_y(int x, int y, int view_x, int view_y, int m)
 {
+	UNREFERENCED_PARAMETER(view_y);
 	return (x - y) * (view_x / 2) / (2 * m) + view_x / 4;
 }
 
 HBITMAP make_bitmap(int x, int y, int view_x, int view_y, TILE* map)
 {
+	UNREFERENCED_PARAMETER(y);
 	void* data = malloc(view_x*view_y * 4);
 	memset(data, 0, view_x*view_y * 4);
 

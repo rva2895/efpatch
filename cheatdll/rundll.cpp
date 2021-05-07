@@ -91,7 +91,7 @@ int (CALLBACK* WndProc_exe) (HWND, UINT, WPARAM, LPARAM) =
 HWND hWnd_main = 0;
 
 int cliff_types[] = { 0x108, 3971, 3981, 3991, 4196, 4206, 4216, 4226, 4236, 0};
-int* cliff_types_ptr = cliff_types;
+int* cliff_types_ptr = &cliff_types[0];
 
 extern bool isEditor;
 
@@ -119,6 +119,8 @@ __declspec(naked) void __stdcall update_editor_bk()
 
 extern bool rec_cache_invalid;
 
+#pragma warning(push)
+#pragma warning(disable:4100)
 __declspec(naked) void __stdcall update_window(void* wnd)
 {
 	__asm
@@ -138,10 +140,17 @@ __declspec(naked) void __stdcall update_window(void* wnd)
 		ret     4
 	}
 }
+#pragma warning(pop)
 
 HWND hWnd_global;
 
 int terrain_paint_mode = 0;	//default
+#ifdef _DEBUG
+bool time_collect = false;
+bool time_stage_find = false;
+extern volatile bool answer;
+extern volatile bool answer_flag;
+#endif // _DEBUG
 
 int CALLBACK WndProc_dll(HWND hWnd,
 	UINT msg,
@@ -158,6 +167,29 @@ int CALLBACK WndProc_dll(HWND hWnd,
 	//
 	if (msg == WM_KEYDOWN)
 	{
+#ifdef _DEBUG
+		//timeGetTime debug
+		if (LOWORD(wParam) == 'Y')						//YES
+		{
+			answer = true;
+			answer_flag = true;
+		}
+		if (LOWORD(wParam) == 'N')						//NO
+		{
+			answer = false;
+			answer_flag = true;
+		}
+		if (LOWORD(wParam) == 'A')						//START
+		{
+			time_collect = true;
+		}
+		if (LOWORD(wParam) == 'Z')						//STOP
+		{
+			time_collect = false;
+			time_stage_find = true;
+		}
+		//
+#endif
 		if (isEditor)
 		{
 			if (LOWORD(wParam) == 'S')						//grid - collision
@@ -187,7 +219,7 @@ int CALLBACK WndProc_dll(HWND hWnd,
 				{
 					cliff_types_ptr++;
 					if (!*cliff_types_ptr)
-						cliff_types_ptr = cliff_types;
+						cliff_types_ptr = &cliff_types[0];
 					cliff_type = *cliff_types_ptr;
 
 					setCliffType(cliff_type, scen_ptr);

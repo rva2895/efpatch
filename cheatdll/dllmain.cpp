@@ -86,6 +86,11 @@
 #include "hotkey.h"
 #include "overlay.h"
 #include "menu.h"
+#include "localisation.h"
+#include "video.h"
+#include "storemode.h"
+#include "statusscreen.h"
+#include "fixedpos.h"
 #ifdef TARGET_VOOBLY
 #include "iuserpatch.h"
 #endif
@@ -168,6 +173,8 @@ void getSettings()
 	}
 }
 
+const float screen_fade = 0.1f; //default 0.001
+
 #pragma optimize( "s", on )
 void setHooksCC()
 {
@@ -176,6 +183,9 @@ void setHooksCC()
 	//read-only fix for data\*.dat
 	writeDword(0x004D5B62, GENERIC_READ);
 
+	//faster screen fade in/out
+	writeDword(0x0042DEA6, (DWORD)&screen_fade);
+	writeDword(0x0042DF5B, (DWORD)&screen_fade);
 	
 	//renderer fix (THIS_COD)
 	BYTE* nops = (BYTE*)malloc(25);
@@ -327,6 +337,10 @@ void setHooksCC()
 	writeDword(0x00425EA6, 0x0674023C);
 	writeDword(0x00425EAA, 0x013C042C);
 	writeByte(0x00425EAE, 0x77);
+
+	setStatusScreenHooks();
+
+	//setFixedPosHooks();
 }
 #pragma optimize( "", on )
 
@@ -341,14 +355,12 @@ __declspec(naked) void sc1Hook()
 	}
 }
 
-char efDatabank[] = "stream\\ef_databank%d.mp3";
-char efCiv[] = "stream\\ef_civ%d.mp3";
-char efShadow[] = "data\\shadow_x2.col";
-char efBlendomatic[] = "data\\blendomatic_x2.dat";
-char efICM[] = "data\\view_icm_x2.dat";
-char efMenubk[] = "stream\\ef_menu_skb.mp3";
-
-char efDll[] = "language_x0.dll";
+const char efDatabank[] = "stream\\ef_databank%d.mp3";
+const char efCiv[] = "stream\\ef_civ%d.mp3";
+const char efShadow[] = "data\\shadow_x2.col";
+const char efBlendomatic[] = "data\\blendomatic_x2.dat";
+const char efICM[] = "data\\view_icm_x2.dat";
+const char efMenubk[] = "stream\\ef_menu_skb.mp3";
 
 #pragma optimize( "s", on )
 void setHooksEF()
@@ -454,40 +466,29 @@ void setHooksEF()
 
 	setPaletteHooks();
 
-	writeDword(0x0042467D, (DWORD)efDll);
-
-	//
-	//HMODULE m = LoadLibrary("dxmci.dll");
-	//DWORD d = (DWORD) GetProcAddress(m, "MCIWndCreateA2");
-	
-	//writeDword(0x005E832A, d - 0x005E832E);
-	//((HWND(__cdecl*) (HWND, HINSTANCE, DWORD, LPCSTR)) (d)) (0, 0, 0,
-	//	"avi\\test.mp4");
-	//MessageBox(0, "OK", "OK", 0);
-	//writeByte(0x005F0C28, 32);
-	//writeByte(0x005F0C10, 32);
-	//
-
 	setMenuHooks();
+
+	//setVideoHooks();
+	setStoreModeHooks();
 
 	log("setHooks() finished");
 }
 #pragma optimize( "", on )
 
-char verStr2[] = "1.2e";
-char verStr3[] = "1.3e";
-char verStr4[] = "1.4e";
-char verStr5[] = "1.5e";
-char verStr6[] = "1.6e";
-char verStr7[] = "1.7e";
-char verStr8[] = "1.8e";
-char verStr9[] = "1.9e";
-char ver1x[] = "1.X";
+const char verStr2[] = "1.2e";
+const char verStr3[] = "1.3e";
+const char verStr4[] = "1.4e";
+const char verStr5[] = "1.5e";
+const char verStr6[] = "1.6e";
+const char verStr7[] = "1.7e";
+const char verStr8[] = "1.8e";
+const char verStr9[] = "1.9e";
+const char ver1x[] = "1.X";
 
-char verCC2[] = "1.2";
-char verCC3[] = "1.3";
-char verCC4[] = "1.4";
-char verCC5[] = "1.5";
+const char verCC2[] = "1.2";
+const char verCC3[] = "1.3";
+const char verCC4[] = "1.4";
+const char verCC5[] = "1.5";
 
 __declspec(naked) void verHookEF() //0042C3E1
 {
@@ -607,6 +608,8 @@ void initialSetup()
 
 	getSettings();
 
+	//install_language(cd.lang);
+
 #ifdef TARGET_VOOBLY
 	cd.gameVersion = expanding_fronts;
 #endif
@@ -665,7 +668,7 @@ void initialSetup()
 		writeByte(0x0061E92C, 0x20);
 	else
 	{
-		unsigned long interval = 100;
+		//unsigned long interval = 100;
 		writeDword(0x005DDBA4, 100);
 		writeDword(0x005DDB7B, 100);
 		writeWord(0x005DDB73, 0x9090);

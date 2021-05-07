@@ -104,8 +104,8 @@ void __stdcall condGeneral(condition* p, int index)
 	sprintf(s, "C#%d:%s", index, condNames[cn]);
 }
 
-void __stdcall nullsub(condition*, int) {};
-void __stdcall nullsub(effect*, int) {};
+void __stdcall c_default(condition*, int) {};
+void __stdcall e_default(effect*, int) {};
 
 void __stdcall c_timer(condition* p, int)
 {
@@ -134,11 +134,16 @@ void __stdcall c_player(condition* p, int)
 	sprintf(s + strlen(s), " (P%d)", p->player);
 }
 
-char* alliance_states[] =
+void __stdcall c_player_tech(condition* p, int)
+{
+	sprintf(s + strlen(s), " (P%d: %d)", p->player, p->tech);
+}
+
+const char* alliance_states[] =
 {
 	"Ally",
 	"Neutral",
-	0,
+	"",
 	"Enemy"
 };
 
@@ -147,7 +152,7 @@ void __stdcall c_alliance_state(condition* p, int)
 	sprintf(s + strlen(s), " (P%d->P%d: %s)", p->player, p->timer, alliance_states[p->ai_signal]);
 }
 
-extern char* var_names[];
+extern const char* var_names[];
 
 void __stdcall c_var(condition* p, int)
 {
@@ -169,30 +174,30 @@ void __stdcall c_var(condition* p, int)
 
 void(__stdcall* condPrint[]) (condition*, int) =
 {
-	nullsub, //none
-	nullsub, //bring obj to obj
-	nullsub, //bring obj to area
+	c_default, //none
+	c_default, //bring obj to obj
+	c_default, //bring obj to area
 	c_quantity, //own obj
 	c_quantity, //own fewer obj
 	c_quantity, //obj in area
-	nullsub, //dest obj
-	nullsub, //capt obj
+	c_default, //dest obj
+	c_default, //capt obj
 	c_attrib, //acc attrib
-	nullsub, //res tech
+	c_player_tech, //research tech
 	c_timer, //timer
-	nullsub, //obj sel
-	nullsub, //ai sign
+	c_default, //obj sel
+	c_default, //ai sign
 	c_player, //pl def
-	nullsub, //obj has t
-	nullsub, //obj vis
-	nullsub, //obj not vis
-	nullsub, //researching tech
+	c_default, //obj has t
+	c_default, //obj vis
+	c_default, //obj not vis
+	c_player_tech, //researching tech
 	c_quantity, //units garrisoned
-	nullsub, //diff
+	c_default, //diff
 	c_quantity, //own fewer fnd
 	c_quantity, //sel obj in area
 	c_quantity, //pow obj in area
-	nullsub, //units q past pop cap
+	c_default, //units q past pop cap
 #ifndef _CC_COMPATIBLE
 	c_quantity, //per mille chance
 	c_quantity, //area explored
@@ -257,11 +262,11 @@ void __stdcall e_player(effect* p, int)
 
 void __stdcall e_stance(effect* p, int)
 {
-	char* st;
 	if (p->ai_trigger_number == -1)
 		sprintf(s + strlen(s), " (%s)", "Freeze Unit");
 	else
 	{
+		char* st;
 		switch (p->ai_trigger_number)
 		{
 		case 1:
@@ -357,7 +362,7 @@ void __stdcall e_str_data(effect* p, int)
 		sprintf(s + strlen(s), " (<syntax error>)");
 }
 
-extern char* terrain_names[];
+extern char** terrain_names;
 
 void __stdcall e_terrain(effect* p, int)
 {
@@ -366,45 +371,45 @@ void __stdcall e_terrain(effect* p, int)
 
 void(__stdcall* effectPrint[]) (effect*, int) =
 {
-	nullsub, //none
+	e_default, //none
 	e_alliance, //change alliance
 	e_player_tech, //research tech
 	e_send_chat, //send chat
-	nullsub, //play sound
+	e_default, //play sound
 	e_tribute, //tribute
-	nullsub, //unlock gate
-	nullsub, //lock gate
+	e_default, //unlock gate
+	e_default, //lock gate
 	e_trigger, //activate trigger
 	e_trigger, //deactivate trigger
-	nullsub, //ai script goal
-	nullsub, //create object
-	nullsub, //task object
+	e_default, //ai script goal
+	e_player_unit, //create object
+	e_default, //task object
 	e_player, //victory
-	nullsub, //kill object
-	nullsub, //remove object
-	nullsub, //scroll view
-	nullsub, //unload
+	e_default, //kill object
+	e_default, //remove object
+	e_default, //scroll view
+	e_default, //unload
 	e_ownership, //change ownership
-	nullsub, //patrol
+	e_default, //patrol
 	e_str, //display inst
-	nullsub, //clear inst
+	e_default, //clear inst
 	e_stance, //freeze unit
-	nullsub, //enable adv buttons
+	e_default, //enable adv buttons
 	e_quantity, //damage obj
-	nullsub, //place fnd
+	e_player_unit, //place fnd
 	e_str, //change name
 	e_quantity, //change hp
 	e_quantity, //change atk
-	nullsub, //stop unit
-	nullsub, //snap view
-	nullsub, //disable adv btn
+	e_default, //stop unit
+	e_default, //snap view
+	e_default, //disable adv btn
 	e_player_tech, //enable tech
 	e_player_tech, //disable tech
 	e_player_unit, //enable unit
 	e_player_unit, //disable unit
-	nullsub, //flash obj
-	nullsub, //turn input off
-	nullsub, //turn input on
+	e_default, //flash obj
+	e_default, //turn input off
+	e_default, //turn input on
 #ifndef _CC_COMPATIBLE
 	e_quantity, //change speed
 	e_quantity, //give ability
@@ -415,7 +420,7 @@ void(__stdcall* effectPrint[]) (effect*, int) =
 	e_str, //change var
 	e_terrain, //terrain
 	e_player, //defeat
-	nullsub //breakpoint
+	e_default //breakpoint
 #endif
 };
 
@@ -468,10 +473,12 @@ __declspec(naked) void onEffect() //0053DA8D
 	}
 }
 
+#pragma optimize( "s", on )
 void setTriggerDescHooks()
 {
-	s = new char[256];
+	s = new char[0x400];
 
 	setHook((void*)0x0053D96B, onCondition);
 	setHook((void*)0x0053DA8D, onEffect);
 }
+#pragma optimize( "", on )

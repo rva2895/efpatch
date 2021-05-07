@@ -182,12 +182,12 @@ void snapscroll_setJMP(DWORD jmp_location)
 	writeDword(jmp_location + 1, (DWORD)&snapscroll_finish - (jmp_location + 5));
 }
 
-char aChangeGlobalUnit[] = "Change Unit Property Object";
-char aExplore[] = "Explore Area";
-char aUnitVar[] = "Change Unit Variable";
-char aTerrain[] = "Change Terrain";
-char aDefeat[] = "Declare Defeat";
-char aBreakpoint[] = "Breakpoint";
+const char aChangeGlobalUnit[] = "Change Unit Property Object";
+const char aExplore[] = "Explore Area";
+const char aUnitVar[] = "Change Unit Variable";
+const char aTerrain[] = "Change Terrain";
+const char aDefeat[] = "Declare Defeat";
+const char aBreakpoint[] = "Breakpoint";
 
 __declspec(naked) void triggerDisplayHook()
 {
@@ -314,10 +314,18 @@ int (__thiscall* map_updateBlend)(void *map, int, int, int x1, int y1, int x2, i
 void __stdcall effectTerrain_2(void* map, int x1, int x2, int y1, int y2, char t)
 {
 	char** tiles = *(char***)((DWORD)map + 0xBF18);
-	char* col;
+	int map_max = *(int*)((DWORD)map + 8) - 1;
+	if (x1 < 0) x1 = 0;
+	if (x2 < 0) x2 = 0;
+	if (y1 < 0) y1 = 0;
+	if (y2 < 0) y2 = 0;
+	if (x1 > map_max) x1 = map_max;
+	if (x2 > map_max) x2 = map_max;
+	if (y1 > map_max) y1 = map_max;
+	if (y2 > map_max) y2 = map_max;
 	for (int j = y1; j <= y2; j++)
 	{
-		col = *(tiles + j);
+		char* col = *(tiles + j);
 		for (int i = x1; i <= x2; i++)
 		{
 			col[i * 32 + 5] = t;

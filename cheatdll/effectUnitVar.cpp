@@ -119,8 +119,6 @@ void __stdcall effectUnitVarActual (UNIT* unit, char* str)
 	char* s = (char*) malloc (strlen(str)+1);
 	strcpy (s, str);
 	char* pch = strtok (s, " ");
-	//while (pch != NULL)
-	//{
 	if (pch)
 	{
 		if (!strcmp (pch, "SET"))
@@ -131,11 +129,9 @@ void __stdcall effectUnitVarActual (UNIT* unit, char* str)
 			action = 2;
 		else
 		{
-			action = -1;
 			free (s);
 			return;
 		}
-		//strcpy (cmd, pch);
 	}
 	else
 	{

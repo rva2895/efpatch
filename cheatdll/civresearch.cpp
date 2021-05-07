@@ -6,7 +6,7 @@ unsigned char* tableR;
 
 #define RESEARCH_COUNT 1000
 
-ID_ASSIGNR idAssignR[] =
+const ID_ASSIGNR idAssignR[] =
 {
 	//   E,     G,     R,     N,     F,     W,     A,     C,     Z,     O,     I,     S
 	{ 0x83,  0xB6, 0x11E,  0xC8,  0xA5, 0x11F,  0x74,  0x79, 0x269,   746,   817,   877}, //AVAIL-ACRUC

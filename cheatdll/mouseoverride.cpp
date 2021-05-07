@@ -193,9 +193,9 @@ __declspec(naked) void ftol_exe()
 	}
 }
 
-float const_f_zero = 0.0f;
-float const_f_half = 0.5f;
-float const_f_hundred = 100.0f;
+extern const float const_f_zero = 0.0f;
+const float const_f_half = 0.5f;
+const float const_f_hundred = 100.0f;
 
 __declspec(naked) void mouseoverride6() //0060BD51
 {
@@ -293,7 +293,7 @@ loc_41B610:
 	}
 }
 
-char byte_7C4B70[] = {
+const char byte_7C4B70[] = {
 	00, 00, 01, 00, 00, 00, 01, 00,  01, 00, 01, 00, 00, 00, 01, 01,
 	01, 00, 00, 00, 00, 00, 00, 00,  00, 00, 00, 00, 00, 00, 00, 00,
 	00, 00, 00, 00, 00, 00, 00, 00,  00, 00, 00, 00, 00, 00, 00, 00,
@@ -518,9 +518,9 @@ __declspec(naked) void mouseoverride11() //0050138B
 }
 
 DWORD dword_7A5FEC;
-float flt_7C4B60 = 4.0f;
-float flt_7C4B64 = 0.25f;
-float flt_7C4B68 = 0.0625f;
+const float flt_7C4B60 = 4.0f;
+const float flt_7C4B64 = 0.25f;
+const float flt_7C4B68 = 0.0625f;
 
 __declspec(naked) void sub_7C4C60()
 {
@@ -593,8 +593,8 @@ loc_7C4A75:
 //17C -> 180
 //17E -> 182
 
-float const_f_16 = 16.0f;
-float const_f_three = 3.0f;
+const float const_f_16 = 16.0f;
+const float const_f_three = 3.0f;
 
 __declspec(naked) void sub_7C4A80() //
 {

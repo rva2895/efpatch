@@ -5,7 +5,7 @@
 char** filenames;
 int nFiles;
 
-RMS_ASSIGN ra[] =
+const RMS_ASSIGN ra[] =
 {
 	{38, 13544},
 	{39, 13545},
