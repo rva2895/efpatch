@@ -30,20 +30,20 @@ int __stdcall get_sn(void* player, int sn);
 
 struct BYTE_ASSIGN
 {
-	DWORD  addr;
-	BYTE val;
+    DWORD  addr;
+    BYTE val;
 };
 
 struct INT_ASSIGN
 {
-	DWORD  addr;
-	DWORD  val;
+    DWORD  addr;
+    DWORD  val;
 };
 
 struct SET_HOOK_ASSIGN
 {
-	void* addr;
-	void* newAddr;
+    void* addr;
+    void* newAddr;
 };
 
 void __stdcall sendChat(char* s, int p);

@@ -11,12 +11,12 @@ void __stdcall effectUnitVarActual (UNIT* unit, char* str);
 
 struct assign
 {
-	char*  str;
-	short  offset;
-	//char   size;
-	char   type;
-	//bool   cap;
-	//int    capOffset;
+    char*  str;
+    short  offset;
+    //char   size;
+    char   type;
+    //bool   cap;
+    //int    capOffset;
 };
 
 #define T_INT8 0
