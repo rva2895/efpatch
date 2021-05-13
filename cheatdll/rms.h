@@ -6,6 +6,6 @@ void setRmsEditorHooks();
 
 struct RMS_ASSIGN
 {
-	char ID;
-	short drsName;
+    char ID;
+    short drsName;
 };

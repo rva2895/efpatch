@@ -14,17 +14,17 @@
 
 struct UserPatchConfig_t
 {
-	bool bUPResolutionEnhancements;	// Voobly-style widescreen will be used if
-									// this is false
+    bool bUPResolutionEnhancements;    // Voobly-style widescreen will be used if
+                                    // this is false
 
-	bool bDisableXMLLoading;		// This is a "regular" AoC game. Disable
-									// xml loader for safety incase there are
-									// stray .xml files.
+    bool bDisableXMLLoading;        // This is a "regular" AoC game. Disable
+                                    // xml loader for safety incase there are
+                                    // stray .xml files.
 
-	bool bForceXMLVooblyModDir;		// Use XML from a voobly mod directory
-	const char *VooblyModDirPath;	// path to use
-	DWORD clientVersion;			// Version of client
-	bool bExtendedHotkeys;			// Enable/disable UserPatch Hotkeys
+    bool bForceXMLVooblyModDir;        // Use XML from a voobly mod directory
+    const char *VooblyModDirPath;    // path to use
+    DWORD clientVersion;            // Version of client
+    bool bExtendedHotkeys;            // Enable/disable UserPatch Hotkeys
 };
 
 //-----------------------------------------------------------------------------
@@ -33,23 +33,23 @@ struct UserPatchConfig_t
 class IVoobly
 {
 public:
-	// Memory patching
-	virtual void Write(DWORD dest, void *pSrc, int len) = 0;
-	virtual void Write(DWORD dest, DWORD data) = 0;
-	virtual void Write(DWORD dest, const char *pHexString) = 0;
+    // Memory patching
+    virtual void Write(DWORD dest, void *pSrc, int len) = 0;
+    virtual void Write(DWORD dest, DWORD data) = 0;
+    virtual void Write(DWORD dest, const char *pHexString) = 0;
 
-	// Logging
-	virtual void ChatMessage(const char *from, const char *msgfmt, ...) = 0;
-	virtual void Log(const char *fmt, ...) = 0;
+    // Logging
+    virtual void ChatMessage(const char *from, const char *msgfmt, ...) = 0;
+    virtual void Log(const char *fmt, ...) = 0;
 
-	// Write a long jump at dest to jump to pTargetFunc
-	virtual void WriteJump(DWORD dest, void *pTargetFunc) = 0;
+    // Write a long jump at dest to jump to pTargetFunc
+    virtual void WriteJump(DWORD dest, void *pTargetFunc) = 0;
 
-	// Stream this spectator data to spectators
-	virtual void SpectatorData(void *pData, int len) = 0;
+    // Stream this spectator data to spectators
+    virtual void SpectatorData(void *pData, int len) = 0;
 
-	// End of spectator data
-	virtual void SpectatorDone() = 0;
+    // End of spectator data
+    virtual void SpectatorDone() = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -58,12 +58,12 @@ public:
 class IUserPatch
 {
 public:
-	// Init userpatch. Returns true on success.
-	virtual bool Init(struct UserPatchConfig_t &config) = 0;
+    // Init userpatch. Returns true on success.
+    virtual bool Init(struct UserPatchConfig_t &config) = 0;
 
-	// Called when the users sends a chat messages. Return true to prevent
-	// the message from being sent to game chat system.
-	virtual bool OnChatMessage(const char *text) = 0;
+    // Called when the users sends a chat messages. Return true to prevent
+    // the message from being sent to game chat system.
+    virtual bool OnChatMessage(const char *text) = 0;
 };
 
 #ifdef INTEGRATED_USERPATCH

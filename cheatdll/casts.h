@@ -2,33 +2,33 @@
 
 struct UNIT_EXTRA
 {
-	bool    speedReductionEnabled;
-	float   speedReductionTime;
-	float   speedReductionModifier;
+    bool    speedReductionEnabled;
+    float   speedReductionTime;
+    float   speedReductionModifier;
 
-	bool    stealthOffEnabled;
-	float   stealthOffTime;
+    bool    stealthOffEnabled;
+    float   stealthOffTime;
 
-	bool    reloadTimeEnabled;
-	float   reloadTimeModifier;
-	float   reloadTimeTime;
+    bool    reloadTimeEnabled;
+    float   reloadTimeModifier;
+    float   reloadTimeTime;
 
-	bool    hpDrainEnabled;
-	float   hpDrainPerSecond;
-	float   hpDrainTime;
-	float   hpDrainLeftover;
+    bool    hpDrainEnabled;
+    float   hpDrainPerSecond;
+    float   hpDrainTime;
+    float   hpDrainLeftover;
 
-	bool    hpDrainPercentEnabled;
-	float   hpDrainPercentPerSecond;
-	float   hpDrainPercentTime;
-	float   hpDrainPercentLeftover;
+    bool    hpDrainPercentEnabled;
+    float   hpDrainPercentPerSecond;
+    float   hpDrainPercentTime;
+    float   hpDrainPercentLeftover;
 
-	bool    countersUsed;
-	float   miscCounter1;
-	float   miscCounter2;
-	float   miscCounter3;
-	float   miscCounter4;
-	float   miscCounter5;
+    bool    countersUsed;
+    float   miscCounter1;
+    float   miscCounter2;
+    float   miscCounter3;
+    float   miscCounter4;
+    float   miscCounter5;
 };
 
 void setCastHooks ();
