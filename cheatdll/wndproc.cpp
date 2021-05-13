@@ -4,7 +4,7 @@
 #include "wndproc.h"
 #include "rec.h"
 
-#ifdef TARGET_VOOBLY
+#ifdef TARGET_VOOBLY_
 extern IVoobly *g_pVoobly;
 
 int terrain_paint_mode = 0;

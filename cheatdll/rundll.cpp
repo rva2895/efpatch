@@ -10,12 +10,6 @@
 #include "rec.h"
 #include "overlay.h"
 
-#ifndef TARGET_VOOBLY
-
-#include <CrashRpt.h>
-
-extern crash_rpt::CrashRpt* g_crashRpt;
-
 extern int placementSettings;
 extern int cliff_type;
 
@@ -29,6 +23,12 @@ int CALLBACK WndProc_dll(HWND hWnd,
 	UINT msg,
 	WPARAM wParam,
 	LPARAM lParam);
+
+#ifndef TARGET_VOOBLY
+
+#include <CrashRpt.h>
+
+extern crash_rpt::CrashRpt* g_crashRpt;
 
 int (WINAPI* WinMain_exe) (HINSTANCE, HINSTANCE, LPSTR, int) =
 	(int (WINAPI*) (HINSTANCE, HINSTANCE, LPSTR, INT)) 0x0048EFC0;
@@ -84,6 +84,7 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
 	log("WinMain_exe returned %d, exiting", retval);
 	return retval;
 }
+#endif
 
 int (CALLBACK* WndProc_exe) (HWND, UINT, WPARAM, LPARAM) =
 	(int (CALLBACK*) (HWND, UINT, WPARAM, LPARAM)) 0x00426530;
@@ -270,4 +271,3 @@ int CALLBACK WndProc_dll(HWND hWnd,
 
 	return WndProc_exe(hWnd, msg, wParam, lParam);
 }
-#endif

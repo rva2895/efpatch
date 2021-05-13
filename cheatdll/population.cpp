@@ -75,10 +75,12 @@ __declspec(naked) void setPopCap_new() //005EF240
 	}
 }
 
+char pop_cap_string[0x20];
+
 char* __fastcall getPopCapString(int c)
 {
-	c /= 25;
-	switch (c)
+	//c /= 25;
+	/*switch (c)
 	{
 	case 1: //25
 		return (char*)0x00692E5C;
@@ -102,7 +104,9 @@ char* __fastcall getPopCapString(int c)
 		return (char*)0x00692DA8;
 	default:
 		return (char*)0x00692DA8;
-	}
+	}*/
+	sprintf(pop_cap_string, "POPULATION-CAP-%d", c);
+	return pop_cap_string;
 }
 
 __declspec(naked) void onAIPopCap() //0057F13A

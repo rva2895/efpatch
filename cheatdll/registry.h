@@ -30,6 +30,7 @@ struct CONFIG_DATA
 	int smallTrees;
 	int minimap7;
 	int largeText;
+	int delinkVolume;
 	//std::string lang;
 };
 

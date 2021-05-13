@@ -59,6 +59,7 @@ void processIDOK(HWND hWnd)
 
 	cd.minimap7 = IsDlgButtonChecked(hWnd, IDC_CHECK_GREY);
 	cd.largeText = IsDlgButtonChecked(hWnd, IDC_CHECK_LARGETEXT);
+	cd.delinkVolume = IsDlgButtonChecked(hWnd, IDC_CHECK_MASTER_VOLUME);
 
 	char* lang_str = (char*)malloc(0x100);
 	GetDlgItemText(hWnd, IDC_COMBO2, lang_str, 0x100);
@@ -149,6 +150,7 @@ void getSettings(HWND hWnd)
 
 	CheckDlgButton(hWnd, IDC_CHECK_GREY, cd.minimap7);
 	CheckDlgButton(hWnd, IDC_CHECK_LARGETEXT, cd.largeText);
+	CheckDlgButton(hWnd, IDC_CHECK_MASTER_VOLUME, cd.delinkVolume);
 
 	//EnableWindow(GetDlgItem(hWnd, IDC_CHECK_GREY), FALSE);
 	EnableWindow(GetDlgItem(hWnd, IDC_CHECK_DSH), FALSE);

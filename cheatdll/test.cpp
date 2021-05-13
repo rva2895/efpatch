@@ -615,8 +615,8 @@ DWORD __stdcall Intercept_timeGetTime()
 		(void*)jump_time, 6, &written);
 
 	//void* retaddr = _ReturnAddress();
-	if (time_collect)
-		add_addr(_ReturnAddress());
+	/*if (time_collect)
+		add_addr(_ReturnAddress());*/
 
 	/*if (!time_stage_find && ((retval - last_call) > 10000))
 	{
@@ -627,16 +627,16 @@ DWORD __stdcall Intercept_timeGetTime()
 		MessageBox(0, s, "timeGetTime", 0);
 	}*/
 
-	if (time_stage_find && !thread_begun)
+	/*if (time_stage_find && !thread_begun)
 	{
 		thread_begun = true;
 		_beginthread(time_find, 0, 0);
-	}
+	}*/
 
-	if (time_stage_find)
+	/*if (time_stage_find)
 		for (int i = left; i <= right; i++)
 			if (addresses[i] == _ReturnAddress())
-				retval *= 10;
+				retval *= 10;*/
 	//retval *= 10;
 	//li->QuadPart *= 10;
 
