@@ -43,7 +43,7 @@ private:
 	int y;
 	DWORD tid;
 	CRITICAL_SECTION cs;
-	REC_DATA cache[CACHE_SIZE];
+	REC_DATA* cache[CACHE_SIZE];
 	//std::vector<std::pair<std::string, int>> queue;
 public:
 	REC_CACHE(void*,int,int);

@@ -112,7 +112,7 @@ DWORD WINAPI rec_cache_thread(void*)
 				rd.n_team1 = team.n;
 				for (int i = 0; i < team.n; i++)
 				{
-					rd.team_1[i] = team.names[i];
+					rd.team_1[i] = (std::string)team.names[i];
 					rd.team_1_colors[i] = team.colors[i];
 					rd.team_1_civs[i] = team.civs[i];
 					rd.team_1_cc_x[i] = team.cc_x[i];
@@ -123,7 +123,7 @@ DWORD WINAPI rec_cache_thread(void*)
 				rd.n_team2 = team.n;
 				for (int i = 0; i < team.n; i++)
 				{
-					rd.team_2[i] = team.names[i];
+					rd.team_2[i] = (std::string)team.names[i];
 					rd.team_2_colors[i] = team.colors[i];
 					rd.team_2_civs[i] = team.civs[i];
 					rd.team_2_cc_x[i] = team.cc_x[i];
@@ -190,6 +190,8 @@ REC_CACHE::REC_CACHE(void* wnd_, int x_, int y_)
 	x = x_;
 	y = y_;
 	memset(cache, 0, sizeof(cache));
+	for (int i = 0; i < CACHE_SIZE; i++)
+		cache[i] = new REC_DATA;
 	//init critical secion
 	InitializeCriticalSection(&cs);
 	//init cache thread
@@ -206,10 +208,11 @@ REC_DATA REC_CACHE::get_rec_data(std::string f, int priority)
 	int index = get_rec_cache_index(f);
 	if (index != -1)
 	{
-		rd = cache[index];
+		REC_DATA* prd = cache[index];
 		for (int i = index; i > 0; i--)
 			cache[i] = cache[i - 1];
-		cache[0] = rd;
+		cache[0] = prd;
+		rd = *prd;
 	}
 	else
 	{
@@ -243,8 +246,11 @@ REC_DATA REC_CACHE::get_rec_data(std::string f, int priority)
 REC_CACHE::~REC_CACHE()
 {
 	for (int i = 0; i < CACHE_SIZE; i++)
-		if (cache[i].map)
-			DeleteObject(cache[i].map);
+	{
+		if (cache[i]->map)
+			DeleteObject(cache[i]->map);
+		delete cache[i];
+	}
 }
 
 /*void REC_CACHE::ack_queue(std::string f)
@@ -264,10 +270,13 @@ void REC_CACHE::add_rec_data(REC_DATA rd)
 	EnterCriticalSection(&cs);
 	if (get_rec_cache_index(rd.file) == -1)
 	{
-		DeleteObject(cache[CACHE_SIZE - 1].map);
+		if (cache[CACHE_SIZE - 1]->map)
+			DeleteObject(cache[CACHE_SIZE - 1]->map);
+		delete cache[CACHE_SIZE - 1];
 		for (int i = (CACHE_SIZE - 1); i > 0; i--)
 			cache[i] = cache[i - 1];
-		cache[0] = rd;
+		cache[0] = new REC_DATA;
+		*cache[0] = rd;
 	}
 	LeaveCriticalSection(&cs);
 }
@@ -275,7 +284,7 @@ void REC_CACHE::add_rec_data(REC_DATA rd)
 int REC_CACHE::get_rec_cache_index(std::string f)
 {
 	for (int i = 0; i < CACHE_SIZE; i++)
-		if ((cache[i].exists) && (cache[i].file == f))
+		if ((cache[i]->exists) && (cache[i]->file == f))
 			return i;
 	return -1;
 }

@@ -33,4 +33,4 @@
 #include "structs.h"
 #include "log.h"
 
-//#define ZLIB_WINAPI
+#define ZLIB_WINAPI

@@ -387,6 +387,9 @@
     <ClInclude Include="fixedpos.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
+    <ClInclude Include="mastervolume.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="advcheat.cpp">
@@ -726,6 +729,9 @@
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
     <ClCompile Include="fixedpos.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="mastervolume.cpp">
       <Filter>Файлы исходного кода\misc</Filter>
     </ClCompile>
   </ItemGroup>

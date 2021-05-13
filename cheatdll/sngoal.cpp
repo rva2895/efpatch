@@ -27,7 +27,7 @@ int __stdcall get_goal(void* player, int sn)
 	if (ai)
 	{
 		ai = (void*)((DWORD)ai + 0x165C);
-		return get_goal_exe(ai, sn);
+		return get_goal_exe(ai, sn-1);
 	}
 	else
 		return -1;

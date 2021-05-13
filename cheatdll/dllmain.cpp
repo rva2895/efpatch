@@ -91,6 +91,7 @@
 #include "storemode.h"
 #include "statusscreen.h"
 #include "fixedpos.h"
+#include "mastervolume.h"
 #ifdef TARGET_VOOBLY
 #include "iuserpatch.h"
 #endif
@@ -184,8 +185,8 @@ void setHooksCC()
 	writeDword(0x004D5B62, GENERIC_READ);
 
 	//faster screen fade in/out
-	writeDword(0x0042DEA6, (DWORD)&screen_fade);
-	writeDword(0x0042DF5B, (DWORD)&screen_fade);
+	//writeDword(0x0042DEA6, (DWORD)&screen_fade);
+	//writeDword(0x0042DF5B, (DWORD)&screen_fade);
 	
 	//renderer fix (THIS_COD)
 	BYTE* nops = (BYTE*)malloc(25);
@@ -338,9 +339,12 @@ void setHooksCC()
 	writeDword(0x00425EAA, 0x013C042C);
 	writeByte(0x00425EAE, 0x77);
 
-	setStatusScreenHooks();
+	//setStatusScreenHooks();
 
 	//setFixedPosHooks();
+
+	if (cd.delinkVolume)
+		setMasterVolumeHooks();
 }
 #pragma optimize( "", on )
 
@@ -604,6 +608,18 @@ extern bool expanding_fronts;
 
 void initialSetup()
 {
+#ifdef TARGET_VOOBLY
+	initLog();
+	log("===============================================");
+	log("Dll attached");
+	log("===============================================");
+
+	log("Compile time: " __DATE__ ", " __TIME__);
+	log("Configuration: Release_Voobly");
+
+	log("Notice: running in Voobly mode");
+#endif
+
 	new_memory_pages = VirtualAlloc(0, 0x1000, MEM_COMMIT, PAGE_READWRITE);
 
 	getSettings();
@@ -636,7 +652,7 @@ void initialSetup()
 		break;
 	case VER_EF:
 		//revertToX1 ();               //remove!!!! <---
-		writeByte(0x289BA4, 0x32);
+		//writeByte(0x289BA4, 0x32); //what is this???
 		setHooksCC();
 		setHooksEF();
 

@@ -149,6 +149,7 @@ void putTime()
 		st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
 }
 
+//#ifndef TARGET_VOOBLY
 void __cdecl log(const char* format, ...)
 {
 #ifndef CHEATDLL_NOLOG
@@ -180,8 +181,8 @@ void __cdecl log(const char* format, ...)
 	}
 #endif
 }
-
-/*extern void* voob_log;
+/*#else
+extern void* voob_log;
 extern IVoobly *g_pVoobly;
 __declspec(naked) void __cdecl log(const char*, ...)
 {

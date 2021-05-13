@@ -23,7 +23,8 @@ extern const CONFIG_DATA cd_default =
 	0,   //grid terrain
 	0,   //small trees
 	0,   //minimap 7
-	0    //large text
+	0,   //large text
+	0    //delink volume
 	//"en" //lang
 };
 
@@ -238,6 +239,15 @@ void regGet(CONFIG_DATA* cd)
 				&size))
 				cd->largeText = cd_default.largeText;
 
+			if (RegQueryValueEx(
+				hKey,
+				"Delink System Volume",
+				0,
+				&type,
+				(BYTE*)&cd->delinkVolume,
+				&size))
+				cd->delinkVolume = cd_default.delinkVolume;
+
 			/*char language[32];
 			size = 32;
 
@@ -450,6 +460,14 @@ void regSet(const CONFIG_DATA* cd)
 			type,
 			(BYTE*)&cd->largeText,
 			sizeof(cd->largeText));
+
+		RegSetValueEx(
+			hKey,
+			"Delink System Volume",
+			0,
+			type,
+			(BYTE*)&cd->delinkVolume,
+			sizeof(cd->delinkVolume));
 
 		/*type = REG_SZ;
 

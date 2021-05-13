@@ -111,6 +111,14 @@ __declspec(naked) void ondefconst() //00552FD0
 #pragma optimize( "s", on )
 void setAIHooks()
 {
+	//MP AI selection
+	//writeDword(0x00515C17, 0x90909090);
+	//writeWord(0x00515C1B, 0x9090);
+
+	//one player in MP
+	writeByte(0x005154D9, 0xEB);
+	writeByte(0x00519A06, 0xEB);
+
 	//rule limit: 1000 -> 10000
 	writeDword(0x006055E2, 10000);
 	writeDword(0x00599462, 20000);
