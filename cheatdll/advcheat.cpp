@@ -163,7 +163,7 @@ int __stdcall getCurrentPlayerId()
 
 prop_object* p;
 
-int __stdcall checkCheats(char* s2)
+bool __stdcall checkCheats(char* s2)
 {
     char dummy[100];
     char s[0x100];
@@ -206,7 +206,7 @@ int __stdcall checkCheats(char* s2)
         {
             //if (!control_initiated)
             //    control_source = getCurrentPlayerId();
-            player_clearSelection(getCurrentPlayer());
+            WorldPlayerBase__unselect_object(getCurrentPlayer());
             takeControl(id);
             chat("Taking control of player %d", id);
             //control_initiated = true;
@@ -217,7 +217,7 @@ int __stdcall checkCheats(char* s2)
     if (strstr(s, "LUMINOUS BEINGS ARE WE"))
     {
         restoreCheatFlag = 1;
-        player_clearSelection(getCurrentPlayer());
+        WorldPlayerBase__unselect_object(getCurrentPlayer());
         takeControl(0);
         return true;
     }
@@ -418,6 +418,12 @@ int __stdcall checkCheats(char* s2)
         get_goal_with_alias(getCurrentPlayer(), name);
         return true;
     }
+    if (strstr(s, "/REQUEST-CHAPTER"))
+    {
+        int* request_chapter = (int*)0x007A22FC;
+        *request_chapter = 1;
+        return true;
+    }
 
     //
     /*if (strstr(s, "/LIST-SELECTED"))
@@ -452,7 +458,7 @@ __declspec(naked) void scanChat() //put on sub at 0x005ED970
         sub     esp, 300h
         push    ebx
         push    edi
-        test    eax, eax
+        test    al, al
         jnz     _no_chat
         push    005ED978h
         ret

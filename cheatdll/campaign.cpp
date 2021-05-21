@@ -171,7 +171,7 @@ loc_50E5A6:
     }
 }
 
-char efcam[] = "2cam";
+const char efcam[] = "2cam";
 
 //get campaign mode implementation
 __declspec(naked) void mode_1() //00507670
@@ -193,7 +193,7 @@ _ef_mode_1:
     }
 }
 
-char a2cam_pic_pos[] = "2cam_pic.pos";
+const char a2cam_pic_pos[] = "2cam_pic.pos";
 
 __declspec(naked) void mode_2() //00507CC8
 {
@@ -223,7 +223,7 @@ _ef_mode_2:
     }
 }
 
-char a2cam[] = "2cam";
+const char a2cam[] = "2cam";
 
 __declspec(naked) void mode_3() //00507F6E
 {
@@ -248,7 +248,7 @@ _ef_mode_3:
     }
 }
 
-char a2camd[] = "2cam%d";
+const char a2camd[] = "2cam%d";
 
 __declspec(naked) void mode_4() //00508354
 {
@@ -414,7 +414,7 @@ __declspec(naked) void mode_9() //0050928C
     }
 }
 
-char a2c[] = "2c";
+const char a2c[] = "2c";
 
 __declspec(naked) void mode_A() //0052440E
 {
@@ -433,7 +433,7 @@ _ef_mode_A_cont:
     }
 }
 
-char a2b[] = "2b";
+const char a2b[] = "2b";
 
 __declspec(naked) void mode_B() //0052459A
 {
@@ -452,7 +452,7 @@ _ef_mode_B_cont:
     }
 }
 
-char a2[] = "2";
+const char a2[] = "2";
 
 __declspec(naked) void mode_C() //0052461B
 {

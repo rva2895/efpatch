@@ -32,7 +32,7 @@ struct REC_DATA
 
 #define CACHE_SIZE 100
 
-void setRecBrowseHooks();
+void setRecBrowseHooks(int version);
 
 class REC_CACHE
 {
@@ -41,18 +41,18 @@ private:
     void* wnd;
     int x;
     int y;
-    DWORD tid;
+    unsigned int tid;
     CRITICAL_SECTION cs;
     REC_DATA* cache[CACHE_SIZE];
     //std::vector<std::pair<std::string, int>> queue;
 public:
     REC_CACHE(void*,int,int);
     ~REC_CACHE();
-    REC_DATA get_rec_data(std::string f, int priority);
-    void add_rec_data(REC_DATA rd);
-    int get_rec_cache_index(std::string f);
+    REC_DATA get_rec_data(const std::string& f, int priority);
+    void add_rec_data(const REC_DATA& rd);
+    int get_rec_cache_index(const std::string& f);
     //void ack_queue(std::string f);
-    void update(std::string);
+    void update(const std::string&);
     void invalidate();
 
     int getX() { return x; };

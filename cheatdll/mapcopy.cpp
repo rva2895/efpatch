@@ -18,7 +18,7 @@ _no_copy_rotation:
     }
 }
 
-int    mapcopy_x = 1;
+int mapcopy_x = 1;
 int mapcopy_y = -1;
 bool mapcopy = false;
 

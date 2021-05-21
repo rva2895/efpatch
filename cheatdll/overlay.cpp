@@ -111,10 +111,10 @@ __declspec(naked) int __fastcall get_gametime()
     }
 }
 
-void print_graph(HDC hdc, std::vector<std::vector<std::pair<int, int>>> data)
+/*void print_graph(HDC hdc, std::vector<std::vector<std::pair<int, int>>> data)
 {
 
-}
+}*/
 
 void __stdcall window_overlay_draw2(HDC hdc)
 {

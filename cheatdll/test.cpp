@@ -194,7 +194,7 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
     UNREFERENCED_PARAMETER(unk1);
     va_list ap;
     __int32 pos;
-    void* d;
+    //void* d;
     int lines;
     if (!log_int_s)
         log_int_s = (char*)malloc(0x200);
@@ -216,7 +216,7 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
     {
         //rms_begin = true;
         rms_error_1 = "RMS: No errors";
-        rms_error_2 = "";
+        rms_error_2.clear();
         if (isEditor)
             update_editor_bk();
         rms_first_error = true;
@@ -227,7 +227,7 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
         pos = ftell2(rms_f);
         if (pos > 0)
         {
-            d = malloc(pos);
+            //d = malloc(pos);
             fseek2(rms_f, 0, SEEK_SET);
             lines = 0;
             do
@@ -236,7 +236,7 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
                 lines++;
             } while (ftell2(rms_f) < pos);
 
-            free(d);
+            //free(d);
             fseek2(rms_f, pos, SEEK_SET);
             log("** RMS, line %d:\n\n%s", lines, log_int_s);
             if (rms_first_error)
@@ -318,6 +318,7 @@ int check_file(char* file, int player)
     char sum = 0;
     while (fread(&b, 1, 1, f) > 0)
         sum += b;
+    fclose(f);
     sprintf(s, "File %s: %d", file, sum);
     sendChat(s, player);
     return sum;
@@ -551,7 +552,7 @@ bool check(int l, int r)
 // A iterative binary search function. It returns 
 // location of x in given array arr[l..r] if present, 
 // otherwise -1 
-int search_function(std::vector<void*> arr)
+int search_function(const std::vector<void*>& arr)
 {
     int l = 0;
     int r = arr.size() - 1;
@@ -724,7 +725,7 @@ void thread_scroll(void*)
         void* player = getCurrentPlayer();
         if (player)
         {
-            player_scrollView(player, x, y, 0);
+            WorldPlayerBase__set_view_loc(player, x, y, 0);
             x += step;
             y += step;
             if (x > 100)
@@ -1020,7 +1021,9 @@ void setTestHook()
     setHook((void*)0x004E1801, rms_fptr);
     setHook((void*)0x004E1951, rms_fptr_close);
 
+#ifndef TARGET_VOOBLY
     setHook((void*)0x00438140, onChat);
+#endif
 
     //
 #ifdef _DEBUG

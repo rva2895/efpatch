@@ -390,6 +390,12 @@
     <ClInclude Include="mastervolume.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
+    <ClInclude Include="mbs.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="languagedlloverride.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="advcheat.cpp">
@@ -733,6 +739,9 @@
     </ClCompile>
     <ClCompile Include="mastervolume.cpp">
       <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="languagedlloverride.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

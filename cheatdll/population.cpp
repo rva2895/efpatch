@@ -76,35 +76,12 @@ __declspec(naked) void setPopCap_new() //005EF240
 }
 
 char pop_cap_string[0x20];
+bool use_extended_pop_cap_ai;
 
 char* __fastcall getPopCapString(int c)
 {
-    //c /= 25;
-    /*switch (c)
-    {
-    case 1: //25
-        return (char*)0x00692E5C;
-    case 2: //50
-        return (char*)0x00692E48;
-    case 3: //75
-        return (char*)0x00692E34;
-    case 4: //100
-        return (char*)0x00692E20;
-    case 5: //125
-        return (char*)0x00692E0C;
-    case 6: //150
-        return (char*)0x00692DF8;
-    case 7: //175
-        return (char*)0x00692DE4;
-    case 8: //200
-        return (char*)0x00692DD0;
-    case 9: //225
-        return (char*)0x00692DBC;
-    case 10: //250
-        return (char*)0x00692DA8;
-    default:
-        return (char*)0x00692DA8;
-    }*/
+    if (!use_extended_pop_cap_ai && c > 250)
+        c = 250;
     sprintf(pop_cap_string, "POPULATION-CAP-%d", c);
     return pop_cap_string;
 }
@@ -122,8 +99,10 @@ __declspec(naked) void onAIPopCap() //0057F13A
 }
 
 #pragma optimize( "s", on )
-void setPopulationHooks()
+void setPopulationHooks(int version)
 {
+    use_extended_pop_cap_ai = (version == VER_EF);
+
     setHook((void*)0x00520273, createPopList);
     setHook((void*)0x005202A5, popListContCreation);
     setHook((void*)0x0057F13A, onAIPopCap);

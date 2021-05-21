@@ -19,6 +19,7 @@
 #include "hotkeyjump.h"
 #include "recordrestore.h"
 #include "mouseoverride.h"
+#include "rundll.h"
 
 #include "rundll.h"
 
@@ -55,7 +56,7 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
     g_pVoobly->Log(USERPATCH_VERSION);
 
     // Write 2.2 exe version string    
-    g_pVoobly->Write(0x689BA4, "322E32");
+    g_pVoobly->Write(0x689BA4, "332E30");
 
     if (strstr(config.VooblyModDirPath, "Data Patch"))
     {
@@ -122,6 +123,9 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
     g_pVoobly->Write(0x004CCAD0, 15000);*/
 
     initialSetup();
+
+    //wndproc for voobly
+    writeDword(0x00426509, (DWORD)&WndProc_dll);
 
     // Apply patches from bin2cpp tool
     bool bSuccess = true;//ApplyPatchList();

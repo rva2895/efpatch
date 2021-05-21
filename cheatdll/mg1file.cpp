@@ -74,9 +74,6 @@ char* find_player_info_end(char* d, char* p, int n_players, int total)
 
 MG1::MG1(const char* filename)
 {
-    //if (strstr(filename, "03`18`06"))
-    //    __debugbreak();
-
     loaded = false;
     d.map = NULL;
     d.players = NULL;
@@ -88,16 +85,9 @@ MG1::MG1(const char* filename)
 
     if (!f)
     {
-        printf("Error: Cannot open %s\n", filename);
-        //loaded = false;
+        log("Error: cannot open file %s", filename);
         return;
     }
-
-#ifdef S_DEBUG
-    fputs("\n============================================\n", fptr);
-    fputs(filename, fptr);
-    fputs("\n============================================\n", fptr);
-#endif
 
     int end;
     fread(&end, sizeof(int), 1, f);
@@ -179,6 +169,9 @@ MG1::MG1(const char* filename)
         break;
     case 0x00322E32:
         version = 0x00322E32;    //2.2
+        break;
+    case 0x00382E39:             //EF 1.4.x
+        version = 0x00382E39;
         break;
     default:
         version = 0;    //unsupported
@@ -355,6 +348,11 @@ MG1::MG1(const char* filename)
 
     //************* READ COMMANDS *****************
     f = fopen(filename, "rb");
+    if (!f)
+    {
+        log("Error: cannot open file %s", filename);
+        return;
+    }
     fread(&start, 4, 1, f);
     fread(&end, 4, 1, f);
     if (!end)
@@ -441,17 +439,14 @@ MG1::MG1(const char* filename)
 
 MG1::~MG1()
 {
-    if (d.map)
-        free(d.map);
+    free(d.map);
     if (d.players)
     {
         for (int i = 0; i < d.number_of_players; i++)
-            if (d.players[i].name)
-                free(d.players[i].name);
+            free(d.players[i].name);
         free(d.players);
     }
-    if (map_type)
-        free(map_type);
+    free(map_type);
 }
 
 int MG1::read4()
@@ -528,10 +523,11 @@ DWORD MG1::getTeams()
 {
     char analyzed[8];
     char teams[8];
-    char nTeams = 0;
+
     memset(analyzed, 0, 8);
     memset(teams, 0, 8);
-    int p1 = 0; int p2 = 0;
+
+    int p2 = 0;
     int i = 0;
     while (i < d.number_of_players - 1)
     {

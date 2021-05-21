@@ -2,11 +2,23 @@
 
 #include "drsfile.h"
 
+FILE* DRS::load(bool write)
+{
+    if (drsFile)
+        return fopen(drsFile, write ? "rb+" : "rb");
+    else
+        return NULL;
+}
+
+void DRS::unload(FILE* f)
+{
+    if (f)
+        fclose(f);
+}
+
 DRS::DRS()
 {
-    init = 0;
-    loaded = 0;
-    f = NULL;
+    init = false;
     hdr.nTables = 0;
     hdr.off1stFile = 0;
     tInfo = NULL;
@@ -22,10 +34,10 @@ DRS::DRS()
 
 bool DRS::loadDRS(const char* filename)
 {
-    drsFile = new char[strlen(filename) + 1];
-    strcpy(drsFile, filename);
+    setFileName(filename);
 
-    if (!(f = fopen(filename, "rb")))
+    FILE* f = load(false);
+    if (!f)
         return false;
 
     fread(&hdr, sizeof(DRS_header), 1, f);
@@ -33,7 +45,7 @@ bool DRS::loadDRS(const char* filename)
     if (strncmp(hdr.version, "1.00", 4) ||
         strncmp(hdr.ftype, "swbg", 4))
     {
-        fclose(f);
+        unload(f);
         return false;
     }
 
@@ -49,8 +61,7 @@ bool DRS::loadDRS(const char* filename)
         fread(tEntries[i], sizeof(DRS_tableEntry), tInfo[i].nFiles, f);
     }
 
-    init = 1;
-    loaded = 1;
+    init = true;
     return true;
 }
 
@@ -63,7 +74,7 @@ bool DRS::writeDRS()
         tInfo[i].tableOffset = fsize;
         fsize += tInfo[i].nFiles * 0xC;
     }
-    current_pos = fsize; //files start here
+    int current_pos = fsize; //files start here
     hdr.off1stFile = current_pos;
     for (int i = 0; i < hdr.nTables; i++)
         for (int j = 0; j < tInfo[i].nFiles; j++)
@@ -73,53 +84,57 @@ bool DRS::writeDRS()
     bool result = SetFilePointer(f1, fsize, 0, FILE_BEGIN) != INVALID_SET_FILE_POINTER;
     result = result && SetEndOfFile(f1);
     CloseHandle(f1);
-    if (f)
-        fclose(f);
+    
     if (result)
     {
-        f = fopen(drsFile, "rb+");
-        //write files
-        fseek(f, current_pos, SEEK_SET);
-        for (int i = 0; i < hdr.nTables; i++)
-            for (int j = 0; j < tInfo[i].nFiles; j++)
-            {
-                fwrite((void*)tEntries[i][j].offset, 1, tEntries[i][j].size, f);
-                free((void*)tEntries[i][j].offset);
-                tEntries[i][j].offset = current_pos;
-                current_pos += tEntries[i][j].size;
-            }
-        //write header
-        fseek(f, 0, SEEK_SET);
-        fwrite(&hdr, sizeof(DRS_header), 1, f);
-        //write table headers
-        for (int i = 0; i < hdr.nTables; i++)
-            fwrite(&tInfo[i], sizeof(DRS_tableInfo), 1, f);
-        //write table data
-        for (int i = 0; i < hdr.nTables; i++)
-            for (int j = 0; j < tInfo[i].nFiles; j++)
-                fwrite(&tEntries[i][j], sizeof(DRS_tableEntry), 1, f);
-        fclose(f);
+        FILE* f = load(true);
+        if (f)
+        {
+            //write files
+            fseek(f, current_pos, SEEK_SET);
+            for (int i = 0; i < hdr.nTables; i++)
+                for (int j = 0; j < tInfo[i].nFiles; j++)
+                {
+                    fwrite((void*)tEntries[i][j].offset, 1, tEntries[i][j].size, f);
+                    free((void*)tEntries[i][j].offset);
+                    tEntries[i][j].offset = current_pos;
+                    current_pos += tEntries[i][j].size;
+                }
+            //write header
+            fseek(f, 0, SEEK_SET);
+            fwrite(&hdr, sizeof(DRS_header), 1, f);
+            //write table headers
+            for (int i = 0; i < hdr.nTables; i++)
+                fwrite(&tInfo[i], sizeof(DRS_tableInfo), 1, f);
+            //write table data
+            for (int i = 0; i < hdr.nTables; i++)
+                for (int j = 0; j < tInfo[i].nFiles; j++)
+                    fwrite(&tEntries[i][j], sizeof(DRS_tableEntry), 1, f);
+            unload(f);
+        }
+        else
+            result = false;
     }
-    loaded = false;
     return result;
 }
 
 void* DRS::getFile(int id, int* size)
 {
-    void* data = 0;
-
-    if (!f)
-        return 0;
-
-    for (int i = 0; i < hdr.nTables; i++)
-        for (int j = 0; j < tInfo[i].nFiles; j++)
-            if (tEntries[i][j].id == id)
-            {
-                data = malloc(tEntries[i][j].size);
-                *size = tEntries[i][j].size;
-                fseek(f, tEntries[i][j].offset, SEEK_SET);
-                fread(data, tEntries[i][j].size, 1, f);
-            }
+    void* data = NULL;
+    FILE* f = load(false);
+    if (f)
+    {
+        for (int i = 0; i < hdr.nTables; i++)
+            for (int j = 0; j < tInfo[i].nFiles; j++)
+                if (tEntries[i][j].id == id)
+                {
+                    data = malloc(tEntries[i][j].size);
+                    *size = tEntries[i][j].size;
+                    fseek(f, tEntries[i][j].offset, SEEK_SET);
+                    fread(data, tEntries[i][j].size, 1, f);
+                }
+        unload(f);
+    }
 
     return data;
 }
@@ -131,6 +146,11 @@ int DRS::extractFiles()
     char filename[0x100];
     FILE* g;
     int size_total = 0;
+
+    FILE* f = load(false);
+    if (!f)
+        return 0;
+
     for (int i = 0; i < hdr.nTables; i++)
     {
         switch (*(unsigned long*)&tInfo[i].ext)
@@ -161,12 +181,16 @@ int DRS::extractFiles()
             CloseHandle(f1);
             g = fopen(filename, "rb+");
             if (!g)
+            {
+                free(data);
                 return 0;
+            }
             fwrite(data, tEntries[i][j].size, 1, g);
             fclose(g);
             free(data);
         }
     }
+    unload(f);
     return size_total;
 }
 
@@ -196,9 +220,6 @@ char* DRS::listFiles(int* count)
 
 DRS::~DRS()
 {
-    if (loaded)
-        fclose(f);
-
     if (init)
     {
         for (int i = 0; i < hdr.nTables; i++)
@@ -206,21 +227,23 @@ DRS::~DRS()
 
         delete[] tEntries;
         delete[] tInfo;
-
-        delete[] drsFile;
     }
+
+    delete[] drsFile;
 }
 
-void DRS::setFileName(const char * filename)
+void DRS::setFileName(const char* filename)
 {
-    drsFile = new char[strlen(filename) + 1];
-    strcpy(drsFile, filename);
-    init = true;
+    delete[] drsFile;
+
+    int size = GetFullPathName(filename, 0, NULL, NULL);
+    drsFile = new char[size];
+    GetFullPathName(filename, size, drsFile, NULL);
 }
 
 void DRS::addFile(void* data, int size, int id, unsigned long table)
 {
-    init = 1;
+    init = true;
     //check tables
     int i = 0;
     while (i < hdr.nTables && *(unsigned long*)&tInfo[i].ext != table)
@@ -287,37 +310,11 @@ int DRS::getTableEntryOffset(int id)
 
 void DRS::writeInt(int offset, int val)
 {
-    fclose(f);
-    f = fopen(drsFile, "rb+");
-
-    fseek(f, offset, SEEK_SET);
-    fwrite(&val, sizeof(int), 1, f);
-
-    fclose(f);
-    f = fopen(drsFile, "rb");
-}
-
-void DRS::unload()
-{
-    fclose(f);
-    loaded = 0;
-}
-
-void DRS::load()
-{
-    fopen(drsFile, "rb");
-    loaded = 1;
-}
-
-void DRS::reload()
-{
-    fclose(f);
-
-    for (int i = 0; i < hdr.nTables; i++)
-        delete[] tEntries[i];
-
-    delete[] tEntries;
-    delete[] tInfo;
-
-    loadDRS(drsFile);
+    FILE* f = load(true);
+    if (f)
+    {
+        fseek(f, offset, SEEK_SET);
+        fwrite(&val, sizeof(int), 1, f);
+        unload(f);
+    }
 }

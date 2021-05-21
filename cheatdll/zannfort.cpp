@@ -33,7 +33,7 @@ __declspec(naked) float* __fastcall player_getResources(void* player)
 }
 #pragma warning(pop)
 
-char zann_str_1[] = "MUL Cost2Amount 0.75";
+const char zann_str_1[] = "MUL Cost2Amount 0.75";
 
 void zann_resetCosts1(void* c)
 {

@@ -410,12 +410,12 @@ bool __stdcall advTriggerEffectActual2(void* unitData, char* str)
         return false;
 }*/
 
-void __stdcall advTriggerEffectActual(void* unitData, char* s)
+void __stdcall advTriggerEffectActual(void* unitData, const char* s)
 {
     char type;
-    char command[50];
-    char variable[50];
-    char amount[50];
+    char command[64];
+    char variable[64];
+    char amount[64];
 
     long int8Amount;
     long int16Amount;
@@ -424,7 +424,7 @@ void __stdcall advTriggerEffectActual(void* unitData, char* s)
 
     int index;
     //strcpy (s,(char*)x);
-    sscanf(s, "%s %s %s", command, variable, amount);
+    sscanf(s, "%63s %63s %63s", command, variable, amount);
     index = getArrayIndex(variable, &type);
 
     //if (index == 0x38)
@@ -534,8 +534,8 @@ void __stdcall advTriggerEffectActual(void* unitData, char* s)
     }
     else
     {
-        char amount2[50];
-        sscanf(s, "%s %s %s %s", command, variable, amount, amount2);
+        char amount2[64];
+        sscanf(s, "%63s %63s %63s %63s", command, variable, amount, amount2);
         if (*(int*)((int)unitData + 4) < 50)
         {
             log("Warning: Cannot modify attack or armor for type %d", *(char*)((int)unitData + 4));

@@ -17,7 +17,9 @@ int prev_position = -1;
 
 int draw_count = 0;
 
-DWORD WINAPI rec_cache_thread(void*)
+std::string rec_extension;
+
+unsigned int __stdcall rec_cache_thread(void*)
 {
     //initialize worker thread and set event
     MSG msg;
@@ -94,7 +96,6 @@ DWORD WINAPI rec_cache_thread(void*)
             MG1 mg1(it->first.c_str());
 
             REC_DATA rd;
-            memset(&rd, 0, sizeof(REC_DATA));
             rd.exists = true;
             rd.file = it->first;
 
@@ -132,6 +133,8 @@ DWORD WINAPI rec_cache_thread(void*)
                 rd.map_x = mg1.d.map_x;
                 rd.version = mg1.version;
             }
+            else
+                rd.valid = false;
 
             //rec_cache->ack_queue(rd.file);
             rec_cache->add_rec_data(rd);
@@ -164,7 +167,7 @@ DWORD WINAPI rec_cache_thread(void*)
 
 std::string current_file = "";
 
-void REC_CACHE::update(std::string file)
+void REC_CACHE::update(const std::string& file)
 {
     if (state_valid && (file == current_file))
         SendMessage(hWnd_main, WM_APP + 1000, (WPARAM)wnd, 0);
@@ -196,12 +199,12 @@ REC_CACHE::REC_CACHE(void* wnd_, int x_, int y_)
     InitializeCriticalSection(&cs);
     //init cache thread
     worker_thread_event = CreateEvent(NULL, FALSE, FALSE, 0);
-    CreateThread(NULL, 0, rec_cache_thread, 0, 0, &tid);
+    _beginthreadex(NULL, 0, rec_cache_thread, NULL, 0, &tid);
     WaitForSingleObject(worker_thread_event, INFINITE);
     CloseHandle(worker_thread_event);
 }
 
-REC_DATA REC_CACHE::get_rec_data(std::string f, int priority)
+REC_DATA REC_CACHE::get_rec_data(const std::string& f, int priority)
 {
     EnterCriticalSection(&cs);
     REC_DATA rd;
@@ -265,7 +268,7 @@ break;
 LeaveCriticalSection(&cs);
 }*/
 
-void REC_CACHE::add_rec_data(REC_DATA rd)
+void REC_CACHE::add_rec_data(const REC_DATA& rd)
 {
     EnterCriticalSection(&cs);
     if (get_rec_cache_index(rd.file) == -1)
@@ -281,7 +284,7 @@ void REC_CACHE::add_rec_data(REC_DATA rd)
     LeaveCriticalSection(&cs);
 }
 
-int REC_CACHE::get_rec_cache_index(std::string f)
+int REC_CACHE::get_rec_cache_index(const std::string& f)
 {
     for (int i = 0; i < CACHE_SIZE; i++)
         if ((cache[i]->exists) && (cache[i]->file == f))
@@ -477,18 +480,27 @@ char* (__thiscall* window_getSelText)(void* this_, int sel) =
 
 int get_index(void* wnd)
 {
-    return *(short*)((DWORD)wnd + 0x104);
+    if (wnd)
+        return *(short*)((DWORD)wnd + 0x104);
+    else
+        return -1;
 }
 
 int get_scroll_position(void* wnd)
 {
-    return *(short*)((DWORD)wnd + 0x100);
+    if (wnd)
+        return *(short*)((DWORD)wnd + 0x100);
+    else
+        return -1;
 }
 
 void* wnd_bk = 0;
 
 void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
 {
+    if (!wnd_list)
+        return;
+
     if (*(int*)((DWORD)wnd + 0x204) != 0xC36E)
         return;
 
@@ -522,7 +534,7 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
     int team_dist = y > 900 ? 20 : 15;
 
     int cc_size = 0;
-    y > 900 ? 6 : 4;
+    //y > 900 ? 6 : 4;
     if (x <= 1024)
         cc_size = 4;
     else if (x <= 1280)
@@ -572,7 +584,7 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
 
     char* file = window_getSelText(wnd_list, get_index(wnd_list));
 
-    std::string filename = "savegame\\" + (std::string)file + ".mg1";
+    std::string filename = "savegame\\" + (std::string)file + rec_extension;
     current_file = filename;
 
     REC_DATA rd = rec_cache->get_rec_data(filename, 2);
@@ -619,7 +631,7 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
             RECT r_cc;
             for (int i = 0; i < rd.n_team1; i++)
             {
-                if ((rd.team_1_cc_x[i] != -1) && (rd.team_1_cc_y[i] != -1))
+                if ((rd.team_1_cc_x[i] >= 0) && (rd.team_1_cc_y[i] >= 0))
                 {
                     r_cc.left = r.left + mapToScreen_x(rd.team_1_cc_x[i], rd.team_1_cc_y[i], r.right - r.left, r.bottom - r.top, rd.map_x) - cc_size;
                     r_cc.right = r.left + mapToScreen_x(rd.team_1_cc_x[i], rd.team_1_cc_y[i], r.right - r.left, r.bottom - r.top, rd.map_x) + cc_size;
@@ -630,13 +642,13 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
                     if ((rd.team_1_colors[i] >= 0) && (rd.team_1_colors[i] < 8))
                         hb_c = hb[rd.team_1_colors[i]];
                     else
-                        hb_c = hb[rd.team_1_colors[8]];
+                        hb_c = hb[8];
                     FillRect(hdc, &r_cc, hb_c);
                 }
             }
             for (int i = 0; i < rd.n_team2; i++)
             {
-                if ((rd.team_2_cc_x[i] != -1) && (rd.team_2_cc_y[i] != -1))
+                if ((rd.team_2_cc_x[i] >= 0) && (rd.team_2_cc_y[i] >= 0))
                 {
                     r_cc.left = r.left + mapToScreen_x(rd.team_2_cc_x[i], rd.team_2_cc_y[i], r.right - r.left, r.bottom - r.top, rd.map_x) - cc_size;
                     r_cc.right = r.left + mapToScreen_x(rd.team_2_cc_x[i], rd.team_2_cc_y[i], r.right - r.left, r.bottom - r.top, rd.map_x) + cc_size;
@@ -647,7 +659,7 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
                     if ((rd.team_2_colors[i] >= 0) && (rd.team_2_colors[i] < 8))
                         hb_c = hb[rd.team_2_colors[i]];
                     else
-                        hb_c = hb[rd.team_2_colors[8]];
+                        hb_c = hb[8];
                     FillRect(hdc, &r_cc, hb_c);
                 }
             }
@@ -666,93 +678,98 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
     SetTextColor(hdc, RGB(255, 255, 255));
     DrawText(hdc, str, strlen(str), &r, DT_LEFT | DT_WORDBREAK);
 
-    r.left -= text_offset;
-
-    RECT r_ver;
-    r_ver.right = r.right;
-    r_ver.bottom = r.bottom;
-    r_ver.top = r_ver.bottom - 20;
-    r_ver.left = r_ver.right - 50;
-
-    switch (rd.version)
+    if (rd.exists && rd.valid)
     {
-    case 0x00312E32:
-        strcpy(str, "1.1");
-        break;
-    case 0x00322E32:
-        strcpy(str, "2.2");
-        break;
-    default:
-        strcpy(str, "");
-        break;
+        r.left -= text_offset;
+
+        RECT r_ver;
+        r_ver.right = r.right;
+        r_ver.bottom = r.bottom;
+        r_ver.top = r_ver.bottom - 20;
+        r_ver.left = r_ver.right - 50;
+
+        switch (rd.version)
+        {
+        case 0x00312E32:
+            strcpy(str, "1.1");
+            break;
+        case 0x00322E32:
+            strcpy(str, "2.2");
+            break;
+        case 0x00382E39:
+            strcpy(str, "1.4");
+            break;
+        default:
+            strcpy(str, "");
+            break;
+        }
+
+        //sprintf(str, "VER %s", (char*)&rd.version);
+        DrawText(hdc, str, strlen(str), &r_ver, DT_RIGHT);
+
+        r.top += 30;
+
+        RECT color_box;
+        color_box.left = r.left + color_box_offset;
+        color_box.top = r.top + 10;
+        color_box.right = color_box.left + color_box_size;
+        color_box.bottom = color_box.top + color_box_size;
+        RECT player_name;
+        player_name.left = r.left + player_name_offset;
+        player_name.top = r.top + (y > 900 ? 10 : 8);
+        player_name.right = r.right - 10;
+        player_name.bottom = player_name.top + 20;
+
+        //draw player boxes
+        hPen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
+        hOldPen = (HPEN)SelectObject(hdc, hPen);
+
+        for (int i = 0; i < rd.n_team1; i++)
+        {
+            HBRUSH hb_c;
+            if ((rd.team_1_colors[i] >= 0) && (rd.team_1_colors[i] < 8))
+                hb_c = hb[rd.team_1_colors[i]];
+            else
+                hb_c = hb[8];
+            FillRect(hdc, &color_box, hb_c);
+            MoveToEx(hdc, color_box.left, color_box.top, NULL);
+            LineTo(hdc, color_box.left, color_box.bottom);
+            LineTo(hdc, color_box.right, color_box.bottom);
+            LineTo(hdc, color_box.right, color_box.top);
+            LineTo(hdc, color_box.left, color_box.top);
+            color_box.top += color_box_dist;
+            color_box.bottom += color_box_dist;
+            DrawText(hdc, rd.team_1[i].c_str(), rd.team_1[i].length(), &player_name, DT_LEFT);
+            player_name.top += color_box_dist;
+            player_name.bottom += color_box_dist;
+        }
+        color_box.top += team_dist;
+        color_box.bottom += team_dist;
+        player_name.top += team_dist;
+        player_name.bottom += team_dist;
+        for (int i = 0; i < rd.n_team2; i++)
+        {
+            HBRUSH hb_c;
+            if ((rd.team_2_colors[i] >= 0) && (rd.team_2_colors[i] < 8))
+                hb_c = hb[rd.team_2_colors[i]];
+            else
+                hb_c = hb[8];
+            FillRect(hdc, &color_box, hb_c);
+            MoveToEx(hdc, color_box.left, color_box.top, NULL);
+            LineTo(hdc, color_box.left, color_box.bottom);
+            LineTo(hdc, color_box.right, color_box.bottom);
+            LineTo(hdc, color_box.right, color_box.top);
+            LineTo(hdc, color_box.left, color_box.top);
+            color_box.top += color_box_dist;
+            color_box.bottom += color_box_dist;
+            DrawText(hdc, rd.team_2[i].c_str(), rd.team_2[i].length(), &player_name, DT_LEFT);
+            player_name.top += color_box_dist;
+            player_name.bottom += color_box_dist;
+        }
+
+        SelectObject(hdc, hOldPen);
+        DeleteObject(hPen);
     }
-
-    //sprintf(str, "VER %s", (char*)&rd.version);
-    DrawText(hdc, str, strlen(str), &r_ver, DT_RIGHT);
-
-    r.top += 30;
-
-    RECT color_box;
-    color_box.left = r.left + color_box_offset;
-    color_box.top = r.top + 10;
-    color_box.right = color_box.left + color_box_size;
-    color_box.bottom = color_box.top + color_box_size;
-    RECT player_name;
-    player_name.left = r.left + player_name_offset;
-    player_name.top = r.top + (y > 900 ? 10 : 8);
-    player_name.right = r.right - 10;
-    player_name.bottom = player_name.top + 20;
-
-    //draw player boxes
-    hPen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
-    hOldPen = (HPEN)SelectObject(hdc, hPen);
-
-    for (int i = 0; i < rd.n_team1; i++)
-    {
-        HBRUSH hb_c;
-        if ((rd.team_1_colors[i] >= 0) && (rd.team_1_colors[i] < 8))
-            hb_c = hb[rd.team_1_colors[i]];
-        else
-            hb_c = hb[rd.team_1_colors[8]];
-        FillRect(hdc, &color_box, hb_c);
-        MoveToEx(hdc, color_box.left, color_box.top, NULL);
-        LineTo(hdc, color_box.left, color_box.bottom);
-        LineTo(hdc, color_box.right, color_box.bottom);
-        LineTo(hdc, color_box.right, color_box.top);
-        LineTo(hdc, color_box.left, color_box.top);
-        color_box.top += color_box_dist;
-        color_box.bottom += color_box_dist;
-        DrawText(hdc, rd.team_1[i].c_str(), rd.team_1[i].length(), &player_name, DT_LEFT);
-        player_name.top += color_box_dist;
-        player_name.bottom += color_box_dist;
-    }
-    color_box.top += team_dist;
-    color_box.bottom += team_dist;
-    player_name.top += team_dist;
-    player_name.bottom += team_dist;
-    for (int i = 0; i < rd.n_team2; i++)
-    {
-        HBRUSH hb_c;
-        if ((rd.team_2_colors[i] >= 0) && (rd.team_2_colors[i] < 8))
-            hb_c = hb[rd.team_2_colors[i]];
-        else
-            hb_c = hb[rd.team_2_colors[8]];
-        FillRect(hdc, &color_box, hb_c);
-        MoveToEx(hdc, color_box.left, color_box.top, NULL);
-        LineTo(hdc, color_box.left, color_box.bottom);
-        LineTo(hdc, color_box.right, color_box.bottom);
-        LineTo(hdc, color_box.right, color_box.top);
-        LineTo(hdc, color_box.left, color_box.top);
-        color_box.top += color_box_dist;
-        color_box.bottom += color_box_dist;
-        DrawText(hdc, rd.team_2[i].c_str(), rd.team_2[i].length(), &player_name, DT_LEFT);
-        player_name.top += color_box_dist;
-        player_name.bottom += color_box_dist;
-    }
-
-    SelectObject(hdc, hOldPen);
-    DeleteObject(hPen);
-
     //DrawText(hdc, players.c_str(), players.length(), &r, DT_LEFT | DT_WORDBREAK);
 
     SelectObject(hdc, hOld);
@@ -766,7 +783,7 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
             if (i != 0)
             {
                 file = window_getSelText(wnd_list, get_index(wnd_list) + i);
-                filename = "savegame\\" + (std::string)file + ".mg1";
+                filename = "savegame\\" + (std::string)file + rec_extension;
                 rec_cache->get_rec_data(filename, 1);
             }
         }
@@ -776,7 +793,7 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
         for (int i = get_scroll_position(wnd_list); i < (get_scroll_position(wnd_list) + 40); i++)
         {
             file = window_getSelText(wnd_list, i);
-            filename = "savegame\\" + (std::string)file + ".mg1";
+            filename = "savegame\\" + (std::string)file + rec_extension;
             rec_cache->get_rec_data(filename, 0);
         }
     prev_viewport = get_scroll_position(wnd_list);
@@ -878,7 +895,7 @@ _not_loadbk:
 }
 
 #pragma optimize( "s", on )
-void setRecBrowseHooks()
+void setRecBrowseHooks(int version)
 {
     void init_listbk();
 
@@ -890,5 +907,18 @@ void setRecBrowseHooks()
     //file list
     writeByte(0x0050A5E2, 40); //x
     writeDword(0x0050A5DB, 435); //width, was 415
+
+    switch (version)
+    {
+    case VER_CC:
+        rec_extension = ".mg1";
+        break;
+    case VER_EF:
+        rec_extension = ".mg2";
+        break;
+    default:
+        rec_extension.clear();
+        break;
+    }
 }
 #pragma optimize( "", on )

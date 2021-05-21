@@ -7,7 +7,7 @@ struct pixel
 {
     unsigned char type;
     unsigned char data;
-    bool operator==(pixel& p)
+    bool operator==(const pixel& p)
     {
         return ((p.type == type) && (p.data == data));
     }

@@ -312,6 +312,7 @@ struct UNIT
 
     __declspec(noinline) float __thiscall unit_distance_to_position_new(float x_to, float y_to, float z_to)
     {
+        UNREFERENCED_PARAMETER(z_to);
         float x_coll; // st7@1
         float y_coll; // st6@1
         float result; // st7@9

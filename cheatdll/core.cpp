@@ -280,9 +280,6 @@ __declspec(naked) void remover_3()
     }
 }
 
-int (__thiscall* WorldPlayerBase__select_object)(void *player, void *unit, int play_sound) =
-    (int (__thiscall*)(void*, void*, int))0x004C2DC0;
-
 void __stdcall query_performance_out(UNIT* unit)
 {
     QueryPerformanceCounter(&EndingTime);
@@ -497,17 +494,17 @@ void setCoreHooks()
     setHook((void*)0x004AF3D0, performance_check_and_reset);*/
 
 
-    QueryPerformanceFrequency(&Frequency);
+    //QueryPerformanceFrequency(&Frequency);
 
     //remover
     //setHook((void*)0x00595D90, remover); //computer ai
     //setHook((void*)0x00555130, remover_2); //update building
     //setHook((void*)0x0055A760, remover_3); //update combat object
     //setHook((void*)0x0055A760, remover_3); //update combat object
-    unsigned char nops[] = "\x90\x90\x90\x90\x90";
+    //unsigned char nops[] = "\x90\x90\x90\x90\x90";
     //writeData(0x004C1985, nops, sizeof(nops)-1);
-    unsigned char nops2[] = "\x33\xC0\x90\x90\x90";
-    unsigned char nops3[] = "\x83\xC4\x04\x90\x90"; //add esp, 4
+    //unsigned char nops2[] = "\x33\xC0\x90\x90\x90";
+    //unsigned char nops3[] = "\x83\xC4\x04\x90\x90"; //add esp, 4
     //writeData(0x00555903, nops2, sizeof(nops) - 1); //type 80 -> type 70
     //writeData(0x005556F6, nops2, sizeof(nops) - 1);
     //writeData(0x0055A8A6, nops2, sizeof(nops) - 1); //no upd type 50 when upd type 70

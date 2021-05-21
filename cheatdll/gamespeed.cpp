@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "rec.h"
 #include <MMSystem.h>
 #include <vector>
 
@@ -89,7 +90,7 @@ __declspec(naked) void onSlowDown() //004FAF6B
         dec     ecx
 _no_slow_down:
         mov     [eax + 540h], ecx
-        call    printSpeed
+        //call    printSpeed
         mov     eax, 004FAF75h
         jmp     eax
     }
@@ -105,7 +106,7 @@ __declspec(naked) void onSpeedUp() //004FAF38
         inc     ecx
 _no_speed_up:
         mov     [eax + 540h], ecx
-        call    printSpeed
+        //call    printSpeed
         mov     eax, 004FAF42h
         jmp     eax
     }
@@ -117,7 +118,7 @@ __declspec(naked) void onSpeedNormal() //004FAF9F
     {
         mov     ecx, 2
         mov     [eax + 540h], ecx
-        call    printSpeed
+        //call    printSpeed
         mov     eax, 004FAFA9h
         jmp     eax
     }
@@ -142,7 +143,11 @@ void __stdcall onPrintTime2(char* s)
 
     char s2[0x100];
     strcpy(s2, s);
-    sprintf(s, "%s (%3.3f / %3.3f -> %d)", s2, avg_speed, rec_speed, current_frame_interval);
+    //sprintf(s, "%s (%3.3f / %3.3f -> %d)", s2, avg_speed, rec_speed, current_frame_interval);
+    if (isRec())
+        sprintf(s, "%s (%2.2f)", s2, rec_speed);
+    else
+        sprintf(s, "%s", s2);
 }
 
 __declspec(naked) void onPrintTime() //005E01E6
@@ -168,31 +173,37 @@ int __stdcall rec_speed_test(DWORD time_game, int speed)
     switch (speed)
     {
     case 0:
-        rec_speed = 0.5f;
+        rec_speed = 0.500f;
         break;
     case 1:
-        rec_speed = 0.7f;
+        rec_speed = 0.667f;
         break;
     case 2:
-        rec_speed = 1.0f;
+        rec_speed = 1.000f;
         break;
     case 3:
-        rec_speed = 1.3f;
+        rec_speed = 1.333f;
         break;
     case 4:
-        rec_speed = 1.6f;
+        rec_speed = 1.600f;
         break;
     case 5:
-        rec_speed = 2.0f;
+        rec_speed = 2.000f;
         break;
     case 6:
-        rec_speed = 4.0f;
+        rec_speed = 4.000f;
         break;
     case 7:
-        rec_speed = 8.0f;
+        rec_speed = 8.000f;
         break;
     case 8:
-        rec_speed = 16.0f;
+        rec_speed = 16.00f;
+        break;
+    case 9:
+        rec_speed = INFINITY;
+        break;
+    default:
+        rec_speed = NAN;
         break;
     }
     DWORD time_real = timeGetTime();
@@ -223,7 +234,7 @@ int __stdcall rec_speed_test(DWORD time_game, int speed)
     return speed;
 }
 
-__declspec(naked) void onCheckSpeed() //0061EB93
+__declspec(naked) void onCheckSpeed() //0061EB93 -> 0061EB81
 {
     __asm
     {
@@ -475,6 +486,18 @@ __declspec(naked) void onScrollView() //004C2010
     }
 }
 
+__declspec(naked) void fixDefaultRecSpeed() //0042E8E2
+{
+    __asm
+    {
+        mov     [esi + 530h], ebx //turn off demo loop
+        mov     [esi + 52Ch], ebx //turn off view lock
+        mov     dword ptr [esi + 540h], 2
+        mov     eax, 0042E8F4h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setGameSpeedHooks()
 {
@@ -482,12 +505,14 @@ void setGameSpeedHooks()
 
     //recorded game
     writeByte(0x0061EBC2, 9);
-    setHook((void*)0x0061EB93, onCheckSpeed);
+    setHook((void*)0x0061EB81, onCheckSpeed);
     setHook((void*)0x004FAF6B, onSlowDown);
     setHook((void*)0x004FAF38, onSpeedUp);
     setHook((void*)0x004FAF9F, onSpeedNormal);
 
-    //setHook((void*)0x005E01E6, onPrintTime);
+    setHook((void*)0x005E01E6, onPrintTime);
+
+    setHook((void*)0x0042E8E2, fixDefaultRecSpeed);
 
     //setHook((void*)0x00471CB0, onDrawScreen); //obsolete
     //setHook((void*)0x00428B02, onDrawScreen2);

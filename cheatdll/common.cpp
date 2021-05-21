@@ -2,6 +2,8 @@
 
 #include "common.h"
 
+void** BaseGame_bg = (void**)0x006A3684;
+
 #ifdef TARGET_VOOBLY
 extern IVoobly *g_pVoobly;
 #endif
@@ -100,18 +102,9 @@ __declspec(naked) int __stdcall getWindowY()
     }
 }
 
-void* (__thiscall* global_getCurrentPlayer) (void* globalPtr) =
-    (void* (__thiscall*) (void*))0x00428750;
-
-void (__thiscall* player_clearSelection) (void* player) =
-    (void(__thiscall*) (void*))0x004C3050;
-
-int (__thiscall* player_scrollView)(void *player, float x, float y, int unk) =
-    (int(__thiscall*) (void*, float, float, int))0x004C2010;
-
 void* __stdcall getCurrentPlayer()
 {
-    return global_getCurrentPlayer(*(void**)0x006A3684);
+    return BaseGame__get_player(*BaseGame_bg);
 }
 
 int __stdcall language_dll_load(UINT id, char* buf, int nmax)
@@ -170,3 +163,30 @@ __declspec(naked) int __stdcall getMapSize()
         ret
     }
 }
+
+void* (__thiscall* BaseWorld__object)(void* this_, int oID) =
+    (void* (__thiscall*) (void*, int))0x00623DB0;
+
+void* (__thiscall* BaseGame__get_player)(void* globalPtr) =
+    (void* (__thiscall*)(void* globalPtr))0x00428750;
+
+void* (__thiscall* GameScreen__find_next_idle_unit)(void* this_, int last_object_id) =
+    (void* (__thiscall*) (void*, int))0x00506340;
+
+void* (__thiscall* GameScreen__find_next_idle_military_unit)(void* this_, int last_object_id) =
+    (void* (__thiscall*) (void*, int))0x005064B0;
+
+void* (__thiscall* WorldPlayer__find_obj)(void* this_, __int16 obj_id, void* after_obj, __int16 obj_id_2) =
+    (void* (__thiscall*) (void*, __int16, void*, __int16))0x005CFA20;
+
+int (__thiscall* WorldPlayerBase__select_object)(void* this_, void* unit, int play_sound) =
+    (int (__thiscall*) (void*, void*, int))0x004C2DC0;
+
+int (__thiscall* WorldPlayerBase__unselect_object)(void* this_) =
+    (int (__thiscall*) (void*))0x004C3050;
+
+int (__thiscall* WorldPlayerBase__set_view_loc)(void* player, float x, float y, int spectatingView) =
+    (int (__thiscall*) (void*, float, float, int))0x004C2010;
+
+int (__thiscall* GameSoundEffectsManager__playSound)(void* this_, int soundId, int pan, int volume) =
+    (int (__thiscall*) (void*, int, int, int))0x0042CD70;

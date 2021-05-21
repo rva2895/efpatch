@@ -5,7 +5,7 @@
 #include "structs.h"
 #include "objpanel.h"
 
-void editVal (float* valPtr, float val, bool useMax, float max, int action)
+void editVal(float* valPtr, float val, bool useMax, float max, int action)
 {
     //float* hp = (float*)((int)unit+0x3C);
     switch (action)
@@ -27,15 +27,15 @@ void editVal (float* valPtr, float val, bool useMax, float max, int action)
             *valPtr = max;
 }
 
-void editHP (UNIT* unit, float val, int action)
+void editHP(UNIT* unit, float val, int action)
 {
-    editVal (&unit->hp, val, false, 0, action);
+    editVal(&unit->hp, val, false, 0, action);
 }
 
-void editHPPercent (UNIT* unit, float val, int action)
+void editHPPercent(UNIT* unit, float val, int action)
 {
     float maxHP = unit->prop_object->hit_points;
-    editVal (&unit->hp, val*maxHP/100, false, 0, action);
+    editVal(&unit->hp, val * maxHP / 100, false, 0, action);
 }
 
 void editSP(UNIT* unit, float val, int action)
@@ -48,33 +48,33 @@ void editResources(UNIT* unit, float val, int action)
     editVal(&unit->resources, val, false, 0, action);
 }
 
-void editSPPercent (UNIT* unit, float val, int action)
+void editSPPercent(UNIT* unit, float val, int action)
 {
     float maxHP = unit->prop_object->hit_points;
-    editVal (&unit->sp, val*maxHP/100, false, 0, action);
+    editVal(&unit->sp, val * maxHP / 100, false, 0, action);
 }
 
-void editReloadCooldown (UNIT* unit, float val, int action)
+void editReloadCooldown(UNIT* unit, float val, int action)
 {
-    editVal ((float*)((int)unit+0x174), val, false, 0, action);
+    editVal((float*)((int)unit + 0x174), val, false, 0, action);
 }
 
-void editReloadCooldownPercent (UNIT* unit, float val, int action)
+void editReloadCooldownPercent(UNIT* unit, float val, int action)
 {
     float reloadTime = unit->prop_object->reload_time_1;
-    editVal ((float*)((int)unit+0x174), val*reloadTime/100, false, 0, action);
+    editVal((float*)((int)unit + 0x174), val * reloadTime / 100, false, 0, action);
 }
 
-void editHPRegen (UNIT* unit, float val, float val2)
+void editHPRegen(UNIT* unit, float val, float val2)
 {
-    specialDamage (unit, 47, -val, 0);
-    specialDamage (unit, 48, val2, 0);
+    specialDamage(unit, 47, -val, 0);
+    specialDamage(unit, 48, val2, 0);
 }
 
-void editHPRegenPercent (UNIT* unit, float val, float val2)
+void editHPRegenPercent(UNIT* unit, float val, float val2)
 {
-    specialDamage (unit, 49, -val, 0);
-    specialDamage (unit, 50, val2, 0);
+    specialDamage(unit, 49, -val, 0);
+    specialDamage(unit, 50, val2, 0);
 }
 
 void editCounter(UNIT* unit, float val, int action, int c)
@@ -110,65 +110,66 @@ void editCounter(UNIT* unit, float val, int action, int c)
     //objPanel_invalidate();
 }
 
-void __stdcall effectUnitVarActual (UNIT* unit, char* str)
+void __stdcall effectUnitVarActual(UNIT* unit, char* str)
 {
     int action;
-    char var [50];
-    float val;
-    float val2;
-    char* s = (char*) malloc (strlen(str)+1);
-    strcpy (s, str);
-    char* pch = strtok (s, " ");
+    char var[50];
+    var[0] = '\0';
+    float val = 0.0f;
+    float val2 = 0.0f;
+    char* s = (char*)malloc(strlen(str) + 1);
+    strcpy(s, str);
+    char* pch = strtok(s, " ");
     if (pch)
     {
-        if (!strcmp (pch, "SET"))
+        if (!strcmp(pch, "SET"))
             action = 0;
-        else if (!strcmp (pch, "ADD"))
+        else if (!strcmp(pch, "ADD"))
             action = 1;
-        else if (!strcmp (pch, "MUL"))
+        else if (!strcmp(pch, "MUL"))
             action = 2;
         else
         {
-            free (s);
+            free(s);
             return;
         }
     }
     else
     {
-        free (s);
+        free(s);
         return;
     }
-    pch = strtok (NULL, " ");
+    pch = strtok(NULL, " ");
     if (pch)
-        strcpy (var, pch);
+        strcpy(var, pch);
 
-    pch = strtok (NULL, " ");
+    pch = strtok(NULL, " ");
     if (pch)
-        sscanf (pch, "%f", &val);
+        sscanf(pch, "%f", &val);
 
-    if (!strcmp (var, "HP"))
+    if (!strcmp(var, "HP"))
     {
-        editHP (unit, val, action);
+        editHP(unit, val, action);
     }
-    else if (!strcmp (var, "HPPercent"))
+    else if (!strcmp(var, "HPPercent"))
     {
-        editHPPercent (unit, val, action);
+        editHPPercent(unit, val, action);
     }
-    else if (!strcmp (var, "SP"))
+    else if (!strcmp(var, "SP"))
     {
-        editSP (unit, val, action);
+        editSP(unit, val, action);
     }
-    else if (!strcmp (var, "SPPercent"))
+    else if (!strcmp(var, "SPPercent"))
     {
-        editSPPercent (unit, val, action);
+        editSPPercent(unit, val, action);
     }
-    else if (!strcmp (var, "ReloadCooldown"))
+    else if (!strcmp(var, "ReloadCooldown"))
     {
-        editReloadCooldown (unit, val, action);
+        editReloadCooldown(unit, val, action);
     }
-    else if (!strcmp (var, "ReloadCooldownPercent"))
+    else if (!strcmp(var, "ReloadCooldownPercent"))
     {
-        editReloadCooldownPercent (unit, val, action);
+        editReloadCooldownPercent(unit, val, action);
     }
     else if (!strcmp(var, "Resources"))
     {
@@ -194,20 +195,20 @@ void __stdcall effectUnitVarActual (UNIT* unit, char* str)
     {
         editCounter(unit, val, action, 5);
     }
-    else if (!strcmp (var, "HPRegen"))
+    else if (!strcmp(var, "HPRegen"))
     {
-        pch = strtok (NULL, " ");
+        pch = strtok(NULL, " ");
         if (pch)
-            sscanf (pch, "%f", &val2);
-        editHPRegen (unit, val, 10*val2);
+            sscanf(pch, "%f", &val2);
+        editHPRegen(unit, val, 10 * val2);
     }
-    else if (!strcmp (var, "HPRegenPercent"))
+    else if (!strcmp(var, "HPRegenPercent"))
     {
-        pch = strtok (NULL, " ");
+        pch = strtok(NULL, " ");
         if (pch)
-            sscanf (pch, "%f", &val2);
-        editHPRegenPercent (unit, val, 10*val2);
+            sscanf(pch, "%f", &val2);
+        editHPRegenPercent(unit, val, 10 * val2);
     }
 
-    free (s);
+    free(s);
 }
