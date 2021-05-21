@@ -92,6 +92,8 @@
 #include "statusscreen.h"
 #include "fixedpos.h"
 #include "mastervolume.h"
+#include "mbs.h"
+#include "languagedlloverride.h"
 #ifdef TARGET_VOOBLY
 #include "iuserpatch.h"
 #endif
@@ -113,57 +115,14 @@
         ret
     }
 }
-
-int lineVar;
-int retAddr;
-int (__stdcall *drawLine) (int x1, int y1, int x2, int y2, int color) =
-    (int (__stdcall *) (int, int, int, int, int))0x473EA0;
-
-#pragma warning(push)
-#pragma warning(disable:4100)
-__declspec(naked) int __stdcall drawLineX(int x1, int y1, int x2, int y2, int color)
-{
-    __asm
-    {
-        mov     ecx, lineVar
-        pop     retAddr
-        call    drawLine
-        //drawLine (x1, y1, x2, y2, 0x45);
-        push    retAddr
-        ret
-    }
-}
-#pragma warning(pop)
-
-__declspec(naked) int flash()
-{
-    __asm
-    {
-        mov  ecx, [esi + 20h]
-        mov  lineVar, ecx
-    }
-    drawLineX(200, 200, 300, 300, 0x35);
-    drawLineX(200, 200, 400, 300, 0x85);
-    //MessageBox (0, "fjdisfjds", "asdijasdjas", 0);
-    __asm
-    {
-
-        //mov  eax, [esi+17Ch]
-        //push 005F9412h //return to normal execution
-        pop  edi
-        pop  esi
-        pop  ebp
-        pop  ebx
-        ret  10h
-    }
-}*/
+*/
 
 CONFIG_DATA cd;
 
 void getSettings()
 {
     regGet(&cd);
-
+#ifndef TARGET_VOOBLY
     bool key = GetKeyState(VK_SHIFT) & 0x8000;
 
     if (cd.askAtStartup || key)
@@ -172,6 +131,7 @@ void getSettings()
 
         regGet(&cd);
     }
+#endif
 }
 
 const float screen_fade = 0.1f; //default 0.001
@@ -261,18 +221,17 @@ void setHooksCC()
     setSaveGameVersionHooks();
 #endif
 #endif
-
+    
     setFileNameHooks(cd.gameVersion);
 
 #ifndef _CC_COMPATIBLE
+    setPopulationHooks(cd.gameVersion);
 
-    if (cd.gameVersion)
-        setPopulationHooks();
-
+#ifndef TARGET_VOOBLY
     setResearchRepeatHooks();
-
     setConditionHooks();
     setEffectHooks();
+#endif
 #endif
 
     if (cd.editorAutosave)
@@ -311,7 +270,9 @@ void setHooksCC()
     setHotkeyJumpHooks();
     //setOOSHooks();
 
-    //setRecBrowseHooks();
+//#ifdef TARGET_VOOBLY
+    setRecBrowseHooks(cd.gameVersion);
+//#endif
     setElevationHooks();
 
     setNetworkHooks();
@@ -325,7 +286,8 @@ void setHooksCC()
     //disabled ungrouped AI alliance
     writeByte(0x0061E2EB, 0xEB);
 
-    setHotkeyHooks();
+    if (cd.keydown)
+        setHotkeyHooks();
 
     //setOverlayHooks();
 
@@ -345,19 +307,21 @@ void setHooksCC()
 
     if (cd.delinkVolume)
         setMasterVolumeHooks();
+
+    setMbsHooks();
+
+    //one player in MP
+    writeByte(0x005154D9, 0xEB);
+    writeByte(0x00519A06, 0xEB);
+
+    setHotkeysHooks(cd.gameVersion);
+    setLanguageDllOverrideHooks();
+
+    setAIHooks(cd.gameVersion);
+
+    setObjectPanelHooks(cd.gameVersion);
 }
 #pragma optimize( "", on )
-
-__declspec(naked) void sc1Hook()
-{
-    __asm
-    {
-        mov     word ptr [ebp + 17b8h], 31h
-        lea     eax, [ebp + 17b8h]
-        push    5e55ebh
-        ret
-    }
-}
 
 const char efDatabank[] = "stream\\ef_databank%d.mp3";
 const char efCiv[] = "stream\\ef_civ%d.mp3";
@@ -373,7 +337,6 @@ void setHooksEF()
     writeDword(0x0042E0CE, (DWORD)efShadow);
     writeDword(0x00609CEB, (DWORD)efBlendomatic);
     writeDword(0x00609ABA, (DWORD)efICM);
-    //setHook ((void*)0x005E55DB, &sc1Hook);
 
     log("setHooksEF() started");
 
@@ -408,8 +371,6 @@ void setHooksEF()
 
     setTextColorHooks();
 
-    setObjectPanelHooks();
-
     initCivUnitTable();
     initCivResearchTable();
 
@@ -417,15 +378,11 @@ void setHooksEF()
 
     setCastHooks();
 
-    setAIHooks();
-
-    setHotkeysHooks();
-
     setZannFortHooks();
 
     setProcessUnitHooks();
 
-    //setTerrainAmount ();
+    //setTerrainAmount();
 
     setCliffTypeHooks();
 
@@ -634,10 +591,10 @@ void initialSetup()
         cd.useFPS, cd.useDShook, cd.nBufs, cd.timeout, cd.gameVersion, cd.askAtStartup);
     log("Settings (2/4): civl = %d, res = %d, auto = %d, autoint = %d",
         cd.useAltCivLetter, cd.unlockResources, cd.editorAutosave, cd.editorAutosaveInterval);
-    log("Settings (3/4): wide = %d, wx = %d, wy = %d, wnd = %d",
-        cd.widescrnEnabled, cd.xres, cd.yres, cd.windowMode);
-    log("Settings (4/4): large = %d, crash = %d",
-        cd.largeMaps, cd.crashReporting);
+    log("Settings (3/4): wide = %d, wx = %d, wy = %d, wnd = %d, grey = %d",
+        cd.widescrnEnabled, cd.xres, cd.yres, cd.windowMode, cd.minimap7);
+    log("Settings (4/4): large = %d, crash = %d, keydown = %d, delink = %d",
+        cd.largeMaps, cd.crashReporting, cd.keydown, cd.delinkVolume);
 
     setTestHook();
 
@@ -645,7 +602,9 @@ void initialSetup()
     switch (cd.gameVersion)
     {
     case VER_CC:
+#ifndef TARGET_VOOBLY
         revertToX1();     //for EF
+#endif
         setHooksCC();
 
         updateVersionCC();
@@ -697,6 +656,7 @@ void initialSetup()
     writeWord(0x005DDB73, 0x9090);
 #endif
 
+    //chat display time
     writeDword(0x004CCAD0, 15000);
 
     log("Initial setup complete, returning");

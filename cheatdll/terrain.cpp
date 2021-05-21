@@ -2,7 +2,7 @@
 
 #include "terrain.h"
 
-BYTE* terrain_array = 0;
+uint8_t* terrain_array = NULL;
 /*BYTE terrain_array[] =
 {
     4, 1, 2, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1,    //0
@@ -26,7 +26,7 @@ BYTE* terrain_array = 0;
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,    //0xF0
 };*/
 
-BYTE indirect_table_water[] =    //starts from 1 (TERR-WATER1)
+uint8_t indirect_table_water[] =    //starts from 1 (TERR-WATER1)
 {
     /*   1 */ 0, 1, 1, 0,
     /*     */ 1, 1, 1, 1,
@@ -734,7 +734,7 @@ __declspec(naked) void terrain_read_dat_split() //0048FAFC
     }
 }
 
-int __fastcall isCarbon(char terrain)
+int __fastcall isCarbon(uint8_t terrain)
 {
     switch (terrain)
     {

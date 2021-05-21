@@ -17,11 +17,8 @@ void initBldgResProdList()
     {
         numberOfResProducers = 0;
         resProducersData = 0;
-        while (int ss = fscanf(f, "%d %d %c %d", &id, &res, &c, &value) > 0)
+        while (fscanf(f, "%d %d %c %d", &id, &res, &c, &value) > 0)
         {
-#ifdef _DEBUG
-            log("fscanf: %d, val = %d, %d, %c, %d", ss, id, res, c, value);
-#endif
             numberOfResProducers++;
             resProducersData = (resGen*)realloc(resProducersData, numberOfResProducers * sizeof(resGen));
             resProducersData[numberOfResProducers - 1].unitID = id;

@@ -2,7 +2,7 @@
 #include "rec.h"
 #include "advcheat.h"
 
-__declspec(naked) int isRec()
+__declspec(naked) int __stdcall isRec()
 {
     __asm
     {
@@ -53,7 +53,7 @@ void __stdcall recPrintChat(bool our)
     if (!our)
     {
         strcpy(chatStr_temp, chatStr);
-        sprintf(chatStr + 3, "<%s>", chatStr_temp + 3);
+        sprintf(chatStr + 3, "%s", chatStr_temp + 3);
     }
 }
 
@@ -83,5 +83,8 @@ void setRecHooks()
 void recSwitch(int p)
 {
     if (isRec())
+    {
+        WorldPlayerBase__unselect_object(getCurrentPlayer());
         takeControl(p);
+    }
 }

@@ -20,10 +20,10 @@ struct buffer
 bool playhookinstalled = 0;
 bool dshookinstalled = 0;
 
-CRITICAL_SECTION cs;
+//CRITICAL_SECTION cs;
 
 buffer* buffers;
-int i = 0;
+int buffer_index = 0;
 
 unsigned long curBuf; //pointer to buffer whose duplicates we will create
 
@@ -456,8 +456,8 @@ HRESULT __stdcall Intercept_CreateSoundBuffer(
     }
     else
     {
-        curBuf = i;
-        i++;
+        curBuf = buffer_index;
+        buffer_index++;
     }
 
     if (!playhookinstalled)

@@ -3,7 +3,7 @@
 #include "drs.h"
 #include "registry.h"
 
-char aSwbg[] = "swbg";
+const char aSwbg[] = "swbg";
 
 /*char* aDrsWide[] =
 {
@@ -38,7 +38,7 @@ char* aDrsNoWide[] =
     "gamedata_x2.drs"
 };*/
 
-char* aDrsWide[] =
+const char* aDrsWide[] =
 {
     "sounds_x1.drs",
     "sounds_x2.drs",
@@ -55,7 +55,7 @@ char* aDrsWide[] =
     "gamedata_x2.drs"
 };
 
-char* aDrsNoWide[] =
+const char* aDrsNoWide[] =
 {
     "sounds_x1.drs",
     "sounds_x2.drs",
@@ -71,7 +71,7 @@ char* aDrsNoWide[] =
     "gamedata_x2.drs"
 };
 
-char* aDrsCCWide[] =
+const char* aDrsCCWide[] =
 {
     "sounds_x1.drs",
     "graphics.drs",
@@ -92,7 +92,7 @@ const int nDrsNoWide = sizeof(aDrsNoWide) / sizeof(aDrsNoWide[0]);
 const int nDrsCCWide = sizeof(aDrsCCWide) / sizeof(aDrsCCWide[0]);
 
 int nDrs;
-char** aDrs;
+const char** aDrs;
 
 __declspec(naked) void loadDRS()
 {

@@ -9,7 +9,7 @@
 //#define CHEATDLL_NOLOG
 //#endif
 
-FILE* f;
+FILE* log_file = NULL;
 bool loggingEnabled;
 
 char* lastLogs[12];
@@ -19,11 +19,11 @@ std::wstring logFileName;
 
 void deleteOldLogs()
 {
-    char filename[100];
+    char filename[MAX_PATH+5];
 
     //MessageBox (0, "aa", "sdsd", 0);
 
-    time_t rawtime_current = time(0);
+    time_t rawtime_current = time(NULL);
     time_t rawtime_old;
 
     tm time_old;
@@ -104,8 +104,8 @@ void initLog()
     if (!DirectoryExists("Logs"))
         CreateDirectory("Logs", 0);
 
-    f = _wfopen(timeBuf, L"wt");
-    if (!f)
+    log_file = _wfopen(timeBuf, L"wt");
+    if (!log_file)
     {
         MessageBoxW(0, L"Cannot write log file. Logging disabled", timeBuf, 0);
         loggingEnabled = false;
@@ -127,16 +127,19 @@ void initLog()
 void closeLog()
 {
 #ifndef CHEATDLL_NOLOG
-    if (f)
-        fclose(f);
+    if (log_file)
+    {
+        fclose(log_file);
+        log_file = NULL;
+    }
 #endif
 }
 
 void flushLog()
 {
 #ifndef CHEATDLL_NOLOG
-    if (f)
-        fflush(f);
+    if (log_file)
+        fflush(log_file);
 #endif
 }
 
@@ -145,7 +148,7 @@ void putTime()
     SYSTEMTIME st;
     GetSystemTime(&st);
 
-    fprintf(f, "[%02d:%02d:%02d.%03d] ",
+    fprintf(log_file, "[%02d:%02d:%02d.%03d] ",
         st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
 }
 
@@ -161,10 +164,10 @@ void __cdecl log(const char* format, ...)
     if (loggingEnabled)
     {
         putTime();
-        fprintf(f, "[efpatch ] ");
+        fprintf(log_file, "[efpatch ] ");
         va_list ap;
         va_start(ap, format);
-        vfprintf(f, format, ap);
+        vfprintf(log_file, format, ap);
         //memset (lastLogs [logged % 3], 0, 500);
         vsprintf(lastLogs[logged % 12], format, ap);
         //
@@ -176,7 +179,7 @@ void __cdecl log(const char* format, ...)
 #endif
         //
         logged++;
-        fputs("\x0A", f);
+        fputs("\x0A", log_file);
         va_end(ap);
     }
 #endif
@@ -206,10 +209,10 @@ void __cdecl log_internal(const char* format, ...)
     if (loggingEnabled)
     {
         putTime();
-        fprintf(f, "[internal] ");
+        fprintf(log_file, "[internal] ");
         va_list ap;
         va_start(ap, format);
-        vfprintf(f, format, ap);
+        vfprintf(log_file, format, ap);
         //memset (lastLogs [logged % 3], 0, 500);
         vsprintf(lastLogs[logged % 12], format, ap);
         //
@@ -221,7 +224,7 @@ void __cdecl log_internal(const char* format, ...)
 #endif
         //
         logged++;
-        fputs("\x0A", f);
+        fputs("\x0A", log_file);
         va_end(ap);
     }
 #endif

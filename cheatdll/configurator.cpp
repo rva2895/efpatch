@@ -189,18 +189,18 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
         DEVMODE devMode;
         DWORD prevW = 0;
         DWORD prevH = 0;
-        int prevBits = 0;
+        //int prevBits = 0;
         while (EnumDisplaySettings(0, nMode, &devMode) != 0)
         {
             if (devMode.dmBitsPerPel == 32)
                 if ((prevW != devMode.dmPelsWidth) || (prevH != devMode.dmPelsHeight))
                 {
-                    sprintf(curMode, "%dx%d", devMode.dmPelsWidth, devMode.dmPelsHeight);
+                    sprintf(curMode, "%lux%lu", devMode.dmPelsWidth, devMode.dmPelsHeight);
                     if ((devMode.dmPelsWidth >= 1024) && (devMode.dmPelsHeight >= 768))
                         SendMessage(GetDlgItem(hWndDlg, IDC_COMBO1), CB_ADDSTRING, 0, (LPARAM)curMode);
                     prevW = devMode.dmPelsWidth;
                     prevH = devMode.dmPelsHeight;
-                    prevBits = devMode.dmBitsPerPel;
+                    //prevBits = devMode.dmBitsPerPel;
                 }
             nMode++;
         }
@@ -211,13 +211,12 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
             switch (LOWORD(wParam))
             {
             case IDOK: //Patch
-                char resolution[50];
-                int x;
-                int y;
                 if (IsDlgButtonChecked(hWndDlg, IDC_CHECK_WIDE))
                 {
+                    char resolution[50];
+                    int x = 0;
+                    int y = 0;
                     GetDlgItemText(hWndDlg, IDC_COMBO1, resolution, 50);
-                    x = 0; y = 0;
                     int scan_result = sscanf(resolution, "%dx%d", &x, &y);
                     if (((x <= 0) || (y <= 0)) || (scan_result < 2))
                     {

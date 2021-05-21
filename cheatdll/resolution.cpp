@@ -16,7 +16,17 @@ void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
     {
         data = x1->getFile(id, &size);
         if (!data)
+        {
             data = x0->getFile(id, &size);
+            if (!data)
+            {
+                char err[0x100];
+                sprintf(err, "Cannot load SLP %d from DRS", id);
+                log(err);
+                MessageBox(NULL, err, "Error", MB_ICONERROR);
+                exit(0);
+            }
+        }
     }
     SLP slp;
     slp.load((unsigned char*)data, size);
@@ -316,8 +326,23 @@ void patchResRects(int x, int y, DRS* drs)
     int size;
 
     DRS x1;
-    x1.loadDRS("data\\interfac_x1.drs");
+    if (!x1.loadDRS("data\\interfac_x1.drs"))
+    {
+        char err[0x100];
+        sprintf(err, "Cannot load interfac_x1.drs");
+        log(err);
+        MessageBox(NULL, err, "Error", MB_ICONERROR);
+        exit(0);
+    }
     void* drsRects2 = x1.getFile(53290, &size);
+    if (!drsRects2)
+    {
+        char err[0x100];
+        sprintf(err, "Cannot load BIN 53290 from interfac_x1.drs");
+        log(err);
+        MessageBox(NULL, err, "Error", MB_ICONERROR);
+        exit(0);
+    }
     void* drsRects = malloc(size * 2);
     memcpy(drsRects, drsRects2, size);
     free(drsRects2);
@@ -357,7 +382,17 @@ void placeSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool
     int size;
     void* data;
     if (wide)
+    {
         data = wide_x2->getFile(id, &size);
+        if (!data)
+        {
+            char err[0x100];
+            sprintf(err, "Cannot load SLP %d from DRS", id);
+            log(err);
+            MessageBox(NULL, err, "Error", MB_ICONERROR);
+            exit(0);
+        }
+    }
     else
     {
         data = x2->getFile(id, &size);
@@ -365,7 +400,17 @@ void placeSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool
         {
             data = x1->getFile(id, &size);
             if (!data)
+            {
                 data = x0->getFile(id, &size);
+                if (!data)
+                {
+                    char err[0x100];
+                    sprintf(err, "Cannot load SLP %d from DRS", id);
+                    log(err);
+                    MessageBox(NULL, err, "Error", MB_ICONERROR);
+                    exit(0);
+                }
+            }
         }
     }
     target->addFile(data, size, id, DRS_SLP);

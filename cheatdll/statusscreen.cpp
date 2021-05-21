@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "statusscreen.h"
 
-const char* aGameScreen = (char*)0x00689ABC;
-const char* aCombatComparis = (char*)0x00699ED8;
-const char* aBlankScreen = (char*)0x0068976C;
-const char* aStatusScreen = (char*)0x006899A8;
-const char* del_game_info_str = "Destroying world ...";
+const char* aGameScreen = (const char*)0x00689ABC;
+const char* aCombatComparis = (const char*)0x00699ED8;
+const char* aBlankScreen = (const char*)0x0068976C;
+const char* aStatusScreen = (const char*)0x006899A8;
+const char del_game_info_str[] = "Destroying world ...";
 
 __declspec(naked) void onStatusLoadSave() //005EC5F9
 {
@@ -34,7 +34,7 @@ __declspec(naked) void onStatusLoadSave() //005EC5F9
         push    ebx
         push    0FFFFFFFFh
         push    ebx
-        push    del_game_info_str
+        push    offset del_game_info_str
         mov     ecx, ebp
         mov     eax, 005E7EC0h
         call    eax
@@ -72,7 +72,7 @@ __declspec(naked) void onStatusQuitGame() //005E8EF8
         push    ebx
         push    0FFFFFFFFh
         push    ebx
-        push    del_game_info_str
+        push    offset del_game_info_str
         mov     ecx, ebp
         mov     eax, 005E7EC0h //statusScreen_create
         call    eax
@@ -98,8 +98,8 @@ __declspec(naked) void onStatusQuitGame() //005E8EF8
 
 void* screen_this = 0;
 
-const char* starting_0 = "Starting a new game ...\n\nStarting ...\n";
-const char* starting = "Starting a new game ...\n\nStarting ...\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+const char starting_0[] = "Starting a new game ...\n\nStarting ...\n";
+const char starting[] = "Starting a new game ...\n\nStarting ...\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
 
 int line_counter = 14;
 char status_buffer[0x2000];
@@ -117,7 +117,7 @@ __declspec(naked) void onGetThis_newGame() //005EBCCA
     {
         mov     screen_this, ebp
         pop     eax
-        push    starting
+        push    offset starting
         mov     eax, 14
         mov     line_counter, eax
         mov     eax, 005E7EC0h
@@ -162,12 +162,12 @@ no_screen_this:
     }
 }
 
-const char* creating_world = "Creating World ...";
-const char* creating_base_world = "Creating BaseWorld ...";
-const char* creating_base_world_new_map = "Creating BaseWorld (new map) ...";
-const char* creating_base_world_gaia = "Creating BaseWorld (gaia) ...";
-const char* creating_base_world_players = "BaseWorld (players) ...";
-const char* creating_base_world_generating_map = "BaseWorld (generating map) ...";
+const char creating_world[] = "Creating World ...";
+const char creating_base_world[] = "Creating BaseWorld ...";
+const char creating_base_world_new_map[] = "Creating BaseWorld (new map) ...";
+const char creating_base_world_gaia[] = "Creating BaseWorld (gaia) ...";
+const char creating_base_world_players[] = "BaseWorld (players) ...";
+const char creating_base_world_generating_map[] = "BaseWorld (generating map) ...";
 
 __declspec(naked) void onStatusNewGame_World_newGame() //005ED2AE
 {
@@ -176,7 +176,7 @@ __declspec(naked) void onStatusNewGame_World_newGame() //005ED2AE
         push    ecx
         push    edx
 
-        mov     ecx, creating_world
+        mov     ecx, offset creating_world
         call    change_status_screen_using_this
 
         pop     edx
@@ -193,7 +193,7 @@ __declspec(naked) void onStatusNewGame_BaseWorld_newGame() //006004F1
     {
         push    ecx
 
-        mov     ecx, creating_base_world
+        mov     ecx, offset creating_base_world
         call    change_status_screen_using_this
 
         pop     ecx
@@ -210,7 +210,7 @@ __declspec(naked) void onStatusNewGame_BaseWorld_newGame_new_map() //0061E09D
     {
         push    ecx
 
-        mov     ecx, creating_base_world_new_map
+        mov     ecx, offset creating_base_world_new_map
         call    change_status_screen_using_this
 
         pop     ecx
@@ -227,7 +227,7 @@ __declspec(naked) void onStatusNewGame_BaseWorld_newGame_gaia() //0061E0E0
     {
         push    eax
 
-        mov     ecx, creating_base_world_gaia
+        mov     ecx, offset creating_base_world_gaia
         call    change_status_screen_using_this
 
         pop     eax
@@ -244,7 +244,7 @@ __declspec(naked) void onStatusNewGame_BaseWorld_newGame_players() //0061E108
     {
         push    edx
 
-        mov     ecx, creating_base_world_players
+        mov     ecx, offset creating_base_world_players
         call    change_status_screen_using_this
 
         pop     edx
@@ -262,7 +262,7 @@ __declspec(naked) void onStatusNewGame_BaseWorld_newGame_generating_map() //0061
     {
         push    edx
 
-        mov     ecx, creating_base_world_generating_map
+        mov     ecx, offset creating_base_world_generating_map
         call    change_status_screen_using_this
 
         pop     edx
@@ -287,12 +287,12 @@ __declspec(naked) void onRemoveThis_newGame() //005EBCD3
 }
 
 //generate
-const char* generating_map_blend = "BaseWorld (generating map) (blend) ...";
-const char* generating_map_cliff = "BaseWorld (generating map) (cliff) ...";
-const char* generating_map_connection = "BaseWorld (generating map) (connection) ...";
-const char* generating_map_elevation = "BaseWorld (generating map) (elevation) ...";
-const char* generating_map_land = "BaseWorld (generating map) (land) ...";
-const char* generating_map_shore = "BaseWorld (generating map) (shore) ...";
+const char generating_map_blend[] = "BaseWorld (generating map) (blend) ...";
+const char generating_map_cliff[] = "BaseWorld (generating map) (cliff) ...";
+const char generating_map_connection[] = "BaseWorld (generating map) (connection) ...";
+const char generating_map_elevation[] = "BaseWorld (generating map) (elevation) ...";
+const char generating_map_land[] = "BaseWorld (generating map) (land) ...";
+const char generating_map_shore[] = "BaseWorld (generating map) (shore) ...";
 
 __declspec(naked) void onStatus_generate_blend() //004DDD40
 {
@@ -301,7 +301,7 @@ __declspec(naked) void onStatus_generate_blend() //004DDD40
         push    esi
         mov     esi, ecx
 
-        mov     ecx, generating_map_blend
+        mov     ecx, offset generating_map_blend
         call    change_status_screen_using_this
 
         push    edi
@@ -321,7 +321,7 @@ __declspec(naked) void onStatus_generate_cliff() //004D76B0
         mov     eax, 004D7700h
         call    eax
 
-        mov     ecx, generating_map_cliff
+        mov     ecx, offset generating_map_cliff
         call    change_status_screen_using_this
 
         mov     ecx, 004D76B9h
@@ -339,7 +339,7 @@ __declspec(naked) void onStatus_generate_connection() //004E42B0
         mov     eax, 004D6B40h
         call    eax
 
-        mov     ecx, generating_map_connection
+        mov     ecx, offset generating_map_connection
         call    change_status_screen_using_this
 
         mov     ecx, 004E42BBh
@@ -360,7 +360,7 @@ __declspec(naked) void onStatus_generate_elevation() //004D9950
         mov     eax, 004D6B40h
         call    eax
 
-        mov     ecx, generating_map_elevation
+        mov     ecx, offset generating_map_elevation
         call    change_status_screen_using_this
 
         mov     ecx, 004D995Ch
@@ -378,7 +378,7 @@ __declspec(naked) void onStatus_generate_land() //004DA380
         mov     eax, 004D6B40h
         call    eax
 
-        mov     ecx, generating_map_land
+        mov     ecx, offset generating_map_land
         call    change_status_screen_using_this
 
         mov     ecx, 004DA389h
@@ -398,7 +398,7 @@ __declspec(naked) void onStatus_generate_shore() //004E5F76
         mov     eax, 004E69E0h
         call    eax
 
-        mov     ecx, generating_map_shore
+        mov     ecx, offset generating_map_shore
         call    change_status_screen_using_this
 
         mov     ecx, 004E5F81h

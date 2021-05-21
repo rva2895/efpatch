@@ -8,7 +8,11 @@ extern const CONFIG_DATA cd_default =
     0,   //dsoundhook
     5,   //bufs
     250, //delay
+#ifdef TARGET_VOOBLY
+    VER_CC,
+#else
     VER_EF,  //version
+#endif
     1,   //ask
     0,   //alt civ letter
     0,   //res unlock
@@ -19,34 +23,96 @@ extern const CONFIG_DATA cd_default =
     -1,  //y
     0,   //window mode
     0,   //large maps
+#ifdef TARGET_VOOBLY
+    0,
+#else
     1,   //crash reporting
+#endif
     0,   //grid terrain
     0,   //small trees
     0,   //minimap 7
     0,   //large text
-    0    //delink volume
+    0,   //delink volume
+    0    //keydown hotkeys
     //"en" //lang
 };
+
+#ifdef TARGET_VOOBLY
+#define CONFIG_KEY_ACCESS KEY_QUERY_VALUE
+#else
+#define CONFIG_KEY_ACCESS KEY_ALL_ACCESS
+#endif
+
+template<class T>
+void query_reg_option(HKEY hKey, const char* option_name, T& option, const T& default_option)
+{
+    unsigned long type;
+#ifndef TARGET_VOOBLY
+    unsigned long size = sizeof(T);
+    if (RegQueryValueEx(
+        hKey,
+        option_name,
+        0,
+        &type,
+        (BYTE*)&option,
+        &size))
+        option = default_option;
+#else
+    char str[0x100];
+    unsigned long size = 0x100;
+    if (RegQueryValueEx(
+        hKey,
+        option_name,
+        0,
+        &type,
+        (BYTE*)str,
+        &size))
+        option = default_option;
+    else
+    {
+        strupr(str);
+        if (strstr(str, "TRUE"))
+            option = 1;
+        else if (strstr(str, "FALSE"))
+            option = 0;
+        else
+            option = default_option;
+    }
+#endif
+}
+
+template<class T>
+void set_reg_option(HKEY hKey, const char* option_name, const T& option, unsigned long reg_type)
+{
+#ifndef TARGET_VOOBLY
+    RegSetValueEx(
+        hKey,
+        option_name,
+        0,
+        reg_type,
+        (BYTE*)&option,
+        sizeof(option));
+#endif
+}
 
 void regGet(CONFIG_DATA* cd)
 {
     HKEY hKeyCU;
     HKEY hKey;
     unsigned long disposition;
-    unsigned long type, size;
 
-    long regResult = RegOpenCurrentUser(KEY_ALL_ACCESS, &hKeyCU);
+    long regResult = RegOpenCurrentUser(CONFIG_KEY_ACCESS, &hKeyCU);
     regResult = RegCreateKeyEx(
         hKeyCU,
         REGPATH,
         0,
         0,
         0,
-        KEY_ALL_ACCESS,
+        CONFIG_KEY_ACCESS,
         0,
         &hKey,
         &disposition);
-
+#ifndef TARGET_VOOBLY
     if (disposition == REG_CREATED_NEW_KEY)
     {
         *cd = cd_default;
@@ -55,198 +121,31 @@ void regGet(CONFIG_DATA* cd)
     }
     else
     {
+#endif
         if (regResult == 0)
         {
-            size = sizeof(int);
-
-            if (RegQueryValueEx(
-                hKey,
-                "Enable FPS",
-                0,
-                &type,
-                (BYTE*)&cd->useFPS,
-                &size))
-                cd->useFPS = cd_default.useFPS;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Enable DSoundhook",
-                0,
-                &type,
-                (BYTE*)&cd->useDShook,
-                &size))
-                cd->useDShook = cd_default.useDShook;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Number of Buffers",
-                0,
-                &type,
-                (BYTE*)&cd->nBufs,
-                &size))
-                cd->nBufs = cd_default.nBufs;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Delay",
-                0,
-                &type,
-                (BYTE*)&cd->timeout,
-                &size))
-                cd->timeout = cd_default.timeout;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Launch Version",
-                0,
-                &type,
-                (BYTE*)&cd->gameVersion,
-                &size))
-                cd->gameVersion = cd_default.gameVersion;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Ask At Startup",
-                0,
-                &type,
-                (BYTE*)&cd->askAtStartup,
-                &size))
-                cd->askAtStartup = cd_default.askAtStartup;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Use Alternative List",
-                0,
-                &type,
-                (BYTE*)&cd->useAltCivLetter,
-                &size))
-                cd->useAltCivLetter = cd_default.useAltCivLetter;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Unlock Resources",
-                0,
-                &type,
-                (BYTE*)&cd->unlockResources,
-                &size))
-                cd->unlockResources = cd_default.unlockResources;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Editor Autosave",
-                0,
-                &type,
-                (BYTE*)&cd->editorAutosave,
-                &size))
-                cd->editorAutosave = cd_default.editorAutosave;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Editor Autosave Interval",
-                0,
-                &type,
-                (BYTE*)&cd->editorAutosaveInterval,
-                &size))
-                cd->editorAutosaveInterval = cd_default.editorAutosaveInterval;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Resolution Patch Enabled",
-                0,
-                &type,
-                (BYTE*)&cd->widescrnEnabled,
-                &size))
-                cd->widescrnEnabled = cd_default.widescrnEnabled;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Screen Size X",
-                0,
-                &type,
-                (BYTE*)&cd->xres,
-                &size))
-                cd->xres = cd_default.xres;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Screen Size Y",
-                0,
-                &type,
-                (BYTE*)&cd->yres,
-                &size))
-                cd->yres = cd_default.yres;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Window Mode",
-                0,
-                &type,
-                (BYTE*)&cd->windowMode,
-                &size))
-                cd->windowMode = cd_default.windowMode;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Large Maps",
-                0,
-                &type,
-                (BYTE*)&cd->largeMaps,
-                &size))
-                cd->largeMaps = cd_default.largeMaps;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Crash Reporting",
-                0,
-                &type,
-                (BYTE*)&cd->crashReporting,
-                &size))
-                cd->crashReporting = cd_default.crashReporting;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Grid Terrain",
-                0,
-                &type,
-                (BYTE*)&cd->gridTerrain,
-                &size))
-                cd->gridTerrain = cd_default.gridTerrain;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Small Trees",
-                0,
-                &type,
-                (BYTE*)&cd->smallTrees,
-                &size))
-                cd->smallTrees = cd_default.smallTrees;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Dark Grey",
-                0,
-                &type,
-                (BYTE*)&cd->minimap7,
-                &size))
-                cd->minimap7 = cd_default.minimap7;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Large Text",
-                0,
-                &type,
-                (BYTE*)&cd->largeText,
-                &size))
-                cd->largeText = cd_default.largeText;
-
-            if (RegQueryValueEx(
-                hKey,
-                "Delink System Volume",
-                0,
-                &type,
-                (BYTE*)&cd->delinkVolume,
-                &size))
-                cd->delinkVolume = cd_default.delinkVolume;
+            query_reg_option(hKey, "Enable FPS", cd->useFPS, cd_default.useFPS);
+            query_reg_option(hKey, "Enable DSoundhook", cd->useDShook, cd_default.useDShook);
+            query_reg_option(hKey, "Number of Buffers", cd->nBufs, cd_default.nBufs);
+            query_reg_option(hKey, "Delay", cd->timeout, cd_default.timeout);
+            query_reg_option(hKey, "Launch Version", cd->gameVersion, cd_default.gameVersion);
+            query_reg_option(hKey, "Ask At Startup", cd->askAtStartup, cd_default.askAtStartup);
+            query_reg_option(hKey, "Use Alternative List", cd->useAltCivLetter, cd_default.useAltCivLetter);
+            query_reg_option(hKey, "Unlock Resources", cd->unlockResources, cd_default.unlockResources);
+            query_reg_option(hKey, "Editor Autosave", cd->editorAutosave, cd_default.editorAutosave);
+            query_reg_option(hKey, "Editor Autosave Interval", cd->editorAutosaveInterval, cd_default.editorAutosaveInterval);
+            query_reg_option(hKey, "Resolution Patch Enabled", cd->widescrnEnabled, cd_default.widescrnEnabled);
+            query_reg_option(hKey, "Screen Size X", cd->xres, cd_default.xres);
+            query_reg_option(hKey, "Screen Size Y", cd->yres, cd_default.yres);
+            query_reg_option(hKey, "Window Mode", cd->windowMode, cd_default.windowMode);
+            query_reg_option(hKey, "Large Maps", cd->largeMaps, cd_default.largeMaps);
+            query_reg_option(hKey, "Crash Reporting", cd->crashReporting, cd_default.crashReporting);
+            query_reg_option(hKey, "Grid Terrain", cd->gridTerrain, cd_default.gridTerrain);
+            query_reg_option(hKey, "Small Trees", cd->smallTrees, cd_default.smallTrees);
+            query_reg_option(hKey, "Dark Minimap Grey", cd->minimap7, cd_default.minimap7);
+            query_reg_option(hKey, "Large Text", cd->largeText, cd_default.largeText);
+            query_reg_option(hKey, "Delink System Volume", cd->delinkVolume, cd_default.delinkVolume);
+            query_reg_option(hKey, "Keydown Object Hotkeys", cd->keydown, cd_default.keydown);
 
             /*char language[32];
             size = 32;
@@ -264,16 +163,21 @@ void regGet(CONFIG_DATA* cd)
                 language[31] = 0;
                 cd->lang = language;
             }*/
+
             RegCloseKey(hKey);
             log("Successfully read settings from the registry");
         }
         else
         {
+#ifndef TARGET_VOOBLY
             MessageBox(0, "Error: cannot access application registry key. Using default settings", "Error", MB_ICONEXCLAMATION);
+#endif
             *cd = cd_default;
             log("Failed to create registry key, using default settings");
         }
+#ifndef TARGET_VOOBLY
     }
+#endif
 
     RegCloseKey(hKeyCU);
 }
@@ -283,7 +187,6 @@ void regSet(const CONFIG_DATA* cd)
     HKEY hKeyCU;
     HKEY hKey;
     unsigned long disposition;
-    unsigned long type;
 
     long regResult = RegOpenCurrentUser(KEY_ALL_ACCESS, &hKeyCU);
     regResult = RegCreateKeyEx(
@@ -299,176 +202,29 @@ void regSet(const CONFIG_DATA* cd)
 
     if (regResult == 0)
     {
-        type = REG_DWORD;
-
-        RegSetValueEx(
-            hKey,
-            "Enable FPS",
-            0,
-            type,
-            (BYTE*)&cd->useFPS,
-            sizeof(cd->useFPS));
-
-        RegSetValueEx(
-            hKey,
-            "Enable DSoundhook",
-            0,
-            type,
-            (BYTE*)&cd->useDShook,
-            sizeof(cd->useDShook));
-
-        RegSetValueEx(
-            hKey,
-            "Number of Buffers",
-            0,
-            type,
-            (BYTE*)&cd->nBufs,
-            sizeof(cd->nBufs));
-
-        RegSetValueEx(
-            hKey,
-            "Delay",
-            0,
-            type,
-            (BYTE*)&cd->timeout,
-            sizeof(cd->timeout));
-
-        RegSetValueEx(
-            hKey,
-            "Launch Version",
-            0,
-            type,
-            (BYTE*)&cd->gameVersion,
-            sizeof(cd->gameVersion));
-
-        RegSetValueEx(
-            hKey,
-            "Ask At Startup",
-            0,
-            type,
-            (BYTE*)&cd->askAtStartup,
-            sizeof(cd->askAtStartup));
-
-        RegSetValueEx(
-            hKey,
-            "Use Alternative List",
-            0,
-            type,
-            (BYTE*)&cd->useAltCivLetter,
-            sizeof(cd->useAltCivLetter));
-
-        RegSetValueEx(
-            hKey,
-            "Unlock Resources",
-            0,
-            type,
-            (BYTE*)&cd->unlockResources,
-            sizeof(cd->unlockResources));
-
-        RegSetValueEx(
-            hKey,
-            "Editor Autosave",
-            0,
-            type,
-            (BYTE*)&cd->editorAutosave,
-            sizeof(cd->editorAutosave));
-
-        RegSetValueEx(
-            hKey,
-            "Editor Autosave Interval",
-            0,
-            type,
-            (BYTE*)&cd->editorAutosaveInterval,
-            sizeof(cd->editorAutosaveInterval));
-
-        RegSetValueEx(
-            hKey,
-            "Resolution Patch Enabled",
-            0,
-            type,
-            (BYTE*)&cd->widescrnEnabled,
-            sizeof(cd->widescrnEnabled));
-
-        RegSetValueEx(
-            hKey,
-            "Screen Size X",
-            0,
-            type,
-            (BYTE*)&cd->xres,
-            sizeof(cd->xres));
-
-        RegSetValueEx(
-            hKey,
-            "Screen Size Y",
-            0,
-            type,
-            (BYTE*)&cd->yres,
-            sizeof(cd->yres));
-
-        RegSetValueEx(
-            hKey,
-            "Window Mode",
-            0,
-            type,
-            (BYTE*)&cd->windowMode,
-            sizeof(cd->windowMode));
-
-        RegSetValueEx(
-            hKey,
-            "Large Maps",
-            0,
-            type,
-            (BYTE*)&cd->largeMaps,
-            sizeof(cd->largeMaps));
-
-        RegSetValueEx(
-            hKey,
-            "Crash Reporting",
-            0,
-            type,
-            (BYTE*)&cd->crashReporting,
-            sizeof(cd->crashReporting));
-
-        RegSetValueEx(
-            hKey,
-            "Grid Terrain",
-            0,
-            type,
-            (BYTE*)&cd->gridTerrain,
-            sizeof(cd->gridTerrain));
-
-        RegSetValueEx(
-            hKey,
-            "Small Trees",
-            0,
-            type,
-            (BYTE*)&cd->smallTrees,
-            sizeof(cd->smallTrees));
-
-        RegSetValueEx(
-            hKey,
-            "Dark Grey",
-            0,
-            type,
-            (BYTE*)&cd->minimap7,
-            sizeof(cd->minimap7));
-
-        RegSetValueEx(
-            hKey,
-            "Large Text",
-            0,
-            type,
-            (BYTE*)&cd->largeText,
-            sizeof(cd->largeText));
-
-        RegSetValueEx(
-            hKey,
-            "Delink System Volume",
-            0,
-            type,
-            (BYTE*)&cd->delinkVolume,
-            sizeof(cd->delinkVolume));
-
+        set_reg_option(hKey, "Enable FPS", cd->useFPS, REG_DWORD);
+        set_reg_option(hKey, "Enable DSoundhook", cd->useDShook, REG_DWORD);
+        set_reg_option(hKey, "Number of Buffers", cd->nBufs, REG_DWORD);
+        set_reg_option(hKey, "Delay", cd->timeout, REG_DWORD);
+        set_reg_option(hKey, "Launch Version", cd->gameVersion, REG_DWORD);
+        set_reg_option(hKey, "Ask At Startup", cd->askAtStartup, REG_DWORD);
+        set_reg_option(hKey, "Use Alternative List", cd->useAltCivLetter, REG_DWORD);
+        set_reg_option(hKey, "Unlock Resources", cd->unlockResources, REG_DWORD);
+        set_reg_option(hKey, "Editor Autosave", cd->editorAutosave, REG_DWORD);
+        set_reg_option(hKey, "Editor Autosave Interval", cd->editorAutosaveInterval, REG_DWORD);
+        set_reg_option(hKey, "Resolution Patch Enabled", cd->widescrnEnabled, REG_DWORD);
+        set_reg_option(hKey, "Screen Size X", cd->xres, REG_DWORD);
+        set_reg_option(hKey, "Screen Size Y", cd->yres, REG_DWORD);
+        set_reg_option(hKey, "Window Mode", cd->windowMode, REG_DWORD);
+        set_reg_option(hKey, "Large Maps", cd->largeMaps, REG_DWORD);
+        set_reg_option(hKey, "Crash Reporting", cd->crashReporting, REG_DWORD);
+        set_reg_option(hKey, "Grid Terrain", cd->gridTerrain, REG_DWORD);
+        set_reg_option(hKey, "Small Trees", cd->smallTrees, REG_DWORD);
+        set_reg_option(hKey, "Dark Minimap Grey", cd->minimap7, REG_DWORD);
+        set_reg_option(hKey, "Large Text", cd->largeText, REG_DWORD);
+        set_reg_option(hKey, "Delink System Volume", cd->delinkVolume, REG_DWORD);
+        set_reg_option(hKey, "Keydown Object Hotkeys", cd->keydown, REG_DWORD);
+        
         /*type = REG_SZ;
 
         RegSetValueEx(

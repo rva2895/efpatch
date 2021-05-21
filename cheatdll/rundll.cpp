@@ -19,11 +19,6 @@ extern void* scen_ptr;
 
 extern CONFIG_DATA cd;
 
-int CALLBACK WndProc_dll(HWND hWnd,
-    UINT msg,
-    WPARAM wParam,
-    LPARAM lParam);
-
 #ifndef TARGET_VOOBLY
 
 #include <CrashRpt.h>
@@ -91,7 +86,11 @@ int (CALLBACK* WndProc_exe) (HWND, UINT, WPARAM, LPARAM) =
 
 HWND hWnd_main = 0;
 
+#ifdef TARGET_VOOBLY
+int cliff_types[] = { 0x108, 0 };
+#else
 int cliff_types[] = { 0x108, 3971, 3981, 3991, 4196, 4206, 4216, 4226, 4236, 0};
+#endif
 int* cliff_types_ptr = &cliff_types[0];
 
 extern bool isEditor;
@@ -135,9 +134,12 @@ __declspec(naked) void __stdcall update_window(void* wnd)
         //call    dword ptr[eax + 5Ch]
 
         mov     ecx, [esp + 4]
-        push    1
         mov     eax, [ecx]
-        call    dword ptr[eax + 2Ch]
+        test    eax, eax
+        jz      _skip_update_window
+        push    1
+        call    dword ptr [eax + 2Ch]
+_skip_update_window:
         ret     4
     }
 }
@@ -160,12 +162,6 @@ int CALLBACK WndProc_dll(HWND hWnd,
 {
     hWnd_global = hWnd;
 
-    //
-    //if ((msg == WM_ACTIVATE) && (LOWORD(wParam) == WA_INACTIVE))
-    //{
-    //    return 0;
-    //}
-    //
     if (msg == WM_KEYDOWN)
     {
 #ifdef _DEBUG
@@ -195,7 +191,7 @@ int CALLBACK WndProc_dll(HWND hWnd,
         {
             if (LOWORD(wParam) == 'S')                        //grid - collision
             {
-                if (short x = GetKeyState(VK_CONTROL))
+                if (GetKeyState(VK_CONTROL) & 0x8000)
                 {
                     placementSettings++;
                     if (placementSettings > 3)
@@ -214,9 +210,10 @@ int CALLBACK WndProc_dll(HWND hWnd,
             }*/
             
 #ifndef _CHEATDLL_CC
+#ifndef TARGET_VOOBLY
             if (LOWORD(wParam) == 'Q')                        //cliff type
             {
-                if (short x = GetKeyState(VK_CONTROL))
+                if (GetKeyState(VK_CONTROL) & 0x8000)
                 {
                     cliff_types_ptr++;
                     if (!*cliff_types_ptr)
@@ -229,6 +226,7 @@ int CALLBACK WndProc_dll(HWND hWnd,
                 }
             }
 #endif
+#endif
             if (!editorstatus_isValid)
             {
                 if (window_editorbk)
@@ -239,18 +237,22 @@ int CALLBACK WndProc_dll(HWND hWnd,
         }
         else
         {
-            if ((LOWORD(wParam) >= '1') && (LOWORD(wParam) <= '9')) //rec switch player
-            {
-                //if (short x = GetKeyState(VK_MENU))
-                //{
-                    recSwitch(LOWORD(wParam)-0x30);
-                //}
-            }
-            /*if (LOWORD(wParam) == VK_F8)                        //rec overlay
-            {
-                overlay_switch();
-            }*/
+            
         }
+    }
+    if (msg == WM_SYSKEYDOWN)
+    {
+        if ((LOWORD(wParam) >= '1') && (LOWORD(wParam) <= '9')) //rec switch player
+        {
+            //if (short x = GetKeyState(VK_MENU))
+            //{
+            recSwitch(LOWORD(wParam) - 0x30);
+            //}
+        }
+        /*if (LOWORD(wParam) == VK_F8)                        //rec overlay
+        {
+            overlay_switch();
+        }*/
     }
     if (msg == WM_TIMER)
     {

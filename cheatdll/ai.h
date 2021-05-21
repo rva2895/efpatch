@@ -4,4 +4,4 @@
 #include "aiunitcount.h"
 #include "aisnx.h"
 
-void setAIHooks ();
+void setAIHooks(int version);

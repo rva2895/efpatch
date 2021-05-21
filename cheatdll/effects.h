@@ -1,20 +1,20 @@
 #pragma once
 
-void setEffectHooks ();
+void setEffectHooks();
 
-void triggerDisplayHook ();
-void triggerInputTableHook ();
+void triggerDisplayHook();
+void triggerInputTableHook();
 
-void effectUnitVar ();
+void effectUnitVar();
 
-void __stdcall effectUnitVarActual (UNIT* unit, char* str);
+void __stdcall effectUnitVarActual(UNIT* unit, char* str);
 
 struct assign
 {
-    char*  str;
-    short  offset;
+    char* str;
+    short offset;
     //char   size;
-    char   type;
+    char type;
     //bool   cap;
     //int    capOffset;
 };

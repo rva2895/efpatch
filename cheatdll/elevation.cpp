@@ -18,7 +18,7 @@ __declspec(naked) void sub_7D0200()
         fld     dword ptr[eax + 4Ch]
         fsubrp  st(1), st
         fstp    [esp + 4]
-        call    player_scrollView
+        call    WorldPlayerBase__set_view_loc
         retn    4
     }
 }
@@ -39,7 +39,7 @@ __declspec(naked) void sub_7D0230()
         fsubrp  st(1), st
         fstp    [esp + 8]
 loc_7D0257:
-        jmp     player_scrollView
+        jmp     WorldPlayerBase__set_view_loc
     }
 }
 
@@ -55,8 +55,6 @@ __declspec(naked) void onElevation1() //005D14C6
     }
 }
 
-extern void* (__thiscall* global_getCurrentPlayer) (void* globalPtr);
-
 __declspec(naked) void onElevation2() //00502017
 {
     __asm
@@ -64,7 +62,7 @@ __declspec(naked) void onElevation2() //00502017
         push    esi
         mov     ecx, 006A3684h
         mov     ecx, [ecx]
-        call    global_getCurrentPlayer
+        call    BaseGame__get_player
         mov     ecx, eax
         call    sub_7D0200
         mov     eax, 00502033h
@@ -79,7 +77,7 @@ __declspec(naked) void onElevation3() //0050610E
         push    esi
         mov     ecx, 006A3684h
         mov     ecx, [ecx]
-        call    global_getCurrentPlayer
+        call    BaseGame__get_player
         mov     ecx, eax
         call    sub_7D0200
         mov     eax, 0050612Ah
@@ -94,7 +92,7 @@ __declspec(naked) void onElevation4() //005061EE
         push    esi
         mov     ecx, 006A3684h
         mov     ecx, [ecx]
-        call    global_getCurrentPlayer
+        call    BaseGame__get_player
         mov     ecx, eax
         call    sub_7D0200
         mov     eax, 0050620Ah
@@ -109,7 +107,7 @@ __declspec(naked) void onElevation5() //005062D4
         push    esi
         mov     ecx, 006A3684h
         mov     ecx, [ecx]
-        call    global_getCurrentPlayer
+        call    BaseGame__get_player
         mov     ecx, eax
         call    sub_7D0200
         mov     eax, 005062F0h

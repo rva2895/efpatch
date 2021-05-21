@@ -369,13 +369,13 @@ void fixObjPanelDrawFunction()
     setHook((void*)0x005DBB13, langDllList);
     setHook((void*)0x005DF2D9, langDllRead1);
     setHook((void*)0x005DF2F3, langDllRead2);
+}
+
+void setObjectPanelHooks(int version)
+{
+    if (version == VER_EF)
+        fixObjPanelDrawFunction();
 
     setHook((void*)0x004FFF4C, spUIFix);
 }
-
-void setObjectPanelHooks()
-{
-    fixObjPanelDrawFunction();
-}
 #pragma optimize( "", on )
-

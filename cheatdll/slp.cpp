@@ -4,6 +4,10 @@
 
 SLP::SLP()
 {
+    memset(&hdr, 0, sizeof(hdr));
+    frame_i = NULL;
+    edge = NULL;
+    rowoffset = NULL;
     pixels_total = 0;
     loaded = false;
 }

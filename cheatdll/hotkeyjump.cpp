@@ -1,8 +1,5 @@
 #include "stdafx.h"
 
-void*(__thiscall* player_findNextUnit)(void* this_, __int16 id, void* current, __int16 unk) =
-    (void*(__thiscall*) (void*,__int16, void*, __int16))0x005CFA20;
-
 bool(__thiscall* unit_isPowered)(void *this_, int unk) =
     (bool(__thiscall*) (void*, int))0x0054BDA0;
 
@@ -24,11 +21,11 @@ void* __stdcall findUnit(void* this_, __int16 id, void* begin, __int16 unk)
     return current;*/
     if (begin)
     {
-        return player_findNextUnit(this_, id, begin, unk);
+        return WorldPlayer__find_obj(this_, id, begin, unk);
     }
     else
     {
-        void* current = player_findNextUnit(this_, id, begin, unk);
+        void* current = WorldPlayer__find_obj(this_, id, begin, unk);
         begin = current;
         if (current)
             do
@@ -36,7 +33,7 @@ void* __stdcall findUnit(void* this_, __int16 id, void* begin, __int16 unk)
                 if (current && unit_isPowered(current, 1))
                     break;
                 else
-                    current = player_findNextUnit(this_, id, current, unk);
+                    current = WorldPlayer__find_obj(this_, id, current, unk);
             } while (begin != current);
         return current;
     }

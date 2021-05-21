@@ -113,7 +113,7 @@ __declspec(naked) void jmp_640()
     }
 }
 
-DWORD map_sizes_jmp[] =
+const DWORD map_sizes_jmp[] =
 {
     0x52EC2D,
     0x52EC46,
@@ -1675,7 +1675,7 @@ void setMapSizeHooks()
     writeDword(0x0052EC29, (DWORD)map_sizes_jmp);
     writeByte(0x0052EC23, sizeof(map_sizes_jmp) / sizeof(map_sizes_jmp[0]) - 1);
 
-    mapptr_2 = (int*)malloc(sizeof(int*) * (MAP_MAX+1));
+    mapptr_2 = (int*)malloc(sizeof(int**) * (MAP_MAX+1));
     mapptr = mapptr_2 + 1;
     mapptr_3 = mapptr + 1;
 
@@ -1982,12 +1982,14 @@ void setMapSizeHooks_legacy()
 {
     setHook((void*)0x0052A123, onEditorMapSize_legacy);
 
+#ifndef TARGET_VOOBLY
     setHook((void*)0x0058670C, ai_findres_save);
     setHook((void*)0x00584A5A, ai_findres_load);
 
     //save load fix
     writeDword(0x00583BF2, MAP_MAX);
     writeDword(0x00583BE7, MAP_MAX);
+#endif
 }
 
 #pragma optimize( "", on )

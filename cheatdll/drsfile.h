@@ -31,22 +31,21 @@ struct DRS_tableEntry
 class DRS
 {
 private:
-    FILE* f;
+    //FILE* f;
 
     char* drsFile;
 
     bool init;
-    bool loaded;
 
     DRS_header hdr;
     DRS_tableInfo* tInfo;
     DRS_tableEntry** tEntries;
 
-    int current_pos;
+    FILE* load(bool write);
+    void unload(FILE* f);
 
 public:
     DRS();
-    //DRS (const char* filename);
     ~DRS();
 
     void setFileName(const char* filename);
@@ -61,10 +60,5 @@ public:
     void writeInt(int offset, int val);
 
     bool loadDRS(const char* filename);
-
     bool writeDRS();
-
-    void unload();
-    void load();
-    void reload();
 };

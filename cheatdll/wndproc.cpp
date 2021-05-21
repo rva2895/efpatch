@@ -4,7 +4,8 @@
 #include "wndproc.h"
 #include "rec.h"
 
-#ifdef TARGET_VOOBLY_
+/*
+#ifdef TARGET_VOOBLY
 extern IVoobly *g_pVoobly;
 
 int terrain_paint_mode = 0;
@@ -41,3 +42,4 @@ void setWndProcHooks()
     g_pVoobly->Write(0x00426509, (DWORD)&WndProc_dll);
 }
 #endif
+*/

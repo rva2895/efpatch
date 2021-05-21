@@ -3,7 +3,11 @@
 #include <windows.h>
 
 #ifndef _CHEATDLL_CC
+#ifdef TARGET_VOOBLY
+#define REGPATH "Software\\Voobly\\Voobly\\game\\16\\EXE Patch"
+#else
 #define REGPATH "Software\\LucasArts Entertainment Company LLC\\Star Wars Galactic Battlegrounds: Expanding Fronts\\Configurator"
+#endif
 #else
 #define REGPATH "Software\\LucasArts Entertainment Company LLC\\Star Wars Galactic Battlegrounds: Clone Campaigns\\Configurator"
 #endif
@@ -31,6 +35,7 @@ struct CONFIG_DATA
     int minimap7;
     int largeText;
     int delinkVolume;
+    int keydown;
     //std::string lang;
 };
 

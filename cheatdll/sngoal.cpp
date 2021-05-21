@@ -46,7 +46,7 @@ void load_goal_sn_txt()
     {
         char name[0x100];
         int id;
-        while (fscanf(f, "%d %s", &id, name) > 0)
+        while (fscanf(f, "%d %255s", &id, name) > 0)
         {
             for (char* p = name; *p; ++p) *p = tolower(*p);
             goal_names.push_back(std::pair<int, std::string>(id, name));
@@ -63,7 +63,7 @@ void load_goal_sn_txt()
     {
         char name[0x100];
         int id;
-        while (fscanf(f, "%d %s", &id, name) > 0)
+        while (fscanf(f, "%d %255s", &id, name) > 0)
         {
             for (char* p = name; *p; ++p) *p = tolower(*p);
             sn_names.push_back(std::pair<int, std::string>(id, name));

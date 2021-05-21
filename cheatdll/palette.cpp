@@ -243,6 +243,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     if (!drs->loadDRS(filename))
     {
         sprintf(err, "Cannot load %s.\nCheck installation integrity.", filename);
+        log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
     }
@@ -256,6 +257,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     if (drs->extractFiles() == 0)
     {
         sprintf(err, "Cannot create temporary file.\nMake sure there is at least 200MB free in TEMP folder");
+        log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
     }
@@ -373,7 +375,8 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     log("Added %d files to DRS, writing...", nDrsFiles);
     if (!drs->writeDRS())
     {
-        sprintf(err, "Cannot create DRS file.\nMake sure there is at least 500MB free in Game folder");
+        sprintf(err, "Cannot create DRS file.\nMake sure there is at least 500MB free in Game folder, and you have write permissions");
+        log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
     }

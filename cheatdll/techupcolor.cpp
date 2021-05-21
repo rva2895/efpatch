@@ -8,9 +8,9 @@ __declspec(naked) void __stdcall sendTechChat2(int player, char* s, int unk)
 {
     __asm
     {
-        mov     eax, [esp + 0Ch]    //unk
-        mov     ecx, [esp + 8]    //str
-        mov     edx, [esp + 4]  //player
+        mov     eax, [esp + 0Ch] //unk
+        mov     ecx, [esp + 8]   //str
+        mov     edx, [esp + 4]   //player
         push    0
         push    eax
         push    edx

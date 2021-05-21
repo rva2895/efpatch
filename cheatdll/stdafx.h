@@ -16,6 +16,7 @@
 // Файлы заголовков Windows:
 #include <windows.h>
 
+#include <stdint.h>
 #include <vector>
 #include <string>
 
