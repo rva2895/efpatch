@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "language_dll_ru", "language
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "language_dll_es", "language_dll_es\language_dll_es.vcxproj", "{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "language_dll_en", "language_dll_en\language_dll_en.vcxproj", "{7A9F4C49-8D14-403A-9919-B73C61363A55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_cc|Win32 = Debug_cc|Win32
@@ -115,6 +117,30 @@ Global
 		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release|Win32.Build.0 = Release|Win32
 		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release|x64.ActiveCfg = Release|x64
 		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release|x64.Build.0 = Release|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Debug_cc|Win32.ActiveCfg = Debug|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Debug_cc|Win32.Build.0 = Debug|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Debug_cc|x64.ActiveCfg = Debug|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Debug_cc|x64.Build.0 = Debug|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Debug|Win32.Build.0 = Debug|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Debug|x64.ActiveCfg = Debug|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Debug|x64.Build.0 = Debug|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_cc_compatible|Win32.ActiveCfg = Release|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_cc_compatible|Win32.Build.0 = Release|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_cc_compatible|x64.ActiveCfg = Release|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_cc_compatible|x64.Build.0 = Release|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_cc|Win32.ActiveCfg = Release|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_cc|Win32.Build.0 = Release|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_cc|x64.ActiveCfg = Release|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_cc|x64.Build.0 = Release|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_Voobly|Win32.ActiveCfg = Release|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_Voobly|Win32.Build.0 = Release|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_Voobly|x64.ActiveCfg = Release|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_Voobly|x64.Build.0 = Release|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release|Win32.ActiveCfg = Release|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release|Win32.Build.0 = Release|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release|x64.ActiveCfg = Release|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
