@@ -11,7 +11,12 @@
 #define ALLIANCE_NEUTRAL 1
 #define ALLIANCE_ENEMY 3
 
-int condJMPTable[] =
+void conditionPerMilleChance();
+void conditionAreaExplored();
+void conditionAlliance();
+void conditionVariable();
+
+const DWORD condJMPTable[] =
 {
     0x5F1E53,
     0x5F1EA8,
@@ -36,16 +41,12 @@ int condJMPTable[] =
     0x5F20F5,
     0x5F2227,
     0x5F1E25,
-    0,
-    0,
-    0,
-    0,
-    0
+    (DWORD)conditionPerMilleChance,
+    (DWORD)conditionAreaExplored,
+    (DWORD)conditionAlliance,
+    (DWORD)conditionVariable,
+    (DWORD)conditionVariable
 };
-
-void conditionAreaExplored();
-void conditionAlliance();
-void conditionVariable();
 
 __declspec(naked) void condNotMet()
 {
@@ -66,7 +67,7 @@ __declspec(naked) void condMet()
     }
 }
 
-__declspec(naked) void cond1()
+__declspec(naked) void conditionPerMilleChance()
 {
     __asm
     {
@@ -98,12 +99,6 @@ void setConditionNumbers()
 
     writeDword(0x005F1E21, (DWORD)condJMPTable);
     writeByte(0x005F1E17, 0x16 + NEW_COND);
-
-    condJMPTable[0x17] = (DWORD)&cond1;
-    condJMPTable[0x18] = (DWORD)&conditionAreaExplored;
-    condJMPTable[0x19] = (DWORD)&conditionAlliance;
-    condJMPTable[0x1A] = (DWORD)&conditionVariable;
-    condJMPTable[0x1B] = (DWORD)&conditionVariable;
 }
 #pragma optimize( "", on )
 

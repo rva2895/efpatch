@@ -57,7 +57,7 @@ _terrain_change:
 
 void setTerrainGenHooks()
 {
-    writeByte(0x00557DD6, 53);   //gungan foundation: 53
+    //writeByte(0x00557DD6, 53);   //gungan foundation: 53
 
     setHook((void*)0x00557E45, &onChangeTerrain2);
 }

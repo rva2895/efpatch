@@ -23,6 +23,8 @@
 
 #include "rundll.h"
 
+#include <time.h>
+
 #ifdef TARGET_VOOBLY
 
 class CUserPatch : public IUserPatch
@@ -50,19 +52,116 @@ bool expanding_fronts = false;
 
 void* voob_log = 0;
 
+int last_t = 0;
+int last_x = 0;
+int last_y = 0;
+int last_obj = 0;
+
+extern void __stdcall pause_game();
+
+void __stdcall bug_test(int reg, int x, int y, UNIT* unit)
+{
+    int t = time(NULL);
+    if (reg == 0x500)
+    {
+        if (unit)
+        {
+            if (unit->ordinal != last_obj && t - last_t > 0)
+            {
+                last_t = t;
+                last_obj = unit->ordinal;
+                chat("Reached bug condition: obj=%d", unit->ordinal);
+                void* player = getCurrentPlayer();
+                WorldPlayerBase__unselect_object(player);
+                WorldPlayerBase__select_object(player, unit, 1);
+                WorldPlayerBase__set_view_loc(player, unit->x, unit->y, 0);
+                pause_game();
+            }
+        }
+        else
+        {
+            if (x != last_x && y != last_y && t - last_t > 0)
+            {
+                last_t = t;
+                last_x = x;
+                last_y = y;
+                chat("Reached bug condition: x=%d, y=%d", x, y);
+                void* player = getCurrentPlayer();
+                WorldPlayerBase__unselect_object(player);
+                WorldPlayerBase__set_view_loc(player, x, y, 0);
+                pause_game();
+            }
+        }
+    }
+}
+
+__declspec(naked) void onVooblyWidescreenBug1() //004A940B
+{
+    __asm
+    {
+        and     eax, 3F00h
+        //
+        //push    ecx
+        //push    edx
+        //push    eax
+
+        //push    0
+        //push    ebp
+        //push    ebx
+        //push    eax
+        //call    bug_test
+        //pop     eax
+        //pop     edx
+        //pop     ecx
+        //
+        cmp     eax, 500h
+        //mov     ecx, 004A9415h
+        //jmp     ecx
+        push    004A9415h
+        ret
+    }
+}
+
+__declspec(naked) void onVooblyWidescreenBug2() //004BE13F
+{
+    __asm
+    {
+        and     edx, 3F00h
+        //
+        //push    ecx
+        //push    edx
+        //push    eax
+
+        //push    [ebp + 18h]
+        //push    0
+        //push    0
+        //push    edx
+        //call    bug_test
+        //pop     eax
+        //pop     edx
+        //pop     ecx
+        //
+        cmp     edx, 500h
+        //mov     eax, 004BE14Bh
+        //jmp     eax
+        push    004BE14Bh
+        ret
+    }
+}
+
 bool CUserPatch::Init(struct UserPatchConfig_t &config)
 {
     // Write DLL version to Voobly log            
     g_pVoobly->Log(USERPATCH_VERSION);
 
-    // Write 2.2 exe version string    
-    g_pVoobly->Write(0x689BA4, "332E30");
+    // Write 3.0 exe version string    
+    g_pVoobly->Write(0x689BA4, "332E31");
 
     if (strstr(config.VooblyModDirPath, "Data Patch"))
     {
         g_pVoobly->Log("Data patch is ON");
         dataPatch = true;
-        setTerrainGenHooks();
+        //setTerrainGenHooks();
         setSaveGameVerHooks(true);
     }
     else if (strstr(config.VooblyModDirPath, "Expanding Fronts"))
@@ -76,6 +175,8 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
         setSaveGameVerHooks(false);
         g_pVoobly->Log("Data patch is OFF");
     }
+
+    //setTerrainGenHooks();
 
     // Write 2.2 exe version string    
     /*g_pVoobly->Write(0x689BA4, "322E32");
@@ -127,11 +228,23 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
     //wndproc for voobly
     writeDword(0x00426509, (DWORD)&WndProc_dll);
 
+    //fix voobly widescreen bugs
+    /*writeDword(0x004A9411, 0x500);
+    writeDword(0x004BE147, 0x500);
+    writeDword(0x005F6757, 0x500);*/
+    g_pVoobly->WriteJump(0x004A940B, onVooblyWidescreenBug1);
+    g_pVoobly->WriteJump(0x004BE13F, onVooblyWidescreenBug2);
+
     // Apply patches from bin2cpp tool
     bool bSuccess = true;//ApplyPatchList();
 
     return bSuccess;
 }
+
+extern int max_worldtime;
+extern unsigned int dump_objects(const char* filename);
+
+extern int __fastcall get_gametime2();
 
 bool CUserPatch::OnChatMessage(const char *text)
 {
@@ -141,6 +254,61 @@ bool CUserPatch::OnChatMessage(const char *text)
         g_pVoobly->ChatMessage("UserPatch", "%s, Data patch: %s", USERPATCH_VERSION, str);
         return true;
     }
+    /*if (!strcmp(text, "/dump-world"))
+    {
+        srand(time(0));
+        unsigned int r = rand();
+        char name[MAX_PATH];
+        sprintf(name, "rge_dump_%08X.txt", r);
+        chat("Dumping world to %s ...", name);
+        dump_objects(name);
+        chat("Dump complete");
+        return true;
+    }
+    if (strstr(text, "/set-max"))
+    {
+        char d[0x100];
+        int t;
+        sscanf(text, "%s %d", d, &t);
+        max_worldtime = t;
+        chat("Set max worldtime to %d", t);
+        return true;
+    }
+    if (!strcmp(text, "/worldtime"))
+    {
+        chat("Worldtime = %d", get_gametime2());
+        return 1;
+    }
+    if (strstr(text, "/obj") || strstr(text, "/object"))
+    {
+        char d[0x100];
+        int id;
+        sscanf(text, "%s %d", d, &id);
+        void* base_world = *(void**)((char*)*BaseGame_bg + 0x420);
+        if (base_world)
+        {
+            UNIT* unit = (UNIT*)BaseWorld__object(base_world, id);
+            if (unit)
+            {
+                void* player = getCurrentPlayer();
+                WorldPlayerBase__unselect_object(player);
+                WorldPlayerBase__select_object(player, unit, 1);
+            }
+            else
+                chat("Invalid object id");
+        }
+
+        return true;
+    }
+    if (strstr(text, "/goto"))
+    {
+        char d[0x100];
+        float x, y;
+        sscanf(text, "%s %f %f", d, &x, &y);
+        void* player = getCurrentPlayer();
+        WorldPlayerBase__set_view_loc(player, x, y, 0);
+        return true;
+    }*/
 
     return false;
 }

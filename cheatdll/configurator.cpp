@@ -17,9 +17,9 @@ void processIDOK(HWND hWnd)
     regGet(&cd);
 #ifndef _CHEATDLL_CC
     char buf[10];
-    GetDlgItemText(hWnd, IDC_EDIT1, buf, 10);
+    GetDlgItemText(hWnd, IDC_EDIT_DSH_NBUFS, buf, 10);
     sscanf(buf, "%d", &cd.nBufs);
-    GetDlgItemText(hWnd, IDC_EDIT2, buf, 10);
+    GetDlgItemText(hWnd, IDC_EDIT_DSH_DELAY, buf, 10);
     sscanf(buf, "%d", &cd.timeout);
 #endif
     cd.useFPS = IsDlgButtonChecked(hWnd, IDC_CHECK_FPS);
@@ -29,7 +29,7 @@ void processIDOK(HWND hWnd)
 
     cd.crashReporting = IsDlgButtonChecked(hWnd, IDC_CHECK_CRASH);
 
-    cd.largeMaps = IsDlgButtonChecked(hWnd, IDC_CHECK_MAP);
+    cd.largeMaps = IsDlgButtonChecked(hWnd, IDC_CHECK_MAPSIZE);
 
     if (cd.editorAutosave = IsDlgButtonChecked(hWnd, IDC_CHECK_EDITORAUTO))
     {
@@ -40,29 +40,30 @@ void processIDOK(HWND hWnd)
 
     cd.windowMode = IsDlgButtonChecked(hWnd, IDC_CHECK_WNDMODE);
 
-    if (IsDlgButtonChecked(hWnd, IDC_RADIO1))
+    if (IsDlgButtonChecked(hWnd, IDC_RADIO_X1))
         cd.gameVersion = VER_CC;
-    if (IsDlgButtonChecked(hWnd, IDC_RADIO2))
+    if (IsDlgButtonChecked(hWnd, IDC_RADIO_X2))
         cd.gameVersion = VER_EF;
 
-    if (IsDlgButtonChecked(hWnd, IDC_RADIO3))
+    if (IsDlgButtonChecked(hWnd, IDC_RADIO_EDITOR_LIST_1))
         cd.useAltCivLetter = 0;
-    if (IsDlgButtonChecked(hWnd, IDC_RADIO4))
+    if (IsDlgButtonChecked(hWnd, IDC_RADIO_EDITOR_LIST_2))
         cd.useAltCivLetter = 1;
 
     if (cd.widescrnEnabled = IsDlgButtonChecked(hWnd, IDC_CHECK_WIDE))
     {
         char str[50];
-        GetDlgItemText(hWnd, IDC_COMBO1, str, 50);
+        GetDlgItemText(hWnd, IDC_COMBO_SCREEN_SIZE, str, 50);
         sscanf(str, "%dx%d", &cd.xres, &cd.yres);
     }
 
     cd.minimap7 = IsDlgButtonChecked(hWnd, IDC_CHECK_GREY);
     cd.largeText = IsDlgButtonChecked(hWnd, IDC_CHECK_LARGETEXT);
     cd.delinkVolume = IsDlgButtonChecked(hWnd, IDC_CHECK_MASTER_VOLUME);
+    cd.keydown = IsDlgButtonChecked(hWnd, IDC_CHECK_KEYDOWN);
 
     char* lang_str = (char*)malloc(0x100);
-    GetDlgItemText(hWnd, IDC_COMBO2, lang_str, 0x100);
+    GetDlgItemText(hWnd, IDC_COMBO_LANG, lang_str, 0x100);
     //std::string lang_str_s = lang_str;
     //for (int i = 0; i < languages.size(); i++)
     //    if (languages[i].first == lang_str_s)
@@ -102,42 +103,42 @@ void getSettings(HWND hWnd)
     CheckDlgButton(hWnd, IDC_CHECK_WIDE, cd.widescrnEnabled);
     CheckDlgButton(hWnd, IDC_CHECK_WNDMODE, cd.windowMode);
 #ifndef _CC_COMPATIBLE
-    CheckDlgButton(hWnd, IDC_CHECK_MAP, cd.largeMaps);
+    CheckDlgButton(hWnd, IDC_CHECK_MAPSIZE, cd.largeMaps);
 #endif
 
     if (cd.gameVersion == VER_CC)
     {
-        CheckDlgButton(hWnd, IDC_RADIO1, BST_CHECKED);
-        CheckDlgButton(hWnd, IDC_RADIO2, BST_UNCHECKED);
+        CheckDlgButton(hWnd, IDC_RADIO_X1, BST_CHECKED);
+        CheckDlgButton(hWnd, IDC_RADIO_X2, BST_UNCHECKED);
     }
     if (cd.gameVersion == VER_EF)
     {
-        CheckDlgButton(hWnd, IDC_RADIO1, BST_UNCHECKED);
-        CheckDlgButton(hWnd, IDC_RADIO2, BST_CHECKED);
+        CheckDlgButton(hWnd, IDC_RADIO_X1, BST_UNCHECKED);
+        CheckDlgButton(hWnd, IDC_RADIO_X2, BST_CHECKED);
     }
     if (cd.useAltCivLetter)
     {
-        CheckDlgButton(hWnd, IDC_RADIO3, BST_UNCHECKED);
-        CheckDlgButton(hWnd, IDC_RADIO4, BST_CHECKED);
+        CheckDlgButton(hWnd, IDC_RADIO_EDITOR_LIST_1, BST_UNCHECKED);
+        CheckDlgButton(hWnd, IDC_RADIO_EDITOR_LIST_2, BST_CHECKED);
     }
     else
     {
-        CheckDlgButton(hWnd, IDC_RADIO3, BST_CHECKED);
-        CheckDlgButton(hWnd, IDC_RADIO4, BST_UNCHECKED);
+        CheckDlgButton(hWnd, IDC_RADIO_EDITOR_LIST_1, BST_CHECKED);
+        CheckDlgButton(hWnd, IDC_RADIO_EDITOR_LIST_2, BST_UNCHECKED);
     }
 
 #ifdef _CHEATDLL_CC
-    EnableWindow(GetDlgItem(hWnd, IDC_RADIO2), FALSE);
+    EnableWindow(GetDlgItem(hWnd, IDC_RADIO_X2), FALSE);
     EnableWindow(GetDlgItem(hWnd, IDC_CHECK_DSH), FALSE);
-    EnableWindow(GetDlgItem(hWnd, IDC_EDIT1), FALSE);
-    EnableWindow(GetDlgItem(hWnd, IDC_EDIT2), FALSE);
-    EnableWindow(GetDlgItem(hWnd, IDC_CHECK_MAP), FALSE); 
+    EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_NBUFS), FALSE);
+    EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_DELAY), FALSE);
+    EnableWindow(GetDlgItem(hWnd, IDC_CHECK_MAPSIZE), FALSE); 
     EnableWindow(GetDlgItem(hWnd, IDC_CHECK_CRASH), FALSE);
 #else
     sprintf(buf, "%d", cd.nBufs);
-    SetDlgItemText(hWnd, IDC_EDIT1, buf);
+    SetDlgItemText(hWnd, IDC_EDIT_DSH_NBUFS, buf);
     sprintf(buf, "%d", cd.timeout);
-    SetDlgItemText(hWnd, IDC_EDIT2, buf);
+    SetDlgItemText(hWnd, IDC_EDIT_DSH_DELAY, buf);
 #endif
     sprintf(buf, "%d", cd.editorAutosaveInterval);
     SetDlgItemText(hWnd, IDC_EDIT_EDITORAUTO, buf);
@@ -145,17 +146,18 @@ void getSettings(HWND hWnd)
     if (cd.widescrnEnabled)
     {
         sprintf(buf, "%dx%d", cd.xres, cd.yres);
-        SetDlgItemText(hWnd, IDC_COMBO1, buf);
+        SetDlgItemText(hWnd, IDC_COMBO_SCREEN_SIZE, buf);
     }
 
     CheckDlgButton(hWnd, IDC_CHECK_GREY, cd.minimap7);
     CheckDlgButton(hWnd, IDC_CHECK_LARGETEXT, cd.largeText);
     CheckDlgButton(hWnd, IDC_CHECK_MASTER_VOLUME, cd.delinkVolume);
+    CheckDlgButton(hWnd, IDC_CHECK_KEYDOWN, cd.keydown);
 
     //EnableWindow(GetDlgItem(hWnd, IDC_CHECK_GREY), FALSE);
     EnableWindow(GetDlgItem(hWnd, IDC_CHECK_DSH), FALSE);
-    EnableWindow(GetDlgItem(hWnd, IDC_EDIT1), FALSE);
-    EnableWindow(GetDlgItem(hWnd, IDC_EDIT2), FALSE);
+    EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_NBUFS), FALSE);
+    EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_DELAY), FALSE);
 
     //languages = query_languages();
     //for (int i = 0; i < languages.size(); i++)
@@ -197,7 +199,7 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
                 {
                     sprintf(curMode, "%lux%lu", devMode.dmPelsWidth, devMode.dmPelsHeight);
                     if ((devMode.dmPelsWidth >= 1024) && (devMode.dmPelsHeight >= 768))
-                        SendMessage(GetDlgItem(hWndDlg, IDC_COMBO1), CB_ADDSTRING, 0, (LPARAM)curMode);
+                        SendMessage(GetDlgItem(hWndDlg, IDC_COMBO_SCREEN_SIZE), CB_ADDSTRING, 0, (LPARAM)curMode);
                     prevW = devMode.dmPelsWidth;
                     prevH = devMode.dmPelsHeight;
                     //prevBits = devMode.dmBitsPerPel;
@@ -216,7 +218,7 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
                     char resolution[50];
                     int x = 0;
                     int y = 0;
-                    GetDlgItemText(hWndDlg, IDC_COMBO1, resolution, 50);
+                    GetDlgItemText(hWndDlg, IDC_COMBO_SCREEN_SIZE, resolution, 50);
                     int scan_result = sscanf(resolution, "%dx%d", &x, &y);
                     if (((x <= 0) || (y <= 0)) || (scan_result < 2))
                     {
@@ -245,11 +247,11 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
                 EndDialog(hWndDlg, 0);
 
                 break;
-            case IDC_BUTTON2:
+            case IDC_BUTTON_CANCEL:
                 EndDialog(hWndDlg, 0);
 
                 break;
-            case IDC_BUTTON3: //defaults
+            case IDC_BUTTON_DEFAULT: //defaults
                 processDefaults(hWndDlg);
 
                 break;
@@ -270,13 +272,13 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
                 EnableWindow(GetDlgItem(hWndDlg, IDC_EDIT_EDITORAUTO),
                     IsDlgButtonChecked(hWndDlg, IDC_CHECK_EDITORAUTO));
                 break;
-            case IDC_CHECK_MAP:
-                if (IsDlgButtonChecked(hWndDlg, IDC_CHECK_MAP))
-                    CheckDlgButton(hWndDlg, IDC_CHECK_MAP,
+            case IDC_CHECK_MAPSIZE:
+                if (IsDlgButtonChecked(hWndDlg, IDC_CHECK_MAPSIZE))
+                    CheckDlgButton(hWndDlg, IDC_CHECK_MAPSIZE,
                         MessageBox(hWndDlg,
-                            "Large map support is experimental and may not work correctly. Enabling this option affects gameplay on ANY map, not only maps larger than 255x255. "
+                            "Large map support is experimental and may not work correctly. Enabling this option affects gameplay on ALL maps, not only maps larger than 255x255. "
                             "It is recommended that you keep this option disabled for better user experience.\n"
-                            "\nAre you sure you want to continue?",
+                            "\nAre you sure you want to enable large maps support?",
                             "Warning", MB_YESNO | MB_ICONEXCLAMATION) == 6 ? TRUE : FALSE);
                 break;
             default:
@@ -301,7 +303,7 @@ void __stdcall launchConfigurator(HWND hWnd)
 #ifndef _CHEATDLL_CC
     installPalette();
 #endif
-    DialogBox(GetModuleHandle("efpatch.dll"), MAKEINTRESOURCE(IDD_DIALOG_CONFIG), hWnd, ConfigDlgProc);
+    DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_CONFIG), hWnd, ConfigDlgProc);
 }
 
 extern "C" __declspec(dllexport) void __stdcall Configurator(HWND parent)

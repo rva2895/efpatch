@@ -464,7 +464,7 @@ void installPalette()
         }
     }
     log("Palette not found, creating DRS...");
-    DialogBox(GetModuleHandle("efpatch.dll"), MAKEINTRESOURCE(IDD_DIALOG_PALETTE), NULL, PaletteDlgProc);
+    DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_PALETTE), NULL, PaletteDlgProc);
     f = fopen("data\\palette", "wb");
     ver = '3';
     fwrite(&ver, sizeof(char), 1, f);

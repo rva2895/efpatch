@@ -6,7 +6,7 @@
 #define __REC_FILENAME__ "recorded game - %Y-%m-%d_%H-%M-%S.mg1"
 
 char recCC[sizeof(__REC_FILENAME__)];
-char timeOnly[] = "%Y-%m-%d_%H-%M-%S";
+const char timeOnly[] = "%Y-%m-%d_%H-%M-%S";
 
 void __stdcall printTime(char* s, const char* fmt)
 {

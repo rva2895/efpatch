@@ -1,5 +1,11 @@
 #pragma once
 
+#ifdef TARGET_VOOBLY
+#define DLL_NAME "userpatch.dll"
+#else
+#define DLL_NAME "efpatch.dll"
+#endif
+
 void __cdecl writeByte(DWORD addr, BYTE val);
 void __cdecl writeWord(DWORD addr, WORD val);
 void __cdecl writeDword(DWORD addr, DWORD val);

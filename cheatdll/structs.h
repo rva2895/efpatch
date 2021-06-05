@@ -255,9 +255,9 @@ struct UNIT
     char rotation;
     float x;
     float y;
-    int unk50;            //50
+    float unk50;            //50
     float resources;
-    int unk58;
+    char state;
     int unk5C;
     int unk60;            //60
     int unk64;

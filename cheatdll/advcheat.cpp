@@ -424,7 +424,33 @@ bool __stdcall checkCheats(char* s2)
         *request_chapter = 1;
         return true;
     }
+    if (strstr(s, "/OBJ") || strstr(s, "/OBJECT"))
+    {
+        sscanf(s, "%s %d", dummy, &id);
+        void* base_world = *(void**)((char*)*BaseGame_bg + 0x420);
+        if (base_world)
+        {
+            UNIT* unit = (UNIT*)BaseWorld__object(base_world, id);
+            if (unit)
+            {
+                void* player = getCurrentPlayer();
+                WorldPlayerBase__unselect_object(player);
+                WorldPlayerBase__select_object(player, unit, 1);
+            }
+            else
+                chat("Invalid object id");
+        }
 
+        return true;
+    }
+    if (strstr(s, "/GOTO"))
+    {
+        float x, y;
+        sscanf(s, "%s %f %f", dummy, &x, &y);
+        void* player = getCurrentPlayer();
+        WorldPlayerBase__set_view_loc(player, x, y, 0);
+        return true;
+    }
     //
     /*if (strstr(s, "/LIST-SELECTED"))
     {

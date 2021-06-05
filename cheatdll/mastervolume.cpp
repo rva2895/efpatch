@@ -144,6 +144,7 @@ loc_7D00A2:
     }
 }
 
+#pragma optimize( "s", on )
 void setMasterVolumeHooks()
 {
     writeDword(0x00546010, 0x900008C2);
@@ -175,3 +176,4 @@ void setMasterVolumeHooks()
     setHook((void*)0x005450E4, mastervolume3);
     setHook((void*)0x0050E199, mastervolume4);
 }
+#pragma optimize( "", on )

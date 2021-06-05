@@ -37,10 +37,6 @@ __declspec(naked) int loadDllString_wrapper() //005E6A30
 
 void setLanguageDllOverrideHooks()
 {
-#ifdef TARGET_VOOBLY
-    our_dll = GetModuleHandle("userpatch.dll");
-#else
-    our_dll = GetModuleHandle("efpatch.dll");
-#endif
+    our_dll = GetModuleHandle(DLL_NAME);
     setHook((void*)0x005E6A30, loadDllString_wrapper);
 };

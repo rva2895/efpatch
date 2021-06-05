@@ -155,6 +155,8 @@ extern volatile bool answer;
 extern volatile bool answer_flag;
 #endif // _DEBUG
 
+extern bool world_dump_enabled;
+
 int CALLBACK WndProc_dll(HWND hWnd,
     UINT msg,
     WPARAM wParam,
@@ -187,6 +189,13 @@ int CALLBACK WndProc_dll(HWND hWnd,
         }
         //
 #endif
+        //TEMPORARY DUMP TOGGLE
+        if (LOWORD(wParam) == VK_F7)                        //grid - collision
+        {
+            chat(world_dump_enabled ? "World dump turned OFF" : "World dump turned ON");
+            world_dump_enabled = !world_dump_enabled;
+        }
+        //
         if (isEditor)
         {
             if (LOWORD(wParam) == 'S')                        //grid - collision

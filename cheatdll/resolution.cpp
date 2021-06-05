@@ -69,7 +69,7 @@ bool patchEXE(int X, int Y) //needs to be completed...
         //hMul = 0;
         //writeDword (0x00463EAB, *(int*)&hMul);
         writeDwordF(0x6A916, X); //ok
-        //writeDwordF(0x6A920, Y - 98); // TECH TREE ~!!
+        //writeDwordF(0x6A920, Y - 98); // TECH TREE ~!!                     voobly
         writeDwordF(0x70D36, X); //ok
         writeDwordF(0x70DFB, X); //ok
         writeDwordF(0x70E04, Y); //ok
@@ -80,9 +80,9 @@ bool patchEXE(int X, int Y) //needs to be completed...
         writeDwordF(0x7114B, X + 1);
         writeDwordF(0x711CD, X + 1);
         writeDwordF(0x71247, X + 1);
-        //writeDwordF(0xA9411, X); //almost definitely wrong !!!
+        //writeDwordF(0xA9411, X); //almost definitely wrong !!!             voobly
         writeDwordF(0xB7E39, X); //might be ok
-        //writeDwordF(0xBE147, X); //almost definitely wrong !!!
+        //writeDwordF(0xBE147, X); //almost definitely wrong !!!             voobly
         writeDwordF(0xF670C, X); //ok
         writeDwordF(0xFDAF2, X + 1); //mm ok
         writeDwordF(0xFDAFB, Y + 1); //mm ok
@@ -102,7 +102,7 @@ bool patchEXE(int X, int Y) //needs to be completed...
         writeDwordF(0x10EDCC, X); //weird, likely OK
         writeDwordF(0x1D853F, X); //most likely
         writeDwordF(0x1D98E9, X); //likely OK
-        //writeDwordF(0x1F6757, X); not resolution
+        //writeDwordF(0x1F6757, X); //not resolution                            voobly
     }
     else if (Y >= 768)
     {
@@ -115,7 +115,7 @@ bool patchEXE(int X, int Y) //needs to be completed...
         writeDwordF(0x2680C, X); //ok
         writeDwordF(0x2683B, Y); //ok
         writeDwordF(0x26845, X + 1); //not needed?
-        //writeDwordF (0x290A8, X); //test. not res?
+        //writeDwordF (0x290A8, X); //test. not res?                           voobly
         writeDwordF(0x2AA37, X); //ok
         writeDwordF(0x2AA3E, X + 1); //not needed?
         writeDwordF(0x2AA59, X - 274); //-> should be ok

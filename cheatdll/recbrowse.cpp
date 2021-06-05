@@ -17,6 +17,8 @@ int prev_position = -1;
 
 int draw_count = 0;
 
+extern const char* savegame_path;
+
 std::string rec_extension;
 
 unsigned int __stdcall rec_cache_thread(void*)
@@ -584,7 +586,7 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
 
     char* file = window_getSelText(wnd_list, get_index(wnd_list));
 
-    std::string filename = "savegame\\" + (std::string)file + rec_extension;
+    std::string filename = (std::string)savegame_path + (std::string)file + rec_extension;
     current_file = filename;
 
     REC_DATA rd = rec_cache->get_rec_data(filename, 2);
@@ -783,7 +785,7 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
             if (i != 0)
             {
                 file = window_getSelText(wnd_list, get_index(wnd_list) + i);
-                filename = "savegame\\" + (std::string)file + rec_extension;
+                filename = (std::string)savegame_path + (std::string)file + rec_extension;
                 rec_cache->get_rec_data(filename, 1);
             }
         }
@@ -793,7 +795,7 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
         for (int i = get_scroll_position(wnd_list); i < (get_scroll_position(wnd_list) + 40); i++)
         {
             file = window_getSelText(wnd_list, i);
-            filename = "savegame\\" + (std::string)file + rec_extension;
+            filename = (std::string)savegame_path + (std::string)file + rec_extension;
             rec_cache->get_rec_data(filename, 0);
         }
     prev_viewport = get_scroll_position(wnd_list);
