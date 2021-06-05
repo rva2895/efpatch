@@ -15,7 +15,7 @@ int __fastcall getUnitTypeBuilders(int id, void* player)
     return buildersPerID[id];
 }
 
-char aSetUnitTypeBuilders[] = "set-builders-type";
+const char aSetUnitTypeBuilders[] = "set-builders-type";
 
 __declspec(naked) void registerSNX() //00577B59
 {

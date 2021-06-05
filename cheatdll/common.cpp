@@ -3,6 +3,7 @@
 #include "common.h"
 
 void** BaseGame_bg = (void**)0x006A3684;
+int* world_update_counter = (int*)0x007A22F8;
 
 #ifdef TARGET_VOOBLY
 extern IVoobly *g_pVoobly;

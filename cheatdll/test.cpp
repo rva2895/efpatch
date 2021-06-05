@@ -4,12 +4,16 @@
 #include "log.h"
 #include "advcheat.h"
 #include "rundll.h"
+#include "oos.h"
 
 #include <process.h>
 #include <MMSystem.h>
 #include <vector>
 #include <string>
 #include <map>
+#include <time.h>
+
+int current_worldtime = 0;
 
 /*__declspec(naked) int someText()
 {
@@ -329,7 +333,7 @@ void thread_proc(void* p)
     int player = (int)p;
     int sum = 0;
     sum += check_file("battlegrounds_x1.exe", player);
-    sum += check_file("efpatch.dll", player);
+    sum += check_file(DLL_NAME, player);
     sum += check_file("language.dll", player);
     sum += check_file("language_x1.dll", player);
     sum += check_file("language_x2.dll", player);
@@ -352,6 +356,55 @@ void thread_proc(void* p)
 
 extern int memory_temp;
 
+int __fastcall get_gametime2()
+{
+    void* game_screen = *(void**)((uint8_t*)(*BaseGame_bg) + 0x17B4);
+    if (game_screen)
+    {
+        void* world = *(void**)((uint8_t*)game_screen + 0x126C);
+        if (world)
+            return *(int*)((uint8_t*)world + 0x10);
+        else
+        {
+            chat("World does not exist");
+            return -1;
+        }
+    }
+    else
+    {
+        chat("Game screen does not exist");
+        return -1;
+    }
+}
+
+void(__thiscall* GameScreen__pause)(void* this_) =
+    (void(__thiscall*)(void*))0x00501C30;
+
+void __stdcall pause_game()
+{
+    void* game_screen = *(void**)((uint8_t*)(*BaseGame_bg) + 0x17B4);
+    if (game_screen)
+    {
+        GameScreen__pause(game_screen);
+    }
+}
+
+/*__declspec(naked) int __fastcall get_gametime2()
+{
+    __asm
+    {
+        mov     ecx, 006A3684h
+        mov     ecx, [ecx]
+        mov     ecx, [ecx + 17B4h]
+        mov     ecx, [ecx + 126Ch]
+        mov     eax, [ecx + 10h]
+        ret
+    }
+}*/
+
+extern float* __fastcall player_getResources2(void*);
+extern void __stdcall make_oos_dump();
+
 int __stdcall onChat_2(int player, char* targets, char* s)
 {
     UNREFERENCED_PARAMETER(targets);
@@ -372,6 +425,34 @@ int __stdcall onChat_2(int player, char* targets, char* s)
         memory_temp = 0x100000;
         return 1;
     }
+    /*else if (!strcmp(s, "/dump-world"))
+    {
+        srand(timeGetTime());
+        unsigned int r = rand();
+        char name[MAX_PATH];
+        sprintf(name, "rge_dump_%08X.txt", r);
+        chat("Dumping world to %s ...", name);
+        dump_objects(name);
+        chat("Dump complete");
+        return 1;
+    }
+    else if (!strcmp(s, "/worldtime"))
+    {
+        chat("Worldtime = %d (%d)", current_worldtime, get_gametime2());
+        return 1;
+    }
+    else if (!strcmp(s, "/make-oos"))
+    {
+        float* r = player_getResources2(getCurrentPlayer());
+        r[0] += 100.0f;
+        chat("Caused out of sync");
+        return 1;
+    }
+    else if (!strcmp(s, "/dump-all"))
+    {
+        make_oos_dump();
+        return 1;
+    }*/
     else
         return 0;
 }
@@ -938,9 +1019,88 @@ _no_control:
     }
 }*/
 
+#define MALLOC_GUARD 0x1000
+
+std::vector<void*> our_allocs;
+
+void* __cdecl malloc_with_guard(size_t size)
+{
+    size_t new_size = size + 2 * MALLOC_GUARD;
+    unsigned char* p = (unsigned char*)malloc(new_size);
+    our_allocs.push_back(p);
+    for (int i = 0; i < new_size; i++)
+        p[i] = rand() % 256;
+    return p + MALLOC_GUARD;
+}
+
+void* __cdecl new_calloc(size_t number, size_t size) //00632D33
+{
+    void* p = malloc(number * size);
+    memset(p, 0, number * size);
+    return p;
+}
+
+void* __cdecl new_malloc(size_t size) //0063328C
+{
+    return malloc_with_guard(size);
+}
+
+void* __cdecl new_new(size_t size) //00632B9D
+{
+    return malloc(size);
+}
+
+__declspec(naked) void __cdecl old_free(void*)
+{
+    __asm
+    {
+        push    ebp
+        mov     ebp, esp
+        push    ecx
+        push    esi
+        mov     eax, 00632CCFh
+        jmp     eax
+    }
+}
+
+void __cdecl new_delete_free(void* p) //00632B42, 00632CCA
+{
+    void* new_ptr = (char*)p - MALLOC_GUARD;
+    auto it = std::find(our_allocs.begin(), our_allocs.end(), new_ptr);
+    if (it != our_allocs.end())
+    {
+        our_allocs.erase(it);
+        free(new_ptr);
+    }
+    else
+    {
+        old_free(p);
+    }
+}
+
+const char* savegame_path = "savegame\\";
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    //srand(timeGetTime());
+    
+    //setOOSHooks();
+    //savegame path
+    writeDword(0x0048F566, (DWORD)savegame_path);
+
+    //writeByte(0x0042FAD2, 0xEB);
+
+    //malloc
+    /*srand(timeGetTime());
+
+    setHook((void*)0x00632B42, new_delete_free);
+    setHook((void*)0x00632CCA, new_delete_free);
+    setHook((void*)0x00632B9D, new_new);
+    setHook((void*)0x0063328C, new_malloc);
+    setHook((void*)0x00632D33, new_calloc);*/
+
+
     //setHook((void*)0x005D0D59, repair_test);
     //setHook((void*)0x00432DFF, onSync);
 

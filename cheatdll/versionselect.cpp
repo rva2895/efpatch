@@ -18,19 +18,19 @@ BOOL CALLBACK MainDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lPar
         regGet (&cd);
         if (cd.gameVersion == VER_CC)
         {
-            CheckDlgButton (hWndDlg, IDC_RADIO1_, BST_CHECKED);
-            CheckDlgButton (hWndDlg, IDC_RADIO2_, BST_UNCHECKED);
+            CheckDlgButton (hWndDlg, IDC_RADIO_X1, BST_CHECKED);
+            CheckDlgButton (hWndDlg, IDC_RADIO_X2, BST_UNCHECKED);
         }
         else if (cd.gameVersion == VER_EF)
         {
-            CheckDlgButton (hWndDlg, IDC_RADIO2_, BST_CHECKED);
-            CheckDlgButton (hWndDlg, IDC_RADIO1_, BST_UNCHECKED);
+            CheckDlgButton (hWndDlg, IDC_RADIO_X1, BST_UNCHECKED);
+            CheckDlgButton (hWndDlg, IDC_RADIO_X2, BST_CHECKED);
         }
 
         if (cd.askAtStartup)
-            CheckDlgButton (hWndDlg, IDC_CHECK1_, BST_UNCHECKED);
+            CheckDlgButton (hWndDlg, IDC_CHECK_ALWAYSRUN, BST_UNCHECKED);
         else
-            CheckDlgButton (hWndDlg, IDC_CHECK1_, BST_CHECKED);
+            CheckDlgButton (hWndDlg, IDC_CHECK_ALWAYSRUN, BST_CHECKED);
         break;
     case WM_CLOSE:
         ExitProcess (0);
@@ -39,14 +39,14 @@ BOOL CALLBACK MainDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lPar
         log ("Version select dialog opened");
         regGet (&cd);
         if (cd.gameVersion == VER_CC)
-            CheckDlgButton (hWndDlg, IDC_RADIO1_, BST_CHECKED);
+            CheckDlgButton (hWndDlg, IDC_RADIO_X1, BST_CHECKED);
         if (cd.gameVersion == VER_EF)
-            CheckDlgButton (hWndDlg, IDC_RADIO2_, BST_CHECKED);
+            CheckDlgButton (hWndDlg, IDC_RADIO_X2, BST_CHECKED);
         if (!cd.askAtStartup)
-            CheckDlgButton (hWndDlg, IDC_CHECK1_, BST_CHECKED);
+            CheckDlgButton (hWndDlg, IDC_CHECK_ALWAYSRUN, BST_CHECKED);
 
 #ifdef _CHEATDLL_CC
-        EnableWindow(GetDlgItem(hWndDlg, IDC_RADIO2_), FALSE);
+        EnableWindow(GetDlgItem(hWndDlg, IDC_RADIO_X2), FALSE);
 #endif
 
         break;
@@ -57,14 +57,14 @@ BOOL CALLBACK MainDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lPar
             {
             case IDOK: //Run
                 regGet (&cd);
-                cd.askAtStartup = !IsDlgButtonChecked (hWndDlg, IDC_CHECK1_);
-                if (IsDlgButtonChecked (hWndDlg, IDC_RADIO1_))
+                cd.askAtStartup = !IsDlgButtonChecked (hWndDlg, IDC_CHECK_ALWAYSRUN);
+                if (IsDlgButtonChecked (hWndDlg, IDC_RADIO_X1))
                 {
                     cd.gameVersion = VER_CC;
                     regSet (&cd);
                     EndDialog (hWndDlg, 0);
                 }
-                else if (IsDlgButtonChecked (hWndDlg, IDC_RADIO2_))
+                else if (IsDlgButtonChecked (hWndDlg, IDC_RADIO_X2))
                 {
                     cd.gameVersion = VER_EF;
                     regSet (&cd);
@@ -77,7 +77,7 @@ BOOL CALLBACK MainDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lPar
             case IDCANCEL:
                 ExitProcess (0);
                 break;
-            case IDC_BUTTON1_:
+            case IDC_BUTTON_CONFIG:
                 launchConfigurator(hWndDlg);
                 break;
             

@@ -94,6 +94,7 @@
 #include "mastervolume.h"
 #include "mbs.h"
 #include "languagedlloverride.h"
+#include "worlddump.h"
 #ifdef TARGET_VOOBLY
 #include "iuserpatch.h"
 #endif
@@ -127,7 +128,7 @@ void getSettings()
 
     if (cd.askAtStartup || key)
     {
-        DialogBox(GetModuleHandle("efpatch.dll"), MAKEINTRESOURCE(IDD_DIALOG1_), 0, MainDlgProc);
+        DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_STARTUP), 0, MainDlgProc);
 
         regGet(&cd);
     }
@@ -268,11 +269,10 @@ void setHooksCC()
 
     setRecHooks();
     setHotkeyJumpHooks();
-    //setOOSHooks();
 
-//#ifdef TARGET_VOOBLY
+#ifdef TARGET_VOOBLY
     setRecBrowseHooks(cd.gameVersion);
-//#endif
+#endif
     setElevationHooks();
 
     setNetworkHooks();
@@ -320,6 +320,10 @@ void setHooksCC()
     setAIHooks(cd.gameVersion);
 
     setObjectPanelHooks(cd.gameVersion);
+
+    setTerrainGenHooks();
+
+    //setWorldDumpHooks();
 }
 #pragma optimize( "", on )
 

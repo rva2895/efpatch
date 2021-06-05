@@ -405,6 +405,7 @@
     <ClInclude Include="votepanel.h" />
     <ClInclude Include="wndmode.h" />
     <ClInclude Include="wndproc.h" />
+    <ClInclude Include="worlddump.h" />
     <ClInclude Include="zannfort.h" />
   </ItemGroup>
   <ItemGroup>
@@ -548,6 +549,7 @@
     <ClCompile Include="votepanel.cpp" />
     <ClCompile Include="wndmode.cpp" />
     <ClCompile Include="wndproc.cpp" />
+    <ClCompile Include="worlddump.cpp" />
     <ClCompile Include="zannfort.cpp" />
   </ItemGroup>
   <ItemGroup>

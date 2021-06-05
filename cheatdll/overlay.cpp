@@ -78,25 +78,6 @@ __declspec(naked) float* __fastcall get_player_resources(void*)
     }
 }
 
-__declspec(naked) int __fastcall get_player_units_count(void*)
-{
-    __asm
-    {
-        mov     ecx, [ecx + 78h]
-        mov     eax, [ecx + 8]
-        ret
-    }
-}
-
-__declspec(naked) UNIT* __fastcall get_player_units(void*)
-{
-    __asm
-    {
-        mov     ecx, [ecx + 78h]
-        mov     eax, [ecx + 4]
-        ret
-    }
-}
 
 __declspec(naked) int __fastcall get_gametime()
 {
