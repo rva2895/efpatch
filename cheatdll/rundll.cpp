@@ -44,7 +44,8 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
 
     initialSetup();
 
-    writeDword(0x00426509, (DWORD)&WndProc_dll);
+    //writeDword(0x00426509, (DWORD)WndProc_dll);
+    FlushInstructionCache(GetCurrentProcess(), NULL, 0);
 
     int retval;
 
@@ -189,13 +190,14 @@ int CALLBACK WndProc_dll(HWND hWnd,
         }
         //
 #endif
+        /*
         //TEMPORARY DUMP TOGGLE
-        if (LOWORD(wParam) == VK_F7)                        //grid - collision
+        if (LOWORD(wParam) == VK_F7)
         {
             chat(world_dump_enabled ? "World dump turned OFF" : "World dump turned ON");
             world_dump_enabled = !world_dump_enabled;
         }
-        //
+        */
         if (isEditor)
         {
             if (LOWORD(wParam) == 'S')                        //grid - collision
@@ -279,6 +281,6 @@ int CALLBACK WndProc_dll(HWND hWnd,
 
     if (!hWnd_main)
         hWnd_main = hWnd;
-
+    
     return WndProc_exe(hWnd, msg, wParam, lParam);
 }

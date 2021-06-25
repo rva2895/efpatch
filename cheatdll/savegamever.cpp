@@ -192,7 +192,7 @@ void __stdcall displayVersionError(void* ptr)
     ver[3] = 0;
     if (!strcmp(ver, "9.4"))
     {
-        strcpy(ver, "1.1");
+        strcpy(ver, EXE_PATCH_VERSION);
         strcpy(s2, "\nTurn Data Patch off to watch this game");
     }
     else if (!strcmp(ver, "2.2"))

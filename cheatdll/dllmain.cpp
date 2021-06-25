@@ -95,6 +95,7 @@
 #include "mbs.h"
 #include "languagedlloverride.h"
 #include "worlddump.h"
+#include "functionlist.h"
 #ifdef TARGET_VOOBLY
 #include "iuserpatch.h"
 #endif
@@ -160,9 +161,9 @@ void setHooksCC()
 
     setScrollHooks();
     setMapCopyHooks();
-
+    
 #ifndef TARGET_VOOBLY
-    if (cd.windowMode)
+//  if (cd.windowMode)
         setWndModeHooks();
 #endif
 
@@ -270,9 +271,9 @@ void setHooksCC()
     setRecHooks();
     setHotkeyJumpHooks();
 
-#ifdef TARGET_VOOBLY
+//#ifdef TARGET_VOOBLY
     setRecBrowseHooks(cd.gameVersion);
-#endif
+//#endif
     setElevationHooks();
 
     setNetworkHooks();
@@ -324,6 +325,29 @@ void setHooksCC()
     setTerrainGenHooks();
 
     //setWorldDumpHooks();
+
+    //from old patch:
+    //full map print ratios
+    writeByte(0x0045D4BD, 8);
+    writeByte(0x0045D4CA, 1);
+    writeByte(0x0045D4DC, 0xFF);
+
+    //post game view for sp
+    writeByte(0x004F87AD, 0x4C);
+    writeByte(0x004F89CE, 0xEB);
+    writeByte(0x004F89CF, 0x1F);
+    writeByte(0x004F89E1, 0xEB);
+    writeByte(0x004F8A13, 0x66);
+    writeByte(0x004F8A14, 0x90);
+
+    //remove tribe create
+    setHook((void*)0x005B9EF3, (void*)0x005B9F3D);
+
+    //remove high graphics fambaa ring
+    writeByte(0x0061F4A4, 0xEB);
+
+    //function hook!
+    //setFunctionListHooks();
 }
 #pragma optimize( "", on )
 
@@ -611,7 +635,7 @@ void initialSetup()
 #endif
         setHooksCC();
 
-        updateVersionCC();
+        //updateVersionCC();
         break;
     case VER_EF:
         //revertToX1 ();               //remove!!!! <---
@@ -631,7 +655,7 @@ void initialSetup()
 
     updateVersionCC();
 #endif
-
+    
 #ifndef TARGET_VOOBLY
     if (cd.widescrnEnabled)
         resolutionTool(cd.xres, cd.yres);

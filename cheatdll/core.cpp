@@ -59,7 +59,7 @@ __declspec(naked) void core3() //00606A10
     }
 }
 
-__declspec(naked) void core4() //00606A60
+__declspec(naked) void core4() //00606A60, operator minus
 {
     __asm
     {
@@ -162,8 +162,33 @@ __declspec(naked) int __stdcall ftol_new_sse() //00632BAC
     }
 }
 
+__declspec(naked) int __stdcall ftol_new_sse_fixed(double val)
+{
+    __asm
+    {
+        cvttsd2si   eax, mmword ptr [esp + 4]
+        cdq
+        retn    8
+    }
+}
+
+__declspec(naked) int __stdcall ftol_new_sse_fixed_2() //00632BAC
+{
+    __asm
+    {
+        sub     esp, 8
+        fstp    qword ptr [esp]
+        cvttsd2si   eax, mmword ptr [esp]
+        cdq
+        add     esp, 8
+        retn
+    }
+}
+
 unsigned char ftol_new_sse_packed[] =
 { "\x83\xEC\x04\xD9\x1C\x24\xF3\x0F\x10\x04\x24\xF3\x0F\x2C\xC0\x99\x83\xC4\x04\xC3" };
+unsigned char ftol_new_sse_fixed_2_packed[] =
+{ "\x83\xec\x08\xdd\x1c\x24\xf2\x0f\x2c\x04\x24\x99\x83\xc4\x08\xc3"};
 
 //member function wrappers to make compiler behave
 
@@ -369,12 +394,15 @@ int high_sse;
 int low_sse;
 
 double f_val;
+float s_val;
 
 void __stdcall ftol_test(int high, int low)
 {
     if ((high != high_sse) || (low != low_sse))
-        // __debugbreak();
-        volatile int k = 0;
+         __debugbreak();
+        //volatile int k = 0;
+    //if (*(unsigned int*)&high == 0x80000000)
+    //   __debugbreak();
 }
 
 __declspec(naked) void ftol_old()
@@ -388,10 +416,10 @@ __declspec(naked) void ftol_old()
         sub     esp, 8
         fst     qword ptr [esp]
         fst     f_val
+        //fst     s_val
         //fld     dword ptr [esp]
-        call    ftol_new_sse
-        fld     qword ptr [esp]
-        add     esp, 8
+        call    ftol_new_sse_fixed
+        //fld     dword ptr [esp - 8]
         mov     high_sse, edx
         mov     low_sse, eax
 
@@ -477,13 +505,14 @@ void setCoreHooks()
 
     //setHook((void*)0x00632BAC, ftol_new_sse);
     //setHook((void*)0x00632BAC, ftol_old);
-    //writeData(0x00632BAC, ftol_new_sse_packed, sizeof(ftol_new_sse_packed));
+    //setHook((void*)0x00632BAC, ftol_new_sse_fixed_2);
+    //writeData(0x00632BAC, ftol_new_sse_fixed_2_packed, sizeof(ftol_new_sse_fixed_2_packed));
 
-    //float (__thiscall UNIT::*unit_distance_to_position_new_p)(float, float, float) = &UNIT::unit_distance_to_position_new;
-    //setHook((void*)0x00551C60, (void*&)unit_distance_to_position_new_p);
+    float (__thiscall UNIT::*unit_distance_to_position_new_p)(float, float, float) = &UNIT::unit_distance_to_position_new;
+    setHook((void*)0x00551C60, (void*&)unit_distance_to_position_new_p);
 
-    //int(__thiscall UNIT::*unit_unknown_moving_update_end_p)() = &UNIT::unit_unknown_moving_update_end;
-    //setHook((void*)0x004A3D90, (void*&)unit_unknown_moving_update_end_p);
+    int(__thiscall UNIT::*unit_unknown_moving_update_end_p)() = &UNIT::unit_unknown_moving_update_end;
+    setHook((void*)0x004A3D90, (void*&)unit_unknown_moving_update_end_p);
 
     //performance test
     /*setHook((void*)0x0055A760, performance_in);

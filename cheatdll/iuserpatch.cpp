@@ -21,7 +21,7 @@
 #include "mouseoverride.h"
 #include "rundll.h"
 
-#include "rundll.h"
+#include "worlddump.h"
 
 #include <time.h>
 
@@ -149,12 +149,91 @@ __declspec(naked) void onVooblyWidescreenBug2() //004BE13F
     }
 }
 
+__declspec(naked) void onVooblyCampaignBug() //005F674F
+{
+    __asm
+    {
+        fnstsw  ax
+        test    ah, 1
+        jz      short loc_5F675D
+        push    500h
+        mov     edx, 005F6762h
+        jmp     edx
+loc_5F675D:
+        mov     edx, 005F675Dh
+        jmp     edx
+    }
+}
+
+__declspec(naked) void onVooblyWidescreenBug3() //0046A91A
+{
+    __asm
+    {
+        jnz     short loc_46A959
+        push    0
+        add     edx, 39Eh
+        push    0046A924h
+        ret
+loc_46A959:
+        push    0046A959h
+        ret
+    }
+}
+
+__declspec(naked) void onVooblyWidescreenBug4() //004290A3
+{
+    __asm
+    {
+        mov     eax, [esi]
+        push    ebx
+        push    edi
+        push    400h
+        mov     edx, 004290ACh
+        jmp     edx
+    }
+}
+
+__declspec(naked) void onVooblyFixTechTree()
+{
+    __asm
+    {
+        push    0FFFFFFFFh
+        mov     eax, 005068C2h
+        jmp     eax
+    }
+}
+
+void __stdcall temp_test_(int a)
+{
+    char s[0x10];
+    sprintf(s, "%d", a);
+    MessageBox(0, s, "Test", 0);
+    exit(0);
+}
+
+__declspec(naked) void onVooblyMirrorRandomTechTree() //0051834E
+{
+    __asm
+    {
+        cmp     eax, 1Eh
+        jz      short fix_civ
+        cmp     eax, 1Fh
+        jz      short fix_civ
+        mov     ecx, 0051835Ch
+        jmp     ecx
+fix_civ:
+        mov     eax, 1
+        mov     ecx, 00518358h
+        jmp     ecx
+    }
+}
+
 bool CUserPatch::Init(struct UserPatchConfig_t &config)
 {
     // Write DLL version to Voobly log            
     g_pVoobly->Log(USERPATCH_VERSION);
 
-    // Write 3.0 exe version string    
+    // Write 3.1 exe version string    
     g_pVoobly->Write(0x689BA4, "332E31");
 
     if (strstr(config.VooblyModDirPath, "Data Patch"))
@@ -226,7 +305,7 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
     initialSetup();
 
     //wndproc for voobly
-    writeDword(0x00426509, (DWORD)&WndProc_dll);
+    writeDword(0x00426509, (DWORD)WndProc_dll);
 
     //fix voobly widescreen bugs
     /*writeDword(0x004A9411, 0x500);
@@ -234,6 +313,17 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
     writeDword(0x005F6757, 0x500);*/
     g_pVoobly->WriteJump(0x004A940B, onVooblyWidescreenBug1);
     g_pVoobly->WriteJump(0x004BE13F, onVooblyWidescreenBug2);
+    //voobly campaign bug
+    g_pVoobly->WriteJump(0x005F674F, onVooblyCampaignBug);
+    //voobly various widescreen bugs
+    g_pVoobly->WriteJump(0x0046A91A, onVooblyWidescreenBug3);
+    g_pVoobly->WriteJump(0x004290A3, onVooblyWidescreenBug4);
+    //voobly tech tree bug
+    writeDword(0x004FA41C, (DWORD)onVooblyFixTechTree - 0x004FA420);
+    writeDword(0x004FBB6F, (DWORD)onVooblyFixTechTree - 0x004FBB73);
+
+    //tech tree mirror random fix
+    g_pVoobly->WriteJump(0x0051834E, onVooblyMirrorRandomTechTree);
 
     // Apply patches from bin2cpp tool
     bool bSuccess = true;//ApplyPatchList();
@@ -254,7 +344,8 @@ bool CUserPatch::OnChatMessage(const char *text)
         g_pVoobly->ChatMessage("UserPatch", "%s, Data patch: %s", USERPATCH_VERSION, str);
         return true;
     }
-    /*if (!strcmp(text, "/dump-world"))
+    /*
+    if (!strcmp(text, "/dump-world"))
     {
         srand(time(0));
         unsigned int r = rand();
@@ -307,6 +398,13 @@ bool CUserPatch::OnChatMessage(const char *text)
         sscanf(text, "%s %f %f", d, &x, &y);
         void* player = getCurrentPlayer();
         WorldPlayerBase__set_view_loc(player, x, y, 0);
+        return true;
+    }
+    if (strstr(text, "/cs"))
+    {
+        WORLD_DUMP wd;
+        wd.update_cs();
+        chat("CS=%u", wd.get_cs());
         return true;
     }*/
 
