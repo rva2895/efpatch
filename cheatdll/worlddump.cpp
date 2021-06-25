@@ -240,12 +240,12 @@ unsigned int dump_objects(const char* filename)
                     }
                     delete[] units;
                 }
-                printf_if_exists(dump_file, "Player %d cs=%d\n\n", p, player_checksum);
+                printf_if_exists(dump_file, "Player %d cs=%u\n\n", p, player_checksum);
                 game_checksum += player_checksum;
             }
         if (dump_file)
         {
-            fprintf(dump_file, "World cs=%d\n", game_checksum);
+            fprintf(dump_file, "World cs=%u\n", game_checksum);
             fclose(dump_file);
         }
         retval = game_checksum;
@@ -270,6 +270,24 @@ void __stdcall dump_checksums(unsigned int time)
     }
 }
 
+void(__thiscall* GameScreen__pause)(void* this_) =
+    (void(__thiscall*)(void*))0x00501C30;
+
+void __stdcall pause_game()
+{
+    void* game_screen = *(void**)((uint8_t*)(*BaseGame_bg) + 0x17B4);
+    if (game_screen)
+    {
+        GameScreen__pause(game_screen);
+    }
+}
+
+void __stdcall rec_breakpoint_reached()
+{
+    pause_game();
+    chat("Reached breakpoint, worldtime=%d", get_gametime2());
+}
+
 __declspec(naked) void onCheckTime()
 {
     __asm
@@ -284,31 +302,32 @@ __declspec(naked) void onCheckTime()
         cmp     ecx, eax
         jl      no_break
 
-        mov     ecx, BaseGame_bg
-        mov     ecx, [ecx]
-        mov     eax, [ecx]
-        call    dword ptr [eax + 18h]
-        mov     ecx, 006ADBB8h
-        mov     eax, 004B76A0h
-        call    eax
-        mov     esi, eax
-        test    esi, esi
-        jz      loc_61FD69
-        mov     ecx, [ebx]
-        push    ecx
-        lea     eax, [ebp - 274h]
-        push    offset rec_stop_str
-        push    eax
-        mov     eax, 006330C4h
-        call    eax //_sprintf
-        add     esp, 0Ch
-        lea     ecx, [ebp - 274h]
-        push    1
-        push    64h
-        push    1C2h
-        push    0
-        mov     eax, 0061FD61h
-        jmp     eax
+        call    rec_breakpoint_reached
+        //mov     ecx, BaseGame_bg
+        //mov     ecx, [ecx]
+        //mov     eax, [ecx]
+        //call    dword ptr [eax + 18h]
+        //mov     ecx, 006ADBB8h
+        //mov     eax, 004B76A0h
+        //call    eax
+        //mov     esi, eax
+        //test    esi, esi
+        //jz      loc_61FD69
+        //mov     ecx, [ebx]
+        //push    ecx
+        //lea     eax, [ebp - 274h]
+        //push    offset rec_stop_str
+        //push    eax
+        //mov     eax, 006330C4h
+        //call    eax //_sprintf
+        //add     esp, 0Ch
+        //lea     ecx, [ebp - 274h]
+        //push    1
+        //push    64h
+        //push    1C2h
+        //push    0
+        //mov     eax, 0061FD61h
+        //jmp     eax
 
 no_break:
         mov     ecx, [edi + 0Ch]
@@ -456,13 +475,199 @@ __declspec(naked) void onWorldDelGameInfo() //0061D020
     }
 }
 
+bool print_stats = false;
+unsigned int wp_cs = 0;
+
+__declspec(naked) void __stdcall flush_stack()
+{
+    __asm
+    {
+        push    edi
+        sub     esp, 2000h
+        mov     edi, esp
+        //xor eax, eax
+        //sub     eax, 1
+        mov     eax, 0BAADF00Dh
+        mov     ecx, 800h
+        rep stosd
+        add     esp, 2000h
+        pop     edi
+        ret
+    }
+}
+
+void __stdcall unit_update_log_before(UNIT* unit)
+{
+    if ((get_gametime2() == 527900) && (unit->ordinal == 4325))
+    {
+        wp_cs = RGE_Action_Object__get_waypoint_checksum(unit);
+        print_stats = true;
+    }
+}
+
+void __stdcall unit_update_log_after(UNIT* unit)
+{
+    if (print_stats)
+    {
+        chat("Before update: wp_cs=%u, after update: wp_cs=%u", wp_cs, RGE_Action_Object__get_waypoint_checksum(unit));
+        print_stats = false;
+    }
+}
+
+__declspec(naked) void unit_update_test() //004AF39B
+{
+    __asm
+    {
+        push    ecx
+        push    edx
+        push    ecx
+        call    unit_update_log_before
+        call    flush_stack
+        pop     edx
+        pop     ecx
+        push    ecx
+        call    dword ptr [edx + 94h]
+        pop     ecx
+        push    eax
+        push    ecx
+        call    unit_update_log_after
+        pop     eax
+        mov     ecx, 004AF3A1h
+        jmp     ecx
+    }
+}
+
+DWORD unit_ptr;
+
+__declspec(naked) void unit_update_test2() //00444DF0
+{
+    __asm
+    {
+        push    ecx
+        push    esi
+        mov     unit_ptr, esi
+        call    unit_update_log_before
+        call    flush_stack
+        pop     ecx
+        mov     eax, 00409870h
+        call    eax
+        push    eax
+        mov     eax, unit_ptr
+        push    eax
+        call    unit_update_log_after
+        pop     eax
+        mov     ecx, 00444DF5h
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void unit_update_test3() //004098EA
+{
+    __asm
+    {
+        push    ecx
+        mov     eax, [ecx + 4]
+        mov     unit_ptr, eax
+        push    eax
+        call    unit_update_log_before
+        //call    flush_stack
+        pop     ecx
+        mov     edx, [ecx]
+        call    dword ptr [edx + 10h]
+        push    eax
+        mov     eax, unit_ptr
+        push    eax
+        call    unit_update_log_after
+        pop     eax
+        mov     ecx, 004098EFh
+        jmp     ecx
+    }
+}
+
+void __stdcall check_action(unsigned int* action)
+{
+    if (*action == 0x00654D5C) //move to
+    {
+        UNIT* unit = *(UNIT**)(action + 2);
+        if (unit && unit->ordinal == 4325)
+        {
+            FILE* f = fopen("act_log.txt", "at");
+            if (f)
+            {
+                //chat("Action found ")
+                fprintf(f, "WT=%d, act=%X, x=%.4f, y=%.4f\n", get_gametime2(), action, *((float*)action + 8), *((float*)action + 9));
+                fclose(f);
+            }
+        }
+    }
+}
+
+void __stdcall check_create_action(UNIT* unit, unsigned int action, unsigned int* stack)
+{
+    if (unit && unit->ordinal == 4325 /*&& get_gametime2() == 527900*/)
+    {
+        FILE* f = fopen("act_log.txt", "at");
+        if (f)
+        {
+            //chat("Action found ")
+            fprintf(f, "WT=%d, NEW act %X, stack: \n", get_gametime2(), action);
+            for (int i = 0; i < 20; i++)
+                fprintf(f, "  %08X\n", *stack++);
+            fclose(f);
+        }
+        if (get_gametime2() == 527900 && unit->ordinal == 4325)
+            __debugbreak();
+    }
+}
+
+__declspec(naked) void on_create_action() //0040A880
+{
+    __asm
+    {
+        push    ecx
+        mov     eax, [esp + 8]
+        lea     edx, [esp + 4]
+        push    edx
+        push    ecx
+        push    eax
+        call    check_create_action
+        pop     ecx
+
+        push    ebx
+        push    esi
+        mov     esi, ecx
+        or      eax, 0FFFFFFFFh
+        mov     ebx, 0040A887h
+        jmp     ebx
+    }
+}
+
+__declspec(naked) void on_move_to_update() //004084B0
+{
+    __asm
+    {
+        push    ecx
+        push    esi
+        mov     esi, ecx
+        push    esi
+        call    check_action
+        mov     eax, [esi + 10h]
+        mov     ecx, 004084B7h
+        jmp     ecx
+    }
+}
+
 void setWorldDumpHooks()
 {
-    setHook((void*)0x0061E7F0, onWorldUpdate);
-    setHook((void*)0x0061D020, onWorldDelGameInfo);
-    setHook((void*)0x005EF8A6, onOutOfSyncDetected);
+    //setHook((void*)0x0040A880, on_create_action);
+    setHook((void*)0x004084B0, on_move_to_update);
+    //setHook((void*)0x004098EA, unit_update_test3);
+
+    //setHook((void*)0x0061E7F0, onWorldUpdate);
+    //setHook((void*)0x0061D020, onWorldDelGameInfo);
+    //setHook((void*)0x005EF8A6, onOutOfSyncDetected);
     //setHook((void*)0x005F0645, onOutOfSyncDetected2);
-    //setHook((void*)0x0061EBB6, onCheckTime);
+    setHook((void*)0x0061EBB6, onCheckTime);
     //setHook((void*)0x0042FA49, onChecksumDump);
 }
 
@@ -524,6 +729,10 @@ WORLD_DUMP::WORLD_DUMP()
                 players.push_back(player);
             }
     }
+    deflated = false;
+    //cs = 0;
+    deflated_data = NULL;
+    deflated_data_size = 0;
 }
 
 int WORLD_DUMP::get_worldtime() const
@@ -561,16 +770,25 @@ void WORLD_DUMP::update_cs()
     }
 }
 
+unsigned int WORLD_DUMP::get_cs() const
+{
+    return cs;
+}
+
 void WORLD_DUMP::sort_objects()
 {
     for (auto it = players.begin(), it_end = players.end(); it != it_end; ++it)
         std::sort(it->objects.begin(), it->objects.end());
 }
-/*
+
 #define CHUNK 16384
 
 int WORLD_DUMP::deflate_dump()
 {
+    //check if already deflated
+    if (deflated)
+        return 0;
+
     //serialize dump
     size_t size = 0;
     size += sizeof(int); //worldtime
@@ -605,8 +823,9 @@ int WORLD_DUMP::deflate_dump()
     int ret, flush;
     unsigned have;
     z_stream strm;
-    unsigned char in[CHUNK];
-    unsigned char out[CHUNK];
+    //unsigned char in[CHUNK];
+    //unsigned char out[CHUNK];
+    void* out = malloc(size);
     //allocate deflate state
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
@@ -616,37 +835,63 @@ int WORLD_DUMP::deflate_dump()
         return ret;
     //compress until end of file
     
-    do {
-        strm.avail_in = fread(in, 1, CHUNK, source);
-        if (ferror(source)) {
-            (void)deflateEnd(&strm);
-            return Z_ERRNO;
-        }
-        flush = feof(source) ? Z_FINISH : Z_NO_FLUSH;
-        strm.next_in = in;
+        strm.avail_in = size;
+
+        //flush = feof(source) ? Z_FINISH : Z_NO_FLUSH;
+        strm.next_in = (uint8_t*)memory_in;
         //run deflate() on input until output buffer not full, finish
         ///compression if all of source has been read in
-        do {
-            strm.avail_out = CHUNK;
-            strm.next_out = out;
-            ret = deflate(&strm, flush);    //no bad return value
-            have = CHUNK - strm.avail_out;
-            if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
-                (void)deflateEnd(&strm);
-                return Z_ERRNO;
-            }
-        } while (strm.avail_out == 0);
-        //done when last data in file processed
-    } while (flush != Z_FINISH);
+
+            strm.avail_out = size;
+            strm.next_out = (uint8_t*)out;
+            ret = deflate(&strm, Z_FINISH);    //no bad return value
+            have = size - strm.avail_out;
+
     //clean up and return
     (void)deflateEnd(&strm);
-    return Z_OK;
+
+    deflated_data = malloc(have);
+    memcpy(deflated_data, out, have);
+    free(out);
+    free(memory_in);
+    deflated_data_size = have;
+
+    players.clear();
+
+    deflated = true;
+
+    return 0;
 }
 
-void WORLD_DUMP::inflate_dump()
+int WORLD_DUMP::inflate_dump()
 {
+    /*//check if deflated
+    if (!deflated)
+        return 0;
 
-}*/
+    int ret;
+    unsigned have;
+    z_stream strm;
+    //unsigned char in[CHUNK];
+    //unsigned char out[CHUNK];
+    //allocate inflate state
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+    strm.avail_in = 0;
+    strm.next_in = Z_NULL;
+    ret = inflateInit(&strm);
+    if (ret != Z_OK)
+        return ret;
+
+    strm.avail_in = deflated_data_size;
+    strm.next_in = (uint8_t*)deflated_data;
+
+    void* memory_out = malloc(CHUNK);
+    strm.avail_out = CHUNK;
+    strm.next_out = (uint8_t*)memory_out;*/
+    return 0;
+}
 
 void WORLD_DUMP::print(FILE* f) const
 {

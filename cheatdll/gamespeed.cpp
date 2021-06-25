@@ -498,6 +498,39 @@ __declspec(naked) void fixDefaultRecSpeed() //0042E8E2
     }
 }
 
+DWORD last_paint_time = 0;
+#define MAX_SCREEN_UPDATE 33
+
+__declspec(naked) void on_paint_to_screen() //00429AD1
+{
+    __asm
+    {
+        mov     ebp, eax
+
+        call    isRec
+        test    eax, eax
+        jz      paint_always
+
+        call    timeGetTime
+        mov     edx, eax
+        mov     ecx, last_paint_time
+        sub     eax, ecx
+        cmp     eax, MAX_SCREEN_UPDATE
+        jl      skip_screen_paint
+        mov     last_paint_time, edx
+
+paint_always:
+        mov     eax, 00471CB0h
+        mov     ecx, [esi + 68h]
+        push    ebx
+        call    eax
+
+skip_screen_paint:
+        mov     eax, 00429AD9h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setGameSpeedHooks()
 {
@@ -513,6 +546,8 @@ void setGameSpeedHooks()
     setHook((void*)0x005E01E6, onPrintTime);
 
     setHook((void*)0x0042E8E2, fixDefaultRecSpeed);
+
+    //setHook((void*)0x00429AD1, on_paint_to_screen);
 
     //setHook((void*)0x00471CB0, onDrawScreen); //obsolete
     //setHook((void*)0x00428B02, onDrawScreen2);

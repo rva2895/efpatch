@@ -131,7 +131,7 @@ loc_7D940A:
         pop     ebp
         pop     ebx
         pop     edi
-        pop     esi
+        //pop     esi
         retn    4
 
 loc_7D9417:
@@ -553,9 +553,9 @@ __declspec(naked) void mbs_on_select() //004C2F61
         cmp     byte ptr [esi + 5Eh], 50h // +4Eh -> +5Eh
         jnz     short loc_7D951C
         mov     edx, [esi + 14h] // +8 -> +14h
-        cmp     byte ptr [edx + 95h], 4 //   !!!!!!
+        cmp     byte ptr [edx + 9Dh], 4 // +95h -> +9Dh (interaction mode)
         jge     short loc_7D951C
-        cmp     byte ptr [esi + 48h], 2 //   !!!!!!
+        cmp     byte ptr [esi + 58h], 2 // +48h -> +58h (state)
         jnz     short loc_7D9522
         sub     esp, 0Ch
         mov     ecx, esi

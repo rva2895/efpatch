@@ -5,6 +5,8 @@
 #include "advcheat.h"
 #include "rundll.h"
 #include "oos.h"
+#include "functionlist.h"
+#include "worlddump.h"
 
 #include <process.h>
 #include <MMSystem.h>
@@ -12,6 +14,7 @@
 #include <string>
 #include <map>
 #include <time.h>
+#include <algorithm>
 
 int current_worldtime = 0;
 
@@ -377,18 +380,6 @@ int __fastcall get_gametime2()
     }
 }
 
-void(__thiscall* GameScreen__pause)(void* this_) =
-    (void(__thiscall*)(void*))0x00501C30;
-
-void __stdcall pause_game()
-{
-    void* game_screen = *(void**)((uint8_t*)(*BaseGame_bg) + 0x17B4);
-    if (game_screen)
-    {
-        GameScreen__pause(game_screen);
-    }
-}
-
 /*__declspec(naked) int __fastcall get_gametime2()
 {
     __asm
@@ -402,8 +393,66 @@ void __stdcall pause_game()
     }
 }*/
 
+int (__cdecl* rand_internal)() =
+    (int (__cdecl*)())0x00632BDD;
+
+#define RAND_N 10000
+#define RAND_K 10
+
+int z = 0;
+
+int get_int_random()
+{
+    //return (rand_internal() % RAND_K);
+    /*z++;
+    if (z >= 10)
+        z = 0;
+    return z;*/
+    return z++ % 2 ? 4 : 5;
+}
+
+void do_random_test()
+{
+    /*int rand_values[10];
+    memset(rand_values, 0, sizeof(rand_values));
+    for (int i = 0; i < 10000; i++)
+    {
+        rand_values[rand_internal() % 10]++;
+    }
+    char chat_str[0x100];
+    *chat_str = '\0';
+    for (int i = 0; i < 10; i++)
+    {
+        sprintf(chat_str + strlen(chat_str), "%d = %.4f ", i, (float)rand_values[i] / 10000);
+    }
+    chat(chat_str);*/
+
+    double d = 0.0;
+    for (int i = 0; i < 10000; i++)
+    {
+        d += pow((get_int_random() - (RAND_K - 1) / 2), 2);
+    }
+    d *= (double)1 / RAND_N;
+    chat("rand variance: %.4f", d);
+}
+
+DWORD performance_time = 0;
+
 extern float* __fastcall player_getResources2(void*);
 extern void __stdcall make_oos_dump();
+
+extern std::vector<FUNCTION_HOOK*> function_hooks;
+
+struct
+{
+    bool operator() (FUNCTION_HOOK* fh1, FUNCTION_HOOK* fh2) const
+    {
+        return !(*fh1 < *fh2);
+    }
+} compare_call_counts_object;
+
+extern unsigned int dump_objects(const char* filename);
+extern int max_worldtime;
 
 int __stdcall onChat_2(int player, char* targets, char* s)
 {
@@ -425,7 +474,7 @@ int __stdcall onChat_2(int player, char* targets, char* s)
         memory_temp = 0x100000;
         return 1;
     }
-    /*else if (!strcmp(s, "/dump-world"))
+    else if (!strcmp(s, "/dump-world"))
     {
         srand(timeGetTime());
         unsigned int r = rand();
@@ -438,12 +487,21 @@ int __stdcall onChat_2(int player, char* targets, char* s)
     }
     else if (!strcmp(s, "/worldtime"))
     {
-        chat("Worldtime = %d (%d)", current_worldtime, get_gametime2());
+        chat("Worldtime = %d", get_gametime2());
         return 1;
     }
+    else if (strstr(s, "/set-max"))
+    {
+        char d[0x100];
+        int t;
+        sscanf(s, "%s %d", d, &t);
+        max_worldtime = t;
+        chat("Set max worldtime to %d", t);
+        return true;
+    }/*
     else if (!strcmp(s, "/make-oos"))
     {
-        float* r = player_getResources2(getCurrentPlayer());
+        float* r = player_getResources2(get_player(0));
         r[0] += 100.0f;
         chat("Caused out of sync");
         return 1;
@@ -451,6 +509,94 @@ int __stdcall onChat_2(int player, char* targets, char* s)
     else if (!strcmp(s, "/dump-all"))
     {
         make_oos_dump();
+        return 1;
+    }*/
+    else if (strstr(s, "/obj") || strstr(s, "/object"))
+    {
+        char d[0x100];
+        int id;
+        sscanf(s, "%s %d", d, &id);
+        void* base_world = *(void**)((char*)*BaseGame_bg + 0x420);
+        if (base_world)
+        {
+            UNIT* unit = (UNIT*)BaseWorld__object(base_world, id);
+            if (unit)
+            {
+                void* player = getCurrentPlayer();
+                WorldPlayerBase__unselect_object(player);
+                WorldPlayerBase__select_object(player, unit, 1);
+            }
+            else
+                chat("Invalid object id");
+        }
+
+        return true;
+    }
+    else if (strstr(s, "/cs"))
+    {
+        WORLD_DUMP wd;
+        wd.update_cs();
+        chat("CS=%u", wd.get_cs());
+        return true;
+    }
+    /*else if (!strcmp(s, "/random-test"))
+    {
+        chat("Testing random generator...");
+        do_random_test();
+        return 1;
+    }*/
+    /*else if (!strcmp(s, "/set-zero-count"))
+    {
+        for (auto it = function_hooks.begin(), it_end = function_hooks.end(); it != it_end; ++it)
+            (*it)->set_zero_call_count();
+        chat("Set call counts to zero");
+        return 1;
+    }
+    else if (!strcmp(s, "/print-call-count"))
+    {
+        srand(timeGetTime());
+        unsigned int r = rand();
+        char name[MAX_PATH];
+        sprintf(name, "call_count_%08X.txt", r);
+        //chat("Sorting vector ...");
+        std::sort(function_hooks.begin(), function_hooks.end(), compare_call_counts_object);
+        FILE* f = fopen(name, "wt");
+        if (f)
+        {
+            for (auto it = function_hooks.begin(), it_end = function_hooks.end(); it != it_end; ++it)
+                fprintf(f, "0x%X - %lld - %lld ns\n", (*it)->get_address(), (*it)->get_call_count(), (*it)->get_total_time());
+            fclose(f);
+            chat("Printed call counts to %s", name);
+        }
+        else
+            chat("Error writing file!");
+        return 1;
+    }
+    else if (!strcmp(s, "/time-start"))
+    {
+        performance_time = timeGetTime();
+        chat("Set start time");
+        return 1;
+    }
+    else if (!strcmp(s, "/time-stop"))
+    {
+        chat("Elapsed %d ms", timeGetTime() - performance_time);
+        return 1;
+    }
+    else if (!strcmp(s, "/render-off"))
+    {
+        chat("Render OFF");
+        unsigned char instr = 0xC3;
+        SIZE_T w;
+        WriteProcessMemory(GetCurrentProcess(), (void*)0x00651BC0, &instr, 1, &w);
+        return 1;
+    }
+    else if (!strcmp(s, "/render-on"))
+    {
+        chat("Render ON");
+        unsigned char instr = 0x55;
+        SIZE_T w;
+        WriteProcessMemory(GetCurrentProcess(), (void*)0x00651BC0, &instr, 1, &w);
         return 1;
     }*/
     else

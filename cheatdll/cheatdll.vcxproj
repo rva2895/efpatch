@@ -335,6 +335,7 @@
     <ClInclude Include="filenames.h" />
     <ClInclude Include="fixedpos.h" />
     <ClInclude Include="flare.h" />
+    <ClInclude Include="functionlist.h" />
     <ClInclude Include="gamemode.h" />
     <ClInclude Include="gamespeed.h" />
     <ClInclude Include="hotkey.h" />
@@ -471,6 +472,7 @@
     <ClCompile Include="filenames.cpp" />
     <ClCompile Include="fixedpos.cpp" />
     <ClCompile Include="flare.cpp" />
+    <ClCompile Include="functionlist.cpp" />
     <ClCompile Include="gamemode.cpp" />
     <ClCompile Include="gamespeed.cpp" />
     <ClCompile Include="hotkey.cpp" />

@@ -923,13 +923,13 @@ void* (__cdecl* calloc_internal)(size_t number, size_t size) =
 void __stdcall TRIBE_Command__command_shift_delete(void* this_, UNIT** units)
 {
     int unit_count = 0;
-    void* player = NULL;
+    void* player = getCurrentPlayer();
     for (int i = 0; i < 40; i++)
         if (units[i])
-        {
-            unit_count++;
-            player = units[i]->player;
-        }
+            if (units[i]->player == player)
+                unit_count++;
+            else
+                units[i] = NULL;
     if (unit_count > 0)
     {
         int order_size = 4 + 4 * unit_count;
@@ -973,7 +973,7 @@ __declspec(naked) void __fastcall GameScreen__command_shift_delete(void* this_)
         xor     ebx, ebx
         lea     ebp, [edi + 1C8h]
 
-        loc_5015BE:
+loc_5015BE:
         mov     eax, [edi + 26Ch]
         test    eax, eax
         jle     loc_501661

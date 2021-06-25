@@ -40,6 +40,7 @@ struct player_info
 class WORLD_DUMP
 {
 private:
+    bool deflated;
     int worldtime;
     std::vector<player_info> players;
     unsigned int cs;
@@ -49,10 +50,11 @@ private:
 public:
     WORLD_DUMP();
     int get_worldtime() const;
+    unsigned int get_cs() const;
     void update_cs();
     void sort_objects();
-    /*int deflate_dump();
-    int inflate_dump();*/
+    int deflate_dump();
+    int inflate_dump();
     void print(FILE* f) const;
 };
 

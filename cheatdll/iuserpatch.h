@@ -10,7 +10,7 @@
 #include "common.h"
 
 #define EXE_PATCH_VERSION "3.1"
-#define USERPATCH_VERSION "EXE Patch v3.1 (" EXE_PATCH_VERSION ") " __DATE__ " " __TIME__
+#define USERPATCH_VERSION "EXE Patch v3.1.3 (" EXE_PATCH_VERSION ") " __DATE__ " " __TIME__
 
 struct UserPatchConfig_t
 {

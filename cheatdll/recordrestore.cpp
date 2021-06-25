@@ -155,10 +155,10 @@ __declspec(naked) void recrestore9() //0050A6AB
         mov     eax, [esi]
         push    0
         push    0
-        push    10h
-        push    10h
-        push    2Fh
-        push    1E0h
+        push    16
+        push    16
+        push    68 //2Fh
+        push    48 //1E0h
         lea     ecx, [esi + 804h]
         push    ecx
         push    esi
@@ -171,10 +171,10 @@ __declspec(naked) void recrestore9() //0050A6AB
         push    0
         push    0
         push    0Bh
-        push    26h
-        push    9Eh
-        push    32h
-        push    1F0h
+        push    38 //26h
+        push    158 //9Eh
+        push    71 //32h
+        push    64 //1F0h
         push    34E6h
         lea     eax, [esi + 808h]
         push    eax
