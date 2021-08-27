@@ -3,11 +3,6 @@
 //66 83 7A 1E 2D -> cmp     word ptr [edx + 1Eh], 2Dh
 //66 83 7B 1E 2D -> cmp     word ptr [ebx + 1Eh], 2Dh
 
-BYTE c_edx[] =
-{
-    0x66, 0x83, 0x7A, 0x1E, 0x2D, 0x90
-};
-
 __declspec(naked) void cargoTrader_1() //005CED83
 {
     __asm
@@ -83,6 +78,7 @@ loc_41C6EB:
 #pragma optimize( "s", on )
 void setCargoTraderHooks()
 {
+    BYTE c_edx[] = { 0x66, 0x83, 0x7A, 0x1E, 0x2D, 0x90 };
     writeData(0x0041ECF9, c_edx, 6);
     writeData(0x00572C08, c_edx, 6);
     writeData(0x00572CA2, c_edx, 6);

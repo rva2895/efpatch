@@ -60,9 +60,6 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="advcheat.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="gamemode.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
@@ -402,11 +399,26 @@
     <ClInclude Include="functionlist.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
+    <ClInclude Include="tribe_command.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="tribe_command_ef.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="advcheat.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="legacypatch.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="techtree.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="dataload.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="advcheat.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
     <ClCompile Include="gamemode.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
@@ -753,6 +765,24 @@
       <Filter>Файлы исходного кода\misc</Filter>
     </ClCompile>
     <ClCompile Include="functionlist.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="tribe_command.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="tribe_command_ef.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="advcheat.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="legacypatch.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="techtree.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="dataload.cpp">
       <Filter>Файлы исходного кода\misc</Filter>
     </ClCompile>
   </ItemGroup>

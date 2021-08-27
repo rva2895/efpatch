@@ -1,4 +1,5 @@
 #pragma once
+#include "structs.h"
 
 #ifdef TARGET_VOOBLY
 #define DLL_NAME "userpatch.dll"
@@ -12,11 +13,9 @@ void __cdecl writeDword(DWORD addr, DWORD val);
 void __cdecl writeByteF(DWORD addr, BYTE val);
 void __cdecl writeDwordF(DWORD addr, DWORD val);
 void __cdecl setHook(void* addr, void* newAddr);
-void __cdecl writeData(DWORD addr, void* data, int len);
+void __cdecl writeData(DWORD addr, const void* data, int len);
 //void __cdecl setHookRestorable (void* addr, void* newAddr, void* oldData);
 //void __cdecl restoreHook (void* addr, void* oldData);
-
-//int __cdecl readInt (int addr);
 
 void* __stdcall getCurrentPlayer();
 void* __fastcall get_player(int);
@@ -27,6 +26,9 @@ int __stdcall getWindowX();
 int __stdcall getWindowY();
 
 int __stdcall get_sn(void* player, int sn);
+
+int __stdcall player_get_n_selection(void* player);
+UNIT** __stdcall player_get_selection(void* player);
 
 struct BYTE_ASSIGN
 {
@@ -49,51 +51,11 @@ struct SET_HOOK_ASSIGN
 void __stdcall sendChat(char* s, int p);
 void __cdecl chat(char* format, ...);
 
-/*void myCrtStartup ();
+float __stdcall player_get_camera_x(void* player);
+float __stdcall player_get_camera_y(void* player);
 
-char* (__cdecl *strncpy__)(char *Dest, const char *Source, size_t Count);
-char* (__cdecl *strstr__)(const char *Str, const char *SubStr);
-int (__cdecl *fclose__)(void* File);
-int (__cdecl *sscanf__)(const char *Src, const char *Format, ...);
-void* (__cdecl *fopen__)(const char *Filename, const char *Mode);
-int (__cdecl *sprintf__)(char*, const char*, ...);
-void* (__cdecl *malloc__)(size_t Size);
-int (__cdecl *vsprintf__)(char *Dest, const char *Format, char* Args);
-int (__cdecl *fprintf__)(void *File, const char *Format, ...);
-int (__cdecl *fscanf__)(void *File, const char *Format, ...);
-void* (__cdecl *memset__)(void *Dst, int Val, size_t Size);
-void* (__cdecl *memcpy__)(void *Dst, const void *Src, size_t Size);
-char* (__cdecl *strcpy__)(char *Dest, const char *Source);
-char* (__cdecl *strcat__)(char *Dest, const char *Source);
-int (__cdecl *strcmp__)(const char *Str1, const char *Str2);
-size_t (__cdecl *strlen__)(const char *Str);
-void (__cdecl *free__)(void* mem);
-void* (__cdecl *realloc__)(void*, size_t, size_t);
-char* (__cdecl *strupr__)(char *String);
-
-char* __cdecl strncpy__(char *Dest, const char *Source, size_t Count);
-char* __cdecl strstr__(const char *Str, const char *SubStr);
-int __cdecl fclose__(void* File);
-int __cdecl sscanf__(const char *Src, const char *Format, ...);
-void* __cdecl fopen__(const char *Filename, const char *Mode);
-int __cdecl sprintf__(char*, const char*, ...);
-void* __cdecl malloc__(size_t Size);
-int __cdecl vsprintf__(char *Dest, const char *Format, char* Args);
-int __cdecl fprintf__(void *File, const char *Format, ...);
-int __cdecl fscanf__(void *File, const char *Format, ...);
-void* __cdecl memset__(void *Dst, int Val, size_t Size);
-void* __cdecl memcpy__(void *Dst, const void *Src, size_t Size);
-char* __cdecl strcpy__(char *Dest, const char *Source);
-char* __cdecl strcat__(char *Dest, const char *Source);
-int __cdecl strcmp__(const char *Str1, const char *Str2);
-size_t __cdecl strlen__(const char *Str);
-void __cdecl free__(void* mem);
-void* __cdecl realloc__(void*, size_t, size_t);
-char* __cdecl strupr__(char *String);
-
-//#define _malloc malloc
-//#define _free free
-//#define _exit exit*/
+void* __stdcall get_main_view();
+void __stdcall unit_change_ownership(UNIT* unit, void* new_owner);
 
 int __stdcall getMapSize();
 
@@ -102,6 +64,11 @@ extern void** BaseGame_bg;
 extern void* (__thiscall* BaseWorld__object)(void* this_, int oID);
 
 extern void* (__thiscall* BaseGame__get_player)(void* globalPtr);
+extern bool (__thiscall* BaseGame__allowCheatCodes)(void* this_);
+extern bool (__thiscall* BaseGame__singlePlayerGame)(void* this_);
+
+extern void (__thiscall* Game__show_status_message)(void* this_, char* messageIn, char* info_file, int info_id, int show_settings, int use_logo_background);
+extern void (__thiscall* Game__close_status_message)(void* this_);
 
 extern void* (__thiscall* GameScreen__find_next_idle_unit)(void* this_, int last_object_id);
 extern void* (__thiscall* GameScreen__find_next_idle_military_unit)(void* this_, int last_object_id);
@@ -113,3 +80,18 @@ extern int (__thiscall* WorldPlayerBase__unselect_object)(void* this_);
 extern int (__thiscall* WorldPlayerBase__set_view_loc)(void* player, float x, float y, int spectatingView);
 
 extern int (__thiscall* GameSoundEffectsManager__playSound)(void* this_, int soundId, int pan, int volume);
+
+extern int (__thiscall* RGE_Command__submit)(void* command, void* order, int order_size, int issuer);
+
+extern void* (__cdecl* calloc_internal)(size_t number, size_t size);
+extern void (__cdecl* free_internal)(void* memory);
+
+extern int (__thiscall* unit_detach)(UNIT* unit);
+extern void __stdcall kill_unit(UNIT* unit);
+
+extern void (__fastcall* deflate_write)(void* outfile, void* buffer, unsigned int size);
+extern void (__fastcall* deflate_read)(void* infile, void* buffer, unsigned int size);
+
+extern int (__thiscall* RGE_View__display_object_selection)(void* this_, int id, int duration, int select_type, int reset_type);
+
+extern int (__thiscall* TPanelSystem__destroyPanel)(void* this_, char* n);

@@ -56,7 +56,7 @@ uint8_t indirect_table_water[] =    //starts from 1 (TERR-WATER1)
     /* 200 */ 1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
     /* 210 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     /* 220 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    /* 230 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    /* 230 */ 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, //TREE-NEW-23
     /* 240 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     /* 250 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
@@ -93,17 +93,21 @@ __declspec(naked) void ice_terrain_fix() //005CBCCE
     __asm
     {
         cmp     ebx, 35
-        jz      _ice1
+        jz      ice1
         cmp     ebx, 37
-        jz      _ice1
+        jz      ice1
         cmp     ebx, 157
-        jb      _not_ice1
+        jb      not_ice1
         cmp     ebx, 160
-        ja      _not_ice1
-_ice1:
+        jbe     ice1
+        cmp     ebx, 208
+        jz      ice1
+        cmp     ebx, 209
+        jnz     not_ice1
+ice1:
         mov     ebx, 005CBCDCh
         jmp     ebx
-_not_ice1:
+not_ice1:
         mov     ebx, 005CBE1Eh
         jmp     ebx
     }
@@ -114,27 +118,31 @@ __declspec(naked) void snow_terrain_fix_1() //005CBE92
     __asm
     {
         cmp     dl, 20h
-        jb      _not_snow1
+        jb      not_snow1
         cmp     dl, 22h
-        jbe     _snow1
+        jbe     snow1
         cmp     dl, 36
-        jz      _snow1
+        jz      snow1
         cmp     dl, 47
-        jz      _snow1
+        jz      snow1
         cmp     dl, 55
-        jz      _snow1
+        jz      snow1
         cmp     dl, 63
-        jz      _snow1
+        jz      snow1
         cmp     dl, 134
-        jz      _snow1
+        jz      snow1
         cmp     dl, 135
-        jz      _snow1
+        jz      snow1
         cmp     dl, 195
-        jz      _snow1
-_not_snow1:
+        jz      snow1
+        cmp     dl, 215
+        jb      not_snow1
+        cmp     dl, 217
+        jbe     snow1
+not_snow1:
         push    005CBEA1h
         ret
-_snow1:
+snow1:
         push    005CBEBEh
         ret
     }
@@ -145,27 +153,31 @@ __declspec(naked) void snow_terrain_fix_2() //005CBEAF
     __asm
     {
         cmp     dl, 20h
-        jb      _not_snow2
+        jb      not_snow2
         cmp     dl, 22h
-        jbe     _snow2
+        jbe     snow2
         cmp     dl, 36
-        jz      _snow2
+        jz      snow2
         cmp     dl, 47
-        jz      _snow2
+        jz      snow2
         cmp     dl, 55
-        jz      _snow2
+        jz      snow2
         cmp     dl, 63
-        jz      _snow2
+        jz      snow2
         cmp     dl, 134
-        jz      _snow2
+        jz      snow2
         cmp     dl, 135
-        jz      _snow2
+        jz      snow2
         cmp     dl, 195
-        jz      _snow2
-_not_snow2:
+        jz      snow2
+        cmp     dl, 215
+        jb      not_snow2
+        cmp     dl, 217
+        jbe     snow2
+not_snow2:
         push    005CBEC3h
         ret
-_snow2:
+snow2:
         push    005CBEBEh
         ret
     }
@@ -176,27 +188,31 @@ __declspec(naked) void snow_terrain_fix_3() //005CBF42
     __asm
     {
         cmp     bl, 20h
-        jb      _not_snow3
+        jb      not_snow3
         cmp     bl, 22h
-        jbe     _snow3
+        jbe     snow3
         cmp     bl, 36
-        jz      _snow3
+        jz      snow3
         cmp     bl, 47
-        jz      _snow3
+        jz      snow3
         cmp     bl, 55
-        jz      _snow3
+        jz      snow3
         cmp     bl, 63
-        jz      _snow3
+        jz      snow3
         cmp     bl, 134
-        jz      _snow3
+        jz      snow3
         cmp     bl, 135
-        jz      _snow3
+        jz      snow3
         cmp     bl, 195
-        jz      _snow3
-_not_snow3:
+        jz      snow3
+        cmp     bl, 215
+        jb      not_snow3
+        cmp     bl, 217
+        jbe     snow3
+not_snow3:
         push    005CBF51h
         ret
-_snow3:
+snow3:
         push    005CBF89h
         ret
     }
@@ -207,27 +223,31 @@ __declspec(naked) void snow_terrain_fix_4() //005CBF5D
     __asm
     {
         cmp     dl, 20h
-        jb      _not_snow4
+        jb      not_snow4
         cmp     dl, 22h
-        jbe     _snow4
+        jbe     snow4
         cmp     dl, 36
-        jz      _snow4
+        jz      snow4
         cmp     dl, 47
-        jz      _snow4
+        jz      snow4
         cmp     dl, 55
-        jz      _snow4
+        jz      snow4
         cmp     dl, 63
-        jz      _snow4
+        jz      snow4
         cmp     dl, 134
-        jz      _snow4
+        jz      snow4
         cmp     dl, 135
-        jz      _snow4
+        jz      snow4
         cmp     dl, 195
-        jz      _snow4
-_not_snow4:
+        jz      snow4
+        cmp     dl, 215
+        jb      not_snow4
+        cmp     dl, 217
+        jbe     snow4
+not_snow4:
         push    005CBF6Ch
         ret
-_snow4:
+snow4:
         push    005CBF89h
         ret
     }
@@ -238,27 +258,31 @@ __declspec(naked) void snow_terrain_fix_5() //005CBF7A
     __asm
     {
         cmp     dl, 20h
-        jb      _not_snow5
+        jb      not_snow5
         cmp     dl, 22h
-        jbe     _snow5
+        jbe     snow5
         cmp     dl, 36
-        jz      _snow5
+        jz      snow5
         cmp     dl, 47
-        jz      _snow5
+        jz      snow5
         cmp     dl, 55
-        jz      _snow5
+        jz      snow5
         cmp     dl, 63
-        jz      _snow5
+        jz      snow5
         cmp     dl, 134
-        jz      _snow5
+        jz      snow5
         cmp     dl, 135
-        jz      _snow5
+        jz      snow5
         cmp     dl, 195
-        jz      _snow5
-_not_snow5:
+        jz      snow5
+        cmp     dl, 215
+        jb      not_snow5
+        cmp     dl, 217
+        jbe     snow5
+not_snow5:
         push    005CBF8Eh
         ret
-_snow5:
+snow5:
         push    005CBF89h
         ret
     }
@@ -269,27 +293,31 @@ __declspec(naked) void snow_terrain_fix_6() //005CC011
     __asm
     {
         cmp     bl, 20h
-        jb      _not_snow6
+        jb      not_snow6
         cmp     bl, 22h
-        jbe     _snow6
+        jbe     snow6
         cmp     bl, 36
-        jz      _snow6
+        jz      snow6
         cmp     bl, 47
-        jz      _snow6
+        jz      snow6
         cmp     bl, 55
-        jz      _snow6
+        jz      snow6
         cmp     bl, 63
-        jz      _snow6
+        jz      snow6
         cmp     bl, 134
-        jz      _snow6
+        jz      snow6
         cmp     bl, 135
-        jz      _snow6
+        jz      snow6
         cmp     bl, 195
-        jz      _snow6
-_not_snow6:
+        jz      snow6
+        cmp     bl, 215
+        jb      not_snow6
+        cmp     bl, 217
+        jbe     snow6
+not_snow6:
         push    005CC020h
         ret
-_snow6:
+snow6:
         push    005CC055h
         ret
     }
@@ -300,27 +328,31 @@ __declspec(naked) void snow_terrain_fix_7() //005CC02C
     __asm
     {
         cmp     dl, 20h
-        jb      _not_snow7
+        jb      not_snow7
         cmp     dl, 22h
-        jbe     _snow7
+        jbe     snow7
         cmp     dl, 36
-        jz      _snow7
+        jz      snow7
         cmp     dl, 47
-        jz      _snow7
+        jz      snow7
         cmp     dl, 55
-        jz      _snow7
+        jz      snow7
         cmp     dl, 63
-        jz      _snow7
+        jz      snow7
         cmp     dl, 134
-        jz      _snow7
+        jz      snow7
         cmp     dl, 135
-        jz      _snow7
+        jz      snow7
         cmp     dl, 195
-        jz      _snow7
-_not_snow7:
+        jz      snow7
+        cmp     dl, 215
+        jb      not_snow7
+        cmp     dl, 217
+        jbe     snow7
+not_snow7:
         push    005CC03Bh
         ret
-_snow7:
+snow7:
         push    005CC055h
         ret
     }
@@ -331,27 +363,31 @@ __declspec(naked) void snow_terrain_fix_8() //005CC049
     __asm
     {
         cmp     al, 20h
-        jb      _not_snow8
+        jb      not_snow8
         cmp     al, 22h
-        jbe     _snow8
+        jbe     snow8
         cmp     al, 36
-        jz      _snow8
+        jz      snow8
         cmp     al, 47
-        jz      _snow8
+        jz      snow8
         cmp     al, 55
-        jz      _snow8
+        jz      snow8
         cmp     al, 63
-        jz      _snow8
+        jz      snow8
         cmp     al, 134
-        jz      _snow8
+        jz      snow8
         cmp     al, 135
-        jz      _snow8
+        jz      snow8
         cmp     al, 195
-        jz      _snow8
-_not_snow8:
+        jz      snow8
+        cmp     al, 215
+        jb      not_snow8
+        cmp     al, 217
+        jbe     snow8
+not_snow8:
         push    005CC05Ah
         ret
-_snow8:
+snow8:
         push    005CC055h
         ret
     }
@@ -362,27 +398,31 @@ __declspec(naked) void snow_terrain_fix_9() //005CC095
     __asm
     {
         cmp     dl, 20h
-        jb      _not_snow9
+        jb      not_snow9
         cmp     dl, 22h
-        jbe     _snow9
+        jbe     snow9
         cmp     dl, 36
-        jz      _snow9
+        jz      snow9
         cmp     dl, 47
-        jz      _snow9
+        jz      snow9
         cmp     dl, 55
-        jz      _snow9
+        jz      snow9
         cmp     dl, 63
-        jz      _snow9
+        jz      snow9
         cmp     dl, 134
-        jz      _snow9
+        jz      snow9
         cmp     dl, 135
-        jz      _snow9
+        jz      snow9
         cmp     dl, 195
-        jz      _snow9
-_not_snow9:
+        jz      snow9
+        cmp     dl, 215
+        jb      not_snow9
+        cmp     dl, 217
+        jbe     snow9
+not_snow9:
         push    005CC1F6h
         ret
-_snow9:
+snow9:
         push    005CC0ACh
         ret
     }
@@ -395,27 +435,31 @@ __declspec(naked) void snow_terrain_fix_10() //004E4519
     __asm
     {
         cmp     bl, 20h
-        jb      _not_snow10
+        jb      not_snow10
         cmp     bl, 22h
-        jbe     _snow10
+        jbe     snow10
         cmp     bl, 36
-        jz      _snow10
+        jz      snow10
         cmp     bl, 47
-        jz      _snow10
+        jz      snow10
         cmp     bl, 55
-        jz      _snow10
+        jz      snow10
         cmp     bl, 63
-        jz      _snow10
+        jz      snow10
         cmp     bl, 134
-        jz      _snow10
+        jz      snow10
         cmp     bl, 135
-        jz      _snow10
+        jz      snow10
         cmp     bl, 195
-        jz      _snow10
-_not_snow10:
+        jz      snow10
+        cmp     bl, 215
+        jb      not_snow10
+        cmp     bl, 217
+        jbe     snow10
+not_snow10:
         push    004E4684h
         ret
-_snow10:
+snow10:
         push    004E4530h
         ret
     }
@@ -426,27 +470,31 @@ __declspec(naked) void snow_terrain_fix_11() //004E6209
     __asm
     {
         cmp     bl, 20h
-        jb      _not_snow11
+        jb      not_snow11
         cmp     bl, 22h
-        jbe     _snow11
+        jbe     snow11
         cmp     bl, 36
-        jz      _snow11
+        jz      snow11
         cmp     bl, 47
-        jz      _snow11
+        jz      snow11
         cmp     bl, 55
-        jz      _snow11
+        jz      snow11
         cmp     bl, 63
-        jz      _snow11
+        jz      snow11
         cmp     bl, 134
-        jz      _snow11
+        jz      snow11
         cmp     bl, 135
-        jz      _snow11
+        jz      snow11
         cmp     bl, 195
-        jz      _snow11
-_not_snow11:
+        jz      snow11
+        cmp     bl, 215
+        jb      not_snow11
+        cmp     bl, 217
+        jbe     snow11
+not_snow11:
         push    004E6374h
         ret
-_snow11:
+snow11:
         push    004E6220h
         ret
     }
@@ -457,27 +505,31 @@ __declspec(naked) void snow_terrain_fix_12() //00554995
     __asm
     {
         cmp     cl, 20h
-        jb      _not_snow12
+        jb      not_snow12
         cmp     cl, 22h
-        jbe     _snow12
+        jbe     snow12
         cmp     cl, 36
-        jz      _snow12
+        jz      snow12
         cmp     cl, 47
-        jz      _snow12
+        jz      snow12
         cmp     cl, 55
-        jz      _snow12
+        jz      snow12
         cmp     cl, 63
-        jz      _snow12
+        jz      snow12
         cmp     cl, 134
-        jz      _snow12
+        jz      snow12
         cmp     cl, 135
-        jz      _snow12
+        jz      snow12
         cmp     cl, 195
-        jz      _snow12
-_not_snow12:
+        jz      snow12
+        cmp     cl, 215
+        jb      not_snow12
+        cmp     cl, 217
+        jbe     snow12
+not_snow12:
         push    005549CCh
         ret
-_snow12:
+snow12:
         push    005549AEh
         ret
     }
@@ -770,6 +822,13 @@ int __fastcall isCarbon(uint8_t terrain)
     case 177:
     case 178:
     case 179:
+    case 204:
+    case 205:
+    case 206:
+    case 207:
+    case 229:
+    case 232:
+    case 235:
         return true;
         break;
     default:

@@ -156,31 +156,33 @@ void putTime()
 void __cdecl log(const char* format, ...)
 {
 #ifndef CHEATDLL_NOLOG
-
-    //closeLog ();
-    //initLog ();
-    flushLog();
-
-    if (loggingEnabled)
+    if (log_file)
     {
-        putTime();
-        fprintf(log_file, "[efpatch ] ");
-        va_list ap;
-        va_start(ap, format);
-        vfprintf(log_file, format, ap);
-        //memset (lastLogs [logged % 3], 0, 500);
-        vsprintf(lastLogs[logged % 12], format, ap);
-        //
+        //closeLog ();
+        //initLog ();
+        flushLog();
+
+        if (loggingEnabled)
+        {
+            putTime();
+            fprintf(log_file, "[efpatch ] ");
+            va_list ap;
+            va_start(ap, format);
+            vfprintf(log_file, format, ap);
+            //memset (lastLogs [logged % 3], 0, 500);
+            vsprintf(lastLogs[logged % 12], format, ap);
+            //
 #ifdef _DEBUG
-        char lastStr[500];
-        strcpy(lastStr, lastLogs[logged % 12]);
-        strcat(lastStr, "\x0A");
-        OutputDebugString(lastStr);
+            char lastStr[500];
+            strcpy(lastStr, lastLogs[logged % 12]);
+            strcat(lastStr, "\x0A");
+            OutputDebugString(lastStr);
 #endif
-        //
-        logged++;
-        fputs("\x0A", log_file);
-        va_end(ap);
+            //
+            logged++;
+            fputs("\x0A", log_file);
+            va_end(ap);
+        }
     }
 #endif
 }

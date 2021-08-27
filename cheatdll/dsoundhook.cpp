@@ -476,7 +476,7 @@ HRESULT __stdcall Intercept_CreateSoundBuffer(
 
     HRESULT tempreturn;
 
-    LPDIRECTSOUND ds_id = (LPDIRECTSOUND)ds_obj_id;
+    //LPDIRECTSOUND ds_id = (LPDIRECTSOUND)ds_obj_id;
     if (!( (*(LPDSBUFFERDESC)pcDSBufferDesc).dwFlags & DSBCAPS_PRIMARYBUFFER ))
     {
         for (int j = 0; j < (BUFCOUNT+1); j++)

@@ -1,13 +1,9 @@
 #include "stdafx.h"
 
 #include "zannfort.h"
-#include "researchrepeat.h"
 #include "advtriggereffect.h"
 
-void (__thiscall* researchTech) (void*, short) =
-    (void (__thiscall*) (void*, short)) 0x005BFEC9;
-
-__declspec(naked) void* __stdcall getPropertyObject2(void* player, int id)
+__declspec(naked) prop_object* __stdcall getPropertyObject2(void* player, int id)
 {
     __asm
     {
@@ -57,9 +53,6 @@ void zann_resetCosts2(void* c)
 
 void __stdcall zannfort_onChange(void* c)
 {
-    //research* res = (research*)**((void***)c + 2);
-    //removeCheckResearchedOnce();
-    //researchTech(c, 800);
     int nForts = (int)player_getResources(c)[134];        //standing forts
 
     zann_resetCosts1(c);
@@ -75,31 +68,6 @@ void __stdcall zannfort_onChange(void* c)
 
     zann_resetCosts2(c);
 }
-
-/*__declspec(naked) void onNewFort() //00554B8A
-{
-    __asm
-    {
-        push    ebx
-        push    3F800000h
-        push    0ADh
-        mov     eax, [ecx]
-        call    dword ptr[eax + 80h]
-        call    removeCheckResearchedOnce
-        mov     ecx, [esi + 18h]
-        push    2D6h             //research id
-        mov     ecx, [ecx + 1D94h]
-        //
-        push    ecx
-        //push    ecx
-        //call    restest
-        pop     ecx
-        //
-        mov     eax, 005BFEC9h   //researchTech
-        push    00554B9Dh
-        jmp     eax
-    }
-}*/
 
 __declspec(naked) void onFortBuilt() //00554B81
 {

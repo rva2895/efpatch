@@ -4,86 +4,7 @@
 #include "advtriggereffect.h"
 #include "effects.h"
 #include "sngoal.h"
-
-/*extern char* (__cdecl *strncpy__)(char *Dest, const char *Source, size_t Count);
-extern char* (__cdecl *strstr__)(const char *Str, const char *SubStr);
-extern int (__cdecl *fclose__)(void* File);
-extern int (__cdecl *sscanf__)(const char *Src, const char *Format, ...);
-extern void* (__cdecl *fopen__)(const char *Filename, const char *Mode);
-extern int (__cdecl *sprintf__)(char*, const char*, ...);
-extern void* (__cdecl *malloc__)(size_t Size);
-extern int (__cdecl *vsprintf__)(char *Dest, const char *Format, char* Args);
-extern int (__cdecl *fprintf__)(void *File, const char *Format, ...);
-extern int (__cdecl *fscanf__)(void *File, const char *Format, ...);
-extern void* (__cdecl *memset__)(void *Dst, int Val, size_t Size);
-extern void* (__cdecl *memcpy__)(void *Dst, const void *Src, size_t Size);
-extern char* (__cdecl *strcpy__)(char *Dest, const char *Source);
-extern char* (__cdecl *strcat__)(char *Dest, const char *Source);
-extern int (__cdecl *strcmp__)(const char *Str1, const char *Str2);
-extern size_t (__cdecl *strlen__)(const char *Str);
-extern void (__cdecl *free__)(void* mem);
-extern void* (__cdecl *realloc__)(void*, size_t, size_t);
-extern char* (__cdecl *strupr__)(char *String);*/
-
-int (__thiscall* unit_detach) (UNIT* unit) =
-    (int (__thiscall*) (UNIT*))0x0055F350;
-
-void prepareToEngageCheatCreateUnit(int unitId)
-{
-#ifdef _DEBUG
-    log("Initiating creation of unit ID %d (0x%X)", unitId, unitId);
-#endif
-    unsigned long c;
-    unsigned char movEax = 0xB8;
-    DWORD cheatDetected = 0x005EDC41; //change to mov eax,1
-    DWORD newUnitId = 0x00603E3C;
-    DWORD one = 1;
-    WriteProcessMemory(GetCurrentProcess(), (void*)cheatDetected, &movEax, 1, &c); //simulate "simonsays" cheat
-    WriteProcessMemory(GetCurrentProcess(), (char*)cheatDetected + 1, &one, 4, &c);
-    WriteProcessMemory(GetCurrentProcess(), (void*)newUnitId, &unitId, 4, &c);
-}
-
-void prepareToEngageCheatResearchTech(int researchId)
-{
-#ifdef _DEBUG
-    log("Initiating researching of tech ID %d (0x%X)", researchId, researchId);
-#endif
-    unsigned long c;
-    unsigned char movEax = 0xB8;
-    DWORD cheatDetected = 0x005EDCD5; //change to mov eax,1
-    DWORD newTechId = 0x00603DD3;
-    DWORD one = 1;
-    WriteProcessMemory(GetCurrentProcess(), (void*)cheatDetected, &movEax, 1, &c); //simulate "the most powerful jedi" cheat
-    WriteProcessMemory(GetCurrentProcess(), (char*)cheatDetected + 1, &one, 4, &c);
-    WriteProcessMemory(GetCurrentProcess(), (void*)newTechId, &researchId, 4, &c);
-}
-
-bool restoreCheatFlag = 0;
-
-void restoreAll()
-{
-#ifdef _DEBUG
-    log("Restoring all cheats");
-#endif
-    unsigned long c;
-    DWORD cheatDetectedUnit = 0x005EDC41;
-    DWORD cheatDetectedTech = 0x005EDCD5;
-    DWORD unitCallStrStr = 0x000452EA;
-    DWORD techCallStrStr = 0x00045256;
-    DWORD unitID = 0x00603E3C;
-    DWORD techID = 0x00603DD3;
-    DWORD call = 0xE8;
-    int unit = 0x4B4;
-    int tech = 0x24C;
-    WriteProcessMemory(GetCurrentProcess(), (void*)cheatDetectedUnit, &call, 1, &c);
-    WriteProcessMemory(GetCurrentProcess(), (char*)cheatDetectedUnit + 1, &unitCallStrStr, 4, &c);
-    WriteProcessMemory(GetCurrentProcess(), (void*)cheatDetectedTech, &call, 1, &c);
-    WriteProcessMemory(GetCurrentProcess(), (char*)cheatDetectedTech + 1, &techCallStrStr, 4, &c);
-    WriteProcessMemory(GetCurrentProcess(), (void*)unitID, &unit, 4, &c);
-    WriteProcessMemory(GetCurrentProcess(), (void*)techID, &tech, 4, &c);
-
-    restoreCheatFlag = 0;
-}
+#include "tribe_command_ef.h"
 
 #pragma warning(push)
 #pragma warning(disable:4100)
@@ -110,7 +31,7 @@ __declspec(naked) void __stdcall takeControl(int p)
 }
 #pragma warning(pop)
 
-extern float glitched_res; //remove
+//extern float glitched_res; //remove
 
 int (__thiscall* player_add_attribute) (void *player, int resource, float amount) =
     (int(__thiscall*) (void*, int, float))0x004C3AE0; //0x005D07A0
@@ -128,8 +49,6 @@ void __stdcall player_undo_tech(void* player, short tech)
 
 void tribute(int player, int resource, float amount)
 {
-    if (amount == 42)
-        amount = NAN;
     //void* gaia = get_player(0);
     //void* target_p;
     /*if (target == -1)
@@ -152,6 +71,8 @@ void tribute(int player, int resource, float amount)
 //extern int control_target;
 //extern bool control_initiated;
 
+int player_id_for_gaia_control = 0;
+
 int __stdcall getCurrentPlayerId()
 {
     void* c = getCurrentPlayer();
@@ -161,36 +82,211 @@ int __stdcall getCurrentPlayerId()
     return -1;
 }
 
-prop_object* p;
-
 bool __stdcall checkCheats(char* s2)
 {
     char dummy[100];
-    char s[0x100];
-    strcpy(s, s2);
+    char s[0x200];
+    strncpy(s, s2, 0x1FF);
+    s[0x1FF] = '\0';
     _strupr(s);
-    int id;
-#ifdef _DEBUG
-    log("Scanning chat...");
-#endif
 
-    if (restoreCheatFlag)
-        restoreAll();
-
+    if (BaseGame__allowCheatCodes(*BaseGame_bg))
+    {
+        //fixed old cheats, SP only
+        if (BaseGame__singlePlayerGame(*BaseGame_bg))
+        {
+            if (strstr(s, "SIMONSAYS"))
+            {
+                void* player = getCurrentPlayer();
+                make_cheat_by_id_with_position(player, EF_CHEAT_SIMONSAYS,
+                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                return true;
+            }
+            if (strstr(s, "SCARYNEIGHBOR"))
+            {
+                void* player = getCurrentPlayer();
+                make_cheat_by_id_with_position(player, EF_CHEAT_SCARYNEIGHBOR,
+                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                return true;
+            }
+            if (strstr(s, "THAT'S NO MOON"))
+            {
+                void* player = getCurrentPlayer();
+                make_cheat_by_id_with_position(player, EF_CHEAT_THATS_NO_MOON,
+                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                return true;
+            }
+            if (strstr(s, "IMPERIAL ENTANGLEMENTS"))
+            {
+                void* player = getCurrentPlayer();
+                make_cheat_by_id_with_position(player, EF_CHEAT_IMPERIAL_ENTANGLEMENTS,
+                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                return true;
+            }
+            if (strstr(s, "TANTIVE IV"))
+            {
+                void* player = getCurrentPlayer();
+                make_cheat_by_id_with_position(player, EF_CHEAT_TANTIVE_IV,
+                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                return true;
+            }
+            if (strstr(s, "GALACTIC UPHEAVAL"))
+            {
+                void* player = getCurrentPlayer();
+                make_cheat_by_id_with_position(player, EF_CHEAT_GALACTIC_UPHEAVAL,
+                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                return true;
+            }
+            //new ef cheats, SP only
+            if (strstr(s, "LUMINOUS BEINGS ARE WE"))
+            {
+                void* player = getCurrentPlayer();
+                int player_id = getCurrentPlayerId();
+                WorldPlayerBase__unselect_object(player);
+                if (player_id != 0)
+                {
+                    player_id_for_gaia_control = player_id;
+                    takeControl(0);
+                }
+                else
+                    takeControl(player_id_for_gaia_control);
+                return true;
+            }
+            if (strstr(s, "YOU HAVE FAILED ME FOR THE LAST TIME"))
+            {
+                void* player = getCurrentPlayer();
+                UNIT** sel_units = player_get_selection(player);
+                int n = player_get_n_selection(player);
+                UNIT* order_units[40];
+                UNIT** unit_ptr = order_units;
+                for (int i = 0; i < n; i++)
+                    if (sel_units[i]->player != player && sel_units[i]->prop_object->type > 30)
+                        *unit_ptr++ = sel_units[i];
+                make_cheat_by_id_with_unit_list(player, EF_CHEAT_YOU_HAVE_FAILED_ME_FOR_THE_LAST_TIME, order_units, unit_ptr - order_units);
+                return true;
+            }
+            if (strstr(s, "JOIN US OR DIE"))
+            {
+                void* player = getCurrentPlayer();
+                UNIT** sel_units = player_get_selection(player);
+                int n = player_get_n_selection(player);
+                UNIT* order_units[40];
+                UNIT** unit_ptr = order_units;
+                for (int i = 0; i < n; i++)
+                    if (sel_units[i]->player != player)
+                        *unit_ptr++ = sel_units[i];
+                make_cheat_by_id_with_unit_list(player, EF_CHEAT_JOIN_US_OR_DIE, order_units, unit_ptr - order_units);
+                return true;
+            }
+            if (strstr(s, "ULTIMATE POWER IN THE UNIVERSE"))
+            {
+                void* player = getCurrentPlayer();
+                make_cheat_by_id_with_position(player, EF_CHEAT_ULTIMATE_POWER_IN_THE_UNIVERSE,
+                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                return true;
+            }
+            if (strstr(s, "KOELSCH"))
+            {
+                void* player = getCurrentPlayer();
+                make_cheat_by_id_with_position(player, EF_CHEAT_KOELSCH,
+                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                return true;
+            }
+        }
+        //new EF cheats, SP and MP
+        if (strstr(s, "HELP ME OBI-WAN"))
+        {
+            make_cheat_by_id(getCurrentPlayer(), EF_CHEAT_HELP_ME_OBIWAN);
+            return true;
+        }
+        if (strstr(s, "NOW THIS IS PODRACING"))
+        {
+            make_cheat_by_id(getCurrentPlayer(), EF_CHEAT_NOW_THIS_IS_PODRACING);
+            return true;
+        }
+        if (strstr(s, "THE DEFLECTOR SHIELD IS TOO STRONG"))
+        {
+            void* player = getCurrentPlayer();
+            UNIT** sel_units = player_get_selection(player);
+            int n = player_get_n_selection(player);
+            UNIT* order_units[40];
+            UNIT** unit_ptr = order_units;
+            for (int i = 0; i < n; i++)
+                if (sel_units[i]->player == player)
+                    *unit_ptr++ = sel_units[i];
+            make_cheat_by_id_with_unit_list(player, EF_CHEAT_THE_DEFLECTOR_SHIELD_IS_TOO_STRONG, order_units, unit_ptr - order_units);
+            return true;
+        }
+        if (strstr(s, "NO SHIP THAT SMALL HAS A CLOAKING DEVICE"))
+        {
+            void* player = getCurrentPlayer();
+            UNIT** sel_units = player_get_selection(player);
+            int n = player_get_n_selection(player);
+            UNIT* order_units[40];
+            UNIT** unit_ptr = order_units;
+            for (int i = 0; i < n; i++)
+                if (sel_units[i]->player == player)
+                    *unit_ptr++ = sel_units[i];
+            make_cheat_by_id_with_unit_list(player, EF_CHEAT_NO_SHIP_THAT_SMALL_HAS_A_CLOAKING_DEVICE, order_units, unit_ptr - order_units);
+            return true;
+        }
+        if (strstr(s, "FORCEHEAL"))
+        {
+            void* player = getCurrentPlayer();
+            UNIT** sel_units = player_get_selection(player);
+            int n = player_get_n_selection(player);
+            UNIT* order_units[40];
+            UNIT** unit_ptr = order_units;
+            for (int i = 0; i < n; i++)
+                if (sel_units[i]->player == player)
+                    *unit_ptr++ = sel_units[i];
+            make_cheat_by_id_with_unit_list(player, EF_CHEAT_FORCEHEAL, order_units, unit_ptr - order_units);
+            return true;
+        }
+        if (strstr(s, "FORCEPROTECT"))
+        {
+            void* player = getCurrentPlayer();
+            UNIT** sel_units = player_get_selection(player);
+            int n = player_get_n_selection(player);
+            UNIT* order_units[40];
+            UNIT** unit_ptr = order_units;
+            for (int i = 0; i < n; i++)
+                if (sel_units[i]->player == player)
+                    *unit_ptr++ = sel_units[i];
+            make_cheat_by_id_with_unit_list(player, EF_CHEAT_FORCEPROTECT, order_units, unit_ptr - order_units);
+            return true;
+        }
+        if (strstr(s, "UNLIMITED POWER"))
+        {
+            make_cheat_by_id(getCurrentPlayer(), EF_CHEAT_UNLIMITED_POWER);
+            return true;
+        }
+    }
+    //debug commands
+    /*if (strstr(s, "/TEST"))
+    {
+        void* player = getCurrentPlayer();
+        UNIT** sel_units = player_get_selection(player);
+        int n = player_get_n_selection(player);
+        for (int i = 0; i < n; i++)
+        {
+            sel_units[i]->prop_object->garrison_heal_rate *= 100;
+            sel_units[i]->prop_object->displayed_pierce_armor *= 10;
+        }
+        return true;
+    }
     if (strstr(s, "/CREATE-UNIT"))
     {
-        restoreCheatFlag = 1;
         sscanf(s, "%s %d", dummy, &id);
         prepareToEngageCheatCreateUnit(id);
         return false;
     }
     if (strstr(s, "/RESEARCH-TECH"))
     {
-        restoreCheatFlag = 1;
         sscanf(s, "%s %d", dummy, &id);
         prepareToEngageCheatResearchTech(id);
         return false;
-    }
+    }*/
     /*if (strstr(s, "/UNDO-TECH"))
     {
         restoreCheatFlag = 1;
@@ -198,9 +294,8 @@ bool __stdcall checkCheats(char* s2)
         player_undo_tech(getCurrentPlayer(), id);
         return true;
     }*/
-    if (strstr(s, "/TAKE-CONTROL"))
+    /*if (strstr(s, "/TAKE-CONTROL"))
     {
-        restoreCheatFlag = 1;
         sscanf(s, "%s %d", dummy, &id);
         if ((id >= 0) && (id <= 8))
         {
@@ -213,51 +308,9 @@ bool __stdcall checkCheats(char* s2)
             //control_target = id;
         }
         return true;
-    }
-    if (strstr(s, "LUMINOUS BEINGS ARE WE"))
-    {
-        restoreCheatFlag = 1;
-        WorldPlayerBase__unselect_object(getCurrentPlayer());
-        takeControl(0);
-        return true;
-    }
-    if (strstr(s, "HELP ME OBI-WAN"))
-    {
-        restoreCheatFlag = 1;
-        prepareToEngageCheatResearchTech(798);
-        return false;
-    }
-    if (strstr(s, "NOW THIS IS PODRACING"))
-    {
-        restoreCheatFlag = 1;
-        prepareToEngageCheatResearchTech(799);
-        return false;
-    }
-    if (strstr(s, "YOU HAVE FAILED ME FOR THE LAST TIME"))
-    {
-        sel_iterator i(getCurrentPlayer());
-        UNIT* unit;
-        for (; unit = *i, unit != 0; ++i)
-            if (unit->player != getCurrentPlayer())
-            {
-                if (unit->prop_object->type > 30)
-                    unit->hp = 0;
-            }
-        return true;
-    }
-    if (strstr(s, "THE DEFLECTOR SHIELD IS TOO STRONG"))
-    {
-        sel_iterator i(getCurrentPlayer());
-        UNIT* unit;
-        for (; unit = *i, unit != 0; ++i)
-            if (unit->player == getCurrentPlayer())
-            {
-                unit_detach(unit);
-                unit->prop_object->unit_attribute |= 0x40;
-            }
-        return true;
-    }
-    if (strstr(s, "/GET-MASTER"))
+    }*/
+    //
+    /*if (strstr(s, "/GET-MASTER"))
     {
         sel_iterator i(getCurrentPlayer());
         UNIT* unit;
@@ -268,56 +321,7 @@ bool __stdcall checkCheats(char* s2)
         }
         return true;
     }
-    if (strstr(s, "FORCEHEAL"))
-    {
-        sel_iterator i(getCurrentPlayer());
-        UNIT* unit;
-        for (; unit = *i, unit != 0; ++i)
-            if (unit->player == getCurrentPlayer())
-            {
-                effectUnitVarActual(unit, "SET HPPercent 100");
-            }
-        return true;
-    }
-    if (strstr(s, "NO SHIP THAT SMALL HAS A CLOAKING DEVICE"))
-    {
-        sel_iterator i(getCurrentPlayer());
-        UNIT* unit;
-        for (; unit = *i, unit != 0; ++i)
-            if (unit->player == getCurrentPlayer())
-            {
-                unit_detach(unit);
-                unit->prop_object->unit_attribute |= 0x4;
-            }
-        return true;
-    }
-    if (strstr(s, "FORCEPROTECT"))
-    {
-        sel_iterator i(getCurrentPlayer());
-        UNIT* unit;
-        for (; unit = *i, unit != 0; ++i)
-            if (unit->player == getCurrentPlayer())
-            {
-                unit_detach(unit);
-                advTriggerEffectActual(unit->prop_object, "ADD Armor 3 1");
-                advTriggerEffectActual(unit->prop_object, "ADD Armor 4 1");
-            }
-        return true;
-    }
-    if (strstr(s, "ULTIMATE POWER IN THE UNIVERSE"))
-    {
-        restoreCheatFlag = 1;
-        prepareToEngageCheatCreateUnit(1802);
-        return false;
-    }
-    if (strstr(s, "UNLIMITED POWER"))
-    {
-        restoreCheatFlag = 1;
-        prepareToEngageCheatResearchTech(810);
-        return false;
-    }
-    //
-    /*if (strstr(s, "/START"))
+    if (strstr(s, "/START"))
     {
         time_collect = true;
         return true;
@@ -418,13 +422,7 @@ bool __stdcall checkCheats(char* s2)
         get_goal_with_alias(getCurrentPlayer(), name);
         return true;
     }
-    if (strstr(s, "/REQUEST-CHAPTER"))
-    {
-        int* request_chapter = (int*)0x007A22FC;
-        *request_chapter = 1;
-        return true;
-    }
-    if (strstr(s, "/OBJ") || strstr(s, "/OBJECT"))
+    /*if (strstr(s, "/OBJ") || strstr(s, "/OBJECT"))
     {
         sscanf(s, "%s %d", dummy, &id);
         void* base_world = *(void**)((char*)*BaseGame_bg + 0x420);
@@ -450,32 +448,15 @@ bool __stdcall checkCheats(char* s2)
         void* player = getCurrentPlayer();
         WorldPlayerBase__set_view_loc(player, x, y, 0);
         return true;
-    }
-    //
-    /*if (strstr(s, "/LIST-SELECTED"))
-    {
-        sel_iterator i(getCurrentPlayer());
-        UNIT* unit;
-        for (; unit = *i, unit != 0; ++i)
-        {
-            __asm
-            {
-                mov     eax, unit
-                int     3
-            }
-        }
-        return true;
     }*/
-    //
-
     return false;
 }
 
-__declspec(naked) void scanChat() //put on sub at 0x005ED970
+__declspec(naked) void scanChat() //005ED970
 {
     __asm
     {
-        mov     eax, [esp + 8] //2nd argument of the function we are intercepting is pointer to the chat string
+        mov     eax, [esp + 8] //chat string
         push    ecx
 
         push    eax
@@ -485,12 +466,12 @@ __declspec(naked) void scanChat() //put on sub at 0x005ED970
         push    ebx
         push    edi
         test    al, al
-        jnz     _no_chat
-        push    005ED978h
-        ret
-_no_chat:
-        push    005EDD65h
-        ret
+        jnz     no_chat
+        mov     edi, 005ED978h
+        jmp     edi
+no_chat:
+        mov     edi, 005EDD65h
+        jmp     edi
     }
 }
 
@@ -518,53 +499,13 @@ always_powered:
     }
 }
 
+#pragma optimize( "s", on )
 void setAdvCheatHooks()
 {
-#ifdef _DEBUG
-    log("Setting adv cheat hooks...");
-#endif
-
     setHook((void*)0x005ED970, scanChat);
-
     setHook((void*)0x0054BE05, checkPowerResource);
 
     //tech
     //writeByte(0x005BFE08, 0xEB);
 }
-
-sel_iterator::sel_iterator(void* player_)
-{
-    player = player_;
-    index = 0;
-}
-
-sel_iterator& sel_iterator::operator++()
-{
-    if (index < *(int*)((int)player + 0x26C))
-        index++;
-    return *this;
-}
-
-sel_iterator& sel_iterator::operator=(const sel_iterator& i)
-{
-    index = i.index;
-    return *this;
-}
-
-bool sel_iterator::operator==(const sel_iterator& i)
-{
-    return index == i.index;
-}
-
-bool sel_iterator::operator!=(const sel_iterator& i)
-{
-    return index != i.index;
-}
-
-UNIT* sel_iterator::operator*()
-{
-    if (index < *(int*)((int)player + 0x26C))
-        return *(UNIT**)((int)player + 0x1C8 + index * 4);
-    else
-        return nullptr;
-}
+#pragma optimize( "", on )

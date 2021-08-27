@@ -55,6 +55,11 @@ __declspec(naked) void wndtmp() //00616C0F
     }
 }
 
+int __stdcall new_is_mode_avail(int formal1, int formal2, int formal3)
+{
+    return true;
+}
+
 #pragma optimize( "s", on )
 void setWndModeHooks()
 {
@@ -77,5 +82,9 @@ void setWndModeHooks()
     //tech tree mouse
     setHook((void*)0x00462352, onTechTreeCreate);
     setHook((void*)0x00463F68, onTechTreeDestroy);
+
+    //display mode enum fix
+    //writeWord(0x004267C9, 0xE990);
+    setHook((void*)0x00471070, new_is_mode_avail);
 }
 #pragma optimize( "", on )

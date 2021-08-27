@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "expldroid.h"
 
 void __cdecl isExpl();
@@ -9,8 +8,10 @@ void expl2();
 void expl3();
 void expl4();
 
-short* explIDs;
-int nExplIDs;
+short* explIDs = NULL;
+int nExplIDs = 0;
+
+bool explHooksInstalled = false;
 
 #pragma optimize( "s", on )
 void expl_droid_hooks()
@@ -22,15 +23,21 @@ void expl_droid_hooks()
 }
 #pragma optimize( "", on )
 
-void initExplDroid()
+void initExplDroid(const char* prefix, const char* filename)
 {
     log("Loading suicide attack unit list");
-    FILE* f = fopen("data\\expl.txt", "rt");
+    char full_filename[0x100];
+    sprintf(full_filename, "%s%s", prefix, filename);
+    FILE* f = fopen(full_filename, "rt");
     if (f)
     {
         short id;
         nExplIDs = 0;
-        explIDs = 0;
+        if (explIDs)
+        {
+            free(explIDs);
+            explIDs = NULL;
+        }
 
         while (fscanf(f, "%hd", &id) > 0)
         {
@@ -40,11 +47,14 @@ void initExplDroid()
         }
 
         fclose(f);
-
-        expl_droid_hooks();
+        if (!explHooksInstalled)
+        {
+            expl_droid_hooks();
+            explHooksInstalled = true;
+        }
     }
     else
-        log("Warning: expl.txt not found, using default settings");
+        log("Warning: %s not found, using default settings", full_filename);
 }
 
 __declspec(naked) void isExpl() //bx = ID

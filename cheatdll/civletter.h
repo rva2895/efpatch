@@ -1,4 +1,4 @@
 #pragma once
 
-void fixCivLetterFunction ();
-void setAltCivLetter ();
+void fixCivLetterFunction();
+void setAltCivLetter();

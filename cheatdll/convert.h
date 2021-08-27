@@ -1,3 +1,3 @@
 #pragma once
 
-void setConvertHooks ();
+void setConvertHooks(const char* prefix, const char* filename);

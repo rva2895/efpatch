@@ -861,7 +861,6 @@ bool __stdcall game_hotkey_dispatch(int hotkey, void* this_)
         id_to_search = 0x52;
         break;
     default:
-        id_to_search = -1;
         break;
     }
     if (id_to_search != -1)
@@ -913,12 +912,6 @@ new_game_hotkey_not_queried:
         jmp     eax
     }
 }
-
-int (__thiscall* RGE_Command__submit)(void* command, void* order, int order_size, int issuer) =
-    (int (__thiscall*) (void*, void*, int, int))0x0044CFD0;
-
-void* (__cdecl* calloc_internal)(size_t number, size_t size) =
-    (void* (__cdecl*) (size_t, size_t))0x00632D33;
 
 void __stdcall TRIBE_Command__command_shift_delete(void* this_, UNIT** units)
 {
@@ -1087,17 +1080,6 @@ loc_4FA6B1:
     }
 }
 
-__declspec(naked) void __stdcall kill_unit(void* unit)
-{
-    __asm
-    {
-        mov     ecx, [esp + 4]
-        mov     eax, [ecx]
-        call    dword ptr [eax + 3DCh]
-        retn    4
-    }
-}
-
 void __stdcall shift_delete_do_command(void* this_, void* order)
 {
     uint32_t player_id = *((uint8_t*)order + 1);
@@ -1107,6 +1089,22 @@ void __stdcall shift_delete_do_command(void* this_, void* order)
         UNIT* unit = (UNIT*)BaseWorld__object(*((void**)this_ + 1), *((uint32_t*)order + 1 + i));
         if (unit && unit->prop_object->type >= 70 && *(uint32_t*)((uint8_t*)unit->player + 0xA0) == player_id)
             kill_unit(unit);
+    }
+}
+
+__declspec(naked) void TRIBE_Command__do_command_shift_delete()
+{
+    __asm
+    {
+        push    esi
+        push    edi
+        call    shift_delete_do_command
+        pop     edi
+        pop     esi
+        pop     ebp
+        pop     ebx
+        pop     ecx
+        retn    4
     }
 }
 

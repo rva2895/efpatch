@@ -1,6 +1,6 @@
 #pragma once
 
-void setZannFortHooks ();
+void setZannFortHooks();
 
 //research tech: [this + 8]: ptr to researches
 

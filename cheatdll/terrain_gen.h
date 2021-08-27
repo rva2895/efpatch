@@ -1,4 +1,4 @@
 #pragma once
 
-void setTerrainGenHooks ();
+void setTerrainGenHooks(int ver);
 

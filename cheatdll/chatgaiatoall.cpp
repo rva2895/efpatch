@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "chatgaiatoall.h"
 
 __declspec(naked) int srcPlayerCheck_chat() //005F3049

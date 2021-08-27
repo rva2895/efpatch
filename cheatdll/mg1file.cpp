@@ -14,18 +14,9 @@ char* find_player_info_end(char* d, char* p, int n_players, int total)
     bool diplo_bad = true;
     while (diplo_bad)
     {
-        //while (memcmp(p, "\x00\x0B\x01\x0B", 4) && ((p - d) < (total - (4 + 2 + n_players + 9 * 4))))
-        //    p++;
-
         while (memcmp(p, "\x00\x0B\x01\x0B", 4) && memcmp(p, "\x00\x0B\x03\x0B", 4) &&
             ((p - d) < (total - (4 + 2 + n_players + 9 * 4))))
             p++;
-
-        //while (memcmp(p, "\x00\x0B", 2) && ((p - d) < (total - (2 + 2 + n_players + 9 * 4))))
-        //    p++;
-
-        //if ((p - d) >= (total - (2 + 2 + n_players + 9 * 4)))
-        //    return 0;
 
         if ((p - d) >= (total - (2 + 4 + n_players + 9 * 4)))
             return 0;
@@ -50,7 +41,7 @@ char* find_player_info_end(char* d, char* p, int n_players, int total)
             diplo_bad = true;
         p2 += 4;
 
-        int* diplo_array = (int*)p2;
+        long* diplo_array = (long*)p2;
         
         for (int i = 0; i < 8; i++)
         {
@@ -58,6 +49,7 @@ char* find_player_info_end(char* d, char* p, int n_players, int total)
             {
             case 1:
             case 2:
+            case 3:
             case 4:
             case -1:
                 break;
@@ -74,6 +66,8 @@ char* find_player_info_end(char* d, char* p, int n_players, int total)
 
 MG1::MG1(const char* filename)
 {
+    log("MG1: %s", filename);
+
     loaded = false;
     d.map = NULL;
     d.players = NULL;
@@ -84,14 +78,11 @@ MG1::MG1(const char* filename)
     FILE* f = fopen(filename, "rb");
 
     if (!f)
-    {
-        log("Error: cannot open file %s", filename);
         return;
-    }
 
-    int end;
-    fread(&end, sizeof(int), 1, f);
-    int start = 8;
+    long end;
+    fread(&end, sizeof(long), 1, f);
+    long start = 8;
     if (end < start)
     {
         fclose(f);
@@ -102,21 +93,12 @@ MG1::MG1(const char* filename)
     z_stream_s st;
     memset(&st, 0, sizeof(st));
 
-    //void* buf = malloc(SCEN_STEP);
-
     int dst_n = SCEN_STEP;
     void* dst = malloc(SCEN_STEP);
 
     void* data = malloc(end - start);
     fread(data, end - start, 1, f);
     fclose(f);
-
-    if (*((char*)data + end - start - 1) != 0)
-    {
-        free(dst);
-        free(data);
-        return;
-    }
 
     int r = inflateInit2(&st, -MAX_WBITS);
 
@@ -142,6 +124,12 @@ MG1::MG1(const char* filename)
             st.avail_out = dst_n;
             st.next_in = (Bytef*)data;
             st.avail_in = end - start;
+            break;
+        default:
+            inflateEnd(&st);
+            free(data);
+            free(dst);
+            return;
             break;
         }
     }
@@ -170,8 +158,12 @@ MG1::MG1(const char* filename)
     case 0x00322E32:
         version = 0x00322E32;    //2.2
         break;
-    case 0x00382E39:             //EF 1.4.x
+    case 0x00382E39:    //EF 1.4.0
         version = 0x00382E39;
+        break;
+    case 0x00392E39:    //EF 1.4.1+
+        version = 0x00392E39;
+        skip(4);        //skip sub version
         break;
     default:
         version = 0;    //unsupported
@@ -222,12 +214,8 @@ MG1::MG1(const char* filename)
     memcpy(d.map, p, 2 * d.map_x*d.map_y);
     p += 2 * d.map_x*d.map_y;
 
-    //skip(64);
     skip(4 * d.map_x*d.map_y);
-    //skip(15);
 
-    //if (memcmp(p, "\x98\x9E\x00\x00\x02\x0B", 6))
-    //    return;
     while (memcmp(p, "\x98\x9E\x00\x00\x02\x0B", 6))
         p++;
 
@@ -243,6 +231,7 @@ MG1::MG1(const char* filename)
         d.players[pl].name_len = read2();
         d.players[pl].name = (char*)malloc(d.players[pl].name_len + 1);
         readN(d.players[pl].name, d.players[pl].name_len);
+        d.players[pl].name[d.players[pl].name_len] = 0;
         skip(1);
         int n_resources = read4();
         skip(1);
@@ -251,10 +240,6 @@ MG1::MG1(const char* filename)
         d.players[pl].civ = read1();
         skip(3);
         d.players[pl].color = read1();
-
-        //find player info end
-        //while (memcmp(p, "\x00\x0B\x00\x02\x00\x00\x00\x02\x00\x00\x00\x0B", 0x0C) && ((p - dst) < (total - 0x0C)))
-        //    p++;
 
         d.players[pl].cc_x = -1;
         d.players[pl].cc_y = -1;
@@ -302,9 +287,6 @@ MG1::MG1(const char* filename)
         }
 
         p = p_test;
-
-        //p += 0x0C;
-        //p += 2;
     }
 
     //******** MISC **********
@@ -316,7 +298,7 @@ MG1::MG1(const char* filename)
         p += 9;
         char* map_type_tmp = (char*)malloc(128);
         char* ptr = map_type_tmp;
-        while (*p != '\n')
+        while ((*p != '\n') && ((ptr - map_type_tmp) < 127))
             *ptr++ = *p++;
         *ptr = 0;
         map_type = (char*)malloc(strlen(map_type_tmp) + 1);
@@ -335,16 +317,44 @@ MG1::MG1(const char* filename)
 
     p += 8;
     p += 1;
-    if (read4() == 0)    //if scenario: end
+    long n_triggers = read4();
+
+    //triggers
+    for (int i = 0; i < n_triggers; i++)
     {
-        skip(8); //teams
-        skip(13); //unknown
-        d.pop_limit = read4();
-        d.game_type = read1();
-        skip(1); //teams locked
+        skip(18);
+        skip(read4());
+        skip(read4());
+        //effects
+        long n_effects = read4();
+        for (int j = 0; j < n_effects; j++)
+        {
+            skip(6 * 4);
+            long num_selected = read4();
+            skip(18 * 4);
+            skip(read4());
+            skip(read4());
+            if (num_selected > 0)
+                skip(num_selected * 4);
+        }
+        skip(n_effects * 4);
+        //conditions
+        long n_conditions = read4();
+        skip(18 * 4 * n_conditions);
+        skip(n_conditions * 4);
     }
+    skip(n_triggers * 4);
+
+    skip(8); //teams
+    skip(13); //unknown
+    d.pop_limit = read4();
+    d.game_type = read1();
+    skip(1); //teams locked
 
     free(dst);
+
+    d.duration = 0;
+    d.duration2 = 0;
 
     //************* READ COMMANDS *****************
     f = fopen(filename, "rb");
@@ -384,12 +394,6 @@ MG1::MG1(const char* filename)
     int type;
     int len;
     int command;
-    //int commands_len;
-    d.duration = 0;
-    d.duration2 = 0;
-
-    //unit counter
-    //int cnt = 0;
 
     while (p < ((char*)dst + end - start))
     {
@@ -435,6 +439,8 @@ MG1::MG1(const char* filename)
     }*/
 
     loaded = true;
+
+    log("MG1: %s loaded", filename);
 }
 
 MG1::~MG1()
@@ -449,9 +455,9 @@ MG1::~MG1()
     free(map_type);
 }
 
-int MG1::read4()
+long MG1::read4()
 {
-    int r = *(int*)p;
+    long r = *(long*)p;
     p += 4;
     return r;
 }
@@ -580,7 +586,7 @@ char* MG1::getMapType()
     return map_type;
 }
 
-char* MG1::getGameType()
+const char* MG1::getGameType()
 {
     switch (d.game_type)
     {

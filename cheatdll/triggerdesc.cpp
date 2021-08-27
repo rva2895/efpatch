@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include <regex>
+#include "effects.h"
 #include "advtriggereffect.h"
 #include "triggerdesc.h"
 
@@ -327,9 +328,9 @@ bool check_data(char* str_)
         {
             h_sub = h[2];
             match = h_sub.str();
-            char type;
-            int i = getArrayIndex(match.c_str(), &type);
-            if (i == -1)
+            master_data_types type;
+            uint32_t i = getArrayIndex(match.c_str(), &type);
+            if (i == UINT32_MAX)
             {
                 if ((match == "Attack") || (match == "Armor"))
                 {
