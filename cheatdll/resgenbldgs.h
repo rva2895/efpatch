@@ -1,8 +1,8 @@
 #pragma once
 
-void initBldgResProdList ();
-int resGenHook ();
-void setResGenHooks ();
+void initBldgResProdList(const char* prefix, const char* filename);
+int resGenHook();
+void setResGenHooks();
 
 typedef struct resGen
 {

@@ -42,6 +42,7 @@ void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
     free(new_slp);
 }
 
+#pragma optimize( "s", on )
 bool patchEXE(int X, int Y) //needs to be completed...
 {
     log("Patching EXE for resolution %dx%d...", X, Y);
@@ -215,11 +216,13 @@ bool patchEXE(int X, int Y) //needs to be completed...
     }
     return true;
 }
+#pragma optimize( "", on )
 
 int findRectOffset(void* drsRects, const char* itemname)
 {
     int i = 0;
-    while (memcmp(itemname, (char*)drsRects + i, strlen(itemname)) != 0)
+    size_t len = strlen(itemname);
+    while (memcmp(itemname, (char*)drsRects + i, len) != 0)
         i++;
     return i;
 }

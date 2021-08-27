@@ -154,7 +154,7 @@ __declspec(naked) void effectScrollView_new()
         xor     ecx, ecx
         inc     ecx
         mov     snapscroll_changed_location, ecx
-_scrollview_noobject :
+_scrollview_noobject:
         mov     ecx, 005F3749h
         jmp     ecx
     }
@@ -381,6 +381,19 @@ __declspec(naked) void effectBreakpoint()
     }
 }
 
+void (*alloca_probe_internal) () = (void (*)())0x006347F0;
+
+__declspec(naked) void effect_update_alloca_fix() //005F2AF5
+{
+    __asm
+    {
+        mov     eax, 55D4h
+        call    alloca_probe_internal
+        mov     eax, 005F2AFBh
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setEffectHooks()
 {
@@ -434,5 +447,25 @@ void setEffectHooks()
     snapscroll_setJMP(0x005F3773+1);
     snapscroll_setJMP(0x005F37AD+1);
     snapscroll_setJMP(0x005F37BC);
+
+    setHook((void*)0x005F2AF5, effect_update_alloca_fix);
+
+    //Trigger object overflow fix
+    //writeByte(0x5F2AF8, 0x65);
+    //writeByte(0x5F2AF9, 0x11);
+    //writeByte(0x5F2B02, 0x65);
+    //writeByte(0x5F2B03, 0x11);
+    //writeByte(0x5F2C5F, 0x65);
+    //writeByte(0x5F2C60, 0x11);
+    //writeByte(0x5F3DB5, 0x65);
+    //writeByte(0x5F3DB6, 0x11);
+    //writeByte(0x5F3DC8, 0x65);
+    //writeByte(0x5F3DC9, 0x11);
+
+    writeDword(0x005F2B01, 0x55F0);
+    
+    writeDword(0x005F2C5E, 0x55EC);
+    writeDword(0x005F3DB4, 0x55E4);
+    writeDword(0x005F3DC7, 0x55E0);
 }
 #pragma optimize( "", on )

@@ -18,22 +18,6 @@
 
 int current_worldtime = 0;
 
-/*__declspec(naked) int someText()
-{
-    __asm
-    {
-        push    eax
-        mov     ecx, [eax + 38h]
-        push    ecx
-        call    someTextOut
-        pop     eax
-
-        mov     edx, [esi + 100h]
-        push    5E02BEh
-        ret
-    }
-}*/
-
 #ifdef _DEBUG
 
 int effectsFired = 0;
@@ -454,26 +438,28 @@ struct
 extern unsigned int dump_objects(const char* filename);
 extern int max_worldtime;
 
-int __stdcall onChat_2(int player, char* targets, char* s)
+int __stdcall onChat_2(int player_id, char* targets, char* s)
 {
     UNREFERENCED_PARAMETER(targets);
-    if (!strcmp(s, "/test"))
+    
+    if (!strcmp(s, "/version"))
     {
-        sendChat("Started integrity check", player);
-        _beginthread(thread_proc, 0, (void*)player);
+        sendChat("Compile time: " __DATE__ ", " __TIME__, player_id);
         return 1;
     }
-    else if (!strcmp(s, "/version"))
+    /*
+    else if (!strcmp(s, "/test"))
     {
-        sendChat("Compile time: " __DATE__ ", " __TIME__, player);
+        sendChat("Started integrity check", player_id);
+        _beginthread(thread_proc, 0, (void*)player_id);
         return 1;
     }
     else if (!strcmp(s, "/memory"))
     {
-        sendChat("Memory: set to 0x100000", player);
+        sendChat("Memory: set to 0x100000", player_id);
         memory_temp = 0x100000;
         return 1;
-    }
+    }*/
     else if (!strcmp(s, "/dump-world"))
     {
         srand(timeGetTime());
@@ -485,7 +471,7 @@ int __stdcall onChat_2(int player, char* targets, char* s)
         chat("Dump complete");
         return 1;
     }
-    else if (!strcmp(s, "/worldtime"))
+    /*else if (!strcmp(s, "/worldtime"))
     {
         chat("Worldtime = %d", get_gametime2());
         return 1;
@@ -498,7 +484,7 @@ int __stdcall onChat_2(int player, char* targets, char* s)
         max_worldtime = t;
         chat("Set max worldtime to %d", t);
         return true;
-    }/*
+    }
     else if (!strcmp(s, "/make-oos"))
     {
         float* r = player_getResources2(get_player(0));
@@ -510,8 +496,9 @@ int __stdcall onChat_2(int player, char* targets, char* s)
     {
         make_oos_dump();
         return 1;
-    }*/
-    else if (strstr(s, "/obj") || strstr(s, "/object"))
+    }
+    */
+    /*else if (strstr(s, "/obj") || strstr(s, "/object"))
     {
         char d[0x100];
         int id;
@@ -531,7 +518,8 @@ int __stdcall onChat_2(int player, char* targets, char* s)
         }
 
         return true;
-    }
+    }*/
+    /*
     else if (strstr(s, "/cs"))
     {
         WORLD_DUMP wd;
@@ -1224,11 +1212,30 @@ void __cdecl new_delete_free(void* p) //00632B42, 00632CCA
     }
 }
 
+__declspec(naked) void onStatusScreenCreate() //005E7EC0
+{
+    __asm
+    {
+        ret     14h
+    }
+}
+
+__declspec(naked) void onBlankScreenCreate() //004B4960
+{
+    __asm
+    {
+        ret     8
+    }
+}
+
+//const char* savegame_path = "savegame\\test\\recs\\";
 const char* savegame_path = "savegame\\";
 
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    //setHook((void*)0x005E7EC0, onStatusScreenCreate);
+    //setHook((void*)0x004B4960, onBlankScreenCreate);
     //srand(timeGetTime());
     
     //setOOSHooks();
@@ -1333,7 +1340,7 @@ void setTestHook()
 
     //
 #ifdef _DEBUG
-    setHook((void*)0x004D5550, readDatHook);
+    //setHook((void*)0x004D5550, readDatHook);
 #endif
 }
 #pragma optimize( "", on )

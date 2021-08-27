@@ -2,11 +2,11 @@
 
 #include "jedimaster.h"
 
-short* masters;
-int nMasters;
+short* masters = NULL;
+int nMasters = 0;
 
-short* padawans;
-int nPadawans;
+short* padawans = NULL;
+int nPadawans = 0;
 
 __declspec(naked) void isMaster() //ax = ID
 {
@@ -62,7 +62,7 @@ loopend_p:
     }
 }
 
-__declspec(naked) void jediMasterHook () //0054B1D0
+__declspec(naked) void jediMasterHook() //0054B1D0
 {
     __asm
     {
@@ -96,15 +96,26 @@ nonjedi_p:
     }
 }
 
-void setJediMasterHooks()
+bool jediMasterHookInstalled = false;
+bool jediPadawanHookInstalled = false;
+
+void setJediMasterHooks(const char* prefix, const char* filename_master, const char* filename_padawan)
 {
     log("Loading jedi master unit list");
-    FILE* f = fopen("data\\master.txt", "rt");
+    char full_filename_master[0x100];
+    char full_filename_padawan[0x100];
+    sprintf(full_filename_master, "%s%s", prefix, filename_master);
+    sprintf(full_filename_padawan, "%s%s", prefix, filename_padawan);
+    FILE* f = fopen(full_filename_master, "rt");
     if (f)
     {
         short id;
         nMasters = 0;
-        masters = 0;
+        if (masters)
+        {
+            free(masters);
+            masters = NULL;
+        }
 
         while (fscanf(f, "%hd", &id) > 0)
         {
@@ -115,18 +126,26 @@ void setJediMasterHooks()
 
         fclose(f);
 
-        setHook((void*)0x0054B1D0, &jediMasterHook);
+        if (!jediMasterHookInstalled)
+        {
+            setHook((void*)0x0054B1D0, jediMasterHook);
+            jediMasterHookInstalled = true;
+        }
     }
     else
-        log("Warning: master.txt not found, using default settings");
+        log("Warning: %s not found, using default settings", full_filename_master);
 
     log("Loading jedi padawan unit list");
-    f = fopen("data\\padawan.txt", "rt");
+    f = fopen(full_filename_padawan, "rt");
     if (f)
     {
         short id;
         nPadawans = 0;
-        padawans = 0;
+        if (padawans)
+        {
+            free(padawans);
+            padawans = NULL;
+        }
 
         while (fscanf(f, "%hd", &id) > 0)
         {
@@ -137,8 +156,12 @@ void setJediMasterHooks()
 
         fclose(f);
 
-        setHook((void*)0x0054B170, &jediPadawanHook);
+        if (!jediPadawanHookInstalled)
+        {
+            setHook((void*)0x0054B170, jediPadawanHook);
+            jediPadawanHookInstalled = true;
+        }
     }
     else
-        log("Warning: padawan.txt not found, using default settings");
+        log("Warning: %s not found, using default settings", full_filename_padawan);
 }

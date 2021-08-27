@@ -508,11 +508,11 @@ void setCoreHooks()
     //setHook((void*)0x00632BAC, ftol_new_sse_fixed_2);
     //writeData(0x00632BAC, ftol_new_sse_fixed_2_packed, sizeof(ftol_new_sse_fixed_2_packed));
 
-    float (__thiscall UNIT::*unit_distance_to_position_new_p)(float, float, float) = &UNIT::unit_distance_to_position_new;
-    setHook((void*)0x00551C60, (void*&)unit_distance_to_position_new_p);
+    //float (__thiscall UNIT::*unit_distance_to_position_new_p)(float, float, float) = &UNIT::unit_distance_to_position_new;
+    //setHook((void*)0x00551C60, (void*&)unit_distance_to_position_new_p);
 
-    int(__thiscall UNIT::*unit_unknown_moving_update_end_p)() = &UNIT::unit_unknown_moving_update_end;
-    setHook((void*)0x004A3D90, (void*&)unit_unknown_moving_update_end_p);
+    //int(__thiscall UNIT::*unit_unknown_moving_update_end_p)() = &UNIT::unit_unknown_moving_update_end;
+    //setHook((void*)0x004A3D90, (void*&)unit_unknown_moving_update_end_p);
 
     //performance test
     /*setHook((void*)0x0055A760, performance_in);

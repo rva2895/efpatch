@@ -6,41 +6,44 @@
 
 const assign dataIdentifiers[] =
 {
-    {"Unknown000",                                     0x000,  T_INT32}, //ptr, //type 10+ (all units)
-    {"Type",                                           0x004,  T_INT8},
+    //type 10
+    {"Unknown000",                                     0x000,  T_INT32}, //ptr
+    {"Type",                                           0x004,  T_INT8 }, //saved
     {"Unknown008",                                     0x008,  T_INT32}, //ptr
     {"Unknown00C",                                     0x00C,  T_INT32}, //ptr
     {"Unitline",                                       0x010,  T_INT16},
     {"MinTechLevel",                                   0x012,  T_INT8 },
     {"LanguageDLLName",                                0x014,  T_INT16},
     {"LanguageDLLCreation",                            0x016,  T_INT16},
-    {"ID1",                                            0x018,  T_INT16},
-    {"ID2",                                            0x01A,  T_INT16},
-    {"ID3",                                            0x01C,  T_INT16},
-    {"Class",                                          0x01E,  T_INT16},
+    {"ID1",                                            0x018,  T_INT16}, //saved
+    {"ID2",                                            0x01A,  T_INT16}, //saved
+    {"ID3",                                            0x01C,  T_INT16}, //saved
+    {"Class",                                          0x01E,  T_INT16}, //saved
     {"StandingGraphics",                               0x020,  T_PTR_G}, //ptr?standing g
     {"Unknown024",                                     0x024,  T_INT32}, //0
     {"DyingGraphics",                                  0x028,  T_PTR_G}, //ptr?die g
     {"Unknown02C",                                     0x02C,  T_INT32}, //0
-    {"DeathMode",                                      0x030,  T_INT8 },
-    {"HitPoints",                                      0x032,  T_INT16}, //edited, old=0x030
-    {"LineOfSight",                                    0x034,  T_FLOAT},
-    {"GarrisonCapacity",                               0x038,  T_INT8 },
-    {"CollisionSizeX",                                 0x03C,  T_FLOAT}, //RENAMED
-    {"CollisionSizeY", /*+0x40*/                       0x040,  T_FLOAT}, //RENAMED
-    {"CollisionSizeZ",                                 0x044,  T_FLOAT}, //RENAMED
+    {"DeathMode",                                      0x030,  T_INT8 }, //OLD
+    {"UndeadMode",                                     0x030,  T_INT8 }, //NEW
+    {"HitPoints",                                      0x032,  T_INT16}, //saved
+    {"LineOfSight",                                    0x034,  T_FLOAT}, //saved
+    {"GarrisonCapacity",                               0x038,  T_INT8 }, //saved
+    {"CollisionSizeX",                                 0x03C,  T_FLOAT}, //saved
+    {"CollisionSizeY", /*+0x40*/                       0x040,  T_FLOAT}, //saved
+    {"CollisionSizeZ",                                 0x044,  T_FLOAT}, //not saved
     {"Unknown048",                                     0x048,  T_INT32}, //ptr?
     {"Unknown04C",                                     0x04C,  T_INT32}, //ptr?
     {"Unknown050",                                     0x050,  T_INT32}, //0
     {"Unknown054",                                     0x054,  T_INT32}, //0
     {"DeadUnitID",                                     0x058,  T_INT16},
-    {"PlacementMode",                                  0x05A,  T_INT8 },
-    {"AirMode",                                        0x05B,  T_INT8 },
+    {"PlacementMode",                                  0x05A,  T_INT8 }, //sort number
+    {"AirMode",                                        0x05B,  T_INT8 }, //OLD
+    {"CanBeBuiltOn",                                   0x05B,  T_INT8 }, //NEW
     {"IconID",                                         0x05C,  T_INT16},
-    {"HideInEditor",                                   0x05E,  T_INT16},
+    {"HideInEditor",                                   0x05E,  T_INT8 }, //saved
     {"Unknown060",                                     0x060,  T_INT16}, //unknown 1
-    {"Unknown062",                                     0x062,  T_INT8 }, //1 enabled???
-    {"Unknown063",                                     0x063,  T_INT8 }, //disabled???
+    {"Available",                                      0x062,  T_INT8 }, //saved
+    {"Disabled",                                       0x063,  T_INT8 }, //saved
     {"PlacementSideTerrain1",                          0x064,  T_INT16},
     {"PlacementSideTerrain2",                          0x066,  T_INT16},
     {"PlacementTerrain1",                              0x068,  T_INT16},
@@ -54,36 +57,41 @@ const assign dataIdentifiers[] =
     {"ResourceStorageType1",                           0x07A,  T_INT16},
     {"ResourceStorageType2",                           0x07C,  T_INT16},
     {"ResourceStorageType3",                           0x07E,  T_INT16},
-    {"Resource1Storage", /*+0x80*/                     0x080,  T_FLOAT},
+    {"Resource1Storage", /*+0x80*/                     0x080,  T_FLOAT}, //saved
     {"Resource2Storage",                               0x084,  T_FLOAT},
     {"Resource3Storage",                               0x088,  T_FLOAT},
-    {"ResourceCapacity",                               0x08C,  T_INT16},
+    {"ResourceCapacity",                               0x08C,  T_INT16}, //saved
     {"ResourceDecay",                                  0x090,  T_FLOAT},
     {"Unknown 3A",                                     0x094,  T_FLOAT},
-    {"Resource1StoreMode",                             0x098,  T_INT8 }, //renamed
-    {"Resource2StoreMode",                             0x099,  T_INT8 }, //renamed
-    {"Resource3StoreMode",                             0x09A,  T_INT8 }, //renamed
+    {"Resource1StoreMode",                             0x098,  T_INT8 },
+    {"Resource2StoreMode",                             0x099,  T_INT8 },
+    {"Resource3StoreMode",                             0x09A,  T_INT8 },
     {"BlastDefenseLevel",                              0x09B,  T_INT8 },
-    {"Unknown2InteractionModeMinimapMode",             0x09C,  T_INT8 }, //test
+    {"CombatLevel",                                    0x09C,  T_INT8 },
     {"InteractionMode",                                0x09D,  T_INT8 },
     {"MinimapMode",                                    0x09E,  T_INT8 },
-    {"Command ID",                                     0x09F,  T_INT8 },
+    {"InterfaceKind",                                  0x09F,  T_INT8 },
     {"MinimapColor",                                   0x0A0,  T_INT8 },
     {"AttackMode",                                     0x0A1,  T_INT8 },
-    {"Unknown 2",                                      0x0A2,  T_INT8 },
-    {"Unknown0A4",                                     0x0A4,  T_INT32},
-    {"SelectionMask",                                  0x0A8,  T_INT8 },
-    {"SelectionShapeType",                             0x0A9,  T_INT8 },
-    {"SelectionShape",                                 0x0AA,  T_INT8 },
-    //{"Unknown0AB",                                     0x0AB,  T_INT8 }, //padding byte
+    {"Unknown0A2",                                     0x0A2,  T_INT8 },
+    {"Unknown0A3",                                     0x0A3,  T_INT8 },
+    {"Unknown0A4",                                     0x0A4,  T_INT32}, //ptr
+    {"SelectionMask",                                  0x0A8,  T_INT8 }, //OLD
+    {"OcclusionMode",                                  0x0A8,  T_INT8 }, //NEW
+    {"SelectionShapeType",                             0x0A9,  T_INT8 }, //OLD
+    {"ObstructionType",                                0x0A9,  T_INT8 }, //NEW
+    {"SelectionShape",                                 0x0AA,  T_INT8 }, //OLD
+    {"BlockageClass",                                  0x0AA,  T_INT8 }, //NEW
     {"UnitAttribute",                                  0x0AC,  T_INT8 },
     {"Civilization",                                   0x0AD,  T_INT8 },
     {"AttributeLeftover",                              0x0AE,  T_INT16},
     {"LanguageDLLHelp",                                0x0B0,  T_INT32},
     {"LanguageDLLHotKeyText",                          0x0B4,  T_INT32},
-    {"LanguageDLLHotKey",                              0x0B8,  T_INT32},
-    {"Unselectable",                                   0x0BC,  T_INT8 },
-    {"EnableAutoGather",                               0x0BD,  T_INT8 },
+    {"LanguageDLLHotKey",                              0x0B8,  T_INT32}, //saved
+    {"Unselectable",                                   0x0BC,  T_INT8 }, //OLD
+    {"Recyclable",                                     0x0BC,  T_INT8 }, //NEW
+    {"EnableAutoGather",                               0x0BD,  T_INT8 }, //OLD
+    {"CanBeGathered",                                  0x0BD,  T_INT8 }, //NEW
     {"AutoGatherMode",                                 0x0BE,  T_INT8 },
     {"AutoGatherID",                                   0x0BF,  T_INT8 },
     {"SelectionEffect", /*+0xC0*/                      0x0C0,  T_INT8 },
@@ -91,95 +99,127 @@ const assign dataIdentifiers[] =
     {"SelectionShapeSizeX",                            0x0C4,  T_FLOAT},
     {"SelectionShapeSizeY",                            0x0C8,  T_FLOAT},
     {"SelectionShapeSizeZ",                            0x0CC,  T_FLOAT}, //type 10 ends here
-    {"Speed",                                          0x0D0,  T_FLOAT}, //the only type 20 var
-    {"WalkingGraphics",                                0x0D4,  T_PTR_G}, //type 30+ only
-    {"WalkingGraphics2",                               0x0D8,  T_INT32},
-    {"RotationSpeed", /*new*/                          0x0DC,  T_FLOAT},
-    {"Unknown0E0",                                     0x0E0,  T_INT8 },
-    {"TrackingUnit",                                   0x0E2,  T_INT16},
-    {"TrackingUnitUsed",                               0x0E4,  T_INT8 },
-    {"TrackingUnitDensity", /*new*/                    0x0E8,  T_FLOAT},
-    {"Unknown0EC",                                     0x0EC,  T_INT8 },
-    {"RotationsInRadians1",                            0x0F0,  T_FLOAT},
-    {"RotationsInRadians2",                            0x0F4,  T_FLOAT},
-    {"RotationsInRadians3",                            0x0F8,  T_FLOAT},
-    {"RotationsInRadians4",                            0x0FC,  T_FLOAT},
-    {"RotationsInRadians5",                            0x100,  T_FLOAT}, //type 30 ends here
-    {"Unknown104",                                     0x104,  T_INT32}, //type 40+ only
-    {"ActionWhenDiscovered",                           0x108,  T_INT16},
-    {"SearchRadius",                                   0x10C,  T_FLOAT},
-    {"WorkRate1",            /*???new*/                0x110,  T_FLOAT}, //test
-    {"WorkRate2",            /*???new*/                0x114,  T_FLOAT}, //test
-    {"DropSite1",                                      0x118,  T_INT16},
-    {"DropSite2",                                      0x11A,  T_INT16},
-    {"TaskSwapID",                                     0x11C,  T_INT8 },
-    {"AttackSound",                                    0x120,  T_INT32}, //ptr
-    {"MoveSound",                                      0x124,  T_INT32}, //ptr
-    {"AnimalMode",                                     0x128,  T_INT8 }, //type 40 ends here
-    {"AttackGraphics",                                 0x12C,  T_PTR_G}, //type 50+ only
-    {"DefaultArmor",                                   0x130,  T_INT16},
-    {"Armors count",                                   0x132,  T_INT16}, //old = BlastDefenseLevel
-    {"Armors ptr",                                     0x134,  T_INT32},  //armors
-    {"Attacks count",                                  0x138,  T_INT16},
-    {"Attacks ptr",                                    0x13C,  T_INT32},
-    {"Unknown140", /*+0x140*/                          0x140,  T_INT16}, //-1
-    {"Range",                                          0x144,  T_FLOAT},
-    {"BlastRadius",                                    0x148,  T_FLOAT},
-    {"BlastLevel",                                     0x14C,  T_INT8 },
-    {"ReloadTime1",                                    0x150,  T_FLOAT},
-    {"ProjectileUnitID",                               0x154,  T_INT16},
-    {"Accuracy",                                       0x156,  T_INT16},
-    {"TowerMode",                                      0x158,  T_INT8 },
-    {"FrameDelay",                                     0x15A,  T_INT16},
-    {"ProjectileGraphicDisplacementX",                 0x15C,  T_FLOAT},
-    {"ProjectileGraphicDisplacementY",                 0x160,  T_FLOAT},
-    {"ProjectileGraphicDisplacementZ",                 0x164,  T_FLOAT},
-    {"MinRange",                                       0x168,  T_FLOAT},
-    {"DisplayedMeleeArmor",                            0x16C,  T_INT16},
-    {"DisplayedAttack",                                0x16E,  T_INT16},
-    {"DisplayedRange",                                 0x170,  T_FLOAT},
-    {"ReloadTime2",                                    0x174,  T_FLOAT},
-    {"AccuracyErrorRadius",                            0x178,  T_FLOAT}, //type 50 ends here
-    {"Cost1Type",                                      0x17C,  T_INT16}, //type 70+ only
-    {"Cost1Amount", /*+0x180*/                         0x17E,  T_INT16},
-    {"Cost1IsPaid", /*+0x180*/                         0x180,  T_INT16},
-    {"Cost2Type",                                      0x182,  T_INT16},
-    {"Cost2Amount",                                    0x184,  T_INT16},
-    {"Cost2IsPaid",                                    0x186,  T_INT16},
-    {"Cost3Type",                                      0x188,  T_INT16},
-    {"Cost3Amount",                                    0x18A,  T_INT16},
-    {"Cost3IsPaid",                                    0x18C,  T_INT16},
-    {"TrainTime",                                      0x18E,  T_INT16},
-    {"TrainLocation",                                  0x190,  T_INT16},
-    {"TrainButton",                                    0x192,  T_INT8 },
-    {"DisplayedPierceArmor",                           0x194,  T_INT16},
-    {"Unknown198",                                     0x198,  T_INT32}, //Unknown26
-    {"Unknown19C",                                     0x19C,  T_INT32}, //Unknown27
-    {"CreatableType",                                  0x1A0,  T_INT8 },
-    {"MinDuplMissiles",   /*new*/                      0x1A4,  T_FLOAT},
-    {"MaxDuplMissiles",                                0x1A8,  T_INT8 },
-    {"MissileSpawningAreaWidth",                       0x1AC,  T_FLOAT},
-    {"MissileSpawningAreaLength",                      0x1B0,  T_FLOAT},
-    {"MissileSpawningRandomness",                      0x1B4,  T_FLOAT},
-    {"MissileDuplUnit",                                0x1B8,  T_INT32},
-    {"SpecialGraphics",                                0x1BC,  T_INT32},
-    {"SpecialAbility", /*+0x1C0*/                      0x1C0,  T_INT8 },
-    {"HeroMode",                                       0x1C1,  T_INT8 }, //type 70 ends here
-    {"GarrisonGraphics",                               0x1C4,  T_INT32}, //type 80+ only (sure?)
-    {"Unknown1C8",                                     0x1C8,  T_INT32},
-    {"Unknown1CC",                                     0x1CC,  T_INT32},
-    {"Unknown1D0",                                     0x1D0,  T_INT32},
-    {"AdjacentMode",                                   0x1D4,  T_INT8 },
-    {"GraphicsAngle",                                  0x1D6,  T_INT16},
-    {"DisappearsWhenBuilt",                            0x1D8,  T_INT8 },
-    {"StackUnitID",                                    0x1DA,  T_INT16},
-    {"FoundationTerrainID",                            0x1DC,  T_INT16},
-    {"OldTerrainLikeID",                               0x1DE,  T_INT16},
-    {"ResearchID",                                     0x1E0,  T_INT16}
+    //type 20
+    {"Speed",                                          0x0D0,  T_FLOAT}, //saved
+    //type 30
+    {"WalkingGraphics",                                0x0D4,  T_PTR_G}, //not saved
+    {"WalkingGraphics2",                               0x0D8,  T_INT32}, //not saved
+    {"RotationSpeed",                                  0x0DC,  T_FLOAT}, //saved
+    {"SizeClass",                                      0x0E0,  T_INT8 }, //not saved
+    {"TrackingUnit",                                   0x0E2,  T_INT16}, //not saved
+    {"TrackingUnitUsed",                               0x0E4,  T_INT8 }, //not saved
+    {"TrackingUnitDensity",                            0x0E8,  T_FLOAT}, //not saved
+    {"MoveAlgorithm",                                  0x0EC,  T_INT8 }, //not saved
+    {"RotationsInRadians1",                            0x0F0,  T_FLOAT}, //not saved
+    {"RotationsInRadians2",                            0x0F4,  T_FLOAT}, //not saved
+    {"RotationsInRadians3",                            0x0F8,  T_FLOAT}, //not saved
+    {"RotationsInRadians4",                            0x0FC,  T_FLOAT}, //not saved
+    {"RotationsInRadians5",                            0x100,  T_FLOAT}, //not saved
+    //type 40
+    {"DefaultTask",                                    0x104,  T_INT16}, //not saved
+    {"Unknown106",                                     0x106,  T_INT16}, //not saved
+    {"ActionWhenDiscovered",                           0x108,  T_INT16}, //not saved
+    {"SearchRadius",                                   0x10C,  T_FLOAT}, //saved
+    {"WorkRate1",                                      0x110,  T_FLOAT}, //saved
+    {"WorkRate2",                                      0x114,  T_FLOAT}, //not saved
+    {"DropSite1",                                      0x118,  T_INT16}, //not saved
+    {"DropSite2",                                      0x11A,  T_INT16}, //not saved
+    {"TaskSwapID",                                     0x11C,  T_INT8 }, //not saved
+    {"AttackSound",                                    0x120,  T_INT32}, //ptr, not saved
+    {"MoveSound",                                      0x124,  T_INT32}, //ptr, not saved
+    {"AnimalMode",                                     0x128,  T_INT8 }, //not saved
+    //type 50
+    {"AttackGraphics",                                 0x12C,  T_PTR_G}, //not saved
+    {"DefaultArmor",                                   0x130,  T_INT16}, //saved
+    {"Armors count",                                   0x132,  T_INT16}, //saved
+    {"Armors ptr",                                     0x134,  T_INT32}, //saved
+    {"Attacks count",                                  0x138,  T_INT16}, //saved
+    {"Attacks ptr",                                    0x13C,  T_INT32}, //saved
+    {"TerrainDefenseBonus", /*+0x140*/                 0x140,  T_INT16}, //saved
+    {"Range",                                          0x144,  T_FLOAT}, //saved twice (why?)
+    {"BlastRadius",                                    0x148,  T_FLOAT}, //saved
+    {"BlastLevel",                                     0x14C,  T_INT8 }, //not saved
+    {"ReloadTime1",                                    0x150,  T_FLOAT}, //saved
+    {"ProjectileUnitID",                               0x154,  T_INT16}, //saved
+    {"Accuracy",                                       0x156,  T_INT16}, //saved
+    {"TowerMode",                                      0x158,  T_INT8 }, //not saved
+    {"FrameDelay",                                     0x15A,  T_INT16}, //not saved
+    {"ProjectileGraphicDisplacementX",                 0x15C,  T_FLOAT}, //not saved
+    {"ProjectileGraphicDisplacementY",                 0x160,  T_FLOAT}, //not saved
+    {"ProjectileGraphicDisplacementZ",                 0x164,  T_FLOAT}, //not saved
+    {"MinRange",                                       0x168,  T_FLOAT}, //saved
+    {"DisplayedMeleeArmor",                            0x16C,  T_INT16}, //not saved
+    {"DisplayedAttack",                                0x16E,  T_INT16}, //not saved
+    {"DisplayedRange",                                 0x170,  T_FLOAT}, //not saved
+    {"ReloadTime2",                                    0x174,  T_FLOAT}, //not saved
+    {"AccuracyErrorRadius",                            0x178,  T_FLOAT}, //not saved
+    //type 60
+    {"ProjectileType",                                 0x17C,  T_INT8 }, //not saved
+    {"SmartMode",                                      0x17D,  T_INT8 }, //saved
+    {"HitMode",                                        0x17E,  T_INT8 }, //not saved
+    {"VanishMode",                                     0x17F,  T_INT8 }, //not saved
+    {"AreaEffects",                                    0x180,  T_INT8 }, //not saved
+    {"ProjectileArc",                                  0x184,  T_FLOAT}, //not saved
+    //type 70
+    {"Cost1Type",                                      0x17C,  T_INT16}, //saved
+    {"Cost1Amount", /*+0x180*/                         0x17E,  T_INT16}, //saved
+    {"Cost1IsPaid", /*+0x180*/                         0x180,  T_INT16}, //saved
+    {"Cost2Type",                                      0x182,  T_INT16}, //saved
+    {"Cost2Amount",                                    0x184,  T_INT16}, //saved
+    {"Cost2IsPaid",                                    0x186,  T_INT16}, //saved
+    {"Cost3Type",                                      0x188,  T_INT16}, //saved
+    {"Cost3Amount",                                    0x18A,  T_INT16}, //saved
+    {"Cost3IsPaid",                                    0x18C,  T_INT16}, //saved
+    {"TrainTime",                                      0x18E,  T_INT16}, //saved
+    {"TrainLocation",                                  0x190,  T_INT16}, //not saved
+    {"TrainButton",                                    0x192,  T_INT8 }, //not saved
+    {"DisplayedPierceArmor",                           0x194,  T_INT16}, //not saved
+    {"Unknown198",                                     0x198,  T_INT32}, //Unknown26, not saved
+    {"Unknown19C",                                     0x19C,  T_INT32}, //Unknown27, not saved
+    {"CreatableType",                                  0x1A0,  T_INT8 }, //not saved
+    {"MinDuplMissiles",                                0x1A4,  T_FLOAT}, //saved
+    {"MaxDuplMissiles",                                0x1A8,  T_INT8 }, //saved
+    {"MissileSpawningAreaWidth",                       0x1AC,  T_FLOAT}, //not saved
+    {"MissileSpawningAreaLength",                      0x1B0,  T_FLOAT}, //not saved
+    {"MissileSpawningRandomness",                      0x1B4,  T_FLOAT}, //not saved
+    {"MissileDuplUnit",                                0x1B8,  T_INT32}, //not saved
+    {"SpecialGraphics",                                0x1BC,  T_INT32}, //not saved
+    {"SpecialAbility", /*+0x1C0*/                      0x1C0,  T_INT8 }, //not saved
+    {"HeroMode",                                       0x1C1,  T_INT8 }, //not saved
+    //type 80
+    {"GarrisonGraphics",                               0x1C4,  T_INT32}, //not saved
+    {"Unknown1C8",                                     0x1C8,  T_INT32}, //not saved
+    {"Unknown1CC",                                     0x1CC,  T_INT32}, //not saved
+    {"Unknown1D0",                                     0x1D0,  T_INT32}, //not saved
+    {"AdjacentMode",                                   0x1D4,  T_INT8 }, //not saved
+    {"GraphicsAngle",                                  0x1D6,  T_INT16}, //saved
+    {"DisappearsWhenBuilt",                            0x1D8,  T_INT8 }, //not saved
+    {"StackUnitID",                                    0x1DA,  T_INT16}, //not saved
+    {"FoundationTerrainID",                            0x1DC,  T_INT16}, //not saved
+    {"OldTerrainLikeID",                               0x1DE,  T_INT16}, //not saved
+    {"ResearchID",                                     0x1E0,  T_INT16}, //not saved
+    {"Unknown1E4",                                     0x1E4,  T_INT32}, //not saved
+    {"Unknown1E8",                                     0x1E8,  T_INT32}, //not saved
+    {"Unknown1EC",                                     0x1EC,  T_INT32}, //not saved
+    {"Unknown1F0",                                     0x1F0,  T_INT32}, //not saved
+    {"Unknown1F4",                                     0x1F4,  T_INT32}, //not saved
+    {"Unknown1F8",                                     0x1F8,  T_INT32}, //not saved
+    {"Unknown1FC",                                     0x1FC,  T_INT32}, //not saved
+    {"Unknown200",                                     0x200,  T_INT32}, //not saved
+    {"Unknown204",                                     0x204,  T_INT32}, //not saved
+    {"Unknown208",                                     0x208,  T_INT32}, //not saved
+    {"Unknown20C",                                     0x20C,  T_INT32}, //not saved
+    {"Unknown210",                                     0x210,  T_INT32}, //not saved
+    {"Unknown214",                                     0x214,  T_INT32}, //not saved
+    {"GarrisonHealRate",                               0x218,  T_FLOAT}, //not saved
+    {"Unknown21C",                                     0x21C,  T_INT32}, //not saved
+    {"Unknown220",                                     0x220,  T_INT32}, //not saved
+    {"Unknown224",                                     0x224,  T_INT32}, //not saved
+    {"Unknown228",                                     0x228,  T_INT32}  //not saved
     //TODO
 };
 
-int getArrayIndex(const char* txt, char* type)
+uint32_t getArrayIndex(const char* txt, master_data_types* type)
 {
     int i;
     for (i = 0; i < sizeof(dataIdentifiers) / sizeof(dataIdentifiers[0]); i++)
@@ -190,56 +230,56 @@ int getArrayIndex(const char* txt, char* type)
             return dataIdentifiers[i].offset;
         }
     }
-    return -1;
+    return UINT32_MAX;
 }
 
-void setUnitDataC(int index, void* unitData, char value)
+void setUnitDataC(uint32_t index, void* unitData, char value)
 {
     *(char*)((char*)unitData + index) = value;
 }
-void setUnitDataS(int index, void* unitData, short value)
+void setUnitDataS(uint32_t index, void* unitData, short value)
 {
     *(short*)((char*)unitData + index) = value;
 }
-void setUnitDataL(int index, void* unitData, long value)
+void setUnitDataL(uint32_t index, void* unitData, long value)
 {
     *(long*)((char*)unitData + index) = value;
 }
-void setUnitDataF(int index, void* unitData, float value)
+void setUnitDataF(uint32_t index, void* unitData, float value)
 {
     *(float*)((char*)unitData + index) = value;
 }
 
-void modifyUnitDataC(int index, void* unitData, char value)
+void modifyUnitDataC(uint32_t index, void* unitData, char value)
 {
     *(char*)((char*)unitData + index) += value;
 }
-void modifyUnitDataS(int index, void* unitData, short value)
+void modifyUnitDataS(uint32_t index, void* unitData, short value)
 {
     *(short*)((char*)unitData + index) += value;
 }
-void modifyUnitDataL(int index, void* unitData, long value)
+void modifyUnitDataL(uint32_t index, void* unitData, long value)
 {
     *(long*)((char*)unitData + index) += value;
 }
-void modifyUnitDataF(int index, void* unitData, float value)
+void modifyUnitDataF(uint32_t index, void* unitData, float value)
 {
     *(float*)((char*)unitData + index) += value;
 }
 
-void multiplyUnitDataC(int index, void* unitData, float value)
+void multiplyUnitDataC(uint32_t index, void* unitData, float value)
 {
     *(char*)((char*)unitData + index) *= value;
 }
-void multiplyUnitDataS(int index, void* unitData, float value)
+void multiplyUnitDataS(uint32_t index, void* unitData, float value)
 {
     *(short*)((char*)unitData + index) *= value;
 }
-void multiplyUnitDataL(int index, void* unitData, float value)
+void multiplyUnitDataL(uint32_t index, void* unitData, float value)
 {
     *(long*)((char*)unitData + index) *= value;
 }
-void multiplyUnitDataF(int index, void* unitData, float value)
+void multiplyUnitDataF(uint32_t index, void* unitData, float value)
 {
     *(float*)((char*)unitData + index) *= value;
 }
@@ -268,60 +308,55 @@ badID:
         ret     4
     }
 }
-
-__declspec(naked) short* __stdcall getAttackArmorPtr()
-{
-    __asm
-    {
-        test    ecx, ecx                //ecx - count
-        jz      _atkEnd                 //edx - ptr
-_atkCont:                               //ax  - class
-        cmp     ax, word ptr [edx]
-        jz      _atkFound
-        add     edx, 4
-        dec     ecx
-        jnz     _atkCont
-_atkEnd:
-        xor     eax, eax
-        ret
-_atkFound:
-        lea     eax, [edx + 2]
-        ret
-    }
-}
-
-__declspec(naked) short* __fastcall getAttackPtr(void* propObj, int c)
-{
-    __asm
-    {
-        mov     eax, edx
-        mov     edx, [ecx + 13Ch]           //attacks
-        movsx   ecx, word ptr [ecx + 138h]  //count
-
-        call    getAttackArmorPtr
-        ret
-    }
-}
-
-__declspec(naked) short* __fastcall getArmorPtr(void* propObj, int c)
-{
-    __asm
-    {
-        mov     eax, edx
-        mov     edx, [ecx + 134h]           //attacks
-        movsx   ecx, word ptr [ecx + 132h]  //count
-
-        call    getAttackArmorPtr
-        ret
-    }
-}
 #pragma warning(pop)
 
-bool isVarAllowed(void* unitData, int i)
+void modify_class_val(short* count_ptr, short** val_ptr, short c, short v, master_data_operations op)
 {
-    int type = *(char*)((int)unitData + 4);
-    int max;
-    switch (type)
+    short* class_val_ptr = NULL;
+    for (int i = 0; i < *count_ptr; i++)
+        if ((*val_ptr)[i * 2] == c)
+            class_val_ptr = *val_ptr + i * 2 + 1;
+    if (!class_val_ptr)
+    {
+        short* new_ptr = (short*) calloc_internal(4, (*count_ptr + 1));
+        memcpy(new_ptr, *val_ptr, 4 * *count_ptr);
+        new_ptr[*count_ptr * 2] = c;
+        new_ptr[*count_ptr * 2 + 1] = 0;
+        class_val_ptr = new_ptr + *count_ptr * 2 + 1;
+        free_internal(*val_ptr);
+        *val_ptr = new_ptr;
+        (*count_ptr)++;
+    }
+    switch (op)
+    {
+    case OP_SET:
+        *class_val_ptr = v;
+        break;
+    case OP_ADD:
+        *class_val_ptr += v;
+        break;
+    case OP_MUL:
+        *class_val_ptr *= v;
+        break;
+    default:
+        break;
+    }
+}
+
+void modify_attack(prop_object* p, master_data_operations op, short c, short v)
+{
+    modify_class_val(&p->attacks_count, (short**)&p->attacks_ptr, c, v, op);
+}
+
+void modify_armor(prop_object* p, master_data_operations op, short c, short v)
+{
+    modify_class_val(&p->armors_count, (short**)&p->armors_ptr, c, v, op);
+}
+
+bool isVarAllowed(prop_object* unitData, uint32_t i)
+{
+    uint32_t max;
+    switch (unitData->type)
     {
     case 10:
         max = 0x0CC;
@@ -339,13 +374,13 @@ bool isVarAllowed(void* unitData, int i)
         max = 0x178;
         break;
     case 60:
-        max = 0;
+        max = 0x184;
         break;
     case 70:
         max = 0x1C1;
         break;
     case 80:
-        max = 0x1E0;
+        max = 0x228;
         break;
     default:
         max = 0;
@@ -410,167 +445,186 @@ bool __stdcall advTriggerEffectActual2(void* unitData, char* str)
         return false;
 }*/
 
-void __stdcall advTriggerEffectActual(void* unitData, const char* s)
+void __stdcall advTriggerEffectActual_sub(prop_object* unitData, const char* s)
 {
-    char type;
-    char command[64];
+    master_data_types type;
+    char command[8];
     char variable[64];
-    char amount[64];
+    char amount[32];
 
     long int8Amount;
     long int16Amount;
     long int32Amount;
     float floatAmount;
 
-    int index;
-    //strcpy (s,(char*)x);
-    sscanf(s, "%63s %63s %63s", command, variable, amount);
+    uint32_t index;
+    sscanf_s(s, "%s %s %s",
+        command, (unsigned)_countof(command), variable, (unsigned)_countof(variable), amount, (unsigned)_countof(amount));
     index = getArrayIndex(variable, &type);
 
-    //if (index == 0x38)
-    //    index = -1;
-
-    if (index != -1)
+    if (index != UINT32_MAX)
     {
-        if (!isVarAllowed(unitData, index))
+        if (isVarAllowed(unitData, index))
         {
-            log("Warning: cannot modify var %s for type %d", variable, *(char*)((int)unitData + 4));
-            return;
-        }
-    }
-
-#ifdef _DEBUG
-    log("Adv trigger effect: cmd=%s var=%s amount=%s", command, variable, amount);
-#endif
-
-    if (index != -1)
-    {
-        _strupr(command);
-        if (!strcmp(command, "SET"))
-        {
-            switch (type)
-            {
-            case T_INT8:
-                sscanf(amount, "%d", &int8Amount);
-                setUnitDataC(index, unitData, int8Amount);
-                break;
-            case T_INT16:
-                sscanf(amount, "%d", &int16Amount);
-                setUnitDataS(index, unitData, int16Amount);
-                break;
-            case T_INT32:
-                sscanf(amount, "%d", &int32Amount);
-                setUnitDataL(index, unitData, int32Amount);
-                break;
-            case T_FLOAT:
-                sscanf(amount, "%f", &floatAmount);
-                setUnitDataF(index, unitData, floatAmount);
-                break;
-            case T_PTR_G:
-                sscanf(amount, "%d", &int16Amount);
-                void* p = getGraphicPtr(int16Amount);
-                if (p)
-                    setUnitDataL(index, unitData, (long)p);
-                else
-                    log("Error: graphic ID (%d) >= n (%d)", index, int16Amount);
-            }
-        }
-        else if (!strcmp(command, "ADD"))
-        {
-            switch (type)
-            {
-            case T_INT8:
-                sscanf(amount, "%d", &int8Amount);
-                modifyUnitDataC(index, unitData, int8Amount);
-                break;
-            case T_INT16:
-                sscanf(amount, "%d", &int16Amount);
-                modifyUnitDataS(index, unitData, int16Amount);
-                break;
-            case T_INT32:
-                sscanf(amount, "%d", &int32Amount);
-                modifyUnitDataL(index, unitData, int32Amount);
-                break;
-            case T_FLOAT:
-                sscanf(amount, "%f", &floatAmount);
-                modifyUnitDataF(index, unitData, floatAmount);
-                break;
-            case T_PTR_G:
-                log("Error: command ADD is not allowed for pointers");
-            }
-        }
-        else if (!strcmp(command, "MUL"))
-        {
-            switch (type)
-            {
-            case T_INT8:
-            {
-                sscanf(amount, "%f", &floatAmount);
-                multiplyUnitDataC(index, unitData, floatAmount);
-                break;
-            }
-            case T_INT16:
-            {
-                sscanf(amount, "%f", &floatAmount);
-                multiplyUnitDataS(index, unitData, floatAmount);
-                break;
-            }
-            case T_INT32:
-            {
-                sscanf(amount, "%f", &floatAmount);
-                multiplyUnitDataL(index, unitData, floatAmount);
-                break;
-            }
-            case T_FLOAT:
-            {
-                sscanf(amount, "%f", &floatAmount);
-                multiplyUnitDataF(index, unitData, floatAmount);
-                break;
-            }
-            }
-        }
-        else
-            log("Error: unknown command: %s", command);
-    }
-    else
-    {
-        char amount2[64];
-        sscanf(s, "%63s %63s %63s %63s", command, variable, amount, amount2);
-        if (*(int*)((int)unitData + 4) < 50)
-        {
-            log("Warning: Cannot modify attack or armor for type %d", *(char*)((int)unitData + 4));
-            return;
-        }
-        int c;
-        int v;
-        short* d;
-        sscanf(amount, "%d", &c);
-        sscanf(amount2, "%d", &v);
-        if (!strcmp(variable, "Attack"))
-            d = getAttackPtr(unitData, c);
-        else if (!strcmp(variable, "Armor"))
-            d = getArmorPtr(unitData, c);
-        else
-        {
-            log("Error: unknown variable: %s", variable);
-            return;
-        }
-        if (!d)
-        {
-            log("Error: unit has no attacks/armors");
-        }
-        else
-        {
+            _strupr(command);
             if (!strcmp(command, "SET"))
-                *d = v;
+            {
+                switch (type)
+                {
+                case T_INT8:
+                    if (sscanf_s(amount, "%d", &int8Amount) > 0)
+                        setUnitDataC(index, unitData, int8Amount);
+                    break;
+                case T_INT16:
+                    if (sscanf_s(amount, "%d", &int16Amount) > 0)
+                        setUnitDataS(index, unitData, int16Amount);
+                    break;
+                case T_INT32:
+                    if (sscanf_s(amount, "%d", &int32Amount) > 0)
+                        setUnitDataL(index, unitData, int32Amount);
+                    break;
+                case T_FLOAT:
+                    if (sscanf_s(amount, "%f", &floatAmount) > 0)
+                        setUnitDataF(index, unitData, floatAmount);
+                    break;
+                case T_PTR_G:
+                    if (sscanf_s(amount, "%d", &int16Amount) > 0)
+                    {
+                        void* p = getGraphicPtr(int16Amount);
+                        if (p)
+                            setUnitDataL(index, unitData, (long)p);
+                        else
+                            log("Error: graphic ID (%d) >= n (%d)", index, int16Amount);
+                    }
+                    break;
+                }
+            }
             else if (!strcmp(command, "ADD"))
-                *d += v;
+            {
+                switch (type)
+                {
+                case T_INT8:
+                    if (sscanf_s(amount, "%d", &int8Amount) > 0)
+                        modifyUnitDataC(index, unitData, int8Amount);
+                    break;
+                case T_INT16:
+                    if (sscanf_s(amount, "%d", &int16Amount) > 0)
+                        modifyUnitDataS(index, unitData, int16Amount);
+                    break;
+                case T_INT32:
+                    if (sscanf_s(amount, "%d", &int32Amount) > 0)
+                        modifyUnitDataL(index, unitData, int32Amount);
+                    break;
+                case T_FLOAT:
+                    if (sscanf_s(amount, "%f", &floatAmount) > 0)
+                        modifyUnitDataF(index, unitData, floatAmount);
+                    break;
+                case T_PTR_G:
+                    log("Error: command ADD is not allowed for pointers");
+                    break;
+                }
+            }
             else if (!strcmp(command, "MUL"))
-                *d *= v;
+            {
+                switch (type)
+                {
+                case T_INT8:
+                    if (sscanf_s(amount, "%f", &floatAmount) > 0)
+                        multiplyUnitDataC(index, unitData, floatAmount);
+                    break;
+                case T_INT16:
+                    if (sscanf_s(amount, "%f", &floatAmount) > 0)
+                        multiplyUnitDataS(index, unitData, floatAmount);
+                    break;
+                case T_INT32:
+                    if (sscanf_s(amount, "%f", &floatAmount) > 0)
+                        multiplyUnitDataL(index, unitData, floatAmount);
+                    break;
+                case T_FLOAT:
+                    if (sscanf_s(amount, "%f", &floatAmount) > 0)
+                        multiplyUnitDataF(index, unitData, floatAmount);
+                    break;
+                case T_PTR_G:
+                    log("Error: command MUL is not allowed for pointers");
+                    break;
+                }
+            }
             else
                 log("Error: unknown command: %s", command);
         }
+        else
+        {
+            log("Warning: cannot modify var %s for type %d", variable, (int)unitData->type);
+            return;
+        }
     }
+    else
+    {
+        char amount2[32];
+        sscanf_s(s, "%s %s %s %s",
+            command, (unsigned)_countof(command), variable, (unsigned)_countof(variable), amount, (unsigned)_countof(amount), amount2, (unsigned)_countof(amount2));
+
+        if (unitData->type >= 50)
+        {
+            master_data_operations op;
+            if (!strcmp(command, "SET"))
+                op = OP_SET;
+            else if (!strcmp(command, "ADD"))
+                op = OP_ADD;
+            else if (!strcmp(command, "MUL"))
+                op = OP_MUL;
+            else
+            {
+                log("Error: unknown command: %s", command);
+                return;
+            }
+            int c;
+            int v;
+            if (sscanf_s(amount, "%d", &c) > 0 && sscanf_s(amount2, "%d", &v) > 0)
+            {
+                if (!strcmp(variable, "Attack"))
+                    modify_attack(unitData, op, c, v);
+                else if (!strcmp(variable, "Armor"))
+                    modify_armor(unitData, op, c, v);
+                else
+                {
+                    log("Error: unknown variable: %s", variable);
+                    return;
+                }
+            }
+        }
+    }
+}
+
+void __stdcall advTriggerEffectActual(prop_object* unitData, const char* str)
+{
+    char* s_heap = NULL;
+    char* s_stack = NULL;
+    size_t s_len = strlen(str);
+    char* s;
+    if (s_len < 0x400)
+    {
+        s_stack = (char*)alloca(s_len + 1);
+        s = s_stack;
+    }
+    else
+    {
+        s_heap = (char*)malloc(s_len + 1);
+        s = s_heap;
+    }
+    strcpy_s(s, s_len + 1, str);
+    char* pch = strtok(s, "\r\n");
+    char* com_strs[64];
+    int str_count = 0;
+    while (pch && str_count < 64)
+    {
+        com_strs[str_count++] = pch;
+        pch = strtok(NULL, "\r\n");
+    }
+    for (int i = 0; i < str_count; i++)
+        advTriggerEffectActual_sub(unitData, com_strs[i]);
+
+    free(s_heap);
 }
 
 void __declspec(naked) advTriggerEffect()

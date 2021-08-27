@@ -321,6 +321,7 @@
     <ClInclude Include="core.h" />
     <ClInclude Include="crashreporter.h" />
     <ClInclude Include="create_object.h" />
+    <ClInclude Include="dataload.h" />
     <ClInclude Include="drs.h" />
     <ClInclude Include="drsfile.h" />
     <ClInclude Include="dsoundhook.h" />
@@ -346,6 +347,7 @@
     <ClInclude Include="jedimaster.h" />
     <ClInclude Include="langdll.h" />
     <ClInclude Include="languagedlloverride.h" />
+    <ClInclude Include="legacypatch.h" />
     <ClInclude Include="localisation.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="mapcopy.h" />
@@ -393,12 +395,15 @@
     <ClInclude Include="storemode.h" />
     <ClInclude Include="structs.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="techtree.h" />
     <ClInclude Include="techupcolor.h" />
     <ClInclude Include="terrain.h" />
     <ClInclude Include="terrain_gen.h" />
     <ClInclude Include="test.h" />
     <ClInclude Include="textcolor.h" />
     <ClInclude Include="timeline.h" />
+    <ClInclude Include="tribe_command.h" />
+    <ClInclude Include="tribe_command_ef.h" />
     <ClInclude Include="triggerdesc.h" />
     <ClInclude Include="trigger_unit.h" />
     <ClInclude Include="versionselect.h" />
@@ -438,6 +443,7 @@
     <ClCompile Include="core.cpp" />
     <ClCompile Include="crashreporter.cpp" />
     <ClCompile Include="create_object.cpp" />
+    <ClCompile Include="dataload.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug_cc|Win32'">false</CompileAsManaged>
@@ -484,6 +490,7 @@
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="langdll.cpp" />
     <ClCompile Include="languagedlloverride.cpp" />
+    <ClCompile Include="legacypatch.cpp" />
     <ClCompile Include="localisation.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="mapcopy.cpp" />
@@ -536,6 +543,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_cc_compatible|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="storemode.cpp" />
+    <ClCompile Include="techtree.cpp" />
     <ClCompile Include="techupcolor.cpp" />
     <ClCompile Include="terrain.cpp" />
     <ClCompile Include="terrain_blend.cpp" />
@@ -544,6 +552,8 @@
     <ClCompile Include="test.cpp" />
     <ClCompile Include="textcolor.cpp" />
     <ClCompile Include="timeline.cpp" />
+    <ClCompile Include="tribe_command.cpp" />
+    <ClCompile Include="tribe_command_ef.cpp" />
     <ClCompile Include="triggerdesc.cpp" />
     <ClCompile Include="trigger_unit.cpp" />
     <ClCompile Include="versionselect.cpp" />

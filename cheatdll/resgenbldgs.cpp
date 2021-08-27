@@ -2,21 +2,29 @@
 
 #include "resgenbldgs.h"
 
-int numberOfResProducers;
-resGen* resProducersData;
+int numberOfResProducers = 0;
+resGen* resProducersData = NULL;
 
-void initBldgResProdList()
+bool resGenHooksInstalled = false;
+
+void initBldgResProdList(const char* prefix, const char* filename)
 {
     char c;
     int value;
     int id;
     int res;
     log("Loading resource generating buildings list");
-    FILE* f = fopen("data\\resgen.txt", "rt");
+    char full_filename[0x100];
+    sprintf(full_filename, "%s%s", prefix, filename);
+    FILE* f = fopen(full_filename, "rt");
     if (f)
     {
         numberOfResProducers = 0;
-        resProducersData = 0;
+        if (resProducersData)
+        {
+            free(resProducersData);
+            resProducersData = NULL;
+        }
         while (fscanf(f, "%d %d %c %d", &id, &res, &c, &value) > 0)
         {
             numberOfResProducers++;
@@ -35,10 +43,14 @@ void initBldgResProdList()
             }
         }
 
-        setHook((void*)0x005553C6, resGenHook);
+        if (!resGenHooksInstalled)
+        {
+            setHook((void*)0x005553C6, resGenHook);
+            resGenHooksInstalled = true;
+        }
     }
     else
-        log("Warning: resgen.txt not found, resource generating buildings disabled");
+        log("Warning: %s not found, resource generating buildings disabled", full_filename);
 }
 
 void __stdcall doResGen(int unitID, float* resources)
@@ -81,5 +93,5 @@ __declspec(naked) int resGenHook()
 
 void setResGenHooks()
 {
-    initBldgResProdList();
+    initBldgResProdList("data\\", "resgen.txt");
 }

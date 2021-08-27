@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "negdecay.h"
 
 __declspec(naked) int negDecay() //0054F123

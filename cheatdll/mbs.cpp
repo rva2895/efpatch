@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "hotkeys.h"
 
 //sub_445A10 -> sub_5EF170
 
@@ -604,58 +603,6 @@ __declspec(naked) void TRIBE_Command__do_command_mbs()
     }
 }
 
-__declspec(naked) void TRIBE_Command__do_command_shift_delete()
-{
-    __asm
-    {
-        push    esi
-        push    edi
-        call    shift_delete_do_command
-        pop     edi
-        pop     esi
-        pop     ebp
-        pop     ebx
-        pop     ecx
-        retn    4
-    }
-}
-
-const uint32_t dispatch_command_offsets[] =
-{
-    0x005B9EF3,
-    0x005B9E1A,
-    0x005B9E2A,
-    0x005B9E3A,
-    0x005B9EE3,
-    0x005B9E5A,
-    0x005B9E4A,
-    0x005B9F45,
-    0x005B9F8A,
-    0x005B9F9A,
-    0x005B9FAA,
-    0x005B9FE0,
-    0x005BA085,
-    0x005B9FF0,
-    0x005BA095,
-    0x005BA0A5,
-    0x005BA000,
-    0x005BA055,
-    0x005BA065,
-    0x005BA075,
-    0x005BA0B5,
-    0x005BA0C5,
-    0x005BA0D5,
-    0x005BA11B,
-    0x005BA161,
-    0x005BA185,
-    0x005BA195,
-    0x005BA1A5,
-    0x005BA1B5,
-    0x005BA1D5,
-    (uint32_t)TRIBE_Command__do_command_mbs,
-    (uint32_t)TRIBE_Command__do_command_shift_delete
-};
-
 __declspec(naked) void mbs_2() //00601DEA, 29EFD
 {
     __asm
@@ -717,10 +664,5 @@ void setMbsHooks()
     setHook((void*)0x00617D6B, mbs_1);
     setHook((void*)0x005020C0, mbs_button);
     setHook((void*)0x004C2F61, mbs_on_select);
-
-    writeDword(0x005B9E16, (DWORD)dispatch_command_offsets);
-    writeByte(0x005BA2DD, 0x1E); //dispatch table offset
-    writeByte(0x005BA2DE, 0x1F);
-    writeByte(0x005B9E04, 0x7E); //max command id -> 0x7E
 }
 #pragma optimize( "", on )

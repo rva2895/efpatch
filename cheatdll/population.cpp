@@ -60,8 +60,8 @@ __declspec(naked) void getPopCap_fix1() //005202AD
         xor     eax, eax
         mov     al, [ecx + 1446h]
         mov     ecx, [esi + 0B28h]
-        push    005202BDh
-        ret
+        mov     edx, 005202BDh
+        jmp     edx
     }
 }
 
@@ -93,8 +93,8 @@ __declspec(naked) void onAIPopCap() //0057F13A
         mov     ecx, eax
         call    getPopCapString
         push    eax
-        push    0057F197h
-        ret
+        mov     ecx, 0057F197h
+        jmp     ecx
     }
 }
 
@@ -117,7 +117,6 @@ void setPopulationHooks(int version)
     writeByte(0x00520846, 15);
     writeByte(0x005E424E, 15);
     writeByte(0x005EC382, 15);
-
 
     //getPopCap and eax, 0FFh
     //writeDword(0x005202B9, 0xFFFFFFFF); //useless

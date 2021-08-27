@@ -1,26 +1,30 @@
 #pragma once
 
-void setEffectHooks();
+enum master_data_types
+{
+    T_INT8,
+    T_INT16,
+    T_INT32,
+    T_FLOAT,
+    T_PTR_G
+};
 
-void triggerDisplayHook();
-void triggerInputTableHook();
-
-void effectUnitVar();
-
-void __stdcall effectUnitVarActual(UNIT* unit, char* str);
+enum master_data_operations
+{
+    OP_SET,
+    OP_ADD,
+    OP_MUL
+};
 
 struct assign
 {
     char* str;
-    short offset;
-    //char   size;
-    char type;
-    //bool   cap;
-    //int    capOffset;
+    uint32_t offset;
+    master_data_types type;
 };
 
-#define T_INT8 0
-#define T_INT16 1
-#define T_INT32 2
-#define T_FLOAT 3
-#define T_PTR_G 4
+void setEffectHooks();
+void triggerDisplayHook();
+void effectUnitVar();
+void __stdcall effectUnitVarActual(UNIT* unit, char* str);
+uint32_t getArrayIndex(const char* txt, master_data_types* type);

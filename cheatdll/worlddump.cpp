@@ -64,7 +64,7 @@ __declspec(naked) UNIT* __stdcall RGE_Action_Object__get_target_obj(void* unit)
     {
         mov     ecx, [esp + 4]
         mov     eax, [ecx]
-        call    dword ptr[eax + 148h]
+        call    dword ptr [eax + 148h]
         retn    4
     }
 }
@@ -75,7 +75,7 @@ __declspec(naked) unsigned int __stdcall RGE_Action_Object__get_action_checksum(
     {
         mov     ecx, [esp + 4]
         mov     eax, [ecx]
-        call    dword ptr[eax + 27Ch]
+        call    dword ptr [eax + 27Ch]
         retn    4
     }
 }
@@ -86,7 +86,7 @@ __declspec(naked) unsigned int __stdcall RGE_Action_Object__get_waypoint_checksu
     {
         mov     ecx, [esp + 4]
         mov     eax, [ecx]
-        call    dword ptr[eax + 280h]
+        call    dword ptr [eax + 280h]
         retn    4
     }
 }
@@ -660,7 +660,7 @@ __declspec(naked) void on_move_to_update() //004084B0
 void setWorldDumpHooks()
 {
     //setHook((void*)0x0040A880, on_create_action);
-    setHook((void*)0x004084B0, on_move_to_update);
+    //setHook((void*)0x004084B0, on_move_to_update);
     //setHook((void*)0x004098EA, unit_update_test3);
 
     //setHook((void*)0x0061E7F0, onWorldUpdate);
@@ -832,7 +832,10 @@ int WORLD_DUMP::deflate_dump()
     strm.opaque = Z_NULL;
     ret = deflateInit(&strm, Z_DEFAULT_COMPRESSION);
     if (ret != Z_OK)
+    {
+        free(out);
         return ret;
+    }
     //compress until end of file
     
         strm.avail_in = size;

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "cliff.h"
 
 void* scen_ptr;

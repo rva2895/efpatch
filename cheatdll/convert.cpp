@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
-short* unconv;
-int nUnconv;
+short* unconv = NULL;
+int nUnconv = 0;
 
 __declspec(naked) void isUnconvertable() //ebx = ID
 {
@@ -41,15 +41,23 @@ convertable:
     }
 }
 
-void setConvertHooks()
+bool unconvHookInstalled = false;
+
+void setConvertHooks(const char* prefix, const char* filename)
 {
     log("Loading unconvertable unit list");
-    FILE* f = fopen("data\\unconv.txt", "rt");
+    char full_filename[0x100];
+    sprintf(full_filename, "%s%s", prefix, filename);
+    FILE* f = fopen(full_filename, "rt");
     if (f)
     {
         short id;
         nUnconv = 0;
-        unconv = 0;
+        if (unconv)
+        {
+            free(unconv);
+            unconv = NULL;
+        }
 
         while (fscanf(f, "%hd", &id) > 0)
         {
@@ -60,8 +68,12 @@ void setConvertHooks()
 
         fclose(f);
 
-        setHook((void*)0x00567EDC, &unConvertHook);
+        if (!unconvHookInstalled)
+        {
+            setHook((void*)0x00567EDC, unConvertHook);
+            unconvHookInstalled = true;
+        }
     }
     else
-        log("Warning: unconv.txt not found, using default settings");
+        log("Warning: %s not found, using default settings", full_filename);
 }

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "civletter.h"
 
 const BYTE_ASSIGN civLetterSet[] =

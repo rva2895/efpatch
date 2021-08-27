@@ -7,7 +7,6 @@
 
 void editVal(float* valPtr, float val, bool useMax, float max, int action)
 {
-    //float* hp = (float*)((int)unit+0x3C);
     switch (action)
     {
     case 0: //SET
@@ -110,15 +109,28 @@ void editCounter(UNIT* unit, float val, int action, int c)
     //objPanel_invalidate();
 }
 
-void __stdcall effectUnitVarActual(UNIT* unit, char* str)
+void __stdcall effectUnitVarActual_sub(UNIT* unit, char* str)
 {
     int action;
-    char var[50];
+    char var[32];
     var[0] = '\0';
     float val = 0.0f;
     float val2 = 0.0f;
-    char* s = (char*)malloc(strlen(str) + 1);
-    strcpy(s, str);
+    char* s_heap = NULL;
+    char* s_stack = NULL;
+    size_t s_len = strlen(str);
+    char* s;
+    if (s_len < 0x80)
+    {
+        s_stack = (char*)alloca(s_len + 1);
+        s = s_stack;
+    }
+    else
+    {
+        s_heap = (char*)malloc(s_len + 1);
+        s = s_heap;
+    }
+    strcpy_s(s, s_len + 1, str);
     char* pch = strtok(s, " ");
     if (pch)
     {
@@ -130,23 +142,33 @@ void __stdcall effectUnitVarActual(UNIT* unit, char* str)
             action = 2;
         else
         {
-            free(s);
+            free(s_heap);
             return;
         }
     }
     else
     {
-        free(s);
+        free(s_heap);
         return;
     }
+
     pch = strtok(NULL, " ");
     if (pch)
-        strcpy(var, pch);
+        strcpy_s(var, sizeof(var), pch);
+    else
+    {
+        free(s_heap);
+        return;
+    }
 
     pch = strtok(NULL, " ");
     if (pch)
         sscanf(pch, "%f", &val);
-
+    else
+    {
+        free(s_heap);
+        return;
+    }
     if (!strcmp(var, "HP"))
     {
         editHP(unit, val, action);
@@ -199,16 +221,61 @@ void __stdcall effectUnitVarActual(UNIT* unit, char* str)
     {
         pch = strtok(NULL, " ");
         if (pch)
+        {
             sscanf(pch, "%f", &val2);
-        editHPRegen(unit, val, 10 * val2);
+            editHPRegen(unit, val, 10 * val2);
+        }
+        else
+        {
+            free(s_heap);
+            return;
+        }
     }
     else if (!strcmp(var, "HPRegenPercent"))
     {
         pch = strtok(NULL, " ");
         if (pch)
+        {
             sscanf(pch, "%f", &val2);
-        editHPRegenPercent(unit, val, 10 * val2);
+            editHPRegenPercent(unit, val, 10 * val2);
+        }
+        else
+        {
+            free(s_heap);
+            return;
+        }
     }
 
-    free(s);
+    free(s_heap);
+}
+
+void __stdcall effectUnitVarActual(UNIT* unit, char* str)
+{
+    char* s_heap = NULL;
+    char* s_stack = NULL;
+    size_t s_len = strlen(str);
+    char* s;
+    if (s_len < 0x400)
+    {
+        s_stack = (char*)alloca(s_len + 1);
+        s = s_stack;
+    }
+    else
+    {
+        s_heap = (char*)malloc(s_len + 1);
+        s = s_heap;
+    }
+    strcpy_s(s, s_len + 1, str);
+    char* pch = strtok(s, "\r\n");
+    char* com_strs[64];
+    int str_count = 0;
+    while (pch && str_count < 64)
+    {
+        com_strs[str_count++] = pch;
+        pch = strtok(NULL, "\r\n");
+    }
+    for (int i = 0; i < str_count; i++)
+        effectUnitVarActual_sub(unit, com_strs[i]);
+
+    free(s_heap);
 }

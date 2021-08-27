@@ -10,7 +10,7 @@ typedef struct _maptile
 typedef struct _playerinfo
 {
     char diplomacy_from[9];
-    int diplomacy_to[9];
+    long diplomacy_to[9];
     int name_len;
     char* name;
     int civ;
@@ -38,7 +38,7 @@ public:
     DWORD version;
     char* p;
     void readN(void*, int);
-    int read4();
+    long read4();
     short read2();
     char read1();
     void skip(int);
@@ -47,7 +47,7 @@ public:
     TEAM getTeam2();
     DWORD getTeams();
     char* getMapType();
-    char* getGameType();
+    const char* getGameType();
 
     int getNAllies(int);
     bool allied(int, int);

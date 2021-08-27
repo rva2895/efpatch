@@ -96,28 +96,13 @@
 #include "languagedlloverride.h"
 #include "worlddump.h"
 #include "functionlist.h"
+#include "tribe_command.h"
+#include "techtree.h"
+#include "dataload.h"
 #ifdef TARGET_VOOBLY
+#include "legacypatch.h"
 #include "iuserpatch.h"
 #endif
-
-/*__declspec(naked) int pathFindHook()
-{
-    __asm
-    {
-        mov  dword ptr [esp + 4], 0
-        mov  dword ptr [esp + 8], 0
-        mov  dword ptr [esp + 0Ch], 0
-        mov  dword ptr [esp + 10h], 0
-        sub  esp, 10h
-        _emit   0x8B
-        _emit   0x44
-        _emit   0x24
-        _emit   0x28
-        push 004B13A7h
-        ret
-    }
-}
-*/
 
 CONFIG_DATA cd;
 
@@ -136,7 +121,49 @@ void getSettings()
 #endif
 }
 
-const float screen_fade = 0.1f; //default 0.001
+//const float screen_fade = 0.0002f; //default 0.001
+
+bool __stdcall check_panel_name(const char* n)
+{
+    return (!strcmp(n, "Blank Screen"));
+}
+
+__declspec(naked) void on_set_panel() //004B4960
+{
+    __asm
+    {
+        mov     eax, [esp + 4]
+        push    ecx
+        push    eax
+        call    check_panel_name
+        test    al, al
+        pop     ecx
+        jnz     blank_panel
+        mov     eax, [esp + 4]
+        push    ebx
+        xor     ebx, ebx
+        mov     edx, 004B4967h
+        jmp     edx
+blank_panel:
+        ret     8
+    }
+}
+
+__declspec(naked) void annex_unit_crash_mitigation() //00555640
+{
+    __asm
+    {
+        mov     ecx, [esi + 1Ch]
+        test    ecx, ecx
+        jz      mitigate_annex_crash
+        movsx   eax, ax
+        mov     edx, 00555646h
+        jmp     edx
+mitigate_annex_crash:
+        mov     edx, 005556C9h
+        jmp     edx
+    }
+}
 
 #pragma optimize( "s", on )
 void setHooksCC()
@@ -149,13 +176,19 @@ void setHooksCC()
     //faster screen fade in/out
     //writeDword(0x0042DEA6, (DWORD)&screen_fade);
     //writeDword(0x0042DF5B, (DWORD)&screen_fade);
+    writeData(0x0042DDA0, "\xC2\x14\x00", 3);
+
+    //remove blank screen
+    //setHook((void*)0x004B4960, on_set_panel);
     
     //renderer fix (THIS_COD)
-    BYTE* nops = (BYTE*)malloc(25);
+    BYTE nops[25];
     memset(nops, 0x90, 25);
     writeData(0x0064DC8D, nops, 25);
-    writeData(0x0068F14C, "error.txt\0", 10);
-    free(nops);
+    writeData(0x0068F14C, "error.txt", 10);
+
+    //workaround for annex unit crash from state 0
+    setHook((void*)0x00555640, annex_unit_crash_mitigation);
 
     setTimelineHooks();
 
@@ -163,7 +196,7 @@ void setHooksCC()
     setMapCopyHooks();
     
 #ifndef TARGET_VOOBLY
-//  if (cd.windowMode)
+    if (cd.windowMode)
         setWndModeHooks();
 #endif
 
@@ -172,18 +205,6 @@ void setHooksCC()
     setAdvCheatHooks();
 #endif
 #endif
-
-        //Trigger object overflow fix
-        //writeByte(0x5F2AF8, 0x65);
-        //writeByte(0x5F2AF9, 0x11);
-        //writeByte(0x5F2B02, 0x65);
-        //writeByte(0x5F2B03, 0x11);
-        //writeByte(0x5F2C5F, 0x65);
-        //writeByte(0x5F2C60, 0x11);
-        //writeByte(0x5F3DB5, 0x65);
-        //writeByte(0x5F3DB6, 0x11);
-        //writeByte(0x5F3DC8, 0x65);
-        //writeByte(0x5F3DC9, 0x11);
 
     if (cd.useAltCivLetter)
         setAltCivLetter();
@@ -217,23 +238,10 @@ void setHooksCC()
     setMapSizeHooks_legacy();
 #endif
 
-#ifdef _CHEATDLL_CC
-#ifndef _CC_COMPATIBLE
-    //setTerrainGenHooks();        //Enabled this when using +1 terrain DAT!
-    setSaveGameVersionHooks();
-#endif
-#endif
-    
     setFileNameHooks(cd.gameVersion);
 
 #ifndef _CC_COMPATIBLE
     setPopulationHooks(cd.gameVersion);
-
-#ifndef TARGET_VOOBLY
-    setResearchRepeatHooks();
-    setConditionHooks();
-    setEffectHooks();
-#endif
 #endif
 
     if (cd.editorAutosave)
@@ -322,7 +330,13 @@ void setHooksCC()
 
     setObjectPanelHooks(cd.gameVersion);
 
-    setTerrainGenHooks();
+    setTerrainGenHooks(cd.gameVersion);
+
+    setTribeCommandHooks(cd.gameVersion);
+
+    setResearchRepeatHooks();
+    setConditionHooks();
+    setEffectHooks();
 
     //setWorldDumpHooks();
 
@@ -339,9 +353,6 @@ void setHooksCC()
     writeByte(0x004F89E1, 0xEB);
     writeByte(0x004F8A13, 0x66);
     writeByte(0x004F8A14, 0x90);
-
-    //remove tribe create
-    setHook((void*)0x005B9EF3, (void*)0x005B9F3D);
 
     //remove high graphics fambaa ring
     writeByte(0x0061F4A4, 0xEB);
@@ -382,9 +393,9 @@ void setHooksEF()
     fixIconLoadingRoutines();
     fixCivLetterFunction();
 
-    initExplDroid();
-    setJediMasterHooks();
-    setConvertHooks();//  !!
+    initExplDroid("data\\", "expl.txt");
+    setJediMasterHooks("data\\", "master.txt", "padawan.txt");
+    setConvertHooks("data\\", "unconv.txt");//  !!
 
     setResGenHooks();
 
@@ -459,6 +470,9 @@ void setHooksEF()
 
     //setVideoHooks();
     setStoreModeHooks();
+
+    //setTechTreeHooks();
+    setDataLoadHooks();
 
     log("setHooks() finished");
 }
@@ -603,6 +617,8 @@ void initialSetup()
     log("Configuration: Release_Voobly");
 
     log("Notice: running in Voobly mode");
+
+    install_legacy_patch();
 #endif
 
     new_memory_pages = VirtualAlloc(0, 0x1000, MEM_COMMIT, PAGE_READWRITE);

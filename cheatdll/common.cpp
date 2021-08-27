@@ -12,7 +12,7 @@ extern IVoobly *g_pVoobly;
 void __cdecl writeByte(DWORD addr, BYTE val)
 {
 #ifndef TARGET_VOOBLY
-    WriteProcessMemory(GetCurrentProcess(), (void*)addr, &val, 1, 0);
+    WriteProcessMemory(GetCurrentProcess(), (void*)addr, &val, 1, NULL);
 #else
     g_pVoobly->Write(addr, &val, sizeof(BYTE));
 #endif
@@ -21,7 +21,7 @@ void __cdecl writeByte(DWORD addr, BYTE val)
 void __cdecl writeWord(DWORD addr, WORD val)
 {
 #ifndef TARGET_VOOBLY
-    WriteProcessMemory(GetCurrentProcess(), (void*)addr, &val, 2, 0);
+    WriteProcessMemory(GetCurrentProcess(), (void*)addr, &val, 2, NULL);
 #else
     g_pVoobly->Write(addr, &val, sizeof(WORD));
 #endif
@@ -30,7 +30,7 @@ void __cdecl writeWord(DWORD addr, WORD val)
 void __cdecl writeDword(DWORD addr, DWORD val)
 {
 #ifndef TARGET_VOOBLY
-    WriteProcessMemory(GetCurrentProcess(), (void*)addr, &val, 4, 0);
+    WriteProcessMemory(GetCurrentProcess(), (void*)addr, &val, 4, NULL);
 #else
     g_pVoobly->Write(addr, val);
 #endif
@@ -39,7 +39,7 @@ void __cdecl writeDword(DWORD addr, DWORD val)
 void __cdecl writeByteF(DWORD addr, BYTE val)
 {
 #ifndef TARGET_VOOBLY
-    WriteProcessMemory(GetCurrentProcess(), (void*)(addr + 0x400000), &val, 1, 0);
+    WriteProcessMemory(GetCurrentProcess(), (void*)(addr + 0x400000), &val, 1, NULL);
 #else
     g_pVoobly->Write(addr + 0x400000, &val, sizeof(BYTE));
 #endif
@@ -48,32 +48,28 @@ void __cdecl writeByteF(DWORD addr, BYTE val)
 void __cdecl writeDwordF(DWORD addr, DWORD val)
 {
 #ifndef TARGET_VOOBLY
-    WriteProcessMemory(GetCurrentProcess(), (void*)(addr + 0x400000), &val, 4, 0);
+    WriteProcessMemory(GetCurrentProcess(), (void*)(addr + 0x400000), &val, 4, NULL);
 #else
     g_pVoobly->Write(addr + 0x400000, val);
 #endif
 }
 
-void __cdecl writeData(DWORD addr, void* data, int len)
+void __cdecl writeData(DWORD addr, const void* data, int len)
 {
 #ifndef TARGET_VOOBLY
-    WriteProcessMemory(GetCurrentProcess(), (void*)addr, data, len, 0);
+    WriteProcessMemory(GetCurrentProcess(), (void*)addr, data, len, NULL);
 #else
     g_pVoobly->Write(addr, data, len);
 #endif
 }
 
-//const unsigned char push = 0x68;
-//const unsigned char ret = 0xC3;
-
 void __cdecl setHook(void* addr, void* newAddr)
 {
 #ifndef TARGET_VOOBLY
-    unsigned long c;
-    unsigned char j = 0xE9;
-    WriteProcessMemory(GetCurrentProcess(), addr, &j, 1, &c);
-    char* r = (char*)newAddr - (char*)addr + (char*)-5;
-    WriteProcessMemory(GetCurrentProcess(), (char*)addr + 1, &r, 4, &c);
+    BYTE data[8];
+    data[3] = 0xE9;
+    *((DWORD*)data + 1) = (DWORD)newAddr - (DWORD)addr - 5;
+    WriteProcessMemory(GetCurrentProcess(), addr, data + 3, 5, NULL);
 #else
     g_pVoobly->WriteJump((DWORD)addr, newAddr);
 #endif
@@ -165,11 +161,78 @@ __declspec(naked) int __stdcall getMapSize()
     }
 }
 
+int __stdcall player_get_n_selection(void* player)
+{
+    return *(int*)((DWORD)player + 0x26C);
+}
+
+UNIT** __stdcall player_get_selection(void* player)
+{
+    return (UNIT**)((DWORD)player + 0x1C8);
+}
+
+float __stdcall player_get_camera_x(void* player)
+{
+    return *(float*)((DWORD)player + 0x178);
+}
+float __stdcall player_get_camera_y(void* player)
+{
+    return *(float*)((DWORD)player + 0x17C);
+}
+
+__declspec(naked) void* __stdcall get_main_view()
+{
+    __asm
+    {
+        mov     ecx, 006A3684h
+        mov     ecx, [ecx]
+        mov     edx, [ecx]
+        call    dword ptr [edx + 30h]
+        ret
+    }
+}
+
+__declspec(naked) void __stdcall unit_change_ownership(UNIT* unit, void* new_owner)
+{
+    __asm
+    {
+        mov     ecx, [esp + 4]
+        mov     eax, [esp + 8]
+        push    eax
+        mov     eax, [ecx]
+        call    dword ptr [eax + 0BCh]
+        ret     8
+    }
+}
+
+__declspec(naked) void __stdcall kill_unit(UNIT* unit)
+{
+    __asm
+    {
+        mov     ecx, [esp + 4]
+        mov     eax, [ecx]
+        call    dword ptr [eax + 3DCh]
+        retn    4
+    }
+}
+
 void* (__thiscall* BaseWorld__object)(void* this_, int oID) =
     (void* (__thiscall*) (void*, int))0x00623DB0;
 
 void* (__thiscall* BaseGame__get_player)(void* globalPtr) =
     (void* (__thiscall*)(void* globalPtr))0x00428750;
+
+bool (__thiscall* BaseGame__allowCheatCodes)(void* this_) =
+    (bool (__thiscall*) (void*))0x0042C330;
+
+bool (__thiscall* BaseGame__singlePlayerGame)(void* this_) =
+    (bool (__thiscall*) (void*))0x0042C2F0;
+
+void (__thiscall* Game__show_status_message)(void* this_, char* messageIn, char* info_file, int info_id, int show_settings, int use_logo_background) =
+    (void (__thiscall*)(void*, char*, char*, int, int, int))0x005E7EC0;
+
+void    (__thiscall* Game__close_status_message)(void* this_) =
+    (void (__thiscall*)(void*))0x005E7FE0;
 
 void* (__thiscall* GameScreen__find_next_idle_unit)(void* this_, int last_object_id) =
     (void* (__thiscall*) (void*, int))0x00506340;
@@ -191,3 +254,27 @@ int (__thiscall* WorldPlayerBase__set_view_loc)(void* player, float x, float y, 
 
 int (__thiscall* GameSoundEffectsManager__playSound)(void* this_, int soundId, int pan, int volume) =
     (int (__thiscall*) (void*, int, int, int))0x0042CD70;
+
+int (__thiscall* RGE_Command__submit)(void* command, void* order, int order_size, int issuer) =
+    (int (__thiscall*) (void*, void*, int, int))0x0044CFD0;
+
+void* (__cdecl* calloc_internal)(size_t number, size_t size) =
+    (void* (__cdecl*) (size_t, size_t))0x00632D33;
+
+void (__cdecl* free_internal)(void* memory) =
+    (void (__cdecl*) (void*))0x00632CCA;
+
+int (__thiscall* unit_detach) (UNIT* unit) =
+    (int (__thiscall*) (UNIT*))0x0055F350;
+
+void (__fastcall* deflate_write) (void* outfile, void* buffer, unsigned int size) =
+    (void (__fastcall*) (void*, void*, unsigned int))0x004D5790;
+
+void (__fastcall* deflate_read) (void* infile, void* buffer, unsigned int size) =
+    (void (__fastcall*) (void*, void*, unsigned int))0x004D5550;
+
+int (__thiscall* RGE_View__display_object_selection)(void* this_, int id, int duration, int select_type, int reset_type) =
+    (int (__thiscall*) (void*, int, int, int, int))0x0060A9A0;
+
+int (__thiscall* TPanelSystem__destroyPanel)(void* this_, char* n) =
+    (int (__thiscall*)(void*, char*))0x004B4D60;

@@ -1,3 +1,3 @@
 #pragma once
 
-void __stdcall effectUnitVarActual (UNIT* unit, char* str);
+void __stdcall effectUnitVarActual(UNIT* unit, char* str);

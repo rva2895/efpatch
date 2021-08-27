@@ -1,3 +1,3 @@
 #pragma once
 
-void initExplDroid ();
+void initExplDroid(const char* prefix, const char* filename);
