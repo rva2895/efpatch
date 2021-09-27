@@ -121,7 +121,7 @@ void getSettings()
 #endif
 }
 
-//const float screen_fade = 0.0002f; //default 0.001
+//const float screen_fade = 0.001f; //default 0.001
 
 bool __stdcall check_panel_name(const char* n)
 {
@@ -176,7 +176,7 @@ void setHooksCC()
     //faster screen fade in/out
     //writeDword(0x0042DEA6, (DWORD)&screen_fade);
     //writeDword(0x0042DF5B, (DWORD)&screen_fade);
-    writeData(0x0042DDA0, "\xC2\x14\x00", 3);
+    //writeData(0x0042DDA0, "\xC2\x14\x00", 3);
 
     //remove blank screen
     //setHook((void*)0x004B4960, on_set_panel);
@@ -279,9 +279,9 @@ void setHooksCC()
     setRecHooks();
     setHotkeyJumpHooks();
 
-//#ifdef TARGET_VOOBLY
+#ifdef TARGET_VOOBLY
     setRecBrowseHooks(cd.gameVersion);
-//#endif
+#endif
     setElevationHooks();
 
     setNetworkHooks();
@@ -381,21 +381,14 @@ void setHooksEF()
 
     setLangDllHooks();
 
-    setExtraTerrainHooks();                                                            //!!!
-
-    //setHook ((void*)0x004B13A0, &pathFindHook);
-
-    //setHook ((void*)0x004C1850, &prefabRes1);
-    //setHook ((void*)0x005F9796, &flash);
-
-    //setHook ((void*)0x005F395D, &origPatrolEnding);
+    setExtraTerrainHooks();
 
     fixIconLoadingRoutines();
     fixCivLetterFunction();
 
     initExplDroid("data\\", "expl.txt");
     setJediMasterHooks("data\\", "master.txt", "padawan.txt");
-    setConvertHooks("data\\", "unconv.txt");//  !!
+    setConvertHooks("data\\", "unconv.txt");
 
     setResGenHooks();
 
@@ -471,21 +464,13 @@ void setHooksEF()
     //setVideoHooks();
     setStoreModeHooks();
 
-    //setTechTreeHooks();
+    setTechTreeHooks();
     setDataLoadHooks();
 
     log("setHooks() finished");
 }
 #pragma optimize( "", on )
 
-const char verStr2[] = "1.2e";
-const char verStr3[] = "1.3e";
-const char verStr4[] = "1.4e";
-const char verStr5[] = "1.5e";
-const char verStr6[] = "1.6e";
-const char verStr7[] = "1.7e";
-const char verStr8[] = "1.8e";
-const char verStr9[] = "1.9e";
 const char ver1x[] = "1.X";
 
 const char verCC2[] = "1.2";
@@ -493,51 +478,40 @@ const char verCC3[] = "1.3";
 const char verCC4[] = "1.4";
 const char verCC5[] = "1.5";
 
-__declspec(naked) void verHookEF() //0042C3E1
+char version_string[8];
+
+char* __stdcall get_version_str_ef(BYTE v)
+{
+    BYTE v_minor;
+    BYTE v_major;
+    if (v == 127)
+    {
+        strcpy(version_string, ver1x);
+    }
+    else if (v > 8)
+    {
+        v_minor = (v + 29 - 9) % 7;
+        v_major = (v + 29 - 9) / 7;
+        sprintf_s(version_string, _countof(version_string), "1.%hhu.%hhu", v_major, v_minor);
+    }
+    else if (v > 0)
+    {
+        v_major = v - 1;
+        sprintf_s(version_string, _countof(version_string), "1.%hhue", v_major);
+    }
+    else
+    {
+        version_string[0] = '\0';
+    }
+    return version_string;
+}
+
+__declspec(naked) void verHookEF_v2() //0042C3D1
 {
     __asm
     {
-        dec     eax
-        jz      _1_2e
-        dec     eax
-        jz      _1_3e
-        dec     eax
-        jz      _1_4e
-        dec     eax
-        jz      _1_5e
-        dec     eax
-        jz      _1_6e
-        dec     eax
-        jz      _1_7e
-        dec     eax
-        jz      _1_8e
-        dec     eax
-        jz      _1_9e
-        mov     eax, 00689BA8h
-        ret     4
-_1_2e:
-        mov     eax, offset verStr2
-        ret     4
-_1_3e:
-        mov     eax, offset verStr3
-        ret     4
-_1_4e:
-        mov     eax, offset verStr4
-        ret     4
-_1_5e:
-        mov     eax, offset verStr5
-        ret     4
-_1_6e:
-        mov     eax, offset verStr6
-        ret     4
-_1_7e:
-        mov     eax, offset verStr7
-        ret     4
-_1_8e:
-        mov     eax, offset verStr8
-        ret     4
-_1_9e:
-        mov     eax, offset verStr9
+        push    eax
+        call    get_version_str_ef
         ret     4
     }
 }
@@ -573,9 +547,9 @@ _1_5:
 
 void updateVersionEF()
 {
-    writeByte(0x00689534, 8); //EF 1.7e
-    //strcpy ((char*)0x00689BA4, verStr);
-    setHook((void*)0x0042C3E1, &verHookEF);
+    //writeByte(0x00689534, 8); //EF 1.7e
+    writeByte(0x00689534, 9); //EF 1.4.1, new format
+    setHook((void*)0x0042C3D1, verHookEF_v2);
 }
 
 void updateVersionCC()
@@ -584,7 +558,7 @@ void updateVersionCC()
 #ifndef _CC_COMPATIBLE
     writeByte(0x00689534, 3); //CC 1.2
     //strcpy ((char*)0x00689BA4, verStr);
-    setHook((void*)0x0042C3E1, &verHookCC);
+    setHook((void*)0x0042C3E1, verHookCC);
 #endif // !_CC_COMPATIBLE
 #endif
 }

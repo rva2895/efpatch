@@ -5,13 +5,13 @@
 void __fastcall setUnitTypeBuilders(int id, int count)
 {
     //builder counters per ID
-    char* buildersPerID = *(char**)(*(int*)0x0077FDAC + 0x103C);
-    buildersPerID[id] = count;
+    uint8_t* buildersPerID = *(uint8_t**)(*(DWORD*)0x0077FDAC + 0x103C);
+    buildersPerID[id] = (uint8_t)count;
 }
 
 int __fastcall getUnitTypeBuilders(int id, void* player)
 {
-    char* buildersPerID = *(char**)((int)player + 0x103C);
+    uint8_t* buildersPerID = *(uint8_t**)((DWORD)player + 0x103C);
     return buildersPerID[id];
 }
 

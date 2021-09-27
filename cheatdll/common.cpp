@@ -2,7 +2,8 @@
 
 #include "common.h"
 
-void** BaseGame_bg = (void**)0x006A3684;
+void** base_game = (void**)0x006A3684;
+void** panel_system = (void**)0x006ADBB8;
 int* world_update_counter = (int*)0x007A22F8;
 
 #ifdef TARGET_VOOBLY
@@ -101,7 +102,7 @@ __declspec(naked) int __stdcall getWindowY()
 
 void* __stdcall getCurrentPlayer()
 {
-    return BaseGame__get_player(*BaseGame_bg);
+    return BaseGame__get_player(*base_game);
 }
 
 int __stdcall language_dll_load(UINT id, char* buf, int nmax)
@@ -180,6 +181,11 @@ float __stdcall player_get_camera_y(void* player)
     return *(float*)((DWORD)player + 0x17C);
 }
 
+void* __stdcall get_TRIBE_Command()
+{
+    return *(void**)(*(DWORD*)(*(DWORD*)0x006A3684 + 0x420) + 0x68);
+}
+
 __declspec(naked) void* __stdcall get_main_view()
 {
     __asm
@@ -216,6 +222,16 @@ __declspec(naked) void __stdcall kill_unit(UNIT* unit)
     }
 }
 
+__declspec(naked) void* __stdcall get_top_panel()
+{
+    __asm
+    {
+        mov     ecx, panel_system
+        mov     eax, [ecx + 10h]
+        ret
+    }
+}
+
 void* (__thiscall* BaseWorld__object)(void* this_, int oID) =
     (void* (__thiscall*) (void*, int))0x00623DB0;
 
@@ -228,11 +244,20 @@ bool (__thiscall* BaseGame__allowCheatCodes)(void* this_) =
 bool (__thiscall* BaseGame__singlePlayerGame)(void* this_) =
     (bool (__thiscall*) (void*))0x0042C2F0;
 
+bool (__thiscall* BaseGame__getRecordGame)(void* this_) =
+    (bool (__thiscall*)(void*))0x0042C340;
+
+void (__thiscall* BaseGame__setRecordGame)(void* this_, bool v) =
+    (void (__thiscall*)(void*, bool))0x0042C550;
+
 void (__thiscall* Game__show_status_message)(void* this_, char* messageIn, char* info_file, int info_id, int show_settings, int use_logo_background) =
     (void (__thiscall*)(void*, char*, char*, int, int, int))0x005E7EC0;
 
-void    (__thiscall* Game__close_status_message)(void* this_) =
+void (__thiscall* Game__close_status_message)(void* this_) =
     (void (__thiscall*)(void*))0x005E7FE0;
+
+void (__thiscall* Game__set_player)(void* this_, __int16 new_player_id) =
+    (void (__thiscall*)(void*, __int16))0x005E68B0;
 
 void* (__thiscall* GameScreen__find_next_idle_unit)(void* this_, int last_object_id) =
     (void* (__thiscall*) (void*, int))0x00506340;
@@ -258,6 +283,9 @@ int (__thiscall* GameSoundEffectsManager__playSound)(void* this_, int soundId, i
 int (__thiscall* RGE_Command__submit)(void* command, void* order, int order_size, int issuer) =
     (int (__thiscall*) (void*, void*, int, int))0x0044CFD0;
 
+void (__thiscall* RGE_Map__set_terrain)(void* this_, void* obj_owner, void* gworld, __int16 mapcol1, __int16 maprow1, __int16 mapcol2, __int16 maprow2, unsigned __int8 terrain, unsigned __int8 set_flag, int delete_obj) =
+    (void (__thiscall*)(void*, void*, void*, __int16, __int16, __int16, __int16, unsigned __int8, unsigned __int8, int))0x00495F80;
+
 void* (__cdecl* calloc_internal)(size_t number, size_t size) =
     (void* (__cdecl*) (size_t, size_t))0x00632D33;
 
@@ -278,3 +306,6 @@ int (__thiscall* RGE_View__display_object_selection)(void* this_, int id, int du
 
 int (__thiscall* TPanelSystem__destroyPanel)(void* this_, char* n) =
     (int (__thiscall*)(void*, char*))0x004B4D60;
+
+void (__thiscall* TEasy_Panel__popupOKDialog)(void* this_, char* text, char* panel_title, int wid, int hgt, int centered) =
+    (void (__thiscall*)(void*, char*, char*, int, int, int))0x004BB250;

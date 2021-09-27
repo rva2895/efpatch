@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "editorenh.h"
 #include "triggerdesc.h"
+#include "effect_command.h"
 
 //bit 1: restriction, bit 2: collision
 int placementSettings = 0;
@@ -128,6 +129,10 @@ void* __stdcall getEffectParams_hook(void* _this, effect* e)
 {
     //quantity
     window_setText(*(void**)((int)_this + 0xE68), szQuantity, 0);
+    //quantity hlp
+    window_setRect(*(void**)((int)_this + 0xE68), 0x181, 0x60, 0x96, 0x14);
+    //quantity type
+    window_setRect(*(void**)((int)_this + 0xE6C), 0x181, 0x74, 0x5A, 0x14);
     switch (e->id)
     {
     case 2:            //research technology
@@ -177,6 +182,24 @@ void* __stdcall getEffectParams_hook(void* _this, effect* e)
         //ai trigger
         window_setRect(*(void**)((int)_this + 0xED0), 0x182, 0x16, 0xC8, 0x14);
         break;
+    /*case 0x30:        //command
+        flush_ai_trigger_dropdown(_this);
+        window_dropdown_addText(*(void**)((int)_this + 0xED0), get_command_name(RGE_COMMAND_STOP), RGE_COMMAND_STOP);
+        window_dropdown_addText(*(void**)((int)_this + 0xED0), get_command_name(RGE_COMMAND_GUARD), RGE_COMMAND_GUARD);
+        window_dropdown_addText(*(void**)((int)_this + 0xED0), get_command_name(RGE_COMMAND_FOLLOW), RGE_COMMAND_FOLLOW);
+        window_dropdown_addText(*(void**)((int)_this + 0xED0), get_command_name(RGE_COMMAND_FORMATION), RGE_COMMAND_FORMATION);
+        window_dropdown_addText(*(void**)((int)_this + 0xED0), get_command_name(TRIBE_COMMAND_RESEARCH), TRIBE_COMMAND_RESEARCH);
+        window_dropdown_addText(*(void**)((int)_this + 0xED0), get_command_name(TRIBE_COMMAND_ATTACK_GROUND), TRIBE_COMMAND_ATTACK_GROUND);
+        //ai trigger hlp
+        window_setRect(*(void**)((int)_this + 0xECC), 0x238, 2, 0xC8, 0x14);
+        window_setText(*(void**)((int)_this + 0xECC), "Command", 0);
+        //ai trigger
+        window_setRect(*(void**)((int)_this + 0xED0), 0x238, 0x16, 0xC8, 0x14);
+        //quantity hlp
+        window_setRect(*(void**)((int)_this + 0xE68), 0x238, 0x60, 0x96, 0x14);
+        //quantity type
+        window_setRect(*(void**)((int)_this + 0xE6C), 0x238, 0x74, 0x5A, 0x14);
+        break;*/
     case 0x12:        //change ownership
         //obj list type hlp
         window_setRect(*(void**)((int)_this + 0xE58), 0x181, 0x67, 0x96, 0x14);
@@ -368,6 +391,19 @@ __declspec(naked) void getConditionParams_new()
     }
 }
 
+__declspec(naked) void editor_selection_box() //0052DED4
+{
+    __asm
+    {
+        cmp     byte ptr [eax + 70h], 3
+        setnz   dl
+        or      dl, 2
+        mov     [eax + 70h], dl
+        mov     edx, 0052DEE2h
+        jmp     edx
+    }
+}
+
 #pragma optimize( "s", on )
 void setEditorEnhHooks()
 {
@@ -385,5 +421,9 @@ void setEditorEnhHooks()
 #endif
 
     writeByte(0x00496A0B, 0xEB); //terrain paint crash
+
+    setHook((void*)0x0052DED4, editor_selection_box);
+    writeData(0x0052E03D, "\xB8\x01\x00\x00\x00", 5);
+    //writeByte(0x0052E04D, 0x10);
 }
 #pragma optimize( "", on )

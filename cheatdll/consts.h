@@ -4,7 +4,7 @@
 #define UNIT_COUNT 1596
 #define CIV_COUNT 8
 #else
-#define UNIT_COUNT 5000
+//#define UNIT_COUNT 5000
 #define CIV_COUNT 12
 #endif
 
@@ -24,3 +24,10 @@
 #define TERRAIN_COUNT 54
 #endif
 #endif
+
+//-1 undefined
+//0 old. 1.4.0
+//1 1.4.1 rc1
+//2 1.4.1 rc2
+
+#define CURRENT_VERSION 2

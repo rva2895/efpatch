@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "statusscreen.h"
 
-const char* aGameScreen = (const char*)0x00689ABC;
-const char* aCombatComparis = (const char*)0x00699ED8;
-const char* aBlankScreen = (const char*)0x0068976C;
-const char* aStatusScreen = (const char*)0x006899A8;
+const char* const aGameScreen = (const char*)0x00689ABC;
+const char* const aCombatComparis = (const char*)0x00699ED8;
+const char* const aBlankScreen = (const char*)0x0068976C;
+const char* const aStatusScreen = (const char*)0x006899A8;
 const char del_game_info_str[] = "Destroying world ...";
 
 __declspec(naked) void onStatusLoadSave() //005EC5F9
@@ -102,7 +102,7 @@ const char starting_0[] = "Starting a new game ...\n\nStarting ...\n";
 const char starting[] = "Starting a new game ...\n\nStarting ...\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
 
 int line_counter = 14;
-char status_buffer[0x2000];
+char* status_buffer;
 
 void __stdcall setup_full_string()
 {
@@ -408,6 +408,8 @@ __declspec(naked) void onStatus_generate_shore() //004E5F76
 
 void setStatusScreenHooks()
 {
+    status_buffer = (char*)malloc(0x2000);
+
     setHook((void*)0x005EC5F9, onStatusLoadSave);
     setHook((void*)0x005E8EF8, onStatusQuitGame);
 

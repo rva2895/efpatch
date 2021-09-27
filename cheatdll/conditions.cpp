@@ -261,7 +261,7 @@ __declspec(naked) void inv1() //00529A06
         call    funcCreateWrapper
         test    eax, eax
         jz      short loc_7E22C4
-        mov     ecx, ds:invBtnPtr
+        mov     ecx, invBtnPtr
         push    12h
         push    12h
         push    2
@@ -318,11 +318,11 @@ __declspec(naked) void inv4() //0053C37C
     {
         movsx   eax, byte ptr [edi + 2Ch]
         neg     eax
-        mov     ecx, ds:invBtnPtr
+        mov     ecx, invBtnPtr
         push    eax
         mov     edx, [ecx]
         call    dword ptr [edx + 104h]
-        mov     ecx, ds:invBtnPtr
+        mov     ecx, invBtnPtr
         push    1
         mov     edx, [ecx]
         call    dword ptr [edx + 14h]
@@ -342,7 +342,7 @@ __declspec(naked) void inv5() //0053E014
 {
     __asm
     {
-        mov     ecx, ds:invBtnPtr
+        mov     ecx, invBtnPtr
         mov     eax, 004C5280h
         call    eax
         neg     eax
@@ -391,12 +391,12 @@ __declspec(naked) void invProcessCond() //005F4A0F
     {
         mov     ecx, [ecx + edi * 4]
         mov     al, [ecx + 2Ch]
-        mov     ds:invCond, al
+        mov     invCond, al
         mov     eax, 005F1DE0h
         call    eax
         cmp     al, 2
         jz      loc_5F4A2D
-        add     al, ds:invCond
+        add     al, invCond
         jnz     loc_5F4A63
         mov     ecx, 005F4A23h
         jmp     ecx

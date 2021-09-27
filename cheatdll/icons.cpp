@@ -25,13 +25,13 @@ __declspec(naked) void newIconsEditor()
         call    writeByte                //civ counter (loop counter) (load game routine)
 
         push    CIV_ICON_OFFSET*4
-        call    ds:[malloc]              //allocate new buffer for icons
+        call    malloc                   //allocate new buffer for icons
         mov     esi, eax
         mov     eax, iconsPtr            //test if need to free prev buffer
         test    eax, eax
         jz      cont
         push    eax
-        call    ds:[free]
+        call    free
         add     esp, 4
 cont:
         mov     iconsPtr, esi
@@ -225,13 +225,13 @@ __declspec(naked) void newIconsGame()
         call    esi                      //something related to icons of items in worker
 
         push    CIV_ICON_OFFSET*4
-        call    ds:[malloc]              //allocate new buffer for icons
+        call    malloc                   //allocate new buffer for icons
         mov     esi, eax
         mov     eax, iconsPtr            //test if need to free prev buffer
         test    eax, eax
         jz      cont
         push    eax
-        call    ds:[free]
+        call    free
         add     esp, 4
 cont:
         mov     iconsPtr, esi

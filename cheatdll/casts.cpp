@@ -539,6 +539,7 @@ void __stdcall readUnitExtra(UNIT* unit, void* stream)
         }
         break;
     case 1:
+    case 2:
         deflate_read(stream, &flag, sizeof(flag));
         if (flag)
         {
@@ -675,16 +676,15 @@ bool __stdcall test_save_game_version(char* version, void* stream, bool from_cha
     {
         int sub_version;
         deflate_read(stream, &sub_version, sizeof(sub_version));
-        switch (sub_version)
+        if (sub_version >= 1)
         {
-        case 1:
-            current_save_game_version = 1;
+            current_save_game_version = sub_version;
             if (!from_chapter)
                 setup_dat_file_ret = setup_dat_file();
             return !setup_dat_file_ret;
-        default:
-            return false;
         }
+        else
+            return false;
     }
     else
         return false;
@@ -730,7 +730,7 @@ bad_version2:
 
 void __stdcall write_save_game_version(void* stream)
 {
-    int version = 1;
+    int version = CURRENT_VERSION;
     deflate_write(stream, &version, sizeof(version));
 }
 
@@ -776,7 +776,7 @@ __declspec(naked) void __fastcall removeUnitExtra(UNIT* unit)
         jz      no_free
         push    ecx
         push    eax
-        call    ds:[free]
+        call    free
         add     esp, 4
         pop     ecx
         and     dword ptr [ecx + 78h], 0FFh
@@ -823,7 +823,6 @@ __declspec(naked) UNIT_EXTRA* __fastcall getUnitExtra(UNIT* unit)
     __asm
     {
         mov     eax, [ecx + 78h]
-        and     eax, 0FFFFFF00h
         mov     al, [ecx + 87h]
         ret
     }
@@ -833,13 +832,10 @@ __declspec(naked) void __fastcall addUnitExtra(UNIT* unit, UNIT_EXTRA* ud)
 {
     __asm
     {
-        mov     eax, edx
-        and     edx, 0FFFFFF00h   //bytes 1,2,3
-        and     eax, 0FFh         //byte 0
         add     ecx, 78h
+        mov     [ecx + 0Fh], dl
+        and     edx, 0FFFFFF00h
         or      dword ptr [ecx], edx
-        add     ecx, 0Fh
-        mov     [ecx], al
         ret
     }
 }

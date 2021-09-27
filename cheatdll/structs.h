@@ -337,12 +337,12 @@ struct UNIT
     vector3* unk120;    //120
     //TODO: fill
 
-    __declspec(noinline) float __thiscall unit_distance_to_position_new(float x_to, float y_to, float z_to)
+    __declspec(noinline) double __thiscall unit_distance_to_position_new(float x_to, float y_to, float z_to)
     {
         UNREFERENCED_PARAMETER(z_to);
         float x_coll; // st7@1
         float y_coll; // st6@1
-        float result; // st7@9
+        double result; // st7@9
         float xd; // [sp+4h] [bp+4h]@1
         float yd; // [sp+4h] [bp+4h]@5
 
@@ -361,10 +361,6 @@ struct UNIT
         result = sqrt(xd * xd + yd * yd);
         if (result < 0.0)
             result = 0.0;
-
-        //cntrd++;
-        //if (cntrd % 100000 == 0)
-        //    chat("Called 100000 times since last msg, total = %d", cntrd);
 
         return result;
     }

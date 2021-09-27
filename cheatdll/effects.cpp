@@ -3,6 +3,7 @@
 #include "advtriggereffect.h"
 #include "editpropertyobject.h"
 #include "effectUnitVar.h"
+#include "effect_command.h"
 
 __declspec(naked) void effectParams()
 {
@@ -39,8 +40,26 @@ __declspec(naked) void effectParams()
         mov     [ebx + 12h], al
         mov     [ebx + 13h], al
 
-        mov     ebx, [edx + 0BCh]       //terrain effect
+        mov     ebx, [edx + 0BCh]       //declare defeat effect
         mov     [ebx + 7], al           //player
+
+        //
+        
+        //mov     ebx, [edx + 0C0h]       //command effect
+        //mov     [ebx + 0h], al          //command id
+        //mov     [ebx + 1], al           //quantity
+        //mov     [ebx + 4], al           //obj
+        //mov     [ebx + 5], al
+        //mov     [ebx + 6], al           //obj list
+        //mov     [ebx + 7], al           //player
+        //mov     [ebx + 0Eh], al         //x
+        //mov     [ebx + 0Fh], al         //y
+        //mov     [ebx + 10h], al         //area
+        //mov     [ebx + 11h], al
+        //mov     [ebx + 12h], al
+        //mov     [ebx + 13h], al
+        //mov     [ebx + 14h], al         //obj group
+        //mov     [ebx + 15h], al         //obj type
 
         //
 
@@ -104,13 +123,13 @@ __declspec(naked) void effectSnapView_new()
     {
         mov     ecx, [edi + 44h]
         cmp     ecx, -1
-        jnz     _snapview_noobject
+        jnz     snapview_noobject
         mov     ecx, [esp + 134h]          //location_object
         test    ecx, ecx
-        jz      _snapview_noobject
+        jz      snapview_noobject
         mov     eax, [ecx + 14h]
         cmp     byte ptr [eax + 4], 3Ch    //type 60
-        jz      _snapview_noobject
+        jz      snapview_noobject
         mov     esi, 00632BACh             //ftol
         fld     dword ptr [ecx + 48h]
         call    esi
@@ -123,7 +142,7 @@ __declspec(naked) void effectSnapView_new()
         xor     ecx, ecx
         inc     ecx
         mov     snapscroll_changed_location, ecx
-_snapview_noobject:
+snapview_noobject:
         mov     ecx, 005F376Dh
         jmp     ecx
     }
@@ -135,13 +154,13 @@ __declspec(naked) void effectScrollView_new()
     {
         mov     ecx, [edi + 44h]
         cmp     ecx, -1
-        jnz     _scrollview_noobject
+        jnz     scrollview_noobject
         mov     ecx, [esp + 134h]          //location_object
         test    ecx, ecx
-        jz      _scrollview_noobject
+        jz      scrollview_noobject
         mov     eax, [ecx + 14h]
         cmp     byte ptr [eax + 4], 3Ch    //type 60
-        jz      _scrollview_noobject
+        jz      scrollview_noobject
         mov     esi, 00632BACh             //ftol
         fld     dword ptr [ecx + 48h]
         call    esi
@@ -154,7 +173,7 @@ __declspec(naked) void effectScrollView_new()
         xor     ecx, ecx
         inc     ecx
         mov     snapscroll_changed_location, ecx
-_scrollview_noobject:
+scrollview_noobject:
         mov     ecx, 005F3749h
         jmp     ecx
     }
@@ -166,12 +185,12 @@ __declspec(naked) void snapscroll_finish()
     {
         mov     ecx, snapscroll_changed_location
         test    ecx, ecx
-        jz      _snapscroll_no_change_location
+        jz      snapscroll_no_change_location
         xor     ecx, ecx
         dec     ecx
         mov     [edi + 44h], ecx
         mov     [edi + 48h], ecx
-_snapscroll_no_change_location:
+snapscroll_no_change_location:
         mov     ecx, 005F3DB1h
         jmp     ecx
     }
@@ -187,6 +206,7 @@ const char aExplore[] = "Explore Area";
 const char aUnitVar[] = "Change Unit Variable";
 const char aTerrain[] = "Change Terrain";
 const char aDefeat[] = "Declare Defeat";
+const char aCommand[] = "Command";
 const char aBreakpoint[] = "Breakpoint";
 
 __declspec(naked) void triggerDisplayHook()
@@ -223,9 +243,15 @@ __declspec(naked) void triggerDisplayHook()
         mov     eax, 4C82A0h
         call    eax
 
+        //mov     ecx, [edi + 0E24h]
+        //push    30h
+        //push    offset aCommand
+        //mov     eax, 4C82A0h
+        //call    eax
+
 #ifdef _DEBUG
         mov     ecx, [edi + 0E24h]      //breakpoint
-        push    30h
+        push    31h
         push    offset aBreakpoint
         mov     eax, 4C82A0h
         call    eax
@@ -253,7 +279,7 @@ __declspec(naked) void effectExploreArea()
         add     esi, ebp          //y2 coloumn, x1 to x2
         //mov     esi, edx
 
-x_cont:
+        x_cont :
         //edx: current coloumn
         mov     ebp, [edx]
 
@@ -288,7 +314,7 @@ __declspec(naked) void effectUnitVar()
         jle     endLoc                  // ; jumptable 005F2B53 default case
         lea     esi, [esp + 134h]
 
-loc_5F3AAD:                             // CODE XREF: ProcessTriggerEffect+1061j
+loc_5F3AAD:                             // CODE XREF: ProcessTriggerEffect+1061
 
         mov     eax, [edi + 6Ch]
         push    eax
@@ -308,31 +334,39 @@ endLoc:
     }
 }
 
-int (__thiscall* map_updateBlend)(void *map, int, int, int x1, int y1, int x2, int y2, int, int, int) =
-    (int(__thiscall*) (void *map, int, int, int x1, int y1, int x2, int y2, int, int, int))0x00495F80;
-
-void __stdcall effectTerrain_2(void* map, int x1, int x2, int y1, int y2, char t)
+/*
+__declspec(naked) void effectCommand()
 {
-    char** tiles = *(char***)((DWORD)map + 0xBF18);
-    int map_max = *(int*)((DWORD)map + 8) - 1;
-    if (x1 < 0) x1 = 0;
-    if (x2 < 0) x2 = 0;
-    if (y1 < 0) y1 = 0;
-    if (y2 < 0) y2 = 0;
-    if (x1 > map_max) x1 = map_max;
-    if (x2 > map_max) x2 = map_max;
-    if (y1 > map_max) y1 = map_max;
-    if (y2 > map_max) y2 = map_max;
-    for (int j = y1; j <= y2; j++)
+    __asm
     {
-        char* col = *(tiles + j);
-        for (int i = x1; i <= x2; i++)
-        {
-            col[i * 32 + 5] = t;
-        }
+        mov     eax, [esp + 10h]    //unit count
+        xor     ebp, ebp
+        cmp     eax, ebx
+        jle     endLoc_command
+        lea     esi, [esp + 134h]   //object list
+
+        mov     ecx, [esp + 14h]    //player
+        mov     edx, [edi + 48h]    //location y
+        push    edx
+        mov     edx, [edi + 44h]    //location x
+        push    edx
+        mov     edx, [esp + 4Ch]    //target obj
+        push    edx
+        push    eax
+        push    esi
+        mov     eax, [edi + 0Ch]    //command
+        push    ecx
+        push    eax
+        mov     eax, [edi + 10h]    //qty
+        push    eax
+        call    do_effect_command
+
+endLoc_command:
+        mov     ebx, 005F3DB1h
+        jmp     ebx
     }
-    map_updateBlend(map, 0, 0, x1, y1, x2, y2, 0, 0, 0);
 }
+*/
 
 __declspec(naked) void effectTerrain()
 {
@@ -340,15 +374,18 @@ __declspec(naked) void effectTerrain()
     {
         mov     eax, 006A3684h
         mov     eax, [eax]
-        mov     eax, [eax + 420h]
-        mov     eax, [eax + 34h]
+        mov     ecx, [eax + 420h]
+        mov     ecx, [ecx + 34h]
+        push    0
+        push    1
         push    [edi + 0Ch]
         push    [edi + 58h]
-        push    [edi + 50h]
         push    [edi + 54h]
+        push    [edi + 50h]
         push    [edi + 4Ch]
-        push    eax
-        call    effectTerrain_2
+        push    0
+        push    0
+        call    RGE_Map__set_terrain
         
         mov     ebx, 005F3DB1h
         jmp     ebx
@@ -361,11 +398,11 @@ __declspec(naked) void effectDefeat()
     {
         mov     ecx, [esp + 14h] //player
         test    ecx, ecx
-        jz      _defeat_end
+        jz      defeat_end
         mov     edx, [ecx]
         push    2
         call    dword ptr [edx + 8]
-_defeat_end:
+defeat_end:
         mov     ecx, 005F3DB1h
         jmp     ecx
     }
@@ -410,6 +447,7 @@ void setEffectHooks()
     //setHook ((void*)0x007B2ABF, &setVarHook);
 
     int nEffects = 0x30;
+    //int nEffects = 0x31;
 #ifdef _DEBUG
     nEffects++;
 #endif // _DEBUG
@@ -431,6 +469,7 @@ void setEffectHooks()
     writeDword(0x007B22F0, (DWORD)&effectUnitVar);
     writeDword(0x007B22F4, (DWORD)&effectTerrain);
     writeDword(0x007B22F8, (DWORD)&effectDefeat);
+    //writeDword(0x007B22FC, (DWORD)&effectCommand);
 #ifdef _DEBUG
     writeDword(0x007B22FC, (DWORD)&effectBreakpoint);
 #endif // _DEBUG

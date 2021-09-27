@@ -1,7 +1,5 @@
 #include "stdafx.h"
-
 #include "aiunitcount.h"
-//#include <string.h>
 
 extern int current_save_game_version;
 
@@ -652,62 +650,31 @@ __declspec(naked) void ctr2_10() //005CEDE4
     }
 }
 
-//int unitCount = 0x1800;// 0xCA4;
-#define UNIT_COUNT_FOR_COUNTERS 0x2000
-
-/*
-void* __cdecl _memset(void* dst, int val, size_t size)
-{
-    return memset(dst, val, size);
-}
-
-__declspec(naked) void ctrInit() //004BFEDF
+__declspec(naked) void ctr2_unit_type_count_total_workers() //0057E69D
 {
     __asm
     {
-        mov     eax, unitCount
-        push    eax
-        call    ds:[malloc]       //builders per type
-        mov     [ebp + 103Ch], eax
-        push    1
-        push    eax
-        call    ds:[_memset]
-        add     esp, 0Ch
-        mov     eax, unitCount
-        shl     eax, 1
-        push    eax
-        call    ds:[malloc]
-        push    0
-        push    eax
-        add     eax, 100h
-        mov     [ebp + 1038h], eax
-        call    ds:[_memset]
-        add     esp, 8
-        mov     ecx, [esp]  //
-        shl     ecx, 2      //
-        mov     [esp], ecx  //
-        call    ds:[malloc]
-        push    0
-        push    eax
-        add     eax, 100h
-        mov     [ebp + 2F0h], eax
-        call    ds:[_memset]
-        lea     eax, [ebp + 1CB8h]
-        push    0C8h
-        push    0
-        push    eax
-        call    ds:[_memset]
-        lea     eax, [ebp + 0F70h]
-        push    0C8h
-        push    0
-        push    eax
-        call    ds:[_memset]
-        add     esp, 24h
-        mov     eax, 004BFF0Fh
+        //movsx   ecx, word ptr [eax+0FE4h]
+        mov     ecx, [eax + 2F0h]
+        movsx   ecx, word ptr [ecx + 1658 * 2]
+        mov     eax, 0057E6A4h
         jmp     eax
     }
 }
-*/
+
+__declspec(naked) void ctr1_unit_type_count_workers() //0057E52D
+{
+    __asm
+    {
+        //movsx   ecx, word ptr [eax+1D2Ch]
+        mov     ecx, [eax + 1038h]
+        movsx   ecx, word ptr [ecx + 1658 * 2]
+        mov     eax, 0057E534h
+        jmp     eax
+    }
+}
+
+#define UNIT_COUNT_FOR_COUNTERS 0x2000
 
 void __stdcall setup_player_counters(void* player)
 {
@@ -847,98 +814,6 @@ __declspec(naked) void ctrFree_v2() //004C0157
     }
 }
 
-/*
-__declspec(naked) void ctrReadSave() //004BF665
-{
-    __asm
-    {
-        push    edi
-        push    ebx
-        sub     esp, 4
-        mov     edi, 004D5550h       //file read
-        lea     edx, [esp]
-        push    4
-        mov     ecx, ebp
-        call    edi                //get count
-        mov     ebx, [esp]
-        mov     unitCount, ebx
-        shl     ebx, 1
-        push    ebx
-        call    ds:[malloc]
-        mov     edx, eax
-        add     eax, 100h
-        mov     [esi + 2F0h], eax
-        mov     ecx, ebp
-        call    edi
-        push    0C8h
-        lea     edx, [esi + 0F70h]
-        mov     ecx, ebp
-        call    edi
-        push    ebx
-        call    ds:[malloc]
-        mov     edx, eax
-        add     eax, 100h
-        mov     [esi + 1038h], eax
-        mov     ecx, ebp
-        call    edi
-        shr     ebx, 1
-        push    ebx
-        call    ds:[malloc]
-        mov     [esi + 103Ch], eax
-        mov     edx, eax
-        mov     ecx, ebp
-        call    edi           //read builders type count
-        add     esp, 4
-        pop     ebx
-        pop     edi
-        mov     edx, 004BF69Bh
-        jmp     edx
-    }
-}
-
-__declspec(naked) void ctrWriteSave() //004C1C55
-{
-    __asm
-    {
-        push    ebp
-        push    edi
-        mov     ebp, 004D5790h
-        mov     eax, unitCount
-        push    eax
-        shl     eax, 1
-        mov     edi, eax
-        lea     edx, [esp]
-        push    4
-        mov     ecx, esi
-        call    ebp              //write count
-        push    edi
-        mov     edx, [ebx + 2F0h]
-        sub     edx, 100h
-        mov     ecx, esi
-        call    ebp
-        push    0C8h
-        lea     edx, [ebx + 0F70h]
-        mov     ecx, esi
-        call    ebp
-        push    edi
-        mov     edx, [ebx + 1038h]
-        sub     edx, 100h
-        mov     ecx, esi
-        call    ebp
-        shr     edi, 1
-        push    edi
-        mov     edx, [ebx + 103Ch]
-        mov     ecx, esi
-        call    ebp           //write builders type count
-        add     esp, 4
-        pop     edi
-        pop     ebp
-        mov     edx, 004C1C8Bh
-        jmp     edx
-    }
-}
-*/
-
 __declspec(naked) void ctr1PrefabFix() //0057AF3F
 {
     __asm
@@ -1065,68 +940,6 @@ __declspec(naked) void infoAiCntrFree_v2() //005854B7
     }
 }
 
-/*
-__declspec(naked) void buf2_init() //00583966
-{
-    __asm
-    {
-        mov     eax, unitCount
-        shl     eax, 2
-        push    eax
-        call    ds:[malloc]
-        push    0
-        push    eax
-        call    ds:[_memset]
-        mov     [esi + 3D8h], eax
-        add     esp, 0Ch
-        mov     edx, 4
-        mov     eax, 0058397Ah
-        jmp     eax
-    }
-}
-
-__declspec(naked) void buf2_read() //00584927
-{
-    __asm
-    {
-        sub     esp, 4
-        lea     edx, [esp]
-        push    4
-        mov     ecx, ebp
-        mov     eax, 004D5550h
-        call    eax
-        pop     ebx
-        mov     eax, ebx
-        shl     eax, 2
-        push    eax
-        call    ds:[malloc]
-        add     esp, 4
-        mov     [esi + 3D8h], eax
-        mov     edi, eax
-        mov     edx, 00584932h
-        jmp     edx
-    }
-}
-
-__declspec(naked) void buf2_write() //005865C2
-{
-    __asm
-    {
-        mov     eax, unitCount
-        push    eax
-        lea     edx, [esp]
-        push    4
-        mov     ecx, esi
-        mov     eax, 004D5790h
-        call    eax
-        pop     ebp
-        mov     edi, [ebx + 3D8h]
-        mov     edx, 005865CDh
-        jmp     edx
-    }
-}
-*/
-
 __declspec(naked) void infoAiCntr_1() //0058A87B
 {
     __asm
@@ -1150,49 +963,6 @@ __declspec(naked) void infoAiCntr_2() //0058AA0C
         jmp     eax
     }
 }
-
-/*
-__declspec(naked) void ctr_free() //005CDCDF
-{
-    __asm
-    {
-        mov     eax, [esi + 2F0h]
-        sub     eax, 100h
-        push    eax
-        call    ds:[free]
-        mov     eax, [esi + 1038h]
-        sub     eax, 100h
-        push    eax
-        call    ds:[free]
-        mov     eax, [esi + 103Ch]
-        push    eax
-        call    ds:[free]
-        add     esp, 0Ch
-        push    esi
-        mov     eax, 00632B42h
-        call    eax
-        add     esp, 4
-        mov     eax, 005CDCE8h
-        jmp     eax
-    }
-}
-
-__declspec(naked) void buf2_free() //0059544F
-{
-    __asm
-    {
-        mov     eax, [esi + 1A34h]  //3D8+165C
-        push    eax
-        call    ds:[free]
-        push    esi
-        mov     eax, 00632B42h
-        call    eax
-        add     esp, 8
-        mov     eax, 00595458h
-        jmp     eax
-    }
-}
-*/
 
 #pragma optimize( "s", on )
 void setAIUnitCountHooks()
@@ -1248,10 +1018,6 @@ void setAIUnitCountHooks()
     setHook((void*)0x00596695, ctr2_9);
     setHook((void*)0x005CEDE4, ctr2_10);
 
-    //setHook((void*)0x004BFEF5, ctrInit);
-    //setHook((void*)0x004BF665, ctrReadSave);
-    //setHook((void*)0x004C1C55, ctrWriteSave);
-    //setHook((void*)0x005CDCDF, ctr_free);
     setHook((void*)0x004BFF07, ctrInit_v2);
     setHook((void*)0x004BF665, ctrReadSave_v2);
     setHook((void*)0x004C1C55, ctrWriteSave_v2);
@@ -1262,11 +1028,6 @@ void setAIUnitCountHooks()
 
     setHook((void*)0x004C0745, ctr2CCFix);
 
-
-
-    //setHook((void*)0x00583966, buf2_init);
-    //setHook((void*)0x00584927, buf2_read);
-    //setHook((void*)0x005865C2, buf2_write);
     setHook((void*)0x0058A87B, infoAiCntr_1);
     setHook((void*)0x0058AA0C, infoAiCntr_2);
 
@@ -1275,10 +1036,10 @@ void setAIUnitCountHooks()
     setHook((void*)0x005865C2, infoAiCntrWriteSave_v2);
     setHook((void*)0x005854B7, infoAiCntrFree_v2);
 
-
-    //setHook((void*)0x0059544F, buf2_free);
-
     writeDword(0x004C4251, UNIT_COUNT_FOR_COUNTERS);
     writeDword(0x004C4361, UNIT_COUNT_FOR_COUNTERS);
+
+    setHook((void*)0x0057E52D, ctr1_unit_type_count_workers);
+    setHook((void*)0x0057E69D, ctr2_unit_type_count_total_workers);
 }
 #pragma optimize( "", on )

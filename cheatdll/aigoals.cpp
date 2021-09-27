@@ -21,7 +21,7 @@ __declspec(naked) void aigoal_load_save() //00583D44
     __asm
     {
         push    AI_GOAL_MAX*4
-        call    ds:[malloc]
+        call    malloc
         add     esp, 4
         mov     [esi + 108h], eax
         mov     edi, eax
@@ -37,7 +37,7 @@ __declspec(naked) void aigoal_destructor() //00584DF9
     {
         mov     eax, [esi + 108h]
         push    eax
-        call    ds:[free]
+        call    free
         add     esp, 4
         mov     [esp + 28h], 0Bh
         mov     ecx, 00584E01h
@@ -50,7 +50,7 @@ __declspec(naked) void aigoal_constructor() //0058363D
     __asm
     {
         push    AI_GOAL_MAX*4
-        call    ds:[malloc]
+        call    malloc
         add     esp, 4
         mov     [esi + 108h], eax
         mov     edx, eax

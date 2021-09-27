@@ -4,9 +4,9 @@
 
 int t_ver;
 
-char** terrain_names = 0;
+char** terrain_names = NULL;
 
-int* terrain_language_dll = 0;
+int* terrain_language_dll = NULL;
 extern BYTE* terrain_array;
 int terrains_loaded = 0;
 
@@ -83,7 +83,7 @@ void __stdcall terrain1_(void* this_)
     }
 }
 
-__declspec(naked) int terrain1 ()
+__declspec(naked) int terrain1()
 {
     __asm
     {
@@ -96,7 +96,7 @@ __declspec(naked) int terrain1 ()
 }
 
 void (__thiscall* terrain2_load) (void* this_, int language_dll_id, int terrain) =
-    (void(__thiscall*) (void*, int, int))0x0053AB20;
+    (void (__thiscall*) (void*, int, int))0x0053AB20;
 
 void __stdcall terrain2_(void* this_)
 {
@@ -182,14 +182,23 @@ __declspec(naked) int terrain2()
     }
 }
 
-void loadTerrainTxt()
+void loadTerrainTxt(const char* prefix, const char* filename)
 {
     log("Loading terrain data");
-    FILE* f = fopen("data\\terrain.txt", "rt");
+    char full_filename[0x100];
+    sprintf(full_filename, "%s%s", prefix, filename);
+    FILE* f = fopen(full_filename, "rt");
     if (f)
     {
-        terrain_array = (BYTE*)malloc(252*sizeof(BYTE));
-        terrain_language_dll = (int*)malloc(252*sizeof(int));
+        if (terrain_names)
+        {
+            for (int i = 0; i < terrains_loaded; i++)
+                free(terrain_names[i]);
+            free(terrain_names);
+            terrain_names = NULL;
+        }
+
+        terrains_loaded = 0;
         memset(terrain_array, 0, 252);
         for (; fscanf(f, "%hhu,%d", &terrain_array[terrains_loaded], &terrain_language_dll[terrains_loaded]) > 0; terrains_loaded++)
             ;
@@ -210,7 +219,10 @@ void loadTerrainTxt()
                 strcpy(terrain_names[i], buf);
             }
             else
-                terrain_names[i] = "FORBIDDEN";
+            {
+                terrain_names[i] = (char*)malloc(10);
+                strcpy(terrain_names[i], "FORBIDDEN");
+            }
             log("Terrain name %d - %s", i, terrain_names[i]);
         }
 
@@ -219,7 +231,7 @@ void loadTerrainTxt()
     }
     else
     {
-        log("Error: terrain.txt not found, aborting");
+        log("Error: %s not found, aborting", full_filename);
         MessageBox(0, "Error: terrain.txt was not found. Check installation integrity.", "Error", MB_ICONERROR);
         exit(0);
     }
@@ -227,9 +239,12 @@ void loadTerrainTxt()
 
 void setTerrainLoadHooks(int ver)
 {
+    terrain_array = (BYTE*)malloc(252 * sizeof(BYTE));
+    terrain_language_dll = (int*)malloc(252 * sizeof(int));
+
     t_ver = ver;
     if (ver == VER_EF)
-        loadTerrainTxt();
+        loadTerrainTxt("data\\", "terrain.txt");
 
     setHook((void*)0x0052A30A, terrain1);
     setHook((void*)0x0053B3C1, terrain2);

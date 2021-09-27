@@ -772,7 +772,7 @@ bool __stdcall game_hotkey_dispatch(int hotkey, void* this_)
     UNIT* unit;
     int unit_count = 0;
     int play_sound = 1;
-    void* player = BaseGame__get_player(*BaseGame_bg);
+    void* player = BaseGame__get_player(*base_game);
     switch (hotkey)
     {
     case 0x55: //idle workers
@@ -797,7 +797,7 @@ bool __stdcall game_hotkey_dispatch(int hotkey, void* this_)
         }
         else
         {
-            GameSoundEffectsManager__playSound(*BaseGame_bg, 3, 0, 0);
+            GameSoundEffectsManager__playSound(*base_game, 3, 0, 0);
         }
         return true;
         break;
@@ -823,7 +823,7 @@ bool __stdcall game_hotkey_dispatch(int hotkey, void* this_)
         }
         else
         {
-            GameSoundEffectsManager__playSound(*BaseGame_bg, 3, 0, 0);
+            GameSoundEffectsManager__playSound(*base_game, 3, 0, 0);
         }
         return true;
         break;
@@ -881,7 +881,7 @@ bool __stdcall game_hotkey_dispatch(int hotkey, void* this_)
         }
         else
         {
-            GameSoundEffectsManager__playSound(*BaseGame_bg, 3, 0, 0);
+            GameSoundEffectsManager__playSound(*base_game, 3, 0, 0);
         }
         return true;
     }
@@ -959,7 +959,7 @@ __declspec(naked) void __fastcall GameScreen__command_shift_delete(void* this_)
         xor     eax, eax
         mov     ecx, 40
         rep stosd
-        mov     ecx, BaseGame_bg
+        mov     ecx, base_game
         mov     ecx, [ecx]
         call    BaseGame__get_player
         mov     edi, eax

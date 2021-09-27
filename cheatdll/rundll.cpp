@@ -88,11 +88,11 @@ int (CALLBACK* WndProc_exe) (HWND, UINT, WPARAM, LPARAM) =
 HWND hWnd_main = 0;
 
 #ifdef TARGET_VOOBLY
-int cliff_types[] = { 0x108, 0 };
+const int cliff_types[] = { 0x108, 0 };
 #else
-int cliff_types[] = { 0x108, 3971, 3981, 3991, 4196, 4206, 4216, 4226, 4236, 0};
+const int cliff_types[] = { 0x108, 3971, 3981, 3991, 4196, 4206, 4216, 4226, 4236, 0};
 #endif
-int* cliff_types_ptr = &cliff_types[0];
+const int* cliff_types_ptr = &cliff_types[0];
 
 extern bool isEditor;
 

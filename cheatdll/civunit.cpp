@@ -1,8 +1,9 @@
 #include "stdafx.h"
-
 #include "civunit.h"
 
-unsigned char* tableU;
+uint8_t* tableU;
+
+#define UNIT_COUNT_FOR_CIVUNIT 0x1800
 
 const ID_ASSIGNU idAssignU[] =
 {
@@ -67,12 +68,12 @@ const ID_ASSIGNU idAssignU[] =
 
 void buildTableU()
 {
-    tableU = (unsigned char*)malloc(UNIT_COUNT);
-    memset(tableU, 0xFF, UNIT_COUNT);
+    tableU = (uint8_t*)malloc(UNIT_COUNT_FOR_CIVUNIT);
+    memset(tableU, 0xFF, UNIT_COUNT_FOR_CIVUNIT);
 
     for (int i = 0; i < (sizeof(idAssignU) / sizeof(idAssignU[0])); i++)
         for (int j = 0; j < CIV_COUNT; j++)
-            tableU[idAssignU[i].IDs[j]] = i;
+            tableU[idAssignU[i].IDs[j]] = (uint8_t)i;
 }
 
 __declspec(naked) void unitCivAssign() //004DAD80
@@ -80,7 +81,7 @@ __declspec(naked) void unitCivAssign() //004DAD80
     __asm
     {
         mov     eax, ecx
-        cmp     ecx, UNIT_COUNT
+        cmp     ecx, UNIT_COUNT_FOR_CIVUNIT
         ja      locret
         mov     ecx, tableU
         mov     cl, byte ptr [ecx + eax]

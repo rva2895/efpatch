@@ -7,7 +7,6 @@ void setExtraTerrainHooks();
 void setExtraTerrainHooks_CC();
 
 void setTerrainLoadHooks(int);
-
-//void terrain_transition_change(int);
+void loadTerrainTxt(const char* prefix, const char* filename);
 
 void setTerrainBlendHooks();

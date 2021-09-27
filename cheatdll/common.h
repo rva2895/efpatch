@@ -54,21 +54,31 @@ void __cdecl chat(char* format, ...);
 float __stdcall player_get_camera_x(void* player);
 float __stdcall player_get_camera_y(void* player);
 
+void* __stdcall get_TRIBE_Command();
+
 void* __stdcall get_main_view();
 void __stdcall unit_change_ownership(UNIT* unit, void* new_owner);
 
+void* __stdcall get_top_panel();
+
 int __stdcall getMapSize();
 
-extern void** BaseGame_bg;
+extern void** base_game;
+extern void** panel_system;
 
 extern void* (__thiscall* BaseWorld__object)(void* this_, int oID);
 
 extern void* (__thiscall* BaseGame__get_player)(void* globalPtr);
 extern bool (__thiscall* BaseGame__allowCheatCodes)(void* this_);
 extern bool (__thiscall* BaseGame__singlePlayerGame)(void* this_);
+extern bool (__thiscall* BaseGame__getRecordGame)(void* this_);
+extern void (__thiscall* BaseGame__setRecordGame)(void* this_, bool v);
 
 extern void (__thiscall* Game__show_status_message)(void* this_, char* messageIn, char* info_file, int info_id, int show_settings, int use_logo_background);
 extern void (__thiscall* Game__close_status_message)(void* this_);
+extern void (__thiscall* Game__set_player)(void* this_, __int16 new_player_id);
+
+extern void (__thiscall* RGE_Map__set_terrain)(void* this_, void* obj_owner, void* gworld, __int16 mapcol1, __int16 maprow1, __int16 mapcol2, __int16 maprow2, unsigned __int8 terrain, unsigned __int8 set_flag, int delete_obj);
 
 extern void* (__thiscall* GameScreen__find_next_idle_unit)(void* this_, int last_object_id);
 extern void* (__thiscall* GameScreen__find_next_idle_military_unit)(void* this_, int last_object_id);
@@ -95,3 +105,4 @@ extern void (__fastcall* deflate_read)(void* infile, void* buffer, unsigned int 
 extern int (__thiscall* RGE_View__display_object_selection)(void* this_, int id, int duration, int select_type, int reset_type);
 
 extern int (__thiscall* TPanelSystem__destroyPanel)(void* this_, char* n);
+extern void (__thiscall* TEasy_Panel__popupOKDialog)(void* this_, char* text, char* panel_title, int wid, int hgt, int centered);

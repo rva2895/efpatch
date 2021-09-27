@@ -3,11 +3,6 @@
 #include "effects.h"
 #include "advtriggereffect.h"
 
-void* get_TRIBE_Command()
-{
-    return *(void**)(*(DWORD*)(*(DWORD*)0x006A3684 + 0x420) + 0x68);
-}
-
 void make_cheat_by_id(void* player, int ef_cheat_id)
 {
     int order_size = 4;
@@ -77,7 +72,7 @@ void __stdcall ef_do_command(void* this_, void* order)
         break;
     case 1: //ef cheat
     {
-        if (BaseGame__allowCheatCodes(*BaseGame_bg))
+        if (BaseGame__allowCheatCodes(*base_game))
         {
             uint8_t player_id = *((uint8_t*)order + 2);
             uint8_t ef_cheat_id = *((uint8_t*)order + 3);
@@ -150,7 +145,7 @@ void __stdcall ef_do_command(void* this_, void* order)
                             if ((player == current_player) &&
                                 (unit->prop_object->type != 80 || *((DWORD*)unit + 0x77) == 0))
                             {
-                                GameSoundEffectsManager__playSound(*BaseGame_bg, 0x26, 0, 0);
+                                GameSoundEffectsManager__playSound(*base_game, 0x26, 0, 0);
                                 void* main_view = get_main_view();
                                 if (main_view)
                                     RGE_View__display_object_selection(main_view, unit->ordinal, 1500, 2, 4);

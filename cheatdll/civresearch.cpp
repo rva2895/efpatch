@@ -1,10 +1,9 @@
 #include "stdafx.h"
-
 #include "civresearch.h"
 
-unsigned char* tableR;
+uint8_t* tableR;
 
-#define RESEARCH_COUNT 1000
+#define RESEARCH_COUNT_FOR_CIVRESEARCH 1024
 
 const ID_ASSIGNR idAssignR[] =
 {
@@ -39,12 +38,12 @@ const ID_ASSIGNR idAssignR[] =
 
 void buildTableR()
 {
-    tableR = (unsigned char*)malloc(RESEARCH_COUNT);
-    memset(tableR, 0xFF, RESEARCH_COUNT);
+    tableR = (uint8_t*)malloc(RESEARCH_COUNT_FOR_CIVRESEARCH);
+    memset(tableR, 0xFF, RESEARCH_COUNT_FOR_CIVRESEARCH);
 
     for (int i = 0; i < (sizeof(idAssignR) / sizeof(idAssignR[0])); i++)
         for (int j = 0; j < CIV_COUNT; j++)
-            tableR[idAssignR[i].IDs[j]] = i;
+            tableR[idAssignR[i].IDs[j]] = (uint8_t)i;
 }
 
 __declspec(naked) void researchCivAssign() //0040FD10
@@ -52,7 +51,7 @@ __declspec(naked) void researchCivAssign() //0040FD10
     __asm
     {
         movsx   eax, dx
-        cmp     eax, RESEARCH_COUNT
+        cmp     eax, RESEARCH_COUNT_FOR_CIVRESEARCH
         ja      locret
         mov     edx, tableR
         mov     dl, byte ptr [edx + eax]

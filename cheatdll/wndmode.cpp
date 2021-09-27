@@ -57,6 +57,9 @@ __declspec(naked) void wndtmp() //00616C0F
 
 int __stdcall new_is_mode_avail(int formal1, int formal2, int formal3)
 {
+    UNREFERENCED_PARAMETER(formal1);
+    UNREFERENCED_PARAMETER(formal2);
+    UNREFERENCED_PARAMETER(formal3);
     return true;
 }
 

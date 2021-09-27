@@ -1135,7 +1135,7 @@ __declspec(naked) void land_7() //004AFD7F
     __asm
     {
         push    128*4
-        call    ds:[malloc]
+        call    malloc
         add     esp, 4
         mov     [esi + 9Ch], eax
         mov     edi, eax
@@ -1196,7 +1196,7 @@ __declspec(naked) void land_destructor() //004B0260
         xor     ebp, ebp
         mov     eax, [esi + 9Ch]
         push    eax
-        call    ds:[free]
+        call    free
         add     esp, 4
         push    004B0267h
         ret

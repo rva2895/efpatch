@@ -417,6 +417,12 @@
     <ClInclude Include="dataload.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
+    <ClInclude Include="effect_command.h">
+      <Filter>Заголовочные файлы\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_master.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -784,6 +790,12 @@
     </ClCompile>
     <ClCompile Include="dataload.cpp">
       <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="effect_command.cpp">
+      <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_master.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

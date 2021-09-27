@@ -1,9 +1,7 @@
 #include "stdafx.h"
 #include "techtree.h"
 
-extern int current_save_game_version;
-
-__declspec(naked) void techs_size_1() //005C2B20
+__declspec(naked) void tech_size_1() //005C2B20
 {
     __asm
     {
@@ -585,21 +583,153 @@ __declspec(naked) void age_unit_size_9() //005C2D77
     }
 }
 
+extern int current_loaded_version;
+
+__declspec(naked) void tech_size_1_load() //005C269D
+{
+    __asm
+    {
+        mov     eax, current_loaded_version
+        cmp     eax, 1
+        jge     tech_size_1_extended
+        mov     eax, 1
+        jmp     tech_size_1_continue
+tech_size_1_extended:
+        mov     eax, 2
+tech_size_1_continue:
+        lea     edx, [esi + 18h]
+        push    eax
+        mov     ecx, edi
+        mov     eax, 005C26A4h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void tech_size_2_load() //005C2742
+{
+    __asm
+    {
+        mov     eax, current_loaded_version
+        cmp     eax, 1
+        jge     tech_size_2_extended
+        mov     eax, 1
+        jmp     tech_size_2_continue
+tech_size_2_extended:
+        mov     eax, 2
+tech_size_2_continue:
+        mov     edx, [esi + 4]
+        push    eax
+        mov     ecx, edi
+        mov     eax, 005C2749h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void building_unit_size_load() //005C28ED
+{
+    __asm
+    {
+        mov     eax, current_loaded_version
+        cmp     eax, 1
+        jge     building_unit_size_load_extended
+        mov     eax, 1
+        jmp     building_unit_size_load_continue
+building_unit_size_load_extended:
+        mov     eax, 2
+building_unit_size_load_continue:
+        mov     edx, [esi + 0Ch]
+        push    eax
+        mov     ecx, edi
+        mov     eax, 005C28F4h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void building_unit_size_1() //005C28FD
+{
+    __asm
+    {
+        mov     eax, [esi + 0Ch]
+        mov     ax, [ebx + eax + 18h]
+        test    ax, ax
+        push    005C2906h
+        ret
+    }
+}
+
+__declspec(naked) void building_unit_size_2() //005C291F
+{
+    __asm
+    {
+        mov     edx, [esi + 0Ch]
+        xor     ecx, ecx
+        mov     cx, [edx + ebx + 18h]
+        push    005C2928h
+        ret
+    }
+}
+
+__declspec(naked) void building_unit_size_3() //005C1974
+{
+    __asm
+    {
+        mov     ecx, [ebp + 0Ch]
+        mov     ax, [esi + ecx + 18h]
+        test    ax, ax
+        push    005C197Dh
+        ret
+    }
+}
+
+__declspec(naked) void building_unit_size_4() //005C199E
+{
+    __asm
+    {
+        add     eax, esi
+        mov     cx, [eax + 18h]
+        mov     edi, [eax + 1Ch]
+        push    005C19A6h
+        ret
+    }
+}
+
+__declspec(naked) void building_unit_size_5() //005C2EB4
+{
+    __asm
+    {
+        mov     eax, [esi + 0Ch]
+        lea     ecx, [ebx + eax]
+        mov     ax, [ebx + eax + 18h]
+        test    ax, ax
+        push    005C2EC0h
+        ret
+    }
+}
+
 #pragma optimize( "s", on )
 void setTechTreeHooks()
 {
     //tech size
-    writeByte(0x005C26A1, 2);
+    //writeByte(0x005C26A1, 2); //changed to asm
+    setHook((void*)0x005C269D, tech_size_1_load);
     writeByte(0x005C2CF1, 2);
     
     //age unit size
-    writeByte(0x005C2746, 2);
+    //writeByte(0x005C2746, 2); //changed to asm
+    setHook((void*)0x005C2742, tech_size_2_load);
     writeByte(0x005C2D68, 2);
     writeDword(0x005C2D84, 0xFFFF);
     writeDword(0x005C275E, 0xFFFF);
     writeDword(0x005C1845, 0xFFFF);
 
-    setHook((void*)0x005C2B20, techs_size_1);
+    //building unit size
+    setHook((void*)0x005C28ED, building_unit_size_load);
+    writeByte(0x005C2EA8, 2);
+    writeDword(0x005C2EC6, 0xFFFF);
+    writeDword(0x005C2909, 0xFFFF);
+    writeDword(0x005C1980, 0xFFFF);
+
+    setHook((void*)0x005C2B20, tech_size_1);
     setHook((void*)0x005C2CA3, tech_size_2);
     setHook((void*)0x005C306F, tech_size_3);
     setHook((void*)0x005C3189, tech_size_4);
@@ -638,6 +768,7 @@ void setTechTreeHooks()
     setHook((void*)0x005C5980, tech_size_37);
     setHook((void*)0x005C5B70, tech_size_38);
     setHook((void*)0x005C5C70, tech_size_39);
+
     setHook((void*)0x005C1839, age_unit_size_1);
     setHook((void*)0x005C1865, age_unit_size_2);
     setHook((void*)0x005C2752, age_unit_size_3);
@@ -647,5 +778,11 @@ void setTechTreeHooks()
     setHook((void*)0x005C4675, age_unit_size_7);
     setHook((void*)0x005C46C9, age_unit_size_8);
     setHook((void*)0x005C2D77, age_unit_size_9);
+
+    setHook((void*)0x005C28FD, building_unit_size_1);
+    setHook((void*)0x005C291F, building_unit_size_2);
+    setHook((void*)0x005C1974, building_unit_size_3);
+    setHook((void*)0x005C199E, building_unit_size_4);
+    setHook((void*)0x005C2EB4, building_unit_size_5);
 }
 #pragma optimize( "", on )

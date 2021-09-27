@@ -22,7 +22,7 @@ __declspec(naked) void onFreezeUnit() //005F3A0E
         mov     ecx, freeze_edi
         mov     eax, [ecx + 0Ch]
         cmp     eax, -1
-        jz      _old_freeze
+        jz      old_freeze
         mov     ecx, [esi]
         mov     eax, 0040C840h
         call    eax
@@ -35,7 +35,7 @@ __declspec(naked) void onFreezeUnit() //005F3A0E
         call    dword ptr [edx + 0C4h]
         mov     eax, 005F3A31h
         jmp     eax
-_old_freeze:
+old_freeze:
         mov     ecx, [esi]
         mov     eax, 0040C840h
         call    eax

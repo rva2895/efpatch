@@ -375,7 +375,7 @@ bool CUserPatch::OnChatMessage(const char *text)
         char d[0x100];
         int id;
         sscanf(text, "%s %d", d, &id);
-        void* base_world = *(void**)((char*)*BaseGame_bg + 0x420);
+        void* base_world = *(void**)((char*)*base_game + 0x420);
         if (base_world)
         {
             UNIT* unit = (UNIT*)BaseWorld__object(base_world, id);

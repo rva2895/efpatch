@@ -26,7 +26,7 @@ uint8_t* terrain_array = NULL;
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,    //0xF0
 };*/
 
-uint8_t indirect_table_water[] =    //starts from 1 (TERR-WATER1)
+const uint8_t indirect_table_water[] =    //starts from 1 (TERR-WATER1)
 {
     /*   1 */ 0, 1, 1, 0,
     /*     */ 1, 1, 1, 1,

@@ -67,7 +67,7 @@ void FUNCTION_HOOK::before_call(void** ret_addr)
     call_count++;
     original_return_address = *ret_addr;
     *ret_addr = f_on_return_data;
-    SIZE_T w;
+    //SIZE_T w;
     //WriteProcessMemory(GetCurrentProcess(), address, old_start, sizeof(old_start), &w);
     memcpy(address, old_start, sizeof(old_start));
 
@@ -92,7 +92,7 @@ void FUNCTION_HOOK::after_call()
     jmp_instr[0] = 0x68;    //push
     *(void**)(jmp_instr + 1) = f_on_call_data;
     jmp_instr[5] = 0xC3;    //retn
-    SIZE_T w;
+    //SIZE_T w;
     //WriteProcessMemory(GetCurrentProcess(), address, jmp_instr, sizeof(jmp_instr), &w);
     memcpy(address, jmp_instr, sizeof(old_start));
 }

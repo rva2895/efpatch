@@ -591,7 +591,7 @@ loc_5D78E5:
         push    ecx
         mov     ecx, esi
         call    sub_5D3540
-loc_5D791F:
+//loc_5D791F:
         mov     edx, [edi + 8]
         add     [esi + 471Ch], edx
         test    eax, eax
@@ -611,7 +611,7 @@ loc_5D793F:
         dec     edi
         mov     [esi + ebx * 4 + 1438h], edi
         pop     edi
-loc_5D7948:
+//loc_5D7948:
         pop     esi
         pop     ebp
         pop     ebx
