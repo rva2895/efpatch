@@ -96,7 +96,7 @@ __declspec(naked) char __stdcall get_n_players()
 {
     __asm
     {
-        mov     ecx, BaseGame_bg
+        mov     ecx, base_game
         mov     ecx, [ecx]
         mov     ecx, [ecx + 17B4h]
         mov     ecx, [ecx + 126Ch]
@@ -109,7 +109,7 @@ __declspec(naked) void** __stdcall get_players()
 {
     __asm
     {
-        mov     ecx, BaseGame_bg
+        mov     ecx, base_game
         mov     ecx, [ecx]
         mov     ecx, [ecx + 17B4h]
         mov     ecx, [ecx + 126Ch]
@@ -275,7 +275,7 @@ void(__thiscall* GameScreen__pause)(void* this_) =
 
 void __stdcall pause_game()
 {
-    void* game_screen = *(void**)((uint8_t*)(*BaseGame_bg) + 0x17B4);
+    void* game_screen = *(void**)((uint8_t*)(*base_game) + 0x17B4);
     if (game_screen)
     {
         GameScreen__pause(game_screen);
@@ -303,7 +303,7 @@ __declspec(naked) void onCheckTime()
         jl      no_break
 
         call    rec_breakpoint_reached
-        //mov     ecx, BaseGame_bg
+        //mov     ecx, base_game
         //mov     ecx, [ecx]
         //mov     eax, [ecx]
         //call    dword ptr [eax + 18h]

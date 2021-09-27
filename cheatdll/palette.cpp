@@ -471,6 +471,17 @@ void installPalette()
     fclose(f);
 }
 
+__declspec(naked) void tech_tree_bkg_fix() //00462680
+{
+    __asm
+    {
+        mov     eax, 0FFh
+        mov     [esi + 1D88h], eax
+        mov     eax, 00462686h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void fix_selection_box_color()
 {
@@ -518,6 +529,8 @@ void fix_selection_box_color()
 
     //tech tree lines
     writeDword(0x00462844, 7);
+    //tech tree bkg
+    setHook((void*)0x00462680, tech_tree_bkg_fix);
 
     //rec interface lines
     writeDword(0x004F3833, 0);

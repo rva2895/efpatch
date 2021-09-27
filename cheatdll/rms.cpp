@@ -100,7 +100,7 @@ __declspec(naked) void rmsNameLoad() //004D392C
         push    100h
         push    edx
         push    eax
-        call    ds:[strncpy]
+        call    strncpy
         add     esp, 0Ch
         mov     ecx, 004D393Ah
         jmp     ecx

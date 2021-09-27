@@ -11,7 +11,7 @@ __declspec(naked) void sub_7D0200()
         push    ecx
         push    edx
         fld     dword ptr[eax + 50h]
-        fmul    ds:flt_half
+        fmul    flt_half
         fld     dword ptr[eax + 48h]
         fadd    st, st(1)
         fstp    [esp]
@@ -31,7 +31,7 @@ __declspec(naked) void sub_7D0230()
         test    eax, eax
         jz      short loc_7D0257
         fld     dword ptr [eax + 50h]
-        fmul    ds:flt_half
+        fmul    flt_half
         fld     [esp + 4]
         fadd    st, st(1)
         fstp    [esp + 4]

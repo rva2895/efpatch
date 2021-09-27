@@ -68,19 +68,24 @@ terrain_change:
     }
 }
 
+extern int current_loaded_version;
+
 int __stdcall get_geo_terrain(int terrain)
 {
-    switch (terrain)
-    {
-    case 7:
-        return 226;
-    case 8:
-        return 228;
-    case 29:
-        return 227;
-    default:
+    if (current_loaded_version >= 1)
+        switch (terrain)
+        {
+        case 7:
+            return 226;
+        case 8:
+            return 228;
+        case 29:
+            return 227;
+        default:
+            return terrain;
+        }
+    else
         return terrain;
-    }
 }
 
 __declspec(naked) void onFarmTerrain() //00557DAA

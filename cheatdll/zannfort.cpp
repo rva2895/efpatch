@@ -3,22 +3,20 @@
 #include "zannfort.h"
 #include "advtriggereffect.h"
 
+#pragma warning(push)
+#pragma warning(disable:4100)
 __declspec(naked) prop_object* __stdcall getPropertyObject2(void* player, int id)
 {
     __asm
     {
-        push    ebp
-        mov     ebp, esp
-        mov     eax, player
+        mov     eax, [esp + 4]
         mov     eax, [eax + 74h]
-        mov     ecx, id
+        mov     ecx, [esp + 8]
         mov     eax, [eax + ecx * 4]
-        leave
         ret     8
     }
 }
-#pragma warning(push)
-#pragma warning(disable:4100)
+
 __declspec(naked) float* __fastcall player_getResources(void* player)
 {
     __asm

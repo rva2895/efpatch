@@ -45,7 +45,7 @@ _contMenu:
     }
 }
 
-char* chatStr = (char*)0x007A20C0;
+char* const chatStr = (char*)0x007A20C0;
 char* chatStr_temp;
 
 void __stdcall recPrintChat(bool our)
@@ -85,6 +85,6 @@ void recSwitch(int p)
     if (isRec())
     {
         WorldPlayerBase__unselect_object(getCurrentPlayer());
-        takeControl(p);
+        Game__set_player(*base_game, (__int16)p);
     }
 }

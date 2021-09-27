@@ -5,22 +5,23 @@
 #include "resgenbldgs.h"
 #include "expldroid.h"
 #include "jedimaster.h"
+#include "terrain.h"
 
 extern int current_save_game_version;
 char* data_file_name;
 char* data_prefix;
-int current_loaded_version = 1;
+int current_loaded_version = CURRENT_VERSION;
 
-int* current_handle = (int*)0x0077EF8C;
-int* compression_buffers = (int*)0x0077EF98;
-int* file_buffers = (int*)0x0077F0EC;
-int* current = (int*)0x0077EFA4;
-int* buffers = (int*)0x0077EF9C;
-int* point = (int*)0x0077EF94;
-int* flags = (int*)0x0077EF90;
-int* file_size = (int*)0x0077F0E8;
-int* rge_fio_bl = (int*)0x0077EFA0;
-int* rge_unknown = (int*)0x0077ED88;
+int* const current_handle = (int*)0x0077EF8C;
+int* const compression_buffers = (int*)0x0077EF98;
+int* const file_buffers = (int*)0x0077F0EC;
+int* const current = (int*)0x0077EFA4;
+int* const buffers = (int*)0x0077EF9C;
+int* const point = (int*)0x0077EF94;
+int* const flags = (int*)0x0077EF90;
+int* const file_size = (int*)0x0077F0E8;
+int* const rge_fio_bl = (int*)0x0077EFA0;
+int* const rge_unknown = (int*)0x0077ED88;
 
 int save_game__handle;
 int save_game__compression_buffers;
@@ -58,7 +59,7 @@ __declspec(naked) void __stdcall unload_game_data() //
     __asm
     {
         push    esi
-        mov     esi, BaseGame_bg
+        mov     esi, base_game
         mov     esi, [esi]
         mov     ecx, [esi + 420h]
         test    ecx, ecx
@@ -76,11 +77,13 @@ no_data_unload:
 char* ground_to_air_path;
 char* jedi_holo_path;
 
-void do_setup_dat_file()
+extern HINSTANCE* hInstance_dll;
+
+void do_setup_dat_file(int use_logo_background, int show_loading_game)
 {
-    //return;
-    //(*(void**)((uint8_t*)*BaseGame_bg + 0x420)) = NULL;
-    Game__show_status_message(*BaseGame_bg, "Loading game information ...", NULL, 0, 0, 1);
+    log("Reloading game data ...");
+    //(*(void**)((uint8_t*)*base_game + 0x420)) = NULL;
+    Game__show_status_message(*base_game, "Loading game information ...", NULL, 0, 0, use_logo_background);
 
     save_game__handle = *current_handle;
     save_game__compression_buffers = *compression_buffers;
@@ -94,7 +97,10 @@ void do_setup_dat_file()
     save_game__rge_unknown = *rge_unknown;
 
     unload_game_data();
-    Game__load_game_data(*BaseGame_bg);
+    log("Unloaded game data");
+    Game__load_game_data(*base_game);
+    log("Loaded game data");
+    log("Reloading txt files ...");
 
     *current_handle = save_game__handle;
     *compression_buffers = save_game__compression_buffers;
@@ -120,50 +126,34 @@ void do_setup_dat_file()
     setJediMasterHooks(data_prefix, "master.txt", "padawan.txt");
     initBldgResProdList(data_prefix, "resgen.txt");
     setConvertHooks(data_prefix, "unconv.txt");
+    loadTerrainTxt(data_prefix, "terrain.txt");
 
-    Game__show_status_message(*BaseGame_bg, "Loading game ...", NULL, 0, 0, 0);
-    //Game__close_status_message(*BaseGame_bg);
+    char dll_name[0x100];
+    if (!strcmp(data_prefix, "data\\"))
+        sprintf(dll_name, "language_x2.dll");
+    else
+        sprintf(dll_name, "%slanguage_x2.dll", data_prefix);
+
+    FreeLibrary(*hInstance_dll);
+    *hInstance_dll = LoadLibrary(dll_name);
+
+    log("Reloaded txt files");
+
+    if (show_loading_game)
+        Game__show_status_message(*base_game, "Loading game ...", NULL, 0, 0, use_logo_background);
+    //Game__close_status_message(*base_game);
 }
 
-void __stdcall setup_dat_file_on_del_game_info()
+bool load_data_always = false;
+
+void __stdcall setup_default_dat_file(int use_logo_background, int show_loading_game)
 {
-    if (current_loaded_version != 1)
+    if ((current_loaded_version != CURRENT_VERSION) || load_data_always)
     {
-        //MessageBox(0, "del_game_info, reload", "test", 0);
         setup_data_file_name("data\\genie_x2.dat");
-        current_loaded_version = 1;
+        current_loaded_version = CURRENT_VERSION;
         data_prefix = "data\\";
-        do_setup_dat_file();
-    }
-    //else
-    //    MessageBox(0, "del_game_info, no reload", "test", 0);
-}
-
-void __stdcall setup_dat_file_on_new_game()
-{
-    if (current_loaded_version != 1)
-    {
-        //MessageBox(0, "new_game, reload", "test", 0);
-        setup_data_file_name("data\\genie_x2.dat");
-        current_loaded_version = 1;
-        data_prefix = "data\\";
-        do_setup_dat_file();
-    }
-    //else
-    //    MessageBox(0, "new_game, no reload", "test", 0);
-}
-
-__declspec(naked) void on_del_game_info() //0061D020
-{
-    __asm
-    {
-        push    ebx
-        push    esi
-        mov     esi, ecx
-        xor     ebx, ebx
-        call    setup_dat_file_on_del_game_info
-        mov     ecx, 0061D026h
-        jmp     ecx
+        do_setup_dat_file(use_logo_background, show_loading_game);
     }
 }
 
@@ -178,6 +168,7 @@ bool setup_dat_file()
         data_prefix = "data\\old\\1.4.0\\";
         break;
     case 1:
+    case 2:
         setup_data_file_name("data\\genie_x2.dat");
         data_prefix = "data\\";
         break;
@@ -186,20 +177,14 @@ bool setup_dat_file()
         data_prefix = "data\\";
         break;
     }
-    if (current_loaded_version != current_save_game_version)
+    if ((current_loaded_version != current_save_game_version) || load_data_always)
     {
-        //MessageBox(0, "setup_dat_file, reload", "test", 0);
         current_loaded_version = current_save_game_version;
-        do_setup_dat_file();
-        //current_loaded_version = current_save_game_version;
-        //return false;
+        do_setup_dat_file(1, 1);
         return !load_second_attempt;
     }
     else
-    {
-        //MessageBox(0, "setup_dat_file, no reload", "test", 0);
         return false;
-    }
 }
 
 int load_arg_1;
@@ -238,21 +223,6 @@ continue_load:
     }
 }
 
-__declspec(naked) void on_new_game() //005ED2AE
-{
-    __asm
-    {
-        push    ecx
-        push    edx
-        call    setup_dat_file_on_new_game
-        pop     edx
-        pop     ecx
-        call    dword ptr [edx + 0ECh]
-        mov     ebx, 005ED2B4h
-        jmp     ebx
-    }
-}
-
 __declspec(naked) void on_start_game() //005EBAD4
 {
     __asm
@@ -260,7 +230,9 @@ __declspec(naked) void on_start_game() //005EBAD4
         sub     esp, 200h
         push    eax
         push    ecx
-        call    setup_dat_file_on_new_game
+        push    0
+        push    1
+        call    setup_default_dat_file
         pop     ecx
         pop     eax
         mov     edx, 005EBADAh
@@ -268,13 +240,94 @@ __declspec(naked) void on_start_game() //005EBAD4
     }
 }
 
+__declspec(naked) void on_open_sed() //00529734
+{
+    __asm
+    {
+        push    0
+        push    0
+        call    setup_default_dat_file
+        mov     ecx, esi
+        mov     eax, 005388C0h
+        call    eax
+        mov     ecx, 0052973Bh
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void on_tech_tree_button() //00518316
+{
+    __asm
+    {
+        push    0
+        push    1
+        call    setup_default_dat_file
+        mov     ecx, base_game
+        mov     ecx, [ecx]
+        mov     eax, 0051831Eh
+        jmp     eax
+    }
+}
+
+bool __stdcall on_deny_save_game_popup()
+{
+    void* panel = get_top_panel();
+    if (current_loaded_version != CURRENT_VERSION)
+    {
+        TEasy_Panel__popupOKDialog(panel, "Error", NULL, 450, 100, 1);
+        return false;
+    }
+    else
+        return true;
+}
+
+__declspec(naked) void on_deny_save_game() //0052871F
+{
+    __asm
+    {
+        call    on_deny_save_game_popup
+        lea     edi, [esi + 7E8h]
+        test    al, al
+        jnz     display_save_game_screen
+        mov     eax, 00528AEAh
+        jmp     eax
+display_save_game_screen:
+        mov     eax, 00528725h
+        jmp     eax
+    }
+}
+
+bool file_exists(const char* filename)
+{
+    HANDLE hFile = CreateFile(
+        filename, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile != INVALID_HANDLE_VALUE)
+    {
+        CloseHandle(hFile);
+        return true;
+    }
+    else
+        return false;
+}
+
+#pragma optimize( "s", on )
 void setDataLoadHooks()
 {
     setHook((void*)0x0048F0FB, onDataFileName);
     //setHook((void*)0x0061D020, on_del_game_info);
     setHook((void*)0x005EC79E, on_call_load_new_game);
     setHook((void*)0x005EBAD4, on_start_game);
+    setHook((void*)0x00529734, on_open_sed);
+    setHook((void*)0x00518316, on_tech_tree_button);
+
+    //setHook((void*)0x0052871F, on_deny_save_game);
 
     ground_to_air_path = (char*)malloc(0x100);
     jedi_holo_path = (char*)malloc(0x100);
+
+    if (file_exists("data\\reload_data"))
+        load_data_always = true;
+    else
+        load_data_always = false;
 }
+#pragma optimize( "", on )

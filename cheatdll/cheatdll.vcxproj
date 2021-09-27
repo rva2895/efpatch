@@ -331,6 +331,7 @@
     <ClInclude Include="editpropertyobject.h" />
     <ClInclude Include="effects.h" />
     <ClInclude Include="effectUnitVar.h" />
+    <ClInclude Include="effect_command.h" />
     <ClInclude Include="elevation.h" />
     <ClInclude Include="expldroid.h" />
     <ClInclude Include="filenames.h" />
@@ -406,6 +407,7 @@
     <ClInclude Include="tribe_command_ef.h" />
     <ClInclude Include="triggerdesc.h" />
     <ClInclude Include="trigger_unit.h" />
+    <ClInclude Include="unit_master.h" />
     <ClInclude Include="versionselect.h" />
     <ClInclude Include="video.h" />
     <ClInclude Include="votepanel.h" />
@@ -473,6 +475,7 @@
     <ClCompile Include="editpropertyobject.cpp" />
     <ClCompile Include="effects.cpp" />
     <ClCompile Include="effectUnitVar.cpp" />
+    <ClCompile Include="effect_command.cpp" />
     <ClCompile Include="elevation.cpp" />
     <ClCompile Include="expldroid.cpp" />
     <ClCompile Include="filenames.cpp" />
@@ -556,6 +559,7 @@
     <ClCompile Include="tribe_command_ef.cpp" />
     <ClCompile Include="triggerdesc.cpp" />
     <ClCompile Include="trigger_unit.cpp" />
+    <ClCompile Include="unit_master.cpp" />
     <ClCompile Include="versionselect.cpp" />
     <ClCompile Include="video.cpp" />
     <ClCompile Include="votepanel.cpp" />

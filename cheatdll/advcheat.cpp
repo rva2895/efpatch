@@ -6,31 +6,6 @@
 #include "sngoal.h"
 #include "tribe_command_ef.h"
 
-#pragma warning(push)
-#pragma warning(disable:4100)
-__declspec(naked) void __stdcall takeControl(int p)
-{
-    __asm
-    {
-        mov     eax, [esp + 4]
-        push    esi
-        push    edi
-        push    ebp
-        push    ebx
-        mov     ecx, 6A3684h
-        mov     ecx, [ecx]
-        push    eax
-        mov     edx, 005E68B0h //takeControl
-        call    edx
-        pop     ebx
-        pop     ebp
-        pop     edi
-        pop     esi
-        ret     4
-    }
-}
-#pragma warning(pop)
-
 //extern float glitched_res; //remove
 
 int (__thiscall* player_add_attribute) (void *player, int resource, float amount) =
@@ -71,7 +46,7 @@ void tribute(int player, int resource, float amount)
 //extern int control_target;
 //extern bool control_initiated;
 
-int player_id_for_gaia_control = 0;
+__int16 player_id_for_gaia_control = 0;
 
 int __stdcall getCurrentPlayerId()
 {
@@ -90,10 +65,10 @@ bool __stdcall checkCheats(char* s2)
     s[0x1FF] = '\0';
     _strupr(s);
 
-    if (BaseGame__allowCheatCodes(*BaseGame_bg))
+    if (BaseGame__allowCheatCodes(*base_game))
     {
         //fixed old cheats, SP only
-        if (BaseGame__singlePlayerGame(*BaseGame_bg))
+        if (BaseGame__singlePlayerGame(*base_game))
         {
             if (strstr(s, "SIMONSAYS"))
             {
@@ -145,11 +120,11 @@ bool __stdcall checkCheats(char* s2)
                 WorldPlayerBase__unselect_object(player);
                 if (player_id != 0)
                 {
-                    player_id_for_gaia_control = player_id;
-                    takeControl(0);
+                    player_id_for_gaia_control = (__int16)player_id;
+                    Game__set_player(*base_game, 0);
                 }
                 else
-                    takeControl(player_id_for_gaia_control);
+                    Game__set_player(*base_game, player_id_for_gaia_control);
                 return true;
             }
             if (strstr(s, "YOU HAVE FAILED ME FOR THE LAST TIME"))
@@ -425,7 +400,7 @@ bool __stdcall checkCheats(char* s2)
     /*if (strstr(s, "/OBJ") || strstr(s, "/OBJECT"))
     {
         sscanf(s, "%s %d", dummy, &id);
-        void* base_world = *(void**)((char*)*BaseGame_bg + 0x420);
+        void* base_world = *(void**)((char*)*base_game + 0x420);
         if (base_world)
         {
             UNIT* unit = (UNIT*)BaseWorld__object(base_world, id);

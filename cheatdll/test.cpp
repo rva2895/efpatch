@@ -345,7 +345,7 @@ extern int memory_temp;
 
 int __fastcall get_gametime2()
 {
-    void* game_screen = *(void**)((uint8_t*)(*BaseGame_bg) + 0x17B4);
+    void* game_screen = *(void**)((uint8_t*)(*base_game) + 0x17B4);
     if (game_screen)
     {
         void* world = *(void**)((uint8_t*)game_screen + 0x126C);
@@ -460,7 +460,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         memory_temp = 0x100000;
         return 1;
     }*/
-    else if (!strcmp(s, "/dump-world"))
+    /*else if (!strcmp(s, "/dump-world"))
     {
         srand(timeGetTime());
         unsigned int r = rand();
@@ -470,7 +470,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         dump_objects(name);
         chat("Dump complete");
         return 1;
-    }
+    }*/
     /*else if (!strcmp(s, "/worldtime"))
     {
         chat("Worldtime = %d", get_gametime2());
@@ -503,7 +503,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         char d[0x100];
         int id;
         sscanf(s, "%s %d", d, &id);
-        void* base_world = *(void**)((char*)*BaseGame_bg + 0x420);
+        void* base_world = *(void**)((char*)*base_game + 0x420);
         if (base_world)
         {
             UNIT* unit = (UNIT*)BaseWorld__object(base_world, id);
@@ -1228,12 +1228,76 @@ __declspec(naked) void onBlankScreenCreate() //004B4960
     }
 }
 
+__declspec(naked) int new_game_dev_mode() //0042C360
+{
+    __asm
+    {
+        mov     eax, 1
+        ret
+    }
+}
+
+__declspec(naked) int new_check_multi_copies() //00428270
+{
+    __asm
+    {
+        mov     eax, 1
+        ret
+    }
+}
+
 //const char* savegame_path = "savegame\\test\\recs\\";
 const char* savegame_path = "savegame\\";
+
+void* shape = NULL;
+
+void* (__thiscall* TShape__TShape2)(void* this_, char* filename, int resource_file_id) =
+    (void* (__thiscall*) (void*, char*, int))0x00542870;
+
+int (__thiscall* TShape__shape_draw)(void* this_, void* drawarea, int x, int y, int slpFrame, void* color_table) =
+    (int (__thiscall*)(void*, void*, int, int, int, void*))0x005430C0;
+
+void* new_shape(char* filename, int resource_file_id)
+{
+    void* shape = malloc(0x1C);
+    return TShape__TShape2(shape, filename, resource_file_id);
+}
+
+void __stdcall shape_draw(int x, int y, void* draw_area)
+{
+    if (!shape)
+    {
+        shape = new_shape("", 50731);
+    }
+    TShape__shape_draw(shape, draw_area, x, y, 24, NULL);
+}
+
+__declspec(naked) void terrain_draw_test() //00610B24
+{
+    __asm
+    {
+        mov     ecx, [esi + 100h]
+        push    ecx
+        push    edx
+        push    eax
+        call    shape_draw
+
+        mov     ecx, esi
+        mov     eax, 00610BB0h
+        call    eax
+        mov     eax, 00610B2Bh
+        jmp     eax
+    }
+}
 
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    //setHook((void*)0x00610B24, terrain_draw_test);
+    //setHook((void*)0x0042C360, new_game_dev_mode);
+    //setHook((void*)0x00428270, new_check_multi_copies);
+    //writeDword(0x00659F80, 0x004B6120);
+    //setHook((void*)0x0046D9B0, (void*)0x004B6120);
     //setHook((void*)0x005E7EC0, onStatusScreenCreate);
     //setHook((void*)0x004B4960, onBlankScreenCreate);
     //srand(timeGetTime());

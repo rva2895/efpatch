@@ -95,6 +95,7 @@ const char* effectNames[] =
     "Var",
     "Terrain",
     "Defeat",
+    //"Command",
     "Breakpoint"
 #endif
 };
@@ -290,6 +291,20 @@ void __stdcall e_stance(effect* p, int)
     }
 }
 
+/*
+void __stdcall e_command(effect* p, int)
+{
+    char* st;
+    switch (p->ai_trigger_number)
+    {
+    default:
+        st = "TODO";
+        break;
+    }
+    sprintf(s + strlen(s), " (%s)", st);
+}
+*/
+
 void* getTrigger(int i)
 {
     void* (__thiscall* f) (void*, int) = (void* (__thiscall*) (void*, int))0x5F5F20;
@@ -421,6 +436,7 @@ void(__stdcall* effectPrint[]) (effect*, int) =
     e_str, //change var
     e_terrain, //terrain
     e_player, //defeat
+    //e_command, //command
     e_default //breakpoint
 #endif
 };

@@ -1,25 +1,6 @@
 #include "stdafx.h"
 #include <stdio.h>
 
-#pragma warning(push)
-#pragma warning(disable:4100)
-__declspec(naked) void __stdcall errorScreen
-(char* s, int unk0, int x, int y, int unk1, void* ptr)
-{
-    __asm
-    {
-        mov     ecx, [esp + 18h]
-        mov     eax, [esp]          //old ret addr
-        mov     [esp + 18h], eax    //save in unused var
-        add     esp, 4
-        mov     eax, 4BB250h
-        call    eax
-        pop     eax                 //restore old ret addr
-        jmp     eax
-    }
-}
-#pragma warning(pop)
-
 char ver[4];
 
 #ifndef TARGET_VOOBLY
@@ -49,7 +30,7 @@ void __stdcall displayVersionError(void* ptr)
     else
         sprintf(buf, "Cannot load that saved game");
 
-    errorScreen(buf, 0, 450, 100, 1, ptr);
+    TEasy_Panel__popupOKDialog(ptr, buf, NULL, 450, 100, 1);
 }
 
 __declspec(naked) void onResult() //0050AD06
