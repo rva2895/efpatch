@@ -314,6 +314,7 @@
     <ClInclude Include="civresearch.h" />
     <ClInclude Include="civunit.h" />
     <ClInclude Include="cliff.h" />
+    <ClInclude Include="commandbuttons.h" />
     <ClInclude Include="conditions.h" />
     <ClInclude Include="configurator.h" />
     <ClInclude Include="consts.h" />
@@ -439,6 +440,7 @@
     <ClCompile Include="civresearch.cpp" />
     <ClCompile Include="civunit.cpp" />
     <ClCompile Include="cliff.cpp" />
+    <ClCompile Include="commandbuttons.cpp" />
     <ClCompile Include="conditions.cpp" />
     <ClCompile Include="configurator.cpp" />
     <ClCompile Include="convert.cpp" />

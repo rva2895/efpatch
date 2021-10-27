@@ -99,6 +99,7 @@
 #include "tribe_command.h"
 #include "techtree.h"
 #include "dataload.h"
+#include "commandbuttons.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -279,9 +280,9 @@ void setHooksCC()
     setRecHooks();
     setHotkeyJumpHooks();
 
-#ifdef TARGET_VOOBLY
+//#ifdef TARGET_VOOBLY
     setRecBrowseHooks(cd.gameVersion);
-#endif
+//#endif
     setElevationHooks();
 
     setNetworkHooks();
@@ -337,6 +338,8 @@ void setHooksCC()
     setResearchRepeatHooks();
     setConditionHooks();
     setEffectHooks();
+
+    setCommandButtonsHooks();
 
     //setWorldDumpHooks();
 

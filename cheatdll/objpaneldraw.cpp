@@ -131,23 +131,47 @@ void __cdecl objPanel(UNIT* unit)
         objPanelDrawItem (localItemCounter++, frame, 6, val, 0, 0, 0, langID);
     }*/
 
-    //has units inside - hide
-    DWORD garrisoned = *(DWORD*)((DWORD)unit + 0x30);
-    if (garrisoned)
-        if (*(int*)(garrisoned + 4) > 0)
-            return;
+    //exit if incomplete unit
+    if (unit->state == 0)
+        return;
 
-    //incomplete foundation - hide
+    int (__thiscall* RGE_Static_Object__garrisoned_count)(UNIT * this_) =
+        (int(__thiscall*)(UNIT*))(*((DWORD*)unit->_vfptr + 162));
+
+    //exit if has garrison
+    if (RGE_Static_Object__garrisoned_count(unit) > 0)
+        return;
+
     if (unit->prop_object->type == 80)
-        if (*(float*)((DWORD)unit + 0x230) < unit->prop_object->train_time)
-            return;
+    {
+        int (__thiscall* TRIBE_Building_Object__work_status)(UNIT* this_, __int16* work_type, __int16* work_target, __int16* progress, char* name, __int16 name_size) =
+            (int (__thiscall*)(UNIT*, __int16*, __int16*, __int16*, char*, __int16))(*((DWORD*)unit->_vfptr + 252));
 
-    //building has units in queue - hide
-    if (unit->prop_object->type == 80)
-        if (*(short*)((DWORD)unit + 0x1FC) > 0)
-            return;
+        bool (__thiscall* TRIBE_Building_Object__production_queue_status)(UNIT* this_, __int16* master_id, __int16* progress) =
+            (bool (__thiscall*)(UNIT*, __int16*, __int16*))0x00557B20;
 
-    //TODO: when building is researching
+        __int16 work_type;
+        __int16 work_target;
+        __int16 progress;
+        __int16 master_id;
+
+        //exit if working (researching etc)
+        TRIBE_Building_Object__work_status(unit, &work_type, &work_target, &progress, NULL, 0);
+        switch (work_type)
+        {
+        case 0x66:
+        case 0x67:
+        case 0x7B:
+        case 0x7C:
+        case 0x7D:
+            return;
+        default:
+            break;
+        }
+        //exit if has units in queue
+        if (TRIBE_Building_Object__production_queue_status(unit, &master_id, &progress))
+            return;
+    }
 
     if (unit->prop_object->type >= 70)
     {

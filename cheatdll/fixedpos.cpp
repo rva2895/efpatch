@@ -116,12 +116,66 @@ _gtt_p_end:
     }
 }
 
+int lowest_unused_color(int* p)
+{
+    int c = 0;
+    for (int i = 0; i < 8; i++)
+        if (p[i] == c)
+
+    return c;
+}
+
+void __stdcall rnd_pos_fill(int* p)
+{
+    /*p[0] =
+    p[1] = 2;
+    p[2] = 3;
+    p[3] = 4;
+    p[4] = 5;
+    p[5] = 6;
+    p[6] = 7;
+    p[7] = 8;*/
+    memset(p, 0, sizeof(int) * 8);
+    for (int i = 0; i < 8; i++)
+        p[Game__playerColor(*base_game, i) - 1] = i + 1;
+    for (int i = 0; i < 8; i++)
+        if (p[i] == 0)
+            p[i] = lowest_unused_color(p);
+}
+
+__declspec(naked) void remove_rnd_pos() //004E789B
+{
+    __asm
+    {
+        lea     eax, [esp + 54h]
+        xor     ecx, ecx
+//color_set_loop:
+        //inc     ecx
+        //mov     [eax], ecx
+        //add     eax, 4
+        //cmp     ecx, 8
+        //jl      color_set_loop
+
+        push    edx
+        push    eax
+        call    rnd_pos_fill
+        pop     edx
+
+        mov     ecx, [esp + 1Ch]
+        mov     ecx, [ecx + 3F6CCh]
+        mov     eax, 004E78A5h
+        jmp     eax
+    }
+}
+
 void setFixedPosHooks()
 {
-    setHook((void*)0x00521C29, set_team_together_fix);
+    /*setHook((void*)0x00521C29, set_team_together_fix);
     setHook((void*)0x00520643, set_team_together_fix_2);
     setHook((void*)0x004B962E, set_team_together_3_state_init);
     setHook((void*)0x0051F49A, set_team_together_set_3_state_flag);
     setHook((void*)0x00520636, get_team_together_full_fix);
-    setHook((void*)0x005EF140, get_team_together_inverted_patch);
+    setHook((void*)0x005EF140, get_team_together_inverted_patch);*/
+
+    //setHook((void*)0x004E789B, remove_rnd_pos);
 }

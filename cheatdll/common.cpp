@@ -238,6 +238,9 @@ void* (__thiscall* BaseWorld__object)(void* this_, int oID) =
 void* (__thiscall* BaseGame__get_player)(void* globalPtr) =
     (void* (__thiscall*)(void* globalPtr))0x00428750;
 
+int (__thiscall* BaseGame__playerID)(void* this_, int player_index) =
+    (int (__thiscall*)(void*, int))0x0042CCC0;
+
 bool (__thiscall* BaseGame__allowCheatCodes)(void* this_) =
     (bool (__thiscall*) (void*))0x0042C330;
 
@@ -259,6 +262,9 @@ void (__thiscall* Game__close_status_message)(void* this_) =
 void (__thiscall* Game__set_player)(void* this_, __int16 new_player_id) =
     (void (__thiscall*)(void*, __int16))0x005E68B0;
 
+int (__thiscall* Game__playerColor)(void* this_, int player_num) =
+    (int (__thiscall*)(void*, int))0x005EF060;
+
 void* (__thiscall* GameScreen__find_next_idle_unit)(void* this_, int last_object_id) =
     (void* (__thiscall*) (void*, int))0x00506340;
 
@@ -270,6 +276,9 @@ void* (__thiscall* WorldPlayer__find_obj)(void* this_, __int16 obj_id, void* aft
 
 int (__thiscall* WorldPlayerBase__select_object)(void* this_, void* unit, int play_sound) =
     (int (__thiscall*) (void*, void*, int))0x004C2DC0;
+
+int (__thiscall* WorldPlayerBase__select_one_object)(void* this_, void* unit, int play_sound) =
+    (int (__thiscall*) (void*, void*, int))0x004C2ED0;
 
 int (__thiscall* WorldPlayerBase__unselect_object)(void* this_) =
     (int (__thiscall*) (void*))0x004C3050;
