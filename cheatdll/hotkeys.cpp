@@ -787,7 +787,7 @@ bool __stdcall game_hotkey_dispatch(int hotkey, void* this_)
                     (unit->prop_object->type == 70 ||
                         (unit->prop_object->type == 80 && (unit->prop_object->unit_class == 34 || unit->prop_object->unit_class == 36))))
                 {
-                    WorldPlayerBase__select_object(player, unit, play_sound);
+                    WorldPlayerBase__select_one_object(player, unit, play_sound);
                     play_sound = 0;
                 }
                 unit_count++;
@@ -813,7 +813,7 @@ bool __stdcall game_hotkey_dispatch(int hotkey, void* this_)
                     (unit->prop_object->type == 70 ||
                         (unit->prop_object->type == 80 && (unit->prop_object->unit_class == 34 || unit->prop_object->unit_class == 36))))
                 {
-                    WorldPlayerBase__select_object(player, unit, play_sound);
+                    WorldPlayerBase__select_one_object(player, unit, play_sound);
                     play_sound = 0;
                 }
                 unit_count++;
@@ -872,7 +872,7 @@ bool __stdcall game_hotkey_dispatch(int hotkey, void* this_)
             unit = first_unit;
             do
             {
-                WorldPlayerBase__select_object(player, unit, play_sound);
+                WorldPlayerBase__select_one_object(player, unit, play_sound);
                 play_sound = 0;
                 unit_count++;
                 unit = (UNIT*)WorldPlayer__find_obj(player, id_to_search, unit, -1);

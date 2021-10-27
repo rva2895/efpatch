@@ -50,7 +50,29 @@ __declspec(naked) void onFindNext() //00501FE3
         jmp     eax
     }
 }
+
+//jump to gather point crash fix
+__declspec(naked) void on_jump_to_gather_point() //00506838
+{
+    __asm
+    {
+        test    esi, esi
+        jz      skip_jump_to_gather_point
+        mov     eax, [esi + 14h]
+        cmp     byte ptr [eax + 4], 80
+        jb      skip_jump_to_gather_point
+        mov     eax, [esi + 214h]
+        test    eax, eax
+        mov     eax, 00506840h
+        jmp     eax
+skip_jump_to_gather_point:
+        mov     eax, 005068B1h
+        jmp     eax
+    }
+}
+
 void setHotkeyJumpHooks()
 {
     setHook((void*)0x00501FE3, onFindNext);
+    setHook((void*)0x00506838, on_jump_to_gather_point);
 }

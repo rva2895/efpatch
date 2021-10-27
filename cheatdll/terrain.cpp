@@ -580,12 +580,14 @@ __declspec(naked) void onMapSizeRMSDefine() //004E7542
     }
 }
 
+extern int terrains_loaded;
+
 __declspec(naked) void terrain_asm_1() //004B0CC3
 {
     __asm
     {
         add     edx, 4
-        cmp     ecx, TERRAIN_COUNT
+        cmp     ecx, terrains_loaded //TERRAIN_COUNT
         mov     eax, 004B0CC9h
         jmp     eax
     }

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "techupcolor.h"
 
 #pragma warning(push)
@@ -25,21 +24,55 @@ __declspec(naked) void __stdcall sendTechChat2(int player, char* s, int unk)
 }
 #pragma warning(pop)
 
+int __stdcall get_player_id(int player_number)
+{
+    if (player_number == -1)
+        return -1;
+    for (int i = 1; i <= 8; i++)
+        if (BaseGame__playerID(*base_game, i) == player_number)
+            return i;
+    return 0;
+}
+
 __declspec(naked) void onTechUpSend() //005E9990
 {
     __asm
     {
-        //mov     edx, [esi + 420h]
-        //mov     eax, [edx + 4Ch]
-        //mov     ecx, [eax + edi * 4]
-        //mov     eax, [ecx + 0A0h]
-        //push    eax
-        //
         push    edi
-        //
+        call    get_player_id
+        push    eax
         call    sendTechChat2
         mov     eax, 005E9995h
         jmp     eax
+    }
+}
+
+__declspec(naked) void on_rec_chat() //0061FCD8
+{
+    __asm
+    {
+        mov     ecx, [ebp - 38h]
+        push    1
+        push    0
+        push    ecx
+        call    get_player_id
+        push    eax
+        mov     eax, 0061FCE0h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void on_attack_notification() //005CEC6A
+{
+    __asm
+    {
+        mov     edx, [ecx + 8]
+        push    edx
+        call    get_player_id
+        mov     edx, eax
+        lea     eax, [esp + 18h]
+        mov     ecx, 005CEC71h
+        jmp     ecx
     }
 }
 
@@ -47,5 +80,8 @@ __declspec(naked) void onTechUpSend() //005E9990
 void setTechUpColorHooks()
 {
     setHook((void*)0x005E9990, onTechUpSend);
+
+    setHook((void*)0x0061FCD8, on_rec_chat);
+    setHook((void*)0x005CEC6A, on_attack_notification);
 }
 #pragma optimize( "", on )

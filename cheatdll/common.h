@@ -69,6 +69,7 @@ extern void** panel_system;
 extern void* (__thiscall* BaseWorld__object)(void* this_, int oID);
 
 extern void* (__thiscall* BaseGame__get_player)(void* globalPtr);
+extern int (__thiscall* BaseGame__playerID)(void* this_, int player_index);
 extern bool (__thiscall* BaseGame__allowCheatCodes)(void* this_);
 extern bool (__thiscall* BaseGame__singlePlayerGame)(void* this_);
 extern bool (__thiscall* BaseGame__getRecordGame)(void* this_);
@@ -77,6 +78,7 @@ extern void (__thiscall* BaseGame__setRecordGame)(void* this_, bool v);
 extern void (__thiscall* Game__show_status_message)(void* this_, char* messageIn, char* info_file, int info_id, int show_settings, int use_logo_background);
 extern void (__thiscall* Game__close_status_message)(void* this_);
 extern void (__thiscall* Game__set_player)(void* this_, __int16 new_player_id);
+extern int (__thiscall* Game__playerColor)(void* this_, int player_num);
 
 extern void (__thiscall* RGE_Map__set_terrain)(void* this_, void* obj_owner, void* gworld, __int16 mapcol1, __int16 maprow1, __int16 mapcol2, __int16 maprow2, unsigned __int8 terrain, unsigned __int8 set_flag, int delete_obj);
 
@@ -86,6 +88,7 @@ extern void* (__thiscall* GameScreen__find_next_idle_military_unit)(void* this_,
 extern void* (__thiscall* WorldPlayer__find_obj)(void* this_, __int16 obj_id, void* after_obj, __int16 obj_id_2);
 
 extern int (__thiscall* WorldPlayerBase__select_object)(void* this_, void* unit, int play_sound);
+extern int (__thiscall* WorldPlayerBase__select_one_object)(void* this_, void* unit, int play_sound);
 extern int (__thiscall* WorldPlayerBase__unselect_object)(void* this_);
 extern int (__thiscall* WorldPlayerBase__set_view_loc)(void* player, float x, float y, int spectatingView);
 

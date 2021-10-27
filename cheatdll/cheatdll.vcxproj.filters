@@ -423,6 +423,9 @@
     <ClInclude Include="unit_master.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
+    <ClInclude Include="commandbuttons.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -796,6 +799,9 @@
     </ClCompile>
     <ClCompile Include="unit_master.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="commandbuttons.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

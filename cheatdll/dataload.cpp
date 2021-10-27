@@ -329,5 +329,8 @@ void setDataLoadHooks()
         load_data_always = true;
     else
         load_data_always = false;
+
+    char* on_or_off = load_data_always ? "ON" : "OFF";
+    log("Force data reload is %s", on_or_off);
 }
 #pragma optimize( "", on )

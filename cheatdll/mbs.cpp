@@ -568,7 +568,7 @@ __declspec(naked) void mbs_on_select() //004C2F61
         push    edx
         mov     edx, [ecx]
         push    eax
-        call    dword ptr [edx + 37Ch] //           !!!!!!!!
+        call    dword ptr [edx + 3F0h] // +37Ch -> +3F0h
         mov     ecx, [edi + 26Ch] // +268h -> +26Ch
         mov     ax, word ptr [esp + 8]
         add     esp, 0Ch

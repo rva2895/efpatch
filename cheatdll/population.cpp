@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "population.h"
 
 __declspec(naked) int createPopList()
@@ -7,7 +6,6 @@ __declspec(naked) int createPopList()
     __asm
     {
         mov     edi, 5h
-        //imul    ecx, edi, 5h
         lea     ecx, [edi + edi * 4]
         push    ecx
         mov     eax, 00520279h
@@ -20,18 +18,12 @@ __declspec(naked) int popListContCreation()
     __asm
     {
         jle     createPopListCont
-
-        _emit    0x8B
-        _emit    0x0D
-        _emit    0x84
-        _emit    0x36
-        _emit    0x6A
-        _emit    0x00
+        mov     ecx, 006A3684h
+        mov     ecx, [ecx]
         mov     edx, 005202ADh
         jmp     edx
 
 createPopListCont:
-        //imul    ecx, edi, 05h
         lea     ecx, [edi + edi * 4]
         push    ecx
         mov     eax, 00520279h
@@ -69,8 +61,10 @@ __declspec(naked) void setPopCap_new() //005EF240
 {
     __asm
     {
-        mov     al, [esp + 4]
-        mov     [ecx + 1446h], al
+        mov     eax, 0CCCCCCCDh
+        mul     dword ptr [esp + 4]
+        shr     edx, 2
+        mov     [ecx + 1446h], dl
         ret     4
     }
 }
@@ -108,7 +102,8 @@ void setPopulationHooks(int version)
     setHook((void*)0x0057F13A, onAIPopCap);
 
     setHook((void*)0x005EF1B0, getPopCap_new);
-    setHook((void*)0x005EF240, setPopCap_new);
+    //setHook((void*)0x005EF240, setPopCap_new);
+    writeDword(0x006001E8, (DWORD)&setPopCap_new - 0x006001EC);
     setHook((void*)0x005202AD, getPopCap_fix1);
 
     //fix 75 -> 15 (75/5)
