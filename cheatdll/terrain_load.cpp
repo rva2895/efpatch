@@ -184,7 +184,7 @@ __declspec(naked) int terrain2()
 
 void loadTerrainTxt(const char* prefix, const char* filename)
 {
-    log("Loading terrain data");
+    log("Loading terrain data...");
     char full_filename[0x100];
     sprintf(full_filename, "%s%s", prefix, filename);
     FILE* f = fopen(full_filename, "rt");
@@ -223,7 +223,9 @@ void loadTerrainTxt(const char* prefix, const char* filename)
                 terrain_names[i] = (char*)malloc(10);
                 strcpy(terrain_names[i], "FORBIDDEN");
             }
-            log("Terrain name %d - %s", i, terrain_names[i]);
+#ifdef _DEBUG
+            log("Terrain %d - %s", i, terrain_names[i]);
+#endif
         }
 
         FreeLibrary(lang);

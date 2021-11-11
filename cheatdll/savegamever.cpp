@@ -62,10 +62,12 @@ __declspec(naked) void onGetSaveGameVersion() //0061D9A5
     }
 }
 
+#pragma optimize( "s", on )
 void setSaveGameVerHooks(bool datap)
 {
-    if (datap)
-        writeData(0x0069E568, EXE_PATCH_VERSION, strlen(EXE_PATCH_VERSION) + 1);
+    //if (datap)
+    //    writeData(0x0069E568, EXE_PATCH_VERSION, strlen(EXE_PATCH_VERSION) + 1);
     setHook((void*)0x0050AD06, onResult);
     setHook((void*)0x0061D9A5, onGetSaveGameVersion);
 }
+#pragma optimize( "", on )

@@ -12,7 +12,9 @@ const char hotkeys[] = {
      7,  5,  8, //mine
      8, 13,  1, //cargo freighter
      9, 12,  2, //nightsister hunter 3 -> 2
-    10, 12,  1  //new master
+    10, 12,  1, //new master
+    11,  3, 15, //sensor buoy
+    12,  3, 16  //underwater prefab shelter
 };
 
 void* hotkeyTestRet;
@@ -27,10 +29,27 @@ __declspec(naked) void hotkeyTest() //(00563010, 005625D0) <- offsets not used
         push    ecx
         mov     eax, [esp + 8]
         mov     byte ptr [esp + 3], 0
-        cmp     eax, 10             // 9 -> 10
-        ja      _noHK
+        cmp     eax, 16478          // sensor buoy
+        jz      HK_buoy
+        cmp     eax, 16001          // underwater prefab shelter
+        jz      HK_underwater
+        jmp     HK_continue
+
+HK_buoy:
+        mov     eax, 11
+        jmp     HK_continue
+
+HK_underwater:
+        mov     edx, hotkeyTestRet
+        cmp     edx, 00562620h
+        jnz     HK_continue
+        mov     eax, 12
+
+HK_continue:
+        cmp     eax, 12
+        ja      HK_skip
         test    eax, eax
-        jz      _noHK
+        jz      HK_skip
         lea     edx, [esp + 3]
         push    edx
         lea     edx, [esp + 3]
@@ -52,7 +71,8 @@ __declspec(naked) void hotkeyTest() //(00563010, 005625D0) <- offsets not used
         push    eax
         mov     eax, 00486B20h
         jmp     eax
-_noHK:
+
+HK_skip:
         mov     edx, hotkeyTestCont
         jmp     edx
     }
@@ -237,6 +257,18 @@ load_no_ef_hotkeys:
         mov     ecx, esi
         call    edi
 
+        push    5478         //build sensor buoy
+        push    0xF          //id
+        push    3            //group
+        mov     ecx, esi
+        call    edi
+
+        push    5001         //build underwater prefab shelter
+        push    0x10         //id
+        push    3            //group
+        mov     ecx, esi
+        call    edi
+
         pop     edi
         pop     esi
         ret     4
@@ -372,6 +404,16 @@ default_no_ef_hotkeys:
 
         push    0x10         //shift delete
         push    0
+        mov     ecx, esi
+        call    edi
+
+        push    0xF          //build sensor buoy
+        push    3
+        mov     ecx, esi
+        call    edi
+
+        push    0x10         //build underwater prefab shelter
+        push    3
         mov     ecx, esi
         call    edi
 
@@ -551,6 +593,40 @@ __declspec(naked) void hotkeyDefaultShiftDelete()
     }
 }
 
+__declspec(naked) void hotkeyDefaultSensorBuoy()
+{
+    __asm
+    {
+        push    4162
+        push    0
+        push    0
+        push    0
+        push    59h
+        push    0Fh
+        push    3
+        mov     eax, 00486BC0h
+        call    eax
+        retn    8
+    }
+}
+
+__declspec(naked) void hotkeyDefaultUnderwaterPrefabShelter()
+{
+    __asm
+    {
+        push    4160
+        push    0
+        push    0
+        push    0
+        push    4Eh
+        push    10h
+        push    3
+        mov     eax, 00486BC0h
+        call    eax
+        retn    8
+    }
+}
+
 const DWORD hotkeyDefaultsGroup5[] =  //build defense
 {
     0x005644CA,
@@ -624,6 +700,27 @@ const DWORD hotkeyDefaultsGroup0[] =  //unit commands
     0x005641E3,
     0x005640D3,
     (DWORD)&hotkeyDefaultShiftDelete
+};
+
+const DWORD hotkeyDefaultsGroup3[] =  //build economic
+{
+    0x0056427C,
+    0x00564295,
+    0x005642AE,
+    0x005642C7,
+    0x005642E0,
+    0x005642F9,
+    0x00564312,
+    0x0056432B,
+    0x00564344,
+    0x0056435D,
+    0x00564376,
+    0x0056438F,
+    0x005643A8,
+    0x005643C1,
+    0x005643DA,
+    (DWORD)&hotkeyDefaultSensorBuoy,
+    (DWORD)&hotkeyDefaultUnderwaterPrefabShelter
 };
 
 __declspec(naked) void group18_fix() //00564ACF
@@ -1115,9 +1212,6 @@ void setHotkeysHooks(int version)
     if (version == VER_EF)
     {
         setGroupNumbers();
-        
-        setHook((void*)0x00563010, hotkeyTestUnit);
-        setHook((void*)0x005625D0, hotkeyTestBldg);
 
         writeByte(0x005644BC, 8);
         writeDword(0x005644C6, (DWORD)hotkeyDefaultsGroup5);
@@ -1144,7 +1238,10 @@ void setHotkeysHooks(int version)
         set_ef_hotkeys = true;
     }
 #endif
-    
+
+    setHook((void*)0x00563010, hotkeyTestUnit);
+    setHook((void*)0x005625D0, hotkeyTestBldg);
+
     setHook((void*)0x005625C1, hotkeyOptionsLoad);
     setHook((void*)0x00561C72, hotkeyDefaultSet);
 
@@ -1153,8 +1250,13 @@ void setHotkeysHooks(int version)
     writeByte(0x0056142B, 0x11); //unit commands
     setHook((void*)0x004F9F79, onQueryCommand_game);
 
+    writeByte(0x0056144C, 0x11); //build economic
+
     writeByte(0x00564093, 0x10);
     writeDword(0x0056409D, (DWORD)hotkeyDefaultsGroup0);
+
+    writeByte(0x0056426E, 0x10);
+    writeDword(0x00564278, (DWORD)hotkeyDefaultsGroup3);
 
     setHook((void*)0x004FA68F, dispatch_hotkey_unit);
 }

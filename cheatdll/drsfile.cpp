@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "drsfile.h"
 
 FILE* DRS::load(bool write)
@@ -40,7 +39,11 @@ bool DRS::loadDRS(const char* filename)
     if (!f)
         return false;
 
-    fread(&hdr, sizeof(DRS_header), 1, f);
+    fread(&hdr.copyright, sizeof(hdr.copyright), 1, f);
+    fread(&hdr.version, sizeof(hdr.version), 1, f);
+    fread(&hdr.ftype, sizeof(hdr.ftype), 1, f);
+    fread(&hdr.nTables, sizeof(hdr.nTables), 1, f);
+    fread(&hdr.off1stFile, sizeof(hdr.off1stFile), 1, f);
 
     if (strncmp(hdr.version, "1.00", 4) ||
         strncmp(hdr.ftype, "swbg", 4))
@@ -51,22 +54,39 @@ bool DRS::loadDRS(const char* filename)
 
     tInfo = new DRS_tableInfo[hdr.nTables];
     for (int i = 0; i < hdr.nTables; i++)
-        fread(&tInfo[i], sizeof(DRS_tableInfo), 1, f);
+    {
+        fread(&tInfo[i].ext, sizeof(tInfo[i].ext), 1, f);
+        fread(&tInfo[i].tableOffset, sizeof(tInfo[i].tableOffset), 1, f);
+        fread(&tInfo[i].nFiles, sizeof(tInfo[i].nFiles), 1, f);
+
+        tInfo[i].capacity = tInfo[i].nFiles;
+    }
 
     tEntries = new DRS_tableEntry*[hdr.nTables];
     for (int i = 0; i < hdr.nTables; i++)
     {
         tEntries[i] = new DRS_tableEntry[tInfo[i].nFiles];
         fseek(f, tInfo[i].tableOffset, SEEK_SET);
-        fread(tEntries[i], sizeof(DRS_tableEntry), tInfo[i].nFiles, f);
+        for (int j = 0; j < tInfo[i].nFiles; j++)
+        {
+            fread(&tEntries[i][j].id, sizeof(tEntries[i][j].id), 1, f);
+            fread(&tEntries[i][j].offset, sizeof(tEntries[i][j].offset), 1, f);
+            fread(&tEntries[i][j].size, sizeof(tEntries[i][j].size), 1, f);
+
+            tEntries[i][j].data = NULL;
+        }
     }
 
     init = true;
+    unload(f);
     return true;
 }
 
 bool DRS::writeDRS()
 {
+    char align_data[4];
+    memset(align_data, 0, 4);
+
     //calculate file size
     int fsize = 0x54 + 0xC * hdr.nTables;
     for (int i = 0; i < hdr.nTables; i++)
@@ -95,21 +115,39 @@ bool DRS::writeDRS()
             for (int i = 0; i < hdr.nTables; i++)
                 for (int j = 0; j < tInfo[i].nFiles; j++)
                 {
-                    fwrite((void*)tEntries[i][j].offset, 1, tEntries[i][j].size, f);
-                    free((void*)tEntries[i][j].offset);
+                    fwrite(tEntries[i][j].data, tEntries[i][j].size, 1, f);
                     tEntries[i][j].offset = current_pos;
                     current_pos += tEntries[i][j].size;
+                    //align
+                    if (current_pos % 4)
+                    {
+                        int align_off = 4 - current_pos % 4;
+                        fwrite(align_data, 1, align_off, f);
+                        current_pos += align_off;
+                    }
                 }
             //write header
             fseek(f, 0, SEEK_SET);
-            fwrite(&hdr, sizeof(DRS_header), 1, f);
+            fwrite(&hdr.copyright, sizeof(hdr.copyright), 1, f);
+            fwrite(&hdr.version, sizeof(hdr.version), 1, f);
+            fwrite(&hdr.ftype, sizeof(hdr.ftype), 1, f);
+            fwrite(&hdr.nTables, sizeof(hdr.nTables), 1, f);
+            fwrite(&hdr.off1stFile, sizeof(hdr.off1stFile), 1, f);
             //write table headers
             for (int i = 0; i < hdr.nTables; i++)
-                fwrite(&tInfo[i], sizeof(DRS_tableInfo), 1, f);
+            {
+                fwrite(&tInfo[i].ext, sizeof(tInfo[i].ext), 1, f);
+                fwrite(&tInfo[i].tableOffset, sizeof(tInfo[i].tableOffset), 1, f);
+                fwrite(&tInfo[i].nFiles, sizeof(tInfo[i].nFiles), 1, f);
+            }
             //write table data
             for (int i = 0; i < hdr.nTables; i++)
                 for (int j = 0; j < tInfo[i].nFiles; j++)
-                    fwrite(&tEntries[i][j], sizeof(DRS_tableEntry), 1, f);
+                {
+                    fwrite(&tEntries[i][j].id, sizeof(tEntries[i][j].id), 1, f);
+                    fwrite(&tEntries[i][j].offset, sizeof(tEntries[i][j].offset), 1, f);
+                    fwrite(&tEntries[i][j].size, sizeof(tEntries[i][j].size), 1, f);
+                }
             unload(f);
         }
         else
@@ -223,7 +261,11 @@ DRS::~DRS()
     if (init)
     {
         for (int i = 0; i < hdr.nTables; i++)
+        {
+            for (int j = 0; j < tInfo[i].nFiles; j++)
+                free(tEntries[i][j].data);
             delete[] tEntries[i];
+        }
 
         delete[] tEntries;
         delete[] tInfo;
@@ -259,35 +301,45 @@ void DRS::addFile(void* data, int size, int id, unsigned long table)
         *(unsigned long*)&tInfo[hdr.nTables - 1].ext = table;
         tInfo[hdr.nTables - 1].nFiles = 0;
         tInfo[hdr.nTables - 1].tableOffset = 0;
+        tInfo[hdr.nTables - 1].capacity = 1000;
         //
         DRS_tableEntry** t3 = new DRS_tableEntry*[hdr.nTables];
         memcpy(t3, tEntries, sizeof(DRS_tableEntry*)*(hdr.nTables - 1));
         delete[] tEntries;
         tEntries = t3;
-        tEntries[hdr.nTables - 1] = new DRS_tableEntry[10000];
+        tEntries[hdr.nTables - 1] = new DRS_tableEntry[tInfo[hdr.nTables - 1].capacity];
+        memset(tEntries[hdr.nTables - 1], 0, sizeof(DRS_tableEntry) * tInfo[hdr.nTables - 1].capacity);
     }
-    ///
-    //tInfo[i].nFiles++;
-    int k = tInfo[i].nFiles;
-    for (; k > 0; k--)
-    {
-        if (id < tEntries[i][k - 1].id)
-            tEntries[i][k] = tEntries[i][k - 1];
-        else
-            break;
-    }
-    tEntries[i][k].id = id;
-    tEntries[i][k].size = size;
-    tEntries[i][k].offset = (long)malloc(size);
-    memcpy((void*)tEntries[i][k].offset, data, size);
-    tInfo[i].nFiles++;
-    ///
 
-    /*tEntries[i][tInfo[i].nFiles - 1].id = id;
-    tEntries[i][tInfo[i].nFiles - 1].size = size;
-    tEntries[i][tInfo[i].nFiles - 1].offset = (long)malloc(size);
-    memcpy((void*)tEntries[i][tInfo[i].nFiles - 1].offset, data, size);*/
-    //that's all?..
+    if (tInfo[i].nFiles >= tInfo[i].capacity)
+    {
+        tInfo[i].capacity += 1000;
+        DRS_tableEntry* new_t = new DRS_tableEntry[tInfo[i].capacity];
+        memset(new_t, 0, sizeof(DRS_tableEntry) * tInfo[i].capacity);
+        memcpy(new_t, tEntries[i], sizeof(DRS_tableEntry) * tInfo[i].nFiles);
+        delete[] tEntries[i];
+        tEntries[i] = new_t;
+    }
+
+    int j = 0;
+    for (; j < tInfo[i].nFiles; j++)
+        if (tEntries[i][j].id >= id)
+            break;
+
+    if (tEntries[i][j].id != id)
+    {
+        for (int k = tInfo[i].nFiles; k > j; k--)
+            tEntries[i][k] = tEntries[i][k - 1];
+        tInfo[i].nFiles++;
+    }
+    else
+        free(tEntries[i][j].data);
+
+    tEntries[i][j].id = id;
+    tEntries[i][j].size = size;
+    tEntries[i][j].offset = 0;
+    tEntries[i][j].data = malloc(size);
+    memcpy(tEntries[i][j].data, data, size);
 }
 
 int DRS::getFileOffset(int id)

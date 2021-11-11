@@ -150,10 +150,10 @@ HWND hWnd_global;
 
 int terrain_paint_mode = 0;    //default
 #ifdef _DEBUG
-bool time_collect = false;
-bool time_stage_find = false;
-extern volatile bool answer;
-extern volatile bool answer_flag;
+//bool time_collect = false;
+//bool time_stage_find = false;
+//extern volatile bool answer;
+//extern volatile bool answer_flag;
 #endif // _DEBUG
 
 extern bool world_dump_enabled;
@@ -167,6 +167,7 @@ int CALLBACK WndProc_dll(HWND hWnd,
 
     if (msg == WM_KEYDOWN)
     {
+        /*
 #ifdef _DEBUG
         //timeGetTime debug
         if (LOWORD(wParam) == 'Y')                        //YES
@@ -190,6 +191,7 @@ int CALLBACK WndProc_dll(HWND hWnd,
         }
         //
 #endif
+*/
         /*
         //TEMPORARY DUMP TOGGLE
         if (LOWORD(wParam) == VK_F7)

@@ -332,5 +332,11 @@ void setDataLoadHooks()
 
     char* on_or_off = load_data_always ? "ON" : "OFF";
     log("Force data reload is %s", on_or_off);
+
+    if (load_data_always)
+    {
+        writeData(0x005ED41A, "\xE8\x21\xEF\xE3\xFF", 5);
+        log("Autoreplay forced off when force data reload is on");
+    }
 }
 #pragma optimize( "", on )

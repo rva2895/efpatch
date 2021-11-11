@@ -370,6 +370,7 @@
     <ClInclude Include="overlay.h" />
     <ClInclude Include="palette.h" />
     <ClInclude Include="patrol.h" />
+    <ClInclude Include="patroldelay.h" />
     <ClInclude Include="population.h" />
     <ClInclude Include="processunit.h" />
     <ClInclude Include="radius_effect.h" />
@@ -383,6 +384,8 @@
     <ClInclude Include="resolution.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="revertToX1.h" />
+    <ClInclude Include="rge_communications_queue.h" />
+    <ClInclude Include="rge_communications_speed.h" />
     <ClInclude Include="rms.h" />
     <ClInclude Include="rms_tokens.h" />
     <ClInclude Include="rundll.h" />
@@ -397,6 +400,7 @@
     <ClInclude Include="storemode.h" />
     <ClInclude Include="structs.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="tchat.h" />
     <ClInclude Include="techtree.h" />
     <ClInclude Include="techupcolor.h" />
     <ClInclude Include="terrain.h" />
@@ -517,6 +521,7 @@
     <ClCompile Include="overlay.cpp" />
     <ClCompile Include="palette.cpp" />
     <ClCompile Include="patrol.cpp" />
+    <ClCompile Include="patroldelay.cpp" />
     <ClCompile Include="population.cpp" />
     <ClCompile Include="processunit.cpp" />
     <ClCompile Include="radius_effect.cpp" />
@@ -529,6 +534,8 @@
     <ClCompile Include="resgenbldgs.cpp" />
     <ClCompile Include="resolution.cpp" />
     <ClCompile Include="revertToX1.cpp" />
+    <ClCompile Include="rge_communications_queue.cpp" />
+    <ClCompile Include="rge_communications_speed.cpp" />
     <ClCompile Include="rms.cpp" />
     <ClCompile Include="rms_tokens.cpp" />
     <ClCompile Include="rundll.cpp" />
@@ -548,6 +555,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_cc_compatible|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="storemode.cpp" />
+    <ClCompile Include="tchat.cpp" />
     <ClCompile Include="techtree.cpp" />
     <ClCompile Include="techupcolor.cpp" />
     <ClCompile Include="terrain.cpp" />

@@ -100,9 +100,7 @@ __declspec(naked) void ice_terrain_fix() //005CBCCE
         jb      not_ice1
         cmp     ebx, 160
         jbe     ice1
-        cmp     ebx, 208
-        jz      ice1
-        cmp     ebx, 209
+        cmp     ebx, 238
         jnz     not_ice1
 ice1:
         mov     ebx, 005CBCDCh

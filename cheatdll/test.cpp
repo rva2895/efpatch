@@ -193,7 +193,9 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
     if (!(((unsigned long)fmt >= 0x00689000) && ((unsigned long)fmt < 0x7A3A2C)))
         return;
 
-    if ((strlen(fmt) < 8) || (strlen(fmt) > 0x180))
+    size_t len = strlen(fmt);
+
+    if ((len < 8) || (len > 0x180))
         return;
 
     if (!strncmp("Act_Art", fmt, 7))
@@ -364,68 +366,12 @@ int __fastcall get_gametime2()
     }
 }
 
-/*__declspec(naked) int __fastcall get_gametime2()
-{
-    __asm
-    {
-        mov     ecx, 006A3684h
-        mov     ecx, [ecx]
-        mov     ecx, [ecx + 17B4h]
-        mov     ecx, [ecx + 126Ch]
-        mov     eax, [ecx + 10h]
-        ret
-    }
-}*/
-
-int (__cdecl* rand_internal)() =
-    (int (__cdecl*)())0x00632BDD;
-
-#define RAND_N 10000
-#define RAND_K 10
-
-int z = 0;
-
-int get_int_random()
-{
-    //return (rand_internal() % RAND_K);
-    /*z++;
-    if (z >= 10)
-        z = 0;
-    return z;*/
-    return z++ % 2 ? 4 : 5;
-}
-
-void do_random_test()
-{
-    /*int rand_values[10];
-    memset(rand_values, 0, sizeof(rand_values));
-    for (int i = 0; i < 10000; i++)
-    {
-        rand_values[rand_internal() % 10]++;
-    }
-    char chat_str[0x100];
-    *chat_str = '\0';
-    for (int i = 0; i < 10; i++)
-    {
-        sprintf(chat_str + strlen(chat_str), "%d = %.4f ", i, (float)rand_values[i] / 10000);
-    }
-    chat(chat_str);*/
-
-    double d = 0.0;
-    for (int i = 0; i < 10000; i++)
-    {
-        d += pow((get_int_random() - (RAND_K - 1) / 2), 2);
-    }
-    d *= (double)1 / RAND_N;
-    chat("rand variance: %.4f", d);
-}
-
 DWORD performance_time = 0;
 
 extern float* __fastcall player_getResources2(void*);
 extern void __stdcall make_oos_dump();
 
-extern std::vector<FUNCTION_HOOK*> function_hooks;
+//extern std::vector<FUNCTION_HOOK*> function_hooks;
 
 struct
 {
@@ -460,7 +406,8 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         memory_temp = 0x100000;
         return 1;
     }*/
-    /*else if (!strcmp(s, "/dump-world"))
+    /*
+    else if (!strcmp(s, "/dump-world"))
     {
         srand(timeGetTime());
         unsigned int r = rand();
@@ -470,12 +417,13 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         dump_objects(name);
         chat("Dump complete");
         return 1;
-    }*/
-    /*else if (!strcmp(s, "/worldtime"))
+    }
+    else if (!strcmp(s, "/worldtime"))
     {
         chat("Worldtime = %d", get_gametime2());
         return 1;
     }
+    
     else if (strstr(s, "/set-max"))
     {
         char d[0x100];
@@ -483,8 +431,10 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         sscanf(s, "%s %d", d, &t);
         max_worldtime = t;
         chat("Set max worldtime to %d", t);
-        return true;
+        return 1;
     }
+    */
+    /*
     else if (!strcmp(s, "/make-oos"))
     {
         float* r = player_getResources2(get_player(0));
@@ -498,7 +448,8 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         return 1;
     }
     */
-    /*else if (strstr(s, "/obj") || strstr(s, "/object"))
+    /*
+    else if (strstr(s, "/obj") || strstr(s, "/object"))
     {
         char d[0x100];
         int id;
@@ -518,7 +469,8 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         }
 
         return true;
-    }*/
+    }
+    */
     /*
     else if (strstr(s, "/cs"))
     {
@@ -615,68 +567,6 @@ __skip_chat:
     }
 }
 
-void* malloc_locret;
-void* malloc_pos;
-int malloc_size;
-
-void __stdcall malloc_log(void* ptr)
-{
-    log("malloc: allocated %d at %p to %p", malloc_size, malloc_pos, ptr);
-}
-
-__declspec(naked) void malloc_hook_end()
-{
-    __asm
-    {
-        push    eax
-        push    eax
-        call    malloc_log
-        pop     eax
-        mov     ecx, malloc_locret
-        jmp     ecx
-    }
-}
-
-__declspec(naked) void malloc_hook() //0063329E
-{
-    __asm
-    {
-        mov     eax, [esp + 4]
-        mov     malloc_size, eax
-        mov     eax, [esp]
-        mov     malloc_locret, eax
-        mov     eax, [esp + 0Ch]
-        mov     malloc_pos, eax
-        mov     eax, malloc_hook_end
-        mov     [esp], eax
-        cmp     dword ptr [esp + 4], 0FFFFFFE0h
-        mov     eax, 006332A3h
-        jmp     eax
-    }
-}
-
-__declspec(naked) void malloc2_hook() //00632D33
-{
-    __asm
-    {
-        mov     eax, [esp + 4]
-        imul    eax, [esp + 8]
-        mov     malloc_size, eax
-        mov     eax, [esp]
-        mov     malloc_locret, eax
-        mov     malloc_pos, eax
-        mov     eax, malloc_hook_end
-        mov     [esp], eax
-
-        push    ebp
-        mov     ebp, esp
-        push    esi
-        mov     esi, [ebp + 8]
-        mov     eax, 00632D3Ah
-        jmp     eax
-    }
-}
-
 void __stdcall rms_token_log(char char5, char char4, char char3, char char2, int id, char char1, char* token, void* caller)
 {
     log("RMS: (%d, %d, %d, %d, %d) - @0x%p: %d = %s", (int)char1, (int)char2, (int)char3, (int)char4, (int)char5, caller, id, token);
@@ -724,6 +614,7 @@ void fix_function_call(DWORD addr, DWORD f)
     writeDword(addr, f - (addr + 4));
 }
 
+/*
 std::vector<void*> addresses;
 
 std::vector<void*> adr_test;
@@ -794,21 +685,6 @@ int search_function(const std::vector<void*>& arr)
     return -1;
 }
 
-void time_find(void*)
-{
-    int p = search_function(addresses);
-    char s[0x100];
-    if (p != -1)
-    {
-        sprintf(s, "Found at 0x%X", addresses[p]);
-        msg_box(s, 0);
-    }
-    else
-        msg_box("Not found!", 0);
-}
-
-bool thread_begun = false;
-
 DWORD adr_time;
 BYTE jump_time[6];
 BYTE old_time[6];
@@ -818,65 +694,6 @@ BYTE jump_text[6];
 BYTE old_text[6];
 
 DWORD last_call = 0;
-
-DWORD __stdcall Intercept_timeGetTime()
-{
-    DWORD written;
-    WriteProcessMemory(GetCurrentProcess(), (void*)adr_time,
-        (void*)old_time, 6, &written);
-
-    DWORD retval = timeGetTime();
-
-    WriteProcessMemory(GetCurrentProcess(), (char*)adr_time,
-        (void*)jump_time, 6, &written);
-
-    //void* retaddr = _ReturnAddress();
-    /*if (time_collect)
-        add_addr(_ReturnAddress());*/
-
-    /*if (!time_stage_find && ((retval - last_call) > 10000))
-    {
-        last_call = retval;
-        char s[50];
-        sprintf(s, "Found %d addresses", addresses.size());
-        //sendChat(s, 0);
-        MessageBox(0, s, "timeGetTime", 0);
-    }*/
-
-    /*if (time_stage_find && !thread_begun)
-    {
-        thread_begun = true;
-        _beginthread(time_find, 0, 0);
-    }*/
-
-    /*if (time_stage_find)
-        for (int i = left; i <= right; i++)
-            if (addresses[i] == _ReturnAddress())
-                retval *= 10;*/
-    //retval *= 10;
-    //li->QuadPart *= 10;
-
-    return retval;
-}
-
-void interceptTime()
-{
-    DWORD written;
-    HINSTANCE hinst = GetModuleHandle("win32.dll");
-    adr_time = (DWORD)GetProcAddress(hinst, "timeGetTime");
-
-    log("timeGetTime found at %X", adr_time);
-
-    jump_time[0] = 0x68;
-    *(DWORD*)(jump_time + 1) = (DWORD)&Intercept_timeGetTime;
-    jump_time[5] = 0xC3;
-
-    ReadProcessMemory(GetCurrentProcess(), (void*)adr_time,
-        (void*)old_time, 6, &written);
-
-    WriteProcessMemory(GetCurrentProcess(), (char*)adr_time,
-        (void*)jump_time, 6, &written);
-}
 
 int __stdcall Intercept_DrawTextA(HDC hdc, LPCSTR s, int c, LPRECT r, UINT format)
 {
@@ -926,95 +743,9 @@ void interceptTextOut()
     WriteProcessMemory(GetCurrentProcess(), (char*)adr_text,
         (void*)jump_text, 6, &written);
 }
+*/
 
-void thread_scroll(void*)
-{
-    float x = 10;
-    float y = 10;
-    float step = 0.02f;
-    DWORD d = 16;
-    Sleep(15000);
-    DWORD prev_time = timeGetTime();
-    while (true)
-    {
-        void* player = getCurrentPlayer();
-        if (player)
-        {
-            WorldPlayerBase__set_view_loc(player, x, y, 0);
-            x += step;
-            y += step;
-            if (x > 100)
-                x = 10;
-            if (y > 100)
-                y = 17;
-            while ((timeGetTime() - prev_time) < d)
-                ;
-            prev_time = timeGetTime();
-        }
-    }
-}
-
-long __stdcall my_ftol(float x, float y)
-{
-    return MAKELPARAM(x, y);
-}
-
-__declspec(naked) void onScroll() //0060BCFF
-{
-    __asm
-    {
-        push    ebx
-        push    ebp
-        mov     eax, [edi + 178h]
-        mov     ecx, [edi + 17Ch]
-        push    ecx
-        push    eax
-        call    my_ftol
-        mov     [esi + 12Eh], ax
-        shr     eax, 16
-        mov     ecx, 0060BD1Eh
-        jmp     ecx
-    }
-}
-
-__declspec(naked) void onScroll2() //0060BE1C
-{
-    __asm
-    {
-        movsx   ebx, word ptr [esi + 130h]
-        //inc     ebx
-        //inc     edx
-        //add ebx, 10
-        //add edx, 10
-        push    0060BE23h
-        ret
-    }
-}
-
-void __stdcall add_drs(char* name, int id)
-{
-    FILE* f = fopen("drs.txt", "at+");
-    fprintf(f, "%d,%s\n", id, name);
-    fclose(f);
-}
-
-__declspec(naked) void loadDRSHookT() //00542870
-{
-    __asm
-    {
-        push    ecx
-        mov     eax, [esp + 0Ch]
-        push    eax
-        mov     eax, [esp + 0Ch]
-        push    eax
-        call    add_drs
-        pop     ecx
-        sub     esp, 104h
-        mov     eax, 00542876h
-        jmp     eax
-    }
-}
-
+/*
 float old_val;
 float new_val;
 
@@ -1023,10 +754,7 @@ float glitched_res = 0;
 void __stdcall check_res()
 {
     if (old_val < new_val)
-        //__debugbreak();
-    {
         glitched_res += (new_val - old_val);
-    }
 }
 
 __declspec(naked) void repair_test() //005D0D59
@@ -1057,6 +785,7 @@ __declspec(naked) void repair_test() //005D0D59
         ret
     }
 }
+*/
 
 /*struct function_data
 {
@@ -1153,65 +882,6 @@ _no_control:
     }
 }*/
 
-#define MALLOC_GUARD 0x1000
-
-std::vector<void*> our_allocs;
-
-void* __cdecl malloc_with_guard(size_t size)
-{
-    size_t new_size = size + 2 * MALLOC_GUARD;
-    unsigned char* p = (unsigned char*)malloc(new_size);
-    our_allocs.push_back(p);
-    for (int i = 0; i < new_size; i++)
-        p[i] = rand() % 256;
-    return p + MALLOC_GUARD;
-}
-
-void* __cdecl new_calloc(size_t number, size_t size) //00632D33
-{
-    void* p = malloc(number * size);
-    memset(p, 0, number * size);
-    return p;
-}
-
-void* __cdecl new_malloc(size_t size) //0063328C
-{
-    return malloc_with_guard(size);
-}
-
-void* __cdecl new_new(size_t size) //00632B9D
-{
-    return malloc(size);
-}
-
-__declspec(naked) void __cdecl old_free(void*)
-{
-    __asm
-    {
-        push    ebp
-        mov     ebp, esp
-        push    ecx
-        push    esi
-        mov     eax, 00632CCFh
-        jmp     eax
-    }
-}
-
-void __cdecl new_delete_free(void* p) //00632B42, 00632CCA
-{
-    void* new_ptr = (char*)p - MALLOC_GUARD;
-    auto it = std::find(our_allocs.begin(), our_allocs.end(), new_ptr);
-    if (it != our_allocs.end())
-    {
-        our_allocs.erase(it);
-        free(new_ptr);
-    }
-    else
-    {
-        old_free(p);
-    }
-}
-
 __declspec(naked) void onStatusScreenCreate() //005E7EC0
 {
     __asm
@@ -1249,51 +919,16 @@ __declspec(naked) int new_check_multi_copies() //00428270
 //const char* savegame_path = "savegame\\test\\recs\\";
 const char* savegame_path = "savegame\\";
 
-void* shape = NULL;
-
 void* (__thiscall* TShape__TShape2)(void* this_, char* filename, int resource_file_id) =
     (void* (__thiscall*) (void*, char*, int))0x00542870;
 
 int (__thiscall* TShape__shape_draw)(void* this_, void* drawarea, int x, int y, int slpFrame, void* color_table) =
     (int (__thiscall*)(void*, void*, int, int, int, void*))0x005430C0;
 
-void* new_shape(char* filename, int resource_file_id)
-{
-    void* shape = malloc(0x1C);
-    return TShape__TShape2(shape, filename, resource_file_id);
-}
-
-void __stdcall shape_draw(int x, int y, void* draw_area)
-{
-    if (!shape)
-    {
-        shape = new_shape("", 50731);
-    }
-    TShape__shape_draw(shape, draw_area, x, y, 24, NULL);
-}
-
-__declspec(naked) void terrain_draw_test() //00610B24
-{
-    __asm
-    {
-        mov     ecx, [esi + 100h]
-        push    ecx
-        push    edx
-        push    eax
-        call    shape_draw
-
-        mov     ecx, esi
-        mov     eax, 00610BB0h
-        call    eax
-        mov     eax, 00610B2Bh
-        jmp     eax
-    }
-}
 
 #pragma optimize( "s", on )
 void setTestHook()
 {
-    //setHook((void*)0x00610B24, terrain_draw_test);
     //setHook((void*)0x0042C360, new_game_dev_mode);
     //setHook((void*)0x00428270, new_check_multi_copies);
     //writeDword(0x00659F80, 0x004B6120);
@@ -1308,39 +943,11 @@ void setTestHook()
 
     //writeByte(0x0042FAD2, 0xEB);
 
-    //malloc
-    /*srand(timeGetTime());
-
-    setHook((void*)0x00632B42, new_delete_free);
-    setHook((void*)0x00632CCA, new_delete_free);
-    setHook((void*)0x00632B9D, new_new);
-    setHook((void*)0x0063328C, new_malloc);
-    setHook((void*)0x00632D33, new_calloc);*/
-
-
     //setHook((void*)0x005D0D59, repair_test);
     //setHook((void*)0x00432DFF, onSync);
 
-    //setHook((void*)0x00542870, loadDRSHookT);
-    //timeGetTime
-    //interceptTime();
-    //interceptTextOut();
-
-    //setHook((void*)0x0060BCFF, onScroll);
-    //setHook((void*)0x0060BE1C, onScroll2);
-    //writeDword(0x0060BDD1, (DWORD)my_ftol_wr - 0x0060BDD5);
-
-    //_beginthread(thread_scroll, 0, 0);
-    //
-
     //RMS token count
     //setHook((void*)0x004E1D40, onRmsToken);
-    //
-    //setHook((void*)0x0063329E, malloc_hook);
-    //setHook((void*)0x00632D33, malloc2_hook);
-    //str = (char*) malloc (2000);
-
-    //setHook ((void*)0x5E02B8, &someText);
 
 #ifdef _DEBUG
     setHook((void*)0x005F54D2, triggerLogHook);

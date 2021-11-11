@@ -57,66 +57,12 @@ int last_x = 0;
 int last_y = 0;
 int last_obj = 0;
 
-extern void __stdcall pause_game();
-
-void __stdcall bug_test(int reg, int x, int y, UNIT* unit)
-{
-    int t = time(NULL);
-    if (reg == 0x500)
-    {
-        if (unit)
-        {
-            if (unit->ordinal != last_obj && t - last_t > 0)
-            {
-                last_t = t;
-                last_obj = unit->ordinal;
-                chat("Reached bug condition: obj=%d", unit->ordinal);
-                void* player = getCurrentPlayer();
-                WorldPlayerBase__unselect_object(player);
-                WorldPlayerBase__select_object(player, unit, 1);
-                WorldPlayerBase__set_view_loc(player, unit->x, unit->y, 0);
-                pause_game();
-            }
-        }
-        else
-        {
-            if (x != last_x && y != last_y && t - last_t > 0)
-            {
-                last_t = t;
-                last_x = x;
-                last_y = y;
-                chat("Reached bug condition: x=%d, y=%d", x, y);
-                void* player = getCurrentPlayer();
-                WorldPlayerBase__unselect_object(player);
-                WorldPlayerBase__set_view_loc(player, x, y, 0);
-                pause_game();
-            }
-        }
-    }
-}
-
 __declspec(naked) void onVooblyWidescreenBug1() //004A940B
 {
     __asm
     {
         and     eax, 3F00h
-        //
-        //push    ecx
-        //push    edx
-        //push    eax
-
-        //push    0
-        //push    ebp
-        //push    ebx
-        //push    eax
-        //call    bug_test
-        //pop     eax
-        //pop     edx
-        //pop     ecx
-        //
         cmp     eax, 500h
-        //mov     ecx, 004A9415h
-        //jmp     ecx
         push    004A9415h
         ret
     }
@@ -127,23 +73,7 @@ __declspec(naked) void onVooblyWidescreenBug2() //004BE13F
     __asm
     {
         and     edx, 3F00h
-        //
-        //push    ecx
-        //push    edx
-        //push    eax
-
-        //push    [ebp + 18h]
-        //push    0
-        //push    0
-        //push    edx
-        //call    bug_test
-        //pop     eax
-        //pop     edx
-        //pop     ecx
-        //
         cmp     edx, 500h
-        //mov     eax, 004BE14Bh
-        //jmp     eax
         push    004BE14Bh
         ret
     }
@@ -193,6 +123,46 @@ __declspec(naked) void onVooblyWidescreenBug4() //004290A3
     }
 }
 
+/*
+__declspec(naked) void onVooblyWidescreenBug5() //00502881
+{
+    __asm
+    {
+        mov     eax, 004B7450h
+        call    eax
+        mov     eax, [esp + 1Ch]
+        //
+        mov     eax, 1280
+        mov     ecx, [esp + 20h]
+        mov     ecx, 1200
+        cmp     eax, 1280
+        jge     rec_ui_large
+        cmp     eax, 1024
+        jge     rec_ui_medium
+        mov     edi, 4
+        //lea     ebx, [ecx - 166]
+        mov     ebx, 24Bh
+
+rec_ui_finish:
+        mov     eax, 00502887h
+        mov     ecx, [esi + 1188h]
+        jmp     eax
+
+rec_ui_large:
+        mov     edi, 18h
+        //lea     ebx, [ecx - 324]
+        mov     ebx, 320h
+        jmp     rec_ui_finish
+
+rec_ui_medium:
+        mov     edi, 0Fh
+        //lea     ebx, [ecx - 181]
+        mov     ebx, 1B2h
+        jmp     rec_ui_finish
+    }
+}
+*/
+
 __declspec(naked) void onVooblyFixTechTree()
 {
     __asm
@@ -201,14 +171,6 @@ __declspec(naked) void onVooblyFixTechTree()
         mov     eax, 005068C2h
         jmp     eax
     }
-}
-
-void __stdcall temp_test_(int a)
-{
-    char s[0x10];
-    sprintf(s, "%d", a);
-    MessageBox(0, s, "Test", 0);
-    exit(0);
 }
 
 __declspec(naked) void onVooblyMirrorRandomTechTree() //0051834E
@@ -234,7 +196,7 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
     g_pVoobly->Log(USERPATCH_VERSION);
 
     // Write 3.1 exe version string    
-    g_pVoobly->Write(0x689BA4, "332E31");
+    g_pVoobly->Write(0x689BA4, "332E32");
 
     if (strstr(config.VooblyModDirPath, "Data Patch"))
     {
@@ -242,65 +204,22 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
         dataPatch = true;
         //setTerrainGenHooks();
         setSaveGameVerHooks(true);
+
+        writeByte(0x00557DD6, 53);   //gungan foundation: 53
     }
     else if (strstr(config.VooblyModDirPath, "Expanding Fronts"))
     {
         expanding_fronts = true;
         setSaveGameVerHooks(false);
         g_pVoobly->Log("Running in EF mode");
+
+        writeByte(0x00557DD6, 53);   //gungan foundation: 53
     }
     else
     {
         setSaveGameVerHooks(false);
         g_pVoobly->Log("Data patch is OFF");
     }
-
-    //setTerrainGenHooks();
-
-    // Write 2.2 exe version string    
-    /*g_pVoobly->Write(0x689BA4, "322E32");
-
-    setFileNameHooks(false);
-    if (strstr(config.VooblyModDirPath, "Data Patch"))
-    {
-        g_pVoobly->Log("Data patch is ON");
-        dataPatch = true;
-        setTerrainGenHooks();
-        setSaveGameVerHooks(true);
-    }
-    else
-    {
-        setSaveGameVerHooks(false);
-        g_pVoobly->Log("Data patch is OFF");
-    }
-
-    //
-    setFlareHooks();
-    //
-
-    setVotePanelHooks();
-    setGameSpeedHooks();
-    setTimelineHooks();
-    setScrollHooks();
-    setTechUpColorHooks();
-    setWndProcHooks();
-    setRecHooks();
-    setElevationHooks();
-    setRecBrowseHooks();
-    setNetworkHooks();
-    setHotkeyJumpHooks();
-    setRecordRestoreHooks();
-    setMouseOverrideHooks();
-
-    //setTerrainGenHooks_v2();
-
-    //UI bar update
-    g_pVoobly->Write(0x005DDBA4, 100);
-    g_pVoobly->Write(0x005DDB73, "9090");
-    g_pVoobly->Write(0x005DDB7B, 100);
-
-    //chat display time
-    g_pVoobly->Write(0x004CCAD0, 15000);*/
 
     initialSetup();
 
@@ -318,6 +237,7 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
     //voobly various widescreen bugs
     g_pVoobly->WriteJump(0x0046A91A, onVooblyWidescreenBug3);
     g_pVoobly->WriteJump(0x004290A3, onVooblyWidescreenBug4);
+    //g_pVoobly->WriteJump(0x00502848, onVooblyWidescreenBug5);
     //voobly tech tree bug
     writeDword(0x004FA41C, (DWORD)onVooblyFixTechTree - 0x004FA420);
     writeDword(0x004FBB6F, (DWORD)onVooblyFixTechTree - 0x004FBB73);
@@ -406,8 +326,8 @@ bool CUserPatch::OnChatMessage(const char *text)
         wd.update_cs();
         chat("CS=%u", wd.get_cs());
         return true;
-    }*/
-
+    }
+    */
     return false;
 }
 #endif

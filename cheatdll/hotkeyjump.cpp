@@ -1,7 +1,18 @@
 #include "stdafx.h"
 
-bool(__thiscall* unit_isPowered)(void *this_, int unk) =
-    (bool(__thiscall*) (void*, int))0x0054BDA0;
+//bool(__thiscall* unit_isPowered)(void *this_, int unk) =
+//    (bool(__thiscall*) (void*, int))0x0054BDA0;
+
+__declspec(naked) bool __fastcall is_unit_powered(void* unit)
+{
+    __asm
+    {
+        push    1
+        mov     eax, [ecx]
+        call    dword ptr [eax + 54h]
+        ret
+    }
+}
 
 void* __stdcall findUnit(void* this_, __int16 id, void* begin, __int16 unk)
 {
@@ -30,7 +41,7 @@ void* __stdcall findUnit(void* this_, __int16 id, void* begin, __int16 unk)
         if (current)
             do
             {
-                if (current && unit_isPowered(current, 1))
+                if (current && is_unit_powered(current))
                     break;
                 else
                     current = WorldPlayer__find_obj(this_, id, current, unk);
