@@ -131,9 +131,9 @@ void __stdcall sendChat(char* s, int p)
         mov     eax, p
         push    0
         push    0
-        push    eax            //player
-        push    edx            //str
-        push    0            //int
+        push    eax     //player
+        push    edx     //str
+        push    0       //int
         mov     eax, 0042D5E0h
         call    eax
     }

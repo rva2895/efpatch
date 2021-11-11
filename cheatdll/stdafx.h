@@ -35,3 +35,5 @@
 #include "log.h"
 
 #define ZLIB_WINAPI
+
+//#define CHEATDLL_NOLOG

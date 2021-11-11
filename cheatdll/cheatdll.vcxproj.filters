@@ -426,6 +426,18 @@
     <ClInclude Include="commandbuttons.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
+    <ClInclude Include="rge_communications_speed.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="rge_communications_queue.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="tchat.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="patroldelay.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -802,6 +814,18 @@
     </ClCompile>
     <ClCompile Include="commandbuttons.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="rge_communications_speed.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="rge_communications_queue.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="tchat.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="patroldelay.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

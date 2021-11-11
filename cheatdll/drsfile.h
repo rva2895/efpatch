@@ -1,7 +1,5 @@
 #pragma once
 
-#include "stdafx.h"
-
 #define DRS_BIN 0x62696E61
 #define DRS_SLP 0x736C7020
 
@@ -19,6 +17,8 @@ struct DRS_tableInfo
     char ext[4];
     long tableOffset;
     long nFiles;
+
+    int capacity;
 };
 
 struct DRS_tableEntry
@@ -26,6 +26,8 @@ struct DRS_tableEntry
     long id;
     long offset;
     long size;
+
+    void* data;
 };
 
 class DRS

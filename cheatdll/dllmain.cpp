@@ -100,6 +100,9 @@
 #include "techtree.h"
 #include "dataload.h"
 #include "commandbuttons.h"
+#include "rge_communications_speed.h"
+#include "tchat.h"
+#include "patroldelay.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -201,12 +204,6 @@ void setHooksCC()
         setWndModeHooks();
 #endif
 
-#ifndef TARGET_VOOBLY
-#ifndef _CHEATDLL_CC
-    setAdvCheatHooks();
-#endif
-#endif
-
     if (cd.useAltCivLetter)
         setAltCivLetter();
 
@@ -280,9 +277,9 @@ void setHooksCC()
     setRecHooks();
     setHotkeyJumpHooks();
 
-//#ifdef TARGET_VOOBLY
+#ifdef TARGET_VOOBLY
     setRecBrowseHooks(cd.gameVersion);
-//#endif
+#endif
     setElevationHooks();
 
     setNetworkHooks();
@@ -360,6 +357,10 @@ void setHooksCC()
     //remove high graphics fambaa ring
     writeByte(0x0061F4A4, 0xEB);
 
+    setRGECommunicationsSpeedHooks();
+    setTChatHooks();
+    setPatrolDelayHooks();
+
     //function hook!
     //setFunctionListHooks();
 }
@@ -375,12 +376,14 @@ const char efMenubk[] = "stream\\ef_menu_skb.mp3";
 #pragma optimize( "s", on )
 void setHooksEF()
 {
+    log("setHooksEF() started");
+
     //filename hooks
     writeDword(0x0042E0CE, (DWORD)efShadow);
     writeDword(0x00609CEB, (DWORD)efBlendomatic);
     writeDword(0x00609ABA, (DWORD)efICM);
 
-    log("setHooksEF() started");
+    setAdvCheatHooks();
 
     setLangDllHooks();
 
@@ -469,6 +472,13 @@ void setHooksEF()
 
     setTechTreeHooks();
     setDataLoadHooks();
+
+    //sc1 -> sc2
+    writeByte(0x00690C96, 0x32);
+    writeByte(0x00690CAB, 0x32);
+    writeByte(0x00690CBF, 0x32);
+    writeByte(0x00690CBF, 0x32);
+    writeByte(0x00692018, 0x32);
 
     log("setHooks() finished");
 }
@@ -582,6 +592,8 @@ void* new_memory_pages;
 extern bool expanding_fronts;
 #endif
 
+const char x1_dat_file[] = "data\\genie_x1_p1.dat";
+
 void initialSetup()
 {
 #ifdef TARGET_VOOBLY
@@ -595,7 +607,7 @@ void initialSetup()
 
     log("Notice: running in Voobly mode");
 
-    install_legacy_patch();
+    //install_legacy_patch();
 #endif
 
     new_memory_pages = VirtualAlloc(0, 0x1000, MEM_COMMIT, PAGE_READWRITE);
@@ -628,6 +640,10 @@ void initialSetup()
 #endif
         setHooksCC();
 
+#ifndef TARGET_VOOBLY
+        writeDword(0x0048F0E5, (DWORD)x1_dat_file);
+#endif
+
         //updateVersionCC();
         break;
     case VER_EF:
@@ -637,6 +653,7 @@ void initialSetup()
         setHooksEF();
 
         updateVersionEF();
+
         break;
     default:
         break;

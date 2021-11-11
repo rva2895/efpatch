@@ -122,6 +122,7 @@ void rmsNameHookUnload()
 
 void findFiles()
 {
+    log("Listing RMS files...");
     filenames = 0;
     nFiles = 0;
     WIN32_FIND_DATA fd;
@@ -150,7 +151,7 @@ void findFiles()
             log("Finished listing files");
         FindClose(hFile);
     }
-    log("Found %d .rms files", nFiles);
+    log("Found %d RMS files", nFiles);
 }
 
 #pragma optimize( "s", on )

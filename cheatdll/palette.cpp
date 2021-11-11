@@ -195,7 +195,7 @@ void slp_optimize_thread(void* p)
         if (slp_interfac(id))
         {
             SLP slp;
-            log("Processing %s...", (*slp_parallel)[i].c_str());
+            //log("Processing %s...", (*slp_parallel)[i].c_str());
             FILE* g = fopen((*slp_parallel)[i].c_str(), "rb");
             fseek(g, 0, SEEK_END);
             int size = ftell(g);
@@ -234,7 +234,7 @@ unsigned int getAffinityCount()
 
 void patch_drs_palette(const char* filename, const char* main_dir)
 {
-    log("Loading DRS...");
+    log("Loading %s...", filename);
     char err[0x100];
     DRS* drs;
     drs = new DRS();
@@ -306,8 +306,6 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     ///
     delete slp_parallel;
 
-    log("SLP optimize threads terminated, creating DRS...");
-
     drs = new DRS();
     char newfilename[MAX_PATH + 1];
     strcpy(newfilename, filename);
@@ -316,6 +314,8 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     SetCurrentDirectory(main_dir);
     SetCurrentDirectory("data");
     drs->setFileName(newfilename);
+
+    log("SLP optimize threads terminated, creating %s...", newfilename);
     //
     char* wparam_newfilename = (char*)malloc(strlen(newfilename) + 1);
     strcpy(wparam_newfilename, newfilename);
@@ -323,7 +323,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     //
     SetCurrentDirectory(getenv("temp"));
     SetCurrentDirectory(filename);
-    log("DRS header set up, adding files...");
+    //log("DRS header set up, adding files...");
     hFile = FindFirstFile("*.*", &fd);
     std::vector<std::string> files;
     //
@@ -449,6 +449,8 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
     return true;
 }
 
+const char creating_new_p1_drs[] = ", creating new p1 DRS files";
+
 void installPalette()
 {
     FILE* f = fopen("data\\palette", "rb");
@@ -457,16 +459,19 @@ void installPalette()
     {
         fread(&ver, sizeof(char), 1, f);
         fclose(f);
-        if (ver == '3')
+        if (ver == '4')
         {
             log("Palette already created");
             return;
         }
+        else
+            log("Wrong palette version%s", creating_new_p1_drs);
     }
-    log("Palette not found, creating DRS...");
+    else
+        log("Palette not found%s", creating_new_p1_drs);
     DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_PALETTE), NULL, PaletteDlgProc);
     f = fopen("data\\palette", "wb");
-    ver = '3';
+    ver = '4';
     fwrite(&ver, sizeof(char), 1, f);
     fclose(f);
 }

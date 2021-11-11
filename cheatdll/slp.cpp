@@ -618,11 +618,8 @@ bool compare_edges(rowedge** edge, int height, int frame)
 
 unsigned char* SLP::optimize(int* size, bool allow_fill)
 {
-    void* new_slp;
-    if (allow_fill)
-        new_slp = malloc(*size * 4);
-    else
-        new_slp = malloc(*size * 2);
+    void* new_slp = malloc(*size * 8);
+    memset(new_slp, 0, *size * 8);
 
     unsigned char* ptr = (unsigned char*)new_slp;
 
@@ -812,6 +809,10 @@ unsigned char* SLP::optimize(int* size, bool allow_fill)
             *ptr = 0x0F;    ptr++;
         }
     }
+    //align
+    if ((unsigned long)ptr % 4)
+        ptr += 4 - (unsigned long)ptr % 4;
+
     unsigned char* prev_frame_start_ptr = 0;
     unsigned char* frame_start_ptr = 0;
     //print outline offsets

@@ -595,7 +595,7 @@ void __stdcall check_action(unsigned int* action)
             if (f)
             {
                 //chat("Action found ")
-                fprintf(f, "WT=%d, act=%X, x=%.4f, y=%.4f\n", get_gametime2(), action, *((float*)action + 8), *((float*)action + 9));
+                fprintf(f, "WT=%d, act=%p, x=%.4f, y=%.4f\n", get_gametime2(), action, *((float*)action + 8), *((float*)action + 9));
                 fclose(f);
             }
         }

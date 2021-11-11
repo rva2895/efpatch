@@ -5,19 +5,19 @@
 #include "drsfile.h"
 #include "slp.h"
 
-#define RESOLUTION_TOOL_VERSION 100005
+#define RESOLUTION_TOOL_VERSION 100006
 
 void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
 {
     int size;
     void* data;
-    data = x2->getFile(id, &size);
+    data = x2 ? x2->getFile(id, &size) : NULL;
     if (!data)
     {
-        data = x1->getFile(id, &size);
+        data = x1 ? x1->getFile(id, &size) : NULL;
         if (!data)
         {
-            data = x0->getFile(id, &size);
+            data = x0 ? x0->getFile(id, &size) : NULL;
             if (!data)
             {
                 char err[0x100];
@@ -237,7 +237,7 @@ void patchRect(int x,
     int* size, //returns the new size of the DRS item
     void* drsRects)
 {
-    log("Resolution: patching rect \"%s\", params: %d, %d, %d, %d",
+    log("Patching rect \"%s\", params: %d, %d, %d, %d",
         itemName, addX, addY, addW, addH);
 
     char* endbuf = (char*)malloc(4096);
@@ -320,8 +320,6 @@ void patchRect(int x,
     }
 
     free(endbuf);
-
-    log("Resolution: rect patching done");
 }
 
 void patchResRects(int x, int y, DRS* drs)
@@ -423,26 +421,57 @@ void placeSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool
 void patchResolution(int x, int y, DRS* drs)
 {
     log("Resolution patch started, %dx%d", x, y);
-    log("Resolution: patching rects...");
+    log("Patching rects...");
 
     patchResRects(x, y, drs);
 
-    log("Resolution: updating resolution id");
+    log("Updating resolution id");
     char resStr[20];
     sprintf(resStr, "%dx%d", x, y);
     drs->addFile(resStr, strlen(resStr) + 1, RESOLUTION_TOOL_VERSION, DRS_BIN); //bina
 
-    log("Resolution: stretching SLPs...");
+    log("Stretching SLPs...");
 
-#ifdef _CHEATDLL_CC
-    DRS x0; x0.loadDRS("data\\INTERFAC.DRS");
-    DRS x1; x1.loadDRS("data\\interfac_x1.drs");
-#else
+//#ifdef _CHEATDLL_CC
+    DRS x0_cc; x0_cc.loadDRS("data\\INTERFAC.DRS");
+    DRS x1_cc; x1_cc.loadDRS("data\\interfac_x1.drs");
+//#else
     DRS x0; x0.loadDRS("data\\interfac_p1.DRS");
     DRS x1; x1.loadDRS("data\\interfac_x1_p1.drs");
-#endif
+//#endif
     DRS x2; x2.loadDRS("data\\interfac_x2.drs");
     DRS wide_x2; wide_x2.loadDRS("data\\widescrn_x2.drs");
+
+    //tech tree
+    parseSLP(&x0, &x1, &x2, drs, 50341, x, y);
+
+    if (y >= 1024)
+    {
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51141, x, y);
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51142, x, y);
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51143, x, y);
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51144, x, y);
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51145, x, y);
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51146, x, y);
+
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51147, x, y);
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51148, x, y);
+    }
+    else if (y >= 768)
+    {
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51121, x, y);
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51122, x, y);
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51123, x, y);
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51124, x, y);
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51125, x, y);
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51126, x, y);
+
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51127, x, y);
+        parseSLP(&x0_cc, &x1_cc, NULL, drs, 51128, x, y);
+    }
+    drs->writeDRS();
+
+    drs->setFileName("data\\wide_p1.drs");
 
     //50032 - edit small
     //50033 - edit medium
@@ -471,9 +500,6 @@ void patchResolution(int x, int y, DRS* drs)
         placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50101, false);
         placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50102, false);
     }
-
-    //tech tree
-    parseSLP(&x0, &x1, &x2, drs, 50341, x, y);
 
     if (y >= 1024)
     {
@@ -513,6 +539,7 @@ void patchResolution(int x, int y, DRS* drs)
         parseSLP(&x0, &x1, &x2, drs, 51132, x, y);
 #endif
     }
+
     drs->writeDRS();
 
     log("Resolution patch successfull");
@@ -522,9 +549,9 @@ void resolutionTool(int x, int y)
 {
     int size;
     DRS drs;
-    drs.setFileName("data\\wide_p1.drs");
+    drs.setFileName("data\\wide.drs");
     DRS* drs2 = new DRS;
-    drs2->loadDRS("data\\wide_p1.drs");
+    drs2->loadDRS("data\\wide.drs");
     void* drsResStr = drs2->getFile(RESOLUTION_TOOL_VERSION, &size);
     delete drs2;
     if (drsResStr)

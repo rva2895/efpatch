@@ -59,7 +59,7 @@ int __stdcall getCurrentPlayerId()
 
 bool __stdcall checkCheats(char* s2)
 {
-    char dummy[100];
+    char dummy[0x80];
     char s[0x200];
     strncpy(s, s2, 0x1FF);
     s[0x1FF] = '\0';
@@ -385,15 +385,17 @@ bool __stdcall checkCheats(char* s2)
     }*/
     if (strstr(s, "/SN"))
     {
-        char name[0x100];
-        sscanf(s, "%s %s", dummy, name);
+        char name[0x80];
+        name[0] = '\0';
+        sscanf_s(s, "%s %s", dummy, (unsigned)_countof(dummy), name, (unsigned)_countof(name));
         get_sn_with_alias(getCurrentPlayer(), name);
         return true;
     }
     if (strstr(s, "/GOAL"))
     {
-        char name[0x100];
-        sscanf(s, "%s %s", dummy, name);
+        char name[0x80];
+        name[0] = '\0';
+        sscanf_s(s, "%s %s", dummy, (unsigned)_countof(dummy), name, (unsigned)_countof(name));
         get_goal_with_alias(getCurrentPlayer(), name);
         return true;
     }
@@ -457,6 +459,9 @@ __declspec(naked) void checkPowerResource() //0054BE05
     __asm
     {
         mov     esi, [esi + 18h]
+        mov     ecx, [esi + 0A8h]
+        cmp     ecx, 211
+        jle     not_always_powered
         mov     ecx, [esi + 0ACh]
         fld     dword ptr [ecx + 211 * 4]
         mov     ecx, eax
@@ -465,6 +470,7 @@ __declspec(naked) void checkPowerResource() //0054BE05
         test    ah, 41h
         mov     eax, ecx
         jz      always_powered
+not_always_powered:
         shl     edi, 5
         mov     edx, 0054BE0Bh
         jmp     edx

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "terrain_gen.h"
 
 __declspec(naked) void onChangeTerrain() //00557C1A
@@ -26,6 +25,8 @@ _terrain_end:
         jmp     eax
     }
 }
+
+//bool terrain_changed = false;
 
 __declspec(naked) void onChangeTerrain2() //00557E45
 {
@@ -63,10 +64,42 @@ terrain_may_not_change:
 terrain_change:
         mov     [eax], dl
         mov     esi, [esp + 10h]
+        //mov     terrain_changed, 1
         mov     edi, 00557E4Bh
         jmp     edi
     }
 }
+
+/*
+__declspec(naked) void set_terrain_pre() //00557E09
+{
+    __asm
+    {
+        mov     edi, [esp + 10h]
+        push    ebp
+        mov     terrain_changed, 0
+        mov     eax, 00557E0Eh
+        jmp     eax
+    }
+}
+
+__declspec(naked) void check_terrain_changed() //00557E74
+{
+    __asm
+    {
+        mov     ecx, [esp + 24h]
+        pop     ebp
+        mov     dl, terrain_changed
+        test    dl, dl
+        jz      skip_set_map
+        mov     edx, 00557E79h
+        jmp     edx
+skip_set_map:
+        mov     edx, 00557E99h
+        jmp     edx
+    }
+}
+*/
 
 extern int current_loaded_version;
 
@@ -198,9 +231,13 @@ farm_dead3:
 
 void setTerrainGenHooks(int ver)
 {
-    //writeByte(0x00557DD6, 53);   //gungan foundation: 53
+#ifndef TARGET_VOOBLY
+    writeByte(0x00557DD6, 53);   //gungan foundation: 53
+#endif
 
     setHook((void*)0x00557E45, onChangeTerrain2);
+    //setHook((void*)0x00557E09, set_terrain_pre);
+    //setHook((void*)0x00557E74, check_terrain_changed);
     if (ver == VER_EF)
     {
         setHook((void*)0x00557DAA, onFarmTerrain);
