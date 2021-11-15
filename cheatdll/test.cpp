@@ -387,10 +387,11 @@ extern int max_worldtime;
 int __stdcall onChat_2(int player_id, char* targets, char* s)
 {
     UNREFERENCED_PARAMETER(targets);
+    UNREFERENCED_PARAMETER(player_id);
     
     if (!strcmp(s, "/version"))
     {
-        sendChat("Compile time: " __DATE__ ", " __TIME__, player_id);
+        sendChat(EFPATCH_VERSION, -1);
         return 1;
     }
     /*
@@ -983,6 +984,8 @@ void setTestHook()
     fix_function_call(0x0059B947, (DWORD)nullsub_26); //Entering task
     fix_function_call(0x0059B9D0, (DWORD)nullsub_26); //Entering task
     fix_function_call(0x0059BACB, (DWORD)nullsub_26); //Entering task
+
+    fix_function_call(0x004336D8, (DWORD)nullsub_26); //Starting turn
     //
     writeByte(0x004428F6, 0x90);
     writeDword(0x004428F7, 0x90909090);

@@ -438,6 +438,9 @@
     <ClInclude Include="patroldelay.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
+    <ClInclude Include="playeroptions.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -825,6 +828,9 @@
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
     <ClCompile Include="patroldelay.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="playeroptions.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
   </ItemGroup>

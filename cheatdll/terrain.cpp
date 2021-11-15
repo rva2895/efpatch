@@ -133,6 +133,10 @@ __declspec(naked) void snow_terrain_fix_1() //005CBE92
         jz      snow1
         cmp     dl, 195
         jz      snow1
+        cmp     dl, 208
+        jz      snow1
+        cmp     dl, 209
+        jz      snow1
         cmp     dl, 215
         jb      not_snow1
         cmp     dl, 217
@@ -167,6 +171,10 @@ __declspec(naked) void snow_terrain_fix_2() //005CBEAF
         cmp     dl, 135
         jz      snow2
         cmp     dl, 195
+        jz      snow2
+        cmp     dl, 208
+        jz      snow2
+        cmp     dl, 209
         jz      snow2
         cmp     dl, 215
         jb      not_snow2
@@ -203,6 +211,10 @@ __declspec(naked) void snow_terrain_fix_3() //005CBF42
         jz      snow3
         cmp     bl, 195
         jz      snow3
+        cmp     bl, 208
+        jz      snow3
+        cmp     bl, 209
+        jz      snow3
         cmp     bl, 215
         jb      not_snow3
         cmp     bl, 217
@@ -237,6 +249,10 @@ __declspec(naked) void snow_terrain_fix_4() //005CBF5D
         cmp     dl, 135
         jz      snow4
         cmp     dl, 195
+        jz      snow4
+        cmp     dl, 208
+        jz      snow4
+        cmp     dl, 209
         jz      snow4
         cmp     dl, 215
         jb      not_snow4
@@ -273,6 +289,10 @@ __declspec(naked) void snow_terrain_fix_5() //005CBF7A
         jz      snow5
         cmp     dl, 195
         jz      snow5
+        cmp     dl, 208
+        jz      snow5
+        cmp     dl, 209
+        jz      snow5
         cmp     dl, 215
         jb      not_snow5
         cmp     dl, 217
@@ -307,6 +327,10 @@ __declspec(naked) void snow_terrain_fix_6() //005CC011
         cmp     bl, 135
         jz      snow6
         cmp     bl, 195
+        jz      snow6
+        cmp     bl, 208
+        jz      snow6
+        cmp     bl, 209
         jz      snow6
         cmp     bl, 215
         jb      not_snow6
@@ -343,6 +367,10 @@ __declspec(naked) void snow_terrain_fix_7() //005CC02C
         jz      snow7
         cmp     dl, 195
         jz      snow7
+        cmp     dl, 208
+        jz      snow7
+        cmp     dl, 209
+        jz      snow7
         cmp     dl, 215
         jb      not_snow7
         cmp     dl, 217
@@ -378,6 +406,10 @@ __declspec(naked) void snow_terrain_fix_8() //005CC049
         jz      snow8
         cmp     al, 195
         jz      snow8
+        cmp     al, 208
+        jz      snow8
+        cmp     al, 209
+        jz      snow8
         cmp     al, 215
         jb      not_snow8
         cmp     al, 217
@@ -412,6 +444,10 @@ __declspec(naked) void snow_terrain_fix_9() //005CC095
         cmp     dl, 135
         jz      snow9
         cmp     dl, 195
+        jz      snow9
+        cmp     dl, 208
+        jz      snow9
+        cmp     dl, 209
         jz      snow9
         cmp     dl, 215
         jb      not_snow9
@@ -450,6 +486,10 @@ __declspec(naked) void snow_terrain_fix_10() //004E4519
         jz      snow10
         cmp     bl, 195
         jz      snow10
+        cmp     bl, 208
+        jz      snow10
+        cmp     bl, 209
+        jz      snow10
         cmp     bl, 215
         jb      not_snow10
         cmp     bl, 217
@@ -485,6 +525,10 @@ __declspec(naked) void snow_terrain_fix_11() //004E6209
         jz      snow11
         cmp     bl, 195
         jz      snow11
+        cmp     bl, 208
+        jz      snow11
+        cmp     bl, 209
+        jz      snow11
         cmp     bl, 215
         jb      not_snow11
         cmp     bl, 217
@@ -519,6 +563,10 @@ __declspec(naked) void snow_terrain_fix_12() //00554995
         cmp     cl, 135
         jz      snow12
         cmp     cl, 195
+        jz      snow12
+        cmp     cl, 208
+        jz      snow12
+        cmp     cl, 209
         jz      snow12
         cmp     cl, 215
         jb      not_snow12

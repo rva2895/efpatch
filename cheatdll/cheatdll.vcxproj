@@ -371,6 +371,7 @@
     <ClInclude Include="palette.h" />
     <ClInclude Include="patrol.h" />
     <ClInclude Include="patroldelay.h" />
+    <ClInclude Include="playeroptions.h" />
     <ClInclude Include="population.h" />
     <ClInclude Include="processunit.h" />
     <ClInclude Include="radius_effect.h" />
@@ -522,6 +523,7 @@
     <ClCompile Include="palette.cpp" />
     <ClCompile Include="patrol.cpp" />
     <ClCompile Include="patroldelay.cpp" />
+    <ClCompile Include="playeroptions.cpp" />
     <ClCompile Include="population.cpp" />
     <ClCompile Include="processunit.cpp" />
     <ClCompile Include="radius_effect.cpp" />

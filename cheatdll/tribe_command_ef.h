@@ -28,3 +28,4 @@ void make_cheat_by_id_with_position(void* player, int ef_cheat_id, float x, floa
 #define EF_CHEAT_UNLIMITED_POWER 0x3E
 #define EF_CHEAT_KOELSCH 0x3F
 #define EF_CHEAT_JOIN_US_OR_DIE 0x40
+#define EF_CHEAT_DEPLOY_THE_GARRISON 0x41

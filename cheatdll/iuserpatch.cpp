@@ -258,10 +258,10 @@ extern int __fastcall get_gametime2();
 
 bool CUserPatch::OnChatMessage(const char *text)
 {
-    if (!strcmp(text, "/upversion"))
+    if (!strcmp(text, "/version"))
     {
         char* str = dataPatch ? "ON" : "OFF";
-        g_pVoobly->ChatMessage("UserPatch", "%s, Data patch: %s", USERPATCH_VERSION, str);
+        g_pVoobly->ChatMessage("EXE Patch", "%s, Data patch: %s", USERPATCH_VERSION, str);
         return true;
     }
     /*

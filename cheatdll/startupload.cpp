@@ -215,6 +215,7 @@ void setStartupLoadHooks(int ver)
     {
         sz_ga1[3] = '2';
         sz_mg1[3] = '2';
+        sz_sc1[3] = '2';
     }
     setHook((void*)0x005E5652, hookLoadSave);
     setHook((void*)0x005E5636, hookLoadScen);

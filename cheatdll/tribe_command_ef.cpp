@@ -82,6 +82,7 @@ void __stdcall ef_do_command(void* this_, void* order)
             case EF_CHEAT_HELP_ME_OBIWAN: //tech cheats
             case EF_CHEAT_NOW_THIS_IS_PODRACING:
             case EF_CHEAT_UNLIMITED_POWER:
+            case EF_CHEAT_DEPLOY_THE_GARRISON:
                 World__cheat(*((void**)this_ + 1), player_id, ef_cheat_id + 0x64);
                 break;
             case EF_CHEAT_ULTIMATE_POWER_IN_THE_UNIVERSE: //create unit cheats
@@ -194,6 +195,8 @@ int __fastcall get_unit_or_tech_id(int cheat_id) //returns positive if unit, neg
         return -799;
     case EF_CHEAT_UNLIMITED_POWER:
         return -810;
+    case EF_CHEAT_DEPLOY_THE_GARRISON:
+        return -961;
     case EF_CHEAT_ULTIMATE_POWER_IN_THE_UNIVERSE: //unit cheats
         return 1802;
     case EF_CHEAT_SIMONSAYS:

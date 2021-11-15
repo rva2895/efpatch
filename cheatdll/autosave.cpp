@@ -26,7 +26,7 @@ void __stdcall editor_exit()
     }
 }
 
-const char autosave_name[] = "autosave.sc1";
+char autosave_name[] = "autosave.sc1";
 
 __declspec(naked) void saveScen()
 {
@@ -46,7 +46,7 @@ void editor_autosave()
 {
     if (isEditor)
     {
-        log("Editor autosave: scenario -> autosave.sc1");
+        log("Editor autosave: scenario -> %s", autosave_name);
         saveScen();
         //paint_test();
     }
@@ -57,9 +57,11 @@ void editor_autosave()
     }
 }
 
-void setAutosaveHooks(int interval)
+void setAutosaveHooks(int version, int interval)
 {
     log("Editor autosave initialised, interval = %d seconds", interval);
     autosave_interval = interval * 1000;
     autosave = true;
+    if (version == VER_EF)
+        autosave_name[11] = '2';
 }
