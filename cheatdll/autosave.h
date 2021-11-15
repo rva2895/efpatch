@@ -5,4 +5,4 @@ void __stdcall editor_exit();
 
 void editor_autosave();
 
-void setAutosaveHooks(int);
+void setAutosaveHooks(int version, int interval);

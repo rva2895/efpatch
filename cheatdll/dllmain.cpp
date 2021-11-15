@@ -103,6 +103,7 @@
 #include "rge_communications_speed.h"
 #include "tchat.h"
 #include "patroldelay.h"
+#include "playeroptions.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -243,7 +244,7 @@ void setHooksCC()
 #endif
 
     if (cd.editorAutosave)
-        setAutosaveHooks(cd.editorAutosaveInterval);
+        setAutosaveHooks(cd.gameVersion, cd.editorAutosaveInterval);
 
 #ifndef TARGET_VOOBLY
     setDRSLoadHooks(cd.gameVersion, cd.widescrnEnabled);
@@ -361,6 +362,8 @@ void setHooksCC()
     setTChatHooks();
     setPatrolDelayHooks();
 
+    setPlayerOptionsHooks();
+
     //function hook!
     //setFunctionListHooks();
 }
@@ -477,8 +480,9 @@ void setHooksEF()
     writeByte(0x00690C96, 0x32);
     writeByte(0x00690CAB, 0x32);
     writeByte(0x00690CBF, 0x32);
-    writeByte(0x00690CBF, 0x32);
+    writeByte(0x006915D5, 0x32);
     writeByte(0x00692018, 0x32);
+    writeByte(0x00620A6C, 0x32);
 
     log("setHooks() finished");
 }

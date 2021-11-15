@@ -1,8 +1,5 @@
 #include "stdafx.h"
 
-//bool(__thiscall* unit_isPowered)(void *this_, int unk) =
-//    (bool(__thiscall*) (void*, int))0x0054BDA0;
-
 __declspec(naked) bool __fastcall is_unit_powered(void* unit)
 {
     __asm

@@ -236,6 +236,11 @@ bool __stdcall checkCheats(char* s2)
             make_cheat_by_id(getCurrentPlayer(), EF_CHEAT_UNLIMITED_POWER);
             return true;
         }
+        if (strstr(s, "DEPLOY THE GARRISON"))
+        {
+            make_cheat_by_id(getCurrentPlayer(), EF_CHEAT_DEPLOY_THE_GARRISON);
+            return true;
+        }
     }
     //debug commands
     /*if (strstr(s, "/TEST"))

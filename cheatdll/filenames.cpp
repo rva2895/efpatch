@@ -4,7 +4,7 @@
 #include "filenames.h"
 
 char recCC[] = "recorded game - %Y-%m-%d_%H-%M-%S.mg1";
-char rec_auto[] = "autorec.mg1";
+char rec_auto[] = "autoreplay.mg1";
 
 const char timeOnly[] = "%Y-%m-%d_%H-%M-%S";
 
