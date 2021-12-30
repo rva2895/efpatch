@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32002.261
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cheatdll", "cheatdll\cheatdll.vcxproj", "{C02AB7BB-4125-4DB8-954A-CA6079C8815D}"
 EndProject
@@ -23,6 +23,8 @@ Global
 		Release_cc_compatible|x64 = Release_cc_compatible|x64
 		Release_cc|Win32 = Release_cc|Win32
 		Release_cc|x64 = Release_cc|x64
+		Release_Voobly_EF|Win32 = Release_Voobly_EF|Win32
+		Release_Voobly_EF|x64 = Release_Voobly_EF|x64
 		Release_Voobly|Win32 = Release_Voobly|Win32
 		Release_Voobly|x64 = Release_Voobly|x64
 		Release|Win32 = Release|Win32
@@ -41,6 +43,9 @@ Global
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_cc|Win32.ActiveCfg = Release_cc|Win32
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_cc|Win32.Build.0 = Release_cc|Win32
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_cc|x64.ActiveCfg = Release_cc|Win32
+		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_Voobly_EF|Win32.ActiveCfg = Release_Voobly_EF|Win32
+		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_Voobly_EF|Win32.Build.0 = Release_Voobly_EF|Win32
+		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_Voobly_EF|x64.ActiveCfg = Release_Voobly_EF|Win32
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_Voobly|Win32.ActiveCfg = Release_Voobly|Win32
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_Voobly|Win32.Build.0 = Release_Voobly|Win32
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_Voobly|x64.ActiveCfg = Release_Voobly|Win32
@@ -63,6 +68,8 @@ Global
 		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_cc|Win32.Build.0 = Release|Win32
 		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_cc|x64.ActiveCfg = Release|x64
 		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_cc|x64.Build.0 = Release|x64
+		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_Voobly_EF|Win32.ActiveCfg = Release|Win32
+		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_Voobly_EF|x64.ActiveCfg = Release|x64
 		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_Voobly|Win32.ActiveCfg = Release|Win32
 		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_Voobly|x64.ActiveCfg = Release|x64
 		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release|Win32.ActiveCfg = Release|Win32
@@ -85,6 +92,10 @@ Global
 		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Release_cc|Win32.Build.0 = Release|Win32
 		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Release_cc|x64.ActiveCfg = Release|x64
 		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Release_cc|x64.Build.0 = Release|x64
+		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Release_Voobly_EF|Win32.ActiveCfg = Release_Voobly_EF|Win32
+		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Release_Voobly_EF|Win32.Build.0 = Release_Voobly_EF|Win32
+		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Release_Voobly_EF|x64.ActiveCfg = Release_Voobly_EF|x64
+		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Release_Voobly_EF|x64.Build.0 = Release_Voobly_EF|x64
 		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Release_Voobly|Win32.ActiveCfg = Release|Win32
 		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Release_Voobly|Win32.Build.0 = Release|Win32
 		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Release_Voobly|x64.ActiveCfg = Release|x64
@@ -109,6 +120,10 @@ Global
 		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release_cc|Win32.Build.0 = Release|Win32
 		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release_cc|x64.ActiveCfg = Release|x64
 		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release_cc|x64.Build.0 = Release|x64
+		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release_Voobly_EF|Win32.ActiveCfg = Release_Voobly_EF|Win32
+		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release_Voobly_EF|Win32.Build.0 = Release_Voobly_EF|Win32
+		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release_Voobly_EF|x64.ActiveCfg = Release_Voobly_EF|x64
+		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release_Voobly_EF|x64.Build.0 = Release_Voobly_EF|x64
 		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release_Voobly|Win32.ActiveCfg = Release|Win32
 		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release_Voobly|Win32.Build.0 = Release|Win32
 		{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}.Release_Voobly|x64.ActiveCfg = Release|x64
@@ -133,6 +148,10 @@ Global
 		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_cc|Win32.Build.0 = Release|Win32
 		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_cc|x64.ActiveCfg = Release|x64
 		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_cc|x64.Build.0 = Release|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_Voobly_EF|Win32.ActiveCfg = Release_Voobly_EF|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_Voobly_EF|Win32.Build.0 = Release_Voobly_EF|Win32
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_Voobly_EF|x64.ActiveCfg = Release_Voobly_EF|x64
+		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_Voobly_EF|x64.Build.0 = Release_Voobly_EF|x64
 		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_Voobly|Win32.ActiveCfg = Release|Win32
 		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_Voobly|Win32.Build.0 = Release|Win32
 		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_Voobly|x64.ActiveCfg = Release|x64
@@ -144,5 +163,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A073A573-D964-46D6-A721-BC01CB6903B0}
 	EndGlobalSection
 EndGlobal

@@ -133,6 +133,28 @@ loc_7EA9E9:
     }
 }
 
+__declspec(naked) void onDoCycleCallBufferTimeToUse() //00432E46
+{
+    __asm
+    {
+        mov     eax, 00447AF0h
+        call    eax //RGE_Communications_Speed::BufferTimeToUse(ulong)
+        mov     esi, [ebp + 15FCh]
+        test    eax, eax
+        jz      loc_5D2E9F
+        mov     cl, [esi + 124h]
+        mov     dl, [ebp + 10C8h]
+        test    cl, cl
+        jnz     loc_5D2E9F
+        xor     eax, eax
+
+loc_5D2E9F:
+        mov     ecx, 004336F8h
+        jmp     ecx
+    }
+}
+
+#pragma optimize( "s", on )
 void setRGECommunicationsSpeedHooks()
 {
     writeByte(0x00448129, 0xEB);
@@ -143,4 +165,20 @@ void setRGECommunicationsSpeedHooks()
 
     setHook((void*)0x00447B79, onBufferTimeToUse);
     setHook((void*)0x00448036, onAnalyzeGameSpeed);
+
+    //on evaluate player message
+    writeByte(0x0043589E, 0x90);
+    writeByte(0x004383EE, 0x90);
+    writeByte(0x004383FA, 8);
+
+    setHook((void*)0x00432E46, onDoCycleCallBufferTimeToUse);
+
+    //rge communications synchronize
+    writeByte(0x004494BA, 0x3C);
+
+    writeByte(0x00432D50, 4);
+    writeByte(0x00434D9B, 4);
+    writeByte(0x004350FD, 4);
+    writeByte(0x004332FC, 3);
 }
+#pragma optimize( "", on )

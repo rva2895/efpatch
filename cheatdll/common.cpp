@@ -198,6 +198,8 @@ __declspec(naked) void* __stdcall get_main_view()
     }
 }
 
+#pragma warning(push)
+#pragma warning(disable:4100)
 __declspec(naked) void __stdcall unit_change_ownership(UNIT* unit, void* new_owner)
 {
     __asm
@@ -221,6 +223,7 @@ __declspec(naked) void __stdcall kill_unit(UNIT* unit)
         retn    4
     }
 }
+#pragma warning(pop)
 
 __declspec(naked) void* __stdcall get_top_panel()
 {

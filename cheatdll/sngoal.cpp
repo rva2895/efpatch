@@ -41,7 +41,7 @@ bool __stdcall player_is_ai(void* player)
 void load_goal_sn_txt()
 {
     log("Loading goal list");
-    FILE* f = fopen("data\\goal.txt", "rt");
+    FILE* f = fopen(DATA_FOLDER_PREFIX_FROM_ROOT"goal.txt", "rt");
     if (f)
     {
         char name[0x100];
@@ -58,7 +58,7 @@ void load_goal_sn_txt()
         log("Warning: goal.txt not found, you cannot use aliases with /goal command");
 
     log("Loading sn list");
-    f = fopen("data\\sn.txt", "rt");
+    f = fopen(DATA_FOLDER_PREFIX_FROM_ROOT"sn.txt", "rt");
     if (f)
     {
         char name[0x100];

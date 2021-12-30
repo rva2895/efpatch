@@ -1,4 +1,4 @@
 #pragma once
 
-void setMapSizeHooks();
-void setMapSizeHooks_legacy();
+void setMapSizeHooks(int);
+void setMapSizeHooks_legacy(int);

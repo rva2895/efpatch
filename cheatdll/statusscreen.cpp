@@ -139,6 +139,8 @@ char* __fastcall get_full_string(char* txt)
     //return txt;
 }
 
+#pragma warning(push)
+#pragma warning(disable:4100)
 __declspec(naked) void __fastcall change_status_screen_using_this(const char* txt)
 {
     __asm
@@ -161,6 +163,7 @@ no_screen_this:
         ret
     }
 }
+#pragma warning(pop)
 
 const char creating_world[] = "Creating World ...";
 const char creating_base_world[] = "Creating BaseWorld ...";

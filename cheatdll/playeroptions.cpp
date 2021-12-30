@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "playeroptions.h"
 
+#define CURRENT_PLAYER_OPTION_LEVEL 0x0D //old: C, next: D
+
 __declspec(naked) void on_read_option() //004BF64D
 {
     __asm
@@ -22,7 +24,7 @@ __declspec(naked) void on_setup_option_1() //004BF23A
     __asm
     {
         mov     dword ptr [esi + 0Ch], 0Ah
-        mov     byte ptr [esi + 21h], 0Ch
+        mov     byte ptr [esi + 21h], CURRENT_PLAYER_OPTION_LEVEL
         mov     eax, 004BF241h
         jmp     eax
     }
@@ -33,7 +35,7 @@ __declspec(naked) void on_setup_option_2() //004BF996
     __asm
     {
         mov     dword ptr [ebp + 8], 6
-        mov     byte ptr [ebp + 21h], 0Ch
+        mov     byte ptr [ebp + 21h], CURRENT_PLAYER_OPTION_LEVEL
         mov     eax, 004BF99Dh
         jmp     eax
     }

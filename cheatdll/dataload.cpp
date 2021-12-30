@@ -129,8 +129,8 @@ void do_setup_dat_file(int use_logo_background, int show_loading_game)
     loadTerrainTxt(data_prefix, "terrain.txt");
 
     char dll_name[0x100];
-    if (!strcmp(data_prefix, "data\\"))
-        sprintf(dll_name, "language_x2.dll");
+    if (!strcmp(data_prefix, DATA_FOLDER_PREFIX_FROM_ROOT))
+        sprintf(dll_name, DATA_FOLDER_PREFIX_FROM_ROOT"..\\language_x2.dll");
     else
         sprintf(dll_name, "%slanguage_x2.dll", data_prefix);
 
@@ -150,9 +150,9 @@ void __stdcall setup_default_dat_file(int use_logo_background, int show_loading_
 {
     if ((current_loaded_version != CURRENT_VERSION) || load_data_always)
     {
-        setup_data_file_name("data\\genie_x2.dat");
+        setup_data_file_name(DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat");
         current_loaded_version = CURRENT_VERSION;
-        data_prefix = "data\\";
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT;
         do_setup_dat_file(use_logo_background, show_loading_game);
     }
 }
@@ -164,17 +164,24 @@ bool setup_dat_file()
     switch (current_save_game_version)
     {
     case 0:
-        setup_data_file_name("data\\old\\1.4.0\\genie_x2.dat");
-        data_prefix = "data\\old\\1.4.0\\";
+        setup_data_file_name(DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.0\\genie_x2.dat");
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.0\\";
         break;
     case 1:
     case 2:
-        setup_data_file_name("data\\genie_x2.dat");
-        data_prefix = "data\\";
+        setup_data_file_name(DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.1\\genie_x2.dat");
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.1\\";
         break;
+    case 3:
+        setup_data_file_name(DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat");
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT;
+        break;
+#if CURRENT_VERSION != 3
+#error Must update for new CURRENT_VERSION
+#endif
     default:
-        setup_data_file_name("data\\genie_x2.dat");
-        data_prefix = "data\\";
+        setup_data_file_name(DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat");
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT;
         break;
     }
     if ((current_loaded_version != current_save_game_version) || load_data_always)
@@ -325,7 +332,7 @@ void setDataLoadHooks()
     ground_to_air_path = (char*)malloc(0x100);
     jedi_holo_path = (char*)malloc(0x100);
 
-    if (file_exists("data\\reload_data"))
+    if (file_exists(DATA_FOLDER_PREFIX_FROM_ROOT"reload_data"))
         load_data_always = true;
     else
         load_data_always = false;

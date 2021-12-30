@@ -85,10 +85,14 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
 int (CALLBACK* WndProc_exe) (HWND, UINT, WPARAM, LPARAM) =
     (int (CALLBACK*) (HWND, UINT, WPARAM, LPARAM)) 0x00426530;
 
-HWND hWnd_main = 0;
+HWND hWnd_main = NULL;
 
 #ifdef TARGET_VOOBLY
+#ifdef VOOBLY_EF
+const int cliff_types[] = { 0x108, 3971, 3981, 3991, 4196, 4206, 4216, 4226, 4236, 0 };
+#else
 const int cliff_types[] = { 0x108, 0 };
+#endif
 #else
 const int cliff_types[] = { 0x108, 3971, 3981, 3991, 4196, 4206, 4216, 4226, 4236, 0};
 #endif
@@ -146,9 +150,7 @@ _skip_update_window:
 }
 #pragma warning(pop)
 
-HWND hWnd_global;
-
-int terrain_paint_mode = 0;    //default
+//int terrain_paint_mode = 0;    //default
 #ifdef _DEBUG
 //bool time_collect = false;
 //bool time_stage_find = false;
@@ -163,7 +165,8 @@ int CALLBACK WndProc_dll(HWND hWnd,
     WPARAM wParam,
     LPARAM lParam)
 {
-    hWnd_global = hWnd;
+    if (!hWnd_main)
+        hWnd_main = hWnd;
 
     if (msg == WM_KEYDOWN)
     {
@@ -255,12 +258,12 @@ int CALLBACK WndProc_dll(HWND hWnd,
     }
     if (msg == WM_SYSKEYDOWN)
     {
-        if ((LOWORD(wParam) >= '1') && (LOWORD(wParam) <= '9')) //rec switch player
+        if ((LOWORD(wParam) >= '0') && (LOWORD(wParam) <= '9')) //rec switch player
         {
-            //if (short x = GetKeyState(VK_MENU))
-            //{
-            recSwitch(LOWORD(wParam) - 0x30);
-            //}
+            if (short x = GetKeyState(VK_MENU))
+            {
+                recSwitch(LOWORD(wParam) - 0x30);
+            }
         }
         /*if (LOWORD(wParam) == VK_F8)                        //rec overlay
         {
@@ -280,9 +283,6 @@ int CALLBACK WndProc_dll(HWND hWnd,
         if (!rec_cache_invalid)
             update_window((void*)wParam);
     }
-
-    if (!hWnd_main)
-        hWnd_main = hWnd;
     
     return WndProc_exe(hWnd, msg, wParam, lParam);
 }

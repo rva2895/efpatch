@@ -540,6 +540,7 @@ void __stdcall readUnitExtra(UNIT* unit, void* stream)
         break;
     case 1:
     case 2:
+    case 3:
         deflate_read(stream, &flag, sizeof(flag));
         if (flag)
         {
@@ -577,6 +578,9 @@ void __stdcall readUnitExtra(UNIT* unit, void* stream)
             addUnitExtra(unit, ud);
         }
         break;
+#if CURRENT_VERSION != 3
+#error Must update for new CURRENT_VERSION
+#endif
     default:
         break;
     }

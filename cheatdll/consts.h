@@ -28,6 +28,7 @@
 //-1 undefined
 //0 old. 1.4.0
 //1 1.4.1 rc1
-//2 1.4.1 rc2
+//2 1.4.1
+//3 1.4.2
 
-#define CURRENT_VERSION 2
+#define CURRENT_VERSION 3

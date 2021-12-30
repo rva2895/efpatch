@@ -246,7 +246,7 @@ void setTerrainLoadHooks(int ver)
 
     t_ver = ver;
     if (ver == VER_EF)
-        loadTerrainTxt("data\\", "terrain.txt");
+        loadTerrainTxt(DATA_FOLDER_PREFIX_FROM_ROOT, "terrain.txt");
 
     setHook((void*)0x0052A30A, terrain1);
     setHook((void*)0x0053B3C1, terrain2);

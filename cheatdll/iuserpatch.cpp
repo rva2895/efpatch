@@ -20,10 +20,18 @@
 #include "recordrestore.h"
 #include "mouseoverride.h"
 #include "rundll.h"
+#ifdef VOOBLY_EF
+#include "palette.h"
+#include "resolution.h"
+#endif
 
-#include "worlddump.h"
+//#include "worlddump.h"
 
 #include <time.h>
+
+//#include "resfile.h"
+
+//extern RESFILE resfile;
 
 #ifdef TARGET_VOOBLY
 
@@ -190,13 +198,47 @@ fix_civ:
     }
 }
 
+#ifdef VOOBLY_EF
+const char voobly_ef_data_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat";
+const char voobly_ef_language_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"..\\language_x2.dll";
+
+void __stdcall delayed_start_process()
+{
+    installPalette();
+    resolutionTool(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
+    writeDword(0x0048F0E5, (DWORD)voobly_ef_data_file);
+    writeDword(0x005E40A3, (DWORD)voobly_ef_language_file);
+}
+
+__declspec(naked) void delayed_start_hook()
+{
+    __asm
+    {
+        call    delayed_start_process
+        or      ecx, 0FFFFFFFFh
+        xor     eax, eax
+        mov     ebx, 0048EFD8h
+        jmp     ebx
+    }
+}
+#endif
+
 bool CUserPatch::Init(struct UserPatchConfig_t &config)
 {
     // Write DLL version to Voobly log            
     g_pVoobly->Log(USERPATCH_VERSION);
 
+    initLog();
+
     // Write 3.1 exe version string    
+#ifndef VOOBLY_EF
     g_pVoobly->Write(0x689BA4, "332E32");
+#endif
+
+#ifdef VOOBLY_EF
+    //installPalette();
+    g_pVoobly->WriteJump(0x0048EFD3, delayed_start_hook);
+#endif
 
     if (strstr(config.VooblyModDirPath, "Data Patch"))
     {
@@ -245,6 +287,8 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
     //tech tree mirror random fix
     g_pVoobly->WriteJump(0x0051834E, onVooblyMirrorRandomTechTree);
 
+    FlushInstructionCache(GetCurrentProcess(), NULL, 0);
+
     // Apply patches from bin2cpp tool
     bool bSuccess = true;//ApplyPatchList();
 
@@ -264,6 +308,21 @@ bool CUserPatch::OnChatMessage(const char *text)
         g_pVoobly->ChatMessage("EXE Patch", "%s, Data patch: %s", USERPATCH_VERSION, str);
         return true;
     }
+    /*if (!strcmp(text, "/load-all"))
+    {
+        chat("Loading all DRS resources ...");
+        int ext_types[] = { 0x736C7020, 0x77617620, 0x62696E61 };
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 100000; j++)
+            {
+                int size;
+                resfile.get_resource(ext_types[i], j, &size);
+            }
+        }
+        chat("Load complete");
+        return true;
+    }*/
     /*
     if (!strcmp(text, "/dump-world"))
     {
@@ -284,7 +343,7 @@ bool CUserPatch::OnChatMessage(const char *text)
         max_worldtime = t;
         chat("Set max worldtime to %d", t);
         return true;
-    }
+    }*/
     if (!strcmp(text, "/worldtime"))
     {
         chat("Worldtime = %d", get_gametime2());
@@ -320,7 +379,7 @@ bool CUserPatch::OnChatMessage(const char *text)
         WorldPlayerBase__set_view_loc(player, x, y, 0);
         return true;
     }
-    if (strstr(text, "/cs"))
+    /*if (strstr(text, "/cs"))
     {
         WORLD_DUMP wd;
         wd.update_cs();

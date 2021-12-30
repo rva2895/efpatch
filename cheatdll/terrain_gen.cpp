@@ -229,6 +229,7 @@ farm_dead3:
     }
 }
 
+#pragma optimize( "s", on )
 void setTerrainGenHooks(int ver)
 {
 #ifndef TARGET_VOOBLY
@@ -247,3 +248,4 @@ void setTerrainGenHooks(int ver)
         setHook((void*)0x005539C8, onFarmDead3);
     }
 }
+#pragma optimize( "", on )

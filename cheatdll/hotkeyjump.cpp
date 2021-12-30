@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#pragma warning(push)
+#pragma warning(disable:4100)
 __declspec(naked) bool __fastcall is_unit_powered(void* unit)
 {
     __asm
@@ -10,6 +12,7 @@ __declspec(naked) bool __fastcall is_unit_powered(void* unit)
         ret
     }
 }
+#pragma warning(pop)
 
 void* __stdcall findUnit(void* this_, __int16 id, void* begin, __int16 unk)
 {

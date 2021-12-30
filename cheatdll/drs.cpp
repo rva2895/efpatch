@@ -40,19 +40,21 @@ char* aDrsNoWide[] =
 
 const char* aDrsWide[] =
 {
-    "sounds_x1.drs",
-    "sounds_x2.drs",
-    "graphics_p1.drs",
-    "graphics_x1_p1.drs",
-    "graphics_x2.drs",
-    "terrain_p1.drs",
-    "terrain_x1_p1.drs",
-    "terrain_x2.drs",
-    "wide_p1.drs",
-    "interfac_x2.drs",
-    "interfac_p1.drs",
-    "interfac_x1_p1.drs",
-    "gamedata_x2.drs"
+    DATA_FOLDER_PREFIX_FROM_DATA"sounds_x1.drs",
+    DATA_FOLDER_PREFIX_FROM_DATA"sounds_x2.drs",
+    DATA_FOLDER_PREFIX_FROM_DATA"graphics_p1.drs",
+    DATA_FOLDER_PREFIX_FROM_DATA"graphics_x1_p1.drs",
+    DATA_FOLDER_PREFIX_FROM_DATA"graphics_x2.drs",
+    DATA_FOLDER_PREFIX_FROM_DATA"terrain_p1.drs",
+    DATA_FOLDER_PREFIX_FROM_DATA"terrain_x1_p1.drs",
+    DATA_FOLDER_PREFIX_FROM_DATA"terrain_x2.drs",
+    DATA_FOLDER_PREFIX_FROM_DATA"wide_p1.drs", //
+    DATA_FOLDER_PREFIX_FROM_DATA"interfac_x2.drs", //
+    DATA_FOLDER_PREFIX_FROM_DATA"interfac_p1.drs",
+    DATA_FOLDER_PREFIX_FROM_DATA"interfac_x1_p1.drs",
+    //"interfac_x2.drs",
+    //"wide_p1.drs",
+    DATA_FOLDER_PREFIX_FROM_DATA"gamedata_x2.drs"
 };
 
 const char* aDrsNoWide[] =
@@ -65,9 +67,10 @@ const char* aDrsNoWide[] =
     "terrain_p1.drs",
     "terrain_x1_p1.drs",
     "terrain_x2.drs",
-    "interfac_x2.drs",
+    "interfac_x2.drs", //
     "interfac_p1.drs",
     "interfac_x1_p1.drs",
+    //"interfac_x2.drs",
     "gamedata_x2.drs"
 };
 
@@ -79,9 +82,10 @@ const char* aDrsCCWide[] =
     //"terrgrid.drs",
     "terrain.drs",
     "terrain_x1.drs",
-    "wide.drs",
+    "wide.drs", //
     "interfac.drs",
     "interfac_x1.drs",
+    //"wide.drs",
     "gamedata_x1.drs"
 };
 
