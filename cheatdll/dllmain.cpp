@@ -104,6 +104,13 @@
 #include "tchat.h"
 #include "patroldelay.h"
 #include "playeroptions.h"
+#include "guardandfollow.h"
+#include "trade.h"
+#include "pathing.h"
+#include "resfile.h"
+#include "bldg_heal_rate_save.h"
+#include "gaiatechtree.h"
+#include "los.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -224,17 +231,17 @@ void setHooksCC()
 
 #ifndef TARGET_VOOBLY
 #ifndef _CHEATDLL_CC
-    if (cd.largeMaps)
-        setMapSizeHooks();
+    if (cd.largeMaps && cd.gameVersion == VER_EF)
+        setMapSizeHooks(cd.gameVersion);
     else
 #endif
 #ifndef _CC_COMPATIBLE
 #ifndef _CHEATDLL_CC
-        setMapSizeHooks_legacy();
+        setMapSizeHooks_legacy(cd.gameVersion);
 #endif
 #endif
 #else
-    setMapSizeHooks_legacy();
+    setMapSizeHooks_legacy(cd.gameVersion);
 #endif
 
     setFileNameHooks(cd.gameVersion);
@@ -248,6 +255,11 @@ void setHooksCC()
 
 #ifndef TARGET_VOOBLY
     setDRSLoadHooks(cd.gameVersion, cd.widescrnEnabled);
+#else
+#ifdef VOOBLY_EF
+    setDRSLoadHooks(cd.gameVersion, true);
+#endif
+    
 #endif
 
     setTriggerDescHooks();
@@ -278,9 +290,8 @@ void setHooksCC()
     setRecHooks();
     setHotkeyJumpHooks();
 
-#ifdef TARGET_VOOBLY
     setRecBrowseHooks(cd.gameVersion);
-#endif
+
     setElevationHooks();
 
     setNetworkHooks();
@@ -338,6 +349,9 @@ void setHooksCC()
     setEffectHooks();
 
     setCommandButtonsHooks();
+    setGaiaTechTreeHooks();
+
+    setLOSHooks();
 
     //setWorldDumpHooks();
 
@@ -364,6 +378,12 @@ void setHooksCC()
 
     setPlayerOptionsHooks();
 
+    setGuardAndFollowHooks();
+    //setTradeHooks();
+    //setPathingHooks();
+
+    //setResFileHooks();
+
     //function hook!
     //setFunctionListHooks();
 }
@@ -371,9 +391,9 @@ void setHooksCC()
 
 const char efDatabank[] = "stream\\ef_databank%d.mp3";
 const char efCiv[] = "stream\\ef_civ%d.mp3";
-const char efShadow[] = "data\\shadow_x2.col";
-const char efBlendomatic[] = "data\\blendomatic_x2.dat";
-const char efICM[] = "data\\view_icm_x2.dat";
+const char efShadow[] = DATA_FOLDER_PREFIX_FROM_ROOT"shadow_x2.col";
+const char efBlendomatic[] = DATA_FOLDER_PREFIX_FROM_ROOT"blendomatic_x2.dat";
+const char efICM[] = DATA_FOLDER_PREFIX_FROM_ROOT"view_icm_x2.dat";
 const char efMenubk[] = "stream\\ef_menu_skb.mp3";
 
 #pragma optimize( "s", on )
@@ -395,9 +415,9 @@ void setHooksEF()
     fixIconLoadingRoutines();
     fixCivLetterFunction();
 
-    initExplDroid("data\\", "expl.txt");
-    setJediMasterHooks("data\\", "master.txt", "padawan.txt");
-    setConvertHooks("data\\", "unconv.txt");
+    initExplDroid(DATA_FOLDER_PREFIX_FROM_ROOT, "expl.txt");
+    setJediMasterHooks(DATA_FOLDER_PREFIX_FROM_ROOT, "master.txt", "padawan.txt");
+    setConvertHooks(DATA_FOLDER_PREFIX_FROM_ROOT, "unconv.txt");
 
     setResGenHooks();
 
@@ -484,6 +504,8 @@ void setHooksEF()
     writeByte(0x00692018, 0x32);
     writeByte(0x00620A6C, 0x32);
 
+    setBldgHealRateSaveHooks();
+
     log("setHooks() finished");
 }
 #pragma optimize( "", on )
@@ -565,7 +587,7 @@ _1_5:
 void updateVersionEF()
 {
     //writeByte(0x00689534, 8); //EF 1.7e
-    writeByte(0x00689534, 9); //EF 1.4.1, new format
+    writeByte(0x00689534, 10); //EF 1.4.2, new format
     setHook((void*)0x0042C3D1, verHookEF_v2);
 }
 
@@ -596,22 +618,27 @@ void* new_memory_pages;
 extern bool expanding_fronts;
 #endif
 
-const char x1_dat_file[] = "data\\genie_x1_p1.dat";
+const char x1_dat_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"genie_x1_p1.dat";
 
 void initialSetup()
 {
 #ifdef TARGET_VOOBLY
-    initLog();
     log("===============================================");
     log("Dll attached");
     log("===============================================");
 
     log("Compile time: " __DATE__ ", " __TIME__);
+#ifdef VOOBLY_EF
+    log("Configuration: Release_Voobly_EF");
+#else
     log("Configuration: Release_Voobly");
+#endif
 
     log("Notice: running in Voobly mode");
 
-    //install_legacy_patch();
+#ifdef VOOBLY_EF
+    install_legacy_patch();
+#endif
 #endif
 
     new_memory_pages = VirtualAlloc(0, 0x1000, MEM_COMMIT, PAGE_READWRITE);
@@ -750,6 +777,7 @@ BOOL __stdcall DllMain(HMODULE hModule,
         log("===============================================");
         log("DLL detached");
         log("===============================================");
+
         closeLog();
 
         break;

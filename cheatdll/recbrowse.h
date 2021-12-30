@@ -8,7 +8,8 @@ struct REC_DATA
 {
     bool exists;
     bool valid;
-    DWORD version;
+    //DWORD version;
+    std::string version;
     std::string file;
     HBITMAP map;
     std::string team_1[8];

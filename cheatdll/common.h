@@ -1,6 +1,14 @@
 #pragma once
 #include "structs.h"
 
+#ifdef VOOBLY_EF
+#define DATA_FOLDER_PREFIX_FROM_ROOT "Voobly Mods\\SWBGCC\\Data Mods\\Expanding Fronts\\Data\\"
+#define DATA_FOLDER_PREFIX_FROM_DATA "..\\Voobly Mods\\SWBGCC\\Data Mods\\Expanding Fronts\\Data\\"
+#else
+#define DATA_FOLDER_PREFIX_FROM_ROOT "data\\"
+#define DATA_FOLDER_PREFIX_FROM_DATA ""
+#endif
+
 #ifdef TARGET_VOOBLY
 #define DLL_NAME "userpatch.dll"
 #else

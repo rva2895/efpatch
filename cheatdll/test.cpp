@@ -16,6 +16,10 @@
 #include <time.h>
 #include <algorithm>
 
+#include "resfile.h"
+
+extern RESFILE resfile;
+
 int current_worldtime = 0;
 
 #ifdef _DEBUG
@@ -326,18 +330,18 @@ void thread_proc(void* p)
     sum += check_file("language.dll", player);
     sum += check_file("language_x1.dll", player);
     sum += check_file("language_x2.dll", player);
-    sum += check_file("data\\genie_x2.dat", player);
-    sum += check_file("data\\gamedata.drs", player);
-    sum += check_file("data\\gamedata_x1.drs", player);
-    sum += check_file("data\\gamedata_x2.drs", player);
-    sum += check_file("data\\expl.txt", player);
-    sum += check_file("data\\ground-to-air.txt", player);
-    sum += check_file("data\\jedi-holo.txt", player);
-    sum += check_file("data\\master.txt", player);
-    sum += check_file("data\\padawan.txt", player);
-    sum += check_file("data\\resgen.txt", player);
-    sum += check_file("data\\unconv.txt", player);
-    sum += check_file("data\\terrain.txt", player);
+    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat", player);
+    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"gamedata.drs", player);
+    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"gamedata_x1.drs", player);
+    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"gamedata_x2.drs", player);
+    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"expl.txt", player);
+    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"ground-to-air.txt", player);
+    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"jedi-holo.txt", player);
+    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"master.txt", player);
+    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"padawan.txt", player);
+    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"resgen.txt", player);
+    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"unconv.txt", player);
+    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"terrain.txt", player);
     char s[0x100];
     sprintf(s, "Integrity check complete, checksum = %d", sum);
     sendChat(s, player);
@@ -394,6 +398,18 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         sendChat(EFPATCH_VERSION, -1);
         return 1;
     }
+    if (!strcmp(s, "/fog-stop"))
+    {
+        *(DWORD*)0x007A20BC = 1;
+        sendChat("Fog update stopped", -1);
+        return 1;
+    }
+    if (!strcmp(s, "/fog-start"))
+    {
+        *(DWORD*)0x007A20BC = 0;
+        sendChat("Fog update resumed", -1);
+        return 1;
+    }
     /*
     else if (!strcmp(s, "/test"))
     {
@@ -407,7 +423,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         memory_temp = 0x100000;
         return 1;
     }*/
-    /*
+    
     else if (!strcmp(s, "/dump-world"))
     {
         srand(timeGetTime());
@@ -434,7 +450,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         chat("Set max worldtime to %d", t);
         return 1;
     }
-    */
+    
     /*
     else if (!strcmp(s, "/make-oos"))
     {
@@ -449,7 +465,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         return 1;
     }
     */
-    /*
+    
     else if (strstr(s, "/obj") || strstr(s, "/object"))
     {
         char d[0x100];
@@ -471,7 +487,22 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
 
         return true;
     }
-    */
+    
+    else if (strstr(s, "/load-all"))
+    {
+        int ext_types[] = {0x736C7020, 0x77617620, 0x62696E61};
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 100000; j++)
+            {
+                int size;
+                resfile.get_resource(ext_types[i], j, &size);
+            }
+        }
+        chat("Loaded all DRS resources");
+        return 1;
+    }
+    
     /*
     else if (strstr(s, "/cs"))
     {
@@ -927,9 +958,117 @@ int (__thiscall* TShape__shape_draw)(void* this_, void* drawarea, int x, int y, 
     (int (__thiscall*)(void*, void*, int, int, int, void*))0x005430C0;
 
 
+std::map<void*, std::pair<void*, size_t>> allocations;
+
+void* __fastcall new_malloc(size_t size, void* from)
+{
+    void* memory = malloc(size);
+    memset(memory, 0, size);
+    allocations[memory] = std::make_pair(from, size);
+    return memory;
+}
+
+void __fastcall new_free(void* memory)
+{
+    auto it = allocations.find(memory);
+    if (it != allocations.end())
+    {
+        free(memory);
+        allocations.erase(it);
+    }
+}
+
+size_t total_mem = 0;
+
+void memory_print()
+{
+    total_mem = 0;
+    log("Not freed allocations:");
+    for (auto it = allocations.begin(); it != allocations.end(); ++it)
+    {
+        log("0x%p, %u bytes", it->second.first, it->second.second);
+        total_mem += it->second.second;
+    }
+    log("Total: %u bytes", total_mem);
+}
+
+__declspec(naked) void* __cdecl malloc_wr(size_t size) //0063328C
+{
+    __asm
+    {
+        mov     edx, [esp]
+        mov     ecx, [esp + 4]
+        call    new_malloc
+        ret
+    }
+}
+
+__declspec(naked) void* __cdecl calloc_wr(size_t number, size_t size) //00632D33
+{
+    __asm
+    {
+        mov     edx, [esp]
+        mov     ecx, [esp + 4]
+        imul    ecx, [esp + 8]
+        call    new_malloc
+        ret
+    }
+}
+
+__declspec(naked) void* __cdecl new_wr(size_t size) //00632B9D
+{
+    __asm
+    {
+        mov     edx, [esp]
+        mov     ecx, [esp + 4]
+        call    new_malloc
+        ret
+    }
+}
+
+__declspec(naked) void* __cdecl free_wr(size_t size) //00632CCA
+{
+    __asm
+    {
+        mov     ecx, [esp + 4]
+        call    new_free
+        ret
+    }
+}
+
+__declspec(naked) void* __cdecl delete_wr(size_t size) //00632B42
+{
+    __asm
+    {
+        mov     ecx, [esp + 4]
+        call    new_free
+        ret
+    }
+}
+
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    //validate IAT 00654000 - 00654440
+    
+/*#ifdef TARGET_VOOBLY
+    void* IAT_data = malloc(0x440);
+    ReadProcessMemory(GetCurrentProcess(), (void*)0x00654000, IAT_data, 0x440, NULL);
+    writeData(0x00654000, IAT_data, 0x440);
+#endif*/
+
+    //malloc log
+    /*setHook((void*)0x0063328C, malloc_wr);
+    setHook((void*)0x00632D33, calloc_wr);
+    setHook((void*)0x00632B9D, new_wr);
+    setHook((void*)0x00632CCA, free_wr);
+    setHook((void*)0x00632B42, delete_wr);*/
+
+    //pathing
+    //writeDword(0x004BF23D, 0);
+    //writeDword(0x004BF98E, 0);
+
     //setHook((void*)0x0042C360, new_game_dev_mode);
     //setHook((void*)0x00428270, new_check_multi_copies);
     //writeDword(0x00659F80, 0x004B6120);

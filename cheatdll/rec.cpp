@@ -82,7 +82,7 @@ void setRecHooks()
 
 void recSwitch(int p)
 {
-    if (isRec())
+    //if (isRec())
     {
         WorldPlayerBase__unselect_object(getCurrentPlayer());
         Game__set_player(*base_game, (__int16)p);

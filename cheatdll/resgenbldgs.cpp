@@ -93,5 +93,5 @@ __declspec(naked) int resGenHook()
 
 void setResGenHooks()
 {
-    initBldgResProdList("data\\", "resgen.txt");
+    initBldgResProdList(DATA_FOLDER_PREFIX_FROM_ROOT, "resgen.txt");
 }

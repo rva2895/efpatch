@@ -4,18 +4,14 @@
 #include <ddraw.h>
 #include <string>
 
-extern HWND hWnd_main;
-
 extern bool isEditor;
-
-int counter_ = 0;
-
-HFONT hFont;
 
 DWORD window_editorbk = 0;
 
 bool editorstatus_isValid = false;
 bool background_initialised = false;
+
+HFONT hFont;
 
 #define RECT_RIGHT_OFFSET 380
 
@@ -67,8 +63,6 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
 {
     if (!background_initialised)
         initBackground();
-
-    counter_++;
 
     HDC hdc;
     s->GetDC(&hdc);
@@ -131,7 +125,7 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
         status_terrain = status_Off;*/
 
     sprintf(buf, "Cliff: %s", cliff_txt);
-    //sprintf(buf, "Cliff: %s\nCounter = %d", cliff_txt, counter_);
+
     r.right += 160;
     r.left += 160;
     DrawText_outline(hdc, &r, buf);

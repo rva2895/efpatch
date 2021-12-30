@@ -3,7 +3,7 @@
 
 typedef struct _maptile
 {
-    char terrain;
+    unsigned char terrain;
     char elevation;
 } TILE;
 
@@ -35,7 +35,8 @@ private:
     char* map_type;
 public:
     bool loaded;
-    DWORD version;
+    //DWORD version;
+    const char* version;
     char* p;
     void readN(void*, int);
     long read4();

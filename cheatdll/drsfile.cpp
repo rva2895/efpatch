@@ -159,6 +159,7 @@ bool DRS::writeDRS()
 void* DRS::getFile(int id, int* size)
 {
     void* data = NULL;
+    *size = 0;
     FILE* f = load(false);
     if (f)
     {

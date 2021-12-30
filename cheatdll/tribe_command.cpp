@@ -41,6 +41,7 @@ const uint32_t dispatch_command_offsets[] =
     (uint32_t)TRIBE_Command__do_command_ef
 };
 
+#pragma optimize( "s", on )
 void setTribeCommandHooks(int version)
 {
     writeDword(0x005B9E16, (DWORD)dispatch_command_offsets);
@@ -59,3 +60,4 @@ void setTribeCommandHooks(int version)
     if (version == VER_EF)
         setTribeCommandEFHooks();
 }
+#pragma optimize( "", on )

@@ -69,6 +69,7 @@ MG1::MG1(const char* filename)
     log("MG1: %s", filename);
 
     loaded = false;
+    version = NULL;
     d.map = NULL;
     d.players = NULL;
     d.number_of_players = 0;
@@ -150,27 +151,54 @@ MG1::MG1(const char* filename)
         free(dst);
         return;
     }
+    skip(4);
+    DWORD sub_ver = 0;
     switch (ver2)
     {
     case 0x00342E39:
-        version = 0x00312E32;    //9.4 -> 2.1
+        //version = 0x00312E32;    //9.4 -> 2.1
+        version = "1.1";
         break;
     case 0x00322E32:
-        version = 0x00322E32;    //2.2
+        //version = 0x00322E32;    //2.2
+        version = ">1.1";
         break;
     case 0x00382E39:    //EF 1.4.0
-        version = 0x00382E39;
+        //version = 0x00382E39;
+        version = "1.4.0";
         break;
     case 0x00392E39:    //EF 1.4.1+
-        version = 0x00392E39;
-        skip(4);        //skip sub version
+        //version = 0x00392E39;
+        //sub version
+        sub_ver = read4();
+        switch (sub_ver)
+        {
+        case 0:
+            version = "1.4.1-p";
+            break;
+        case 1:
+            version = "1.4.1-rc1";
+            break;
+        case 2:
+            version = "1.4.1";
+            break;
+        case 3: //CURRENT_VERSION
+            version = "1.4.2";
+            break;
+#if CURRENT_VERSION != 3
+#error Must update for new CURRENT_VERSION
+#endif
+        default:
+            version = ">1.4.2";
+            break;
+        }
         break;
     default:
-        version = 0;    //unsupported
+        //version = 0;    //unsupported
+        version = "Unknown";
         return;
         break;
     }
-    skip(4);
     if (read4()) //if AI data exists
     {
         skip(2);

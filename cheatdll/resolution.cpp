@@ -9,7 +9,7 @@
 
 void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
 {
-    int size;
+    int size = 0;
     void* data;
     data = x2 ? x2->getFile(id, &size) : NULL;
     if (!data)
@@ -436,11 +436,16 @@ void patchResolution(int x, int y, DRS* drs)
     DRS x0_cc; x0_cc.loadDRS("data\\INTERFAC.DRS");
     DRS x1_cc; x1_cc.loadDRS("data\\interfac_x1.drs");
 //#else
-    DRS x0; x0.loadDRS("data\\interfac_p1.DRS");
-    DRS x1; x1.loadDRS("data\\interfac_x1_p1.drs");
+#ifdef VOOBLY_EF
+    DRS x0; x0.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac.DRS");
+    DRS x1; x1.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_x1.drs");
+#else
+    DRS x0; x0.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_p1.DRS");
+    DRS x1; x1.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_x1_p1.drs");
+#endif
 //#endif
-    DRS x2; x2.loadDRS("data\\interfac_x2.drs");
-    DRS wide_x2; wide_x2.loadDRS("data\\widescrn_x2.drs");
+    DRS x2; x2.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_x2.drs");
+    DRS wide_x2; wide_x2.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"widescrn_x2.drs");
 
     //tech tree
     parseSLP(&x0, &x1, &x2, drs, 50341, x, y);
@@ -471,7 +476,7 @@ void patchResolution(int x, int y, DRS* drs)
     }
     drs->writeDRS();
 
-    drs->setFileName("data\\wide_p1.drs");
+    drs->setFileName(DATA_FOLDER_PREFIX_FROM_ROOT"wide_p1.drs");
 
     //50032 - edit small
     //50033 - edit medium
@@ -549,9 +554,9 @@ void resolutionTool(int x, int y)
 {
     int size;
     DRS drs;
-    drs.setFileName("data\\wide.drs");
+    drs.setFileName(DATA_FOLDER_PREFIX_FROM_ROOT"wide.drs");
     DRS* drs2 = new DRS;
-    drs2->loadDRS("data\\wide.drs");
+    drs2->loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"wide.drs");
     void* drsResStr = drs2->getFile(RESOLUTION_TOOL_VERSION, &size);
     delete drs2;
     if (drsResStr)

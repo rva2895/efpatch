@@ -1665,8 +1665,9 @@ __declspec(naked) void wall_do_8() //005BAB2A
 }
 
 #pragma optimize( "s", on )
-void setMapSizeHooks()
+void setMapSizeHooks(int ver)
 {
+    UNREFERENCED_PARAMETER(ver);
     //setHook((void*)0x004B1639, &collision_test_1);
     //setHook((void*)0x004B20B5, &collision_test_2);
 
@@ -1978,18 +1979,21 @@ void setMapSizeHooks()
     setHook((void*)0x005BAB2A, wall_do_8);
 }
 
-void setMapSizeHooks_legacy()
+void setMapSizeHooks_legacy(int ver)
 {
     setHook((void*)0x0052A123, onEditorMapSize_legacy);
 
-#ifndef TARGET_VOOBLY
-    setHook((void*)0x0058670C, ai_findres_save);
-    setHook((void*)0x00584A5A, ai_findres_load);
+//#ifndef TARGET_VOOBLY
+    if (ver == VER_EF)
+    {
+        setHook((void*)0x0058670C, ai_findres_save);
+        setHook((void*)0x00584A5A, ai_findres_load);
+    }
 
     //save load fix
     writeDword(0x00583BF2, MAP_MAX);
     writeDword(0x00583BE7, MAP_MAX);
-#endif
+//#endif
 }
 
 #pragma optimize( "", on )

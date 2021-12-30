@@ -253,6 +253,7 @@ __declspec(naked) void world_cheat_location_fix() //00603E88
     }
 }
 
+#pragma optimize( "s", on )
 void setTribeCommandEFHooks()
 {
     writeDword(0x00603DBF, (DWORD)world_cheat_dispatcher - 0x00603DC3);
@@ -263,3 +264,4 @@ void setTribeCommandEFHooks()
     writeWord(0x00604119, 0x05D8);
     writeDword(0x0060411B, (DWORD)&cheat_y);
 }
+#pragma optimize( "", on )

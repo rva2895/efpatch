@@ -2,7 +2,7 @@
 #include "functionlist.h"
 #include <vector>
 
-extern LARGE_INTEGER Frequency;
+LARGE_INTEGER Frequency;
 
 std::vector<FUNCTION_HOOK*> function_hooks;
 

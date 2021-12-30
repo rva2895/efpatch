@@ -77,6 +77,9 @@ uint8_t legacy_patch_data_compressed[] =
     0x40, 0xFF, 0xCE, 0x03, 0xCB, 0xE6, 0x3F
 };
 
+const char jedi_holo_txt_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"jedi-holo.txt";
+const char ground_to_air_txt_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"ground-to-air.txt";
+
 void install_legacy_patch()
 {
     log("Attempting to write legacy patch data");
@@ -120,6 +123,18 @@ void install_legacy_patch()
             writeDword(0x005F2B56, 0x007B2240);
             setHook((void*)0x0053BD3A, (void*)0x007B2340);
             setHook((void*)0x005F557B, (void*)0x007B2A00);
+
+#ifdef VOOBLY_EF
+            writeDword(0x007B2046, (DWORD)jedi_holo_txt_file);
+            writeDword(0x007B21B6, (DWORD)ground_to_air_txt_file);
+
+            writeByte(0x006910F2, 0x32);
+            writeByte(0x006910FA, 0x32);
+            writeByte(0x00691101, 0x32);
+            writeByte(0x00691109, 0x32);
+            writeByte(0x00691113, 0x32);
+            writeByte(0x0069111F, 0x32);
+#endif
 
             log("Legacy patch data successfully installed");
             free(dst);

@@ -441,6 +441,30 @@
     <ClInclude Include="playeroptions.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
+    <ClInclude Include="resfile.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="moddialog.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="guardandfollow.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="trade.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="pathing.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="bldg_heal_rate_save.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="gaiatechtree.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="los.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -831,6 +855,30 @@
       <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
     <ClCompile Include="playeroptions.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="resfile.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="moddialog.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="guardandfollow.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="trade.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="pathing.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="bldg_heal_rate_save.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="gaiatechtree.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="los.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
   </ItemGroup>

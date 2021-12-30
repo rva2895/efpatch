@@ -9,7 +9,11 @@ extern const CONFIG_DATA cd_default =
     5,   //bufs
     250, //delay
 #ifdef TARGET_VOOBLY
+#ifdef VOOBLY_EF
+    VER_EF,
+#else
     VER_CC,
+#endif
 #else
     VER_EF,  //version
 #endif
@@ -33,7 +37,9 @@ extern const CONFIG_DATA cd_default =
     0,   //minimap 7
     0,   //large text
     0,   //delink volume
-    0    //keydown hotkeys
+    0,   //keydown hotkeys
+    0,   //mod count
+    NULL //mods
     //"en" //lang
 };
 

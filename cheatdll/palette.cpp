@@ -186,7 +186,7 @@ bool slp_interfac(int id)
     }
 }
 
-void slp_optimize_thread(void* p)
+unsigned int __stdcall slp_optimize_thread(void* p)
 {
     for (int i = (int)p; i < slp_parallel->size(); i += nProc)
     {
@@ -219,6 +219,7 @@ void slp_optimize_thread(void* p)
         }
     }
     SetEvent(slp_optimize_event[(int)p]);
+    return 0;
 }
 
 unsigned int getAffinityCount()
@@ -239,7 +240,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     DRS* drs;
     drs = new DRS();
     SetCurrentDirectory(main_dir);
-    SetCurrentDirectory("data");
+    SetCurrentDirectory("data\\");
     if (!drs->loadDRS(filename))
     {
         sprintf(err, "Cannot load %s.\nCheck installation integrity.", filename);
@@ -298,7 +299,8 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     for (int i = 0; i < nProc; i++)
     {
         slp_optimize_event[i] = CreateEvent(NULL, TRUE, FALSE, NULL);
-        _beginthread(slp_optimize_thread, 0, (void*)i);
+        unsigned int slp_tid;
+        _beginthreadex(NULL, 0, slp_optimize_thread, (void*)i, 0, &slp_tid);
     }
     WaitForMultipleObjects(nProc, slp_optimize_event, TRUE, INFINITE);
     for (int i = 0; i < nProc; i++)
@@ -309,10 +311,12 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     drs = new DRS();
     char newfilename[MAX_PATH + 1];
     strcpy(newfilename, filename);
+//#ifndef VOOBLY_EF
     newfilename[strlen(newfilename) - 4] = 0;
     strcat(newfilename, "_p1.drs");
+//#endif
     SetCurrentDirectory(main_dir);
-    SetCurrentDirectory("data");
+    SetCurrentDirectory(DATA_FOLDER_PREFIX_FROM_ROOT);
     drs->setFileName(newfilename);
 
     log("SLP optimize threads terminated, creating %s...", newfilename);
@@ -371,7 +375,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     SetCurrentDirectory(getenv("temp"));
     RemoveDirectory(filename);
     SetCurrentDirectory(main_dir);
-    SetCurrentDirectory("data");
+    SetCurrentDirectory(DATA_FOLDER_PREFIX_FROM_ROOT);
     log("Added %d files to DRS, writing...", nDrsFiles);
     if (!drs->writeDRS())
     {
@@ -384,9 +388,8 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     log("%s patched", filename);
 }
 
-void patch_palette(void* p)
+unsigned int __stdcall patch_palette(void*)
 {
-    UNREFERENCED_PARAMETER(p);
     nProc = getAffinityCount();
     slp_optimize_event = (HANDLE*)malloc(nProc * sizeof(HANDLE));
     char dir[MAX_PATH+1];
@@ -400,6 +403,7 @@ void patch_palette(void* p)
     SetCurrentDirectory(dir);
     PostMessage(hWndPaletteDlg, WM_CLOSE, NULL, NULL);
     free(slp_optimize_event);
+    return 0;
 }
 
 int slp_counter;
@@ -409,6 +413,7 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
     UNREFERENCED_PARAMETER(lParam);
     char s[0x100];
     char* st;
+    unsigned int palette_tid;
     switch (message)
     {
     case WM_CLOSE:
@@ -419,7 +424,7 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
         hWndPaletteDlg = hWndDlg;
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, "Ready");
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETRANGE, 0, MAKELPARAM(0, 0x1280));
-        _beginthread(patch_palette, 0, 0);
+        _beginthreadex(NULL, 0, patch_palette, NULL, 0, &palette_tid);
         break;
     case WM_USER + 1: //status update DRS
         switch (lParam)
@@ -453,7 +458,7 @@ const char creating_new_p1_drs[] = ", creating new p1 DRS files";
 
 void installPalette()
 {
-    FILE* f = fopen("data\\palette", "rb");
+    FILE* f = fopen(DATA_FOLDER_PREFIX_FROM_ROOT"palette", "rb");
     char ver = 0;
     if (f)
     {
@@ -470,7 +475,7 @@ void installPalette()
     else
         log("Palette not found%s", creating_new_p1_drs);
     DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_PALETTE), NULL, PaletteDlgProc);
-    f = fopen("data\\palette", "wb");
+    f = fopen(DATA_FOLDER_PREFIX_FROM_ROOT"palette", "wb");
     ver = '4';
     fwrite(&ver, sizeof(char), 1, f);
     fclose(f);
