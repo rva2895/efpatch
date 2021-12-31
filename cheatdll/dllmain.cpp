@@ -636,9 +636,9 @@ void initialSetup()
 
     log("Notice: running in Voobly mode");
 
-#ifdef VOOBLY_EF
+//#ifdef VOOBLY_EF
     install_legacy_patch();
-#endif
+//#endif
 #endif
 
     new_memory_pages = VirtualAlloc(0, 0x1000, MEM_COMMIT, PAGE_READWRITE);
