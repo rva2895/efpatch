@@ -506,5 +506,10 @@ void setEffectHooks()
     writeDword(0x005F2C5E, 0x55EC);
     writeDword(0x005F3DB4, 0x55E4);
     writeDword(0x005F3DC7, 0x55E0);
+
+    setHook((void*)0x0053BD3A, (void*)0x007B2340);
+    writeByte(0x0053CE86, 0xEB);
+    setHook((void*)0x005F557B, (void*)0x007B2A00);
+    writeDword(0x005F2B56, 0x007B2240);
 }
 #pragma optimize( "", on )

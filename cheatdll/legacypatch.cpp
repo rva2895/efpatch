@@ -117,14 +117,15 @@ void install_legacy_patch()
             writeData(0x007B2000, dst, st.total_out);
             free(zero_mem);
 
+            //writeDword(0x005F2B56, 0x007B2240);
+            //setHook((void*)0x0053BD3A, (void*)0x007B2340);
+            //setHook((void*)0x005F557B, (void*)0x007B2A00);
+
+#ifdef VOOBLY_EF
             setHook((void*)0x005E3EE0, (void*)0x007B2000);
             setHook((void*)0x005E3F10, (void*)0x007B2130);
             setHook((void*)0x0041C593, (void*)0x007B2170);
-            writeDword(0x005F2B56, 0x007B2240);
-            setHook((void*)0x0053BD3A, (void*)0x007B2340);
-            setHook((void*)0x005F557B, (void*)0x007B2A00);
 
-#ifdef VOOBLY_EF
             writeDword(0x007B2046, (DWORD)jedi_holo_txt_file);
             writeDword(0x007B21B6, (DWORD)ground_to_air_txt_file);
 

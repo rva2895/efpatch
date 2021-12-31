@@ -19,6 +19,9 @@ extern void* scen_ptr;
 
 extern CONFIG_DATA cd;
 
+const int cliff_types_ef[] = { 0x108, 3971, 3981, 3991, 4196, 4206, 4216, 4226, 4236, 0 };
+int current_cliff_index = 0;
+
 #ifndef TARGET_VOOBLY
 
 #include <CrashRpt.h>
@@ -86,17 +89,6 @@ int (CALLBACK* WndProc_exe) (HWND, UINT, WPARAM, LPARAM) =
     (int (CALLBACK*) (HWND, UINT, WPARAM, LPARAM)) 0x00426530;
 
 HWND hWnd_main = NULL;
-
-#ifdef TARGET_VOOBLY
-#ifdef VOOBLY_EF
-const int cliff_types[] = { 0x108, 3971, 3981, 3991, 4196, 4206, 4216, 4226, 4236, 0 };
-#else
-const int cliff_types[] = { 0x108, 0 };
-#endif
-#else
-const int cliff_types[] = { 0x108, 3971, 3981, 3991, 4196, 4206, 4216, 4226, 4236, 0};
-#endif
-const int* cliff_types_ptr = &cliff_types[0];
 
 extern bool isEditor;
 
@@ -226,22 +218,23 @@ int CALLBACK WndProc_dll(HWND hWnd,
             }*/
             
 #ifndef _CHEATDLL_CC
-#ifndef TARGET_VOOBLY
             if (LOWORD(wParam) == 'Q')                        //cliff type
             {
                 if (GetKeyState(VK_CONTROL) & 0x8000)
                 {
-                    cliff_types_ptr++;
-                    if (!*cliff_types_ptr)
-                        cliff_types_ptr = &cliff_types[0];
-                    cliff_type = *cliff_types_ptr;
-
-                    setCliffType(cliff_type, scen_ptr);
-
-                    editorstatus_isValid = false;
+                    if (cd.gameVersion == VER_EF)
+                    {
+                        cliff_type = cliff_types_ef[++current_cliff_index];
+                        if (!cliff_type)
+                        {
+                            current_cliff_index = 0;
+                            cliff_type = cliff_types_ef[0];
+                        }
+                        setCliffType(cliff_type, scen_ptr);
+                        editorstatus_isValid = false;
+                    }
                 }
             }
-#endif
 #endif
             if (!editorstatus_isValid)
             {
@@ -260,7 +253,7 @@ int CALLBACK WndProc_dll(HWND hWnd,
     {
         if ((LOWORD(wParam) >= '0') && (LOWORD(wParam) <= '9')) //rec switch player
         {
-            if (short x = GetKeyState(VK_MENU))
+            if (GetKeyState(VK_MENU) & 0x8000)
             {
                 recSwitch(LOWORD(wParam) - 0x30);
             }
