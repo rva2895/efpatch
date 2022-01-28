@@ -23,12 +23,12 @@ void __stdcall displayVersionError(void* ptr)
         strcpy(s2, "");
 
     if (strcmp(ver, EXE_PATCH_VERSION))
-        sprintf(buf, "This file was recorded with a different version of the game\n"
+        sprintf_s(buf, _countof(buf), "This file was recorded with a different version of the game\n"
             "Current version: " EXE_PATCH_VERSION ", "
             "File version: %s%s",
             ver, s2);
     else
-        sprintf(buf, "Cannot load that saved game");
+        sprintf_s(buf, _countof(buf), "Cannot load that saved game");
 
     TEasy_Panel__popupOKDialog(ptr, buf, NULL, 450, 100, 1);
 }

@@ -1,6 +1,3 @@
 #pragma once
 
-#include "drsfile.h"
-
-void resolutionTool (int, int);
-void patchResolution (int, int, DRS*);
+void resolutionTool(int x, int y, bool patch_ef, bool patch_exe);

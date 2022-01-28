@@ -9,7 +9,7 @@ __declspec(naked) void bldg_master_small_save() //005C750D
     {
         push    4
         lea     edx, [esi + 218h]
-        mov     ecx, edi; outfile
+        mov     ecx, edi
         mov     eax, 004D5790h
         call    eax //rge_write
 

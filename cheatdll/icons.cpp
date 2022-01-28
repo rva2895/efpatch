@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "icons.h"
 
 #define CIV_ICON_OFFSET (CIV_COUNT*4+4)
@@ -15,25 +14,18 @@ __declspec(naked) void newIconsEditor()
     __asm
     {
         push    esi
-        push    edi
-
-        push    CIV_ICON_OFFSET
-        push    005337EFh
-        call    writeByte                //buildings (load scenario routine)
-        push    CIV_COUNT+1
-        push    0053386Bh
-        call    writeByte                //civ counter (loop counter) (load game routine)
 
         push    CIV_ICON_OFFSET*4
         call    malloc                   //allocate new buffer for icons
+        add     esp, 4
         mov     esi, eax
         mov     eax, iconsPtr            //test if need to free prev buffer
         test    eax, eax
-        jz      cont
+        jz      cont_editor
         push    eax
         call    free
         add     esp, 4
-cont:
+cont_editor:
         mov     iconsPtr, esi
         mov     iconsTechPtr, esi
         add     esi, CIV_ICON_OFFSET
@@ -44,9 +36,6 @@ cont:
 
         mov     eax, ebx
 
-        add     esp, 14h
-
-        pop     edi
         pop     esi
         mov     ebx, 00533796h
         jmp     ebx
@@ -94,10 +83,10 @@ __declspec(naked) void newIconsTechTreeBldg() //00463332
         mov     [ecx], eax
         pop     ecx
         cmp     eax, ebx
-        jz      jumploc
+        jz      jumploc_bldg
         mov     ecx, 0046333Bh
         jmp     ecx
-jumploc:
+jumploc_bldg:
         mov     edi, 00463F15h
         jmp     edi
     }
@@ -112,10 +101,10 @@ __declspec(naked) void newIconsTechTreeUnit() //0046338E
         add     ecx, techTreeUnit
         mov     [ecx], eax
         cmp     eax, ebx
-        jz      jumploc
+        jz      jumploc_unit
         mov     ecx, 00463397h
         jmp     ecx
-jumploc:
+jumploc_unit:
         mov     edi, 00463F15h
         jmp     edi
     }
@@ -130,10 +119,10 @@ __declspec(naked) void newIconsTechTreeTech() //004633EA
         add     ecx, techTreeTech
         mov     [ecx], eax
         cmp     eax, ebx
-        jz      jumploc
+        jz      jumploc_tech
         mov     ecx, 004633F3h
         jmp     ecx
-jumploc:
+jumploc_tech:
         mov     edi, 00463F15h
         jmp     edi
     }
@@ -197,43 +186,18 @@ __declspec(naked) void newIconsGame()
     __asm
     {
         push    esi
-        push    edi
-
-        mov     esi, writeByte
-        mov     edi, CIV_COUNT+1
-
-        push    CIV_ICON_OFFSET
-        push    004F3163h
-        call    esi                      //buildings (load game routine)
-        push    -CIV_ICON_OFFSET
-        push    004F321Bh
-        call    esi                      //techs (load game routine)
-        push    edi
-        push    004F3231h
-        call    esi                      //civ counter (loop counter) (load game routine)
-        push    edi
-        push    00504F7Ch
-        call    esi                      //something related to icons of items in buildings
-        push    edi
-        push    005044D8h
-        call    esi                      //something related to icons of items in worker
-        push    edi
-        push    00504BC8h
-        call    esi                      //something related to icons of items in worker
-        push    edi
-        push    00504948h
-        call    esi                      //something related to icons of items in worker
 
         push    CIV_ICON_OFFSET*4
         call    malloc                   //allocate new buffer for icons
+        add     esp, 4
         mov     esi, eax
         mov     eax, iconsPtr            //test if need to free prev buffer
         test    eax, eax
-        jz      cont
+        jz      cont_game
         push    eax
         call    free
         add     esp, 4
-cont:
+cont_game:
         mov     iconsPtr, esi
         mov     iconsTechPtr, esi
         add     esi, CIV_ICON_OFFSET
@@ -242,9 +206,6 @@ cont:
         add     esi, CIV_ICON_OFFSET
         mov     iconsBldgPtr, esi
 
-        add     esp, 3Ch
-
-        pop     edi
         pop     esi
         mov     ecx, 004F3117h
         jmp     ecx
@@ -493,20 +454,6 @@ __declspec(naked) void iconTCMounted_id_tech() //005051E0
 {
     __asm
     {
-        //mov     edx, [esp + ecx * 4 + 3Ch]
-        //sub     ecx, 9
-        //jnz     _tech_civ10
-        //mov     edx, 613        //avail-taniz
-        //jmp     _not_tech_civ9_10
-//_tech_civ10:
-        //dec     ecx
-        //jnz     _not_tech_civ9_10
-        //mov     edx, 742        //avail-tanio
-//_not_tech_civ9_10:
-        //mov     ecx, [ebp + 1D94h]
-        //mov     eax, 005051EAh
-        //jmp     eax
-
         mov     edx, [esp + ecx * 4 + 3Ch]
         call    get_icon_tc_mounted_tech
         mov     ecx, [ebp + 1D94h]
@@ -537,20 +484,6 @@ __declspec(naked) void iconTCMounted_id_unit() //00505276
 {
     __asm
     {
-        //mov     ebx, [esp + eax * 4 + 3Ch]
-        //sub     eax, 9
-        //jnz     _unit_civ10
-        //mov     ebx, 1748        //unit-taniz
-        //jmp     _not_unit_civ9_10
-//_unit_civ10:
-        //dec     eax
-        //jnz     _not_unit_civ9_10
-        //mov     ebx, 4056        //unit-tanio
-//_not_unit_civ9_10:
-        //lea     edx, [esp + 32h]
-        //mov     eax, 0050527Eh
-        //jmp     eax
-
         mov     edx, [esp + eax * 4 + 3Ch]
         mov     ebx, ecx
         mov     ecx, eax
@@ -568,6 +501,17 @@ void fixIconLoadingRoutines()
 {
     setHook((void*)0x004F3111, newIconsGame);
     setHook((void*)0x00533790, newIconsEditor);
+
+    writeByte(0x005337EF, CIV_ICON_OFFSET);                   //buildings (load scenario routine)
+    writeByte(0x0053386B, CIV_COUNT + 1);                     //civ counter (loop counter) (load game routine)
+
+    writeByte(0x004F3163, CIV_ICON_OFFSET);                   //buildings (load game routine)
+    writeByte(0x004F321B, -CIV_ICON_OFFSET);                  //techs (load game routine)
+    writeByte(0x004F3231, CIV_COUNT + 1);                     //civ counter (loop counter) (load game routine)
+    writeByte(0x00504F7C, CIV_COUNT + 1);                     //icons of items in buildings
+    writeByte(0x005044D8, CIV_COUNT + 1);                     //icons of items in worker
+    writeByte(0x00504BC8, CIV_COUNT + 1);                     //items in worker
+    writeByte(0x00504948, CIV_COUNT + 1);                     //items in worker
 
     //civ is always in eax, unless stated otherwise
     setHook((void*)0x005055A3, iconLoadUnitAvailInBldg);      //load icons of units available in this bldg to ecx +7
@@ -628,5 +572,7 @@ void fixIconLoadingRoutines()
     writeDword(0x005337CB, 53300);    //bldg
     writeDword(0x00533830, 53330);    //unit
     //writeDword(0x004F31FB, 53360);    //tech
+
+    writeByte(0x00502D4C, CIV_COUNT + 1);
 }
 #pragma optimize( "", on )

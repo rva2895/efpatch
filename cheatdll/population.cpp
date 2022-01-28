@@ -69,14 +69,14 @@ __declspec(naked) void setPopCap_new() //005EF240
     }
 }
 
-char pop_cap_string[0x20];
+char pop_cap_string[0x18];
 bool use_extended_pop_cap_ai;
 
 char* __fastcall getPopCapString(int c)
 {
     if (!use_extended_pop_cap_ai && c > 250)
         c = 250;
-    sprintf(pop_cap_string, "POPULATION-CAP-%d", c);
+    sprintf_s(pop_cap_string, _countof(pop_cap_string), "POPULATION-CAP-%d", c);
     return pop_cap_string;
 }
 

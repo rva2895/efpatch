@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "tchat.h"
 
-void* chat_p = (void*)0x006A35D8;
-
 __declspec(naked) void on_review_chat_messages() //00506D1E
 {
     __asm
@@ -85,7 +83,6 @@ loc_529628:
 
 int dword_7A5040;
 int dword_7A5044;
-void* comm = (void*)0x006A35E0;
 
 __declspec(naked) void on_add_chat_msg_1() //0042D742
 {

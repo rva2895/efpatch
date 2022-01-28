@@ -104,8 +104,8 @@ void setJediMasterHooks(const char* prefix, const char* filename_master, const c
     log("Loading jedi master unit list");
     char full_filename_master[0x100];
     char full_filename_padawan[0x100];
-    sprintf(full_filename_master, "%s%s", prefix, filename_master);
-    sprintf(full_filename_padawan, "%s%s", prefix, filename_padawan);
+    sprintf_s(full_filename_master, _countof(full_filename_master), "%s%s", prefix, filename_master);
+    sprintf_s(full_filename_padawan, _countof(full_filename_padawan), "%s%s", prefix, filename_padawan);
     FILE* f = fopen(full_filename_master, "rt");
     if (f)
     {

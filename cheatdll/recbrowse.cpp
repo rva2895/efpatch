@@ -48,7 +48,7 @@ unsigned int __stdcall rec_cache_thread(void*)
                 if (i < priority_queue.size())
                     priority_queue.erase(priority_queue.begin() + i);
 
-                priority_queue.push_back(std::pair<std::string, int>(file, (int)msg.lParam));
+                priority_queue.emplace_back(std::pair<std::string, int>(file, (int)msg.lParam));
                 free((void*)msg.wParam);
                 break;
             }
@@ -860,7 +860,7 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
             rd.duration /= 1000;
             rd.start_time /= 1000;
             int total = rd.start_time + rd.duration;
-            sprintf(str, "%d:%02d:%02d (%d:%02d:%02d - %d:%02d:%02d)",
+            sprintf_s(str, _countof(str), "%d:%02d:%02d (%d:%02d:%02d - %d:%02d:%02d)",
                 rd.duration / 3600, (rd.duration / 60) % 60, rd.duration % 60,
                 rd.start_time / 3600, (rd.start_time / 60) % 60, rd.start_time % 60,
                 total / 3600, (total / 60) % 60, total % 60);
@@ -911,9 +911,9 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
             }
         }
         else
-            sprintf(str, "Invalid");
+            sprintf_s(str, _countof(str), "Preview not available");
     else
-        sprintf(str, "Loading...");
+        sprintf_s(str, _countof(str), "Loading...");
 
     r.top += (r.right - r.left) / 2 + map_edge_dist;
 
@@ -950,7 +950,7 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
             break;
         }*/
 
-        //sprintf(str, "VER %s", (char*)&rd.version);
+        //sprintf_s(str, _countof(str), "VER %s", (char*)&rd.version);
         strcpy_s(str, _countof(str), rd.version.c_str());
         DrawText(hdc, str, strlen(str), &r_ver, DT_RIGHT);
 

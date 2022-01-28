@@ -40,7 +40,7 @@ char* aDrsNoWide[] =
 
 const char* aDrsWide[] =
 {
-    DATA_FOLDER_PREFIX_FROM_DATA"sounds_x1.drs",
+    "sounds_x1.drs",
     DATA_FOLDER_PREFIX_FROM_DATA"sounds_x2.drs",
     DATA_FOLDER_PREFIX_FROM_DATA"graphics_p1.drs",
     DATA_FOLDER_PREFIX_FROM_DATA"graphics_x1_p1.drs",

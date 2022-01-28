@@ -213,7 +213,7 @@ int DRS::extractFiles()
             size_total += tEntries[i][j].size;
             fseek(f, tEntries[i][j].offset, SEEK_SET);
             fread(data, tEntries[i][j].size, 1, f);
-            sprintf(filename, "%d%s", tEntries[i][j].id, ext);
+            sprintf_s(filename, _countof(filename), "%d%s", tEntries[i][j].id, ext);
             HANDLE f1 = CreateFile(filename, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
             SetFilePointer(f1, tEntries[i][j].size, 0, FILE_BEGIN);
             SetEndOfFile(f1);

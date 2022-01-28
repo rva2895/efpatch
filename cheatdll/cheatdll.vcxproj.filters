@@ -465,6 +465,18 @@
     <ClInclude Include="los.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
+    <ClInclude Include="gdip.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="techtree_ui.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="tooltip.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="palfile.h">
+      <Filter>Заголовочные файлы\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -880,6 +892,18 @@
     </ClCompile>
     <ClCompile Include="los.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="gdip.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="techtree_ui.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="tooltip.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="palfile.cpp">
+      <Filter>Файлы исходного кода\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

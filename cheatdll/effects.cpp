@@ -251,7 +251,7 @@ __declspec(naked) void triggerDisplayHook()
 
 #ifdef _DEBUG
         mov     ecx, [edi + 0E24h]      //breakpoint
-        push    31h
+        push    30h
         push    offset aBreakpoint
         mov     eax, 4C82A0h
         call    eax
@@ -418,7 +418,7 @@ __declspec(naked) void effectBreakpoint()
     }
 }
 
-void (*alloca_probe_internal) () = (void (*)())0x006347F0;
+void (__cdecl* const alloca_probe_internal) () = (void (__cdecl* const)())0x006347F0;
 
 __declspec(naked) void effect_update_alloca_fix() //005F2AF5
 {

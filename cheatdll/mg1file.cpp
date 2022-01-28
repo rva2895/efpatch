@@ -462,7 +462,7 @@ MG1::MG1(const char* filename)
     /*if (cnt > 10)
     {
         char b[0x100];
-        sprintf(b, "%s: %d aa troops", filename, cnt);
+        sprintf_s(b, _countof(b), "%s: %d aa troops", filename, cnt);
         MessageBox(0, b, "stats", 0);
     }*/
 

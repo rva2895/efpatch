@@ -12,7 +12,7 @@
 
 #include "targetver.h"
 
-#define WIN32_LEAN_AND_MEAN             // Исключите редко используемые компоненты из заголовков Windows
+//#define WIN32_LEAN_AND_MEAN             // Исключите редко используемые компоненты из заголовков Windows
 // Файлы заголовков Windows:
 #include <windows.h>
 
@@ -38,4 +38,4 @@
 
 //#define CHEATDLL_NOLOG
 
-#define EFPATCH_VERSION "EFPATCH for EF v1.4.1 (1.4.1.10) " __DATE__ " " __TIME__
+#define EFPATCH_VERSION "EFPATCH for EF v1.4.2 (1.4.2.2) " __DATE__ " " __TIME__

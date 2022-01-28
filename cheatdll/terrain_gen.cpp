@@ -141,7 +141,10 @@ farm_geo:
         push    eax
         call    get_geo_terrain
         mov     dl, al
-        mov     ecx, 00557DF1h
+        xor     eax, eax
+        mov     ecx, [esi + 18h]
+        mov     al, [ecx + 0A5h]
+        mov     ecx, 00557DE5h
         jmp     ecx
     }
 }
@@ -229,6 +232,26 @@ farm_dead3:
     }
 }
 
+__declspec(naked) void onFoundationTerrain() //00557DE5
+{
+    __asm
+    {
+        cmp     dl, 1Bh
+        jnz     foundation_terrain_continue
+        cmp     eax, 6
+        jz      foundation_wookies
+        cmp     eax, 10
+        jnz     foundation_terrain_continue
+        mov     dl, 11
+        jmp     foundation_terrain_continue
+foundation_wookies:
+        mov     dl, 6
+foundation_terrain_continue:
+        mov     eax, 00557DF1h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setTerrainGenHooks(int ver)
 {
@@ -246,6 +269,8 @@ void setTerrainGenHooks(int ver)
         setHook((void*)0x00557C4E, onFarmDead1);
         setHook((void*)0x00553BB7, onFarmDead2);
         setHook((void*)0x005539C8, onFarmDead3);
+
+        setHook((void*)0x00557DE5, onFoundationTerrain);
     }
 }
 #pragma optimize( "", on )

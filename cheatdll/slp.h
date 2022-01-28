@@ -1,5 +1,7 @@
 #pragma once
 
+#include "palfile.h"
+
 #include <string>
 
 //additional structures
@@ -76,4 +78,6 @@ public:
     void stretch_techtree(int x, int y);
 
     void color_replace(unsigned char* c, int count);
+
+    void resize(int new_x, int new_y, T_PALETTE&);
 };

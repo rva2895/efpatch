@@ -111,6 +111,9 @@
 #include "bldg_heal_rate_save.h"
 #include "gaiatechtree.h"
 #include "los.h"
+#include "techtree_ui.h"
+#include "tooltip.h"
+#include "gdip.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -125,11 +128,7 @@ void getSettings()
     bool key = GetKeyState(VK_SHIFT) & 0x8000;
 
     if (cd.askAtStartup || key)
-    {
-        DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_STARTUP), 0, MainDlgProc);
-
-        regGet(&cd);
-    }
+        DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_STARTUP), 0, VersionSelectDlgProc);
 #endif
 }
 
@@ -350,6 +349,8 @@ void setHooksCC()
 
     setCommandButtonsHooks();
     setGaiaTechTreeHooks();
+    setTechTreeUIHooks();
+    //setTooltipHooks();
 
     setLOSHooks();
 
@@ -383,6 +384,9 @@ void setHooksCC()
     //setPathingHooks();
 
     //setResFileHooks();
+
+    if (cd.textRendering)
+        setGDIPlusHooks();
 
     //function hook!
     //setFunctionListHooks();
@@ -525,7 +529,7 @@ char* __stdcall get_version_str_ef(BYTE v)
     BYTE v_major;
     if (v == 127)
     {
-        strcpy(version_string, ver1x);
+        strcpy_s(version_string, _countof(version_string), ver1x);
     }
     else if (v > 8)
     {
@@ -602,16 +606,6 @@ void updateVersionCC()
 #endif
 }
 
-void fixCurrentDir()
-{
-    char fname[256];
-    GetModuleFileName(0, fname, 255);
-    char* p = fname + strlen(fname);
-    while (*--p != '\\');
-    *p = 0;
-    SetCurrentDirectory(fname);
-}
-
 void* new_memory_pages;
 
 #ifdef TARGET_VOOBLY
@@ -657,8 +651,8 @@ void initialSetup()
         cd.useAltCivLetter, cd.unlockResources, cd.editorAutosave, cd.editorAutosaveInterval);
     log("Settings (3/4): wide = %d, wx = %d, wy = %d, wnd = %d, grey = %d",
         cd.widescrnEnabled, cd.xres, cd.yres, cd.windowMode, cd.minimap7);
-    log("Settings (4/4): large = %d, crash = %d, keydown = %d, delink = %d",
-        cd.largeMaps, cd.crashReporting, cd.keydown, cd.delinkVolume);
+    log("Settings (4/4): large = %d, crash = %d, keydown = %d, delink = %d, gdip = %d",
+        cd.largeMaps, cd.crashReporting, cd.keydown, cd.delinkVolume, cd.textRendering);
 
     setTestHook();
 
@@ -699,7 +693,7 @@ void initialSetup()
     
 #ifndef TARGET_VOOBLY
     if (cd.widescrnEnabled)
-        resolutionTool(cd.xres, cd.yres);
+        resolutionTool(cd.xres, cd.yres, cd.gameVersion, true);
 #endif
 
 /*#ifndef _CHEATDLL_CC
@@ -744,42 +738,12 @@ BOOL __stdcall DllMain(HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-//#ifndef _CHEATDLL_CC
-        fixCurrentDir();   //for EF
-//#endif
-
-        initLog();
-        log("===============================================");
-        log("Dll attached");
-        log("===============================================");
-
-        log("Compile time: " __DATE__ ", " __TIME__);
-#ifdef _DEBUG
-#ifdef _CHEATDLL_CC
-        log("Configuration: DEBUG_CC");
-#else
-        log("Configuration: DEBUG");
-#endif
-#else
-#ifdef _CHEATDLL_CC
-        log("Configuration: RELEASE_CC");
-#else
-        log("Configuration: RELEASE");
-#endif
-#endif
-
         break;
     case DLL_THREAD_ATTACH:
         break;
     case DLL_THREAD_DETACH:
         break;
     case DLL_PROCESS_DETACH:
-        log("===============================================");
-        log("DLL detached");
-        log("===============================================");
-
-        closeLog();
-
         break;
     default:
         break;

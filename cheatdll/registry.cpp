@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "registry.h"
 
 extern const CONFIG_DATA cd_default =
@@ -38,6 +37,7 @@ extern const CONFIG_DATA cd_default =
     0,   //large text
     0,   //delink volume
     0,   //keydown hotkeys
+    0,   //text rendering
     0,   //mod count
     NULL //mods
     //"en" //lang
@@ -152,6 +152,7 @@ void regGet(CONFIG_DATA* cd)
             query_reg_option(hKey, "Large Text", cd->largeText, cd_default.largeText);
             query_reg_option(hKey, "Delink System Volume", cd->delinkVolume, cd_default.delinkVolume);
             query_reg_option(hKey, "Keydown Object Hotkeys", cd->keydown, cd_default.keydown);
+            query_reg_option(hKey, "Alternative Text Rendering", cd->textRendering, cd_default.textRendering);
 
             /*char language[32];
             size = 32;
@@ -230,6 +231,7 @@ void regSet(const CONFIG_DATA* cd)
         set_reg_option(hKey, "Large Text", cd->largeText, REG_DWORD);
         set_reg_option(hKey, "Delink System Volume", cd->delinkVolume, REG_DWORD);
         set_reg_option(hKey, "Keydown Object Hotkeys", cd->keydown, REG_DWORD);
+        set_reg_option(hKey, "Alternative Text Rendering", cd->textRendering, REG_DWORD);
         
         /*type = REG_SZ;
 

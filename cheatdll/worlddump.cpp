@@ -50,7 +50,6 @@ void __cdecl printf_if_exists(FILE* f, char* format, ...)
 {
     if (f)
     {
-        char s[0x100];
         va_list ap;
         va_start(ap, format);
         vfprintf(f, format, ap);
@@ -255,17 +254,17 @@ unsigned int dump_objects(const char* filename)
     return retval;
 }
 
-void __stdcall dump_checksums(unsigned int time)
+void __stdcall dump_checksums(long time)
 {
     unsigned int checksum = dump_objects(NULL);
     //srand(timeGetTime());
     //unsigned int r = rand();
     //char name[MAX_PATH];
-    //sprintf(name, "rge_checksum_dump_%08X.txt", r);
+    //sprintf_s(name, _countof(name), "rge_checksum_dump_%08X.txt", r);
     FILE* f = fopen("rge_checksum_dump.txt", "at");
     if (f)
     {
-        fprintf(f, "%d,%u\n", time, checksum);
+        fprintf(f, "%ld,%u\n", time, checksum);
         fclose(f);
     }
 }
@@ -341,12 +340,12 @@ loc_61FD69:
     }
 }
 
-void __stdcall dump_expected_checksum(int* checksum)
+void __stdcall dump_expected_checksum(long* checksum)
 {
     FILE* f = fopen("rge_expected_checksum_dump.txt", "at");
     if (f)
     {
-        fprintf(f, "%d,%d\n", get_gametime2(), *checksum);
+        fprintf(f, "%d,%ld\n", get_gametime2(), *checksum);
         fclose(f);
     }
 }
@@ -375,14 +374,14 @@ void __stdcall make_oos_dump()
 
     unsigned int r = rand();
     char r_n[0x20];
-    sprintf(r_n, "%08X", r);
+    sprintf_s(r_n, _countof(r_n), "%08X", r);
     time_t rawtime;
     tm* tm_time;
     rawtime = time(NULL);
     tm_time = localtime(&rawtime);
     strftime(name, MAX_PATH, "world_dumps\\World_Dump-%Y-%m-%d_%H-%M-%S_", tm_time);
     strcpy(name + strlen(name), r_n);
-    sprintf(r_n, "_%d.txt", get_gametime2());
+    sprintf_s(r_n, _countof(r_n), "_%d.txt", get_gametime2());
     strcpy(name + strlen(name), r_n);
     FILE* f = fopen(name, "wt");
     if (f)
@@ -930,9 +929,9 @@ void WORLD_DUMP::print(FILE* f) const
             if (it_obj->wp_cs)
                 fprintf(f, "        wp_cs=%d\n", it_obj->wp_cs);
         }
-        fprintf(f, "  Player %d cs=%d\n", it->id, it->cs);
+        fprintf(f, "  Player %d cs=%u\n", it->id, it->cs);
     }
-    fprintf(f, "World cs=%d\n", cs);
+    fprintf(f, "World cs=%u\n", cs);
 }
 
 bool WORLD_DUMP_QUEUE::check_worldtime(int worldtime) const

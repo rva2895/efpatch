@@ -4,8 +4,9 @@
 #include "registry.h"
 #include "drsfile.h"
 #include "slp.h"
+#include "palfile.h"
 
-#define RESOLUTION_TOOL_VERSION 100006
+#define RESOLUTION_TOOL_VERSION 100007
 
 void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
 {
@@ -21,7 +22,7 @@ void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
             if (!data)
             {
                 char err[0x100];
-                sprintf(err, "Cannot load SLP %d from DRS", id);
+                sprintf_s(err, _countof(err), "Cannot load SLP %d from DRS", id);
                 log(err);
                 MessageBox(NULL, err, "Error", MB_ICONERROR);
                 exit(0);
@@ -199,7 +200,7 @@ bool patchEXE(int X, int Y) //needs to be completed...
     }
     else
     {
-        MessageBox(0, "Resolutions lower than 768V are not supported", "Error", MB_ICONERROR);
+        MessageBox(NULL, "Resolutions lower than 1024x768 are not supported", "Error", MB_ICONERROR);
     }
 
     if (Y >= 1024)
@@ -240,7 +241,7 @@ void patchRect(int x,
     log("Patching rect \"%s\", params: %d, %d, %d, %d",
         itemName, addX, addY, addW, addH);
 
-    char* endbuf = (char*)malloc(4096);
+    char* endbuf = (char*)malloc(0x2000);
 
     int X800; //see 53290 in interfac.drs to understand how this works
     int Y800;
@@ -254,16 +255,16 @@ void patchRect(int x,
     int Y1280;
     int W1280;
     int H1280;
-    char scanArg[128];
-    char oldRects[128];
-    char newRects[128];
-    sprintf(scanArg, "%s\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%s", itemName);
-    sscanf((char*)drsRects + findRectOffset(drsRects, itemName), scanArg,
+    char scanArg[0x100];
+    char oldRects[0x100];
+    char newRects[0x100];
+    sprintf_s(scanArg, _countof(scanArg), "%s\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%s", itemName);
+    sscanf_s((char*)drsRects + findRectOffset(drsRects, itemName), scanArg,
         &X800, &Y800, &W800, &H800,
         &X1024, &Y1024, &W1024, &H1024,
         &X1280, &Y1280, &W1280, &H1280,
-        endbuf);
-    sprintf(oldRects, "\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t", //tab value tab value...
+        endbuf, 0x2000);
+    sprintf_s(oldRects, _countof(oldRects), "\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t", //tab value tab value...
         X800, Y800, W800, H800,
         X1024, Y1024, W1024, H1024,
         X1280, Y1280, W1280, H1280);
@@ -295,7 +296,7 @@ void patchRect(int x,
             H1024 += y - 768;
         else
             exit(1);
-    sprintf(newRects, "\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t",
+    sprintf_s(newRects, _countof(newRects), "\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t",
         X800, Y800, W800, H800,
         X1024, Y1024, W1024, H1024,
         X1280, Y1280, W1280, H1280);
@@ -330,7 +331,7 @@ void patchResRects(int x, int y, DRS* drs)
     if (!x1.loadDRS("data\\interfac_x1.drs"))
     {
         char err[0x100];
-        sprintf(err, "Cannot load interfac_x1.drs");
+        sprintf_s(err, _countof(err), "Cannot load interfac_x1.drs");
         log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
@@ -339,7 +340,7 @@ void patchResRects(int x, int y, DRS* drs)
     if (!drsRects2)
     {
         char err[0x100];
-        sprintf(err, "Cannot load BIN 53290 from interfac_x1.drs");
+        sprintf_s(err, _countof(err), "Cannot load BIN 53290 from interfac_x1.drs");
         log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
@@ -384,11 +385,11 @@ void placeSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool
     void* data;
     if (wide)
     {
-        data = wide_x2->getFile(id, &size);
+        data = wide_x2 ? wide_x2->getFile(id, &size) : NULL;
         if (!data)
         {
             char err[0x100];
-            sprintf(err, "Cannot load SLP %d from DRS", id);
+            sprintf_s(err, _countof(err), "Cannot load SLP %d from DRS", id);
             log(err);
             MessageBox(NULL, err, "Error", MB_ICONERROR);
             exit(0);
@@ -396,17 +397,17 @@ void placeSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool
     }
     else
     {
-        data = x2->getFile(id, &size);
+        data = x2 ? x2->getFile(id, &size) : NULL;
         if (!data)
         {
-            data = x1->getFile(id, &size);
+            data = x1 ? x1->getFile(id, &size) : NULL;
             if (!data)
             {
-                data = x0->getFile(id, &size);
+                data = x0 ? x0->getFile(id, &size) : NULL;
                 if (!data)
                 {
                     char err[0x100];
-                    sprintf(err, "Cannot load SLP %d from DRS", id);
+                    sprintf_s(err, _countof(err), "Cannot load SLP %d from DRS", id);
                     log(err);
                     MessageBox(NULL, err, "Error", MB_ICONERROR);
                     exit(0);
@@ -418,7 +419,52 @@ void placeSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool
     free(data);
 }
 
-void patchResolution(int x, int y, DRS* drs)
+void placeScaledSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool wide, int new_x, int new_y, T_PALETTE& pal)
+{
+    int size;
+    void* data;
+    if (wide)
+    {
+        data = wide_x2 ? wide_x2->getFile(id, &size) : NULL;
+        if (!data)
+        {
+            char err[0x100];
+            sprintf_s(err, _countof(err), "Cannot load SLP %d from DRS", id);
+            log(err);
+            MessageBox(NULL, err, "Error", MB_ICONERROR);
+            exit(0);
+        }
+    }
+    else
+    {
+        data = x2 ? x2->getFile(id, &size) : NULL;
+        if (!data)
+        {
+            data = x1 ? x1->getFile(id, &size) : NULL;
+            if (!data)
+            {
+                data = x0 ? x0->getFile(id, &size) : NULL;
+                if (!data)
+                {
+                    char err[0x100];
+                    sprintf_s(err, _countof(err), "Cannot load SLP %d from DRS", id);
+                    log(err);
+                    MessageBox(NULL, err, "Error", MB_ICONERROR);
+                    exit(0);
+                }
+            }
+        }
+    }
+    SLP slp;
+    slp.load((unsigned char*)data, size);
+    slp.resize(new_x, new_y, pal);
+    void* new_data = slp.optimize(&size, true);
+    target->addFile(new_data, size, id, DRS_SLP);
+    free(new_data);
+    free(data);
+}
+
+void patchResolution(int x, int y, DRS* drs, bool patch_ef)
 {
     log("Resolution patch started, %dx%d", x, y);
     log("Patching rects...");
@@ -426,8 +472,8 @@ void patchResolution(int x, int y, DRS* drs)
     patchResRects(x, y, drs);
 
     log("Updating resolution id");
-    char resStr[20];
-    sprintf(resStr, "%dx%d", x, y);
+    char resStr[0x10];
+    sprintf_s(resStr, _countof(resStr), "%dx%d", x, y);
     drs->addFile(resStr, strlen(resStr) + 1, RESOLUTION_TOOL_VERSION, DRS_BIN); //bina
 
     log("Stretching SLPs...");
@@ -436,13 +482,8 @@ void patchResolution(int x, int y, DRS* drs)
     DRS x0_cc; x0_cc.loadDRS("data\\INTERFAC.DRS");
     DRS x1_cc; x1_cc.loadDRS("data\\interfac_x1.drs");
 //#else
-#ifdef VOOBLY_EF
-    DRS x0; x0.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac.DRS");
-    DRS x1; x1.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_x1.drs");
-#else
     DRS x0; x0.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_p1.DRS");
     DRS x1; x1.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_x1_p1.drs");
-#endif
 //#endif
     DRS x2; x2.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_x2.drs");
     DRS wide_x2; wide_x2.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"widescrn_x2.drs");
@@ -474,9 +515,9 @@ void patchResolution(int x, int y, DRS* drs)
         parseSLP(&x0_cc, &x1_cc, NULL, drs, 51127, x, y);
         parseSLP(&x0_cc, &x1_cc, NULL, drs, 51128, x, y);
     }
-    drs->writeDRS();
+    //drs->writeDRS();
 
-    drs->setFileName(DATA_FOLDER_PREFIX_FROM_ROOT"wide_p1.drs");
+    //drs->setFileName(DATA_FOLDER_PREFIX_FROM_ROOT"wide_p1.drs");
 
     //50032 - edit small
     //50033 - edit medium
@@ -485,91 +526,125 @@ void patchResolution(int x, int y, DRS* drs)
     //50101 - load medium
     //50102 - load large
 
-#ifndef _CHEATDLL_CC
-    if (x >= 1920)
+    int pal_size;
+    void* pal_file = x0_cc.getFile(50031, &pal_size);
+    T_PALETTE pal(pal_file, pal_size);
+    free(pal_file);
+
+    if (x >= 1280 && y >= 1024)
     {
-        placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50032, false);
-        placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50033, false);
-        placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50034, true);
-        placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50100, false);
-        placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50101, false);
-        placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50102, true);
+        placeScaledSLP(&x0_cc, &x1_cc, NULL, NULL, drs, 50034, false, x, y, pal);
+        placeScaledSLP(&x0_cc, &x1_cc, NULL, NULL, drs, 50102, false, x, y, pal);
     }
     else
-#endif
     {
-        placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50032, false);
-        placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50033, false);
-        placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50034, false);
-        placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50100, false);
-        placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50101, false);
-        placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50102, false);
-    }
-
-    if (y >= 1024)
-    {
-        parseSLP(&x0, &x1, &x2, drs, 51141, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51142, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51143, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51144, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51145, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51146, x, y);
-
-        parseSLP(&x0, &x1, &x2, drs, 51147, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51148, x, y);
-
-#ifndef _CHEATDLL_CC
-        parseSLP(&x0, &x1, &x2, drs, 51149, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51150, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51151, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51152, x, y);
-#endif
-    }
-    else if (y >= 768)
-    {
-        parseSLP(&x0, &x1, &x2, drs, 51121, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51122, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51123, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51124, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51125, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51126, x, y);
-
-        parseSLP(&x0, &x1, &x2, drs, 51127, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51128, x, y);
-
-#ifndef _CHEATDLL_CC
-        parseSLP(&x0, &x1, &x2, drs, 51129, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51130, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51131, x, y);
-        parseSLP(&x0, &x1, &x2, drs, 51132, x, y);
-#endif
+        placeScaledSLP(&x0_cc, &x1_cc, NULL, NULL, drs, 50033, false, x, y, pal);
+        placeScaledSLP(&x0_cc, &x1_cc, NULL, NULL, drs, 50101, false, x, y, pal);
     }
 
     drs->writeDRS();
 
+    if (patch_ef)
+    {
+        drs->setFileName(DATA_FOLDER_PREFIX_FROM_ROOT"wide_p1.drs");
+
+        if (x >= 1920 && y >= 1080)
+        {
+            placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50032, false);
+            placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50033, false);
+            placeScaledSLP(&x0, &x1, &x2, &wide_x2, drs, 50034, true, x, y, pal);
+            placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50100, false);
+            placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50101, false);
+            placeScaledSLP(&x0, &x1, &x2, &wide_x2, drs, 50102, true, x, y, pal);
+        }
+        else if (x >= 1280 && y >= 1024)
+        {
+            placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50032, false);
+            placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50033, false);
+            placeScaledSLP(&x0, &x1, &x2, &wide_x2, drs, 50034, false, x, y, pal);
+            placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50100, false);
+            placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50101, false);
+            placeScaledSLP(&x0, &x1, &x2, &wide_x2, drs, 50102, false, x, y, pal);
+        }
+        else
+        {
+            placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50032, false);
+            placeScaledSLP(&x0, &x1, &x2, &wide_x2, drs, 50033, false, x, y, pal);
+            placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50034, false);
+            placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50100, false);
+            placeScaledSLP(&x0, &x1, &x2, &wide_x2, drs, 50101, false, x, y, pal);
+            placeSLP(&x0, &x1, &x2, &wide_x2, drs, 50102, false);
+        }
+
+        if (y >= 1024)
+        {
+            parseSLP(&x0, &x1, &x2, drs, 51141, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51142, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51143, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51144, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51145, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51146, x, y);
+
+            parseSLP(&x0, &x1, &x2, drs, 51147, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51148, x, y);
+
+#ifndef _CHEATDLL_CC
+            parseSLP(&x0, &x1, &x2, drs, 51149, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51150, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51151, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51152, x, y);
+#endif
+        }
+        else if (y >= 768)
+        {
+            parseSLP(&x0, &x1, &x2, drs, 51121, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51122, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51123, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51124, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51125, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51126, x, y);
+
+            parseSLP(&x0, &x1, &x2, drs, 51127, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51128, x, y);
+
+#ifndef _CHEATDLL_CC
+            parseSLP(&x0, &x1, &x2, drs, 51129, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51130, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51131, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51132, x, y);
+#endif
+        }
+
+        drs->writeDRS();
+    }
+
     log("Resolution patch successfull");
 }
 
-void resolutionTool(int x, int y)
+void resolutionTool(int x, int y, bool patch_ef, bool patch_exe)
 {
     int size;
     DRS drs;
     drs.setFileName(DATA_FOLDER_PREFIX_FROM_ROOT"wide.drs");
     DRS* drs2 = new DRS;
-    drs2->loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"wide.drs");
+    if (patch_ef)
+        drs2->loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"wide_p1.drs");
+    else
+        drs2->loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"wide.drs");
     void* drsResStr = drs2->getFile(RESOLUTION_TOOL_VERSION, &size);
     delete drs2;
     if (drsResStr)
     {
         int x_;
         int y_;
-        sscanf((char*)drsResStr, "%dx%d", &x_, &y_);
+        sscanf_s((char*)drsResStr, "%dx%d", &x_, &y_);
         free(drsResStr);
         if ((x_ != x) || (y_ != y))
-            patchResolution(x, y, &drs);
+            patchResolution(x, y, &drs, patch_ef);
     }
     else
-        patchResolution(x, y, &drs);
+        patchResolution(x, y, &drs, patch_ef);
 
-    patchEXE(x, y);
+    if (patch_exe)
+        patchEXE(x, y);
 }

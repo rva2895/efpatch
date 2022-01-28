@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+/*
 bool key_state(int key)
 {
     return GetKeyState(key) & 0x8000;
@@ -33,8 +34,9 @@ __declspec(naked) void onCheckKeyStates() //004B6651
         jmp     eax
     }
 }
+*/
 
 void setKeyboardHooks()
 {
-    memset(key_states, 0, sizeof(key_states));
+    //memset(key_states, 0, sizeof(key_states));
 }

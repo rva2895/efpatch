@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "overlay.h"
 
+/*
 void* overlay_ptr = NULL;
 
 int pos_x = 400;
@@ -54,21 +55,6 @@ __declspec(naked) int __fastcall get_n_players()
     }
 }
 
-__declspec(naked) void* __fastcall get_player(int)
-{
-    __asm
-    {
-        mov     edx, ecx
-        mov     ecx, 006A3684h
-        mov     ecx, [ecx]
-        mov     ecx, [ecx + 17B4h]
-        mov     ecx, [ecx + 126Ch]
-        mov     ecx, [ecx + 4Ch]
-        mov     eax, [ecx + edx * 4]
-        ret
-    }
-}
-
 __declspec(naked) float* __fastcall get_player_resources(void*)
 {
     __asm
@@ -92,10 +78,10 @@ __declspec(naked) int __fastcall get_gametime()
     }
 }
 
-/*void print_graph(HDC hdc, std::vector<std::vector<std::pair<int, int>>> data)
+void print_graph(HDC hdc, std::vector<std::vector<std::pair<int, int>>> data)
 {
 
-}*/
+}
 
 void __stdcall window_overlay_draw2(HDC hdc)
 {
@@ -430,16 +416,18 @@ _no_overlay_delete:
         jmp     edi
     }
 }
+*/
 
 #pragma optimize( "s", on )
 void setOverlayHooks()
 {
-    setHook((void*)0x004F45C1, onOverlayCreate);
-    setHook((void*)0x004F5F52, onOverlayDelete);
-    setHook((void*)0x004F583C, onOverlayInit);
+    //setHook((void*)0x004F45C1, onOverlayCreate);
+    //setHook((void*)0x004F5F52, onOverlayDelete);
+    //setHook((void*)0x004F583C, onOverlayInit);
 }
 #pragma optimize( "", on )
 
+/*
 __declspec(naked) void __stdcall overlay_on()
 {
     __asm
@@ -482,3 +470,4 @@ void overlay_switch()
         }
     }
 }
+*/
