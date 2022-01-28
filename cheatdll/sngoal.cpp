@@ -3,11 +3,11 @@
 std::vector<std::pair<int, std::string>> goal_names;
 std::vector<std::pair<int, std::string>> sn_names;
 
-int(__thiscall* get_strategic_number_exe)(void *this_, int sn) =
-    (int(__thiscall*)(void*, int))0x005A5710;
+int (__thiscall* const get_strategic_number_exe)(void *this_, int sn) =
+    (int (__thiscall* const)(void*, int))0x005A5710;
 
-int(__thiscall* get_goal_exe)(void *this_, int goal) =
-    (int(__thiscall*)(void*, int))0x0058AA40;
+int (__thiscall* const get_goal_exe)(void *this_, int goal) =
+    (int (__thiscall* const)(void*, int))0x0058AA40;
 
 int __stdcall get_sn(void* player, int sn)
 {
@@ -27,7 +27,7 @@ int __stdcall get_goal(void* player, int sn)
     if (ai)
     {
         ai = (void*)((DWORD)ai + 0x165C);
-        return get_goal_exe(ai, sn-1);
+        return get_goal_exe(ai, sn - 1);
     }
     else
         return -1;
@@ -40,16 +40,16 @@ bool __stdcall player_is_ai(void* player)
 
 void load_goal_sn_txt()
 {
+    char name[0x100];
+    int id;
     log("Loading goal list");
     FILE* f = fopen(DATA_FOLDER_PREFIX_FROM_ROOT"goal.txt", "rt");
     if (f)
     {
-        char name[0x100];
-        int id;
-        while (fscanf(f, "%d %255s", &id, name) > 0)
+        while (fscanf_s(f, "%d %s", &id, name, _countof(name)) > 0)
         {
             for (char* p = name; *p; ++p) *p = tolower(*p);
-            goal_names.push_back(std::pair<int, std::string>(id, name));
+            goal_names.emplace_back(std::pair<int, std::string>(id, name));
         }
 
         fclose(f);
@@ -61,12 +61,10 @@ void load_goal_sn_txt()
     f = fopen(DATA_FOLDER_PREFIX_FROM_ROOT"sn.txt", "rt");
     if (f)
     {
-        char name[0x100];
-        int id;
-        while (fscanf(f, "%d %255s", &id, name) > 0)
+        while (fscanf_s(f, "%d %s", &id, name, _countof(name)) > 0)
         {
             for (char* p = name; *p; ++p) *p = tolower(*p);
-            sn_names.push_back(std::pair<int, std::string>(id, name));
+            sn_names.emplace_back(std::pair<int, std::string>(id, name));
         }
 
         fclose(f);
@@ -84,7 +82,7 @@ void get_sn_with_alias(void* player, char* name_)
         if (it->second == name)
             sn = it->first;
     if (sn == -1)
-        if (sscanf(name_, "%d", &sn) == 0)
+        if (sscanf_s(name_, "%d", &sn) == 0)
         {
             chat("Unknown strategic number: \"%s\"", name_);
             return;
@@ -104,7 +102,7 @@ void get_goal_with_alias(void* player, char* name_)
         if (it->second == name)
             goal = it->first;
     if (goal == -1)
-        if (sscanf(name_, "%d", &goal) == 0)
+        if (sscanf_s(name_, "%d", &goal) == 0)
         {
             chat("Unknown goal: \"%s\"", name_);
             return;

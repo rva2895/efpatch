@@ -11,16 +11,19 @@
 
 //std::vector<std::pair<std::string, std::string>> languages;
 
+extern CONFIG_DATA cd;
+extern const CONFIG_DATA cd_default;
+
 void processIDOK(HWND hWnd)
 {
-    CONFIG_DATA cd;
-    regGet(&cd);
+    //CONFIG_DATA cd;
+    //regGet(&cd);
 #ifndef _CHEATDLL_CC
     char buf[10];
     GetDlgItemText(hWnd, IDC_EDIT_DSH_NBUFS, buf, 10);
-    sscanf(buf, "%d", &cd.nBufs);
+    sscanf_s(buf, "%d", &cd.nBufs);
     GetDlgItemText(hWnd, IDC_EDIT_DSH_DELAY, buf, 10);
-    sscanf(buf, "%d", &cd.timeout);
+    sscanf_s(buf, "%d", &cd.timeout);
 #endif
     cd.useFPS = IsDlgButtonChecked(hWnd, IDC_CHECK_FPS);
     cd.useDShook = IsDlgButtonChecked(hWnd, IDC_CHECK_DSH);
@@ -35,7 +38,7 @@ void processIDOK(HWND hWnd)
     {
         char str[50];
         GetDlgItemText(hWnd, IDC_EDIT_EDITORAUTO, str, 50);
-        sscanf(str, "%d", &cd.editorAutosaveInterval);
+        sscanf_s(str, "%d", &cd.editorAutosaveInterval);
     }
 
     cd.windowMode = IsDlgButtonChecked(hWnd, IDC_CHECK_WNDMODE);
@@ -54,7 +57,7 @@ void processIDOK(HWND hWnd)
     {
         char str[50];
         GetDlgItemText(hWnd, IDC_COMBO_SCREEN_SIZE, str, 50);
-        sscanf(str, "%dx%d", &cd.xres, &cd.yres);
+        sscanf_s(str, "%dx%d", &cd.xres, &cd.yres);
     }
 
     cd.minimap7 = IsDlgButtonChecked(hWnd, IDC_CHECK_GREY);
@@ -62,8 +65,10 @@ void processIDOK(HWND hWnd)
     cd.delinkVolume = IsDlgButtonChecked(hWnd, IDC_CHECK_MASTER_VOLUME);
     cd.keydown = IsDlgButtonChecked(hWnd, IDC_CHECK_KEYDOWN);
 
-    char* lang_str = (char*)malloc(0x100);
-    GetDlgItemText(hWnd, IDC_COMBO_LANG, lang_str, 0x100);
+    cd.textRendering = IsDlgButtonChecked(hWnd, IDC_CHECK_TEXT_RENDERING);
+
+    //char* lang_str = (char*)malloc(0x100);
+    //GetDlgItemText(hWnd, IDC_COMBO_LANG, lang_str, 0x100);
     //std::string lang_str_s = lang_str;
     //for (int i = 0; i < languages.size(); i++)
     //    if (languages[i].first == lang_str_s)
@@ -72,11 +77,11 @@ void processIDOK(HWND hWnd)
     regSet(&cd);
 }
 
-void getSettings(HWND hWnd)
+void readSettingsToDialog(HWND hWnd)
 {
-    char buf[50];
-    CONFIG_DATA cd;
-    regGet(&cd);
+    char buf[0x40];
+    //CONFIG_DATA cd;
+    //regGet(&cd);
 
     cd.useDShook = 0;
 
@@ -135,17 +140,17 @@ void getSettings(HWND hWnd)
     EnableWindow(GetDlgItem(hWnd, IDC_CHECK_MAPSIZE), FALSE); 
     EnableWindow(GetDlgItem(hWnd, IDC_CHECK_CRASH), FALSE);
 #else
-    sprintf(buf, "%d", cd.nBufs);
+    sprintf_s(buf, _countof(buf), "%d", cd.nBufs);
     SetDlgItemText(hWnd, IDC_EDIT_DSH_NBUFS, buf);
-    sprintf(buf, "%d", cd.timeout);
+    sprintf_s(buf, _countof(buf), "%d", cd.timeout);
     SetDlgItemText(hWnd, IDC_EDIT_DSH_DELAY, buf);
 #endif
-    sprintf(buf, "%d", cd.editorAutosaveInterval);
+    sprintf_s(buf, _countof(buf), "%d", cd.editorAutosaveInterval);
     SetDlgItemText(hWnd, IDC_EDIT_EDITORAUTO, buf);
 
     if (cd.widescrnEnabled)
     {
-        sprintf(buf, "%dx%d", cd.xres, cd.yres);
+        sprintf_s(buf, _countof(buf), "%dx%d", cd.xres, cd.yres);
         SetDlgItemText(hWnd, IDC_COMBO_SCREEN_SIZE, buf);
     }
 
@@ -159,17 +164,18 @@ void getSettings(HWND hWnd)
     EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_NBUFS), FALSE);
     EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_DELAY), FALSE);
 
+    CheckDlgButton(hWnd, IDC_CHECK_TEXT_RENDERING, cd.textRendering);
+
     //languages = query_languages();
     //for (int i = 0; i < languages.size(); i++)
     //    SendMessage(GetDlgItem(hWnd, IDC_COMBO2), CB_ADDSTRING, 0, (LPARAM)languages[i].first.c_str());
 }
 
-extern const CONFIG_DATA cd_default;
-
 void processDefaults(HWND hWnd)
 {
     regSet(&cd_default);
-    getSettings(hWnd);
+    cd = cd_default;
+    readSettingsToDialog(hWnd);
 }
 
 BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -184,9 +190,9 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
     {
         //SendMessage (GetDlgItem (hWndDlg, IDC_BUTTON_ASSOC), BCM_SETSHIELD, 0, TRUE);
 
-        getSettings(hWndDlg);
+        readSettingsToDialog(hWndDlg);
         //detectCC ();
-        char curMode[50];
+        char curMode[0x40];
         int nMode = 0;
         DEVMODE devMode;
         DWORD prevW = 0;
@@ -197,7 +203,7 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
             if (devMode.dmBitsPerPel == 32)
                 if ((prevW != devMode.dmPelsWidth) || (prevH != devMode.dmPelsHeight))
                 {
-                    sprintf(curMode, "%lux%lu", devMode.dmPelsWidth, devMode.dmPelsHeight);
+                    sprintf_s(curMode, _countof(curMode), "%lux%lu", devMode.dmPelsWidth, devMode.dmPelsHeight);
                     if ((devMode.dmPelsWidth >= 1024) && (devMode.dmPelsHeight >= 768))
                         SendMessage(GetDlgItem(hWndDlg, IDC_COMBO_SCREEN_SIZE), CB_ADDSTRING, 0, (LPARAM)curMode);
                     prevW = devMode.dmPelsWidth;
@@ -219,7 +225,7 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
                     int x = 0;
                     int y = 0;
                     GetDlgItemText(hWndDlg, IDC_COMBO_SCREEN_SIZE, resolution, 50);
-                    int scan_result = sscanf(resolution, "%dx%d", &x, &y);
+                    int scan_result = sscanf_s(resolution, "%dx%d", &x, &y);
                     if (((x <= 0) || (y <= 0)) || (scan_result < 2))
                     {
                         MessageBox(hWndDlg, "Please select a valid resolution", "Error", MB_ICONERROR);
@@ -227,19 +233,19 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
                     }
                     if (y < 768)
                     {
-                        MessageBox(hWndDlg, "Resolutions lower than 768V are not supported", "Error", MB_ICONERROR);
+                        MessageBox(hWndDlg, "Resolutions lower than 1024x768 are not supported", "Error", MB_ICONERROR);
                         break;
                     }
                     if (x < 1024)
                     {
-                        MessageBox(hWndDlg, "Resolutions lower than 1024H are not supported", "Error", MB_ICONERROR);
+                        MessageBox(hWndDlg, "Resolutions lower than 1024x768 are not supported", "Error", MB_ICONERROR);
                         break;
                     }
                     SetDlgItemText(hWndDlg, IDOK, "Saving...");
                     EnableMenuItem(GetSystemMenu(hWndDlg, FALSE), SC_CLOSE,
                         MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
                     EnableWindow(GetDlgItem(hWndDlg, IDOK), FALSE);
-                    resolutionTool(x, y);
+                    resolutionTool(x, y, true, false);
                 }
 
                 processIDOK(hWndDlg);
@@ -309,5 +315,6 @@ void __stdcall launchConfigurator(HWND hWnd)
 extern "C" __declspec(dllexport) void __stdcall Configurator(HWND parent)
 {
 #pragma comment(linker, "/EXPORT:" __FUNCTION__"=" __FUNCDNAME__)
+    regGet(&cd);
     launchConfigurator(parent);
 }

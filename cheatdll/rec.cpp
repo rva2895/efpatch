@@ -102,7 +102,7 @@ loc_7CD8B0:
 
 void __stdcall make_eof_string(char* dest, long t)
 {
-    sprintf_s(dest, 240, "Unexpected end of file encountered. Replaying stopped. - worldtime: %ld", t);
+    sprintf_s(dest, 240, "Unexpected end of file. Replaying stopped. - worldtime: %ld", t);
 }
 
 __declspec(naked) void rec_unexpected_eof() //0061FD04
@@ -113,7 +113,7 @@ __declspec(naked) void rec_unexpected_eof() //0061FD04
         mov     ecx, 0061FCA4h
         jmp     ecx
 
-        rec_eof:
+rec_eof:
         mov     ecx, base_game
         mov     ecx, [ecx]
         mov     eax, [ecx + 17B4h]
@@ -155,7 +155,6 @@ void setRecHooks()
     setHook((void*)0x00502C12, rec_player_list_color);
     writeByte(0x004F55C5, 0x14); //shrink rec player dropdown arrow
     setHook((void*)0x0061FD04, rec_unexpected_eof);
-    //writeDword(0x00502BFC, 0);
 }
 #pragma optimize( "", on )
 

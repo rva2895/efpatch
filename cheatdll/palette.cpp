@@ -191,7 +191,7 @@ unsigned int __stdcall slp_optimize_thread(void* p)
     for (int i = (int)p; i < slp_parallel->size(); i += nProc)
     {
         int id;
-        sscanf((*slp_parallel)[i].c_str(), "%d", &id);
+        sscanf_s((*slp_parallel)[i].c_str(), "%d", &id);
         if (slp_interfac(id))
         {
             SLP slp;
@@ -243,7 +243,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     SetCurrentDirectory("data\\");
     if (!drs->loadDRS(filename))
     {
-        sprintf(err, "Cannot load %s.\nCheck installation integrity.", filename);
+        sprintf_s(err, _countof(err), "Cannot load %s.\nCheck installation integrity.", filename);
         log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
@@ -257,7 +257,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     log("Extracting files...");
     if (drs->extractFiles() == 0)
     {
-        sprintf(err, "Cannot create temporary file.\nMake sure there is at least 200MB free in TEMP folder");
+        sprintf_s(err, _countof(err), "Cannot create temporary file.\nMake sure there is at least 200MB free in TEMP folder");
         log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
@@ -279,7 +279,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
             if (s[0] == '"')
                 s++;
             int id;
-            sscanf(s, "%d", &id);
+            sscanf_s(s, "%d", &id);
             switch (id)
             {
             case 50230:
@@ -355,7 +355,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
             if (s[0] == '"')
                 s++;
             int id;
-            sscanf(s, "%d", &id);
+            sscanf_s(s, "%d", &id);
             FILE* g = fopen(fd.cFileName, "rb");
             fseek(g, 0, SEEK_END);
             int size = ftell(g);
@@ -379,7 +379,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     log("Added %d files to DRS, writing...", nDrsFiles);
     if (!drs->writeDRS())
     {
-        sprintf(err, "Cannot create DRS file.\nMake sure there is at least 500MB free in Game folder, and you have write permissions");
+        sprintf_s(err, _countof(err), "Cannot create DRS file.\nMake sure there is at least 500MB free in Game folder, and you have write permissions");
         log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
@@ -439,12 +439,12 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
             st = "";
             break;
         }
-        sprintf(s, "%s %s...", st, (char*)wParam);
+        sprintf_s(s, _countof(s), "%s %s...", st, (char*)wParam);
         free((char*)wParam);
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
         break;
     case WM_USER + 2: //status update SLP
-        sprintf(s, "Processing %d.slp...", (int)wParam);
+        sprintf_s(s, _countof(s), "Processing %d.slp...", (int)wParam);
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETPOS, slp_counter++, 0);
         break;

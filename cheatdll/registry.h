@@ -40,6 +40,7 @@ struct CONFIG_DATA
     int largeText;
     int delinkVolume;
     int keydown;
+    int textRendering;
     int modCount;
     char** mods;
 

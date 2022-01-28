@@ -164,7 +164,7 @@ int getColor(char* str)
 
     if (isIndex)
     {
-        sscanf(nStr + 1, "%d", &c);
+        sscanf_s(nStr + 1, "%d", &c);
         if ((c < 0) || (c > 255))
             return -1;      //invalid index - return error
         else

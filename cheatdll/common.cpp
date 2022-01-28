@@ -2,9 +2,13 @@
 
 #include "common.h"
 
-void** base_game = (void**)0x006A3684;
-void** panel_system = (void**)0x006ADBB8;
-int* world_update_counter = (int*)0x007A22F8;
+void** const base_game = (void** const)0x006A3684;
+void** const panel_system = (void** const)0x006ADBB8;
+int* const world_update_counter = (int* const)0x007A22F8;
+
+void** const comm = (void** const)0x006A35E0;
+void** const chat_p = (void** const)0x006A35D8;
+
 
 #ifdef TARGET_VOOBLY
 extern IVoobly *g_pVoobly;
@@ -144,7 +148,7 @@ void __cdecl chat(char* format, ...)
     char s[0x100];
     va_list ap;
     va_start(ap, format);
-    vsprintf(s, format, ap);
+    vsprintf_s(s, _countof(s), format, ap);
     sendChat(s, -1);
     va_end(ap);
 }
@@ -223,6 +227,22 @@ __declspec(naked) void __stdcall kill_unit(UNIT* unit)
         retn    4
     }
 }
+
+__declspec(naked) void* __fastcall get_player(int)
+{
+    __asm
+    {
+        mov     edx, ecx
+        mov     ecx, 006A3684h
+        mov     ecx, [ecx]
+        mov     ecx, [ecx + 17B4h]
+        mov     ecx, [ecx + 126Ch]
+        mov     ecx, [ecx + 4Ch]
+        mov     eax, [ecx + edx * 4]
+        ret
+    }
+}
+
 #pragma warning(pop)
 
 __declspec(naked) void* __stdcall get_top_panel()
@@ -235,89 +255,90 @@ __declspec(naked) void* __stdcall get_top_panel()
     }
 }
 
-void* (__thiscall* BaseWorld__object)(void* this_, int oID) =
-    (void* (__thiscall*) (void*, int))0x00623DB0;
 
-void* (__thiscall* BaseGame__get_player)(void* globalPtr) =
-    (void* (__thiscall*)(void* globalPtr))0x00428750;
+void* (__thiscall* const BaseWorld__object)(void* this_, int oID) =
+    (void* (__thiscall* const) (void*, int))0x00623DB0;
 
-int (__thiscall* BaseGame__playerID)(void* this_, int player_index) =
-    (int (__thiscall*)(void*, int))0x0042CCC0;
+void* (__thiscall* const BaseGame__get_player)(void* globalPtr) =
+    (void* (__thiscall* const)(void* globalPtr))0x00428750;
 
-bool (__thiscall* BaseGame__allowCheatCodes)(void* this_) =
-    (bool (__thiscall*) (void*))0x0042C330;
+int (__thiscall* const BaseGame__playerID)(void* this_, int player_index) =
+    (int (__thiscall* const)(void*, int))0x0042CCC0;
 
-bool (__thiscall* BaseGame__singlePlayerGame)(void* this_) =
-    (bool (__thiscall*) (void*))0x0042C2F0;
+bool (__thiscall* const BaseGame__allowCheatCodes)(void* this_) =
+    (bool (__thiscall* const) (void*))0x0042C330;
 
-bool (__thiscall* BaseGame__getRecordGame)(void* this_) =
-    (bool (__thiscall*)(void*))0x0042C340;
+bool (__thiscall* const BaseGame__singlePlayerGame)(void* this_) =
+    (bool (__thiscall* const) (void*))0x0042C2F0;
 
-void (__thiscall* BaseGame__setRecordGame)(void* this_, bool v) =
-    (void (__thiscall*)(void*, bool))0x0042C550;
+bool (__thiscall* const BaseGame__getRecordGame)(void* this_) =
+    (bool (__thiscall* const)(void*))0x0042C340;
 
-void (__thiscall* Game__show_status_message)(void* this_, char* messageIn, char* info_file, int info_id, int show_settings, int use_logo_background) =
-    (void (__thiscall*)(void*, char*, char*, int, int, int))0x005E7EC0;
+void (__thiscall* const BaseGame__setRecordGame)(void* this_, bool v) =
+    (void (__thiscall* const)(void*, bool))0x0042C550;
 
-void (__thiscall* Game__close_status_message)(void* this_) =
-    (void (__thiscall*)(void*))0x005E7FE0;
+void (__thiscall* const Game__show_status_message)(void* this_, char* messageIn, char* info_file, int info_id, int show_settings, int use_logo_background) =
+    (void (__thiscall* const)(void*, char*, char*, int, int, int))0x005E7EC0;
 
-void (__thiscall* Game__set_player)(void* this_, __int16 new_player_id) =
-    (void (__thiscall*)(void*, __int16))0x005E68B0;
+void (__thiscall* const Game__close_status_message)(void* this_) =
+    (void (__thiscall* const)(void*))0x005E7FE0;
 
-int (__thiscall* Game__playerColor)(void* this_, int player_num) =
-    (int (__thiscall*)(void*, int))0x005EF060;
+void (__thiscall* const Game__set_player)(void* this_, __int16 new_player_id) =
+    (void (__thiscall* const)(void*, __int16))0x005E68B0;
 
-void* (__thiscall* GameScreen__find_next_idle_unit)(void* this_, int last_object_id) =
-    (void* (__thiscall*) (void*, int))0x00506340;
+int (__thiscall* const Game__playerColor)(void* this_, int player_num) =
+    (int (__thiscall* const)(void*, int))0x005EF060;
 
-void* (__thiscall* GameScreen__find_next_idle_military_unit)(void* this_, int last_object_id) =
-    (void* (__thiscall*) (void*, int))0x005064B0;
+void* (__thiscall* const GameScreen__find_next_idle_unit)(void* this_, int last_object_id) =
+    (void* (__thiscall* const) (void*, int))0x00506340;
 
-void* (__thiscall* WorldPlayer__find_obj)(void* this_, __int16 obj_id, void* after_obj, __int16 obj_id_2) =
-    (void* (__thiscall*) (void*, __int16, void*, __int16))0x005CFA20;
+void* (__thiscall* const GameScreen__find_next_idle_military_unit)(void* this_, int last_object_id) =
+    (void* (__thiscall* const) (void*, int))0x005064B0;
 
-int (__thiscall* WorldPlayerBase__select_object)(void* this_, void* unit, int play_sound) =
-    (int (__thiscall*) (void*, void*, int))0x004C2DC0;
+void* (__thiscall* const WorldPlayer__find_obj)(void* this_, __int16 obj_id, void* after_obj, __int16 obj_id_2) =
+    (void* (__thiscall* const) (void*, __int16, void*, __int16))0x005CFA20;
 
-int (__thiscall* WorldPlayerBase__select_one_object)(void* this_, void* unit, int play_sound) =
-    (int (__thiscall*) (void*, void*, int))0x004C2ED0;
+int (__thiscall* const WorldPlayerBase__select_object)(void* this_, void* unit, int play_sound) =
+    (int (__thiscall* const) (void*, void*, int))0x004C2DC0;
 
-int (__thiscall* WorldPlayerBase__unselect_object)(void* this_) =
-    (int (__thiscall*) (void*))0x004C3050;
+int (__thiscall* const WorldPlayerBase__select_one_object)(void* this_, void* unit, int play_sound) =
+    (int (__thiscall* const) (void*, void*, int))0x004C2ED0;
 
-int (__thiscall* WorldPlayerBase__set_view_loc)(void* player, float x, float y, int spectatingView) =
-    (int (__thiscall*) (void*, float, float, int))0x004C2010;
+int (__thiscall* const WorldPlayerBase__unselect_object)(void* this_) =
+    (int (__thiscall* const) (void*))0x004C3050;
 
-int (__thiscall* GameSoundEffectsManager__playSound)(void* this_, int soundId, int pan, int volume) =
-    (int (__thiscall*) (void*, int, int, int))0x0042CD70;
+int (__thiscall* const WorldPlayerBase__set_view_loc)(void* player, float x, float y, int spectatingView) =
+    (int (__thiscall* const) (void*, float, float, int))0x004C2010;
 
-int (__thiscall* RGE_Command__submit)(void* command, void* order, int order_size, int issuer) =
-    (int (__thiscall*) (void*, void*, int, int))0x0044CFD0;
+int (__thiscall* const GameSoundEffectsManager__playSound)(void* this_, int soundId, int pan, int volume) =
+    (int (__thiscall* const) (void*, int, int, int))0x0042CD70;
 
-void (__thiscall* RGE_Map__set_terrain)(void* this_, void* obj_owner, void* gworld, __int16 mapcol1, __int16 maprow1, __int16 mapcol2, __int16 maprow2, unsigned __int8 terrain, unsigned __int8 set_flag, int delete_obj) =
-    (void (__thiscall*)(void*, void*, void*, __int16, __int16, __int16, __int16, unsigned __int8, unsigned __int8, int))0x00495F80;
+int (__thiscall* const RGE_Command__submit)(void* command, void* order, int order_size, int issuer) =
+    (int (__thiscall* const) (void*, void*, int, int))0x0044CFD0;
 
-void* (__cdecl* calloc_internal)(size_t number, size_t size) =
-    (void* (__cdecl*) (size_t, size_t))0x00632D33;
+void (__thiscall* const RGE_Map__set_terrain)(void* this_, void* obj_owner, void* gworld, __int16 mapcol1, __int16 maprow1, __int16 mapcol2, __int16 maprow2, unsigned __int8 terrain, unsigned __int8 set_flag, int delete_obj) =
+    (void (__thiscall* const)(void*, void*, void*, __int16, __int16, __int16, __int16, unsigned __int8, unsigned __int8, int))0x00495F80;
 
-void (__cdecl* free_internal)(void* memory) =
-    (void (__cdecl*) (void*))0x00632CCA;
+void* (__cdecl* const calloc_internal)(size_t number, size_t size) =
+    (void* (__cdecl* const) (size_t, size_t))0x00632D33;
 
-int (__thiscall* unit_detach) (UNIT* unit) =
-    (int (__thiscall*) (UNIT*))0x0055F350;
+void (__cdecl* const free_internal)(void* memory) =
+    (void (__cdecl* const) (void*))0x00632CCA;
 
-void (__fastcall* deflate_write) (void* outfile, void* buffer, unsigned int size) =
-    (void (__fastcall*) (void*, void*, unsigned int))0x004D5790;
+int (__thiscall* const unit_detach) (UNIT* unit) =
+    (int (__thiscall* const) (UNIT*))0x0055F350;
 
-void (__fastcall* deflate_read) (void* infile, void* buffer, unsigned int size) =
-    (void (__fastcall*) (void*, void*, unsigned int))0x004D5550;
+void (__fastcall* const deflate_write) (void* outfile, void* buffer, unsigned int size) =
+    (void (__fastcall* const) (void*, void*, unsigned int))0x004D5790;
 
-int (__thiscall* RGE_View__display_object_selection)(void* this_, int id, int duration, int select_type, int reset_type) =
-    (int (__thiscall*) (void*, int, int, int, int))0x0060A9A0;
+void (__fastcall* const deflate_read) (void* infile, void* buffer, unsigned int size) =
+    (void (__fastcall* const) (void*, void*, unsigned int))0x004D5550;
 
-int (__thiscall* TPanelSystem__destroyPanel)(void* this_, char* n) =
-    (int (__thiscall*)(void*, char*))0x004B4D60;
+int (__thiscall* const RGE_View__display_object_selection)(void* this_, int id, int duration, int select_type, int reset_type) =
+    (int (__thiscall* const) (void*, int, int, int, int))0x0060A9A0;
 
-void (__thiscall* TEasy_Panel__popupOKDialog)(void* this_, char* text, char* panel_title, int wid, int hgt, int centered) =
-    (void (__thiscall*)(void*, char*, char*, int, int, int))0x004BB250;
+int (__thiscall* const TPanelSystem__destroyPanel)(void* this_, char* n) =
+    (int (__thiscall* const)(void*, char*))0x004B4D60;
+
+void (__thiscall* const TEasy_Panel__popupOKDialog)(void* this_, char* text, char* panel_title, int wid, int hgt, int centered) =
+    (void (__thiscall* const)(void*, char*, char*, int, int, int))0x004BB250;

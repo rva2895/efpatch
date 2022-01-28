@@ -163,7 +163,7 @@ void __stdcall effectUnitVarActual_sub(UNIT* unit, char* str)
 
     pch = strtok(NULL, " ");
     if (pch)
-        sscanf(pch, "%f", &val);
+        sscanf_s(pch, "%f", &val);
     else
     {
         free(s_heap);
@@ -222,7 +222,7 @@ void __stdcall effectUnitVarActual_sub(UNIT* unit, char* str)
         pch = strtok(NULL, " ");
         if (pch)
         {
-            sscanf(pch, "%f", &val2);
+            sscanf_s(pch, "%f", &val2);
             editHPRegen(unit, val, 10 * val2);
         }
         else
@@ -236,7 +236,7 @@ void __stdcall effectUnitVarActual_sub(UNIT* unit, char* str)
         pch = strtok(NULL, " ");
         if (pch)
         {
-            sscanf(pch, "%f", &val2);
+            sscanf_s(pch, "%f", &val2);
             editHPRegenPercent(unit, val, 10 * val2);
         }
         else

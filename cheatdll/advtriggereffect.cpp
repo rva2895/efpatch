@@ -434,7 +434,7 @@ bool __stdcall advTriggerEffectActual2(void* unitData, char* str)
             h_sub = h[3];
             std::string cls_s = h_sub.str();
             int cls;
-            sscanf(cls_s.c_str(), "%d", &cls);
+            sscanf_s(cls_s.c_str(), "%d", &cls);
 
         }
         else
@@ -472,15 +472,15 @@ void __stdcall advTriggerEffectActual_sub(prop_object* unitData, const char* s)
                 switch (type)
                 {
                 case T_INT8:
-                    if (sscanf_s(amount, "%d", &int8Amount) > 0)
+                    if (sscanf_s(amount, "%ld", &int8Amount) > 0)
                         setUnitDataC(index, unitData, int8Amount);
                     break;
                 case T_INT16:
-                    if (sscanf_s(amount, "%d", &int16Amount) > 0)
+                    if (sscanf_s(amount, "%ld", &int16Amount) > 0)
                         setUnitDataS(index, unitData, int16Amount);
                     break;
                 case T_INT32:
-                    if (sscanf_s(amount, "%d", &int32Amount) > 0)
+                    if (sscanf_s(amount, "%ld", &int32Amount) > 0)
                         setUnitDataL(index, unitData, int32Amount);
                     break;
                 case T_FLOAT:
@@ -488,7 +488,7 @@ void __stdcall advTriggerEffectActual_sub(prop_object* unitData, const char* s)
                         setUnitDataF(index, unitData, floatAmount);
                     break;
                 case T_PTR_G:
-                    if (sscanf_s(amount, "%d", &int16Amount) > 0)
+                    if (sscanf_s(amount, "%ld", &int16Amount) > 0)
                     {
                         void* p = getGraphicPtr(int16Amount);
                         if (p)
@@ -504,15 +504,15 @@ void __stdcall advTriggerEffectActual_sub(prop_object* unitData, const char* s)
                 switch (type)
                 {
                 case T_INT8:
-                    if (sscanf_s(amount, "%d", &int8Amount) > 0)
+                    if (sscanf_s(amount, "%ld", &int8Amount) > 0)
                         modifyUnitDataC(index, unitData, int8Amount);
                     break;
                 case T_INT16:
-                    if (sscanf_s(amount, "%d", &int16Amount) > 0)
+                    if (sscanf_s(amount, "%ld", &int16Amount) > 0)
                         modifyUnitDataS(index, unitData, int16Amount);
                     break;
                 case T_INT32:
-                    if (sscanf_s(amount, "%d", &int32Amount) > 0)
+                    if (sscanf_s(amount, "%ld", &int32Amount) > 0)
                         modifyUnitDataL(index, unitData, int32Amount);
                     break;
                 case T_FLOAT:

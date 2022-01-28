@@ -347,7 +347,7 @@ void thread_proc(void* p)
     sendChat(s, player);
 }
 
-extern int memory_temp;
+//extern int memory_temp;
 
 int __fastcall get_gametime2()
 {
@@ -370,7 +370,7 @@ int __fastcall get_gametime2()
     }
 }
 
-DWORD performance_time = 0;
+//DWORD performance_time = 0;
 
 extern float* __fastcall player_getResources2(void*);
 extern void __stdcall make_oos_dump();
@@ -398,20 +398,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         sendChat(EFPATCH_VERSION, -1);
         return 1;
     }
-    if (!strcmp(s, "/fog-stop"))
-    {
-        *(DWORD*)0x007A20BC = 1;
-        sendChat("Fog update stopped", -1);
-        return 1;
-    }
-    if (!strcmp(s, "/fog-start"))
-    {
-        *(DWORD*)0x007A20BC = 0;
-        sendChat("Fog update resumed", -1);
-        return 1;
-    }
-    /*
-    else if (!strcmp(s, "/test"))
+    /*else if (!strcmp(s, "/test"))
     {
         sendChat("Started integrity check", player_id);
         _beginthread(thread_proc, 0, (void*)player_id);
@@ -424,7 +411,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         return 1;
     }*/
     
-    else if (!strcmp(s, "/dump-world"))
+    /*else if (!strcmp(s, "/dump-world"))
     {
         srand(timeGetTime());
         unsigned int r = rand();
@@ -449,7 +436,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         max_worldtime = t;
         chat("Set max worldtime to %d", t);
         return 1;
-    }
+    }*/
     
     /*
     else if (!strcmp(s, "/make-oos"))
@@ -466,7 +453,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
     }
     */
     
-    else if (strstr(s, "/obj") || strstr(s, "/object"))
+    /*else if (strstr(s, "/obj") || strstr(s, "/object"))
     {
         char d[0x100];
         int id;
@@ -486,9 +473,9 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         }
 
         return true;
-    }
+    }*/
     
-    else if (strstr(s, "/load-all"))
+    /*else if (strstr(s, "/load-all"))
     {
         int ext_types[] = {0x736C7020, 0x77617620, 0x62696E61};
         for (int i = 0; i < 3; i++)
@@ -501,7 +488,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         }
         chat("Loaded all DRS resources");
         return 1;
-    }
+    }*/
     
     /*
     else if (strstr(s, "/cs"))
@@ -543,8 +530,8 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         else
             chat("Error writing file!");
         return 1;
-    }
-    else if (!strcmp(s, "/time-start"))
+    }*/
+    /*else if (!strcmp(s, "/time-start"))
     {
         performance_time = timeGetTime();
         chat("Set start time");
@@ -1045,7 +1032,6 @@ __declspec(naked) void* __cdecl delete_wr(size_t size) //00632B42
         ret
     }
 }
-
 
 #pragma optimize( "s", on )
 void setTestHook()

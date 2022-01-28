@@ -225,8 +225,12 @@ __declspec(naked) void delayed_start_hook()
 
 bool CUserPatch::Init(struct UserPatchConfig_t &config)
 {
-    // Write DLL version to Voobly log            
+    // Write DLL version to Voobly log
+#ifdef VOOBLY_EF
+    g_pVoobly->Log(EFPATCH_VERSION);
+#else
     g_pVoobly->Log(USERPATCH_VERSION);
+#endif
 
     initLog();
 
@@ -329,7 +333,7 @@ bool CUserPatch::OnChatMessage(const char *text)
         srand(time(0));
         unsigned int r = rand();
         char name[MAX_PATH];
-        sprintf(name, "rge_dump_%08X.txt", r);
+        sprintf_s(name, _countof(name), "rge_dump_%08X.txt", r);
         chat("Dumping world to %s ...", name);
         dump_objects(name);
         chat("Dump complete");

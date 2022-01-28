@@ -186,7 +186,7 @@ void loadTerrainTxt(const char* prefix, const char* filename)
 {
     log("Loading terrain data...");
     char full_filename[0x100];
-    sprintf(full_filename, "%s%s", prefix, filename);
+    sprintf_s(full_filename, _countof(full_filename), "%s%s", prefix, filename);
     FILE* f = fopen(full_filename, "rt");
     if (f)
     {

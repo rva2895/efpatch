@@ -55,6 +55,12 @@ struct effect
     char*       str;
 };
 
+struct armor_class
+{
+    short       class_id;
+    short       value;
+};
+
 struct prop_object
 {
     void*       _vfptr;
@@ -175,9 +181,9 @@ struct prop_object
     void*       attack_graphics;
     short       default_armor;
     short       armors_count;
-    void*       armors_ptr;
+    armor_class* armors_ptr;
     short       attacks_count;
-    void*       attacks_ptr;
+    armor_class* attacks_ptr;
     short       terrain_defense_bonus;
     float       range;
     float       blast_radius;

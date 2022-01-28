@@ -47,7 +47,7 @@ void setConvertHooks(const char* prefix, const char* filename)
 {
     log("Loading unconvertable unit list");
     char full_filename[0x100];
-    sprintf(full_filename, "%s%s", prefix, filename);
+    sprintf_s(full_filename, _countof(full_filename), "%s%s", prefix, filename);
     FILE* f = fopen(full_filename, "rt");
     if (f)
     {

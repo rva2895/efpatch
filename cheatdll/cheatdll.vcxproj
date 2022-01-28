@@ -142,9 +142,9 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";_DEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;C:\Users\Vasya\source\libs\CImg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -166,9 +166,9 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CHEATDLL_CC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";_DEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CHEATDLL_CC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;C:\Users\Vasya\source\libs\CImg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -191,10 +191,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;C:\Users\Vasya\source\libs\CImg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -227,10 +227,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;TARGET_VOOBLY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;TARGET_VOOBLY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;C:\Users\Vasya\source\libs\CImg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -263,10 +263,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;TARGET_VOOBLY;VOOBLY_EF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;TARGET_VOOBLY;VOOBLY_EF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;C:\Users\Vasya\source\libs\CImg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -299,10 +299,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CHEATDLL_CC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CHEATDLL_CC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;C:\Users\Vasya\source\libs\CImg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <StringPooling>true</StringPooling>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -328,10 +328,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CHEATDLL_CC;_CC_COMPATIBLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;_CHEATDLL_CC;_CC_COMPATIBLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;C:\Users\Vasya\source\libs\zlib;C:\Users\Vasya\source\libs\CImg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <StringPooling>true</StringPooling>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -403,6 +403,7 @@
     <ClInclude Include="gaiatechtree.h" />
     <ClInclude Include="gamemode.h" />
     <ClInclude Include="gamespeed.h" />
+    <ClInclude Include="gdip.h" />
     <ClInclude Include="guardandfollow.h" />
     <ClInclude Include="hotkey.h" />
     <ClInclude Include="hotkeyjump.h" />
@@ -434,6 +435,7 @@
     <ClInclude Include="oos.h" />
     <ClInclude Include="overlay.h" />
     <ClInclude Include="palette.h" />
+    <ClInclude Include="palfile.h" />
     <ClInclude Include="pathing.h" />
     <ClInclude Include="patrol.h" />
     <ClInclude Include="patroldelay.h" />
@@ -470,12 +472,14 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="tchat.h" />
     <ClInclude Include="techtree.h" />
+    <ClInclude Include="techtree_ui.h" />
     <ClInclude Include="techupcolor.h" />
     <ClInclude Include="terrain.h" />
     <ClInclude Include="terrain_gen.h" />
     <ClInclude Include="test.h" />
     <ClInclude Include="textcolor.h" />
     <ClInclude Include="timeline.h" />
+    <ClInclude Include="tooltip.h" />
     <ClInclude Include="trade.h" />
     <ClInclude Include="tribe_command.h" />
     <ClInclude Include="tribe_command_ef.h" />
@@ -564,6 +568,7 @@
     <ClCompile Include="gaiatechtree.cpp" />
     <ClCompile Include="gamemode.cpp" />
     <ClCompile Include="gamespeed.cpp" />
+    <ClCompile Include="gdip.cpp" />
     <ClCompile Include="guardandfollow.cpp" />
     <ClCompile Include="hotkey.cpp" />
     <ClCompile Include="hotkeyjump.cpp" />
@@ -597,6 +602,7 @@
     <ClCompile Include="oos.cpp" />
     <ClCompile Include="overlay.cpp" />
     <ClCompile Include="palette.cpp" />
+    <ClCompile Include="palfile.cpp" />
     <ClCompile Include="pathing.cpp" />
     <ClCompile Include="patrol.cpp" />
     <ClCompile Include="patroldelay.cpp" />
@@ -638,6 +644,7 @@
     <ClCompile Include="storemode.cpp" />
     <ClCompile Include="tchat.cpp" />
     <ClCompile Include="techtree.cpp" />
+    <ClCompile Include="techtree_ui.cpp" />
     <ClCompile Include="techupcolor.cpp" />
     <ClCompile Include="terrain.cpp" />
     <ClCompile Include="terrain_blend.cpp" />
@@ -646,6 +653,7 @@
     <ClCompile Include="test.cpp" />
     <ClCompile Include="textcolor.cpp" />
     <ClCompile Include="timeline.cpp" />
+    <ClCompile Include="tooltip.cpp" />
     <ClCompile Include="trade.cpp" />
     <ClCompile Include="tribe_command.cpp" />
     <ClCompile Include="tribe_command_ef.cpp" />

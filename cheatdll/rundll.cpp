@@ -26,6 +26,16 @@ int current_cliff_index = 0;
 
 #include <CrashRpt.h>
 
+void fixCurrentDir()
+{
+    char fname[256];
+    GetModuleFileName(0, fname, 255);
+    char* p = fname + strlen(fname);
+    while (*--p != '\\');
+    *p = 0;
+    SetCurrentDirectory(fname);
+}
+
 extern crash_rpt::CrashRpt* g_crashRpt;
 
 int (WINAPI* WinMain_exe) (HINSTANCE, HINSTANCE, LPSTR, int) =
@@ -39,7 +49,9 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
 {
 #pragma comment(linker, "/EXPORT:" __FUNCTION__"=" __FUNCDNAME__)
 
-    log("WinMain_dll called");
+    fixCurrentDir();
+
+    initLog();
 
 #ifndef _CHEATDLL_CC
     installPalette();
@@ -65,6 +77,7 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
         __try
         {
 #endif
+            log("Calling WinMain_exe");
             retval = WinMain_exe(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 #ifndef _DEBUG
         }
@@ -77,10 +90,14 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
     else
     {
         log("Crash reporting is OFF");
+        log("Calling WinMain_exe");
         retval = WinMain_exe(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
     }
 
     log("WinMain_exe returned %d, exiting", retval);
+
+    closeLog();
+
     return retval;
 }
 #endif

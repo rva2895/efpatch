@@ -3,6 +3,7 @@
 #include "registry.h"
 #include <CommCtrl.h>
 
+/*
 extern CONFIG_DATA cd;
 
 HWND CreateListView(HWND hwndParent)
@@ -70,3 +71,4 @@ BOOL CALLBACK ModDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lPara
     }
     return true;
 }
+*/

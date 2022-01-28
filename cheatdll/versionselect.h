@@ -2,4 +2,4 @@
 
 #include <Windows.h>
 
-BOOL CALLBACK MainDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+BOOL CALLBACK VersionSelectDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam);

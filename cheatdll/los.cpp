@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "los.h"
 
+#define MAX_LOS_DEPTH 32000
+
 void __stdcall delete_unit_los_data(UNIT_LOS_DATA* los_data)
 {
     /*UNIT_LOS_DATA* current = los_data;
@@ -745,11 +747,21 @@ __declspec(naked) void visible_map_explore_terrain_6() //006158C5
 {
     __asm
     {
-        cmp     bx, 7D00h
+        push    edx
+        mov     edx, [esi + 8]
+        cmp     byte ptr [edx + 21h], 0Dh
+        mov     dx, MAX_LOS_DEPTH
+        jge     new_los_depth_1
+        mov     dx, 250
+
+new_los_depth_1:
+        cmp     bx, dx
         jnz     loc_615878
-        mov     bx, 7CFFh
+        mov     bx, dx
+        dec     bx
 
 loc_615878:
+        pop     edx
         //mov     edx, 00615878h
         //jmp     edx
         push    00615878h
@@ -876,11 +888,21 @@ __declspec(naked) void visible_map_explore_terrain_sq_4() //00615B83
 {
     __asm
     {
-        cmp     ax, 7D00h
+        push    edx
+        mov     edx, [esi + 8]
+        cmp     byte ptr [edx + 21h], 0Dh
+        mov     dx, MAX_LOS_DEPTH
+        jge     new_los_depth_2
+        mov     dx, 250
+
+new_los_depth_2:
+        cmp     ax, dx
         jnz     loc_615B89
-        mov     ax, 7CFFh
+        mov     ax, dx
+        dec     ax
 
 loc_615B89:
+        pop     edx
         push    00615B89h
         ret
     }
@@ -995,128 +1017,9 @@ __declspec(naked) void visible_map_reveal_terrain_sq_4() //00615E91
     }
 }
 
-
-//1400062
-//1407082
-
-void (__thiscall* WorldPlayer__new_attribute_num)(void* this_, __int16 attribute, float amount) =
-    (void (__thiscall*)(void*, __int16, float))0x005D3820;
-
-__declspec(naked) void __fastcall reveal_test(void* player)
-{
-    __asm
-    {
-        mov     edx, [ecx + 8Ch]
-        mov     dword ptr [ecx + 15Ch], 0
-        mov     eax, [edx + 0ACh]
-        mov     dword ptr [eax + 50 * 4], 0
-        mov     eax, [edx]
-        call    dword ptr [eax + 110h]
-        ret
-    }
-}
-void __stdcall print_explore(void* player, int current, int total)
-{
-    int id = (int)*((unsigned char*)player + 0xA0);
-    chat("Player %d, explore: %d / %d (%.2f%%)", id, current, total, (float)current * 100.0f / total);
-    //if (id == 2)
-    //    WorldPlayer__new_attribute_num(player, 50, 1.0f);
-    reveal_test(player);
-}
-
-__declspec(naked) void handle_explore() //005CEB00
-{
-    __asm
-    {
-        mov     ecx, [ebp + 88h]
-        push    dword ptr[ecx + 20h]
-        push    dword ptr[ecx + 1Ch]
-        push    ebp
-        call    print_explore
-        mov     ecx, [ebp + 88h]
-        fild    dword ptr [ecx + 1Ch]
-        fidiv   dword ptr [ecx + 20h]
-        mov     eax, 005CEB0Bh
-        jmp     eax
-    }
-}
-
-__declspec(naked) void unlock_teams() //0042C710
-{
-    __asm
-    {
-        xor     al, al
-        mov     [ecx + 9CEh], al
-        ret
-    }
-}
-
-void __stdcall print_explore2(int e, bool sq)
-{
-    FILE* f = fopen("explore.txt", "at");
-    if (f)
-    {
-        fprintf(f, "%d - %d, sq=%s\n", e, e + 1, sq ? "true" : "false");
-        fclose(f);
-    }
-}
-
-__declspec(naked) void check_explore() //0061575A
-{
-    __asm
-    {
-        mov     ecx, [esi + 1Ch]
-        inc     edx
-        push    edx
-        push    ecx
-        push    0
-        push    ecx
-        call    print_explore2
-        pop     ecx
-        pop     edx
-        inc     ecx
-        mov     [esi + 1Ch], ecx
-
-        push    00615762h
-        ret
-    }
-}
-
-__declspec(naked) void check_explore_sq() //00615B1A
-{
-    __asm
-    {
-        mov     eax, [esi + 1Ch]
-        push    ecx
-        mov     ecx, [esi + 8]
-        push    ecx
-        push    edx
-        push    eax
-        push    1
-        push    eax
-        call    print_explore2
-        pop     eax
-        pop     edx
-        pop     ecx
-        push    00615B21h
-        ret
-    }
-}
-
 #pragma optimize( "s", on )
 void setLOSHooks()
 {
-    //writeWord(0x0042C710, 0xC032);
-    //writeDword(0x0042C712, 0x90909090);
-    //writeByte(0x005D382C, 0xEB);
-
-    //setHook((void*)0x0061575A, check_explore);
-    //setHook((void*)0x00615B1A, check_explore_sq);
-
-    //setHook((void*)0x005CEB00, handle_explore);
-    //setHook((void*)0x0042C710, unlock_teams);
-
-    
     setHook((void*)0x0054B33F, los_constructor_default);
     setHook((void*)0x0054B61D, los_constructor_read);
     setHook((void*)0x0054B691, los_destructor);

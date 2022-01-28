@@ -1,6 +1,8 @@
 #include "stdafx.h"
-
 #include "slp.h"
+#include "palfile.h"
+
+#include <Cimg.h>
 
 SLP::SLP()
 {
@@ -352,35 +354,49 @@ void SLP::stretch_techtree(int x, int y)
 {
     UNREFERENCED_PARAMETER(x);
     int i;
+    int y_offset;
     if (y >= 1024) //stretch 1280 (frame 1)
+    {
         i = 1;
+        y_offset = (y - 1024) / 2;
+    }
     else //stretch 1024 (frame 0)
+    {
         i = 0;
+        y_offset = (y - 768) / 2;
+    }
 
     rowedge* re = new rowedge[y];
-    memcpy(re, edge[i], frame_i[i].height * sizeof(rowedge));
+    memcpy(re + y_offset, edge[i], frame_i[i].height * sizeof(rowedge));
     delete[] edge[i];
     edge[i] = re;
-    for (int j = frame_i[i].height; j < y; j++)
+    for (int j = 0; j < y; j++)
     {
-        edge[i][j].left = 0;
-        edge[i][j].right = 0;
+        if (j < y_offset || j >= (y_offset + frame_i[i].height))
+        {
+            edge[i][j].left = 0;
+            edge[i][j].right = 0;
+        }
     }
 
     pixel** new_px = new pixel*[y];
-    memcpy(new_px, frame_i[i].data, frame_i[i].height * sizeof(pixel*));
+    memcpy(new_px + y_offset, frame_i[i].data, frame_i[i].height * sizeof(pixel*));
     delete[] frame_i[i].data;
     frame_i[i].data = new_px;
-    for (int j = frame_i[i].height; j < y; j++)
+    for (int j = 0; j < y; j++)
     {
-        frame_i[i].data[j] = new pixel[frame_i[i].width];
-        for (int k = 0; k < frame_i[i].width; k++)
+        if (j < y_offset || j >= (y_offset + frame_i[i].height))
         {
-            frame_i[i].data[j][k].type = T_PIXEL;
-            frame_i[i].data[j][k].data = 0;
+            frame_i[i].data[j] = new pixel[frame_i[i].width];
+            for (int k = 0; k < frame_i[i].width; k++)
+            {
+                frame_i[i].data[j][k].type = T_PIXEL;
+                frame_i[i].data[j][k].data = 0;
+            }
         }
     }
     frame_i[i].height = y;
+    frame_i[i].hotspot_y += y_offset;
 }
 
 //parser state machine states
@@ -946,6 +962,59 @@ void SLP::color_replace(unsigned char* c, int count)
                             frame_i[i].data[j][k].data = c[t * 2 + 1];
                             break;
                         }
+}
+
+void SLP::resize(int new_x, int new_y, T_PALETTE& pal)
+{
+    if (new_x == frame_i[0].width && new_y == frame_i[0].height)
+        return;
+
+    unsigned char* pixels = (unsigned char*) malloc(frame_i[0].width * frame_i[0].height * 3);
+    //T_PALETTE pal(NULL);
+    for (int j = 0; j < frame_i[0].height; j++)
+        for (int i = 0; i < frame_i[0].width; i++)
+        {
+            COLORREF c = pal.get_entry(frame_i[0].data[j][i].data);
+            //COLORREF c = RGB(i/8, 0, 0);
+            pixels[(j * frame_i[0].width + i)] = GetRValue(c);
+            pixels[(j * frame_i[0].width + i) + frame_i[0].width * frame_i[0].height] = GetGValue(c);
+            pixels[(j * frame_i[0].width + i) + frame_i[0].width * frame_i[0].height * 2] = GetBValue(c);
+        }
+
+    cimg_library::CImg<unsigned char> image(pixels, frame_i[0].width, frame_i[0].height, 1, 3);
+
+    image.resize(new_x, new_y, 1, 3, 5);
+
+    rowedge* re = new rowedge[new_y];
+    delete[] edge[0];
+    edge[0] = re;
+    for (int j = 0; j < new_y; j++)
+    {
+        edge[0][j].left = 0;
+        edge[0][j].right = 0;
+    }
+
+    pixel** new_px = new pixel * [new_y];
+    for (int j = 0; j < frame_i[0].height; j++)
+        delete[] frame_i[0].data[j];
+    delete[] frame_i[0].data;
+    frame_i[0].data = new_px;
+    for (int j = 0; j < new_y; j++)
+    {
+        frame_i[0].data[j] = new pixel[new_x];
+        for (int k = 0; k < new_x; k++)
+        {
+            frame_i[0].data[j][k].type = T_PIXEL;
+            unsigned char r = image(k, j, 0, 0);
+            unsigned char g = image(k, j, 0, 1);
+            unsigned char b = image(k, j, 0, 2);
+            frame_i[0].data[j][k].data = pal.get_index(RGB(r, g, b));
+        }
+    }
+    frame_i[0].width = new_x;
+    frame_i[0].height = new_y;
+
+    free(pixels);
 }
 
 //TODO:
