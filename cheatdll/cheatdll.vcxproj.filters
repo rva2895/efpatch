@@ -477,6 +477,9 @@
     <ClInclude Include="palfile.h">
       <Filter>Заголовочные файлы\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="miscbugfix.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -904,6 +907,9 @@
     </ClCompile>
     <ClCompile Include="palfile.cpp">
       <Filter>Файлы исходного кода\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="miscbugfix.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -68,7 +68,7 @@ void __cdecl triggerLog(int n, char* tr)
         name = szName;
 
     if (*tr == 1)
-        sprintf(triggerText, "Trigger %d (name: %s; %d conditions, %d effects", n,
+        sprintf_s(triggerText, _countof(triggerText), "Trigger %d (name: %s; %d conditions, %d effects", n,
             name, *(int*)(tr + 0x20), *(int*)(tr + 0x30));
 }
 
@@ -183,7 +183,10 @@ extern bool isEditor;
 extern bool editorstatus_isValid;
 bool rms_first_error = false;
 
+#define LOG_INT_BUFFER_SIZE 0x200
+
 char* log_int_s = NULL;
+
 __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
 {
     UNREFERENCED_PARAMETER(unk1);
@@ -192,7 +195,7 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
     //void* d;
     int lines;
     if (!log_int_s)
-        log_int_s = (char*)malloc(0x200);
+        return;
     
     if (!(((unsigned long)fmt >= 0x00689000) && ((unsigned long)fmt < 0x7A3A2C)))
         return;
@@ -229,7 +232,7 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
             lines = 0;
             do
             {
-                fgets2(log_int_s, 0x200, rms_f);
+                fgets2(log_int_s, LOG_INT_BUFFER_SIZE, rms_f);
                 lines++;
             } while (ftell2(rms_f) < pos);
 
@@ -238,7 +241,7 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
             log("** RMS, line %d:\n\n%s", lines, log_int_s);
             if (rms_first_error)
             {
-                sprintf(b, "RMS: line %d: %s", lines, log_int_s);
+                sprintf_s(b, _countof(b), "RMS: line %d: %s", lines, log_int_s);
                 rms_error_1 = b;
                 rms_flag = true;
                 rms_first_error = false;
@@ -248,11 +251,11 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
     //
 
     va_start(ap, fmt);
-    vsprintf(log_int_s, fmt, ap);
+    vsprintf_s(log_int_s, LOG_INT_BUFFER_SIZE, fmt, ap);
     log_internal("%s", log_int_s);
     if (rms_flag)
     {
-        sprintf(b, "%s", log_int_s);
+        sprintf_s(b, _countof(b), "%s", log_int_s);
         rms_error_2 = b;
         rms_flag = false;
     }
@@ -277,11 +280,11 @@ __declspec(naked) void log_int_wr()
     {
         mov     eax, [esp + 8]
         cmp     eax, 00689000h
-        jb      _fix_log_ret
+        jb      fix_log_ret
         cmp     eax, 007A3A2Ch
-        jnb     _fix_log_ret
+        jnb     fix_log_ret
         jmp     log_int
-_fix_log_ret:
+fix_log_ret:
         pop     eax
         mov     log_int_retval, eax
         mov     eax, log_int_end_wr
@@ -302,12 +305,12 @@ __declspec(naked) void nullsub_26()
 int check_file(char* file, int player)
 {
     char s[0x100];
-    sprintf(s, "Checking %s...", file);
+    sprintf_s(s, _countof(s), "Checking %s...", file);
     sendChat(s, player);
     FILE* f = fopen(file, "rb");
     if (!f)
     {
-        sprintf(s, "Failed to open %s!", file);
+        sprintf_s(s, _countof(s), "Failed to open %s!", file);
         sendChat(s, player);
         return 0;
     }
@@ -316,7 +319,7 @@ int check_file(char* file, int player)
     while (fread(&b, 1, 1, f) > 0)
         sum += b;
     fclose(f);
-    sprintf(s, "File %s: %d", file, sum);
+    sprintf_s(s, _countof(s), "File %s: %d", file, sum);
     sendChat(s, player);
     return sum;
 }
@@ -1081,6 +1084,8 @@ void setTestHook()
 #endif
 
     //fix internal log
+    log_int_s = (char*)malloc(LOG_INT_BUFFER_SIZE);
+
     writeDword(0x0040F1A6, (DWORD)nullsub_26);
     writeDword(0x0040F842, (DWORD)nullsub_26);
     writeDword(0x0040F885, (DWORD)nullsub_26);
@@ -1112,6 +1117,7 @@ void setTestHook()
 
     fix_function_call(0x004336D8, (DWORD)nullsub_26); //Starting turn
     //
+
     writeByte(0x004428F6, 0x90);
     writeDword(0x004428F7, 0x90909090);
     writeByte(0x0061B129, 0x90);
@@ -1128,6 +1134,12 @@ void setTestHook()
     writeDword(0x0042520C, 0x90909090);
     writeDword(0x004776BE, 0x90909090);
     writeByte(0x004776C2, 0x90);
+    writeByte(0x005A0559, 0x90);
+    writeDword(0x005A055A, 0x90909090);
+    writeByte(0x005A0581, 0x90);
+    writeDword(0x005A0582, 0x90909090);
+    writeByte(0x005A05DD, 0x90);
+    writeDword(0x005A05DE, 0x90909090);
     setHook((void*)0x0060F920, log_int_wr);
 
     setHook((void*)0x004E1801, rms_fptr);

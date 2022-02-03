@@ -114,6 +114,7 @@
 #include "techtree_ui.h"
 #include "tooltip.h"
 #include "gdip.h"
+#include "miscbugfix.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -160,29 +161,12 @@ blank_panel:
     }
 }
 
-__declspec(naked) void annex_unit_crash_mitigation() //00555640
-{
-    __asm
-    {
-        mov     ecx, [esi + 1Ch]
-        test    ecx, ecx
-        jz      mitigate_annex_crash
-        movsx   eax, ax
-        mov     edx, 00555646h
-        jmp     edx
-mitigate_annex_crash:
-        mov     edx, 005556C9h
-        jmp     edx
-    }
-}
-
 #pragma optimize( "s", on )
 void setHooksCC()
 {
     log("Setting EF-independent hooks...");
 
-    //read-only fix for data\*.dat
-    writeDword(0x004D5B62, GENERIC_READ);
+    setMiscBugfixHooks();
 
     //faster screen fade in/out
     //writeDword(0x0042DEA6, (DWORD)&screen_fade);
@@ -191,15 +175,6 @@ void setHooksCC()
 
     //remove blank screen
     //setHook((void*)0x004B4960, on_set_panel);
-    
-    //renderer fix (THIS_COD)
-    BYTE nops[25];
-    memset(nops, 0x90, 25);
-    writeData(0x0064DC8D, nops, 25);
-    writeData(0x0068F14C, "error.txt", 10);
-
-    //workaround for annex unit crash from state 0
-    setHook((void*)0x00555640, annex_unit_crash_mitigation);
 
     setTimelineHooks();
 
@@ -301,23 +276,10 @@ void setHooksCC()
 
     setNotifyHooks();
 
-    //disabled ungrouped AI alliance
-    writeByte(0x0061E2EB, 0xEB);
-
     if (cd.keydown)
         setHotkeyHooks();
 
     //setOverlayHooks();
-
-    //MP mouse lag
-    writeByte(0x0049F686, 0x0C);
-    writeWord(0x0049F906, 0x9090);
-    writeByte(0x00429541, 0xEB);
-
-    //wndproc loop delay
-    writeDword(0x00425EA6, 0x0674023C);
-    writeDword(0x00425EAA, 0x013C042C);
-    writeByte(0x00425EAE, 0x77);
 
     //setStatusScreenHooks();
 
@@ -327,10 +289,6 @@ void setHooksCC()
         setMasterVolumeHooks();
 
     setMbsHooks();
-
-    //one player in MP
-    writeByte(0x005154D9, 0xEB);
-    writeByte(0x00519A06, 0xEB);
 
     setHotkeysHooks(cd.gameVersion);
     setLanguageDllOverrideHooks();
@@ -355,23 +313,6 @@ void setHooksCC()
     setLOSHooks();
 
     //setWorldDumpHooks();
-
-    //from old patch:
-    //full map print ratios
-    writeByte(0x0045D4BD, 8);
-    writeByte(0x0045D4CA, 1);
-    writeByte(0x0045D4DC, 0xFF);
-
-    //post game view for sp
-    writeByte(0x004F87AD, 0x4C);
-    writeByte(0x004F89CE, 0xEB);
-    writeByte(0x004F89CF, 0x1F);
-    writeByte(0x004F89E1, 0xEB);
-    writeByte(0x004F8A13, 0x66);
-    writeByte(0x004F8A14, 0x90);
-
-    //remove high graphics fambaa ring
-    writeByte(0x0061F4A4, 0xEB);
 
     setRGECommunicationsSpeedHooks();
     setTChatHooks();

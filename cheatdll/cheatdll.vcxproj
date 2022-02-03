@@ -426,6 +426,7 @@
     <ClInclude Include="menu.h" />
     <ClInclude Include="mg1file.h" />
     <ClInclude Include="minimap.h" />
+    <ClInclude Include="miscbugfix.h" />
     <ClInclude Include="moddialog.h" />
     <ClInclude Include="mouseoverride.h" />
     <ClInclude Include="negdecay.h" />
@@ -592,6 +593,7 @@
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="mg1file.cpp" />
     <ClCompile Include="minimap.cpp" />
+    <ClCompile Include="miscbugfix.cpp" />
     <ClCompile Include="moddialog.cpp" />
     <ClCompile Include="mouseoverride.cpp" />
     <ClCompile Include="negdecay.cpp" />

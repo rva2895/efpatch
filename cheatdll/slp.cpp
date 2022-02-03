@@ -2,6 +2,9 @@
 #include "slp.h"
 #include "palfile.h"
 
+#define cimg_verbosity 0
+#define cimg_display 0
+
 #include <Cimg.h>
 
 SLP::SLP()
