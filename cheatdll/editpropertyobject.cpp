@@ -31,21 +31,21 @@ __declspec(naked) void changePropertyObjectHook()
 {
     __asm
     {
-        mov     eax, [edi + 6Ch]
-        push    eax //message
         mov     eax, [edi + 24h]
         cmp     eax, -1 //if no unit is selected
-        jnz     cont
-        add     esp, 4
-        jmp     end
-cont:
-        push    eax //unit
+        jz      change_property_object_end
+        push    eax     //unit
         mov     eax, [edi + 28h]
-        push    eax //player
+        push    eax     //player
         call    getPropertyObject
-        push    eax //property object
+        test    eax, eax
+        jz      change_property_object_end
+        mov     ecx, [edi + 6Ch]
+        push    ecx     //message
+        push    eax     //property object
         call    advTriggerEffectActual
-end:
+
+change_property_object_end:
         mov     ebx, 005F3DB1h
         jmp     ebx
     }
