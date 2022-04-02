@@ -68,7 +68,7 @@ void __cdecl triggerLog(int n, char* tr)
         name = szName;
 
     if (*tr == 1)
-        sprintf_s(triggerText, _countof(triggerText), "Trigger %d (name: %s; %d conditions, %d effects", n,
+        snprintf(triggerText, _countof(triggerText), "Trigger %d (name: %s; %d conditions, %d effects", n,
             name, *(int*)(tr + 0x20), *(int*)(tr + 0x30));
 }
 
@@ -241,7 +241,7 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
             log("** RMS, line %d:\n\n%s", lines, log_int_s);
             if (rms_first_error)
             {
-                sprintf_s(b, _countof(b), "RMS: line %d: %s", lines, log_int_s);
+                snprintf(b, _countof(b), "RMS: line %d: %s", lines, log_int_s);
                 rms_error_1 = b;
                 rms_flag = true;
                 rms_first_error = false;
@@ -251,11 +251,11 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
     //
 
     va_start(ap, fmt);
-    vsprintf_s(log_int_s, LOG_INT_BUFFER_SIZE, fmt, ap);
+    vsnprintf(log_int_s, LOG_INT_BUFFER_SIZE, fmt, ap);
     log_internal("%s", log_int_s);
     if (rms_flag)
     {
-        sprintf_s(b, _countof(b), "%s", log_int_s);
+        snprintf(b, _countof(b), "%s", log_int_s);
         rms_error_2 = b;
         rms_flag = false;
     }
@@ -305,12 +305,12 @@ __declspec(naked) void nullsub_26()
 int check_file(char* file, int player)
 {
     char s[0x100];
-    sprintf_s(s, _countof(s), "Checking %s...", file);
+    snprintf(s, _countof(s), "Checking %s...", file);
     sendChat(s, player);
     FILE* f = fopen(file, "rb");
     if (!f)
     {
-        sprintf_s(s, _countof(s), "Failed to open %s!", file);
+        snprintf(s, _countof(s), "Failed to open %s!", file);
         sendChat(s, player);
         return 0;
     }
@@ -319,7 +319,7 @@ int check_file(char* file, int player)
     while (fread(&b, 1, 1, f) > 0)
         sum += b;
     fclose(f);
-    sprintf_s(s, _countof(s), "File %s: %d", file, sum);
+    snprintf(s, _countof(s), "File %s: %d", file, sum);
     sendChat(s, player);
     return sum;
 }

@@ -130,7 +130,7 @@ void __stdcall effectUnitVarActual_sub(UNIT* unit, char* str)
         s_heap = (char*)malloc(s_len + 1);
         s = s_heap;
     }
-    strcpy_s(s, s_len + 1, str);
+    strcpy_safe(s, s_len + 1, str);
     char* pch = strtok(s, " ");
     if (pch)
     {
@@ -154,7 +154,7 @@ void __stdcall effectUnitVarActual_sub(UNIT* unit, char* str)
 
     pch = strtok(NULL, " ");
     if (pch)
-        strcpy_s(var, sizeof(var), pch);
+        strcpy_safe(var, sizeof(var), pch);
     else
     {
         free(s_heap);
@@ -265,7 +265,7 @@ void __stdcall effectUnitVarActual(UNIT* unit, char* str)
         s_heap = (char*)malloc(s_len + 1);
         s = s_heap;
     }
-    strcpy_s(s, s_len + 1, str);
+    strcpy_safe(s, s_len + 1, str);
     char* pch = strtok(s, "\r\n");
     char* com_strs[64];
     int str_count = 0;

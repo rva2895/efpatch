@@ -5,7 +5,6 @@ T_PALETTE::T_PALETTE(const void* mem, size_t size)
 {
     loaded = false;
     int n;
-    char dummy[0x20];
 
     if (size == 0)
         return;
@@ -90,7 +89,7 @@ int T_PALETTE::get_index(COLORREF c)
         //if (ccc % 100000 == 0)
         //    MessageBox(0, "100 000", "", 0);
         if (cache.size() < 0x100000)
-            cache.insert(std::pair<COLORREF, int>(c, index));
+            cache.emplace(std::pair<COLORREF, int>(c, index));
     }
     else
         index = it->second;

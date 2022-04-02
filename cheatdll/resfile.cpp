@@ -23,7 +23,7 @@ void __fastcall RESFILE_open_new_resource_file_new(char* resFileName, char* pass
     UNREFERENCED_PARAMETER(password);
     UNREFERENCED_PARAMETER(open_mode);
     char buf[MAX_PATH];
-    sprintf_s(buf, _countof(buf), "%s%s", path, resFileName);
+    snprintf(buf, _countof(buf), "%s%s", path, resFileName);
     resfile.add_resource_file(buf);
 }
 

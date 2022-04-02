@@ -102,7 +102,7 @@ loc_7CD8B0:
 
 void __stdcall make_eof_string(char* dest, long t)
 {
-    sprintf_s(dest, 240, "Unexpected end of file. Replaying stopped. - worldtime: %ld", t);
+    snprintf(dest, 240, "Unexpected end of file. Replaying stopped. - worldtime: %ld", t);
 }
 
 __declspec(naked) void rec_unexpected_eof() //0061FD04

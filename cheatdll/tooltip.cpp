@@ -9,11 +9,11 @@ void __stdcall parse_tooltip_text(char* str, int string_id, UNIT* object)
         switch (string_id)
         {
         case 43024:
-            strcpy_s(buf, _countof(buf), str);
-            sprintf_s(str, 1024, "%s\nAttack bonuses:", buf);
+            strcpy_safe(buf, _countof(buf), str);
+            snprintf(str, 1024, "%s\nAttack bonuses:", buf);
             for (int i = 0; i < object->prop_object->attacks_count; i++)
             {
-                sprintf_s(buf, _countof(buf), "\nClass %hd, value %hd",
+                snprintf(buf, _countof(buf), "\nClass %hd, value %hd",
                     object->prop_object->attacks_ptr[i].class_id, object->prop_object->attacks_ptr[i].value);
                 strcat_s(str, 1024, buf);
             }

@@ -637,8 +637,8 @@ bool compare_edges(rowedge** edge, int height, int frame)
 
 unsigned char* SLP::optimize(int* size, bool allow_fill)
 {
-    void* new_slp = malloc(*size * 8);
-    memset(new_slp, 0, *size * 8);
+    void* new_slp = malloc(*size * 16);
+    memset(new_slp, 0, *size * 16);
 
     unsigned char* ptr = (unsigned char*)new_slp;
 

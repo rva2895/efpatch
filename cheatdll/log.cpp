@@ -45,7 +45,7 @@ void deleteOldLogs()
 
             if (difftime(rawtime_current, rawtime_old) > 604800) //1 week
             {
-                sprintf_s(filename, _countof(filename), "logs\\%s", fd.cFileName);
+                snprintf(filename, _countof(filename), "logs\\%s", fd.cFileName);
                 if (!DeleteFile(filename))
                 {
                     log("ERROR: Cannot delete %s, error %d", fd.cFileName, GetLastError());
@@ -152,7 +152,7 @@ void __cdecl log(const char* format, ...)
         vfprintf(log_file, format, ap);
 #ifdef _DEBUG
         char debug_str[500];
-        vsprintf_s(debug_str, _countof(debug_str)-1, format, ap);
+        vsnprintf(debug_str, _countof(debug_str)-1, format, ap);
         strcat_s(debug_str, _countof(debug_str), "\n");
         OutputDebugString(debug_str);
 #endif
@@ -176,7 +176,7 @@ void __cdecl log_internal(const char* format, ...)
         vfprintf(log_file, format, ap);
 #ifdef _DEBUG
         char debug_str[500];
-        vsprintf_s(debug_str, _countof(debug_str) - 1, format, ap);
+        vsnprintf(debug_str, _countof(debug_str) - 1, format, ap);
         strcat_s(debug_str, _countof(debug_str), "\n");
         OutputDebugString(debug_str);
 #endif

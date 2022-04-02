@@ -140,17 +140,17 @@ void readSettingsToDialog(HWND hWnd)
     EnableWindow(GetDlgItem(hWnd, IDC_CHECK_MAPSIZE), FALSE); 
     EnableWindow(GetDlgItem(hWnd, IDC_CHECK_CRASH), FALSE);
 #else
-    sprintf_s(buf, _countof(buf), "%d", cd.nBufs);
+    snprintf(buf, _countof(buf), "%d", cd.nBufs);
     SetDlgItemText(hWnd, IDC_EDIT_DSH_NBUFS, buf);
-    sprintf_s(buf, _countof(buf), "%d", cd.timeout);
+    snprintf(buf, _countof(buf), "%d", cd.timeout);
     SetDlgItemText(hWnd, IDC_EDIT_DSH_DELAY, buf);
 #endif
-    sprintf_s(buf, _countof(buf), "%d", cd.editorAutosaveInterval);
+    snprintf(buf, _countof(buf), "%d", cd.editorAutosaveInterval);
     SetDlgItemText(hWnd, IDC_EDIT_EDITORAUTO, buf);
 
     if (cd.widescrnEnabled)
     {
-        sprintf_s(buf, _countof(buf), "%dx%d", cd.xres, cd.yres);
+        snprintf(buf, _countof(buf), "%dx%d", cd.xres, cd.yres);
         SetDlgItemText(hWnd, IDC_COMBO_SCREEN_SIZE, buf);
     }
 
@@ -203,7 +203,7 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
             if (devMode.dmBitsPerPel == 32)
                 if ((prevW != devMode.dmPelsWidth) || (prevH != devMode.dmPelsHeight))
                 {
-                    sprintf_s(curMode, _countof(curMode), "%lux%lu", devMode.dmPelsWidth, devMode.dmPelsHeight);
+                    snprintf(curMode, _countof(curMode), "%lux%lu", devMode.dmPelsWidth, devMode.dmPelsHeight);
                     if ((devMode.dmPelsWidth >= 1024) && (devMode.dmPelsHeight >= 768))
                         SendMessage(GetDlgItem(hWndDlg, IDC_COMBO_SCREEN_SIZE), CB_ADDSTRING, 0, (LPARAM)curMode);
                     prevW = devMode.dmPelsWidth;

@@ -186,7 +186,7 @@ void loadTerrainTxt(const char* prefix, const char* filename)
 {
     log("Loading terrain data...");
     char full_filename[0x100];
-    sprintf_s(full_filename, _countof(full_filename), "%s%s", prefix, filename);
+    snprintf(full_filename, _countof(full_filename), "%s%s", prefix, filename);
     FILE* f = fopen(full_filename, "rt");
     if (f)
     {
@@ -216,12 +216,12 @@ void loadTerrainTxt(const char* prefix, const char* filename)
             if (n > 0)
             {
                 terrain_names[i] = (char*)malloc(n + 1);
-                strcpy(terrain_names[i], buf);
+                strcpy_safe(terrain_names[i], n + 1, buf);
             }
             else
             {
                 terrain_names[i] = (char*)malloc(10);
-                strcpy(terrain_names[i], "FORBIDDEN");
+                strcpy_safe(terrain_names[i], 10, "FORBIDDEN");
             }
 #ifdef _DEBUG
             log("Terrain %d - %s", i, terrain_names[i]);

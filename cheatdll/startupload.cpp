@@ -51,7 +51,7 @@ char* __stdcall checkCmdLine(char* ext)
     char* cmdLine_ = GetCommandLine();
 
     cmdLine = (char*)malloc(strlen(cmdLine_) + 1);
-    strcpy(cmdLine, cmdLine_);
+    strcpy_safe(cmdLine, strlen(cmdLine_) + 1, cmdLine_);
 
     _strupr(cmdLine);
 

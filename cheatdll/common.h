@@ -2,8 +2,8 @@
 #include "structs.h"
 
 #ifdef VOOBLY_EF
-#define DATA_FOLDER_PREFIX_FROM_ROOT "Voobly Mods\\SWBGCC\\Data Mods\\Expanding Fronts\\Data\\"
-#define DATA_FOLDER_PREFIX_FROM_DATA "..\\Voobly Mods\\SWBGCC\\Data Mods\\Expanding Fronts\\Data\\"
+#define DATA_FOLDER_PREFIX_FROM_ROOT "Voobly Mods\\SWBGCC\\Data Mods\\Expanding Fronts Data\\Data\\"
+#define DATA_FOLDER_PREFIX_FROM_DATA "..\\Voobly Mods\\SWBGCC\\Data Mods\\Expanding Fronts Data\\Data\\"
 #else
 #define DATA_FOLDER_PREFIX_FROM_ROOT "data\\"
 #define DATA_FOLDER_PREFIX_FROM_DATA ""
@@ -29,6 +29,8 @@ void* __stdcall getCurrentPlayer();
 void* __fastcall get_player(int);
 
 int __stdcall language_dll_load(UINT id, char* buf, int nmax);
+
+errno_t __cdecl strcpy_safe(char* dest, size_t size, const char* source);
 
 int __stdcall getWindowX();
 int __stdcall getWindowY();

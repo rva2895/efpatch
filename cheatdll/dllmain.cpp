@@ -227,14 +227,7 @@ void setHooksCC()
     if (cd.editorAutosave)
         setAutosaveHooks(cd.gameVersion, cd.editorAutosaveInterval);
 
-#ifndef TARGET_VOOBLY
     setDRSLoadHooks(cd.gameVersion, cd.widescrnEnabled);
-#else
-#ifdef VOOBLY_EF
-    setDRSLoadHooks(cd.gameVersion, true);
-#endif
-    
-#endif
 
     setTriggerDescHooks();
 
@@ -470,18 +463,18 @@ char* __stdcall get_version_str_ef(BYTE v)
     BYTE v_major;
     if (v == 127)
     {
-        strcpy_s(version_string, _countof(version_string), ver1x);
+        strcpy_safe(version_string, _countof(version_string), ver1x);
     }
     else if (v > 8)
     {
         v_minor = (v + 29 - 9) % 7;
         v_major = (v + 29 - 9) / 7;
-        sprintf_s(version_string, _countof(version_string), "1.%hhu.%hhu", v_major, v_minor);
+        snprintf(version_string, _countof(version_string), "1.%hhu.%hhu", v_major, v_minor);
     }
     else if (v > 0)
     {
         v_major = v - 1;
-        sprintf_s(version_string, _countof(version_string), "1.%hhue", v_major);
+        snprintf(version_string, _countof(version_string), "1.%hhue", v_major);
     }
     else
     {
@@ -558,22 +551,9 @@ const char x1_dat_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"genie_x1_p1.dat";
 void initialSetup()
 {
 #ifdef TARGET_VOOBLY
-    log("===============================================");
-    log("Dll attached");
-    log("===============================================");
-
-    log("Compile time: " __DATE__ ", " __TIME__);
-#ifdef VOOBLY_EF
-    log("Configuration: Release_Voobly_EF");
-#else
-    log("Configuration: Release_Voobly");
-#endif
-
     log("Notice: running in Voobly mode");
 
-//#ifdef VOOBLY_EF
     install_legacy_patch();
-//#endif
 #endif
 
     new_memory_pages = VirtualAlloc(0, 0x1000, MEM_COMMIT, PAGE_READWRITE);

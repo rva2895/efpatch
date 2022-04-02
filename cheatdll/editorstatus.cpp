@@ -80,7 +80,7 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
     if (placementSettings & 2)
         status_grid = status_Off;
 
-    sprintf_s(buf, _countof(buf), "Grid placement: %s\nCollision enabled: %s", status_grid, status_collision);
+    snprintf(buf, _countof(buf), "Grid placement: %s\nCollision enabled: %s", status_grid, status_collision);
     DrawText_outline(hdc, &r, buf);
 
     char* cliff_txt;
@@ -124,7 +124,7 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
     else
         status_terrain = status_Off;*/
 
-    sprintf_s(buf, _countof(buf), "Cliff: %s", cliff_txt);
+    snprintf(buf, _countof(buf), "Cliff: %s", cliff_txt);
 
     r.right += 160;
     r.left += 160;
@@ -133,7 +133,7 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
     //rms stuff
     r.left = 600;
     r.right = getWindowX();
-    sprintf_s(buf, _countof(buf), "%s%s", rms_error_1.c_str(), rms_error_2.c_str());
+    snprintf(buf, _countof(buf), "%s%s", rms_error_1.c_str(), rms_error_2.c_str());
     DrawText_outline(hdc, &r, buf);
     //
 
