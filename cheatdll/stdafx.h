@@ -38,4 +38,4 @@
 
 //#define CHEATDLL_NOLOG
 
-#define EFPATCH_VERSION "EFPATCH for EF v1.4.2 (1.4.2.2) " __DATE__ " " __TIME__
+#define EFPATCH_VERSION "EFPATCH for EF v1.4.2 (1.4.2.4) " __DATE__ " " __TIME__

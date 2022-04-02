@@ -22,7 +22,7 @@ void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
             if (!data)
             {
                 char err[0x100];
-                sprintf_s(err, _countof(err), "Cannot load SLP %d from DRS", id);
+                snprintf(err, _countof(err), "Cannot load SLP %d from DRS", id);
                 log(err);
                 MessageBox(NULL, err, "Error", MB_ICONERROR);
                 exit(0);
@@ -258,13 +258,13 @@ void patchRect(int x,
     char scanArg[0x100];
     char oldRects[0x100];
     char newRects[0x100];
-    sprintf_s(scanArg, _countof(scanArg), "%s\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%s", itemName);
+    snprintf(scanArg, _countof(scanArg), "%s\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%d\t%%s", itemName);
     sscanf_s((char*)drsRects + findRectOffset(drsRects, itemName), scanArg,
         &X800, &Y800, &W800, &H800,
         &X1024, &Y1024, &W1024, &H1024,
         &X1280, &Y1280, &W1280, &H1280,
         endbuf, 0x2000);
-    sprintf_s(oldRects, _countof(oldRects), "\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t", //tab value tab value...
+    snprintf(oldRects, _countof(oldRects), "\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t", //tab value tab value...
         X800, Y800, W800, H800,
         X1024, Y1024, W1024, H1024,
         X1280, Y1280, W1280, H1280);
@@ -296,7 +296,7 @@ void patchRect(int x,
             H1024 += y - 768;
         else
             exit(1);
-    sprintf_s(newRects, _countof(newRects), "\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t",
+    snprintf(newRects, _countof(newRects), "\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t",
         X800, Y800, W800, H800,
         X1024, Y1024, W1024, H1024,
         X1280, Y1280, W1280, H1280);
@@ -331,7 +331,7 @@ void patchResRects(int x, int y, DRS* drs)
     if (!x1.loadDRS("data\\interfac_x1.drs"))
     {
         char err[0x100];
-        sprintf_s(err, _countof(err), "Cannot load interfac_x1.drs");
+        snprintf(err, _countof(err), "Cannot load interfac_x1.drs");
         log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
@@ -340,7 +340,7 @@ void patchResRects(int x, int y, DRS* drs)
     if (!drsRects2)
     {
         char err[0x100];
-        sprintf_s(err, _countof(err), "Cannot load BIN 53290 from interfac_x1.drs");
+        snprintf(err, _countof(err), "Cannot load BIN 53290 from interfac_x1.drs");
         log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
@@ -389,7 +389,7 @@ void placeSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool
         if (!data)
         {
             char err[0x100];
-            sprintf_s(err, _countof(err), "Cannot load SLP %d from DRS", id);
+            snprintf(err, _countof(err), "Cannot load SLP %d from DRS", id);
             log(err);
             MessageBox(NULL, err, "Error", MB_ICONERROR);
             exit(0);
@@ -407,7 +407,7 @@ void placeSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool
                 if (!data)
                 {
                     char err[0x100];
-                    sprintf_s(err, _countof(err), "Cannot load SLP %d from DRS", id);
+                    snprintf(err, _countof(err), "Cannot load SLP %d from DRS", id);
                     log(err);
                     MessageBox(NULL, err, "Error", MB_ICONERROR);
                     exit(0);
@@ -429,7 +429,7 @@ void placeScaledSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id
         if (!data)
         {
             char err[0x100];
-            sprintf_s(err, _countof(err), "Cannot load SLP %d from DRS", id);
+            snprintf(err, _countof(err), "Cannot load SLP %d from DRS", id);
             log(err);
             MessageBox(NULL, err, "Error", MB_ICONERROR);
             exit(0);
@@ -447,7 +447,7 @@ void placeScaledSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id
                 if (!data)
                 {
                     char err[0x100];
-                    sprintf_s(err, _countof(err), "Cannot load SLP %d from DRS", id);
+                    snprintf(err, _countof(err), "Cannot load SLP %d from DRS", id);
                     log(err);
                     MessageBox(NULL, err, "Error", MB_ICONERROR);
                     exit(0);
@@ -473,7 +473,7 @@ void patchResolution(int x, int y, DRS* drs, bool patch_ef)
 
     log("Updating resolution id");
     char resStr[0x10];
-    sprintf_s(resStr, _countof(resStr), "%dx%d", x, y);
+    snprintf(resStr, _countof(resStr), "%dx%d", x, y);
     drs->addFile(resStr, strlen(resStr) + 1, RESOLUTION_TOOL_VERSION, DRS_BIN); //bina
 
     log("Stretching SLPs...");

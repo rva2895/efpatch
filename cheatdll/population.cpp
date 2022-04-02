@@ -76,7 +76,7 @@ char* __fastcall getPopCapString(int c)
 {
     if (!use_extended_pop_cap_ai && c > 250)
         c = 250;
-    sprintf_s(pop_cap_string, _countof(pop_cap_string), "POPULATION-CAP-%d", c);
+    snprintf(pop_cap_string, _countof(pop_cap_string), "POPULATION-CAP-%d", c);
     return pop_cap_string;
 }
 

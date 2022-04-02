@@ -14,21 +14,21 @@ void __stdcall displayVersionError(void* ptr)
     ver[3] = 0;
     if (!strcmp(ver, "9.4"))
     {
-        strcpy(ver, EXE_PATCH_VERSION);
-        strcpy(s2, "\nTurn Data Patch off to watch this game");
+        strcpy_safe(ver, _countof(ver), EXE_PATCH_VERSION);
+        strcpy_safe(s2, _countof(s2), "\nTurn Data Patch off to watch this game");
     }
     else if (!strcmp(ver, "2.2"))
-        strcpy(s2, "\nTurn Data Patch on to watch this game");
+        strcpy_safe(s2, _countof(s2), "\nTurn Data Patch on to watch this game");
     else
-        strcpy(s2, "");
+        strcpy_safe(s2, _countof(s2), "");
 
     if (strcmp(ver, EXE_PATCH_VERSION))
-        sprintf_s(buf, _countof(buf), "This file was recorded with a different version of the game\n"
+        snprintf(buf, _countof(buf), "This file was recorded with a different version of the game\n"
             "Current version: " EXE_PATCH_VERSION ", "
             "File version: %s%s",
             ver, s2);
     else
-        sprintf_s(buf, _countof(buf), "Cannot load that saved game");
+        snprintf(buf, _countof(buf), "Cannot load that saved game");
 
     TEasy_Panel__popupOKDialog(ptr, buf, NULL, 450, 100, 1);
 }

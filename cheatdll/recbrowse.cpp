@@ -222,7 +222,7 @@ REC_DATA REC_CACHE::get_rec_data(const std::string& f, int priority)
     else
     {
         char* s = (char*)malloc(f.length() + 1);
-        strcpy(s, f.c_str());
+        strcpy_safe(s, f.length() + 1, f.c_str());
         //bool found = false;
         //bool higher_priority = false;
         //for (auto it = queue.begin(); it != queue.end(); ++it)
@@ -860,7 +860,7 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
             rd.duration /= 1000;
             rd.start_time /= 1000;
             int total = rd.start_time + rd.duration;
-            sprintf_s(str, _countof(str), "%d:%02d:%02d (%d:%02d:%02d - %d:%02d:%02d)",
+            snprintf(str, _countof(str), "%d:%02d:%02d (%d:%02d:%02d - %d:%02d:%02d)",
                 rd.duration / 3600, (rd.duration / 60) % 60, rd.duration % 60,
                 rd.start_time / 3600, (rd.start_time / 60) % 60, rd.start_time % 60,
                 total / 3600, (total / 60) % 60, total % 60);
@@ -911,9 +911,9 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
             }
         }
         else
-            sprintf_s(str, _countof(str), "Preview not available");
+            snprintf(str, _countof(str), "Preview not available");
     else
-        sprintf_s(str, _countof(str), "Loading...");
+        snprintf(str, _countof(str), "Loading...");
 
     r.top += (r.right - r.left) / 2 + map_edge_dist;
 
@@ -950,8 +950,8 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
             break;
         }*/
 
-        //sprintf_s(str, _countof(str), "VER %s", (char*)&rd.version);
-        strcpy_s(str, _countof(str), rd.version.c_str());
+        //snprintf(str, _countof(str), "VER %s", (char*)&rd.version);
+        strcpy_safe(str, _countof(str), rd.version.c_str());
         DrawText(hdc, str, strlen(str), &r_ver, DT_RIGHT);
 
         r.top += 30;

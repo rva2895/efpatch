@@ -142,7 +142,7 @@ void __stdcall onPrintTime2(char* s)
     //float avg = avg_interval / 2;
 
     char s2[0x100];
-    strcpy(s2, s);
+    strcpy_safe(s2, _countof(s2), s);
     //sprintf(s, "%s (%3.3f / %3.3f -> %d)", s2, avg_speed, rec_speed, current_frame_interval);
     if (isRec())
         sprintf(s, "%s (%2.2f)", s2, rec_speed);

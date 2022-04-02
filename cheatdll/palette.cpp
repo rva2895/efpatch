@@ -243,7 +243,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     SetCurrentDirectory("data\\");
     if (!drs->loadDRS(filename))
     {
-        sprintf_s(err, _countof(err), "Cannot load %s.\nCheck installation integrity.", filename);
+        snprintf(err, _countof(err), "Cannot load %s.\nCheck installation integrity.", filename);
         log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
@@ -252,12 +252,12 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     CreateDirectory(filename, NULL);
     SetCurrentDirectory(filename);
     char* wparam_filename = (char*)malloc(strlen(filename) + 1);
-    strcpy(wparam_filename, filename);
+    strcpy_safe(wparam_filename, strlen(filename) + 1, filename);
     PostMessage(hWndPaletteDlg, WM_USER + 1, (WPARAM)wparam_filename, 0);
     log("Extracting files...");
     if (drs->extractFiles() == 0)
     {
-        sprintf_s(err, _countof(err), "Cannot create temporary file.\nMake sure there is at least 200MB free in TEMP folder");
+        snprintf(err, _countof(err), "Cannot create temporary file.\nMake sure there is at least 200MB free in TEMP folder");
         log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
@@ -310,7 +310,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
 
     drs = new DRS();
     char newfilename[MAX_PATH + 1];
-    strcpy(newfilename, filename);
+    strcpy_safe(newfilename, _countof(newfilename), filename);
 //#ifndef VOOBLY_EF
     newfilename[strlen(newfilename) - 4] = 0;
     strcat(newfilename, "_p1.drs");
@@ -322,7 +322,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     log("SLP optimize threads terminated, creating %s...", newfilename);
     //
     char* wparam_newfilename = (char*)malloc(strlen(newfilename) + 1);
-    strcpy(wparam_newfilename, newfilename);
+    strcpy_safe(wparam_newfilename, strlen(newfilename) + 1, newfilename);
     PostMessage(hWndPaletteDlg, WM_USER + 1, (WPARAM)wparam_newfilename, 1);
     //
     SetCurrentDirectory(getenv("temp"));
@@ -379,7 +379,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     log("Added %d files to DRS, writing...", nDrsFiles);
     if (!drs->writeDRS())
     {
-        sprintf_s(err, _countof(err), "Cannot create DRS file.\nMake sure there is at least 500MB free in Game folder, and you have write permissions");
+        snprintf(err, _countof(err), "Cannot create DRS file.\nMake sure there is at least 500MB free in Game folder, and you have write permissions");
         log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
@@ -439,12 +439,12 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
             st = "";
             break;
         }
-        sprintf_s(s, _countof(s), "%s %s...", st, (char*)wParam);
+        snprintf(s, _countof(s), "%s %s...", st, (char*)wParam);
         free((char*)wParam);
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
         break;
     case WM_USER + 2: //status update SLP
-        sprintf_s(s, _countof(s), "Processing %d.slp...", (int)wParam);
+        snprintf(s, _countof(s), "Processing %d.slp...", (int)wParam);
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETPOS, slp_counter++, 0);
         break;

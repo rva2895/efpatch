@@ -20,9 +20,10 @@
 #include "recordrestore.h"
 #include "mouseoverride.h"
 #include "rundll.h"
+#include "resolution.h"
+#include "registry.h"
 #ifdef VOOBLY_EF
 #include "palette.h"
-#include "resolution.h"
 #endif
 
 //#include "worlddump.h"
@@ -201,13 +202,64 @@ fix_civ:
 #ifdef VOOBLY_EF
 const char voobly_ef_data_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat";
 const char voobly_ef_language_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"..\\language_x2.dll";
+#endif
+
+extern CONFIG_DATA cd;
+
+bool isVooblyWidescreenInstalled()
+{
+    DWORD d;
+    ReadProcessMemory(GetCurrentProcess(), (DWORD*)0x005068C0, &d, sizeof(d), NULL);
+    return d != 0x2B68FF6A;
+}
+
+const char widescrnErrorMsg[] =
+    "You have enabled both Voobly resolution tool and \"Enable Built-in Widescreen\" option.\n\n"
+#ifdef VOOBLY_EF
+    "Please turn off Voobly resolution tool";
+#else
+    "Please either turn off Voobly resolution tool, or uncheck \"Enable Built-in Widescreen\" option";
+#endif
 
 void __stdcall delayed_start_process()
 {
+    bool voobly_widescreen_installed = isVooblyWidescreenInstalled();
+    if (voobly_widescreen_installed && cd.widescrnEnabled)
+    {
+        MessageBox(NULL, widescrnErrorMsg, "Error", MB_ICONERROR);
+        exit(0);
+    }
+#ifdef VOOBLY_EF
+    if (voobly_widescreen_installed)
+    {
+        MessageBox(NULL, "You have enabled Voobly resolution tool, which is incompatible with Expanding Fronts mod\n\n"
+            "Please turn off Voobly resolution tool, and check \"Enable Built-in Widescreen\" option", "Error", MB_ICONERROR);
+        exit(0);
+    }
+    if (!expanding_fronts)
+    {
+        MessageBox(NULL, "This patch must be used with the Expanding Fronts mod.\n\n"
+            "To play a regular Clone Campaigns game, use \"EXE Patch\" instead", "Error", MB_ICONERROR);
+        exit(0);
+    }
+
     installPalette();
-    resolutionTool(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
     writeDword(0x0048F0E5, (DWORD)voobly_ef_data_file);
     writeDword(0x005E40A3, (DWORD)voobly_ef_language_file);
+
+    if (cd.widescrnEnabled)
+        resolutionTool(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), true, true);
+#else
+    if (expanding_fronts)
+    {
+        MessageBox(NULL, "This patch cannot be used with Expanding Fronts mod\n\n"
+            "To play an Expanding Fronts game, use \"EF EXE Patch\" instead", "Error", MB_ICONERROR);
+        exit(0);
+    }
+
+    if (cd.widescrnEnabled)
+        resolutionTool(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), false, true);
+#endif
 }
 
 __declspec(naked) void delayed_start_hook()
@@ -221,7 +273,6 @@ __declspec(naked) void delayed_start_hook()
         jmp     ebx
     }
 }
-#endif
 
 bool CUserPatch::Init(struct UserPatchConfig_t &config)
 {
@@ -239,10 +290,7 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
     g_pVoobly->Write(0x689BA4, "332E32");
 #endif
 
-#ifdef VOOBLY_EF
-    //installPalette();
     g_pVoobly->WriteJump(0x0048EFD3, delayed_start_hook);
-#endif
 
     if (strstr(config.VooblyModDirPath, "Data Patch"))
     {
@@ -253,7 +301,7 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
 
         writeByte(0x00557DD6, 53);   //gungan foundation: 53
     }
-    else if (strstr(config.VooblyModDirPath, "Expanding Fronts"))
+    else if (strstr(config.VooblyModDirPath, "Expanding Fronts Data"))
     {
         expanding_fronts = true;
         setSaveGameVerHooks(false);
@@ -333,7 +381,7 @@ bool CUserPatch::OnChatMessage(const char *text)
         srand(time(0));
         unsigned int r = rand();
         char name[MAX_PATH];
-        sprintf_s(name, _countof(name), "rge_dump_%08X.txt", r);
+        snprintf(name, _countof(name), "rge_dump_%08X.txt", r);
         chat("Dumping world to %s ...", name);
         dump_objects(name);
         chat("Dump complete");
@@ -348,7 +396,7 @@ bool CUserPatch::OnChatMessage(const char *text)
         chat("Set max worldtime to %d", t);
         return true;
     }*/
-    if (!strcmp(text, "/worldtime"))
+    /*if (!strcmp(text, "/worldtime"))
     {
         chat("Worldtime = %d", get_gametime2());
         return 1;
@@ -382,7 +430,7 @@ bool CUserPatch::OnChatMessage(const char *text)
         void* player = getCurrentPlayer();
         WorldPlayerBase__set_view_loc(player, x, y, 0);
         return true;
-    }
+    }*/
     /*if (strstr(text, "/cs"))
     {
         WORLD_DUMP wd;

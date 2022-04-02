@@ -330,13 +330,13 @@ MG1::MG1(const char* filename)
             *ptr++ = *p++;
         *ptr = 0;
         map_type = (char*)malloc(strlen(map_type_tmp) + 1);
-        strcpy(map_type, map_type_tmp);
+        strcpy_safe(map_type, strlen(map_type_tmp) + 1, map_type_tmp);
         free(map_type_tmp);
     }
     else
     {
         map_type = (char*)malloc(10);
-        strcpy(map_type, "<Unknown>");
+        strcpy_safe(map_type, 10, "<Unknown>");
     }
 
     p = (char*)dst + dst_n - 16;
@@ -462,7 +462,7 @@ MG1::MG1(const char* filename)
     /*if (cnt > 10)
     {
         char b[0x100];
-        sprintf_s(b, _countof(b), "%s: %d aa troops", filename, cnt);
+        snprintf(b, _countof(b), "%s: %d aa troops", filename, cnt);
         MessageBox(0, b, "stats", 0);
     }*/
 

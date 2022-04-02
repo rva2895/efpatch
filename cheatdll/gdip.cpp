@@ -1,32 +1,16 @@
 #include "stdafx.h"
 #include "gdip.h"
 
-#include <map>
+//#include <map>
 
 #include <GdiPlus.h>
 using namespace Gdiplus;
 #pragma comment (lib, "gdiplus.lib")
 
 
-ULONG_PTR           gdiplusToken;
-//FontFamily  fontFamily2(L"Times New Roman");
-//Font        font(&fontFamily, 24, FontStyleRegular, UnitPixel);
-//PointF      pointF(30.0f, 10.0f);
-//SolidBrush  solidBrush(Color(255, 0, 0, 255));
-
-//FontFamily* fontFamily;
-//Font* font2;
-//SolidBrush* solidBrush;
+ULONG_PTR   gdiplusToken;
 
 /*
-void init_stuff()
-{
-    fontFamily = new FontFamily(L"Arial");
-    //font2 = new Font(fontFamily, 14, FontStyleRegular, UnitPixel);
-    //solidBrush = new SolidBrush(0xFFFFFFFF);
-}
-
-
 class DC_DATA
 {
 public:
@@ -149,20 +133,17 @@ __declspec(naked) void on_DrawArea_ReleaseDC() //00472BD4
 
 BOOL __stdcall GetTextExtentPoint32A_new(HDC hdc, LPCSTR lpString, int c, LPSIZE psizl)
 {
-    //psizl->cx = 0;
-    //psizl->cy = 0;
-    Graphics* g = get_graphics(hdc);
-    wchar_t str[0x200];
-    size_t conv;
-    mbstowcs_s(&conv, str, _countof(str), lpString, c >= _countof(str) ? (c - 1) : c);
+    int count = MultiByteToWideChar(CP_ACP, 0, lpString, c, NULL, 0);
+    std::wstring wstr(count, 0);
+    MultiByteToWideChar(CP_ACP, 0, lpString, c, &wstr[0], count);
 
-    RectF boundRect;
-    Font font(hdc);
-    //Font* font = get_font(hdc);
-    PointF pointF(0.0f, 0.0f);
+    RectF       boundRect;
+    PointF      pointF(0.0f, 0.0f);
     StringFormat sf = StringFormat::GenericTypographic();
-    graphics->MeasureString(str, c, &font, pointF, &sf, &boundRect);
-    //graphics->MeasureString(str, cchText, &font, layoutRect, &boundRect);
+    Font        font(hdc);
+    Graphics* g = get_graphics(hdc);
+    g->MeasureString(wstr.c_str(), c, &font, pointF, &sf, &boundRect);
+
     psizl->cx = ceil(boundRect.Width);
     psizl->cy = ceil(boundRect.Height);
     return TRUE;
@@ -181,64 +162,41 @@ UINT text_align = 0;
 
 BOOL __stdcall TextOutA_new(HDC hdc, int x, int y, LPCSTR lpString, int c)
 {
-    //FontFamily  fontFamily2(L"Times New Roman");
-    //Font        font2(&fontFamily2, 16, FontStyleRegular, UnitPixel);
-    //PointF      pointF(30.0f, 10.0f);
-    SolidBrush  solidBrush(Color(255, GetRValue(txt_color), GetGValue(txt_color), GetBValue(txt_color)));
-    //RectF        rectF(x, y, x+200, y+50);
-    PointF      pointF(x, y);
-    Graphics* g = get_graphics(hdc);
-    //wchar_t str[0x200];
-    size_t conv;
-    //mbstowcs_s(&conv, str, _countof(str), lpString, c >= _countof(str) ? (c - 1) : c);
-    int buf_size = MultiByteToWideChar(CP_ACP, 0, lpString, c, NULL, 0);
-    wchar_t* str;
-    int result;
-    if (buf_size > 0)
-    {
-        str = (wchar_t*)malloc(buf_size * sizeof(wchar_t));
-        result = MultiByteToWideChar(CP_ACP, 0, lpString, c, str, buf_size);
-        if (result <= 0)
-            str[0] = '\0';
-    }
-    else
-    {
-        str = (wchar_t*)malloc(1 * sizeof(wchar_t));
-        str[0] = '\0';
-    }
+    int count = MultiByteToWideChar(CP_ACP, 0, lpString, c, NULL, 0);
+    std::wstring wstr(count, 0);
+    MultiByteToWideChar(CP_ACP, 0, lpString, c, &wstr[0], count);
+
     StringFormat sf = StringFormat::GenericTypographic();
     if (text_align & TA_RIGHT)
         sf.SetAlignment(StringAlignmentFar);
 
-    //graphics.DrawString(str, -1, font, rectF, NULL, solidBrush);
-    Font font(hdc);
-    //Font* font = get_font(hdc);
-    //if (strstr(lpString, "r(v"))
-    g->DrawString(str, c, &font, pointF, &sf, &solidBrush);
-
-    free(str);
+    SolidBrush  solidBrush(Color(255, GetRValue(txt_color), GetGValue(txt_color), GetBValue(txt_color)));
+    PointF      pointF(x, y);
+    Graphics*   g = get_graphics(hdc);
+    Font        font(hdc);
+    g->DrawString(wstr.c_str(), c, &font, pointF, &sf, &solidBrush);
 
     return TRUE;
 }
 
 int __stdcall DrawTextA_new(HDC hdc, LPCSTR lpchText, int cchText, LPRECT lprc, UINT format)
 {
-    SolidBrush  solidBrush(Color(255, GetRValue(txt_color), GetGValue(txt_color), GetBValue(txt_color)));
-    wchar_t str[0x200];
-    size_t conv;
-    mbstowcs_s(&conv, str, _countof(str), lpchText, cchText >= _countof(str) ? (cchText - 1) : cchText);
+    int count = MultiByteToWideChar(CP_ACP, 0, lpchText, cchText, NULL, 0);
+    std::wstring wstr(count, 0);
+    MultiByteToWideChar(CP_ACP, 0, lpchText, cchText, &wstr[0], count);
+
     LONG offset_x = 0;
     LONG offset_y = 0;
-    StringFormat sf = StringFormat::GenericTypographic();
-    Font font(hdc);
 
-    Graphics* g = get_graphics(hdc);
+    Graphics*   g = get_graphics(hdc);
+    StringFormat sf = StringFormat::GenericTypographic();
+    Font        font(hdc);
 
     if (format & DT_RIGHT || format & DT_CENTER || format & DT_VCENTER || format & DT_BOTTOM)
     {
         RectF boundRect;
         RectF layoutRect(lprc->left, lprc->top, lprc->right - lprc->left, lprc->bottom - lprc->top);
-        g->MeasureString(str, cchText, &font, layoutRect, &sf, &boundRect);
+        g->MeasureString(wstr.c_str(), cchText, &font, layoutRect, &sf, &boundRect);
 
         if (format & DT_RIGHT)
             offset_x = lprc->right - lprc->left - boundRect.Width;
@@ -250,14 +208,18 @@ int __stdcall DrawTextA_new(HDC hdc, LPCSTR lpchText, int cchText, LPRECT lprc, 
             offset_y = lprc->bottom - lprc->top - boundRect.Height;
     }
 
-    RectF        rectF(lprc->left + offset_x, lprc->top + offset_y,
+    RectF       rectF(lprc->left + offset_x, lprc->top + offset_y,
         lprc->right - (lprc->left + offset_x), lprc->bottom - (lprc->top + offset_y));
 
-
-    //Font* font = get_font(hdc);
-    g->DrawString(str, cchText, &font, rectF, &sf, &solidBrush);
+    SolidBrush  solidBrush(Color(255, GetRValue(txt_color), GetGValue(txt_color), GetBValue(txt_color)));
+    g->DrawString(wstr.c_str(), cchText, &font, rectF, &sf, &solidBrush);
 
     return 0;
+}
+
+int __stdcall DrawTextExA_new(HDC hdc, LPSTR lpchText, int cchText, LPRECT lprc, UINT format, LPDRAWTEXTPARAMS lpdtp)
+{
+    return DrawTextA_new(hdc, lpchText, cchText, lprc, format);
 }
 
 UINT __stdcall SetTextAlign_new(HDC hdc, UINT align)
@@ -267,7 +229,6 @@ UINT __stdcall SetTextAlign_new(HDC hdc, UINT align)
     return prev;
 }
 
-
 void setGDIPlusHooks()
 {
     //setHook((void*)0x00472B9C, on_DrawArea_GetDC);
@@ -276,14 +237,12 @@ void setGDIPlusHooks()
     setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "SetTextAlign"), SetTextAlign_new);
     setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "TextOutA"), TextOutA_new);
     setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "GetTextExtentPoint32A"), GetTextExtentPoint32A_new);
-    setHook(GetProcAddress(GetModuleHandle("user32.dll"), "DrawTextA"), DrawTextA_new);
-
     setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "SetTextColor"), SetTextColor_new);
+    setHook(GetProcAddress(GetModuleHandle("user32.dll"), "DrawTextA"), DrawTextA_new);
+    setHook(GetProcAddress(GetModuleHandle("user32.dll"), "DrawTextExA"), DrawTextExA_new);
 
     //GdiplusStartup
     GdiplusStartupInput gdiplusStartupInput;
 
     Status st = GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
-
-    //init_stuff();
 }

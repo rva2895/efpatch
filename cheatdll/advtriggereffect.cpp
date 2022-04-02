@@ -612,7 +612,7 @@ void __stdcall advTriggerEffectActual(prop_object* unitData, const char* str)
         s_heap = (char*)malloc(s_len + 1);
         s = s_heap;
     }
-    strcpy_s(s, s_len + 1, str);
+    strcpy_safe(s, s_len + 1, str);
     char* pch = strtok(s, "\r\n");
     char* com_strs[64];
     int str_count = 0;

@@ -140,7 +140,11 @@ void regGet(CONFIG_DATA* cd)
             query_reg_option(hKey, "Unlock Resources", cd->unlockResources, cd_default.unlockResources);
             query_reg_option(hKey, "Editor Autosave", cd->editorAutosave, cd_default.editorAutosave);
             query_reg_option(hKey, "Editor Autosave Interval", cd->editorAutosaveInterval, cd_default.editorAutosaveInterval);
+#ifdef TARGET_VOOBLY
+            query_reg_option(hKey, "Enable Built-in Widescreen", cd->widescrnEnabled, cd_default.widescrnEnabled);
+#else
             query_reg_option(hKey, "Resolution Patch Enabled", cd->widescrnEnabled, cd_default.widescrnEnabled);
+#endif
             query_reg_option(hKey, "Screen Size X", cd->xres, cd_default.xres);
             query_reg_option(hKey, "Screen Size Y", cd->yres, cd_default.yres);
             query_reg_option(hKey, "Window Mode", cd->windowMode, cd_default.windowMode);
@@ -177,7 +181,7 @@ void regGet(CONFIG_DATA* cd)
         else
         {
 #ifndef TARGET_VOOBLY
-            MessageBox(0, "Error: cannot access application registry key. Using default settings", "Error", MB_ICONEXCLAMATION);
+            MessageBox(NULL, "Error: cannot access application registry key. Using default settings", "Error", MB_ICONEXCLAMATION);
 #endif
             *cd = cd_default;
             log("Failed to create registry key, using default settings");
@@ -219,7 +223,11 @@ void regSet(const CONFIG_DATA* cd)
         set_reg_option(hKey, "Unlock Resources", cd->unlockResources, REG_DWORD);
         set_reg_option(hKey, "Editor Autosave", cd->editorAutosave, REG_DWORD);
         set_reg_option(hKey, "Editor Autosave Interval", cd->editorAutosaveInterval, REG_DWORD);
+#ifdef TARGET_VOOBLY
+        set_reg_option(hKey, "Enable Built-in Widescreen", cd->widescrnEnabled, REG_DWORD);
+#else
         set_reg_option(hKey, "Resolution Patch Enabled", cd->widescrnEnabled, REG_DWORD);
+#endif
         set_reg_option(hKey, "Screen Size X", cd->xres, REG_DWORD);
         set_reg_option(hKey, "Screen Size Y", cd->yres, REG_DWORD);
         set_reg_option(hKey, "Window Mode", cd->windowMode, REG_DWORD);
@@ -248,7 +256,7 @@ void regSet(const CONFIG_DATA* cd)
     }
     else
     {
-        MessageBox(0, "Error: cannot access application registry key. Settings not saved", "Error", MB_ICONEXCLAMATION);
+        MessageBox(NULL, "Error: cannot access application registry key. Settings not saved", "Error", MB_ICONEXCLAMATION);
         log("Failed to create registry key, settings not saved");
     }
     RegCloseKey(hKeyCU);

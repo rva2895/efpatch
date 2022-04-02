@@ -260,7 +260,7 @@ void __stdcall dump_checksums(long time)
     //srand(timeGetTime());
     //unsigned int r = rand();
     //char name[MAX_PATH];
-    //sprintf_s(name, _countof(name), "rge_checksum_dump_%08X.txt", r);
+    //snprintf(name, _countof(name), "rge_checksum_dump_%08X.txt", r);
     FILE* f = fopen("rge_checksum_dump.txt", "at");
     if (f)
     {
@@ -374,14 +374,14 @@ void __stdcall make_oos_dump()
 
     unsigned int r = rand();
     char r_n[0x20];
-    sprintf_s(r_n, _countof(r_n), "%08X", r);
+    snprintf(r_n, _countof(r_n), "%08X", r);
     time_t rawtime;
     tm* tm_time;
     rawtime = time(NULL);
     tm_time = localtime(&rawtime);
     strftime(name, MAX_PATH, "world_dumps\\World_Dump-%Y-%m-%d_%H-%M-%S_", tm_time);
     strcpy(name + strlen(name), r_n);
-    sprintf_s(r_n, _countof(r_n), "_%d.txt", get_gametime2());
+    snprintf(r_n, _countof(r_n), "_%d.txt", get_gametime2());
     strcpy(name + strlen(name), r_n);
     FILE* f = fopen(name, "wt");
     if (f)

@@ -39,7 +39,7 @@ int (__thiscall* Game__load_game_data)(void* this_) =
 
 void setup_data_file_name(const char* data_file)
 {
-    strcpy(data_file_name, data_file);
+    strcpy_safe(data_file_name, MAX_PATH, data_file);
 }
 
 __declspec(naked) void onDataFileName() //0048F0FB
@@ -116,8 +116,8 @@ void do_setup_dat_file(int use_logo_background, int show_loading_game)
     //clear legacy jedi-holo and ground-to-air
     memset((void*)0x007B1000, 0, 0x1000);
 
-    sprintf_s(ground_to_air_path, 0x100, "%sground-to-air.txt", data_prefix);
-    sprintf_s(jedi_holo_path, 0x100, "%sjedi-holo.txt", data_prefix);
+    snprintf(ground_to_air_path, 0x100, "%sground-to-air.txt", data_prefix);
+    snprintf(jedi_holo_path, 0x100, "%sjedi-holo.txt", data_prefix);
 
     writeDword(0x007B2046, (DWORD)jedi_holo_path);
     writeDword(0x007B21B6, (DWORD)ground_to_air_path);
@@ -130,9 +130,9 @@ void do_setup_dat_file(int use_logo_background, int show_loading_game)
 
     char dll_name[0x100];
     if (!strcmp(data_prefix, DATA_FOLDER_PREFIX_FROM_ROOT))
-        sprintf_s(dll_name, _countof(dll_name), DATA_FOLDER_PREFIX_FROM_ROOT"..\\language_x2.dll");
+        snprintf(dll_name, _countof(dll_name), DATA_FOLDER_PREFIX_FROM_ROOT"..\\language_x2.dll");
     else
-        sprintf_s(dll_name, _countof(dll_name), "%slanguage_x2.dll", data_prefix);
+        snprintf(dll_name, _countof(dll_name), "%slanguage_x2.dll", data_prefix);
 
     FreeLibrary(*hInstance_dll);
     *hInstance_dll = LoadLibrary(dll_name);

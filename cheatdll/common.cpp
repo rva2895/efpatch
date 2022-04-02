@@ -80,6 +80,17 @@ void __cdecl setHook(void* addr, void* newAddr)
 #endif
 }
 
+errno_t __cdecl strcpy_safe(char* dest, size_t size, const char* source)
+{
+    if (size > 0)
+    {
+        dest[0] = '\0';
+        return strncat_s(dest, size, source, size - 1);
+    }
+    else
+        return 0;
+}
+
 __declspec(naked) int __stdcall getWindowX()
 {
     __asm
@@ -148,7 +159,7 @@ void __cdecl chat(char* format, ...)
     char s[0x100];
     va_list ap;
     va_start(ap, format);
-    vsprintf_s(s, _countof(s), format, ap);
+    vsnprintf(s, _countof(s), format, ap);
     sendChat(s, -1);
     va_end(ap);
 }

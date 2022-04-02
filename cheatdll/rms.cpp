@@ -141,7 +141,7 @@ void findFiles()
             nFiles++;
             filenames = (char**)realloc(filenames, sizeof(char*)*nFiles);
             filenames[nFiles - 1] = (char*)malloc(strlen(fd.cFileName) + 1);
-            strcpy(filenames[nFiles - 1], fd.cFileName);
+            strcpy_safe(filenames[nFiles - 1], strlen(fd.cFileName) + 1, fd.cFileName);
             filenames[nFiles - 1][strstr(fd.cFileName, ".rms") - fd.cFileName] = 0;
         } while (FindNextFile(hFile, &fd));
         int err = GetLastError();
