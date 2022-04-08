@@ -344,6 +344,11 @@ void setHooksEF()
     writeDword(0x00609CEB, (DWORD)efBlendomatic);
     writeDword(0x00609ABA, (DWORD)efICM);
 
+    //fixed campaigns
+    writeByte(0x00690C78, 0x65);
+    writeByte(0x00690FD8, 0x65);
+    writeByte(0x00691218, 0x65);
+
     setAdvCheatHooks();
 
     setLangDllHooks();
