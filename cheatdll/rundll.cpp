@@ -68,6 +68,12 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
     cd.crashReporting = 0;
 #endif
 
+    if (cd.largeMaps)
+    {
+        log("Large maps enabled, crash reporting forced OFF");
+        cd.crashReporting = 0;
+    }
+
     if (cd.crashReporting)
     {
         log("Crash reporting is ON");

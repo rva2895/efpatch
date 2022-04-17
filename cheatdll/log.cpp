@@ -104,7 +104,15 @@ void initLog()
     {
         loggingEnabled = true;
         log("Logging started");
+#ifdef TARGET_VOOBLY
+#ifdef VOOBLY_EF
         log(EFPATCH_VERSION);
+#else
+        log(USERPATCH_VERSION);
+#endif
+#else
+        log(EFPATCH_VERSION);
+#endif
         log("Configuration: %s", EFPATCH_CURRENT_CONFIG);
         deleteOldLogs();
     }

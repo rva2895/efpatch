@@ -239,7 +239,7 @@ void __stdcall delayed_start_process()
     if (!expanding_fronts)
     {
         MessageBox(NULL, "This patch must be used with the Expanding Fronts mod.\n\n"
-            "To play a regular Clone Campaigns game, use \"EXE Patch\" instead", "Error", MB_ICONERROR);
+            "To play Clone Campaigns, use \"EXE Patch\" instead", "Error", MB_ICONERROR);
         exit(0);
     }
 
@@ -253,7 +253,7 @@ void __stdcall delayed_start_process()
     if (expanding_fronts)
     {
         MessageBox(NULL, "This patch cannot be used with Expanding Fronts mod\n\n"
-            "To play an Expanding Fronts game, use \"EF EXE Patch\" instead", "Error", MB_ICONERROR);
+            "To play Expanding Fronts, use \"EF EXE Patch\" instead", "Error", MB_ICONERROR);
         exit(0);
     }
 
@@ -356,8 +356,12 @@ bool CUserPatch::OnChatMessage(const char *text)
 {
     if (!strcmp(text, "/version"))
     {
+#ifdef VOOBLY_EF
+        g_pVoobly->ChatMessage("EF EXE Patch", "%s", EFPATCH_VERSION);
+#else
         char* str = dataPatch ? "ON" : "OFF";
         g_pVoobly->ChatMessage("EXE Patch", "%s, Data patch: %s", USERPATCH_VERSION, str);
+#endif
         return true;
     }
     /*if (!strcmp(text, "/load-all"))
