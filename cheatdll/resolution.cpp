@@ -489,7 +489,7 @@ void patchResolution(int x, int y, DRS* drs, bool patch_ef)
     DRS wide_x2; wide_x2.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"widescrn_x2.drs");
 
     //tech tree
-    parseSLP(&x0, &x1, &x2, drs, 50341, x, y);
+    parseSLP(&x0_cc, &x0, &x2, drs, 50341, x, y);
 
     if (y >= 1024)
     {

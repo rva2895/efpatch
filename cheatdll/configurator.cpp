@@ -282,8 +282,8 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
                 if (IsDlgButtonChecked(hWndDlg, IDC_CHECK_MAPSIZE))
                     CheckDlgButton(hWndDlg, IDC_CHECK_MAPSIZE,
                         MessageBox(hWndDlg,
-                            "Large map support is experimental and may not work correctly. Enabling this option affects gameplay on ALL maps, not only maps larger than 255x255. "
-                            "It is recommended that you keep this option disabled for better user experience.\n"
+                            "Large map support is experimental and may not work correctly. Enabling this option may cause problems even on standard sized maps. "
+                            "It is recommended that you do not enable this for better experience.\n"
                             "\nAre you sure you want to enable large maps support?",
                             "Warning", MB_YESNO | MB_ICONEXCLAMATION) == 6 ? TRUE : FALSE);
                 break;
