@@ -72,6 +72,21 @@ stop_counting:
     }
 }
 
+__declspec(naked) void chat_stutter_fix() //004CD00A
+{
+    __asm
+    {
+        cmp     byte ptr [eax], 0
+        jz      no_streaming_sound
+        mov     ecx, 004CD012h
+        jmp     ecx
+
+no_streaming_sound:
+        mov     ecx, 004CD192h
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks()
 {
@@ -129,5 +144,8 @@ void setMiscBugfixHooks()
 
     //limit object count function to 5400
     setHook((void*)0x004AFAA9, count_objects_limit);
+
+    //chat stutter
+    setHook((void*)0x004CD00A, chat_stutter_fix);
 }
 #pragma optimize( "", on )

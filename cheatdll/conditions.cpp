@@ -694,7 +694,7 @@ void reloc(void* src, void* dst)
 #ifndef TARGET_VOOBLY
     *(unsigned long*)src = (unsigned long)dst - ((unsigned long)src + 4);
 #else
-    writeDword((DWORD)src, (DWORD)dst - (DWORD)src + 4);
+    writeDword((DWORD)src, (DWORD)dst - ((DWORD)src + 4));
 #endif
 }
 
