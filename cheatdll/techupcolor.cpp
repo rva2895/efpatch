@@ -29,7 +29,7 @@ int __stdcall get_player_id(int player_number)
     if (player_number == -1)
         return -1;
     for (int i = 1; i <= 8; i++)
-        if (BaseGame__playerID(*base_game, i) == player_number)
+        if (RGE_Base_Game__playerID(*base_game, i) == player_number)
             return i;
     return 0;
 }

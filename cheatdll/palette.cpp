@@ -257,7 +257,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     log("Extracting files...");
     if (drs->extractFiles() == 0)
     {
-        snprintf(err, _countof(err), "Cannot create temporary file.\nMake sure there is at least 200MB free in TEMP folder");
+        snprintf(err, _countof(err), "Cannot create temporary file.\nMake sure there is at least 500 MB free in TEMP folder");
         log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);
@@ -379,7 +379,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     log("Added %d files to DRS, writing...", nDrsFiles);
     if (!drs->writeDRS())
     {
-        snprintf(err, _countof(err), "Cannot create DRS file.\nMake sure there is at least 500MB free in Game folder, and you have write permissions");
+        snprintf(err, _countof(err), "Cannot create DRS file.\nMake sure there is at least 500 MB free in Game folder, and you have write permissions");
         log(err);
         MessageBox(NULL, err, "Error", MB_ICONERROR);
         exit(0);

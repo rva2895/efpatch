@@ -14,7 +14,8 @@ const char hotkeys[] = {
      9, 12,  2, //nightsister hunter 3 -> 2
     10, 12,  1, //new master
     11,  3, 15, //sensor buoy
-    12,  3, 16  //underwater prefab shelter
+    12,  3, 16, //underwater prefab shelter
+    13,  7,  7  //at-at swimmer
 };
 
 void* hotkeyTestRet;
@@ -46,7 +47,7 @@ HK_underwater:
         mov     eax, 12
 
 HK_continue:
-        cmp     eax, 12
+        cmp     eax, 13
         ja      HK_skip
         test    eax, eax
         jz      HK_skip
@@ -106,7 +107,7 @@ __declspec(naked) void hotkeyTestBldg() //005625D0
 void setGroupNumbers()
 {
     writeByte(0x00561462, 9);  //5
-    writeByte(0x00561478, 7);  //7
+    writeByte(0x00561478, 8);  //7  7 -> 8
     writeByte(0x00561483, 5);  //8  6 -> 5
     writeByte(0x00561499, 5);  //10
     writeByte(0x005614AF, 3);  //12 4 -> 3
@@ -128,6 +129,11 @@ __declspec(naked) void hotkeyOptionsLoad() //005625C1
 
         push    17499        //monitor
         push    6            //id
+        push    7            //group
+        mov     ecx, esi
+        call    edi
+        push    7799         //at-at swimmer
+        push    7            //id
         push    7            //group
         mov     ecx, esi
         call    edi
@@ -296,6 +302,11 @@ __declspec(naked) void hotkeyDefaultSet() //00561C72
         mov     ecx, esi
         call    edi
 
+        push    7            //at-at swimmer
+        push    7
+        mov     ecx, esi
+        call    edi
+
         push    3            //interceptor          4 -> 3
         push    8
         mov     ecx, esi
@@ -433,6 +444,23 @@ __declspec(naked) void hotkeyDefaultMonitor()
         push    0
         push    45h
         push    6
+        push    7
+        mov     eax, 00486BC0h
+        call    eax
+        retn    8
+    }
+}
+
+__declspec(naked) void hotkeyDefaultATATSwimmer()
+{
+    __asm
+    {
+        push    16302
+        push    0
+        push    0
+        push    0
+        push    52h
+        push    7
         push    7
         mov     eax, 00486BC0h
         call    eax
@@ -648,7 +676,8 @@ const DWORD hotkeyDefaultsGroup7[] =  //shipyard
     0x00564669,
     0x00564682,
     0x0056469B,
-    (DWORD)&hotkeyDefaultMonitor
+    (DWORD)&hotkeyDefaultMonitor,
+    (DWORD)&hotkeyDefaultATATSwimmer
 };
 
 const DWORD hotkeyDefaultsGroup8[] =  //airbase
@@ -779,51 +808,48 @@ _jump_2:
 
 #endif
 
-void (__thiscall* hotkey_set_default) (void* this_, int group, int id, int key_code, int ctrl_key, int alt_key, int shift_key, int string_id) =
-    (void(__thiscall*) (void*, int, int, int, int, int, int, int))0x00486BC0;
-
-void __stdcall defaultHotkeyGame_switch(int hotkey, void* this_)
+void __stdcall defaultHotkeyGame_switch(int hotkey, RGE_Hotkey_Handler* this_)
 {
     switch (hotkey)
     {
     case 0x55:
-        hotkey_set_default(this_, 1, 0x55, VK_OEM_PERIOD, 0, 0, 1, -1);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x55, VK_OEM_PERIOD, 0, 0, 1, -1);
         break;
     case 0x56:
-        hotkey_set_default(this_, 1, 0x56, VK_OEM_COMMA, 0, 0, 1, -1);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x56, VK_OEM_COMMA, 0, 0, 1, -1);
         break;
     case 0x57:
-        hotkey_set_default(this_, 1, 0x57, 'H', 0, 0, 1, 4159);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x57, 'H', 0, 0, 1, 4159);
         break;
     case 0x58:
-        hotkey_set_default(this_, 1, 0x58, 'P', 1, 0, 1, 4171);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x58, 'P', 1, 0, 1, 4171);
         break;
     case 0x59:
-        hotkey_set_default(this_, 1, 0x59, 'B', 1, 0, 1, 4151);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x59, 'B', 1, 0, 1, 4151);
         break;
     case 0x5A:
-        hotkey_set_default(this_, 1, 0x5A, 'S', 1, 0, 1, 4163);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x5A, 'S', 1, 0, 1, 4163);
         break;
     case 0x5B:
-        hotkey_set_default(this_, 1, 0x5B, 'T', 1, 0, 1, 4153);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x5B, 'T', 1, 0, 1, 4153);
         break;
     case 0x5C:
-        hotkey_set_default(this_, 1, 0x5C, 'Y', 1, 0, 1, 4162);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x5C, 'Y', 1, 0, 1, 4162);
         break;
     case 0x5D:
-        hotkey_set_default(this_, 1, 0x5D, 'M', 1, 0, 1, 4157);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x5D, 'M', 1, 0, 1, 4157);
         break;
     case 0x5E:
-        hotkey_set_default(this_, 1, 0x5E, 'J', 1, 0, 1, 4166);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x5E, 'J', 1, 0, 1, 4166);
         break;
     case 0x5F:
-        hotkey_set_default(this_, 1, 0x5F, 'H', 1, 0, 1, 4159);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x5F, 'H', 1, 0, 1, 4159);
         break;
     case 0x60:
-        hotkey_set_default(this_, 1, 0x60, 'A', 1, 0, 1, 4175);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x60, 'A', 1, 0, 1, 4175);
         break;
     case 0x61:
-        hotkey_set_default(this_, 1, 0x61, 'D', 1, 0, 1, 4176);
+        RGE_Hotkey_Handler__set_hotkey(this_, 1, 0x61, 'D', 1, 0, 1, 4176);
         break;
     default:
         break;
@@ -849,78 +875,65 @@ new_game_hotkeys:
     }
 }
 
-__declspec(naked) void __stdcall hotkey_dispatch_scr_update(void* ptr)
-{
-    __asm
-    {
-        mov     ecx, [esp + 4]
-        mov     ecx, [ecx + 10BCh]
-        push    1
-        mov     eax, [ecx]
-        call    dword ptr [eax + 2Ch]
-        retn    4
-    }
-}
-
-bool __stdcall game_hotkey_dispatch(int hotkey, void* this_)
+bool __stdcall game_hotkey_dispatch(int hotkey, TRIBE_Screen_Game* this_)
 {
     int id_to_search = -1;
-    UNIT* first_unit;
-    UNIT* unit;
+    RGE_Static_Object* first_unit;
+    RGE_Static_Object* unit;
     int unit_count = 0;
     int play_sound = 1;
-    void* player = BaseGame__get_player(*base_game);
+    RGE_Player* player = RGE_Base_Game__get_player(*base_game);
     switch (hotkey)
     {
     case 0x55: //idle workers
-        first_unit = (UNIT*)GameScreen__find_next_idle_unit(this_, 0x7FFFFFFF);
+        first_unit = TRIBE_Screen_Game__find_next_idle_unit(this_, 0x7FFFFFFF);
         if (first_unit)
         {
-            WorldPlayerBase__unselect_object(player);
+            RGE_Player__unselect_object(player);
             unit = first_unit;
             do
             {
-                if (unit->player == player &&
-                    (unit->prop_object->type == 70 ||
-                        (unit->prop_object->type == 80 && (unit->prop_object->unit_class == 34 || unit->prop_object->unit_class == 36))))
+                if ((RGE_Player*)unit->owner == player &&
+                    (unit->master_obj->master_type == 70 ||
+                        (unit->master_obj->master_type == 80 && (unit->master_obj->object_group == 34 || unit->master_obj->object_group == 36))))
                 {
-                    WorldPlayerBase__select_one_object(player, unit, play_sound);
+                    RGE_Player__select_one_object(player, unit, play_sound);
                     play_sound = 0;
                 }
                 unit_count++;
-                unit = (UNIT*)GameScreen__find_next_idle_unit(this_, unit->ordinal);
+                unit = TRIBE_Screen_Game__find_next_idle_unit(this_, unit->id);
             } while (unit_count < 40 && unit && unit != first_unit);
-            hotkey_dispatch_scr_update(this_);
+            ((TPanel*)this_->main_view)->vfptr->set_redraw((TPanel*)this_->main_view, 1);
         }
         else
         {
-            GameSoundEffectsManager__playSound(*base_game, 3, 0, 0);
+            RGE_Base_Game__play_sound(*base_game, 3, 0, 0);
         }
         return true;
         break;
     case 0x56: //idle military
-        first_unit = (UNIT*)GameScreen__find_next_idle_military_unit(this_, 0x7FFFFFFF);
+        first_unit = TRIBE_Screen_Game__find_next_idle_military_unit(this_, 0x7FFFFFFF);
         if (first_unit)
         {
-            WorldPlayerBase__unselect_object(player);
+            RGE_Player__unselect_object(player);
             unit = first_unit;
             do
             {
-                if (unit->player == player &&
-                    (unit->prop_object->type == 70 ||
-                        (unit->prop_object->type == 80 && (unit->prop_object->unit_class == 34 || unit->prop_object->unit_class == 36))))
+                if ((RGE_Player*)unit->owner == player &&
+                    (unit->master_obj->master_type == 70 ||
+                        (unit->master_obj->master_type == 80 && (unit->master_obj->object_group == 34 || unit->master_obj->object_group == 36))))
                 {
-                    WorldPlayerBase__select_one_object(player, unit, play_sound);
+                    RGE_Player__select_one_object(player, unit, play_sound);
                     play_sound = 0;
                 }
                 unit_count++;
-                unit = (UNIT*)GameScreen__find_next_idle_military_unit(this_, unit->ordinal);
+                unit = TRIBE_Screen_Game__find_next_idle_military_unit(this_, unit->id);
             } while (unit_count < 40 && unit && unit != first_unit);
-            hotkey_dispatch_scr_update(this_);
+            ((TPanel*)this_->main_view)->vfptr->set_redraw((TPanel*)this_->main_view, 1);
         }
         else
         {
-            GameSoundEffectsManager__playSound(*base_game, 3, 0, 0);
+            RGE_Base_Game__play_sound(*base_game, 3, 0, 0);
         }
         return true;
         break;
@@ -962,23 +975,23 @@ bool __stdcall game_hotkey_dispatch(int hotkey, void* this_)
     }
     if (id_to_search != -1)
     {
-        first_unit = (UNIT*)WorldPlayer__find_obj(player, id_to_search, NULL, -1);
+        first_unit = TRIBE_Player__find_obj((TRIBE_Player*)player, id_to_search, NULL, -1);
         if (first_unit)
         {
-            WorldPlayerBase__unselect_object(player);
+            RGE_Player__unselect_object(player);
             unit = first_unit;
             do
             {
-                WorldPlayerBase__select_one_object(player, unit, play_sound);
+                RGE_Player__select_one_object(player, unit, play_sound);
                 play_sound = 0;
                 unit_count++;
-                unit = (UNIT*)WorldPlayer__find_obj(player, id_to_search, unit, -1);
+                unit = TRIBE_Player__find_obj((TRIBE_Player*)player, id_to_search, unit, -1);
             } while (unit_count < 40 && unit != first_unit);
-            hotkey_dispatch_scr_update(this_);
+            ((TPanel*)this_->main_view)->vfptr->set_redraw((TPanel*)this_->main_view, 1);
         }
         else
         {
-            GameSoundEffectsManager__playSound(*base_game, 3, 0, 0);
+            RGE_Base_Game__play_sound(*base_game, 3, 0, 0);
         }
         return true;
     }
@@ -1010,13 +1023,13 @@ new_game_hotkey_not_queried:
     }
 }
 
-void __stdcall TRIBE_Command__command_shift_delete(void* this_, UNIT** units)
+void __stdcall TRIBE_Command__command_shift_delete(TRIBE_Command* this_, RGE_Static_Object** units)
 {
     int unit_count = 0;
-    void* player = getCurrentPlayer();
+    RGE_Player* player = RGE_Base_Game__get_player(*base_game);
     for (int i = 0; i < 40; i++)
         if (units[i])
-            if (units[i]->player == player)
+            if ((RGE_Player*)units[i]->owner == player)
                 unit_count++;
             else
                 units[i] = NULL;
@@ -1027,17 +1040,17 @@ void __stdcall TRIBE_Command__command_shift_delete(void* this_, UNIT** units)
         if (cmd)
         {
             *(uint8_t*)cmd = 0x82;
-            uint8_t issuer = *(uint32_t*)((uint8_t*)player + 0xA0);
+            uint8_t issuer = player->id;
             *((uint8_t*)cmd + 1) = issuer;
             *((uint16_t*)cmd + 1) = unit_count;
             uint32_t* uid_ptr = ((uint32_t*)cmd + 1);
             for (int i = 0; i < 40; i++)
                 if (units[i])
                 {
-                    *uid_ptr = units[i]->ordinal;
+                    *uid_ptr = units[i]->id;
                     uid_ptr++;
                 }
-            RGE_Command__submit(this_, cmd, order_size, issuer);
+            RGE_Command__submit((RGE_Command*)this_, cmd, order_size, issuer);
         }
     }
 }
@@ -1058,7 +1071,7 @@ __declspec(naked) void __fastcall GameScreen__command_shift_delete(void* this_)
         rep stosd
         mov     ecx, base_game
         mov     ecx, [ecx]
-        call    BaseGame__get_player
+        call    RGE_Base_Game__get_player
         mov     edi, eax
         xor     ebx, ebx
         lea     ebp, [edi + 1C8h]
@@ -1183,9 +1196,9 @@ void __stdcall shift_delete_do_command(void* this_, void* order)
     uint32_t n = *((uint16_t*)order + 1);
     for (int i = 0; i < n; i++)
     {
-        UNIT* unit = (UNIT*)BaseWorld__object(*((void**)this_ + 1), *((uint32_t*)order + 1 + i));
-        if (unit && unit->prop_object->type >= 70 && *(uint32_t*)((uint8_t*)unit->player + 0xA0) == player_id)
-            kill_unit(unit);
+        TRIBE_Combat_Object* unit = (TRIBE_Combat_Object*)RGE_Game_World__object(*((RGE_Game_World**)this_ + 1), *((uint32_t*)order + 1 + i));
+        if (unit && unit->master_obj->master_type >= 70 && unit->owner->id == player_id)
+            unit->vfptr->cancel_object(unit);
     }
 }
 
@@ -1216,10 +1229,10 @@ void setHotkeysHooks(int version)
         writeByte(0x005644BC, 8);
         writeDword(0x005644C6, (DWORD)hotkeyDefaultsGroup5);
 
-        writeByte(0x00564610, 6);
+        writeByte(0x00564610, 7);   //6 -> 7
         writeDword(0x0056461A, (DWORD)hotkeyDefaultsGroup7);
 
-        writeByte(0x005646BA, 4);    //5 -> 4
+        writeByte(0x005646BA, 4);   //5 -> 4
         writeDword(0x005646C4, (DWORD)hotkeyDefaultsGroup8);
 
         writeByte(0x005647AA, 4);

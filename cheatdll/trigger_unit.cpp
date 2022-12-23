@@ -3,8 +3,6 @@
 
 #include <regex>
 
-#pragma message("***trigger_unit.cpp: ---NOTE TO SELF---: Complete UNIT and PROPOBJ struct definition")
-
 void patch_trigger(trigger* t, int player, float x, float y)
 {
     int x_delta;
@@ -204,19 +202,19 @@ void __stdcall trigger_process2(trigger* t, int arg0)
             sscanf(match.c_str(), "%d", &player);
 
             void* ptr = *(void**)(*(int*)(*(int*)(*(int*)(*(int*)(*(int*)(0x6A3684) + 0x17B4) + 0x126C) + 0x4C) + player * 4) + 0x78);
-            UNIT** units_ptr = *(UNIT***)((int)ptr + 4);
+            RGE_Static_Object** units_ptr = *(RGE_Static_Object***)((int)ptr + 4);
             int n = *(int*)((int)ptr + 8);
 
-            UNIT** units = (UNIT**)malloc(sizeof(UNIT*)*n);
-            memcpy(units, units_ptr, sizeof(UNIT*)*n);
+            RGE_Static_Object** units = (RGE_Static_Object**)malloc(sizeof(RGE_Static_Object*)*n);
+            memcpy(units, units_ptr, sizeof(RGE_Static_Object*)*n);
 
             for (int i = 0; i < n; i++)
             {
-                if (units[i]->prop_object->id1 == id)
+                if (units[i]->master_obj->id == id)
                 {
-                    if ((units[i]->prop_object->type == 80) && (*(float*)((int)units[i] + 0x230) < *(short*)((int)units[i]->prop_object + 0x18E)))
+                    if ((units[i]->master_obj->master_type == 80) && (*(float*)((int)units[i] + 0x230) < *(short*)((int)units[i]->master_obj + 0x18E)))
                         continue;
-                    patch_trigger(t, player, units[i]->x, units[i]->y);
+                    patch_trigger(t, player, units[i]->world_x, units[i]->world_y);
                     t->enabled = 1;
                     trigger_process(t, arg0);
                     t->enabled = 1;

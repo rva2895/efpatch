@@ -1,20 +1,13 @@
 #include "stdafx.h"
 #include "languagedlloverride.h"
 
-HINSTANCE* hInstance_dll = (HINSTANCE*)0x0078F81C;
 HINSTANCE our_dll = NULL;
 
-int (__stdcall* sub_487760)(HINSTANCE hInstance, UINT uID, char* dest, int cchBufferMax) =
-    (int (__stdcall*) (HINSTANCE, UINT, char*, int))0x00487760;
-
-int (__thiscall* sub_4258D0) (void* this_, UINT uID, char* dest, int cchBufferMax) =
-    (int (__thiscall*)(void*, UINT uID, char*, int cchBufferMax))0x004258D0;
-
-char* __stdcall loadDLLString_new(UINT uID, char* dest, int cchBufferMax, void* this_)
+char* __stdcall loadDLLString_new(UINT uID, char* dest, int cchBufferMax, RGE_Base_Game* this_)
 {
-    if (!our_dll || !sub_487760(our_dll, uID, dest, cchBufferMax))
-        if (!*hInstance_dll || !sub_487760(*hInstance_dll, uID, dest, cchBufferMax))
-            sub_4258D0(this_, uID, dest, cchBufferMax);
+    if (!our_dll || !MyLoadStringA(our_dll, uID, dest, cchBufferMax))
+        if (!*hInstance_dll || !MyLoadStringA(*hInstance_dll, uID, dest, cchBufferMax))
+            RGE_Base_Game__get_string2(this_, uID, dest, cchBufferMax);
     dest[cchBufferMax - 1] = 0;
     return dest;
 }

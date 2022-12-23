@@ -66,6 +66,7 @@ void processIDOK(HWND hWnd)
     cd.keydown = IsDlgButtonChecked(hWnd, IDC_CHECK_KEYDOWN);
 
     cd.textRendering = IsDlgButtonChecked(hWnd, IDC_CHECK_TEXT_RENDERING);
+    cd.chatBox = IsDlgButtonChecked(hWnd, IDC_CHECK_CHATBOX);
 
     //char* lang_str = (char*)malloc(0x100);
     //GetDlgItemText(hWnd, IDC_COMBO_LANG, lang_str, 0x100);
@@ -165,6 +166,7 @@ void readSettingsToDialog(HWND hWnd)
     EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_DELAY), FALSE);
 
     CheckDlgButton(hWnd, IDC_CHECK_TEXT_RENDERING, cd.textRendering);
+    CheckDlgButton(hWnd, IDC_CHECK_CHATBOX, cd.chatBox);
 
     //languages = query_languages();
     //for (int i = 0; i < languages.size(); i++)

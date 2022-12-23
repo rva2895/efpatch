@@ -36,7 +36,7 @@ bool nonZeroCounters(UNIT_EXTRA* ud)
     return ud->countersUsed;
 }
 
-void __stdcall processUnitExtra(UNIT* unit, int timerRes)
+void __stdcall processUnitExtra(RGE_Static_Object* unit, int timerRes)
 {
     UNIT_EXTRA* ud = getUnitExtra(unit);
     if (ud)
@@ -78,7 +78,7 @@ void __stdcall processUnitExtra(UNIT* unit, int timerRes)
             }
             else
             {
-                float maxHP = unit->prop_object->hit_points;
+                float maxHP = unit->master_obj->hp;
                 float* hp = &unit->hp;
                 ud->hpDrainLeftover += *(float*)&timerRes * ud->hpDrainPerSecond;
                 float intp;
@@ -102,7 +102,7 @@ void __stdcall processUnitExtra(UNIT* unit, int timerRes)
             }
             else
             {
-                float maxHP = unit->prop_object->hit_points;
+                float maxHP = unit->master_obj->hp;
                 float* hp = &unit->hp;
                 ud->hpDrainPercentLeftover +=
                     *(float*)&timerRes * ud->hpDrainPercentPerSecond*maxHP;
@@ -155,19 +155,19 @@ __declspec(naked) void processUnitHook() //00444DA0, 0054EF00
     }
 }
 
-uint32_t __stdcall getSpeedModifier(UNIT* unit) //returns 32 bit float in eax
+uint32_t __stdcall getSpeedModifier(RGE_Static_Object* unit) //returns 32 bit float in eax
 {
     UNIT_EXTRA* ud = getUnitExtra(unit);
     return (ud && ud->speedReductionEnabled) ? *(uint32_t*)&ud->speedReductionModifier : 0x3F800000; //1.0f
 }
 
-bool __stdcall getStealthOff(UNIT* unit) //zero: stealth off disabled, non-zero: stealth off enabled
+bool __stdcall getStealthOff(RGE_Static_Object* unit) //zero: stealth off disabled, non-zero: stealth off enabled
 {
     UNIT_EXTRA* ud = getUnitExtra(unit);
     return (ud && ud->stealthOffEnabled);
 }
 
-UNIT* targetUnit;
+RGE_Static_Object* targetUnit;
 bool isDamage;
 
 __declspec(naked) void getDamageGetUnit() //004449C3
@@ -188,7 +188,7 @@ __declspec(naked) void getDamageGetUnit() //004449C3
     }
 }
 
-void __stdcall specialDamage(UNIT* unit, short type, int damage, int armor)
+void __stdcall specialDamage(RGE_Static_Object* unit, short type, int damage, int armor)
 {
     if (!unit)
     {
@@ -200,7 +200,7 @@ void __stdcall specialDamage(UNIT* unit, short type, int damage, int armor)
     if (type == 1000)      //death star fix
         return;
 
-    if (unit->prop_object->type < 70)
+    if (unit->master_obj->master_type < 70)
         return;
 
 #ifdef _DEBUG
@@ -492,7 +492,7 @@ stealth_off:
 #pragma warning(push)
 #pragma warning(disable:4100)
 
-void __stdcall readUnitExtra(UNIT* unit, void* stream)
+void __stdcall readUnitExtra(RGE_Static_Object* unit, void* stream)
 {
     char flag;
     UNIT_EXTRA* ud;
@@ -541,6 +541,7 @@ void __stdcall readUnitExtra(UNIT* unit, void* stream)
     case 1:
     case 2:
     case 3:
+    case 4:
         deflate_read(stream, &flag, sizeof(flag));
         if (flag)
         {
@@ -578,7 +579,7 @@ void __stdcall readUnitExtra(UNIT* unit, void* stream)
             addUnitExtra(unit, ud);
         }
         break;
-#if CURRENT_VERSION != 3
+#if CURRENT_VERSION != 4
 #error Must update for new CURRENT_VERSION
 #endif
     default:
@@ -586,7 +587,7 @@ void __stdcall readUnitExtra(UNIT* unit, void* stream)
     }
 }
 
-void __stdcall writeUnitExtra(UNIT* unit, void* stream)
+void __stdcall writeUnitExtra(RGE_Static_Object* unit, void* stream)
 {
     char flag;
     UNIT_EXTRA* ud = getUnitExtra(unit);
@@ -769,7 +770,7 @@ __declspec(naked) void verSaveHook2() //006206CE
     }
 }
 
-__declspec(naked) void __fastcall removeUnitExtra(UNIT* unit)
+__declspec(naked) void __fastcall removeUnitExtra(RGE_Static_Object* unit)
 {
     __asm
     {
@@ -822,7 +823,7 @@ __declspec(naked) void unit_remove_unit_extra_recycle_out() //0054C0A0
     }
 }
 
-__declspec(naked) UNIT_EXTRA* __fastcall getUnitExtra(UNIT* unit)
+__declspec(naked) UNIT_EXTRA* __fastcall getUnitExtra(RGE_Static_Object* unit)
 {
     __asm
     {
@@ -832,7 +833,7 @@ __declspec(naked) UNIT_EXTRA* __fastcall getUnitExtra(UNIT* unit)
     }
 }
 
-__declspec(naked) void __fastcall addUnitExtra(UNIT* unit, UNIT_EXTRA* ud)
+__declspec(naked) void __fastcall addUnitExtra(RGE_Static_Object* unit, UNIT_EXTRA* ud)
 {
     __asm
     {

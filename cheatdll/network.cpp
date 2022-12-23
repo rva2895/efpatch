@@ -473,7 +473,7 @@ loc_5D74E5:
         ret
 loc_5D74ED:
         mov     dword ptr [edi], 58h
-        call    ds:timeGetTime
+        call    timeGetTime
         mov     [esp + 10h], eax
 loc_5D74FD:
         push    ebx
@@ -550,7 +550,7 @@ loc_5D789D:
         pop     ebx
         ret     8
 loc_5D78A4:
-        call    ds:timeGetTime
+        call    timeGetTime
         mov     edx, [esp + 14h]
         mov     ecx, [esi + ebx * 4 + 1438h]
         cmp     edx, 64h

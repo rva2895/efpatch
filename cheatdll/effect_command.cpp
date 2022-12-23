@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "effect_command.h"
 
-void (__thiscall* TRIBE_Command__do_command)(void* this_, void* order) =
-    (void (__thiscall*)(void*, void*))0x005B9DF0;
-
 const char* __stdcall get_command_name(int c)
 {
     switch (c)
@@ -163,9 +160,9 @@ uint8_t get_player_number(void* player)
     return *(uint32_t*)((uint8_t*)player + 0xA0);
 }
 
-void set_target_obj(void* order, UNIT* object)
+void set_target_obj(void* order, RGE_Static_Object* object)
 {
-    *((int*)order + 1) = object->ordinal;
+    *((int*)order + 1) = object->id;
 }
 
 void set_count(void* order, int count)
@@ -178,48 +175,48 @@ void set_type(void* order, BYTE type)
     *((BYTE*)order) = type;
 }
 
-void set_objects(void* order, UNIT** objects, int count)
+void set_objects(void* order, RGE_Static_Object** objects, int count)
 {
     int* p = (int*)order + 2;
     for (int i = 0; i < count; i++)
-        *p++ = objects[i]->ordinal;
+        *p++ = objects[i]->id;
 }
 
-void create_command_stop(UNIT** objects, int count, MEMORY_STREAM& m)
+void create_command_stop(RGE_Static_Object** objects, int count, MEMORY_STREAM& m)
 {
     size_t size = sizeof(uint8_t) * 2 + sizeof(int) * count;
     m.alloc(size);
     m.add((uint8_t)RGE_COMMAND_STOP);
     m.add((uint8_t)count);
     for (int i = 0; i < count; i++)
-        m.add((int)objects[i]->ordinal);
+        m.add((int)objects[i]->id);
 }
 
-void create_command_guard(UNIT** objects, int count, UNIT* target, MEMORY_STREAM& m)
+void create_command_guard(RGE_Static_Object** objects, int count, RGE_Static_Object* target, MEMORY_STREAM& m)
 {
     size_t size = sizeof(uint8_t) * 2 + sizeof(uint16_t) + sizeof(int) * count;
     m.alloc(size);
     m.add((uint8_t)RGE_COMMAND_GUARD);
     m.add((uint8_t)count);
     m.add((uint16_t)0);
-    m.add((int)target->ordinal);
+    m.add((int)target->id);
     for (int i = 0; i < count; i++)
-        m.add((int)objects[i]->ordinal);
+        m.add((int)objects[i]->id);
 }
 
-void create_command_follow(UNIT** objects, int count, UNIT* target, MEMORY_STREAM& m)
+void create_command_follow(RGE_Static_Object** objects, int count, RGE_Static_Object* target, MEMORY_STREAM& m)
 {
     size_t size = sizeof(uint8_t) * 2 + sizeof(uint16_t) + sizeof(int) * count;
     m.alloc(size);
     m.add((uint8_t)RGE_COMMAND_FOLLOW);
     m.add((uint8_t)count);
     m.add((uint16_t)0);
-    m.add((int)target->ordinal);
+    m.add((int)target->id);
     for (int i = 0; i < count; i++)
-        m.add((int)objects[i]->ordinal);
+        m.add((int)objects[i]->id);
 }
 
-void create_command_formation(UNIT** objects, int count, void* player, int type, MEMORY_STREAM& m)
+void create_command_formation(RGE_Static_Object** objects, int count, RGE_Player* player, int type, MEMORY_STREAM& m)
 {
     size_t size = sizeof(uint8_t) * 2 + sizeof(uint16_t) + sizeof(uint32_t) + sizeof(int) * count;
     m.alloc(size);
@@ -228,21 +225,21 @@ void create_command_formation(UNIT** objects, int count, void* player, int type,
     m.add((uint16_t)get_player_number(player));
     m.add((uint32_t)type);
     for (int i = 0; i < count; i++)
-        m.add((int)objects[i]->ordinal);
+        m.add((int)objects[i]->id);
 }
 
-void create_command_research(void* player, int tech, UNIT* target, MEMORY_STREAM& m)
+void create_command_research(RGE_Player* player, int tech, RGE_Static_Object* target, MEMORY_STREAM& m)
 {
     size_t size = sizeof(uint32_t) * 3 + sizeof(uint16_t) + sizeof(int16_t);
     m.alloc(size);
     m.add((uint32_t)TRIBE_COMMAND_RESEARCH);
-    m.add((uint32_t)target->ordinal);
+    m.add((uint32_t)target->id);
     m.add((uint16_t)get_player_number(player));
     m.add((int16_t)tech);
     m.add((uint32_t)0xFFFFFFFF);
 }
 
-void create_command_attack_ground(UNIT** objects, int count, float x, float y, MEMORY_STREAM& m)
+void create_command_attack_ground(RGE_Static_Object** objects, int count, float x, float y, MEMORY_STREAM& m)
 {
     size_t size = sizeof(uint8_t) * 2 + sizeof(uint16_t) + sizeof(int) * count + sizeof(float) * 2;
     m.alloc(size);
@@ -252,22 +249,22 @@ void create_command_attack_ground(UNIT** objects, int count, float x, float y, M
     m.add((float)x);
     m.add((float)y);
     for (int i = 0; i < count; i++)
-        m.add((int)objects[i]->ordinal);
+        m.add((int)objects[i]->id);
 }
 
-void __declspec(nothrow) __stdcall do_effect_command(int qty, int command, void* player, UNIT** objects, int count, UNIT* target_obj, int x, int y)
+void __declspec(nothrow) __stdcall do_effect_command(int qty, int command, RGE_Player* player, RGE_Static_Object** objects, int count, RGE_Static_Object* target_obj, int x, int y)
 {
     float fx;
     float fy;
     if (target_obj)
     {
-        fx = target_obj->x;
-        fy = target_obj->y;
+        fx = target_obj->world_x;
+        fy = target_obj->world_y;
     }
     else
     {
-        fx = (float)x + 0.5;
-        fy = (float)y + 0.5;
+        fx = (float)x + 0.5f;
+        fy = (float)y + 0.5f;
     }
 
     void* tribe_command = get_TRIBE_Command();
@@ -298,5 +295,5 @@ void __declspec(nothrow) __stdcall do_effect_command(int qty, int command, void*
         return;
     }
 
-    TRIBE_Command__do_command(tribe_command, m.get_memory());
+    TRIBE_Command__do_command((TRIBE_Command*)tribe_command, m.get_memory());
 }

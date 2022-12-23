@@ -365,6 +365,7 @@
     <ClInclude Include="aiunitcount.h" />
     <ClInclude Include="animatedterrain.h" />
     <ClInclude Include="attackstance.h" />
+    <ClInclude Include="attribute_held.h" />
     <ClInclude Include="autosave.h" />
     <ClInclude Include="bldg_heal_rate_save.h" />
     <ClInclude Include="campaign.h" />
@@ -387,6 +388,7 @@
     <ClInclude Include="drs.h" />
     <ClInclude Include="drsfile.h" />
     <ClInclude Include="dsoundhook.h" />
+    <ClInclude Include="editcontrol.h" />
     <ClInclude Include="editorenh.h" />
     <ClInclude Include="editorres.h" />
     <ClInclude Include="editorstatus.h" />
@@ -409,6 +411,7 @@
     <ClInclude Include="hotkeyjump.h" />
     <ClInclude Include="hotkeys.h" />
     <ClInclude Include="icons.h" />
+    <ClInclude Include="itemcache.h" />
     <ClInclude Include="iuserpatch.h" />
     <ClInclude Include="jedimaster.h" />
     <ClInclude Include="langdll.h" />
@@ -455,16 +458,20 @@
     <ClInclude Include="resolution.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="revertToX1.h" />
+    <ClInclude Include="rge_command.h" />
     <ClInclude Include="rge_communications_queue.h" />
     <ClInclude Include="rge_communications_speed.h" />
     <ClInclude Include="rms.h" />
     <ClInclude Include="rms_tokens.h" />
     <ClInclude Include="rundll.h" />
     <ClInclude Include="savegamever.h" />
+    <ClInclude Include="sc1file.h" />
     <ClInclude Include="scroll.h" />
     <ClInclude Include="slp.h" />
     <ClInclude Include="sngoal.h" />
     <ClInclude Include="spregen.h" />
+    <ClInclude Include="src\idb\idb_functions.h" />
+    <ClInclude Include="src\idb\idb_types.h" />
     <ClInclude Include="startupload.h" />
     <ClInclude Include="statusscreen.h" />
     <ClInclude Include="stdafx.h" />
@@ -508,6 +515,7 @@
     <ClCompile Include="aiunitcount.cpp" />
     <ClCompile Include="animatedterrain.cpp" />
     <ClCompile Include="attackstance.cpp" />
+    <ClCompile Include="attribute_held.cpp" />
     <ClCompile Include="autosave.cpp" />
     <ClCompile Include="bldg_heal_rate_save.cpp" />
     <ClCompile Include="campaign.cpp" />
@@ -553,6 +561,7 @@
     <ClCompile Include="drs.cpp" />
     <ClCompile Include="drsfile.cpp" />
     <ClCompile Include="dsoundhook.cpp" />
+    <ClCompile Include="editcontrol.cpp" />
     <ClCompile Include="editorenh.cpp" />
     <ClCompile Include="editorres.cpp" />
     <ClCompile Include="editorstatus.cpp" />
@@ -622,12 +631,14 @@
     <ClCompile Include="resgenbldgs.cpp" />
     <ClCompile Include="resolution.cpp" />
     <ClCompile Include="revertToX1.cpp" />
+    <ClCompile Include="rge_command.cpp" />
     <ClCompile Include="rge_communications_queue.cpp" />
     <ClCompile Include="rge_communications_speed.cpp" />
     <ClCompile Include="rms.cpp" />
     <ClCompile Include="rms_tokens.cpp" />
     <ClCompile Include="rundll.cpp" />
     <ClCompile Include="savegamever.cpp" />
+    <ClCompile Include="sc1file.cpp" />
     <ClCompile Include="scroll.cpp" />
     <ClCompile Include="slp.cpp" />
     <ClCompile Include="sngoal.cpp" />

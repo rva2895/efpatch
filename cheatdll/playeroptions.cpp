@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "playeroptions.h"
 
-#define CURRENT_PLAYER_OPTION_LEVEL 0x0D //old: C, next: D
+#define CURRENT_PLAYER_OPTION_LEVEL 0x0E //old: D, next: E
 
 __declspec(naked) void on_read_option() //004BF64D
 {

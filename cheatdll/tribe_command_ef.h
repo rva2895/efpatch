@@ -2,9 +2,9 @@
 
 void TRIBE_Command__do_command_ef();
 void setTribeCommandEFHooks();
-void make_cheat_by_id(void* player, int ef_cheat_id);
-void make_cheat_by_id_with_unit_list(void* player, int ef_cheat_id, UNIT** units, int n);
-void make_cheat_by_id_with_position(void* player, int ef_cheat_id, float x, float y);
+void make_cheat_by_id(RGE_Player* player, int ef_cheat_id);
+void make_cheat_by_id_with_unit_list(RGE_Player* player, int ef_cheat_id, RGE_Static_Object** units, int n);
+void make_cheat_by_id_with_position(RGE_Player* player, int ef_cheat_id, float x, float y);
 
 //cheats
 

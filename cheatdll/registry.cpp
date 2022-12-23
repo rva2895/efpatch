@@ -38,6 +38,7 @@ extern const CONFIG_DATA cd_default =
     0,   //delink volume
     0,   //keydown hotkeys
     0,   //text rendering
+    0,   //chat box
     0,   //mod count
     NULL //mods
     //"en" //lang
@@ -157,6 +158,7 @@ void regGet(CONFIG_DATA* cd)
             query_reg_option(hKey, "Delink System Volume", cd->delinkVolume, cd_default.delinkVolume);
             query_reg_option(hKey, "Keydown Object Hotkeys", cd->keydown, cd_default.keydown);
             query_reg_option(hKey, "Alternative Text Rendering", cd->textRendering, cd_default.textRendering);
+            query_reg_option(hKey, "Alternative Chat Box", cd->chatBox, cd_default.chatBox);
 
             /*char language[32];
             size = 32;
@@ -240,6 +242,7 @@ void regSet(const CONFIG_DATA* cd)
         set_reg_option(hKey, "Delink System Volume", cd->delinkVolume, REG_DWORD);
         set_reg_option(hKey, "Keydown Object Hotkeys", cd->keydown, REG_DWORD);
         set_reg_option(hKey, "Alternative Text Rendering", cd->textRendering, REG_DWORD);
+        set_reg_option(hKey, "Alternative Chat Box", cd->chatBox, REG_DWORD);
         
         /*type = REG_SZ;
 

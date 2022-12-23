@@ -1,3 +1,3 @@
 #pragma once
 
-void setEditorEnhHooks();
+void setEditorEnhHooks(int ver);

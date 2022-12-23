@@ -149,8 +149,7 @@ __declspec(naked) void on_add_chat_msg_3() //0042D952
         lea     ecx, [ebx + ecx * 4 + 54h]
         push    ecx
         push    dword ptr [ecx]
-        mov     eax, 00632CCAh
-        call    eax //_free
+        call    free_internal
         add     esp, 4
         pop     ecx
         mov     dword ptr[ecx], 0

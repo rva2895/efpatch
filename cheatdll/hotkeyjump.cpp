@@ -1,20 +1,7 @@
 #include "stdafx.h"
+#include "hotkeyjump.h"
 
-#pragma warning(push)
-#pragma warning(disable:4100)
-__declspec(naked) bool __fastcall is_unit_powered(void* unit)
-{
-    __asm
-    {
-        push    1
-        mov     eax, [ecx]
-        call    dword ptr [eax + 54h]
-        ret
-    }
-}
-#pragma warning(pop)
-
-void* __stdcall findUnit(void* this_, __int16 id, void* begin, __int16 unk)
+void* __stdcall findUnit(TRIBE_Player* this_, __int16 id, RGE_Static_Object* begin, __int16 unk)
 {
     /*void* current = player_findNextUnit(this_, id, begin, unk);
     while (begin != current)
@@ -32,19 +19,19 @@ void* __stdcall findUnit(void* this_, __int16 id, void* begin, __int16 unk)
     return current;*/
     if (begin)
     {
-        return WorldPlayer__find_obj(this_, id, begin, unk);
+        return TRIBE_Player__find_obj(this_, id, begin, unk);
     }
     else
     {
-        void* current = WorldPlayer__find_obj(this_, id, begin, unk);
+        RGE_Static_Object* current = TRIBE_Player__find_obj(this_, id, begin, unk);
         begin = current;
         if (current)
             do
             {
-                if (current && is_unit_powered(current))
+                if (current && current->vfptr->gbg_isPowered(current, 1))
                     break;
                 else
-                    current = WorldPlayer__find_obj(this_, id, current, unk);
+                    current = TRIBE_Player__find_obj(this_, id, current, unk);
             } while (begin != current);
         return current;
     }
@@ -82,8 +69,10 @@ skip_jump_to_gather_point:
     }
 }
 
+#pragma optimize( "s", on )
 void setHotkeyJumpHooks()
 {
     setHook((void*)0x00501FE3, onFindNext);
     setHook((void*)0x00506838, on_jump_to_gather_point);
 }
+#pragma optimize( "", on )

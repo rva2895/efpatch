@@ -63,20 +63,20 @@ extern int current_loaded_version;
 
 int __stdcall do_autoreplay_init()
 {
-    if (BaseGame__singlePlayerGame(*base_game) && current_loaded_version == CURRENT_VERSION)
+    if (RGE_Base_Game__singlePlayerGame(*base_game) && current_loaded_version == CURRENT_VERSION)
     {
-        if (BaseGame__getRecordGame(*base_game))
+        if (RGE_Base_Game__getRecordGame(*base_game))
             do_autoreplay = false;
         else
         {
-            BaseGame__setRecordGame(*base_game, true);
+            RGE_Base_Game__setRecordGame(*base_game, true);
             do_autoreplay = true;
         }
     }
     else
         do_autoreplay = false;
     
-    return BaseGame__getRecordGame(*base_game);
+    return RGE_Base_Game__getRecordGame(*base_game);
 }
 
 __declspec(naked) void onStartCommandLog() //005ED41A

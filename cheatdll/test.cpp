@@ -6,6 +6,7 @@
 #include "rundll.h"
 #include "oos.h"
 #include "functionlist.h"
+#include "advtriggereffect.h"
 #include "worlddump.h"
 
 #include <process.h>
@@ -110,7 +111,7 @@ __declspec(naked) int onReadDat()
         //push    offset title
         //push    offset text
         //push    0
-        //call    ds:[MessageBoxA]
+        //call    MessageBoxA
         //pop     eax
 _end:
         mov     ecx, retSave
@@ -294,7 +295,7 @@ fix_log_ret:
     }
 }
 
-__declspec(naked) void nullsub_26()
+__declspec(naked) void nullsub_26_2()
 {
     __asm
     {
@@ -425,6 +426,8 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         chat("Dump complete");
         return 1;
     }
+    */
+    /*
     else if (!strcmp(s, "/worldtime"))
     {
         chat("Worldtime = %d", get_gametime2());
@@ -439,8 +442,30 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         max_worldtime = t;
         chat("Set max worldtime to %d", t);
         return 1;
-    }*/
-    
+    }
+    */
+    /*
+    else if (strstr(s, "/del-sprite-list"))
+    {
+        TRIBE_World* world = (*base_game)->world;
+        if (world)
+        {
+            RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+            if (player)
+            {
+                RGE_Static_Object* obj = player->selected_obj;
+                if (obj)
+                {
+                    RGE_Active_Sprite_List__delete_list(obj->sprite_list);
+                }
+                else
+                    chat("No objects selected");
+            }
+        }
+
+        return 1;
+    }
+    */
     /*
     else if (!strcmp(s, "/make-oos"))
     {
@@ -455,29 +480,48 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         return 1;
     }
     */
-    
-    /*else if (strstr(s, "/obj") || strstr(s, "/object"))
+    /*
+    else if (strstr(s, "/obj") || strstr(s, "/object"))
     {
         char d[0x100];
         int id;
         sscanf(s, "%s %d", d, &id);
-        void* base_world = *(void**)((char*)*base_game + 0x420);
-        if (base_world)
+        TRIBE_World* world = (*base_game)->world;
+        if (world)
         {
-            UNIT* unit = (UNIT*)BaseWorld__object(base_world, id);
+            RGE_Static_Object* unit = RGE_Game_World__object((RGE_Game_World*)world, id);
             if (unit)
             {
-                void* player = getCurrentPlayer();
-                WorldPlayerBase__unselect_object(player);
-                WorldPlayerBase__select_object(player, unit, 1);
+                RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+                RGE_Player__unselect_object(player);
+                RGE_Player__select_object(player, unit, 1);
             }
             else
                 chat("Invalid object id");
         }
 
         return true;
-    }*/
-    
+    }
+
+    else if (strstr(s, "/sel-id"))
+    {
+        TRIBE_World* world = (*base_game)->world;
+        if (world)
+        {
+            RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+            if (player)
+            {
+                RGE_Static_Object* obj = player->selected_obj;
+                if (obj)
+                    chat("Selected object %d, 0x%X", obj->id, (DWORD)obj);
+                else
+                    chat("No objects selected");
+            }
+        }
+
+        return true;
+    }
+    */
     /*else if (strstr(s, "/load-all"))
     {
         int ext_types[] = {0x736C7020, 0x77617620, 0x62696E61};
@@ -940,13 +984,7 @@ __declspec(naked) int new_check_multi_copies() //00428270
 
 //const char* savegame_path = "savegame\\test\\recs\\";
 const char* savegame_path = "savegame\\";
-
-void* (__thiscall* TShape__TShape2)(void* this_, char* filename, int resource_file_id) =
-    (void* (__thiscall*) (void*, char*, int))0x00542870;
-
-int (__thiscall* TShape__shape_draw)(void* this_, void* drawarea, int x, int y, int slpFrame, void* color_table) =
-    (int (__thiscall*)(void*, void*, int, int, int, void*))0x005430C0;
-
+const char* scenario_path = "scenario\\";
 
 std::map<void*, std::pair<void*, size_t>> allocations;
 
@@ -1036,9 +1074,269 @@ __declspec(naked) void* __cdecl delete_wr(size_t size) //00632B42
     }
 }
 
+void __stdcall report_dynamic_tile_cache_size_sub(int disabled, int size)
+{
+    log("Dynamic tile cache: disabled = %d, size = %d", disabled, size);
+}
+
+__declspec(naked) void* report_dynamic_tile_cache_size() //00497192
+{
+    __asm
+    {
+        mov     eax, [esi + 0C0D0h]
+        mov     ecx, [esi + 0C0C8h]
+        push    eax
+        push    ecx
+        call    report_dynamic_tile_cache_size_sub
+
+        mov     eax, [esi + 0C0C8h]
+        mov     ecx, 00497198h
+        jmp     ecx
+    }
+}
+
+#define ID_TO_WATCH 5746
+
+void __stdcall on_check_ownership_log(void* action, void* player)
+{
+    int id;
+    if (player)
+        id = *(int*)((DWORD)player + 0xA0);
+    else
+        id = -1;
+
+    int wt = get_gametime2();
+    int ms = wt % 1000;
+    wt /= 1000;
+    int s = wt % 60;
+    wt /= 60;
+    int m = wt % 60;
+    int h = wt / 60;
+
+    RGE_Static_Object* obj = *(RGE_Static_Object**)((DWORD)action + 8);
+    if (obj && obj->id == ID_TO_WATCH)
+        log(" [T = %01d:%02d:%02d.%03d] ==> check_ownership: player = %d", h, m, s, ms, id);
+}
+
+__declspec(naked) void on_check_ownership() //00565182
+{
+    __asm
+    {
+        mov     eax, 00565410h
+        call    eax
+        push    eax
+        push    eax
+        push    esi
+        call    on_check_ownership_log
+        pop     eax
+        mov     ecx, 00565187h
+        jmp     ecx
+    }
+}
+
+void __stdcall on_update_log(void* action)
+{
+    int wt = get_gametime2();
+    int ms = wt % 1000;
+    wt /= 1000;
+    int s = wt % 60;
+    wt /= 60;
+    int m = wt % 60;
+    int h = wt / 60;
+
+    RGE_Static_Object* obj = *(RGE_Static_Object**)((DWORD)action + 8);
+    unsigned __int16 type = *(unsigned __int16*)((DWORD)action + 4);
+    unsigned __int8 state = *(unsigned __int8*)((DWORD)action + 0xC);
+    if (obj && obj->id == ID_TO_WATCH)
+        log(" [T = %01d:%02d:%02d.%03d] => update (%d): curr_state = %d", h, m, s, ms, (int)type, (int)state);
+}
+
+__declspec(naked) void on_update() //005650F0
+{
+    __asm
+    {
+        push    esi
+        mov     esi, ecx
+        push    edi
+
+        push    ecx
+        call    on_update_log
+
+        mov     ecx, [esi + 34h]
+        mov     eax, 005650F7h
+        jmp     eax
+    }
+}
+
+struct node
+{
+    void* action;
+    node* next;
+};
+
+
+void(__thiscall* GameScreen__pause2)(void* this_) =
+(void(__thiscall*)(void*))0x00501C30;
+
+void __stdcall pause_game2()
+{
+    void* game_screen = *(void**)((uint8_t*)(*base_game) + 0x17B4);
+    if (game_screen)
+    {
+        GameScreen__pause2(game_screen);
+    }
+}
+
+void __stdcall on_action_list_update_log(void* action_list)
+{
+    int wt = get_gametime2();
+    int ms = wt % 1000;
+    wt /= 1000;
+    int s = wt % 60;
+    wt /= 60;
+    int m = wt % 60;
+    int h = wt / 60;
+
+    RGE_Static_Object* obj = *(RGE_Static_Object**)((DWORD)action_list + 4);
+    if (obj && obj->id == ID_TO_WATCH)
+    {
+        char b[0x100];
+        b[0] = '\0';
+        node* nd = *(node**)((DWORD)action_list + 8);
+        while (nd)
+        {
+            void* action = nd->action;
+            unsigned __int16 type = *(unsigned __int16*)((DWORD)action + 4);
+            unsigned __int8 state = *(unsigned __int8*)((DWORD)action + 0xC);
+            sprintf(b + strlen(b), "%d (%d) ", (int)type, (int)state);
+            nd = nd->next;
+        }
+        //log(" actions: %s", b);
+
+        wt = get_gametime2();
+        //if (wt >= 201170)
+            //__debugbreak();
+            //pause_game2();
+        log(" [T = %01d:%02d:%02d.%03d] => update_action_list: %s", h, m, s, ms, b);
+    }
+}
+
+__declspec(naked) void on_action_list_update() //00406B60
+{
+    __asm
+    {
+        push    ebx
+        push    edi
+        mov     edi, ecx
+        push    edi
+        call    on_action_list_update_log
+        mov     eax, [edi + 8]
+
+        mov     ecx, 00406B67h
+        jmp     ecx
+    }
+}
+
+void __stdcall on_action_list_update_call_log(void* action)
+{
+
+}
+
+__declspec(naked) void on_action_list_update_call() //00406B70
+{
+    __asm
+    {
+        mov     ecx, [eax]
+        push    ecx
+        push    ecx
+        call    on_action_list_update
+        pop     ecx
+        mov     eax, [ecx]
+        call    dword ptr [eax + 28h]
+
+        mov     ecx, 00406B77h
+        jmp     ecx
+    }
+}
+
+void __stdcall on_set_default_log(RGE_Static_Object* obj)
+{
+    int wt = get_gametime2();
+    int ms = wt % 1000;
+    wt /= 1000;
+    int s = wt % 60;
+    wt /= 60;
+    int m = wt % 60;
+    int h = wt / 60;
+
+    if (obj && obj->id == ID_TO_WATCH)
+    {
+        log(" [T = %01d:%02d:%02d.%03d] => set_default", h, m, s, ms);
+    }
+}
+
+__declspec(naked) void on_set_default() //004098C0
+{
+    __asm
+    {
+        push    esi
+        call    on_set_default_log
+        mov     edx, [esi]
+        mov     ecx, esi
+        call    dword ptr [edx + 390h]
+
+        mov     ecx, 004098C6h
+        jmp     ecx
+    }
+}
+
+
+void __stdcall on_action_object_update_log(RGE_Static_Object* obj)
+{
+    int wt = get_gametime2();
+    int ms = wt % 1000;
+    wt /= 1000;
+    int s = wt % 60;
+    wt /= 60;
+    int m = wt % 60;
+    int h = wt / 60;
+
+    if (obj && obj->id == ID_TO_WATCH)
+    {
+        log(" [T = %01d:%02d:%02d.%03d] => action_object_update, state = %d", h, m, s, ms, (int)obj->object_state);
+
+        wt = get_gametime2();
+        //if (wt >= 200728 /*201170*/)
+            //__debugbreak();
+            //pause_game2();
+    }
+}
+
+__declspec(naked) void on_action_object_update() //00409874
+{
+    __asm
+    {
+        mov     esi, ecx
+        push    esi
+        call    on_action_object_update_log
+        
+        mov     ecx, esi
+        mov     eax, 004A1A00h
+        call    eax
+        mov     ecx, 00409879h
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    /*setHook((void*)0x005650F0, on_update);
+    setHook((void*)0x00565182, on_check_ownership);
+    setHook((void*)0x00406B60, on_action_list_update);
+    setHook((void*)0x004098C0, on_set_default);
+    setHook((void*)0x00409874, on_action_object_update);*/
+
     //validate IAT 00654000 - 00654440
     
 /*#ifdef TARGET_VOOBLY
@@ -1086,36 +1384,36 @@ void setTestHook()
     //fix internal log
     log_int_s = (char*)malloc(LOG_INT_BUFFER_SIZE);
 
-    writeDword(0x0040F1A6, (DWORD)nullsub_26);
-    writeDword(0x0040F842, (DWORD)nullsub_26);
-    writeDword(0x0040F885, (DWORD)nullsub_26);
-    writeDword(0x0040F75B, (DWORD)nullsub_26);
-    writeDword(0x0040EFBB, (DWORD)nullsub_26);
-    writeDword(0x0057796E, (DWORD)nullsub_26);
-    writeDword(0x00577A63, (DWORD)nullsub_26);
-    writeDword(0x00577A89, (DWORD)nullsub_26);
-    writeDword(0x00577AAF, (DWORD)nullsub_26);
+    writeDword(0x0040F1A6, (DWORD)nullsub_26_2);
+    writeDword(0x0040F842, (DWORD)nullsub_26_2);
+    writeDword(0x0040F885, (DWORD)nullsub_26_2);
+    writeDword(0x0040F75B, (DWORD)nullsub_26_2);
+    writeDword(0x0040EFBB, (DWORD)nullsub_26_2);
+    writeDword(0x0057796E, (DWORD)nullsub_26_2);
+    writeDword(0x00577A63, (DWORD)nullsub_26_2);
+    writeDword(0x00577A89, (DWORD)nullsub_26_2);
+    writeDword(0x00577AAF, (DWORD)nullsub_26_2);
 
-    fix_function_call(0x0059B18B, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B1C6, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B1EA, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B4BE, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B524, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B56D, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B5AC, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B5D0, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B63D, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B675, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B73C, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B827, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B870, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B8AF, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B8C7, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B947, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059B9D0, (DWORD)nullsub_26); //Entering task
-    fix_function_call(0x0059BACB, (DWORD)nullsub_26); //Entering task
+    fix_function_call(0x0059B18B, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B1C6, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B1EA, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B4BE, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B524, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B56D, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B5AC, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B5D0, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B63D, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B675, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B73C, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B827, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B870, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B8AF, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B8C7, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B947, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059B9D0, (DWORD)nullsub_26_2); //Entering task
+    fix_function_call(0x0059BACB, (DWORD)nullsub_26_2); //Entering task
 
-    fix_function_call(0x004336D8, (DWORD)nullsub_26); //Starting turn
+    fix_function_call(0x004336D8, (DWORD)nullsub_26_2); //Starting turn
     //
 
     writeByte(0x004428F6, 0x90);
@@ -1153,5 +1451,7 @@ void setTestHook()
 #ifdef _DEBUG
     //setHook((void*)0x004D5550, readDatHook);
 #endif
+
+    setHook((void*)0x00497192, report_dynamic_tile_cache_size);
 }
 #pragma optimize( "", on )

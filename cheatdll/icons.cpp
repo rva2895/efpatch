@@ -445,6 +445,12 @@ int __fastcall get_icon_tc_mounted_tech(int civ, int normal_id)
         return 813; //avail-tanifo
     case 12:
         return 873; //avail-tanirs
+    case 13:
+        return 1001; //avail-taniir
+    case 14:
+        return 1051; //avail-taninr
+    case 15:
+        return 1101; //avail-tanibs
     default:
         return normal_id;
     }
@@ -475,6 +481,12 @@ int __fastcall get_icon_tc_mounted_unit(int civ, int normal_id)
         return 4586; //unit-tanifo
     case 12:
         return 4703; //unit-tanirs
+    case 13:
+        return 5248; //unit-taniir
+    case 14:
+        return 5321; //unit-taninr
+    case 15:
+        return 5384; //unit-tanibs
     default:
         return normal_id;
     }

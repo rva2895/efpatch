@@ -37,7 +37,7 @@ void initCrashReporter()
 #ifdef _CHEATDLL_CC
     USHORT version[4] = { 2, 1, 0, 1 };
 #else
-    USHORT version[4] = { 1, 4, 2, 7 };
+    USHORT version[4] = { 1, 4, 2, 9 };
 #endif
     ai.V[0] = version[0]; ai.V[1] = version[1]; ai.V[2] = version[2]; ai.V[3] = version[3];
     ai.Hotfix = 0;
@@ -81,7 +81,7 @@ void initCrashReporter()
     GetFullPathNameW(logFileName.c_str(), 0x200, fullPath, 0);
     g_crashRpt->AddFileToReport(fullPath, NULL);
 
-    log("Crash reporter initialised");
+    log("Crash reporter initialized");
 #endif
 
 #endif

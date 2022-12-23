@@ -810,13 +810,11 @@ __declspec(naked) void terrain_read_dat_split() //0048FAFC
         mov     ecx, ebp
         mov     dword ptr [esi], 0065B5C0h
         mov     [esi + 0BF7Ch], ebx
-        mov     eax, 004D5550h
-        call    eax
+        call    deflate_read
         push    NEW_RGE_SIZE-NEW_RGE_STEP
         lea     edx, [esi+NEW_RGE_STEP]
         mov     ecx, ebp
-        mov     eax, 004D5550h
-        call    eax
+        call    deflate_read
         //shift RGE
         push    RGE_POST_BORDER_SIZE       //count
         mov     eax, esi

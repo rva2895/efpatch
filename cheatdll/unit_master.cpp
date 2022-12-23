@@ -5,7 +5,7 @@ extern int current_save_game_version;
 
 #pragma warning(push)
 #pragma warning(disable:4100)
-__declspec(naked) UNIT_MASTER_EXTRA* __fastcall get_unit_master_extra(prop_object* master)
+__declspec(naked) UNIT_MASTER_EXTRA* __fastcall get_unit_master_extra(RGE_Master_Static_Object* master)
 {
     __asm
     {
@@ -15,7 +15,7 @@ __declspec(naked) UNIT_MASTER_EXTRA* __fastcall get_unit_master_extra(prop_objec
     }
 }
 
-__declspec(naked) void __fastcall add_unit_master_extra(prop_object* master, UNIT_MASTER_EXTRA* ex)
+__declspec(naked) void __fastcall add_unit_master_extra(RGE_Master_Static_Object* master, UNIT_MASTER_EXTRA* ex)
 {
     __asm
     {
@@ -29,7 +29,7 @@ __declspec(naked) void __fastcall add_unit_master_extra(prop_object* master, UNI
 
 #pragma warning(pop)
 
-void __stdcall copy_unit_master_extra(prop_object* dst, prop_object* src)
+void __stdcall copy_unit_master_extra(RGE_Master_Static_Object* dst, RGE_Master_Static_Object* src)
 {
 
 }
@@ -64,7 +64,7 @@ __declspec(naked) void static_setup_2() //0048CE4F
     }
 }
 
-void __stdcall load_master_extra_from_save(prop_object* master, void* infile)
+void __stdcall load_master_extra_from_save(RGE_Master_Static_Object* master, void* infile)
 {
     if (current_save_game_version >= 4)
     {

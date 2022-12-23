@@ -8,39 +8,6 @@
 
 //extern float glitched_res; //remove
 
-int (__thiscall* player_add_attribute) (void *player, int resource, float amount) =
-    (int(__thiscall*) (void*, int, float))0x004C3AE0; //0x005D07A0
-
-int (__thiscall* player_command_resign) (void *player, int unk1, int unk2) =
-    (int(__thiscall*) (void*, int, int))0x004C3B80;
-
-char (__thiscall* TRIBE_Player_Tech__undo_tech) (void *player_tech, __int16 tech_id) =
-    (char(__thiscall*) (void*, __int16))0x005BFDD2;
-
-void __stdcall player_undo_tech(void* player, short tech)
-{
-    TRIBE_Player_Tech__undo_tech(*(void**)((DWORD)player + 0x1D94), tech);
-}
-
-void tribute(int player, int resource, float amount)
-{
-    //void* gaia = get_player(0);
-    //void* target_p;
-    /*if (target == -1)
-    {
-        target_p = getCurrentPlayer();
-        int i;
-        for (i = 0; i <= 8; i++)
-            if (get_player(i) == target_p)
-            {
-                target = i;
-                break;
-            }
-    }*/
-    void* source_p = get_player(player);
-    player_add_attribute(source_p, resource, amount);
-}
-
 //
 //extern int control_source;
 //extern int control_target;
@@ -50,7 +17,7 @@ __int16 player_id_for_gaia_control = 0;
 
 int __stdcall getCurrentPlayerId()
 {
-    void* c = getCurrentPlayer();
+    RGE_Player* c = RGE_Base_Game__get_player(*base_game);
     for (int i = 0; i <= 8; i++)
         if (c == get_player(i))
             return i;
@@ -65,180 +32,167 @@ bool __stdcall checkCheats(char* s2)
     s[0x1FF] = '\0';
     _strupr(s);
 
-    if (BaseGame__allowCheatCodes(*base_game))
+    RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+
+    if (RGE_Base_Game__allowCheatCodes(*base_game))
     {
         //fixed old cheats, SP only
-        if (BaseGame__singlePlayerGame(*base_game))
+        if (RGE_Base_Game__singlePlayerGame(*base_game))
         {
             if (strstr(s, "SIMONSAYS"))
             {
-                void* player = getCurrentPlayer();
                 make_cheat_by_id_with_position(player, EF_CHEAT_SIMONSAYS,
-                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                    floor(player->view_x) + 0.5f, floor(player->view_y) + 0.5f);
                 return true;
             }
             if (strstr(s, "SCARYNEIGHBOR"))
             {
-                void* player = getCurrentPlayer();
                 make_cheat_by_id_with_position(player, EF_CHEAT_SCARYNEIGHBOR,
-                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                    floor(player->view_x) + 0.5f, floor(player->view_y) + 0.5f);
                 return true;
             }
             if (strstr(s, "THAT'S NO MOON"))
             {
-                void* player = getCurrentPlayer();
                 make_cheat_by_id_with_position(player, EF_CHEAT_THATS_NO_MOON,
-                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                    floor(player->view_x) + 0.5f, floor(player->view_y) + 0.5f);
                 return true;
             }
             if (strstr(s, "IMPERIAL ENTANGLEMENTS"))
             {
-                void* player = getCurrentPlayer();
                 make_cheat_by_id_with_position(player, EF_CHEAT_IMPERIAL_ENTANGLEMENTS,
-                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                    floor(player->view_x) + 0.5f, floor(player->view_y) + 0.5f);
                 return true;
             }
             if (strstr(s, "TANTIVE IV"))
             {
-                void* player = getCurrentPlayer();
                 make_cheat_by_id_with_position(player, EF_CHEAT_TANTIVE_IV,
-                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                    floor(player->view_x) + 0.5f, floor(player->view_y) + 0.5f);
                 return true;
             }
             if (strstr(s, "GALACTIC UPHEAVAL"))
             {
-                void* player = getCurrentPlayer();
                 make_cheat_by_id_with_position(player, EF_CHEAT_GALACTIC_UPHEAVAL,
-                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                    floor(player->view_x) + 0.5f, floor(player->view_y) + 0.5f);
                 return true;
             }
             //new ef cheats, SP only
             if (strstr(s, "LUMINOUS BEINGS ARE WE"))
             {
-                void* player = getCurrentPlayer();
                 int player_id = getCurrentPlayerId();
-                WorldPlayerBase__unselect_object(player);
+                RGE_Player__unselect_object(player);
                 if (player_id != 0)
                 {
                     player_id_for_gaia_control = (__int16)player_id;
-                    Game__set_player(*base_game, 0);
+                    TRIBE_Game__set_player(*(TRIBE_Game**)base_game, 0);
                 }
                 else
-                    Game__set_player(*base_game, player_id_for_gaia_control);
+                    TRIBE_Game__set_player(*(TRIBE_Game**)base_game, player_id_for_gaia_control);
                 return true;
             }
             if (strstr(s, "YOU HAVE FAILED ME FOR THE LAST TIME"))
             {
-                void* player = getCurrentPlayer();
-                UNIT** sel_units = player_get_selection(player);
-                int n = player_get_n_selection(player);
-                UNIT* order_units[40];
-                UNIT** unit_ptr = order_units;
+                RGE_Static_Object** sel_units = player->sel_list;
+                int n = player->sel_count;
+                RGE_Static_Object* order_units[40];
+                RGE_Static_Object** unit_ptr = order_units;
                 for (int i = 0; i < n; i++)
-                    if (sel_units[i]->player != player && sel_units[i]->prop_object->type > 30)
+                    if ((RGE_Player*)sel_units[i]->owner != player && sel_units[i]->master_obj->master_type >= 70)
                         *unit_ptr++ = sel_units[i];
                 make_cheat_by_id_with_unit_list(player, EF_CHEAT_YOU_HAVE_FAILED_ME_FOR_THE_LAST_TIME, order_units, unit_ptr - order_units);
                 return true;
             }
             if (strstr(s, "JOIN US OR DIE"))
             {
-                void* player = getCurrentPlayer();
-                UNIT** sel_units = player_get_selection(player);
-                int n = player_get_n_selection(player);
-                UNIT* order_units[40];
-                UNIT** unit_ptr = order_units;
+                RGE_Static_Object** sel_units = player->sel_list;
+                int n = player->sel_count;
+                RGE_Static_Object* order_units[40];
+                RGE_Static_Object** unit_ptr = order_units;
                 for (int i = 0; i < n; i++)
-                    if (sel_units[i]->player != player)
+                    if ((RGE_Player*)sel_units[i]->owner != player)
                         *unit_ptr++ = sel_units[i];
                 make_cheat_by_id_with_unit_list(player, EF_CHEAT_JOIN_US_OR_DIE, order_units, unit_ptr - order_units);
                 return true;
             }
             if (strstr(s, "ULTIMATE POWER IN THE UNIVERSE"))
             {
-                void* player = getCurrentPlayer();
                 make_cheat_by_id_with_position(player, EF_CHEAT_ULTIMATE_POWER_IN_THE_UNIVERSE,
-                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                    floor(player->view_x) + 0.5f, floor(player->view_y) + 0.5f);
                 return true;
             }
             if (strstr(s, "KOELSCH"))
             {
-                void* player = getCurrentPlayer();
                 make_cheat_by_id_with_position(player, EF_CHEAT_KOELSCH,
-                    floor(player_get_camera_x(player)) + 0.5f, floor(player_get_camera_y(player)) + 0.5f);
+                    floor(player->view_x) + 0.5f, floor(player->view_y) + 0.5f);
                 return true;
             }
         }
         //new EF cheats, SP and MP
         if (strstr(s, "HELP ME OBI-WAN"))
         {
-            make_cheat_by_id(getCurrentPlayer(), EF_CHEAT_HELP_ME_OBIWAN);
+            make_cheat_by_id(player, EF_CHEAT_HELP_ME_OBIWAN);
             return true;
         }
         if (strstr(s, "NOW THIS IS PODRACING"))
         {
-            make_cheat_by_id(getCurrentPlayer(), EF_CHEAT_NOW_THIS_IS_PODRACING);
+            make_cheat_by_id(player, EF_CHEAT_NOW_THIS_IS_PODRACING);
             return true;
         }
         if (strstr(s, "THE DEFLECTOR SHIELD IS TOO STRONG"))
         {
-            void* player = getCurrentPlayer();
-            UNIT** sel_units = player_get_selection(player);
-            int n = player_get_n_selection(player);
-            UNIT* order_units[40];
-            UNIT** unit_ptr = order_units;
+            RGE_Static_Object** sel_units = player->sel_list;
+            int n = player->sel_count;
+            RGE_Static_Object* order_units[40];
+            RGE_Static_Object** unit_ptr = order_units;
             for (int i = 0; i < n; i++)
-                if (sel_units[i]->player == player)
+                if ((RGE_Player*)sel_units[i]->owner == player)
                     *unit_ptr++ = sel_units[i];
             make_cheat_by_id_with_unit_list(player, EF_CHEAT_THE_DEFLECTOR_SHIELD_IS_TOO_STRONG, order_units, unit_ptr - order_units);
             return true;
         }
         if (strstr(s, "NO SHIP THAT SMALL HAS A CLOAKING DEVICE"))
         {
-            void* player = getCurrentPlayer();
-            UNIT** sel_units = player_get_selection(player);
-            int n = player_get_n_selection(player);
-            UNIT* order_units[40];
-            UNIT** unit_ptr = order_units;
+            RGE_Static_Object** sel_units = player->sel_list;
+            int n = player->sel_count;
+            RGE_Static_Object* order_units[40];
+            RGE_Static_Object** unit_ptr = order_units;
             for (int i = 0; i < n; i++)
-                if (sel_units[i]->player == player)
+                if ((RGE_Player*)sel_units[i]->owner == player)
                     *unit_ptr++ = sel_units[i];
             make_cheat_by_id_with_unit_list(player, EF_CHEAT_NO_SHIP_THAT_SMALL_HAS_A_CLOAKING_DEVICE, order_units, unit_ptr - order_units);
             return true;
         }
         if (strstr(s, "FORCEHEAL"))
         {
-            void* player = getCurrentPlayer();
-            UNIT** sel_units = player_get_selection(player);
-            int n = player_get_n_selection(player);
-            UNIT* order_units[40];
-            UNIT** unit_ptr = order_units;
+            RGE_Static_Object** sel_units = player->sel_list;
+            int n = player->sel_count;
+            RGE_Static_Object* order_units[40];
+            RGE_Static_Object** unit_ptr = order_units;
             for (int i = 0; i < n; i++)
-                if (sel_units[i]->player == player)
+                if ((RGE_Player*)sel_units[i]->owner == player)
                     *unit_ptr++ = sel_units[i];
             make_cheat_by_id_with_unit_list(player, EF_CHEAT_FORCEHEAL, order_units, unit_ptr - order_units);
             return true;
         }
         if (strstr(s, "FORCEPROTECT"))
         {
-            void* player = getCurrentPlayer();
-            UNIT** sel_units = player_get_selection(player);
-            int n = player_get_n_selection(player);
-            UNIT* order_units[40];
-            UNIT** unit_ptr = order_units;
+            RGE_Static_Object** sel_units = player->sel_list;
+            int n = player->sel_count;
+            RGE_Static_Object* order_units[40];
+            RGE_Static_Object** unit_ptr = order_units;
             for (int i = 0; i < n; i++)
-                if (sel_units[i]->player == player)
+                if ((RGE_Player*)sel_units[i]->owner == player)
                     *unit_ptr++ = sel_units[i];
             make_cheat_by_id_with_unit_list(player, EF_CHEAT_FORCEPROTECT, order_units, unit_ptr - order_units);
             return true;
         }
         if (strstr(s, "UNLIMITED POWER"))
         {
-            make_cheat_by_id(getCurrentPlayer(), EF_CHEAT_UNLIMITED_POWER);
+            make_cheat_by_id(player, EF_CHEAT_UNLIMITED_POWER);
             return true;
         }
         if (strstr(s, "DEPLOY THE GARRISON"))
         {
-            make_cheat_by_id(getCurrentPlayer(), EF_CHEAT_DEPLOY_THE_GARRISON);
+            make_cheat_by_id(player, EF_CHEAT_DEPLOY_THE_GARRISON);
             return true;
         }
     }
@@ -281,7 +235,7 @@ bool __stdcall checkCheats(char* s2)
         {
             //if (!control_initiated)
             //    control_source = getCurrentPlayerId();
-            WorldPlayerBase__unselect_object(getCurrentPlayer());
+            RGE_Player__unselect_object(getCurrentPlayer());
             takeControl(id);
             chat("Taking control of player %d", id);
             //control_initiated = true;
@@ -393,7 +347,7 @@ bool __stdcall checkCheats(char* s2)
         char name[0x80];
         name[0] = '\0';
         sscanf_s(s, "%s %s", dummy, (unsigned)_countof(dummy), name, (unsigned)_countof(name));
-        get_sn_with_alias(getCurrentPlayer(), name);
+        get_sn_with_alias(player, name);
         return true;
     }
     if (strstr(s, "/GOAL"))
@@ -401,7 +355,7 @@ bool __stdcall checkCheats(char* s2)
         char name[0x80];
         name[0] = '\0';
         sscanf_s(s, "%s %s", dummy, (unsigned)_countof(dummy), name, (unsigned)_countof(name));
-        get_goal_with_alias(getCurrentPlayer(), name);
+        get_goal_with_alias(player, name);
         return true;
     }
     /*if (strstr(s, "/OBJ") || strstr(s, "/OBJECT"))
@@ -414,8 +368,8 @@ bool __stdcall checkCheats(char* s2)
             if (unit)
             {
                 void* player = getCurrentPlayer();
-                WorldPlayerBase__unselect_object(player);
-                WorldPlayerBase__select_object(player, unit, 1);
+                RGE_Player__unselect_object(player);
+                RGE_Player__select_object(player, unit, 1);
             }
             else
                 chat("Invalid object id");
@@ -428,7 +382,7 @@ bool __stdcall checkCheats(char* s2)
         float x, y;
         sscanf(s, "%s %f %f", dummy, &x, &y);
         void* player = getCurrentPlayer();
-        WorldPlayerBase__set_view_loc(player, x, y, 0);
+        RGE_Player__set_view_loc(player, x, y, 0);
         return true;
     }*/
     return false;

@@ -59,7 +59,7 @@ void editor_autosave()
 
 void setAutosaveHooks(int version, int interval)
 {
-    log("Editor autosave initialised, interval = %d seconds", interval);
+    log("Editor autosave initialized, interval = %d seconds", interval);
     autosave_interval = interval * 1000;
     autosave = true;
     if (version == VER_EF)

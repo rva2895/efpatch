@@ -58,9 +58,9 @@ loc_40FA19:
     }
 }
 
-void __stdcall on_condition_check_report(DWORD function, int argc, int arg0, int arg1, int arg2, int arg3)
+void __stdcall on_condition_check_report(DWORD f, int argc, int arg0, int arg1, int arg2, int arg3)
 {
-    log("    Condition: 0x%X, argc=%d, args=%d %d %d %d", function, argc, arg0, arg1, arg2, arg3);
+    log("    Condition: 0x%X, argc=%d, args=%d %d %d %d", f, argc, arg0, arg1, arg2, arg3);
 }
 
 void __stdcall on_condition_check_status_report(int status)
@@ -112,10 +112,10 @@ __declspec(naked) void on_condition_check_status() //0040FB85
     }
 }
 
-void __stdcall on_action_report(DWORD function, int argc, int arg0, int arg1, int arg2, int arg3)
+void __stdcall on_action_report(DWORD f, int argc, int arg0, int arg1, int arg2, int arg3)
 {
-    log("    Action: 0x%X, argc=%d, args=%d %d %d %d", function, argc, arg0, arg1, arg2, arg3);
-    if ((function == 0x00577380) && (arg0 == -17))
+    log("    Action: 0x%X, argc=%d, args=%d %d %d %d", f, argc, arg0, arg1, arg2, arg3);
+    if ((f == 0x00577380) && (arg0 == -17))
     {
         //__debugbreak();
         chat("Train pummel, player %d", current_player);

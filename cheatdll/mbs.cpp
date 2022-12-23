@@ -88,8 +88,7 @@ loc_7D93A8:
         mov     eax, [esi + edi * 4 + 8]
         mov     ecx, [esp + 14h]
         push    eax
-        mov     eax, 00623DB0h
-        call    eax //sub_411460
+        call    RGE_Game_World__object
         test    eax, eax
         jz      short loc_7D93E5
         cmp     byte ptr [eax + 58h], 2 // +48h -> +58h
@@ -210,8 +209,7 @@ __declspec(naked) void mbs_make_command()
         mov     ebx, ecx
         push    ebp
         push    1
-        mov     eax, 00632D33h
-        call    eax //_calloc
+        call    calloc_internal
         add     esp, 8
         test    eax, eax
         jz      short loc_7D9359
@@ -232,8 +230,7 @@ __declspec(naked) void mbs_make_command()
         push    edx
         push    ebp
         push    eax
-        mov     eax, 0044CFD0h
-        call    eax //sub_5C8F70
+        call    RGE_Command__submit
 
 loc_7D9359:
         pop     ebp
@@ -279,8 +276,7 @@ loc_7D9013:
 loc_7D904B:
         mov     ecx, 006A3684h //dword_7912A0
         mov     ecx, [ecx]
-        mov     eax, 00428750h
-        call    eax //sub_5E7560
+        call    RGE_Base_Game__get_player
         mov     edx, eax
         mov     eax, [edi + 1280h] // +1230h -> +1280h
         test    eax, eax
@@ -325,8 +321,7 @@ loc_7D90B4:
         jz      loc_7D92E7
         mov     ecx, 006A3684h //dword_7912A0
         mov     ecx, [ecx]
-        mov     eax, 00428750h
-        call    eax //sub_5E7560
+        call    RGE_Base_Game__get_player
         cmp     eax, [ebp + 18h] // +0Ch -> +18h
         jnz     loc_7D92E7
         mov     ecx, [ebp + 14h] // +8 -> +14h
@@ -373,8 +368,7 @@ loc_7D9133:
         push    0
         push    0
         push    3
-        mov     eax, 0042CD70h
-        call    eax //sub_5EB990
+        call    RGE_Base_Game__play_sound
         mov     ecx, 006A3684h //dword_7912A0
         mov     ecx, [ecx]
         lea     eax, [esp + 18h]
@@ -421,8 +415,7 @@ loc_7D91A9:
         fstp    dword ptr [esp]
         push    eax
         push    ebp
-        mov     eax, 00428750h
-        call    eax //sub_5E7560
+        call    RGE_Base_Game__get_player
         mov     ecx, eax
         mov     eax, 005D0B70h
         call    eax //sub_457CB0
@@ -447,8 +440,7 @@ loc_7D91F6:
         fstp    dword ptr [esp]
         push    edx
         push    ebp
-        mov     eax, 00428750h
-        call    eax //sub_5E7560
+        call    RGE_Base_Game__get_player
         mov     ecx, eax
         mov     eax, 005D0B70h
         call    eax //sub_457CB0
@@ -480,8 +472,7 @@ loc_7D924E:
 loc_7D9254:
         mov     ecx, 006A3684h //dword_7912A0
         mov     ecx, [ecx]
-        mov     eax, 0042CD70h
-        call    eax //sub_5EB990
+        call    RGE_Base_Game__play_sound
         mov     ecx, 006A3684h //dword_7912A0
         mov     ecx, [ecx]
         lea     edx, [esp + 18h]

@@ -87,7 +87,8 @@ void __stdcall window_overlay_draw2(HDC hdc)
 {
     if (!brushes_loaded)
     {
-        br_black = CreateSolidBrush(RGB(32, 32, 32));
+        //br_black = CreateSolidBrush(RGB(32, 32, 32));
+        br_black = CreateHatchBrush(HS_DIAGCROSS, RGB(32, 32, 32));
         brushes_loaded = true;
     }
 
@@ -98,6 +99,7 @@ void __stdcall window_overlay_draw2(HDC hdc)
     r.top = 0;
     r.right = size_x;
     r.bottom = size_y;
+    SetBkMode(hdc, TRANSPARENT);
     FillRect(hdc, &r, br_black);
     
     SetTextColor(hdc, RGB(255, 255, 255));
@@ -166,19 +168,19 @@ loc_5E0053:
         push    eax
         mov     edx, [ecx + 38h]
         push    edx
-        call    ds:SelectClipRgn
+        call    SelectClipRgn
         mov     ecx, [esi + 138h]
         mov     eax, [esi + 0F8h]
         push    eax
         mov     edx, [ecx + 38h]
         push    edx
-        call    ds:SelectObject
+        call    SelectObject
         mov     [esp + 24h], eax
         mov     eax, [esi + 138h]
         push    1
         mov     ecx, [eax + 38h]
         push    ecx
-        call    ds:SetBkMode
+        call    SetBkMode
         //
         mov     eax, [esi + 138h]
         mov     ecx, [eax + 38h]
@@ -190,13 +192,13 @@ loc_5E0053:
         push    eax
         mov     edx, [ecx + 38h]
         push    edx
-        call    ds:SelectObject
+        call    SelectObject
         mov     eax, [esi + 138h]
         xor     edi, edi
         push    edi
         mov     ecx, [eax + 38h]
         push    ecx
-        call    ds:SelectClipRgn
+        call    SelectClipRgn
         mov     ecx, [esi + 138h]
         push    0
         mov     eax, 00472BB0h
@@ -416,18 +418,18 @@ _no_overlay_delete:
         jmp     edi
     }
 }
-*/
+
 
 #pragma optimize( "s", on )
 void setOverlayHooks()
 {
-    //setHook((void*)0x004F45C1, onOverlayCreate);
-    //setHook((void*)0x004F5F52, onOverlayDelete);
-    //setHook((void*)0x004F583C, onOverlayInit);
+    setHook((void*)0x004F45C1, onOverlayCreate);
+    setHook((void*)0x004F5F52, onOverlayDelete);
+    setHook((void*)0x004F583C, onOverlayInit);
 }
 #pragma optimize( "", on )
 
-/*
+
 __declspec(naked) void __stdcall overlay_on()
 {
     __asm

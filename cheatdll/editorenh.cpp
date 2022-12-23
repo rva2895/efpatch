@@ -6,6 +6,8 @@
 //bit 1: restriction, bit 2: collision
 int placementSettings = 0;
 
+int version_for_editor;
+
 __declspec(naked) void noTerrainRestrictionHook() //00618FEE
 {
     __asm
@@ -277,10 +279,32 @@ const char* var_names[] =
     "MiscCounter3",
     "MiscCounter4",
     "MiscCounter5"
+    //"Action"
+};
+
+const char* civ_names[] =
+{
+    "Galactic Empire",
+    "Gungans",
+    "Rebel Alliance",
+    "Royal Naboo",
+    "Trade Federation",
+    "Wookies",
+    "Republic",
+    "Confederacy",
+    "Zann Consortium",
+    "Geonosians",
+    "First Order",
+    "Resistance",
+    "Imperial Remnant",
+    "New Republic",
+    "Black Sun"
 };
 
 void* __stdcall getConditionParams_hook(void* _this, condition* c)
 {
+    int civ_count = version_for_editor == VER_EF ? CIV_COUNT : 8;
+
     switch (c->id)
     {
     case 5:            //objects in area
@@ -345,6 +369,17 @@ void* __stdcall getConditionParams_hook(void* _this, condition* c)
         //window_setText(*(void**)((int)_this + 0xED8), szQuantity, 0);
 
         break;
+    case 0x1D:        //player civ
+        flush_ai_signal_dropdown(_this);
+        for (int i = 0; i < civ_count; i++)
+            window_dropdown_addText(*(void**)((int)_this + 0xED8), civ_names[i], i + 1);
+
+        //ai signal hlp
+        window_setRect(*(void**)((int)_this + 0xED4), 0x240, 2, 0xC8, 0x14);
+        window_setText(*(void**)((int)_this + 0xED4), "Civilization", 0);
+        //ai signal
+        window_setRect(*(void**)((int)_this + 0xED8), 0x240, 0x16, 0xC8, 0x14);
+        break;
     default:
         //timer hlp
         window_setRect(*(void**)((int)_this + 0xE28), 0xE6, 2, 0x96, 0x14);
@@ -405,7 +440,7 @@ __declspec(naked) void editor_selection_box() //0052DED4
 }
 
 #pragma optimize( "s", on )
-void setEditorEnhHooks()
+void setEditorEnhHooks(int ver)
 {
     setHook((void*)0x00618FEE, noTerrainRestrictionHook);
     setHook((void*)0x00618F90, noGridHook);
@@ -425,5 +460,7 @@ void setEditorEnhHooks()
     setHook((void*)0x0052DED4, editor_selection_box);
     writeData(0x0052E03D, "\xB8\x01\x00\x00\x00", 5);
     //writeByte(0x0052E04D, 0x10);
+
+    version_for_editor = ver;
 }
 #pragma optimize( "", on )

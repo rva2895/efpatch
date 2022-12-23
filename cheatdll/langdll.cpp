@@ -269,6 +269,9 @@ void setLangDllHooks()
     writeDword(0x0048BB26, 34600 + 0x10000);
     writeDword(0x0048BC26, 34600 + 0x10000 + 1000);
 
+    writeDword(0x0048BB21, 9);
+    writeDword(0x0048BC21, 9);
+
     //cargo names
     writeDword(0x0048BB9C, 34421 + 0x10000);
     writeDword(0x0048BC97, 34421 + 0x10000 + 1000);

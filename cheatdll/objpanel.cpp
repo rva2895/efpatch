@@ -1,10 +1,8 @@
 #include "stdafx.h"
-
 #include "objpanel.h"
-
 #include "resgenbldgs.h"
 
-void* objPanelPtr = 0;
+TRIBE_Panel_Object* objPanelPtr = NULL;
 
 int itemCounter;
 
@@ -14,18 +12,6 @@ char* is2ndCol;
 int currentPlayer;
 
 float* resources;
-
-int(__thiscall* objPanelDrawItem)
-    (void*, int level, int slpFrame, int displayType, int v1, int v2, int v3, int v4, int langDLLDesc) =
-        (int (__thiscall*) (void*, int, int, int, int, int, int, int, int))0x005DB840;
-//{
-//    __asm
-//    {
-//        mov     ecx, objPanelPtr
-//        push    005DB840h
-//        ret
-//    }
-//}
 
 __declspec(naked) void __stdcall objPanel_invalidate()
 {
@@ -227,10 +213,10 @@ __declspec(naked) void popup2() //005DF279
         jnz     alreadySet
         mov     startEbp, ebp
         xor     ebp, ebp
-        jmp     popupCont
+        //jmp     popupCont
 alreadySet:
         //sub     ebp, edx
-popupCont:
+//popupCont:
         add     ecx, 6Ch
 noflag2:
         add     eax, ebp

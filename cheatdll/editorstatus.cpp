@@ -6,10 +6,10 @@
 
 extern bool isEditor;
 
-DWORD window_editorbk = 0;
+TPanel* window_editorbk = 0;
 
 bool editorstatus_isValid = false;
-bool background_initialised = false;
+bool background_initialized = false;
 
 HFONT hFont;
 
@@ -26,7 +26,7 @@ void initBackground()
         OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE, TEXT("Arial"));
 
-    background_initialised = true;
+    background_initialized = true;
     editorstatus_isValid = false;
 }
 
@@ -61,7 +61,7 @@ std::string rms_error_2;
 
 void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
 {
-    if (!background_initialised)
+    if (!background_initialized)
         initBackground();
 
     HDC hdc;

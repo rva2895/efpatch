@@ -162,7 +162,21 @@ void recSwitch(int p)
 {
     if (isRec())
     {
-        WorldPlayerBase__unselect_object(getCurrentPlayer());
-        Game__set_player(*base_game, (__int16)p);
+        if (p == 0)
+        {
+            RGE_Player__unselect_object(RGE_Base_Game__get_player(*base_game));
+            TRIBE_Game__set_player(*(TRIBE_Game**)base_game, 0);
+        }
+        else if ((p > 0) && (p <= 8))
+        {
+            for (int i = 1; i < (*base_game)->world->player_num; i++)
+            {
+                if (((*base_game)->world->players[i]->color_table->id + 1) == p)
+                {
+                    RGE_Player__unselect_object(RGE_Base_Game__get_player(*base_game));
+                    TRIBE_Game__set_player(*(TRIBE_Game**)base_game, (short)i);
+                }
+            }
+        }
     }
 }

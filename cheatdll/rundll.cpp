@@ -115,55 +115,28 @@ HWND hWnd_main = NULL;
 
 extern bool isEditor;
 
-extern DWORD window_editorbk;
+extern TPanel* window_editorbk;
 
-__declspec(naked) void __stdcall update_editor_bk()
+void update_editor_screen(TPanel* panel)
 {
-    __asm
+    if (panel && panel->vfptr == (TPanelVtbl*)0x00661C50)
     {
-        mov     ecx, window_editorbk
-        mov     eax, [ecx + 18h]
-        mov     edx, [ecx + 14h]
-        push    eax
-        push    edx
-        mov     eax, [ecx]
-        call    dword ptr [eax + 5Ch]
-
-        mov     ecx, window_editorbk
-        push    1
-        mov     eax, [ecx]
-        call    dword ptr [eax + 2Ch]
-        ret
+        panel->vfptr->handle_size(panel, panel->pnl_wid, panel->pnl_hgt);
+        panel->vfptr->set_redraw(panel, 1);
     }
 }
 
-extern bool rec_cache_invalid;
-
-#pragma warning(push)
-#pragma warning(disable:4100)
-__declspec(naked) void __stdcall update_window(void* wnd)
+void __stdcall update_editor_bk()
 {
-    __asm
-    {
-        mov     ecx, [esp + 4]
-        mov     eax, [ecx + 18h]
-        mov     edx, [ecx + 14h]
-        //push    eax
-        //push    edx
-        //mov     eax, [ecx]
-        //call    dword ptr[eax + 5Ch]
-
-        mov     ecx, [esp + 4]
-        mov     eax, [ecx]
-        test    eax, eax
-        jz      _skip_update_window
-        push    1
-        call    dword ptr [eax + 2Ch]
-_skip_update_window:
-        ret     4
-    }
+    update_editor_screen(window_editorbk);
 }
-#pragma warning(pop)
+
+void update_load_save_game_panel(TPanel* panel)
+{
+    if (panel_system->currentPanelValue == panel && panel &&
+        panel->vfptr == (TPanelVtbl*)0x006607F4 || panel->vfptr == (TPanelVtbl*)0x00662128 || panel->vfptr == (TPanelVtbl*)0x00661F3C)
+        panel->vfptr->set_redraw(panel, 1);
+}
 
 //int terrain_paint_mode = 0;    //default
 #ifdef _DEBUG
@@ -216,6 +189,12 @@ int CALLBACK WndProc_dll(HWND hWnd,
         {
             chat(world_dump_enabled ? "World dump turned OFF" : "World dump turned ON");
             world_dump_enabled = !world_dump_enabled;
+        }
+        */
+        /*
+        if (LOWORD(wParam) == VK_F8)                        //rec overlay
+        {
+            overlay_switch();
         }
         */
         if (isEditor)
@@ -281,10 +260,6 @@ int CALLBACK WndProc_dll(HWND hWnd,
                 recSwitch(LOWORD(wParam) - 0x30);
             }
         }
-        /*if (LOWORD(wParam) == VK_F8)                        //rec overlay
-        {
-            overlay_switch();
-        }*/
     }
     if (msg == WM_TIMER)
     {
@@ -296,8 +271,7 @@ int CALLBACK WndProc_dll(HWND hWnd,
     }
     if (msg == WM_APP + 1000) //updatebk
     {
-        if (!rec_cache_invalid)
-            update_window((void*)wParam);
+        update_load_save_game_panel((TPanel*)wParam);
     }
     
     return WndProc_exe(hWnd, msg, wParam, lParam);
