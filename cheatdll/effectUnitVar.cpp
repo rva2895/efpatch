@@ -26,57 +26,62 @@ void editVal(float* valPtr, float val, bool useMax, float max, int action)
             *valPtr = max;
 }
 
-void editHP(UNIT* unit, float val, int action)
+void editHP(RGE_Static_Object* unit, float val, int action)
 {
     editVal(&unit->hp, val, false, 0, action);
 }
 
-void editHPPercent(UNIT* unit, float val, int action)
+void editHPPercent(RGE_Static_Object* unit, float val, int action)
 {
-    float maxHP = unit->prop_object->hit_points;
-    editVal(&unit->hp, val * maxHP / 100, false, 0, action);
+    editVal(&unit->hp, val * unit->master_obj->hp / 100.0f, false, 0, action);
 }
 
-void editSP(UNIT* unit, float val, int action)
+void editSP(RGE_Static_Object* unit, float val, int action)
 {
     editVal(&unit->sp, val, false, 0, action);
 }
 
-void editResources(UNIT* unit, float val, int action)
+void editResources(RGE_Static_Object* unit, float val, int action)
 {
-    editVal(&unit->resources, val, false, 0, action);
+    editVal(&unit->attribute_amount_held, val, false, 0, action);
 }
 
-void editSPPercent(UNIT* unit, float val, int action)
+void editSPPercent(RGE_Static_Object* unit, float val, int action)
 {
-    float maxHP = unit->prop_object->hit_points;
-    editVal(&unit->sp, val * maxHP / 100, false, 0, action);
+    editVal(&unit->sp, val * unit->master_obj->hp / 100.0f, false, 0, action);
 }
 
-void editReloadCooldown(UNIT* unit, float val, int action)
+void editReloadCooldown(RGE_Static_Object* unit, float val, int action)
 {
-    editVal((float*)((int)unit + 0x174), val, false, 0, action);
+    if (unit->master_obj->master_type >= 50)
+    {
+        RGE_Combat_Object* combat_obj = (RGE_Combat_Object*)unit;
+        editVal(&combat_obj->attack_timer, val, false, 0, action);
+    }
 }
 
-void editReloadCooldownPercent(UNIT* unit, float val, int action)
+void editReloadCooldownPercent(RGE_Static_Object* unit, float val, int action)
 {
-    float reloadTime = unit->prop_object->reload_time_1;
-    editVal((float*)((int)unit + 0x174), val * reloadTime / 100, false, 0, action);
+    if (unit->master_obj->master_type >= 50)
+    {
+        RGE_Combat_Object* combat_obj = (RGE_Combat_Object*)unit;
+        editVal(&combat_obj->attack_timer, val * combat_obj->master_obj->speed_of_attack / 100.0f, false, 0, action);
+    }
 }
 
-void editHPRegen(UNIT* unit, float val, float val2)
+void editHPRegen(RGE_Static_Object* unit, float val, float val2)
 {
     specialDamage(unit, 47, -val, 0);
     specialDamage(unit, 48, val2, 0);
 }
 
-void editHPRegenPercent(UNIT* unit, float val, float val2)
+void editHPRegenPercent(RGE_Static_Object* unit, float val, float val2)
 {
     specialDamage(unit, 49, -val, 0);
     specialDamage(unit, 50, val2, 0);
 }
 
-void editCounter(UNIT* unit, float val, int action, int c)
+void editCounter(RGE_Static_Object* unit, float val, int action, int c)
 {
     UNIT_EXTRA* ud = getUnitExtra(unit);
     if (!ud)
@@ -109,7 +114,7 @@ void editCounter(UNIT* unit, float val, int action, int c)
     //objPanel_invalidate();
 }
 
-void __stdcall effectUnitVarActual_sub(UNIT* unit, char* str)
+void __stdcall effectUnitVarActual_sub(RGE_Static_Object* unit, char* str)
 {
     int action;
     char var[32];
@@ -117,12 +122,11 @@ void __stdcall effectUnitVarActual_sub(UNIT* unit, char* str)
     float val = 0.0f;
     float val2 = 0.0f;
     char* s_heap = NULL;
-    char* s_stack = NULL;
+    char s_stack[0x100];
     size_t s_len = strlen(str);
     char* s;
-    if (s_len < 0x80)
+    if (s_len < 0x100)
     {
-        s_stack = (char*)alloca(s_len + 1);
         s = s_stack;
     }
     else
@@ -249,15 +253,14 @@ void __stdcall effectUnitVarActual_sub(UNIT* unit, char* str)
     free(s_heap);
 }
 
-void __stdcall effectUnitVarActual(UNIT* unit, char* str)
+void __stdcall effectUnitVarActual(RGE_Static_Object* unit, char* str)
 {
     char* s_heap = NULL;
-    char* s_stack = NULL;
+    char s_stack[0x800];
     size_t s_len = strlen(str);
     char* s;
-    if (s_len < 0x400)
+    if (s_len < 0x800)
     {
-        s_stack = (char*)alloca(s_len + 1);
         s = s_stack;
     }
     else

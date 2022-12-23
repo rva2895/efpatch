@@ -288,9 +288,6 @@
     <ClInclude Include="radius_effect.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
-    <ClInclude Include="network.h">
-      <Filter>Заголовочные файлы\misc</Filter>
-    </ClInclude>
     <ClInclude Include="slp.h">
       <Filter>Заголовочные файлы\graphics</Filter>
     </ClInclude>
@@ -479,6 +476,30 @@
     </ClInclude>
     <ClInclude Include="miscbugfix.h">
       <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="editcontrol.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="network.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="rge_command.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\idb\idb_types.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="src\idb\idb_functions.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="attribute_held.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="itemcache.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="sc1file.h">
+      <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -713,9 +734,6 @@
     <ClCompile Include="terrain_blend.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
-    <ClCompile Include="network.cpp">
-      <Filter>Файлы исходного кода\misc</Filter>
-    </ClCompile>
     <ClCompile Include="slp.cpp">
       <Filter>Файлы исходного кода\graphics</Filter>
     </ClCompile>
@@ -910,6 +928,21 @@
     </ClCompile>
     <ClCompile Include="miscbugfix.cpp">
       <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="editcontrol.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="network.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="rge_command.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="attribute_held.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="sc1file.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

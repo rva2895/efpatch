@@ -3,49 +3,49 @@
 #include "effects.h"
 #include "advtriggereffect.h"
 
-void make_cheat_by_id(void* player, int ef_cheat_id)
+void make_cheat_by_id(RGE_Player* player, int ef_cheat_id)
 {
     int order_size = 4;
     void* cmd = calloc_internal(1, order_size);
     if (cmd)
     {
         *(uint8_t*)cmd = 0x83;
-        uint8_t issuer = *(uint32_t*)((uint8_t*)player + 0xA0);
+        uint8_t issuer = player->id;
         *((uint8_t*)cmd + 1) = 1; //ef_cheat
         *((uint8_t*)cmd + 2) = issuer;
         *((uint8_t*)cmd + 3) = ef_cheat_id;
 
-        RGE_Command__submit(get_TRIBE_Command(), cmd, order_size, issuer);
+        RGE_Command__submit((RGE_Command*)get_TRIBE_Command(), cmd, order_size, issuer);
     }
 }
 
-void make_cheat_by_id_with_unit_list(void* player, int ef_cheat_id, UNIT** units, int n)
+void make_cheat_by_id_with_unit_list(RGE_Player* player, int ef_cheat_id, RGE_Static_Object** units, int n)
 {
     int order_size = 4 + 4 + 4 * n;
     void* cmd = calloc_internal(1, order_size);
     if (cmd)
     {
         *(uint8_t*)cmd = 0x83;
-        uint8_t issuer = *(uint32_t*)((uint8_t*)player + 0xA0);
+        uint8_t issuer = player->id;
         *((uint8_t*)cmd + 1) = 1; //ef_cheat
         *((uint8_t*)cmd + 2) = issuer;
         *((uint8_t*)cmd + 3) = ef_cheat_id;
         *((uint32_t*)cmd + 1) = n;
         for (int i = 0; i < n; i++)
-            *((int*)cmd + 2 + i) = units[i]->ordinal;
+            *((int*)cmd + 2 + i) = units[i]->id;
 
-        RGE_Command__submit(get_TRIBE_Command(), cmd, order_size, issuer);
+        RGE_Command__submit((RGE_Command*)get_TRIBE_Command(), cmd, order_size, issuer);
     }
 }
 
-void make_cheat_by_id_with_position(void* player, int ef_cheat_id, float x, float y)
+void make_cheat_by_id_with_position(RGE_Player* player, int ef_cheat_id, float x, float y)
 {
     int order_size = 4 * 3;
     void* cmd = calloc_internal(1, order_size);
     if (cmd)
     {
         *(uint8_t*)cmd = 0x83;
-        uint8_t issuer = *(uint32_t*)((uint8_t*)player + 0xA0);
+        uint8_t issuer = player->id;
         *((uint8_t*)cmd + 1) = 1; //ef_cheat
         *((uint8_t*)cmd + 2) = issuer;
         *((uint8_t*)cmd + 3) = ef_cheat_id;
@@ -53,15 +53,12 @@ void make_cheat_by_id_with_position(void* player, int ef_cheat_id, float x, floa
         *((float*)cmd + 1) = x;
         *((float*)cmd + 2) = y;
 
-        RGE_Command__submit(get_TRIBE_Command(), cmd, order_size, issuer);
+        RGE_Command__submit((RGE_Command*)get_TRIBE_Command(), cmd, order_size, issuer);
     }
 }
 
 float cheat_x;
 float cheat_y;
-
-void (__thiscall* World__cheat)(void* this_, unsigned int player, __int16 cheat_code) =
-    (void (__thiscall*)(void*, unsigned int, __int16))0x00603D90;
 
 void __stdcall ef_do_command(void* this_, void* order)
 {
@@ -72,18 +69,18 @@ void __stdcall ef_do_command(void* this_, void* order)
         break;
     case 1: //ef cheat
     {
-        if (BaseGame__allowCheatCodes(*base_game))
+        if (RGE_Base_Game__allowCheatCodes(*base_game))
         {
             uint8_t player_id = *((uint8_t*)order + 2);
             uint8_t ef_cheat_id = *((uint8_t*)order + 3);
-            void* player = get_player(player_id);
+            RGE_Player* player = get_player(player_id);
             switch (ef_cheat_id)
             {
             case EF_CHEAT_HELP_ME_OBIWAN: //tech cheats
             case EF_CHEAT_NOW_THIS_IS_PODRACING:
             case EF_CHEAT_UNLIMITED_POWER:
             case EF_CHEAT_DEPLOY_THE_GARRISON:
-                World__cheat(*((void**)this_ + 1), player_id, ef_cheat_id + 0x64);
+                TRIBE_World__cheat(*((TRIBE_World**)this_ + 1), player_id, ef_cheat_id + 0x64);
                 break;
             case EF_CHEAT_ULTIMATE_POWER_IN_THE_UNIVERSE: //create unit cheats
             case EF_CHEAT_SIMONSAYS:
@@ -95,7 +92,7 @@ void __stdcall ef_do_command(void* this_, void* order)
             case EF_CHEAT_KOELSCH:
                 cheat_x = *((float*)order + 1);
                 cheat_y = *((float*)order + 2);
-                World__cheat(*((void**)this_ + 1), player_id, ef_cheat_id + 0x64);
+                TRIBE_World__cheat(*((TRIBE_World**)this_ + 1), player_id, ef_cheat_id + 0x64);
                 break;
             case EF_CHEAT_YOU_HAVE_FAILED_ME_FOR_THE_LAST_TIME: //modify units cheats
             case EF_CHEAT_THE_DEFLECTOR_SHIELD_IS_TOO_STRONG:
@@ -105,56 +102,60 @@ void __stdcall ef_do_command(void* this_, void* order)
             case EF_CHEAT_JOIN_US_OR_DIE:
                 for (int i = 0; i < *((int32_t*)order + 1); i++)
                 {
-                    UNIT* unit = (UNIT*)BaseWorld__object(*((void**)this_ + 1), *((uint32_t*)order + 2 + i));
-                    switch (ef_cheat_id)
+                    TRIBE_Combat_Object* unit = (TRIBE_Combat_Object*)RGE_Game_World__object(*((RGE_Game_World**)this_ + 1), *((uint32_t*)order + 2 + i));
+                    RGE_Player* unit_owner = (RGE_Player*)unit->owner;
+                    if (unit->master_obj->master_type >= 70)
                     {
-                    case EF_CHEAT_YOU_HAVE_FAILED_ME_FOR_THE_LAST_TIME:
-                        if (unit->player != player && unit->prop_object->type > 30)
-                            kill_unit(unit);
-                        break;
-                    case EF_CHEAT_THE_DEFLECTOR_SHIELD_IS_TOO_STRONG:
-                        if (unit->player == player)
+                        switch (ef_cheat_id)
                         {
-                            unit_detach(unit);
-                            unit->prop_object->unit_attribute |= 0x40;
-                        }
-                        break;
-                    case EF_CHEAT_NO_SHIP_THAT_SMALL_HAS_A_CLOAKING_DEVICE:
-                        if (unit->player == player)
-                        {
-                            unit_detach(unit);
-                            unit->prop_object->unit_attribute |= 0x4;
-                        }
-                        break;
-                    case EF_CHEAT_FORCEHEAL:
-                        if (unit->player == player)
-                            effectUnitVarActual(unit, "SET HPPercent 100");
-                        break;
-                    case EF_CHEAT_FORCEPROTECT:
-                        if (unit->player == player)
-                        {
-                            unit_detach(unit);
-                            advTriggerEffectActual(unit->prop_object, "ADD Armor 3 1");
-                            advTriggerEffectActual(unit->prop_object, "ADD Armor 4 1");
-                        }
-                        break;
-                    case EF_CHEAT_JOIN_US_OR_DIE:
-                        if (unit->player != player)
-                        {
-                            unit_change_ownership(unit, player);
-                            void* current_player = getCurrentPlayer();
-                            if ((player == current_player) &&
-                                (unit->prop_object->type != 80 || *((DWORD*)unit + 0x77) == 0))
+                        case EF_CHEAT_YOU_HAVE_FAILED_ME_FOR_THE_LAST_TIME:
+                            if (unit_owner != player)
+                                unit->vfptr->cancel_object(unit);
+                            break;
+                        case EF_CHEAT_THE_DEFLECTOR_SHIELD_IS_TOO_STRONG:
+                            if (unit_owner == player)
                             {
-                                GameSoundEffectsManager__playSound(*base_game, 0x26, 0, 0);
-                                void* main_view = get_main_view();
-                                if (main_view)
-                                    RGE_View__display_object_selection(main_view, unit->ordinal, 1500, 2, 4);
+                                TRIBE_Combat_Object__create_own_master(unit);
+                                unit->master_obj->object_flags |= 0x40;
                             }
+                            break;
+                        case EF_CHEAT_NO_SHIP_THAT_SMALL_HAS_A_CLOAKING_DEVICE:
+                            if (unit_owner == player)
+                            {
+                                TRIBE_Combat_Object__create_own_master(unit);
+                                unit->master_obj->object_flags |= 0x4;
+                            }
+                            break;
+                        case EF_CHEAT_FORCEHEAL:
+                            if (unit_owner == player)
+                                effectUnitVarActual((RGE_Static_Object*)unit, "SET HPPercent 100");
+                            break;
+                        case EF_CHEAT_FORCEPROTECT:
+                            if (unit_owner == player)
+                            {
+                                TRIBE_Combat_Object__create_own_master(unit);
+                                advTriggerEffect_do_single_line_effect((RGE_Master_Static_Object*)unit->master_obj, (RGE_Static_Object*)unit, NULL, "ADD Armor 3 1");
+                                advTriggerEffect_do_single_line_effect((RGE_Master_Static_Object*)unit->master_obj, (RGE_Static_Object*)unit, NULL, "ADD Armor 4 1");
+                            }
+                            break;
+                        case EF_CHEAT_JOIN_US_OR_DIE:
+                            if (unit_owner != player)
+                            {
+                                unit->vfptr->change_ownership(unit, player);
+                                RGE_Player* current_player = RGE_Base_Game__get_player(*base_game);
+                                if ((player == current_player) &&
+                                    (unit->master_obj->master_type != 80 || *((DWORD*)unit + 0x77) == 0))
+                                {
+                                    RGE_Base_Game__play_sound(*base_game, 0x26, 0, 0);
+                                    RGE_View* main_view = (RGE_View*)get_main_view();
+                                    if (main_view)
+                                        RGE_View__display_object_selection(main_view, unit->id, 1500, 2, 4);
+                                }
+                            }
+                            break;
+                        default:
+                            break;
                         }
-                        break;
-                    default:
-                        break;
                     }
                 }
                 break;

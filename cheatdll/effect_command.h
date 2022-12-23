@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 
-void __stdcall do_effect_command(int qty, int command, void* player, UNIT** objects, int count, UNIT* target_obj, int x, int y);
+void __stdcall do_effect_command(int qty, int command, RGE_Player* player, RGE_Static_Object** objects, int count, RGE_Static_Object* target_obj, int x, int y);
 const char* __stdcall get_command_name(int c);
 
 //commands

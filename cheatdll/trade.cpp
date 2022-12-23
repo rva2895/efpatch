@@ -4,7 +4,7 @@
 bool find_by_master_ids_trade_flag = false;
 int obj_capacity = 0;
 int n_objects = 0;
-UNIT** objects = NULL;
+RGE_Static_Object** objects = NULL;
 float loc_x = -1.0f;
 float loc_y = -1.0f;
 
@@ -40,7 +40,7 @@ __declspec(naked) void on_trade_find_call_1() //005730AB
         mov     eax, [esi + 8]
         mov     eax, [eax + 18h]
         mov     ecx, [eax + 8Ch]
-        call    BaseWorld__object
+        call    RGE_Game_World__object
         mov     edx, [eax + 48h]
         mov     [esp + 0Ch], edx
         mov     edx, [eax + 4Ch]
@@ -75,7 +75,7 @@ __declspec(naked) void on_trade_find_call_2() //005730D7
         mov     eax, [esi + 8]
         mov     eax, [eax + 18h]
         mov     ecx, [eax + 8Ch]
-        call    BaseWorld__object
+        call    RGE_Game_World__object
         mov     edx, [eax + 48h]
         mov     [esp + 0Ch], edx
         mov     edx, [eax + 4Ch]
@@ -91,13 +91,13 @@ on_trade_find_call_2_skip:
     }
 }
 
-void __stdcall add_found_unit(UNIT* unit, float x, float y)
+void __stdcall add_found_unit(RGE_Static_Object* unit, float x, float y)
 {
     if (n_objects >= obj_capacity)
     {
         obj_capacity *= 2;
-        UNIT** objects_new = (UNIT**)malloc(obj_capacity * sizeof(UNIT*));
-        memcpy(objects_new, objects, sizeof(UNIT**) * n_objects);
+        RGE_Static_Object** objects_new = (RGE_Static_Object**)malloc(obj_capacity * sizeof(RGE_Static_Object*));
+        memcpy(objects_new, objects, sizeof(RGE_Static_Object**) * n_objects);
         free(objects);
         objects = objects_new;
     }
@@ -108,18 +108,18 @@ void __stdcall add_found_unit(UNIT* unit, float x, float y)
 
 int n_calls = 0;
 
-UNIT* __stdcall get_best_object()
+RGE_Static_Object* __stdcall get_best_object()
 {
-    UNIT* best_object = NULL;
+    RGE_Static_Object* best_object = NULL;
     if (n_objects > 0)
     {
-        if (get_new_trade_behavior(objects[0]->player))
+        if (get_new_trade_behavior(objects[0]->owner))
         {
             //find max dist
             float max_dist = 0.0f;
             for (int i = 0; i < n_objects; i++)
             {
-                float dist = (objects[i]->x - loc_x) * (objects[i]->x - loc_x) + (objects[i]->y - loc_y) * (objects[i]->y - loc_y);
+                float dist = (objects[i]->world_x - loc_x) * (objects[i]->world_x - loc_x) + (objects[i]->world_y - loc_y) * (objects[i]->world_y - loc_y);
                 if (dist > max_dist)
                 {
                     max_dist = dist;
@@ -133,7 +133,7 @@ UNIT* __stdcall get_best_object()
             float min_dist = -1.0f;
             for (int i = 0; i < n_objects; i++)
             {
-                float dist = (objects[i]->x - loc_x) * (objects[i]->x - loc_x) + (objects[i]->y - loc_y) * (objects[i]->y - loc_y);
+                float dist = (objects[i]->world_x - loc_x) * (objects[i]->world_x - loc_x) + (objects[i]->world_y - loc_y) * (objects[i]->world_y - loc_y);
                 if (min_dist < 0.0f || dist < min_dist)
                 {
                     min_dist = dist;
@@ -195,7 +195,7 @@ find_by_master_ids_trade_end_skip:
 #pragma optimize( "s", on )
 void setTradeHooks()
 {
-    objects = (UNIT**)malloc(0x100 * sizeof(UNIT*));
+    objects = (RGE_Static_Object**)malloc(0x100 * sizeof(RGE_Static_Object*));
     obj_capacity = 0x100;
 
     setHook((void*)0x005730AB, on_trade_find_call_1);

@@ -66,6 +66,8 @@ int reused_g = 0;
 HDC prev_dc = NULL;
 Graphics* graphics = NULL;
 
+Font* default_font = NULL;
+
 Graphics* get_graphics(HDC hdc)
 {
     if (hdc != prev_dc || !graphics)
@@ -131,34 +133,90 @@ __declspec(naked) void on_DrawArea_ReleaseDC() //00472BD4
 }
 */
 
-BOOL __stdcall GetTextExtentPoint32A_new(HDC hdc, LPCSTR lpString, int c, LPSIZE psizl)
+BOOL __stdcall GetTextExtentPoint32W_new(HDC hdc, LPCWSTR lpString, int c, LPSIZE psizl)
 {
-    int count = MultiByteToWideChar(CP_ACP, 0, lpString, c, NULL, 0);
-    std::wstring wstr(count, 0);
-    MultiByteToWideChar(CP_ACP, 0, lpString, c, &wstr[0], count);
-
     RectF       boundRect;
     PointF      pointF(0.0f, 0.0f);
     StringFormat sf = StringFormat::GenericTypographic();
     Font        font(hdc);
     Graphics* g = get_graphics(hdc);
-    g->MeasureString(wstr.c_str(), c, &font, pointF, &sf, &boundRect);
+    g->MeasureString(lpString, c, &font, pointF, &sf, &boundRect);
 
     psizl->cx = ceil(boundRect.Width);
     psizl->cy = ceil(boundRect.Height);
     return TRUE;
 }
 
+BOOL __stdcall GetTextExtentPoint32A_new(HDC hdc, LPCSTR lpString, int c, LPSIZE psizl)
+{
+    int count = MultiByteToWideChar(CP_ACP, 0, lpString, c, NULL, 0);
+    std::wstring wstr(count, 0);
+    MultiByteToWideChar(CP_ACP, 0, lpString, c, &wstr[0], count);
+
+    return GetTextExtentPoint32W_new(hdc, wstr.c_str(), c, psizl);
+}
+
 COLORREF txt_color = 0;
 
-COLORREF __stdcall SetTextColor_new(HDC hdc, COLORREF color)
+//int cntr = 0;
+
+/*COLORREF __stdcall SetTextColor_new(HDC hdc, COLORREF color)
 {
+    cntr++;
+    if (cntr % 1000 == 0)
+        MessageBox(NULL, "OOOOO", "WWWWW", 0);
+
     COLORREF prev = txt_color;
     txt_color = color;
     return prev;
+}*/
+
+void* text_color_jump_address;
+
+__declspec(naked) void __stdcall set_text_color_jmp()
+{
+    __asm
+    {
+        mov     eax, [esp + 8]
+        mov     txt_color, eax
+        mov     eax, text_color_jump_address
+        jmp     eax
+    }
+}
+
+void make_set_text_color_hook()
+{
+    void* address = GetProcAddress(GetModuleHandle("gdi32.dll"), "SetTextColor");
+    writeWord((DWORD)address, 0xF9EB);
+    writeByte((DWORD)address - 5, 0xE9);
+    writeDword((DWORD)address - 4, (DWORD)set_text_color_jmp - (DWORD)address);
+    text_color_jump_address = (void*)((DWORD)address + 2);
 }
 
 UINT text_align = 0;
+
+BOOL __stdcall TextOutW_new(HDC hdc, int x, int y, LPCWSTR lpString, int c)
+{
+    StringFormat sf = StringFormat::GenericTypographic();
+    if (text_align & TA_RIGHT)
+        sf.SetAlignment(StringAlignmentFar);
+
+    //COLORREF txt_color = RGB(255, 0, 255);
+    SolidBrush  solidBrush(Color(255, GetRValue(txt_color), GetGValue(txt_color), GetBValue(txt_color)));
+    PointF      pointF(x, y);
+    Graphics*   g = get_graphics(hdc);
+    Font        font(hdc);
+    if (font.GetLastStatus() != Ok)
+    {
+        if (!default_font)
+            default_font = new Font(L"System", 10, FontStyle::FontStyleBold);
+        g->DrawString(lpString, c, default_font, pointF, &sf, &solidBrush);
+    }
+    else
+        g->DrawString(lpString, c, &font, pointF, &sf, &solidBrush);
+
+    return TRUE;
+}
 
 BOOL __stdcall TextOutA_new(HDC hdc, int x, int y, LPCSTR lpString, int c)
 {
@@ -166,25 +224,11 @@ BOOL __stdcall TextOutA_new(HDC hdc, int x, int y, LPCSTR lpString, int c)
     std::wstring wstr(count, 0);
     MultiByteToWideChar(CP_ACP, 0, lpString, c, &wstr[0], count);
 
-    StringFormat sf = StringFormat::GenericTypographic();
-    if (text_align & TA_RIGHT)
-        sf.SetAlignment(StringAlignmentFar);
-
-    SolidBrush  solidBrush(Color(255, GetRValue(txt_color), GetGValue(txt_color), GetBValue(txt_color)));
-    PointF      pointF(x, y);
-    Graphics*   g = get_graphics(hdc);
-    Font        font(hdc);
-    g->DrawString(wstr.c_str(), c, &font, pointF, &sf, &solidBrush);
-
-    return TRUE;
+    return TextOutW_new(hdc, x, y, wstr.c_str(), c);
 }
 
-int __stdcall DrawTextA_new(HDC hdc, LPCSTR lpchText, int cchText, LPRECT lprc, UINT format)
+int __stdcall DrawTextW_new(HDC hdc, LPCWSTR lpchText, int cchText, LPRECT lprc, UINT format)
 {
-    int count = MultiByteToWideChar(CP_ACP, 0, lpchText, cchText, NULL, 0);
-    std::wstring wstr(count, 0);
-    MultiByteToWideChar(CP_ACP, 0, lpchText, cchText, &wstr[0], count);
-
     LONG offset_x = 0;
     LONG offset_y = 0;
 
@@ -196,7 +240,7 @@ int __stdcall DrawTextA_new(HDC hdc, LPCSTR lpchText, int cchText, LPRECT lprc, 
     {
         RectF boundRect;
         RectF layoutRect(lprc->left, lprc->top, lprc->right - lprc->left, lprc->bottom - lprc->top);
-        g->MeasureString(wstr.c_str(), cchText, &font, layoutRect, &sf, &boundRect);
+        g->MeasureString(lpchText, cchText, &font, layoutRect, &sf, &boundRect);
 
         if (format & DT_RIGHT)
             offset_x = lprc->right - lprc->left - boundRect.Width;
@@ -211,15 +255,37 @@ int __stdcall DrawTextA_new(HDC hdc, LPCSTR lpchText, int cchText, LPRECT lprc, 
     RectF       rectF(lprc->left + offset_x, lprc->top + offset_y,
         lprc->right - (lprc->left + offset_x), lprc->bottom - (lprc->top + offset_y));
 
+    //COLORREF txt_color = RGB(0, 255, 255);
     SolidBrush  solidBrush(Color(255, GetRValue(txt_color), GetGValue(txt_color), GetBValue(txt_color)));
-    g->DrawString(wstr.c_str(), cchText, &font, rectF, &sf, &solidBrush);
+    g->DrawString(lpchText, cchText, &font, rectF, &sf, &solidBrush);
 
     return 0;
 }
 
+int __stdcall DrawTextA_new(HDC hdc, LPCSTR lpchText, int cchText, LPRECT lprc, UINT format)
+{
+    int count = MultiByteToWideChar(CP_ACP, 0, lpchText, cchText, NULL, 0);
+    std::wstring wstr(count, 0);
+    MultiByteToWideChar(CP_ACP, 0, lpchText, cchText, &wstr[0], count);
+
+    return DrawTextW_new(hdc, wstr.c_str(), cchText, lprc, format);
+}
+
+//NOT IMPLEMENTED
+int __stdcall DrawTextExW_new(HDC hdc, LPWSTR lpchText, int cchText, LPRECT lprc, UINT format, LPDRAWTEXTPARAMS lpdtp)
+{
+    return DrawTextW_new(hdc, lpchText, cchText, lprc, format);
+}
+
+//NOT IMPLEMENTED
 int __stdcall DrawTextExA_new(HDC hdc, LPSTR lpchText, int cchText, LPRECT lprc, UINT format, LPDRAWTEXTPARAMS lpdtp)
 {
-    return DrawTextA_new(hdc, lpchText, cchText, lprc, format);
+    int count = MultiByteToWideChar(CP_ACP, 0, lpchText, cchText, NULL, 0);
+    std::wstring wstr(count, 0);
+    MultiByteToWideChar(CP_ACP, 0, lpchText, cchText, &wstr[0], count);
+
+    return 0;
+    //return DrawTextExW_new(hdc, wstr.c_str(), cchText, lprc, format, lpdtp);
 }
 
 UINT __stdcall SetTextAlign_new(HDC hdc, UINT align)
@@ -229,6 +295,31 @@ UINT __stdcall SetTextAlign_new(HDC hdc, UINT align)
     return prev;
 }
 
+BOOL __stdcall ExtTextOutW_new(HDC hdc, int x, int y, UINT options, const RECT* lprect, LPCWSTR lpString, UINT c, const INT* lpDx)
+{
+    return TextOutW_new(hdc, x, y, lpString, c);
+}
+
+BOOL __stdcall ExtTextOutA_new(HDC hdc, int x, int y, UINT options, const RECT* lprect, LPCSTR lpString, UINT c, const INT* lpDx)
+{
+    int count = MultiByteToWideChar(CP_ACP, 0, lpString, c, NULL, 0);
+    std::wstring wstr(count, 0);
+    MultiByteToWideChar(CP_ACP, 0, lpString, c, &wstr[0], count);
+
+    return ExtTextOutW_new(hdc, x, y, options, lprect, wstr.c_str(), c, lpDx);
+}
+
+DWORD __stdcall GetCharacterPlacementW_new(HDC hdc, LPCWSTR lpString, int nCount, int nMexExtent, LPGCP_RESULTSA lpResults, DWORD dwFlags)
+{
+    return 0;
+}
+
+DWORD __stdcall GetGlyphIndicesW_new(HDC hdc, LPCWSTR lpstr, int c, LPWORD pgi, DWORD fl)
+{
+    return 0;
+}
+
+#pragma optimize( "s", on )
 void setGDIPlusHooks()
 {
     //setHook((void*)0x00472B9C, on_DrawArea_GetDC);
@@ -236,13 +327,26 @@ void setGDIPlusHooks()
 
     setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "SetTextAlign"), SetTextAlign_new);
     setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "TextOutA"), TextOutA_new);
+    setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "TextOutW"), TextOutW_new);
+    //setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "ExtTextOutA"), ExtTextOutA_new);
+    //setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "ExtTextOutW"), ExtTextOutW_new);
     setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "GetTextExtentPoint32A"), GetTextExtentPoint32A_new);
-    setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "SetTextColor"), SetTextColor_new);
+    setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "GetTextExtentPoint32W"), GetTextExtentPoint32W_new);
+    //setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "SetTextColor"), SetTextColor_new);
+
+    make_set_text_color_hook();
+
+    //setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "GetCharacterPlacementW"), GetCharacterPlacementW_new);
+    //setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "GetGlyphIndicesA"), GetGlyphIndicesW_new);
+
     setHook(GetProcAddress(GetModuleHandle("user32.dll"), "DrawTextA"), DrawTextA_new);
+    setHook(GetProcAddress(GetModuleHandle("user32.dll"), "DrawTextW"), DrawTextW_new);
     setHook(GetProcAddress(GetModuleHandle("user32.dll"), "DrawTextExA"), DrawTextExA_new);
+    setHook(GetProcAddress(GetModuleHandle("user32.dll"), "DrawTextExW"), DrawTextExW_new);
 
     //GdiplusStartup
     GdiplusStartupInput gdiplusStartupInput;
 
     Status st = GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 }
+#pragma optimize( "", on )

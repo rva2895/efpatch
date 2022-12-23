@@ -6,7 +6,7 @@
 #include "slp.h"
 #include "palfile.h"
 
-#define RESOLUTION_TOOL_VERSION 100007
+#define RESOLUTION_TOOL_VERSION 100009  //+1 for new ef civs release
 
 void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
 {
@@ -593,6 +593,9 @@ void patchResolution(int x, int y, DRS* drs, bool patch_ef)
             parseSLP(&x0, &x1, &x2, drs, 51150, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51151, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51152, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51153, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51154, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51155, x, y);
 #endif
         }
         else if (y >= 768)
@@ -612,6 +615,9 @@ void patchResolution(int x, int y, DRS* drs, bool patch_ef)
             parseSLP(&x0, &x1, &x2, drs, 51130, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51131, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51132, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51133, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51134, x, y);
+            parseSLP(&x0, &x1, &x2, drs, 51135, x, y);
 #endif
         }
 

@@ -115,6 +115,8 @@
 #include "tooltip.h"
 #include "gdip.h"
 #include "miscbugfix.h"
+#include "editcontrol.h"
+#include "attribute_held.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -201,7 +203,7 @@ void setHooksCC()
     setFlareHooks();
 #endif
 
-    setEditorEnhHooks();
+    setEditorEnhHooks(cd.gameVersion);
 
 #ifndef TARGET_VOOBLY
 #ifndef _CHEATDLL_CC
@@ -276,7 +278,7 @@ void setHooksCC()
 
     //setStatusScreenHooks();
 
-    //setFixedPosHooks();
+    setFixedPosHooks();
 
     if (cd.delinkVolume)
         setMasterVolumeHooks();
@@ -319,8 +321,13 @@ void setHooksCC()
 
     //setResFileHooks();
 
+    setAttributeHeldHooks();
+
     if (cd.textRendering)
         setGDIPlusHooks();
+
+    if (cd.chatBox)
+        setEditControlHooks();
 
     //function hook!
     //setFunctionListHooks();
@@ -530,7 +537,7 @@ _1_5:
 void updateVersionEF()
 {
     //writeByte(0x00689534, 8); //EF 1.7e
-    writeByte(0x00689534, 10); //EF 1.4.2, new format
+    writeByte(0x00689534, 15); //EF 1.5.0, new format
     setHook((void*)0x0042C3D1, verHookEF_v2);
 }
 

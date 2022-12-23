@@ -34,9 +34,6 @@ int save_game__file_size;
 int save_game__rge_fio_bl;
 int save_game__rge_unknown;
 
-int (__thiscall* Game__load_game_data)(void* this_) =
-    (int (__thiscall*)(void*))0x005E92A0;
-
 void setup_data_file_name(const char* data_file)
 {
     strcpy_safe(data_file_name, MAX_PATH, data_file);
@@ -77,13 +74,11 @@ no_data_unload:
 char* ground_to_air_path;
 char* jedi_holo_path;
 
-extern HINSTANCE* hInstance_dll;
-
 void do_setup_dat_file(int use_logo_background, int show_loading_game)
 {
     log("Reloading game data ...");
     //(*(void**)((uint8_t*)*base_game + 0x420)) = NULL;
-    Game__show_status_message(*base_game, "Loading game information ...", NULL, 0, 0, use_logo_background);
+    TRIBE_Game__show_status_message(*(TRIBE_Game**)base_game, "Loading game information...", NULL, 0, 0, use_logo_background);
 
     save_game__handle = *current_handle;
     save_game__compression_buffers = *compression_buffers;
@@ -98,7 +93,7 @@ void do_setup_dat_file(int use_logo_background, int show_loading_game)
 
     unload_game_data();
     log("Unloaded game data");
-    Game__load_game_data(*base_game);
+    TRIBE_Game__load_game_data(*(TRIBE_Game**)base_game);
     log("Loaded game data");
     log("Reloading txt files ...");
 
@@ -140,8 +135,8 @@ void do_setup_dat_file(int use_logo_background, int show_loading_game)
     log("Reloaded txt files");
 
     if (show_loading_game)
-        Game__show_status_message(*base_game, "Loading game ...", NULL, 0, 0, use_logo_background);
-    //Game__close_status_message(*base_game);
+        TRIBE_Game__show_status_message(*(TRIBE_Game**)base_game, "Loading game ...", NULL, 0, 0, use_logo_background);
+    //TRIBE_Game__close_status_message(*base_game);
 }
 
 bool load_data_always = false;
@@ -173,10 +168,14 @@ bool setup_dat_file()
         data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.1\\";
         break;
     case 3:
+        setup_data_file_name(DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.2\\genie_x2.dat");
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.2\\";
+        break;
+    case 4:
         setup_data_file_name(DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat");
         data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT;
         break;
-#if CURRENT_VERSION != 3
+#if CURRENT_VERSION != 4
 #error Must update for new CURRENT_VERSION
 #endif
     default:
@@ -278,10 +277,10 @@ __declspec(naked) void on_tech_tree_button() //00518316
 
 bool __stdcall on_deny_save_game_popup()
 {
-    void* panel = get_top_panel();
+    TPanel* panel = panel_system->currentPanelValue;
     if (current_loaded_version != CURRENT_VERSION)
     {
-        TEasy_Panel__popupOKDialog(panel, "Error", NULL, 450, 100, 1);
+        TEasy_Panel__popupOKDialog((TEasy_Panel*)panel, "Error", NULL, 450, 100, 1);
         return false;
     }
     else

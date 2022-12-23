@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "objpanel.h"
 #include "resgenbldgs.h"
 #include "casts.h"
@@ -13,11 +12,9 @@ extern resGen* resProducersData;
 extern int currentPlayer;
 extern float* resources;
 
-extern void* objPanelPtr;
+extern TRIBE_Panel_Object* objPanelPtr;
 
-extern int(__thiscall* objPanelDrawItem) (void*, int, int, int, int, int, int, int, int);
-
-void __cdecl objPanel(UNIT* unit)
+void __cdecl objPanel(RGE_Static_Object* unit)
 {
     //50731 - SLP in interfac.drs
     //if (unit)
@@ -42,7 +39,7 @@ void __cdecl objPanel(UNIT* unit)
 
     for (int i = 0; i < numberOfResProducers; i++)
     {
-        if (unit->prop_object->id1 == resProducersData[i].unitID)
+        if (unit->master_obj->id == resProducersData[i].unitID)
         {
             if (resProducersData[i].useControlRes)
                 res = resources[resProducersData[i].controlResID];
@@ -76,7 +73,7 @@ void __cdecl objPanel(UNIT* unit)
             }
 
             val = res * 100;
-            objPanelDrawItem(objPanelPtr, localItemCounter++, frame, 6, val, 0, 0, 0, langID);
+            TRIBE_Panel_Object__draw_item(objPanelPtr, localItemCounter++, frame, 6, val, 0, 0, 0, langID);
         }
     }
 
@@ -132,23 +129,16 @@ void __cdecl objPanel(UNIT* unit)
     }*/
 
     //exit if incomplete unit
-    if (unit->state == 0)
+    if (unit->object_state == 0)
         return;
-
-    int (__thiscall* RGE_Static_Object__garrisoned_count)(UNIT * this_) =
-        (int(__thiscall*)(UNIT*))(*((DWORD*)unit->_vfptr + 162));
 
     //exit if has garrison
-    if (RGE_Static_Object__garrisoned_count(unit) > 0)
+    if (unit->vfptr->garrisoned_count(unit) > 0)
         return;
 
-    if (unit->prop_object->type == 80)
+    if (unit->master_obj->master_type == 80)
     {
-        int (__thiscall* TRIBE_Building_Object__work_status)(UNIT* this_, __int16* work_type, __int16* work_target, __int16* progress, char* name, __int16 name_size) =
-            (int (__thiscall*)(UNIT*, __int16*, __int16*, __int16*, char*, __int16))(*((DWORD*)unit->_vfptr + 252));
-
-        bool (__thiscall* TRIBE_Building_Object__production_queue_status)(UNIT* this_, __int16* master_id, __int16* progress) =
-            (bool (__thiscall*)(UNIT*, __int16*, __int16*))0x00557B20;
+        TRIBE_Building_Object* building_obj = (TRIBE_Building_Object*)unit;
 
         __int16 work_type;
         __int16 work_target;
@@ -156,7 +146,7 @@ void __cdecl objPanel(UNIT* unit)
         __int16 master_id;
 
         //exit if working (researching etc)
-        TRIBE_Building_Object__work_status(unit, &work_type, &work_target, &progress, NULL, 0);
+        TRIBE_Building_Object__work_status(building_obj, &work_type, &work_target, &progress, NULL, 0);
         switch (work_type)
         {
         case 0x66:
@@ -169,33 +159,34 @@ void __cdecl objPanel(UNIT* unit)
             break;
         }
         //exit if has units in queue
-        if (TRIBE_Building_Object__production_queue_status(unit, &master_id, &progress))
+        if (TRIBE_Building_Object__production_queue_status(building_obj, &master_id, &progress))
             return;
     }
 
-    if (unit->prop_object->type >= 70)
+    if (unit->master_obj->master_type >= 70)
     {
-        if (unit->prop_object->speed > 0.0f)
+        RGE_Combat_Object* combat_obj = (RGE_Combat_Object*)unit;
+        if (combat_obj->master_obj->speed > 0.0f)
         {
-            val = unit->prop_object->speed * 100;
+            val = combat_obj->master_obj->speed * 100;
             is2ndCol[localItemCounter++] = 1;
-            objPanelDrawItem(objPanelPtr, cntr++, 24, 6, val, 0, 0, 0, 42042);
+            TRIBE_Panel_Object__draw_item(objPanelPtr, cntr++, 24, 6, val, 0, 0, 0, 42042);
         }
 
-        if ((unit->prop_object->reload_time_1 > 0.0f) &&
-            ((unit->prop_object->projectile_unit_id != -1) ||
-            (unit->prop_object->unit_class != 18)))
+        if ((combat_obj->master_obj->speed_of_attack > 0.0f) &&
+            (combat_obj->master_obj->missile_id != -1) ||
+            (combat_obj->master_obj->object_group != 18))
         {
-            val = unit->prop_object->reload_time_1 * 100;
+            val = combat_obj->master_obj->speed_of_attack * 100;
             is2ndCol[localItemCounter++] = 1;
-            objPanelDrawItem(objPanelPtr, cntr++, 30, 6, val, 0, 0, 0, 42043);
+            TRIBE_Panel_Object__draw_item(objPanelPtr, cntr++, 30, 6, val, 0, 0, 0, 42043);
         }
 
-        if (unit->prop_object->blast_radius > 0.0f)
+        if (combat_obj->master_obj->area_effect_range > 0.0f)
         {
-            val = unit->prop_object->blast_radius * 100;
+            val = combat_obj->master_obj->area_effect_range * 100;
             is2ndCol[localItemCounter++] = 1;
-            objPanelDrawItem(objPanelPtr, cntr++, 28, 6, val, 0, 0, 0, 42044);
+            TRIBE_Panel_Object__draw_item(objPanelPtr, cntr++, 28, 6, val, 0, 0, 0, 42044);
         }
 
         UNIT_EXTRA* ud = getUnitExtra(unit);
@@ -205,7 +196,7 @@ void __cdecl objPanel(UNIT* unit)
             {
                 val = ud->miscCounter1 * 100;
                 is2ndCol[localItemCounter++] = 1;
-                objPanelDrawItem(objPanelPtr, cntr++, 29, 6, val, 0, 0, 0, 42050);
+                TRIBE_Panel_Object__draw_item(objPanelPtr, cntr++, 29, 6, val, 0, 0, 0, 42050);
             }
         }
     }

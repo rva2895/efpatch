@@ -5,7 +5,7 @@
 #include "casts.h"
 #include "autosave.h"
 
-#define NEW_COND 5
+#define NEW_COND 6
 
 #define ALLIANCE_ALLY 0
 #define ALLIANCE_NEUTRAL 1
@@ -15,6 +15,7 @@ void conditionPerMilleChance();
 void conditionAreaExplored();
 void conditionAlliance();
 void conditionVariable();
+void conditionPlayerCiv();
 
 const DWORD condJMPTable[] =
 {
@@ -45,7 +46,8 @@ const DWORD condJMPTable[] =
     (DWORD)conditionAreaExplored,
     (DWORD)conditionAlliance,
     (DWORD)conditionVariable,
-    (DWORD)conditionVariable
+    (DWORD)conditionVariable,
+    (DWORD)conditionPlayerCiv
 };
 
 __declspec(naked) void condNotMet()
@@ -71,9 +73,7 @@ __declspec(naked) void conditionPerMilleChance()
 {
     __asm
     {
-        //call    ds:[rand]
-        mov     edx, 00632BDDh
-        call    edx            //rand
+        call    rand_internal
         xor     edx, edx
         mov     edi, 3E8h
         idiv    edi
@@ -86,12 +86,50 @@ cYes:
     }
 }
 
+#define NEW_COND_OFFSET_VAL (0x60 + 4 * NEW_COND)
+
+__declspec(naked) void trigger_system_destroy_conditions() //005F5385
+{
+    __asm
+    {
+        add     esp, 4
+        cmp     edi, NEW_COND_OFFSET_VAL
+        mov     eax, 005F538Bh
+        jmp     eax
+    }
+}
+
+__declspec(naked) void trigger_system_setup_shared_info_1() //005F5500
+{
+    __asm
+    {
+        push    esi
+        push    edi
+        mov     esi, ecx
+        push    NEW_COND_OFFSET_VAL
+        mov     eax, 005F5506h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void trigger_system_setup_shared_info_2() //005F5543
+{
+    __asm
+    {
+        add     edi, 4
+        cmp     edi, NEW_COND_OFFSET_VAL
+        mov     eax, 005F5549h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setConditionNumbers()
 {
-    writeByte(0x005F538A, 0x60 + 4 * NEW_COND);
-    writeByte(0x005F5505, 0x60 + 4 * NEW_COND);
-    writeByte(0x005F5548, 0x60 + 4 * NEW_COND);
+    setHook((void*)0x005F5385, trigger_system_destroy_conditions);
+    setHook((void*)0x005F5500, trigger_system_setup_shared_info_1);
+    setHook((void*)0x005F5543, trigger_system_setup_shared_info_2);
+
     writeByte(0x0053BD77, 0x18 + NEW_COND);
 
     writeByte(0x005F5565, 0x17 + NEW_COND);
@@ -155,6 +193,11 @@ __declspec(naked) void condParams() //005F5DD1
         mov     [edx + 0Ch], cl
         mov     [edx + 0Dh], cl
         mov     [edx + 0Eh], cl
+        mov     [edx + 0Fh], cl
+
+        mov     eax, [esi + 8]
+        mov     edx, [eax + 74h]    //new condition civ
+        mov     [edx + 5], cl
         mov     [edx + 0Fh], cl
 
         mov     eax, [esi + 8]
@@ -493,9 +536,6 @@ _alliance_same:
     }
 }
 
-int(__thiscall* unitContainter_countUnits) (void*, int, int, int, int, int, int, int, int, void*, char) =
-    (int(__thiscall*) (void*, int objListType, int objGroup, int unk2, int x1, int y1, int x2, int y2, int objType, void* unitsVectorPtr, char unk02))0x004AF980;
-
 bool __fastcall compare_null(int, int) { return false; }
 bool __fastcall compare_ge(int v1, int v2) { return v1 >= v2; }
 bool __fastcall compare_g(int v1, int v2) { return v1 > v2; }
@@ -503,39 +543,38 @@ bool __fastcall compare_e(int v1, int v2) { return v1 == v2; }
 
 //////////////
 
-float __fastcall getval_null(UNIT*) { return 0; }
-float __fastcall getval_hp(UNIT* unit) { return unit->hp; }
-float __fastcall getval_sp(UNIT* unit) { return unit->sp; }
-float __fastcall getval_resources(UNIT* unit) { return unit->resources; }
-float __fastcall getval_reload(UNIT* unit) { return *(float*)((int)unit + 0x174); }
+float __fastcall getval_null(RGE_Static_Object*, int) { return 0; }
+float __fastcall getval_hp(RGE_Static_Object* unit, int) { return unit->hp; }
+float __fastcall getval_sp(RGE_Static_Object* unit, int) { return unit->sp; }
+float __fastcall getval_resources(RGE_Static_Object* unit, int) { return unit->attribute_amount_held; }
+float __fastcall getval_reload(RGE_Static_Object* unit, int) { return unit->master_obj->master_type >= 50 ? ((RGE_Combat_Object*)unit)->attack_timer : 0.0f; }
 //float __stdcall getval_constr(UNIT* unit) { return *(float*)((int)unit + 0x230); }
 
-float __fastcall getval_hp_percent(UNIT* unit)
+float __fastcall getval_hp_percent(RGE_Static_Object* unit, int)
 {
-    float maxHP = unit->prop_object->hit_points;
-    return getval_hp(unit) / maxHP * 100;
+    return unit->hp / (float)unit->master_obj->hp * 100;
 }
 
-float __fastcall getval_sp_percent(UNIT* unit)
+float __fastcall getval_sp_percent(RGE_Static_Object* unit, int)
 {
-    float maxHP = unit->prop_object->hit_points;
-    return getval_sp(unit) / maxHP * 100;
+    return unit->sp / (float)unit->master_obj->hp * 100;
 }
 
-float __fastcall getval_garrison(UNIT* unit)
+float __fastcall getval_garrison(RGE_Static_Object* unit, int)
 {
-    int ptr = *(int*)((int)unit + 0x30);
-    if (ptr)
-        return *(int*)(ptr + 4);
-    else
+    RGE_New_Object_List* objects = unit->objects;
+    return objects ? objects->Number_of_objects : 0.0f;
+}
+
+float __fastcall getval_reload_percent(RGE_Static_Object* unit, int)
+{
+    if (unit->master_obj->master_type < 50)
         return 0.0f;
-}
-
-float __fastcall getval_reload_percent(UNIT* unit)
-{
-    int propObj = (int)unit->prop_object;
-    float reloadTime = *(float*)(propObj + 0x150);
-    return getval_reload(unit) / reloadTime * 100;
+    else
+    {
+        RGE_Combat_Object* combat_obj = (RGE_Combat_Object*)unit;
+        return combat_obj->attack_timer / combat_obj->master_obj->speed_of_attack * 100;
+    }
 }
 
 /*float __stdcall getval_constr_percent(UNIT* unit)
@@ -550,7 +589,7 @@ float __fastcall getval_reload_percent(UNIT* unit)
         return 100;
 }*/
 
-float __fastcall getval_counter(UNIT* unit, int c)
+float __fastcall getval_counter(RGE_Static_Object* unit, int c)
 {
     UNIT_EXTRA* ud = getUnitExtra(unit);
     if (ud && (ud->countersUsed))
@@ -579,15 +618,31 @@ float __fastcall getval_counter(UNIT* unit, int c)
         return 0;
 }
 
-float __fastcall getval_counter1(UNIT* unit) { return getval_counter(unit, 1); }
-float __fastcall getval_counter2(UNIT* unit) { return getval_counter(unit, 2); }
-float __fastcall getval_counter3(UNIT* unit) { return getval_counter(unit, 3); }
-float __fastcall getval_counter4(UNIT* unit) { return getval_counter(unit, 4); }
-float __fastcall getval_counter5(UNIT* unit) { return getval_counter(unit, 5); }
-
-bool __stdcall conditionVariable_actual(condition* c, void* player, UNIT* object)
+/*
+float __fastcall getval_action(RGE_Static_Object* unit, int task_id)
 {
-    UNIT* units[0x1000];
+    if (unit->master_obj->master_type >= 40)
+    {
+        RGE_Action_Object* act_obj = (RGE_Action_Object*)unit;
+        RGE_Action_Node* node = act_obj->actions->list;
+        while (node)
+        {
+            if (node->action->action_type == task_id)
+            {
+                char b[0x100];
+                node->action->vfptr->get_state_name(node->action, b);
+                chat(b);
+                return task_id;
+            }
+            node = node->next;
+        }
+    }
+}
+*/
+
+bool __stdcall conditionVariable_actual(condition* c, RGE_Player* player, RGE_Static_Object* object)
+{
+    RGE_Static_Object* units[0x1000];
     memset(units, 0, 0x1000 * 4);
 
     bool(__fastcall* compare) (int, int) = compare_null;
@@ -611,10 +666,12 @@ bool __stdcall conditionVariable_actual(condition* c, void* player, UNIT* object
         units[0] = object;
     }
     else
-        n = unitContainter_countUnits(*(void**)((int)player + 0x78), c->obj_list_type, c->obj_group, 2,
+        n = RGE_Player_Object_List__Count(player->objects, c->obj_list_type, c->obj_group, 2,
             c->area_x1, c->area_y1, c->area_x2, c->area_y2, c->obj_type, units, 0);
 
-    float(__fastcall* getval) (UNIT*) = getval_null;
+    float(__fastcall* getval) (RGE_Static_Object*, int) = getval_null;
+
+    int sub_value = 0;
 
     switch (c->ai_signal)
     {
@@ -643,20 +700,28 @@ bool __stdcall conditionVariable_actual(condition* c, void* player, UNIT* object
         getval = getval_garrison;
         break;
     case 8:
-        getval = getval_counter1;
+        getval = getval_counter;
+        sub_value = 1;
         break;
     case 9:
-        getval = getval_counter2;
+        getval = getval_counter;
+        sub_value = 2;
         break;
     case 10:
-        getval = getval_counter3;
+        getval = getval_counter;
+        sub_value = 3;
         break;
     case 11:
-        getval = getval_counter4;
+        getval = getval_counter;
+        sub_value = 4;
         break;
     case 12:
-        getval = getval_counter5;
+        getval = getval_counter;
+        sub_value = 5;
         break;
+    /*case 13:
+        getval = getval_action;
+        sub_value = c->timer;*/
     default:
         break;
     }
@@ -664,7 +729,7 @@ bool __stdcall conditionVariable_actual(condition* c, void* player, UNIT* object
     int cnt = 0;
 
     for (int i = 0; i < n; i++)
-        if (!(c->trigger & 1) ^ compare(getval(units[i]), c->timer))
+        if (!(c->trigger & 1) ^ compare(getval(units[i], sub_value), c->timer))
             cnt++;
 
     return !(c->trigger & 1) ^ cnt >= c->quantity;
@@ -682,6 +747,19 @@ __declspec(naked) void conditionVariable()
         call    conditionVariable_actual
         test    al, al
         jnz     condMet
+        jmp     condNotMet
+    }
+}
+
+__declspec(naked) void conditionPlayerCiv()
+{
+    __asm
+    {
+        mov     ecx, [esp + 38h]    //player
+        mov     al, [ecx + 161h]
+        mov     ecx, [esi + 48h]
+        cmp     al, cl
+        jz      condMet
         jmp     condNotMet
     }
 }
@@ -723,9 +801,69 @@ _count_garrisoned:
 
 extern void* new_memory_pages;
 
+void* count_objects_limit_normal_continue = (void*)0x004AFAB0;  //+0x130
+void* count_objects_limit_normal_stop = (void*)0x004AFACC;      //+0x14C
+void* count_objects_limit_garrisoned_continue;
+void* count_objects_limit_garrisoned_stop;
+void* count_objects_limit_ungarrisoned_continue;
+void* count_objects_limit_ungarrisoned_stop;
+
+__declspec(naked) void count_objects_limit_normal() //004AFAA9
+{
+    __asm
+    {
+        add     eax, 4
+        mov     [esp + 14h], ecx
+        cmp     ecx, 5400
+        jge     stop_counting
+        mov     ecx, count_objects_limit_normal_continue
+        jmp     ecx
+
+stop_counting:
+        mov     ecx, count_objects_limit_normal_stop
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void count_objects_limit_garrisoned() //004AFAA9
+{
+    __asm
+    {
+        add     eax, 4
+        mov     [esp + 14h], ecx
+        cmp     ecx, 5400
+        jge     stop_counting
+        mov     ecx, count_objects_limit_garrisoned_continue
+        jmp     ecx
+
+stop_counting:
+        mov     ecx, count_objects_limit_garrisoned_stop
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void count_objects_limit_ungarrisoned() //004AFAA9
+{
+    __asm
+    {
+        add     eax, 4
+        mov     [esp + 14h], ecx
+        cmp     ecx, 5400
+        jge     stop_counting
+        mov     ecx, count_objects_limit_ungarrisoned_continue
+        jmp     ecx
+
+stop_counting:
+        mov     ecx, count_objects_limit_ungarrisoned_stop
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void make_counter_functions()
 {
+    setHook((void*)0x004AFAA9, count_objects_limit_normal);
+
     DWORD r;
     unitContainter_countUnits_ungarrisoned = new_memory_pages;
     ReadProcessMemory(GetCurrentProcess(), (void*)0x004AF980, unitContainter_countUnits_ungarrisoned, 0x160, &r);
@@ -736,11 +874,17 @@ void make_counter_functions()
     reloc((BYTE*)unitContainter_countUnits_ungarrisoned + 0x0B9, (void*)0x00632BAC);
     reloc((BYTE*)unitContainter_countUnits_ungarrisoned + 0x0D9, (void*)0x00632BAC);
     reloc((BYTE*)unitContainter_countUnits_ungarrisoned + 0x0E7, (void*)0x00632BAC);
+    reloc((BYTE*)unitContainter_countUnits_ungarrisoned + 0x12A, count_objects_limit_ungarrisoned);
+    count_objects_limit_ungarrisoned_continue = (void*)((DWORD)unitContainter_countUnits_ungarrisoned + 0x130);
+    count_objects_limit_ungarrisoned_stop = (void*)((DWORD)unitContainter_countUnits_ungarrisoned + 0x14C);
 
     reloc((BYTE*)unitContainter_countUnits_garrisoned + 0x0AB, (void*)0x00632BAC);
     reloc((BYTE*)unitContainter_countUnits_garrisoned + 0x0B9, (void*)0x00632BAC);
     reloc((BYTE*)unitContainter_countUnits_garrisoned + 0x0D9, (void*)0x00632BAC);
     reloc((BYTE*)unitContainter_countUnits_garrisoned + 0x0E7, (void*)0x00632BAC);
+    reloc((BYTE*)unitContainter_countUnits_garrisoned + 0x12A, count_objects_limit_garrisoned);
+    count_objects_limit_garrisoned_continue = (void*)((DWORD)unitContainter_countUnits_garrisoned + 0x130);
+    count_objects_limit_garrisoned_stop = (void*)((DWORD)unitContainter_countUnits_garrisoned + 0x14C);
 
     setHook((char*)unitContainter_countUnits_ungarrisoned + 0x0A3, (char*)unitContainter_countUnits_ungarrisoned + 0x134);
     setHook((char*)unitContainter_countUnits_garrisoned + 0x0D1, (char*)unitContainter_countUnits_garrisoned + 0x134);

@@ -78,12 +78,12 @@ los_recycle_no_free:
     }
 }
 
-bool __stdcall is_los_save_option_enabled(UNIT* unit)
+bool __stdcall is_los_save_option_enabled(RGE_Static_Object* unit)
 {
-    return *((unsigned char*)unit->player + 0x21) >= 0xD;
+    return *((unsigned char*)unit->owner + 0x21) >= 0xD;
 }
 
-bool __stdcall is_los_save_option_enabled2(void* player)
+bool __stdcall is_los_save_option_enabled2(RGE_Player* player)
 {
     return *((unsigned char*)player + 0x21) >= 0xD;
 }
@@ -204,6 +204,8 @@ __declspec(naked) void los_write_save_this_fix() //0054F757
 
 void __stdcall explore_log(bool explore, bool sq, int* tx1, int* ty1, int* tx2, int* ty2, int* radius, int* Square, UNIT_LOS_DATA** los_data)
 {
+    UNREFERENCED_PARAMETER(tx2);
+    UNREFERENCED_PARAMETER(ty2);
     /*
     //if (!no_fog_log)
     //if (obj == 9350 10813)
@@ -469,8 +471,7 @@ __declspec(naked) void visible_map_constructor1_1() //006151EF
     {
         shl     eax, 1
         push    eax
-        mov     eax, 00632D33h
-        call    eax //_calloc
+        call    calloc_internal
         mov     [esi + 10h], eax
         mov     eax, [esi + 18h]
         //shl     eax, 1
@@ -514,8 +515,7 @@ __declspec(naked) void visible_map_constructor2_1() //006152FE
     {
         shl     eax, 1
         push    eax
-        mov     eax, 00632D33h
-        call    eax //_calloc
+        call    calloc_internal
         //mov     ecx, 00615304h
         //jmp     ecx
         push    00615304h
@@ -539,7 +539,7 @@ __declspec(naked) void visible_map_constructor2_2() //00615324
     }
 }
 
-void __stdcall read_visible_map(int x, int y, unsigned __int16* visible_map, void* player, void* infile)
+void __stdcall read_visible_map(int x, int y, unsigned __int16* visible_map, RGE_Player* player, void* infile)
 {
     if (is_los_save_option_enabled2(player))
         deflate_read(infile, visible_map, x * y * 2);
@@ -574,7 +574,7 @@ __declspec(naked) void visible_map_constructor2_3() //00615335
     }
 }
 
-void __stdcall write_visible_map(int x, int y, unsigned __int16* visible_map, void* player, void* outfile)
+void __stdcall write_visible_map(int x, int y, unsigned __int16* visible_map, RGE_Player* player, void* outfile)
 {
     if (is_los_save_option_enabled2(player))
         deflate_write(outfile, visible_map, x * y * 2);

@@ -91,7 +91,7 @@ BYTE jump_directsoundcreate[6];
 
 void initDsoundhook ()
 {
-    log ("Initialising DirectSound Hook...");
+    log ("Initializing DirectSound Hook...");
 
     buffers = (buffer*) malloc (sizeof(buffer)*1000);
 

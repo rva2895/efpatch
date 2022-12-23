@@ -14,7 +14,7 @@ bool __stdcall get_new_pathing_delay_behavior(void* player)
     }
 }
 
-int __stdcall WorldPlayerBase__availablePathingAttempts_new(UNIT* pathing_unit, void* player, int numWaitDelays)
+int __stdcall WorldPlayerBase__availablePathingAttempts_new(RGE_Static_Object* pathing_unit, RGE_Player* player, int numWaitDelays)
 {
     bool try_low_pathing_delay = (*((unsigned char*)player + 0xA0) && get_new_pathing_delay_behavior(player)) ? true : false;
 
@@ -22,7 +22,7 @@ int __stdcall WorldPlayerBase__availablePathingAttempts_new(UNIT* pathing_unit, 
 
     if (try_low_pathing_delay)
     {
-        switch (pathing_unit->prop_object->unit_class)
+        switch (pathing_unit->master_obj->object_group)
         {
         case 11: //cruiser
         case 13: //destroyer

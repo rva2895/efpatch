@@ -5,7 +5,7 @@ __declspec(naked) void on_do_command_guard() //0044C436
 {
     __asm
     {
-        call    BaseWorld__object
+        call    RGE_Game_World__object
         test    eax, eax
         jz      guard_bad_object
         mov     ecx, 0044C43Bh
@@ -21,7 +21,7 @@ __declspec(naked) void on_do_command_follow() //0044C5B6
 {
     __asm
     {
-        call    BaseWorld__object
+        call    RGE_Game_World__object
         test    eax, eax
         jz      follow_bad_object
         mov     ecx, 0044C5BBh

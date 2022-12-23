@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "miscbugfix.h"
 
-
 __declspec(naked) void annex_unit_crash_mitigation() //00555640
 {
     __asm
@@ -52,23 +51,6 @@ __declspec(naked) void error_txt_fopen_fix() //0048F7BD
 skip_error_txt_write:
         mov     eax, 0048F7D7h
         jmp     eax
-    }
-}
-
-__declspec(naked) void count_objects_limit() //004AFAA9
-{
-    __asm
-    {
-        add     eax, 4
-        mov     [esp + 14h], ecx
-        cmp     ecx, 5400
-        jge     stop_counting
-        mov     ecx, 004AFAB0h
-        jmp     ecx
-
-stop_counting:
-        mov     ecx, 004AFACCh
-        jmp     ecx
     }
 }
 
@@ -141,11 +123,11 @@ void setMiscBugfixHooks()
 
     //remove high graphics fambaa ring
     writeByte(0x0061F4A4, 0xEB);
-
-    //limit object count function to 5400
-    setHook((void*)0x004AFAA9, count_objects_limit);
-
+    
     //chat stutter
     setHook((void*)0x004CD00A, chat_stutter_fix);
+
+    //high civ UI fix
+    writeByte(0x004FDB68, 0);
 }
 #pragma optimize( "", on )

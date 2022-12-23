@@ -27,19 +27,34 @@ void initBldgResProdList(const char* prefix, const char* filename)
         }
         while (fscanf(f, "%d %d %c %d", &id, &res, &c, &value) > 0)
         {
-            numberOfResProducers++;
-            resProducersData = (resGen*)realloc(resProducersData, numberOfResProducers * sizeof(resGen));
-            resProducersData[numberOfResProducers - 1].unitID = id;
-            resProducersData[numberOfResProducers - 1].resID = res;
-            if (c == 'f')
+            resGen resgen_entry;
+            memset(&resgen_entry, 0, sizeof(resGen));
+            bool resgen_entry_valid;
+            switch (c)
             {
-                resProducersData[numberOfResProducers - 1].useControlRes = 0;
-                resProducersData[numberOfResProducers - 1].constantResAmount = value;
+            case 'f':
+            case 'c':
+                resgen_entry.useControlRes = 0;
+                resgen_entry.constantResAmount = value;
+                resgen_entry_valid = true;
+                break;
+            case 'r':
+                resgen_entry.useControlRes = 1;
+                resgen_entry.controlResID = value;
+                resgen_entry_valid = true;
+                break;
+            default:
+                log("Error: invalid resgen option '%c'", c);
+                resgen_entry_valid = false;
+                break;
             }
-            else
+            if (resgen_entry_valid)
             {
-                resProducersData[numberOfResProducers - 1].useControlRes = 1;
-                resProducersData[numberOfResProducers - 1].controlResID = value;
+                numberOfResProducers++;
+                resProducersData = (resGen*)realloc(resProducersData, numberOfResProducers * sizeof(resGen));
+                resgen_entry.unitID = id;
+                resgen_entry.resID = res;
+                resProducersData[numberOfResProducers - 1] = resgen_entry;
             }
         }
 

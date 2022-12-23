@@ -7,7 +7,7 @@ char ver[4];
 #define EXE_PATCH_VERSION "N/A"
 #endif
 
-void __stdcall displayVersionError(void* ptr)
+void __stdcall displayVersionError(TEasy_Panel* ptr)
 {
     char buf[0x100];
     char s2[0x100];
@@ -65,6 +65,7 @@ __declspec(naked) void onGetSaveGameVersion() //0061D9A5
 #pragma optimize( "s", on )
 void setSaveGameVerHooks(bool datap)
 {
+    UNREFERENCED_PARAMETER(datap);
     //if (datap)
     //    writeData(0x0069E568, EXE_PATCH_VERSION, strlen(EXE_PATCH_VERSION) + 1);
     setHook((void*)0x0050AD06, onResult);

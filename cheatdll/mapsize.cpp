@@ -699,6 +699,7 @@ __declspec(naked) void p7_() //004BEB9E
     }
 }
 
+#pragma optimize( "s", on )
 void fix_sub_4be980()
 {
     writeDword(0x004BEC4C, (DWORD)&p3_x);
@@ -709,6 +710,7 @@ void fix_sub_4be980()
     
     //writeByte(0x004BEBC4, 16);
 }
+#pragma optimize( "", on )
 
 void __stdcall map_init()
 {
@@ -1022,8 +1024,7 @@ __declspec(naked) void ai_findres_save() //0058670C
         push    1
         lea     edx, [ecx + ebp + 7]
         mov     ecx, esi
-        mov     eax, 004D5790h
-        call    eax
+        call    deflate_write
         mov     edx, [edi - 20h]
         push    4
         mov     ecx, esi
@@ -1040,8 +1041,7 @@ __declspec(naked) void ai_findres_load() //00584A5A
         push    1
         mov     ecx, ebp
         lea     edx, [eax + ebx + 7]
-        mov     eax, 004D5550h
-        call    eax
+        call    deflate_read
         mov     ecx, [edi - 20h]
         push    4
         lea     edx, [ecx + ebx + 8]

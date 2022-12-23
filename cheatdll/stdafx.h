@@ -5,11 +5,6 @@
 
 #pragma once
 
-#ifdef TARGET_VOOBLY
-//#define CHEATDLL_NOLOG
-
-#endif
-
 #include "targetver.h"
 
 //#define WIN32_LEAN_AND_MEAN             // Исключите редко используемые компоненты из заголовков Windows
@@ -27,15 +22,19 @@
 #include <string.h>
 
 #include "consts.h"
-#include "common.h"
 #ifdef TARGET_VOOBLY
 #include "iuserpatch.h"
 #endif
-#include "structs.h"
 #include "log.h"
+
+#include "src\idb\idb_types.h"
+#include "src\idb\idb_functions.h"
+
+#include "structs.h"
+#include "common.h"
 
 #define ZLIB_WINAPI
 
 //#define CHEATDLL_NOLOG
 
-#define EFPATCH_VERSION "EFPATCH for EF v1.4.2 (1.4.2.7) " __DATE__ " " __TIME__
+#define EFPATCH_VERSION "EFPATCH for EF v1.5.0-rc2 (1.4.2.9) " __DATE__ " " __TIME__

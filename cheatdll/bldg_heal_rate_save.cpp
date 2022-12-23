@@ -10,8 +10,7 @@ __declspec(naked) void bldg_master_small_save() //005C750D
         push    4
         lea     edx, [esi + 218h]
         mov     ecx, edi
-        mov     eax, 004D5790h
-        call    eax //rge_write
+        call    deflate_write
 
         pop     edi
         pop     esi
@@ -29,8 +28,7 @@ __declspec(naked) void bldg_master_small_read() //005C72AF
         mov     ecx, [esp + 0Ch]
         push    4
         lea     edx, [esi + 218h]
-        mov     eax, 004D5550h
-        call    eax //rge_read
+        call    deflate_read
 
 skip_bldg_small_save_read:
         pop     edi

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "tooltip.h"
 
-void __stdcall parse_tooltip_text(char* str, int string_id, UNIT* object)
+void __stdcall parse_tooltip_text(char* str, int string_id, RGE_Static_Object* object)
 {
     char buf[1024];
     if (object)
@@ -9,13 +9,16 @@ void __stdcall parse_tooltip_text(char* str, int string_id, UNIT* object)
         switch (string_id)
         {
         case 43024:
-            strcpy_safe(buf, _countof(buf), str);
-            snprintf(str, 1024, "%s\nAttack bonuses:", buf);
-            for (int i = 0; i < object->prop_object->attacks_count; i++)
+            if (object->master_obj->master_type >= 50)
             {
-                snprintf(buf, _countof(buf), "\nClass %hd, value %hd",
-                    object->prop_object->attacks_ptr[i].class_id, object->prop_object->attacks_ptr[i].value);
-                strcat_s(str, 1024, buf);
+                strcpy_safe(buf, _countof(buf), str);
+                snprintf(str, 1024, "%s\nAttack bonuses:", buf);
+                for (int i = 0; i < ((RGE_Combat_Object*)object)->master_obj->weapon_num; i++)
+                {
+                    snprintf(buf, _countof(buf), "\nClass %hd, value %hd",
+                        ((RGE_Combat_Object*)object)->master_obj->weapon->type, ((RGE_Combat_Object*)object)->master_obj->weapon->value);
+                    strcat_s(str, 1024, buf);
+                }
             }
             break;
         default:

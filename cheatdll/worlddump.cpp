@@ -57,40 +57,6 @@ void __cdecl printf_if_exists(FILE* f, char* format, ...)
     }
 }
 
-__declspec(naked) UNIT* __stdcall RGE_Action_Object__get_target_obj(void* unit)
-{
-    __asm
-    {
-        mov     ecx, [esp + 4]
-        mov     eax, [ecx]
-        call    dword ptr [eax + 148h]
-        retn    4
-    }
-}
-
-__declspec(naked) unsigned int __stdcall RGE_Action_Object__get_action_checksum(void* unit)
-{
-    __asm
-    {
-        mov     ecx, [esp + 4]
-        mov     eax, [ecx]
-        call    dword ptr [eax + 27Ch]
-        retn    4
-    }
-}
-
-__declspec(naked) unsigned int __stdcall RGE_Action_Object__get_waypoint_checksum(void* unit)
-{
-    __asm
-    {
-        mov     ecx, [esp + 4]
-        mov     eax, [ecx]
-        call    dword ptr [eax + 280h]
-        retn    4
-    }
-}
-
-
 __declspec(naked) char __stdcall get_n_players()
 {
     __asm
@@ -104,7 +70,7 @@ __declspec(naked) char __stdcall get_n_players()
     }
 }
 
-__declspec(naked) void** __stdcall get_players()
+__declspec(naked) RGE_Player** __stdcall get_players()
 {
     __asm
     {
@@ -117,29 +83,9 @@ __declspec(naked) void** __stdcall get_players()
     }
 }
 
-__declspec(naked) int __fastcall get_player_units_count(void*)
-{
-    __asm
-    {
-        mov     ecx, [ecx + 78h]
-        mov     eax, [ecx + 8]
-        ret
-    }
-}
-
-__declspec(naked) UNIT** __fastcall get_player_units(void*)
-{
-    __asm
-    {
-        mov     ecx, [ecx + 78h]
-        mov     eax, [ecx + 4]
-        ret
-    }
-}
-
 int __cdecl compare_unit_ordinal(const void* u1, const void* u2)
 {
-    return ((*(UNIT**)u1)->ordinal - (*(UNIT**)u2)->ordinal);
+    return ((*(RGE_Static_Object**)u1)->id - (*(RGE_Static_Object**)u2)->id);
 }
 
 unsigned int dump_objects(const char* filename)
@@ -152,7 +98,7 @@ unsigned int dump_objects(const char* filename)
     {
         printf_if_exists(dump_file, "Out Of Sync world dump, worldtime=%d\n\n", get_gametime2());
         unsigned int game_checksum = 0;
-        void** players = get_players();
+        RGE_Player** players = get_players();
         int n_players = get_n_players();
         for (int p = 0; p < n_players; p++)
             if (players[p])
@@ -179,56 +125,56 @@ unsigned int dump_objects(const char* filename)
                 }
                 printf_if_exists(dump_file, "  Objects:\n");
 
-                int n = get_player_units_count(players[p]);
+                int n = players[p]->objects->Number_of_objects;
                 if (n > 0)
                 {
-                    UNIT** units_unsorted = get_player_units(players[p]);
-                    UNIT** units = new UNIT * [n];
-                    memcpy(units, units_unsorted, sizeof(UNIT*) * n);
-                    qsort(units, n, sizeof(UNIT*), compare_unit_ordinal);
+                    RGE_Static_Object** units_unsorted = players[p]->objects->List;
+                    RGE_Static_Object** units = new RGE_Static_Object * [n];
+                    memcpy(units, units_unsorted, sizeof(RGE_Static_Object*) * n);
+                    qsort(units, n, sizeof(RGE_Static_Object*), compare_unit_ordinal);
                     for (int i = 0; i < n; i++)
                     {
                         unsigned int unit_checksum = 0;
                         printf_if_exists(dump_file, "    %d: x=%.4f, y=%.4f, hp=%.2f, sp=%.2f, r=%d, res=%.2f, unk50=%.2f, st=%d, id=%d\n",
-                            units[i]->ordinal,
-                            units[i]->x,
-                            units[i]->y,
+                            units[i]->id,
+                            units[i]->world_x,
+                            units[i]->world_y,
                             units[i]->hp,
                             units[i]->sp,
-                            (int)units[i]->rotation,
-                            units[i]->resources,
-                            units[i]->unk50 * 100,
-                            (int)units[i]->state,
-                            (int)units[i]->prop_object->id1);
+                            (int)units[i]->facet,
+                            units[i]->attribute_amount_held,
+                            units[i]->world_z * 100,
+                            (int)units[i]->object_state,
+                            (int)units[i]->master_obj->id);
                         unit_checksum +=
-                            units[i]->ordinal +
-                            units[i]->x * 10000 +
-                            units[i]->y * 10000 +
+                            units[i]->id +
+                            units[i]->world_x * 10000 +
+                            units[i]->world_y * 10000 +
                             units[i]->hp * 100 +
                             units[i]->sp * 100 +
-                            units[i]->rotation +
-                            units[i]->resources * 100 +
-                            units[i]->unk50 * 100 +
-                            units[i]->state +
-                            units[i]->prop_object->id1;
+                            units[i]->facet +
+                            units[i]->attribute_amount_held * 100 +
+                            units[i]->world_z * 100 +
+                            units[i]->object_state +
+                            units[i]->master_obj->id;
 
-                        UNIT* target = RGE_Action_Object__get_target_obj(units[i]);
+                        RGE_Static_Object* target = units[i]->vfptr->get_target_obj(units[i]);
                         if (target)
                         {
                             /*if (target->prop_object->unit_class == 8 && target->player != units[i]->player)
                             {
                                 chat("Unit %d target gate %d", units[i]->ordinal, target->ordinal);
                             }*/
-                            printf_if_exists(dump_file, "      tar=%d\n", target->ordinal);
-                            unit_checksum += target->ordinal;
+                            printf_if_exists(dump_file, "      tar=%d\n", target->id);
+                            unit_checksum += target->id;
                         }
-                        unsigned int action_checksum = RGE_Action_Object__get_action_checksum(units[i]);
+                        int action_checksum = units[i]->vfptr->get_action_checksum(units[i]);
                         if (action_checksum)
                         {
                             printf_if_exists(dump_file, "      act_cs=%d\n", action_checksum);
                             unit_checksum += action_checksum;
                         }
-                        unsigned int waypoint_checksum = RGE_Action_Object__get_waypoint_checksum(units[i]);
+                        int waypoint_checksum = units[i]->vfptr->get_waypoint_checksum(units[i]);
                         if (waypoint_checksum)
                         {
                             printf_if_exists(dump_file, "      wp_cs=%d\n", waypoint_checksum);
@@ -495,20 +441,20 @@ __declspec(naked) void __stdcall flush_stack()
     }
 }
 
-void __stdcall unit_update_log_before(UNIT* unit)
+void __stdcall unit_update_log_before(RGE_Static_Object* unit)
 {
-    if ((get_gametime2() == 527900) && (unit->ordinal == 4325))
+    if ((get_gametime2() == 527900) && (unit->id == 4325))
     {
-        wp_cs = RGE_Action_Object__get_waypoint_checksum(unit);
+        wp_cs = unit->vfptr->get_waypoint_checksum(unit);
         print_stats = true;
     }
 }
 
-void __stdcall unit_update_log_after(UNIT* unit)
+void __stdcall unit_update_log_after(RGE_Static_Object* unit)
 {
     if (print_stats)
     {
-        chat("Before update: wp_cs=%u, after update: wp_cs=%u", wp_cs, RGE_Action_Object__get_waypoint_checksum(unit));
+        chat("Before update: wp_cs=%u, after update: wp_cs=%u", wp_cs, unit->vfptr->get_waypoint_checksum(unit));
         print_stats = false;
     }
 }
@@ -583,12 +529,12 @@ __declspec(naked) void unit_update_test3() //004098EA
     }
 }
 
-void __stdcall check_action(unsigned int* action)
+void __stdcall check_action(RGE_Action* action)
 {
-    if (*action == 0x00654D5C) //move to
+    if (action->vfptr == (void*)0x00654D5C) //move to
     {
-        UNIT* unit = *(UNIT**)(action + 2);
-        if (unit && unit->ordinal == 4325)
+        RGE_Action_Object* unit = action->obj;
+        if (unit && unit->id == 4325)
         {
             FILE* f = fopen("act_log.txt", "at");
             if (f)
@@ -601,9 +547,9 @@ void __stdcall check_action(unsigned int* action)
     }
 }
 
-void __stdcall check_create_action(UNIT* unit, unsigned int action, unsigned int* stack)
+void __stdcall check_create_action(RGE_Action_Object* unit, RGE_Action* action, unsigned int* stack)
 {
-    if (unit && unit->ordinal == 4325 /*&& get_gametime2() == 527900*/)
+    if (unit && unit->id == 4325 /*&& get_gametime2() == 527900*/)
     {
         FILE* f = fopen("act_log.txt", "at");
         if (f)
@@ -614,7 +560,7 @@ void __stdcall check_create_action(UNIT* unit, unsigned int action, unsigned int
                 fprintf(f, "  %08X\n", *stack++);
             fclose(f);
         }
-        if (get_gametime2() == 527900 && unit->ordinal == 4325)
+        if (get_gametime2() == 527900 && unit->id == 4325)
             __debugbreak();
     }
 }
@@ -676,7 +622,7 @@ WORLD_DUMP::WORLD_DUMP()
     if (worldtime >= 0)
     {
         cs = 0;
-        void** players_ptr = get_players();
+        RGE_Player** players_ptr = get_players();
         int n_players = get_n_players();
         players.reserve(n_players);
         for (int p = 0; p < n_players; p++)
@@ -693,34 +639,34 @@ WORLD_DUMP::WORLD_DUMP()
                     player.resources.push_back(resources[i]);
 
                 //Objects
-                int n = get_player_units_count(players_ptr[p]);
+                int n = players_ptr[p]->objects->Number_of_objects;
                 if (n > 0)
                 {
-                    UNIT** units = get_player_units(players_ptr[p]);
+                    RGE_Static_Object** units = players_ptr[p]->objects->List;
                     player.objects.reserve(n);
                     for (int i = 0; i < n; i++)
                     {
                         object_info object;
                         object.cs = 0;
 
-                        object.id = units[i]->ordinal;
-                        object.x = units[i]->x;
-                        object.y = units[i]->y;
+                        object.id = units[i]->id;
+                        object.x = units[i]->world_x;
+                        object.y = units[i]->world_y;
                         object.hp = units[i]->hp;
                         object.sp = units[i]->sp;
-                        object.unk50 = units[i]->unk50;
-                        object.state = units[i]->state;
-                        object.rotation = units[i]->rotation;
-                        object.resources = units[i]->resources;
-                        object.unit_id = units[i]->prop_object->id1;
+                        object.unk50 = units[i]->world_z;
+                        object.state = units[i]->object_state;
+                        object.rotation = units[i]->facet;
+                        object.resources = units[i]->attribute_amount_held;
+                        object.unit_id = units[i]->master_obj->id;
 
-                        UNIT* target = RGE_Action_Object__get_target_obj(units[i]);
+                        RGE_Static_Object* target = units[i]->vfptr->get_target_obj(units[i]);
                         if (target)
-                            object.target = target->ordinal;
+                            object.target = target->id;
                         else
                             object.target = 0;
-                        object.act_cs = RGE_Action_Object__get_action_checksum(units[i]);
-                        object.wp_cs = RGE_Action_Object__get_waypoint_checksum(units[i]);
+                        object.act_cs = units[i]->vfptr->get_action_checksum(units[i]);
+                        object.wp_cs = units[i]->vfptr->get_waypoint_checksum(units[i]);
                         
                         player.objects.push_back(object);
                     }

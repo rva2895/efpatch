@@ -1,23 +1,6 @@
 #include "stdafx.h"
 #include "techtree_ui.h"
 
-void (__thiscall* const TribeTechHelpScreen__reposition_screen_components)(void* this_) =
-    (void (__thiscall* const)(void*))0x0046CCA0;
-
-#pragma warning(push)
-#pragma warning(disable:4100)
-__declspec(naked) void __fastcall tech_tree_set_redraw(void* tech_tree)
-{
-    __asm
-    {
-        mov     eax, [ecx]
-        push    1
-        call    dword ptr [eax + 2Ch]
-        ret
-    }
-}
-#pragma warning(pop)
-
 int get_tech_tree_width(void* tech_tree)
 {
     return *((int*)tech_tree + 0x375);
@@ -84,7 +67,7 @@ void tech_tree_scroll_left(void* tech_tree)
     tech_tree_verify_pos(tech_tree);
 }
 
-bool __stdcall handle_tech_tree_key(int key, __int16 count, int alt_key, int ctrl_key, int shift_key, void* tech_tree)
+bool __stdcall handle_tech_tree_key(int key, __int16 count, int alt_key, int ctrl_key, int shift_key, TribeTechHelpScreen* tech_tree)
 {
     bool result = false;
 
@@ -95,25 +78,25 @@ bool __stdcall handle_tech_tree_key(int key, __int16 count, int alt_key, int ctr
         case VK_HOME:
             tech_tree_set_left(tech_tree);
             TribeTechHelpScreen__reposition_screen_components(tech_tree);
-            tech_tree_set_redraw(tech_tree);
+            ((TPanel*)tech_tree)->vfptr->set_redraw((TPanel*)tech_tree, 1);
             result = true;
             break;
         case VK_END:
             tech_tree_set_right(tech_tree);
             TribeTechHelpScreen__reposition_screen_components(tech_tree);
-            tech_tree_set_redraw(tech_tree);
+            ((TPanel*)tech_tree)->vfptr->set_redraw((TPanel*)tech_tree, 1);
             result = true;
             break;
         case VK_PRIOR:
             tech_tree_scroll_left(tech_tree);
             TribeTechHelpScreen__reposition_screen_components(tech_tree);
-            tech_tree_set_redraw(tech_tree);
+            ((TPanel*)tech_tree)->vfptr->set_redraw((TPanel*)tech_tree, 1);
             result = true;
             break;
         case VK_NEXT:
             tech_tree_scroll_right(tech_tree);
             TribeTechHelpScreen__reposition_screen_components(tech_tree);
-            tech_tree_set_redraw(tech_tree);
+            ((TPanel*)tech_tree)->vfptr->set_redraw((TPanel*)tech_tree, 1);
             result = true;
             break;
         default:

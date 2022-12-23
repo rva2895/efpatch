@@ -417,8 +417,8 @@ bool CUserPatch::OnChatMessage(const char *text)
             if (unit)
             {
                 void* player = getCurrentPlayer();
-                WorldPlayerBase__unselect_object(player);
-                WorldPlayerBase__select_object(player, unit, 1);
+                RGE_Player__unselect_object(player);
+                RGE_Player__select_object(player, unit, 1);
             }
             else
                 chat("Invalid object id");
@@ -432,7 +432,7 @@ bool CUserPatch::OnChatMessage(const char *text)
         float x, y;
         sscanf(text, "%s %f %f", d, &x, &y);
         void* player = getCurrentPlayer();
-        WorldPlayerBase__set_view_loc(player, x, y, 0);
+        RGE_Player__set_view_loc(player, x, y, 0);
         return true;
     }*/
     /*if (strstr(text, "/cs"))

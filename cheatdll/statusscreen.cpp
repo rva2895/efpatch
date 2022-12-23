@@ -12,7 +12,7 @@ __declspec(naked) void onStatusLoadSave() //005EC5F9
     __asm
     {
         push    edi
-        mov     edi, 004B4D60h //PanelSystem__destroyPanelIfExists
+        mov     edi, TPanelSystem__destroyPanel
         push    aGameScreen
         mov     ecx, 006ADBB8h
         mov     [ebp + 17B4h], ebx
@@ -57,7 +57,7 @@ __declspec(naked) void onStatusQuitGame() //005E8EF8
         push    edi
         push    ecx
 
-        mov     edi, 004B4D60h //PanelSystem__destroyPanelIfExists
+        mov     edi, TPanelSystem__destroyPanel
 
         push    ebx
         push    offset aBlankScreen

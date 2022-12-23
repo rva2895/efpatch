@@ -41,6 +41,7 @@ struct CONFIG_DATA
     int delinkVolume;
     int keydown;
     int textRendering;
+    int chatBox;
     int modCount;
     char** mods;
 

@@ -1,13 +1,17 @@
 #include "stdafx.h"
 
 #include <regex>
+#include <map>
 #include "effects.h"
 #include "advtriggereffect.h"
 #include "triggerdesc.h"
 
+extern std::map<const std::string, const CHANGE_UNIT_MASTER_PARAMS&> unit_master_lookup_table;
+
 char* s;
 
 extern const char* resourceNames[];
+extern const char* civ_names[];
 
 const char* condNames[] =
 {
@@ -40,7 +44,8 @@ const char* condNames[] =
     "Area Explored",
     "Alliance",
     "Var",
-    "Var"
+    "Var",
+    "Civ",
 #endif
 };
 
@@ -174,6 +179,11 @@ void __stdcall c_var(condition* p, int)
     sprintf(s + strlen(s), " (%s %s %d)", var_names[p->ai_signal], op, p->timer);
 }
 
+void __stdcall c_civ(condition* p, int)
+{
+    sprintf(s + strlen(s), " (P%d: %s)", p->player, civ_names[p->ai_signal - 1]);
+}
+
 void(__stdcall* condPrint[]) (condition*, int) =
 {
     c_default, //none
@@ -205,7 +215,8 @@ void(__stdcall* condPrint[]) (condition*, int) =
     c_quantity, //area explored
     c_alliance_state, //alliance state
     c_var, //var ge
-    c_var //var e
+    c_var, //var e
+    c_civ //player civ
 #endif
 };
 
@@ -343,25 +354,24 @@ bool check_data(char* str_)
         {
             h_sub = h[2];
             match = h_sub.str();
-            master_data_types type;
-            uint32_t i = getArrayIndex(match.c_str(), &type);
-            if (i == UINT32_MAX)
+            std::map<const std::string, const CHANGE_UNIT_MASTER_PARAMS&>::iterator r2 = unit_master_lookup_table.find(match);
+            if (r2 != unit_master_lookup_table.end())
             {
-                if ((match == "Attack") || (match == "Armor"))
+                if ((*r2).second.val_type == T_ARMOR_CLASS)
                 {
                     h_sub = h[3];
                     match = h_sub.str();
                     return match.length() > 0;
                 }
                 else
-                    return false;
+                {
+                    h_sub = h[3];
+                    match = h_sub.str();
+                    return match.length() == 0;
+                }
             }
             else
-            {
-                h_sub = h[3];
-                match = h_sub.str();
-                return match.length() == 0;
-            }
+                return false;
         }
         else
             return false;

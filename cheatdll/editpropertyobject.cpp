@@ -4,48 +4,28 @@
 #include "editpropertyobject.h"
 #include "advtriggereffect.h"
 
-#pragma warning(push)
-#pragma warning(disable:4100)
-__declspec(naked) void* __stdcall getPropertyObject(int player, int unitID)
+void __stdcall changePropertyObject_do_call(int player_id, int object_id, const char* s)
 {
-    __asm
+    if ((object_id != -1) && (player_id < ((TRIBE_Game*)(*base_game))->game_screen->world->player_num))
     {
-        mov     eax, 6A3684h
-        mov     eax, [eax]
-        mov     eax, [eax + 17B4h]
-        mov     eax, [eax + 126Ch]
-        mov     eax, [eax + 68h]
-        mov     eax, [eax + 4]
-        mov     eax, [eax + 4Ch]
-        mov     ecx, [esp + 4] //player
-        mov     eax, [eax + ecx * 4]
-        mov     eax, [eax + 74h]
-        mov     ecx, [esp + 8] //unitID
-        mov     eax, [eax + ecx * 4]
-        ret     8
+        RGE_Player* player = (RGE_Player*)((TRIBE_Game*)(*base_game))->game_screen->world->players[player_id];
+        if (object_id < player->master_object_num && player->master_objects[object_id])
+            advTriggerEffect_do_multi_line_effect(player->master_objects[object_id], NULL, player, s);
     }
 }
-#pragma warning(pop)
 
 __declspec(naked) void changePropertyObjectHook()
 {
     __asm
     {
-        mov     eax, [edi + 24h]
-        cmp     eax, -1 //if no unit is selected
-        jz      change_property_object_end
-        push    eax     //unit
-        mov     eax, [edi + 28h]
-        push    eax     //player
-        call    getPropertyObject
-        test    eax, eax
-        jz      change_property_object_end
-        mov     ecx, [edi + 6Ch]
-        push    ecx     //message
-        push    eax     //property object
-        call    advTriggerEffectActual
+        mov     eax, [edi + 6Ch]
+        mov     ecx, [edi + 24h]
+        mov     edx, [edi + 28h]
+        push    eax
+        push    ecx
+        push    edx
+        call    changePropertyObject_do_call
 
-change_property_object_end:
         mov     ebx, 005F3DB1h
         jmp     ebx
     }

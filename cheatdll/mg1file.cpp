@@ -66,7 +66,9 @@ char* find_player_info_end(char* d, char* p, int n_players, int total)
 
 MG1::MG1(const char* filename)
 {
+#ifdef _DEBUG
     log("MG1: %s", filename);
+#endif
 
     loaded = false;
     version = NULL;
@@ -182,14 +184,17 @@ MG1::MG1(const char* filename)
         case 2:
             version = "1.4.1";
             break;
-        case 3: //CURRENT_VERSION
+        case 3:
             version = "1.4.2";
             break;
-#if CURRENT_VERSION != 3
+        case 4: //CURRENT_VERSION
+            version = "1.5.0";
+            break;
+#if CURRENT_VERSION != 4
 #error Must update for new CURRENT_VERSION
 #endif
         default:
-            version = ">1.4.2";
+            version = ">1.5.0";
             break;
         }
         break;
@@ -468,7 +473,9 @@ MG1::MG1(const char* filename)
 
     loaded = true;
 
+#ifdef _DEBUG
     log("MG1: %s loaded", filename);
+#endif
 }
 
 MG1::~MG1()

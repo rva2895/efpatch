@@ -1,311 +1,52 @@
 #include "stdafx.h"
 #include "recbrowse.h"
+#include "itemcache.h"
 #include "mg1file.h"
 #include <ddraw.h>
 #include <process.h>
 #include <string>
 #include <vector>
+#include <time.h>
 
-extern HWND hWnd_main;
+ITEM_CACHE<REC_DATA>* rec_cache = NULL;
+ITEM_CACHE<SCEN_DATA>* scen_cache = NULL;
 
-REC_CACHE* rec_cache = 0;
+int prev_rec_viewport = -1;
+int prev_rec_position = -1;
 
-HANDLE worker_thread_event;
-
-int prev_viewport = -1;
-int prev_position = -1;
-
-int draw_count = 0;
+int prev_scen_viewport = -1;
+int prev_scen_position = -1;
 
 extern const char* savegame_path;
+extern const char* scenario_path;
 
 std::string rec_extension;
-
-unsigned int __stdcall rec_cache_thread(void*)
-{
-    //initialize worker thread and set event
-    MSG msg;
-    PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
-    SetEvent(worker_thread_event);
-
-    std::vector<std::pair<std::string, int>> priority_queue;
-    while (true)
-    {
-        //check message queue
-        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-        {
-            switch (msg.message)
-            {
-            case WM_APP + 1001:    //file
-            {
-                int i = 0;
-                std::string file((char*)msg.wParam);
-                //check if already exists
-                for (i = 0; i < priority_queue.size(); i++)
-                    if (priority_queue[i].first == file)
-                        break;
-                //remove old if found
-                if (i < priority_queue.size())
-                    priority_queue.erase(priority_queue.begin() + i);
-
-                priority_queue.emplace_back(std::pair<std::string, int>(file, (int)msg.lParam));
-                free((void*)msg.wParam);
-                break;
-            }
-            case WM_APP + 1002:    //end
-                delete rec_cache;
-                rec_cache = 0;
-                return 0;
-                break;
-            default:
-                break;
-            }
-        }
-
-        draw_count = priority_queue.size();
-
-        //process messages if available
-        //find last priority message
-        int found_at = -1;
-        for (int i = priority_queue.size() - 1; i >= 0; i--)
-            if (priority_queue[i].second == 2)
-            {
-                if (found_at == -1)
-                    found_at = i;
-                else  //older high priority selections are no longer focused -> low priority
-                    priority_queue[i].second = 0;
-            }
-        //find medium priority
-        if (found_at == -1)
-            for (int i = priority_queue.size() - 1; i >= 0; i--)
-                if (priority_queue[i].second == 1)
-                {
-                    found_at = i;
-                    break;
-                }
-        //find low priority
-        if (found_at == -1)
-            for (int i = priority_queue.size() - 1; i >= 0; i--)
-                if (priority_queue[i].second == 0)
-                {
-                    found_at = i;
-                    break;
-                }
-        //if found anything
-        if (found_at != -1)
-        {
-            auto it = priority_queue.begin() + found_at;
-            MG1 mg1(it->first.c_str());
-
-            REC_DATA rd;
-            rd.exists = true;
-            rd.file = it->first;
-
-            priority_queue.erase(it);
-
-            if (mg1.loaded)
-            {
-                rd.valid = true;
-                rd.duration = mg1.d.duration;
-                rd.start_time = mg1.d.start_time;
-
-                rd.map = make_bitmap(mg1.d.map_x, mg1.d.map_y, rec_cache->getX(), rec_cache->getY(), mg1.d.map);
-
-                TEAM team = mg1.getTeam1();
-                rd.n_team1 = team.n;
-                for (int i = 0; i < team.n; i++)
-                {
-                    rd.team_1[i] = (std::string)team.names[i];
-                    rd.team_1_colors[i] = team.colors[i];
-                    rd.team_1_civs[i] = team.civs[i];
-                    rd.team_1_cc_x[i] = team.cc_x[i];
-                    rd.team_1_cc_y[i] = team.cc_y[i];
-                }
-
-                team = mg1.getTeam2();
-                rd.n_team2 = team.n;
-                for (int i = 0; i < team.n; i++)
-                {
-                    rd.team_2[i] = (std::string)team.names[i];
-                    rd.team_2_colors[i] = team.colors[i];
-                    rd.team_2_civs[i] = team.civs[i];
-                    rd.team_2_cc_x[i] = team.cc_x[i];
-                    rd.team_2_cc_y[i] = team.cc_y[i];
-                }
-                rd.map_x = mg1.d.map_x;
-                rd.version = mg1.version;
-            }
-            else
-                rd.valid = false;
-
-            //rec_cache->ack_queue(rd.file);
-            rec_cache->add_rec_data(rd);
-            rec_cache->update(rd.file);
-        }
-        else
-            Sleep(10);
-
-        //truncate the queue
-        if (priority_queue.size() > CACHE_SIZE)
-        {
-            //remove priority 0 first
-            std::vector<int> indices;
-            for (int i = 0; i < priority_queue.size(); i++)
-                if ((priority_queue.size() - indices.size()) >(CACHE_SIZE - 10))
-                {
-                    if (priority_queue[i].second == 0)
-                        indices.push_back(i);
-                }
-                else
-                {
-                    break;
-                }
-            for (int i = (indices.size() - 1); i >= 0; i--)
-                priority_queue.erase(priority_queue.begin() + i);
-        }
-    }
-    return 0;
-}
-
-std::string current_file = "";
-
-void REC_CACHE::update(const std::string& file)
-{
-    if (state_valid && (file == current_file))
-        SendMessage(hWnd_main, WM_APP + 1000, (WPARAM)wnd, 0);
-}
-
-bool rec_cache_invalid = true;
-
-void REC_CACHE::invalidate()
-{
-    EnterCriticalSection(&cs);
-    state_valid = false;
-    rec_cache_invalid = true;
-    PostThreadMessage(tid, WM_APP + 1002, 0, 0);
-    LeaveCriticalSection(&cs);
-}
-
-REC_CACHE::REC_CACHE(void* wnd_, int x_, int y_)
-{
-    //clear cache
-    rec_cache_invalid = false;
-    state_valid = true;
-    wnd = wnd_;
-    x = x_;
-    y = y_;
-    memset(cache, 0, sizeof(cache));
-    for (int i = 0; i < CACHE_SIZE; i++)
-        cache[i] = new REC_DATA;
-    //init critical secion
-    InitializeCriticalSection(&cs);
-    //init cache thread
-    worker_thread_event = CreateEvent(NULL, FALSE, FALSE, 0);
-    _beginthreadex(NULL, 0, rec_cache_thread, NULL, 0, &tid);
-    WaitForSingleObject(worker_thread_event, INFINITE);
-    CloseHandle(worker_thread_event);
-}
-
-REC_DATA REC_CACHE::get_rec_data(const std::string& f, int priority)
-{
-    EnterCriticalSection(&cs);
-    REC_DATA rd;
-    int index = get_rec_cache_index(f);
-    if (index != -1)
-    {
-        REC_DATA* prd = cache[index];
-        for (int i = index; i > 0; i--)
-            cache[i] = cache[i - 1];
-        cache[0] = prd;
-        rd = *prd;
-    }
-    else
-    {
-        char* s = (char*)malloc(f.length() + 1);
-        strcpy_safe(s, f.length() + 1, f.c_str());
-        //bool found = false;
-        //bool higher_priority = false;
-        //for (auto it = queue.begin(); it != queue.end(); ++it)
-        //    if (it->first == f)
-        //if (priority > it->second)
-        //{
-        //    it->second = priority;
-        //    higher_priority = true;
-        //}
-        //else
-        //{
-        //            found = true;
-        //}
-        //if (!found)
-        //{
-        //if (!higher_priority)
-        //        queue.push_back(std::pair<std::string, int>(f, priority));
-        PostThreadMessage(tid, WM_APP + 1001, (WPARAM)s, priority);
-        //}
-        rd = { 0 };
-    }
-    LeaveCriticalSection(&cs);
-    return rd;
-}
-
-REC_CACHE::~REC_CACHE()
-{
-    for (int i = 0; i < CACHE_SIZE; i++)
-    {
-        if (cache[i]->map)
-            DeleteObject(cache[i]->map);
-        delete cache[i];
-    }
-}
-
-/*void REC_CACHE::ack_queue(std::string f)
-{
-EnterCriticalSection(&cs);
-for (auto it = queue.begin(); it != queue.end(); ++it)
-if (it->first == f)
-{
-queue.erase(it);
-break;
-}
-LeaveCriticalSection(&cs);
-}*/
-
-void REC_CACHE::add_rec_data(const REC_DATA& rd)
-{
-    EnterCriticalSection(&cs);
-    if (get_rec_cache_index(rd.file) == -1)
-    {
-        if (cache[CACHE_SIZE - 1]->map)
-            DeleteObject(cache[CACHE_SIZE - 1]->map);
-        delete cache[CACHE_SIZE - 1];
-        for (int i = (CACHE_SIZE - 1); i > 0; i--)
-            cache[i] = cache[i - 1];
-        cache[0] = new REC_DATA;
-        *cache[0] = rd;
-    }
-    LeaveCriticalSection(&cs);
-}
-
-int REC_CACHE::get_rec_cache_index(const std::string& f)
-{
-    for (int i = 0; i < CACHE_SIZE; i++)
-        if ((cache[i]->exists) && (cache[i]->file == f))
-            return i;
-    return -1;
-}
-
-LPDIRECTDRAWSURFACE7 load_bk = NULL;
-void* wnd_list;
+std::string scen_extension;
 
 HFONT font_bk;
 
 bool loaded_player_brushes = false;
 HBRUSH hb[9];
-HWND hWndPlayers;
 
-char colors[16];
+COLORREF player_colors[] =
+{
+    RGB(0, 0, 255),
+    RGB(255, 0, 0),
+    RGB(0, 255, 0),
+    RGB(255, 255, 0),
+    RGB(0, 255, 255),
+    RGB(255, 0, 255),
+    RGB(48, 48, 48),
+    RGB(128, 0, 0),
+    RGB(255, 255, 255)
+};
 
 #define BGR(b,g,r) (RGB(r,g,b))
+
+COLORREF get_bgr_player_color(COLORREF c)
+{
+    return BGR(GetRValue(c), GetGValue(c), GetBValue(c));
+}
 
 COLORREF get_color(unsigned char c)
 {
@@ -705,71 +446,75 @@ HBITMAP make_bitmap(int x, int y, int view_x, int view_y, TILE* map)
     return hBitmap;
 }
 
-//HBRUSH brush_bk;
+HBITMAP make_bitmap_for_scen(int view_x, int view_y, SCEN& scen)
+{
+    void* data = malloc(view_x * view_y * 4);
+    memset(data, 0, view_x * view_y * 4);
+
+    for (int j = 0; j < view_y; j++)
+        for (int i = 0; i < view_x; i++)
+        {
+            int map_x = screenToMap_x(i, j, view_x, view_y, scen.map.x);
+            int map_y = screenToMap_y(i, j, view_x, view_y, scen.map.y);
+            if ((map_x > 0) && (map_y > 0) &&
+                (map_x < scen.map.x) && (map_y < scen.map.y))
+                //((COLORREF*)data)[j*view_x+i] = RGB(255, 0, 0);
+            {
+                ((COLORREF*)data)[(view_y - j) * view_x + i] = get_color(scen.map.terrain_data[map_y * scen.map.x + map_x].id);
+            }
+        }
+
+    //draw objects
+    for (int i = 0; i < (scen.player_data3.number_of_players); i++)
+    {
+        for (int j = 0; j < scen.units.player_units[i].unit_count; j++)
+        {
+            int scr_x = mapToScreen_x(
+                scen.units.player_units[i].units[j].x,
+                scen.units.player_units[i].units[j].y,
+                view_x,
+                view_y,
+                scen.map.x);
+            int scr_y = mapToScreen_y(
+                scen.units.player_units[i].units[j].x,
+                scen.units.player_units[i].units[j].y,
+                view_x,
+                view_y,
+                scen.map.x);
+            ((COLORREF*)data)[(view_y - scr_y) * view_x + scr_x] =
+                get_bgr_player_color(player_colors[i > 0 ? scen.player_data3.player_data3_sub[i - 1].color : 8]);
+        }
+    }
+
+    HBITMAP hBitmap = CreateBitmap(view_x, view_y, 1, 32, data);
+    free(data);
+    return hBitmap;
+}
 
 bool load_screen_font = false;
 
-void init_listbk()
+void setup_screen_font()
 {
-    //font_bk = CreateFont(15, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-    //    OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-    //    DEFAULT_PITCH | FF_DONTCARE, TEXT("Arial"));
-
-    //brush_bk = CreateSolidBrush(RGB(16, 16, 16));
+    load_screen_font = true;
+    font_bk = CreateFont(16, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET,
+        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE, TEXT("Arial"));
 }
 
-char* (__thiscall* window_getSelText)(void* this_, int sel) =
-(char* (__thiscall*) (void*, int))0x004D3E20;
-
-int get_index(void* wnd)
+void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScreen)
 {
-    if (wnd)
-        return *(short*)((DWORD)wnd + 0x104);
-    else
-        return -1;
-}
-
-int get_scroll_position(void* wnd)
-{
-    if (wnd)
-        return *(short*)((DWORD)wnd + 0x100);
-    else
-        return -1;
-}
-
-void* wnd_bk = 0;
-
-void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
-{
-    if (*(DWORD*)wnd != 0x006607F4)
+    if (!SaveGameScreen->list)
         return;
 
-    if (!wnd_list)
-        return;
-
-    if (*(int*)((DWORD)wnd + 0x204) != 0xC36E)
-        return;
-
-    if (!load_bk)
-    {
-        //if (rec_cache)
-        //{
-        //    delete rec_cache;
-        //    rec_cache = 0;
-        //}
-        return;
-    }
+    IDirectDrawSurface* s = SaveGameScreen->render_area->DrawSurface;
 
     if (!load_screen_font)
-    {
-        load_screen_font = true;
-        font_bk = CreateFont(16, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET,
-            OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-            DEFAULT_PITCH | FF_DONTCARE, TEXT("Arial"));
-    }
+        setup_screen_font();
 
-    int x = *(int*)((DWORD)wnd + 0x14);
-    int y = *(int*)((DWORD)wnd + 0x18);
+    int x = SaveGameScreen->pnl_wid;
+    int y = SaveGameScreen->pnl_hgt;
+
+    TListPanel* SaveGameList = SaveGameScreen->list;
 
     RECT r;
 
@@ -797,12 +542,15 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
     int player_name_offset = y > 900 ? 42 : 32;
 
     r.left = 515 * (x / 800.0); //was 535
-    r.right = 760 * (x / 800.0);
+    r.right = 765 * (x / 800.0);
     r.top = 110 * (y / 600.0);
     r.bottom = 529 * (y / 600.0);
 
     if (!rec_cache)
-        rec_cache = new REC_CACHE(wnd, r.right - r.left - 4, (r.right - r.left - 4) / 2);
+        rec_cache = new ITEM_CACHE<REC_DATA>;
+
+    if (!rec_cache->isValid())
+        rec_cache->init((TScreenPanel*)SaveGameScreen, r.right - r.left - 4, (r.right - r.left - 4) / 2, item_cache_thread<REC_DATA>);
 
     HDC hdc;
     s->GetDC(&hdc);
@@ -828,27 +576,18 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
     FillRect(hdc, &r, brush_bk);
     DeleteObject(brush_bk);
 
-    char* file = window_getSelText(wnd_list, get_index(wnd_list));
+    char* file = SaveGameList->vfptr->get_text(SaveGameList, SaveGameList->cur_line);
 
     std::string filename = (std::string)savegame_path + (std::string)file + rec_extension;
-    current_file = filename;
+    rec_cache->set_current_file(filename);
 
-    REC_DATA rd = rec_cache->get_rec_data(filename, 2);
+    REC_DATA rd = rec_cache->get_item(filename, 2);
 
-    //draw playersplayers
+    //draw players
     if (!loaded_player_brushes)
     {
-        hb[0] = CreateSolidBrush(RGB(0, 0, 255));
-        hb[1] = CreateSolidBrush(RGB(255, 0, 0));
-        hb[2] = CreateSolidBrush(RGB(0, 255, 0));
-        hb[3] = CreateSolidBrush(RGB(255, 255, 0));
-        hb[4] = CreateSolidBrush(RGB(0, 255, 255));
-        hb[5] = CreateSolidBrush(RGB(255, 0, 255));
-        hb[6] = CreateSolidBrush(RGB(48, 48, 48));
-        //hb[6] = CreateSolidBrush(RGB(127, 127, 127));
-        //hb[7] = CreateSolidBrush(RGB(255, 127, 0));
-        hb[7] = CreateSolidBrush(RGB(128, 0, 0));
-        hb[8] = CreateSolidBrush(RGB(255, 255, 255));
+        for (int i = 0; i <= 8; i++)
+            hb[i] = CreateSolidBrush(player_colors[i]);
 
         loaded_player_brushes = true;
     }
@@ -865,10 +604,10 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
                 rd.start_time / 3600, (rd.start_time / 60) % 60, rd.start_time % 60,
                 total / 3600, (total / 60) % 60, total % 60);
             HDC hdcMem = CreateCompatibleDC(hdc);
-            HGDIOBJ oldBitmap = SelectObject(hdcMem, rd.map);
+            HGDIOBJ oldBitmap = SelectObject(hdcMem, rd.map.get()->get_map());
             BITMAP bitmap;
 
-            GetObject(rd.map, sizeof(bitmap), &bitmap);
+            GetObject(rd.map.get()->get_map(), sizeof(bitmap), &bitmap);
             BitBlt(hdc, r.left + 1, r.top + 1, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY);
 
             SelectObject(hdcMem, oldBitmap);
@@ -934,27 +673,11 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
         r_ver.top = r_ver.bottom - 20;
         r_ver.left = r_ver.right - 60;
 
-        /*switch (rd.version)
-        {
-        case 0x00312E32:
-            strcpy(str, "1.1");
-            break;
-        case 0x00322E32:
-            strcpy(str, "2.2");
-            break;
-        case 0x00382E39:
-            strcpy(str, "1.4");
-            break;
-        default:
-            strcpy(str, "");
-            break;
-        }*/
-
         //snprintf(str, _countof(str), "VER %s", (char*)&rd.version);
         strcpy_safe(str, _countof(str), rd.version.c_str());
         DrawText(hdc, str, strlen(str), &r_ver, DT_RIGHT);
 
-        r.top += 30;
+        r.top += (y > 900 ? 30 : 24);
 
         RECT color_box;
         color_box.left = r.left + color_box_offset;
@@ -1024,147 +747,326 @@ void __stdcall paintOnScreen_loadbk(LPDIRECTDRAWSURFACE7 s, void* wnd)
     s->ReleaseDC(hdc);
 
     //prepare closest 5
-    if (prev_position != get_index(wnd_list))
-        for (int i = -5; i <= 5; i++)
+    if (prev_rec_position != SaveGameList->cur_line)
+    {
+        int cache_min = (SaveGameList->cur_line - 5) > 0 ? (SaveGameList->cur_line - 5) : 0;
+        int cache_max = (SaveGameList->cur_line + 5) < SaveGameList->num_lines ? (SaveGameList->cur_line + 5) : SaveGameList->num_lines;
+        for (int i = cache_min; i < cache_max; i++)
         {
-            if (i != 0)
-            {
-                file = window_getSelText(wnd_list, get_index(wnd_list) + i);
-                filename = (std::string)savegame_path + (std::string)file + rec_extension;
-                rec_cache->get_rec_data(filename, 1);
-            }
-        }
-    prev_position = get_index(wnd_list);
-    //prepare viewport
-    if (prev_viewport != get_scroll_position(wnd_list))
-        for (int i = get_scroll_position(wnd_list); i < (get_scroll_position(wnd_list) + 40); i++)
-        {
-            file = window_getSelText(wnd_list, i);
+            file = SaveGameList->vfptr->get_text(SaveGameList, i);
             filename = (std::string)savegame_path + (std::string)file + rec_extension;
-            rec_cache->get_rec_data(filename, 0);
+            rec_cache->get_item(filename, 1);
         }
-    prev_viewport = get_scroll_position(wnd_list);
+    }
+
+    prev_rec_position = SaveGameList->cur_line;
+    //prepare viewport
+    if (prev_rec_viewport != SaveGameList->top_line)
+    {
+        int cache_top = (SaveGameList->top_line - 5) > 0 ? (SaveGameList->top_line - 5) : 0;
+        int cache_bottom = (SaveGameList->bot_line + 5) < SaveGameList->num_lines ? (SaveGameList->bot_line + 5) : SaveGameList->num_lines;
+        for (int i = cache_top; i < cache_bottom; i++)
+        {
+            file = SaveGameList->vfptr->get_text(SaveGameList, i);
+            filename = (std::string)savegame_path + (std::string)file + rec_extension;
+            rec_cache->get_item(filename, 0);
+        }
+    }
+    prev_rec_viewport = SaveGameList->top_line;
 }
 
-__declspec(naked) void onCreateLoadBk() //004B7AC3
+TListPanel* get_list(TScreenPanel* panel)
 {
-    __asm
+    switch (DWORD(panel->vfptr))
     {
-        push    edi
-        push    eax
-        cmp     dword ptr [ebp + 204h], 0C36Eh
-        jnz     _no_create_bk
-        mov     wnd_bk, ebp
-        mov     eax, [ebp + 20h]
-        mov     eax, [eax + 3Ch]
-        mov     load_bk, eax
-_no_create_bk:
-        mov     edx, [ebp + 0]
-        mov     ecx, ebp
-        mov     eax, 004B7ACAh
-        jmp     eax
+    case 0x00661F3C:
+        return ((TRIBE_Screen_Sed_Open*)panel)->list;
+    case 0x00662128:
+        return ((TribeSelectScenarioScreen*)panel)->scenarioList;
+    default:
+        return NULL;
     }
 }
 
-__declspec(naked) void hook_loadbk() //004B899F
+void __stdcall paint_load_scen_screen_bk(TScreenPanel* LoadScenScreen)
 {
-    __asm
+    TListPanel* ScenList = get_list(LoadScenScreen);
+
+    if (!ScenList)
+        return;
+
+    IDirectDrawSurface* s = LoadScenScreen->render_area->DrawSurface;
+
+    if (!load_screen_font)
+        setup_screen_font();
+
+    int x = LoadScenScreen->pnl_wid;
+    int y = LoadScenScreen->pnl_hgt;
+
+    RECT r;
+
+    r.left = 515 * (x / 800.0); //was 535
+    r.right = 760 * (x / 800.0);
+    r.top = 87 * (y / 600.0);
+    r.bottom = 521 * (y / 600.0);
+
+    if (!scen_cache)
+        scen_cache = new ITEM_CACHE<SCEN_DATA>;
+
+    if (!scen_cache->isValid())
+        scen_cache->init((TScreenPanel*)LoadScenScreen, r.right - r.left - 4, (r.right - r.left - 4) / 2, item_cache_thread<SCEN_DATA>);
+
+    HDC hdc;
+    s->GetDC(&hdc);
+
+    HPEN hPen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
+    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+
+    MoveToEx(hdc, r.left, r.top, NULL);
+    LineTo(hdc, r.left, r.bottom);
+    LineTo(hdc, r.right, r.bottom);
+    LineTo(hdc, r.right, r.top);
+    LineTo(hdc, r.left, r.top);
+
+    SelectObject(hdc, hOldPen);
+    DeleteObject(hPen);
+
+    r.left++;
+    r.right--;
+    r.top++;
+    r.bottom--;
+
+    HBRUSH brush_bk = CreateSolidBrush(RGB(24, 24, 24));
+    FillRect(hdc, &r, brush_bk);
+    DeleteObject(brush_bk);
+
+    char* file = ScenList->vfptr->get_text(ScenList, ScenList->cur_line);
+
+    std::string filename = (std::string)scenario_path + (std::string)file + scen_extension;
+    scen_cache->set_current_file(filename);
+
+    SCEN_DATA sd = scen_cache->get_item(filename, 2);
+
+    char str[0x1000];
+    if (sd.exists)
+        if (sd.valid)
+        {
+            int n_humans = 0;
+            int n_computers = 0;
+
+            for (int i = 0; i < 16; i++)
+                if (sd.active[i])
+                    sd.human[i] ? n_humans++ : n_computers++;
+
+            tm lt;
+            time_t t = sd.timestamp;
+            localtime_s(&lt, &t);
+
+            char s_time[0x40];
+
+            strftime(s_time, _countof(s_time), "%Y-%m-%d_%H:%M:%S", &lt);
+
+            snprintf(str, _countof(str), "Players: %d human%s, %d computer%s\nTrigger count: %d\nTimestamp: %s\n\nInstructions:\n%s",
+                //sd.orig_filename.c_str(),
+                n_humans, n_humans == 1 ? "" : "s", n_computers, n_computers == 1 ? "" : "s",
+                sd.trigger_count,
+                s_time,
+                sd.instructions.c_str());
+
+
+            HDC hdcMem = CreateCompatibleDC(hdc);
+            HGDIOBJ oldBitmap = SelectObject(hdcMem, sd.map.get()->get_map());
+            BITMAP bitmap;
+
+            GetObject(sd.map.get()->get_map(), sizeof(bitmap), &bitmap);
+            BitBlt(hdc, r.left + 1, r.top + 1, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY);
+
+            SelectObject(hdcMem, oldBitmap);
+            DeleteDC(hdcMem);
+        }
+        else
+            snprintf(str, _countof(str), "Preview not available");
+    else
+        snprintf(str, _countof(str), "Loading...");
+
+    int map_edge_dist = y > 900 ? 10 : 8;
+    int text_offset = y > 900 ? 7 : 3;
+
+    r.top += (r.right - r.left) / 2 + map_edge_dist;
+
+    r.left += text_offset;
+
+    HANDLE hOld = SelectObject(hdc, font_bk);
+    SetBkMode(hdc, TRANSPARENT);
+    SetTextColor(hdc, RGB(255, 255, 255));
+    DrawText(hdc, str, strlen(str), &r, DT_LEFT | DT_WORDBREAK);
+
+    if (sd.exists && sd.valid)
     {
-        mov     load_bk, esi
-        //push    ecx
-        push    esi
-        mov     ecx, [esi + 20h]
-        mov     ecx, [ecx + 3Ch]
-        push    ecx
-        call    paintOnScreen_loadbk
-        //pop     ecx
-        mov     eax, [esi]
-        mov     ecx, esi
-        call    dword ptr [eax + 38h]
-        mov     esi, 004B89A6h
-        jmp     esi
+        RECT r_ver;
+        r_ver.right = r.right;
+        r_ver.bottom = r.bottom;
+        r_ver.top = r_ver.bottom - 20;
+        r_ver.left = r_ver.right - 60;
+
+        //snprintf(str, _countof(str), "VER %s", (char*)&rd.version);
+        //strcpy_safe(str, _countof(str), rd.version.c_str());
+        snprintf(str, _countof(str), "%.02f", sd.version);
+        SetBkMode(hdc, OPAQUE);
+        SetBkColor(hdc, RGB(24, 24, 24));
+        DrawText(hdc, str, strlen(str), &r_ver, DT_RIGHT);
+        SetBkMode(hdc, TRANSPARENT);
     }
+
+    s->ReleaseDC(hdc);
+
+    //prepare closest 5
+    if (prev_scen_position != ScenList->cur_line)
+    {
+        int cache_min = (ScenList->cur_line - 5) > 0 ? (ScenList->cur_line - 5) : 0;
+        int cache_max = (ScenList->cur_line + 5) < ScenList->num_lines ? (ScenList->cur_line + 5) : ScenList->num_lines;
+        for (int i = cache_min; i < cache_max; i++)
+        {
+            file = ScenList->vfptr->get_text(ScenList, ScenList->cur_line + i);
+            filename = (std::string)scenario_path + (std::string)file + scen_extension;
+            scen_cache->get_item(filename, 1);
+        }
+    }
+    prev_scen_position = ScenList->cur_line;
+    //prepare viewport
+    if (prev_scen_viewport != ScenList->top_line)
+    {
+        int cache_top = (ScenList->top_line - 5) > 0 ? (ScenList->top_line - 5) : 0;
+        int cache_bottom = (ScenList->bot_line + 5) < ScenList->num_lines ? (ScenList->bot_line + 5) : ScenList->num_lines;
+        for (int i = cache_top; i < cache_bottom; i++)
+        {
+            file = ScenList->vfptr->get_text(ScenList, i);
+            filename = (std::string)scenario_path + (std::string)file + scen_extension;
+            scen_cache->get_item(filename, 0);
+        }
+    }
+    prev_scen_viewport = ScenList->top_line;
+
+    return;
 }
 
-__declspec(naked) void onCreateList() //004BA84B
+void __stdcall invalidate_rec_cache()
 {
-    __asm
-    {
-        mov     ecx, eax
-        mov     wnd_list, eax
-        mov     eax, 004CB890h
-        call    eax
-        mov     ecx, 004BA856h
-        jmp     ecx
-    }
-}
-
-void __stdcall invalidate_cache()
-{
-    prev_viewport = -1;
-    prev_position = -1;
+    prev_rec_viewport = -1;
+    prev_rec_position = -1;
     if (rec_cache)
         rec_cache->invalidate();
 }
 
-__declspec(naked) void onDeleteList() //004CB928
+void __stdcall invalidate_scen_cache()
+{
+    prev_scen_viewport = -1;
+    prev_scen_position = -1;
+    if (scen_cache)
+        scen_cache->invalidate();
+}
+
+__declspec(naked) void on_delete_save_game_screen() //0050A7D0
 {
     __asm
     {
-        mov     eax, wnd_list
-        cmp     eax, esi
-        jnz     _not_list
-        xor     eax, eax
-        mov     wnd_list, eax
-        call    invalidate_cache
-_not_list:
-        mov     eax, esi
-        pop     esi
-        retn    4
+        push    ecx
+        call    invalidate_rec_cache
+        pop     ecx
+        push    0FFFFFFFFh
+        push    00643E58h
+        mov     eax, 0050A7D7h
+        jmp     eax
     }
 }
 
-__declspec(naked) void onDeleteBk() //0050A7C8
+__declspec(naked) void on_delete_select_scen_screen1() //0053FBB0
 {
     __asm
     {
-        mov     eax, wnd_bk
-        cmp     eax, esi
-        jnz     _not_loadbk
-        xor     eax, eax
-        mov     wnd_bk, eax
-        call    invalidate_cache
-_not_loadbk:
-        mov     eax, esi
-        pop     esi
-        retn    4
+        push    ecx
+        call    invalidate_scen_cache
+        pop     ecx
+        push    0FFFFFFFFh
+        push    00644698h
+        mov     eax, 0053FBB7h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void on_delete_select_scen_screen2() //00540670
+{
+    __asm
+    {
+        push    ecx
+        call    invalidate_scen_cache
+        pop     ecx
+        push    0FFFFFFFFh
+        push    006446F8h
+        mov     eax, 00540677h
+        jmp     eax
+    }
+}
+
+void __stdcall draw_bk_dispatch(TPanel* panel)
+{
+    switch ((DWORD)panel->vfptr)
+    {
+    case 0x006607F4:
+        paint_save_game_screen_bk((TribeLoadSavedGameScreen*)panel);
+        break;
+    case 0x00661F3C:
+    case 0x00662128:
+        paint_load_scen_screen_bk((TScreenPanel*)panel);
+        break;
+    default:
+        break;
+    }
+}
+
+__declspec(naked) void on_draw_bk() //004B899F
+{
+    __asm
+    {
+        push    esi
+        call    draw_bk_dispatch
+        mov     eax, [esi]
+        mov     ecx, esi
+        call    dword ptr [eax + 38h]
+        mov     ebx, 004B89A6h
+        jmp     ebx
     }
 }
 
 #pragma optimize( "s", on )
 void setRecBrowseHooks(int version)
 {
-    void init_listbk();
-
-    setHook((void*)0x004B7AC3, onCreateLoadBk);
-    setHook((void*)0x004B899F, hook_loadbk);
-    setHook((void*)0x004BA84B, onCreateList);
-    setHook((void*)0x004CB928, onDeleteList);
+    setHook((void*)0x0050A7D0, on_delete_save_game_screen);
+    setHook((void*)0x0053FBB0, on_delete_select_scen_screen1);
+    setHook((void*)0x00540670, on_delete_select_scen_screen2);
+    setHook((void*)0x004B899F, on_draw_bk);
 
     //file list
-    writeByte(0x0050A5E2, 40); //x
-    writeDword(0x0050A5DB, 435); //width, was 415
+    writeByte(0x0050A5E2, 35); //x
+    writeDword(0x0050A5DB, 460); //width, was 415
+
+    //sed open
+    writeByte(0x0053FA0E, 30);
+    writeDword(0x0053FA07, 370); //width, was 415
 
     switch (version)
     {
     case VER_CC:
         rec_extension = ".mg1";
+        scen_extension = ".sc1";
         break;
     case VER_EF:
         rec_extension = ".mg2";
+        scen_extension = ".sc2";
         break;
     default:
         rec_extension.clear();
+        scen_extension.clear();
         break;
     }
 }

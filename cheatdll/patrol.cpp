@@ -1,20 +1,17 @@
 #include "stdafx.h"
 #include "patrol.h"
 
-int (__thiscall* unitGroup_patrol)(void* this_, UNIT* units[], __int16 count, int one, float* x, float* y, int zero) =
-    (int (__thiscall*)(void*, UNIT*[], __int16, int, float*, float*, int))0x0044EB40;
-
 int compare_ordinals(const void* a, const void* b)
 {
-    return ((**(UNIT**)a).ordinal - (**(UNIT**)b).ordinal);
+    return ((**(RGE_Static_Object**)a).id - (**(RGE_Static_Object**)b).id);
 }
 
-void __stdcall patrolNew(void* this_, UNIT* units[], float* x, float* y, int count)
+void __stdcall patrolNew(RGE_Command* this_, RGE_Static_Object* units[], float* x, float* y, int count)
 {
     qsort(units, count, sizeof(void*), compare_ordinals);
     do
     {
-        unitGroup_patrol(this_, units, count > 40 ? 40 : count, 1, x, y, 0);
+        RGE_Command__command_patrol(this_, units, count > 40 ? 40 : count, 1, x, y, 0);
         units += 40;
         count -= 40;
     } while (count > 0);

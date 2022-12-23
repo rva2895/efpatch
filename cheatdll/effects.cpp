@@ -201,9 +201,10 @@ void snapscroll_setJMP(DWORD jmp_location)
     writeDword(jmp_location + 1, (DWORD)&snapscroll_finish - (jmp_location + 5));
 }
 
-const char aChangeGlobalUnit[] = "Change Unit Property Object";
+const char aChangeOwnMaster[] = "Change Own Object Master";
+const char aChangeGlobalUnit[] = "Change Player Object Master";
 const char aExplore[] = "Explore Area";
-const char aUnitVar[] = "Change Unit Variable";
+const char aUnitVar[] = "Change Object Variable";
 const char aTerrain[] = "Change Terrain";
 const char aDefeat[] = "Declare Defeat";
 const char aCommand[] = "Command";
@@ -213,6 +214,12 @@ __declspec(naked) void triggerDisplayHook()
 {
     __asm
     {
+        mov     ecx, [edi + 0E24h]
+        push    2Ah
+        push    offset aChangeOwnMaster
+        mov     eax, 4C82A0h
+        call    eax
+
         mov     ecx, [edi + 0E24h]
         push    2Bh
         push    offset aChangeGlobalUnit
@@ -442,7 +449,7 @@ void setEffectHooks()
     //int adrSetVarEffect = (int)&setVarEffect;
 
     setHook((void*)0x007B2A9B, effectParams);
-    setHook((void*)0x007B2388, triggerDisplayHook);
+    setHook((void*)0x007B2376, triggerDisplayHook);
 
     //setHook ((void*)0x007B2ABF, &setVarHook);
 
@@ -511,5 +518,9 @@ void setEffectHooks()
     writeByte(0x0053CE86, 0xEB);
     setHook((void*)0x005F557B, (void*)0x007B2A00);
     writeDword(0x005F2B56, 0x007B2240);
+
+    log("Building lookup table ...");
+    build_unit_master_variable_lookup_table();
+    log("Done");
 }
 #pragma optimize( "", on )
