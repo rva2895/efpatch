@@ -501,6 +501,9 @@
     <ClInclude Include="sc1file.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
+    <ClInclude Include="buildingconv.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -943,6 +946,9 @@
     </ClCompile>
     <ClCompile Include="sc1file.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="buildingconv.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

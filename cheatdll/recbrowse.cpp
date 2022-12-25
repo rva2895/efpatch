@@ -542,7 +542,7 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
     int player_name_offset = y > 900 ? 42 : 32;
 
     r.left = 515 * (x / 800.0); //was 535
-    r.right = 765 * (x / 800.0);
+    r.right = 766 * (x / 800.0);
     r.top = 110 * (y / 600.0);
     r.bottom = 529 * (y / 600.0);
 
@@ -1038,6 +1038,16 @@ __declspec(naked) void on_draw_bk() //004B899F
     }
 }
 
+__declspec(naked) void on_set_select_scen_x() //00540372
+{
+    __asm
+    {
+        mov     dword ptr [esi + 7F4h], 30
+        mov     ecx, 00540378h
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void setRecBrowseHooks(int version)
 {
@@ -1052,7 +1062,12 @@ void setRecBrowseHooks(int version)
 
     //sed open
     writeByte(0x0053FA0E, 30);
-    writeDword(0x0053FA07, 370); //width, was 415
+    writeByte(0x0053F9E2, 30);
+    writeDword(0x0053FA07, 370);
+
+    //select scen
+    setHook((void*)0x00540372, on_set_select_scen_x);
+    writeDword(0x0054036E, 370);
 
     switch (version)
     {

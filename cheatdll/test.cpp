@@ -502,7 +502,8 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
 
         return true;
     }
-
+    */
+    /*
     else if (strstr(s, "/sel-id"))
     {
         TRIBE_World* world = (*base_game)->world;
@@ -536,7 +537,19 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         chat("Loaded all DRS resources");
         return 1;
     }*/
-    
+    /*
+    else if (strstr(s, "/line"))
+    {
+        void(__thiscall * RGE_Obstruction_Manager_Land__AddDebugLine)(RGE_Obstruction_Manager_Land * this_, float X1, float Y1, float X2, float Y2, int Color, int DebugLine) =
+            (void(__thiscall*)(RGE_Obstruction_Manager_Land*, float, float, float, float, int, int))0x004B42C0;
+
+        RGE_Obstruction_Manager_Land* ob = (RGE_Obstruction_Manager_Land*)0x006ACCDC;
+
+        RGE_Obstruction_Manager_Land__AddDebugLine(ob, 1, 1, 3, 5, 57, 0);
+
+        return 1;
+    }
+    */
     /*
     else if (strstr(s, "/cs"))
     {
@@ -1331,6 +1344,13 @@ __declspec(naked) void on_action_object_update() //00409874
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    /*
+    unsigned __int8* color_black = (unsigned __int8*)0x007A1C60;
+    //*color_black = 1;
+    int* group_debug_display = (int*)0x006ACCA4;
+    *group_debug_display = 1;
+    */
+
     /*setHook((void*)0x005650F0, on_update);
     setHook((void*)0x00565182, on_check_ownership);
     setHook((void*)0x00406B60, on_action_list_update);

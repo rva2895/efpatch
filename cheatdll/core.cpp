@@ -1307,6 +1307,7 @@ void setCoreHooks()
     writeDword(0x006692E8, 0x00619FB0);
 
     //object vftable shortcuts
+    /*
     writeDword(0x006638C8, 0x004A47B0);
     writeDword(0x00663428, 0x004A47B0);
     writeDword(0x0065C12C, 0x004A47B0);
@@ -1315,6 +1316,7 @@ void setCoreHooks()
     writeDword(0x0065785C, 0x004A47B0);
     writeDword(0x0065516C, 0x004A47B0);
     writeDword(0x0065C12C, 0x004A47B0);
+    */
 }
 #pragma optimize( "", on )
 

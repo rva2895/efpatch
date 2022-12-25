@@ -69,6 +69,40 @@ no_streaming_sound:
     }
 }
 
+__declspec(naked) void random_sound_start() //00517484
+{
+    __asm
+    {
+        cmp     eax, 1Eh
+        jz      random_sound_start_rnd
+        cmp     eax, 1Fh
+        jz      random_sound_start_rnd
+        mov     ecx, 0051749Dh
+        jmp     ecx
+
+random_sound_start_rnd:
+        mov     ecx, 00517489h
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void random_sound_countdown() //0051B2A1
+{
+    __asm
+    {
+        cmp     eax, 1Eh
+        jz      random_sound_countdown_rnd
+        cmp     eax, 1Fh
+        jz      random_sound_countdown_rnd
+        mov     ecx, 0051B2BAh
+        jmp     ecx
+
+random_sound_countdown_rnd:
+        mov     ecx, 0051B2A6h
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks()
 {
@@ -129,5 +163,16 @@ void setMiscBugfixHooks()
 
     //high civ UI fix
     writeByte(0x004FDB68, 0);
+
+    //timeGetTime unsigned
+    writeByte(0x004CD8EE, 0x72);
+    writeByte(0x004F9980, 0x84);
+
+    //chat display time
+    writeDword(0x004CCAD0, 15000);
+
+    //mirror random sound fix
+    setHook((void*)0x00517484, random_sound_start);
+    setHook((void*)0x0051B2A1, random_sound_countdown);
 }
 #pragma optimize( "", on )
