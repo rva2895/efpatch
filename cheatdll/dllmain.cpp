@@ -117,6 +117,7 @@
 #include "miscbugfix.h"
 #include "editcontrol.h"
 #include "attribute_held.h"
+#include "buildingconv.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -166,7 +167,7 @@ blank_panel:
 #pragma optimize( "s", on )
 void setHooksCC()
 {
-    log("Setting EF-independent hooks...");
+    log("setHooksCC() started");
 
     setMiscBugfixHooks();
 
@@ -331,6 +332,8 @@ void setHooksCC()
 
     //function hook!
     //setFunctionListHooks();
+
+    log("setHooksCC() complete");
 }
 #pragma optimize( "", on )
 
@@ -339,7 +342,8 @@ const char efCiv[] = "stream\\ef_civ%d.mp3";
 const char efShadow[] = DATA_FOLDER_PREFIX_FROM_ROOT"shadow_x2.col";
 const char efBlendomatic[] = DATA_FOLDER_PREFIX_FROM_ROOT"blendomatic_x2.dat";
 const char efICM[] = DATA_FOLDER_PREFIX_FROM_ROOT"view_icm_x2.dat";
-const char efMenubk[] = "stream\\ef_menu_skb.mp3";
+//const char efMenubk[] = "stream\\ef_menu_skb.mp3";
+const char efMenubk[] = "stream\\ef_menu_yavin.mp3";
 
 #pragma optimize( "s", on )
 void setHooksEF()
@@ -456,7 +460,9 @@ void setHooksEF()
 
     setBldgHealRateSaveHooks();
 
-    log("setHooks() finished");
+    setBuildingConvHooks();
+
+    log("setHooksEF() complete");
 }
 #pragma optimize( "", on )
 
@@ -651,9 +657,6 @@ void initialSetup()
     writeDword(0x005DDB7B, 100);
     writeWord(0x005DDB73, 0x9090);
 #endif
-
-    //chat display time
-    writeDword(0x004CCAD0, 15000);
 
     log("Initial setup complete, returning");
 

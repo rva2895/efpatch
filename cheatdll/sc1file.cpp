@@ -110,7 +110,7 @@ SCEN::SCEN(const char* filename)
 		return;
 	}
 
-#ifndef _DEBUG
+#ifdef _DEBUG
 	log("Loading %s...", filename);
 #endif
 

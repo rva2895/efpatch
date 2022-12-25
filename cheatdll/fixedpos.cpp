@@ -385,11 +385,6 @@ loc_7E424F:
     }
 }
 
-unsigned int __stdcall comm_get_max_players(void* c)
-{
-    return *(unsigned int*)((DWORD)c + 0x1280);
-}
-
 void __stdcall setup_colors()
 {
     int color_used_count[8] = { 0 };
@@ -457,6 +452,19 @@ __declspec(naked) void colors_launch_game() //00519C7C
     }
 }
 
+__declspec(naked) void colors_launch_game_v2() //00519BD3
+{
+    __asm
+    {
+        call    setup_colors
+        mov     eax, [esi]
+        mov     ecx, esi
+        call    dword ptr [eax + 17Ch]
+        mov     ebx, 00519BDDh
+        jmp     ebx
+    }
+}
+
 #pragma optimize( "s", on )
 void setFixedPosHooks()
 {
@@ -496,7 +504,9 @@ void setFixedPosHooks()
     setHook((void*)0x0051CF2E, colors_fill_players_3);
     setHook((void*)0x0051EA9D, colors_fill_player_colors);
     setHook((void*)0x0051D1E7, colors_fill_players_4);
-    setHook((void*)0x00519C7C, colors_launch_game);
+    //setHook((void*)0x00519C7C, colors_launch_game);
+    //writeDword(0x006612AC, (DWORD)colors_launch_game_v2);
+    setHook((void*)0x00519BD3, colors_launch_game_v2);
 
     setHook((void*)0x0051D862, colors_update_summary);
 

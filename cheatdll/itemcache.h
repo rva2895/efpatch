@@ -12,13 +12,17 @@ public:
     HBITMAP_HOLDER(HBITMAP map_)
     {
         map = map_;
+#ifdef _DEBUG
         log("Created bitmap 0x%X", map);
+#endif
     };
 
     ~HBITMAP_HOLDER()
     {
         DeleteObject(map);
+#ifdef _DEBUG
         log("Deleted bitmap 0x%X", map);
+#endif
     };
 
     HBITMAP get_map()
@@ -267,7 +271,9 @@ public:
                     size++;
         }
         LeaveCriticalSection(&cs);
+#ifdef _DEBUG
         log("Cache size = %d", size);
+#endif
     };
 };
 
