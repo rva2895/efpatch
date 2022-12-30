@@ -247,6 +247,29 @@ void __stdcall delayed_start_process()
     writeDword(0x0048F0E5, (DWORD)voobly_ef_data_file);
     writeDword(0x005E40A3, (DWORD)voobly_ef_language_file);
 
+    //copy assets
+    HANDLE h_sounds_x2 = CreateFile(DATA_FOLDER_PREFIX_FROM_ROOT"sounds_x2.drs", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h_sounds_x2 == INVALID_HANDLE_VALUE)
+    {
+        log("%s not found in the mod directory, copying", "sounds_x2.drs");
+        HANDLE h_sounds_x2_assets = CreateFile(".\\Voobly Mods\\SWBGCC\\Local Mods\\EF Assets\\Data\\sounds_x2.drs", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (h_sounds_x2_assets == INVALID_HANDLE_VALUE)
+        {
+            log("Error: cannot load %s", "sounds_x2.drs");
+            MessageBox(NULL, "Error: sounds_x2.drs not found.\n\n"
+                "To play Expanding Fronts, download and enable \"EF Assets\" local mod.", "Error", MB_ICONERROR);
+            exit(0);
+        }
+        else
+        {
+            CloseHandle(h_sounds_x2_assets);
+            CopyFile("Voobly Mods\\SWBGCC\\Local Mods\\EF Assets\\Data\\sounds_x2.drs", DATA_FOLDER_PREFIX_FROM_ROOT"sounds_x2.drs", FALSE);
+            log("Copied %s to the mod folder", "sounds_x2.drs");
+        }
+    }
+    else
+        CloseHandle(h_sounds_x2);
+
     if (cd.widescrnEnabled)
         resolutionTool(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), true, true);
 #else
