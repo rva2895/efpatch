@@ -5,13 +5,13 @@ VisualStudioVersion = 16.0.32002.261
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cheatdll", "cheatdll\cheatdll.vcxproj", "{C02AB7BB-4125-4DB8-954A-CA6079C8815D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ogg-winmm-2", "..\ogg-winmm-2\ogg-winmm-2.vcxproj", "{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "language_dll_ru", "language_dll_ru\language_dll_ru.vcxproj", "{C22BFFB3-E120-4D83-BADC-D13362349C5A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "language_dll_es", "language_dll_es\language_dll_es.vcxproj", "{DEF7D6CA-5AC4-4C54-A694-795D2BB82043}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "language_dll_en", "language_dll_en\language_dll_en.vcxproj", "{7A9F4C49-8D14-403A-9919-B73C61363A55}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ogg-winmm", "ogg-winmm\ogg-winmm.vcxproj", "{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,12 +29,6 @@ Global
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release_Voobly|Win32.Build.0 = Release_Voobly|Win32
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release|Win32.ActiveCfg = Release|Win32
 		{C02AB7BB-4125-4DB8-954A-CA6079C8815D}.Release|Win32.Build.0 = Release|Win32
-		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Debug|Win32.Build.0 = Debug|Win32
-		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_Voobly_EF|Win32.ActiveCfg = Release|Win32
-		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_Voobly|Win32.ActiveCfg = Release|Win32
-		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release|Win32.ActiveCfg = Release|Win32
-		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release|Win32.Build.0 = Release|Win32
 		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Debug|Win32.ActiveCfg = Debug|Win32
 		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Debug|Win32.Build.0 = Debug|Win32
 		{C22BFFB3-E120-4D83-BADC-D13362349C5A}.Release_Voobly_EF|Win32.ActiveCfg = Release_Voobly_EF|Win32
@@ -59,6 +53,14 @@ Global
 		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release_Voobly|Win32.Build.0 = Release|Win32
 		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release|Win32.ActiveCfg = Release|Win32
 		{7A9F4C49-8D14-403A-9919-B73C61363A55}.Release|Win32.Build.0 = Release|Win32
+		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Debug|Win32.Build.0 = Debug|Win32
+		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_Voobly_EF|Win32.ActiveCfg = Release|Win32
+		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_Voobly_EF|Win32.Build.0 = Release|Win32
+		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_Voobly|Win32.ActiveCfg = Release|Win32
+		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release_Voobly|Win32.Build.0 = Release|Win32
+		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release|Win32.ActiveCfg = Release|Win32
+		{468DEC74-892A-47F5-AB8F-6FA316E4FA3C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
