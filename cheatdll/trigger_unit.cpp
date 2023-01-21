@@ -9,7 +9,7 @@ void patch_trigger(trigger* t, int player, float x, float y)
     int y_delta;
     float x_size;
     float y_size;
-    int map_max = getMapSize() - 1;
+    int map_max = (*base_game)->world->map->map_width - 1;
     for (int i = 0; i < t->n_conditions; i++)
     {
         if (!((t->conditions[i]->area_x1 == -1) &&

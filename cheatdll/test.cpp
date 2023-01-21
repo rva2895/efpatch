@@ -353,27 +353,6 @@ void thread_proc(void* p)
 
 //extern int memory_temp;
 
-int __fastcall get_gametime2()
-{
-    void* game_screen = *(void**)((uint8_t*)(*base_game) + 0x17B4);
-    if (game_screen)
-    {
-        void* world = *(void**)((uint8_t*)game_screen + 0x126C);
-        if (world)
-            return *(int*)((uint8_t*)world + 0x10);
-        else
-        {
-            chat("World does not exist");
-            return -1;
-        }
-    }
-    else
-    {
-        chat("Game screen does not exist");
-        return -1;
-    }
-}
-
 //DWORD performance_time = 0;
 
 extern float* __fastcall player_getResources2(void*);
@@ -427,13 +406,13 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         return 1;
     }
     */
-    /*
+    
     else if (!strcmp(s, "/worldtime"))
     {
-        chat("Worldtime = %d", get_gametime2());
+        chat("Worldtime = %u", get_worldtime());
         return 1;
     }
-    
+    /*
     else if (strstr(s, "/set-max"))
     {
         char d[0x100];
@@ -480,7 +459,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         return 1;
     }
     */
-    /*
+    
     else if (strstr(s, "/obj") || strstr(s, "/object"))
     {
         char d[0x100];
@@ -502,8 +481,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
 
         return true;
     }
-    */
-    /*
+    
     else if (strstr(s, "/sel-id"))
     {
         TRIBE_World* world = (*base_game)->world;
@@ -522,7 +500,16 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
 
         return true;
     }
-    */
+    
+    else if (strstr(s, "/goto"))
+    {
+        char d[0x100];
+        float x, y;
+        sscanf(s, "%s %f %f", d, &x, &y);
+        RGE_Player__set_view_loc(RGE_Base_Game__get_player(*base_game), x, y, 0);
+        return true;
+    }
+
     /*else if (strstr(s, "/load-all"))
     {
         int ext_types[] = {0x736C7020, 0x77617620, 0x62696E61};
@@ -1118,7 +1105,7 @@ void __stdcall on_check_ownership_log(void* action, void* player)
     else
         id = -1;
 
-    int wt = get_gametime2();
+    int wt = get_worldtime();
     int ms = wt % 1000;
     wt /= 1000;
     int s = wt % 60;
@@ -1149,7 +1136,7 @@ __declspec(naked) void on_check_ownership() //00565182
 
 void __stdcall on_update_log(void* action)
 {
-    int wt = get_gametime2();
+    int wt = get_worldtime();
     int ms = wt % 1000;
     wt /= 1000;
     int s = wt % 60;
@@ -1187,22 +1174,16 @@ struct node
     node* next;
 };
 
-
-void(__thiscall* GameScreen__pause2)(void* this_) =
-(void(__thiscall*)(void*))0x00501C30;
-
 void __stdcall pause_game2()
 {
-    void* game_screen = *(void**)((uint8_t*)(*base_game) + 0x17B4);
+    TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
     if (game_screen)
-    {
-        GameScreen__pause2(game_screen);
-    }
+        TRIBE_Screen_Game__command_pause(game_screen);
 }
 
 void __stdcall on_action_list_update_log(void* action_list)
 {
-    int wt = get_gametime2();
+    int wt = get_worldtime();
     int ms = wt % 1000;
     wt /= 1000;
     int s = wt % 60;
@@ -1226,7 +1207,7 @@ void __stdcall on_action_list_update_log(void* action_list)
         }
         //log(" actions: %s", b);
 
-        wt = get_gametime2();
+        wt = get_worldtime();
         //if (wt >= 201170)
             //__debugbreak();
             //pause_game2();
@@ -1274,7 +1255,7 @@ __declspec(naked) void on_action_list_update_call() //00406B70
 
 void __stdcall on_set_default_log(RGE_Static_Object* obj)
 {
-    int wt = get_gametime2();
+    int wt = get_worldtime();
     int ms = wt % 1000;
     wt /= 1000;
     int s = wt % 60;
@@ -1306,7 +1287,7 @@ __declspec(naked) void on_set_default() //004098C0
 
 void __stdcall on_action_object_update_log(RGE_Static_Object* obj)
 {
-    int wt = get_gametime2();
+    int wt = get_worldtime();
     int ms = wt % 1000;
     wt /= 1000;
     int s = wt % 60;
@@ -1318,7 +1299,7 @@ void __stdcall on_action_object_update_log(RGE_Static_Object* obj)
     {
         log(" [T = %01d:%02d:%02d.%03d] => action_object_update, state = %d", h, m, s, ms, (int)obj->object_state);
 
-        wt = get_gametime2();
+        wt = get_worldtime();
         //if (wt >= 200728 /*201170*/)
             //__debugbreak();
             //pause_game2();

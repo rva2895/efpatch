@@ -64,12 +64,12 @@ __declspec(naked) void static_setup_2() //0048CE4F
     }
 }
 
-void __stdcall load_master_extra_from_save(RGE_Master_Static_Object* master, void* infile)
+void __stdcall load_master_extra_from_save(RGE_Master_Static_Object* master, int infile)
 {
     if (current_save_game_version >= 4)
     {
         bool master_extra_exists;
-        deflate_read(infile, &master_extra_exists, sizeof(bool));
+        rge_read(infile, &master_extra_exists, sizeof(bool));
         if (master_extra_exists)
         {
 

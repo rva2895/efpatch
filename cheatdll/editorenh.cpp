@@ -62,127 +62,93 @@ _no_remove:
     }
 }
 
-__declspec(naked) void __stdcall window_setRect(void*, int, int, int, int)
-{
-    __asm
-    {
-        pop     eax        //ret addr
-        pop     ecx        //this
-        push    eax
-        mov     edx, [ecx]
-        jmp     dword ptr [edx + 28h]
-    }
-}
-
-__declspec(naked) void __stdcall window_setText(void*, const char*, int)
-{
-    __asm
-    {
-        mov     eax, [esp + 0Ch]
-        mov     ecx, [esp + 4]
-        push    eax
-        mov     edx, [esp + 4 + 8]
-        push    edx
-        mov     eax, 004D0AF0h
-        call    eax
-        ret     0Ch
-    }
-}
-
 const char szAmount[] = "Amount";
-const char szTimer[] = "Timer";
-const char szAllianceState[] = "Alliance State";
-const char szTargetPlayer[] = "Target Player";
-const char szQuantity[] = "Quantity";
 const char szOptions[] = "Options";
-
-__declspec(naked) void __fastcall flush_ai_trigger_dropdown(void*)
-{
-    __asm
-    {
-        push    esi
-        mov     esi, ecx
-        lea     edx, [esi + 0ED0h]
-        mov     ecx, esi
-        push    edx
-        mov     eax, 00428520h
-        call    eax
-
-        mov     ecx, [esi + 918h]
-        lea     eax, [esi + 0ED0h]
-        push    eax
-        push    ecx
-        mov     ecx, esi
-        mov     eax, 00529E50h
-        call    eax
-
-        pop     esi
-        ret
-    }
-}
-
-void(__thiscall* window_dropdown_addText) (void*, const char*, int) =
-    (void(__thiscall*) (void*, const char*, int)) 0x004C82A0;
 
 extern char** terrain_names;
 extern int terrains_loaded;
 
-void* __stdcall getEffectParams_hook(void* _this, effect* e)
+void init_ai_trigger_dropdown(TDropDownPanel* ai_trigger_dropdown)
 {
+    char b[0x100];
+    const char* ai_trigger_str = get_string(10708).c_str(); //"AI Trigger"
+    for (int i = 1; i <= 256; i++)
+    {
+        sprintf(b, "%s %d", ai_trigger_str, i);
+        TDropDownPanel__append_line(ai_trigger_dropdown, b, i);
+    }
+}
+
+void* __stdcall getEffectParams_hook(TRIBE_Screen_Sed* scr_sed, effect* e)
+{
+    //set_rect -> set_fixed_position
+    //set_text -> set_text3
+
+    //panels
+    TTextPanel* ai_trigger_text = *(TTextPanel**)((DWORD)scr_sed + 0xECC);
+    TDropDownPanel* ai_trigger_dropdown = *(TDropDownPanel**)((DWORD)scr_sed + 0xED0);
+
+    TTextPanel* message_text = *(TTextPanel**)((DWORD)scr_sed + 0xEB4);
+    TEditPanel* message_edit = *(TEditPanel**)((DWORD)scr_sed + 0xEB8);
+
+    TTextPanel* obj_list_type_text = *(TTextPanel**)((DWORD)scr_sed + 0xE58);
+    TDropDownPanel* obj_list_type_dropdown = *(TDropDownPanel**)((DWORD)scr_sed + 0xE5C);
+
+    TTextPanel* timer_text = *(TTextPanel**)((DWORD)scr_sed + 0xE28);
+    TEditPanel* timer_edit = *(TEditPanel**)((DWORD)scr_sed + 0xE2C);
+
+    TTextPanel* quantity_text = *(TTextPanel**)((DWORD)scr_sed + 0xE68);
+    TEditPanel* quantity_edit = *(TEditPanel**)((DWORD)scr_sed + 0xE6C);
+
     //quantity
-    window_setText(*(void**)((int)_this + 0xE68), szQuantity, 0);
-    //quantity hlp
-    window_setRect(*(void**)((int)_this + 0xE68), 0x181, 0x60, 0x96, 0x14);
-    //quantity type
-    window_setRect(*(void**)((int)_this + 0xE6C), 0x181, 0x74, 0x5A, 0x14);
+    quantity_text->vfptr->set_text2(quantity_text, 10731); //"Quantity"
+    quantity_text->vfptr->set_fixed_position(quantity_text, 0x181, 0x60, 0x96, 0x14);
+    quantity_edit->vfptr->set_fixed_position(quantity_edit, 0x181, 0x74, 0x5A, 0x14);
+
     switch (e->id)
     {
     case 2:            //research technology
-        flush_ai_trigger_dropdown(_this);
-        window_dropdown_addText(*(void**)((int)_this + 0xED0), "Default", -1);
-        window_dropdown_addText(*(void**)((int)_this + 0xED0), "Allow stacking", 1);
-        window_dropdown_addText(*(void**)((int)_this + 0xED0), "Ignore civ restrictions", 2);
-        window_dropdown_addText(*(void**)((int)_this + 0xED0), "Stacking/ignore civ restrictions", 3);
-        //ai trigger hlp
-        window_setRect(*(void**)((int)_this + 0xECC), 0x190, 2, 0xC8, 0x14);
-        window_setText(*(void**)((int)_this + 0xECC), szOptions, 0);
-        //ai trigger
-        window_setRect(*(void**)((int)_this + 0xED0), 0x190, 0x16, 0xC8, 0x14);
+        TDropDownPanel__empty_list(ai_trigger_dropdown);
+        TDropDownPanel__append_line(ai_trigger_dropdown, "Default", -1);
+        TDropDownPanel__append_line(ai_trigger_dropdown, "Allow stacking", 1);
+        TDropDownPanel__append_line(ai_trigger_dropdown, "Ignore civ restrictions", 2);
+        TDropDownPanel__append_line(ai_trigger_dropdown, "Stacking/ignore civ restrictions", 3);
+
+        ai_trigger_text->vfptr->set_fixed_position(ai_trigger_text, 0x190, 2, 0xC8, 0x14);
+        ai_trigger_text->vfptr->set_text3(ai_trigger_text, szOptions, NULL);
+
+        ai_trigger_dropdown->vfptr->set_fixed_position(ai_trigger_dropdown, 0x190, 0x16, 0xC8, 0x14);
         break;
     case 0xA:        //ai script goal
-        writeByte(0x0052A8F6, 0x8D);
-        writeByte(0x0052A8F7, 0x4C);
-        writeDword(0x0052A8F8, 0x0A6A1024);
-        flush_ai_trigger_dropdown(_this);
-        setHook((void*)0x0052A8F6, (void*)0x0052A943);    //remove ai trigger dropdown init
-        //ai trigger hlp
-        window_setRect(*(void**)((int)_this + 0xECC), 4, 0x3C, 0xC8, 0x14);
-        window_setText(*(void**)((int)_this + 0xECC), "AI Trigger Number", 0);
-        //ai trigger
-        window_setRect(*(void**)((int)_this + 0xED0), 4, 0x50, 0xC8, 0x14);
+        TDropDownPanel__empty_list(ai_trigger_dropdown);
+        init_ai_trigger_dropdown(ai_trigger_dropdown);
+
+        ai_trigger_text->vfptr->set_fixed_position(ai_trigger_text, 4, 0x3C, 0xC8, 0x14);
+        ai_trigger_text->vfptr->set_text2(ai_trigger_text, 10739); //"AI Trigger Number"
+
+        ai_trigger_dropdown->vfptr->set_fixed_position(ai_trigger_dropdown, 4, 0x50, 0xC8, 0x14);
         break;
-    case 0x2A:        //change unit data
-    case 0x2B:        //change property object
-    case 0x2D:        //change unit variable
-        //message hlp
-        window_setRect(*(void**)((int)_this + 0xEB4), 568, 2, 0x96, 0x14);
-        //message
-        window_setRect(*(void**)((int)_this + 0xEB8), 568, 0x16, 0x14A, 0x3C);
-        //obj list type hlp
-        window_setRect(*(void**)((int)_this + 0xE58), 0xE6, 0x3C, 0x96, 0x14);
-        //obj list type
-        window_setRect(*(void**)((int)_this + 0xE5C), 0xE6, 0x50, 0x96, 0x14);
+    case 0x2A:        //change own object master
+    case 0x2B:        //change player object master
+    case 0x2D:        //change object variable
+        message_text->vfptr->set_fixed_position(message_text, 568, 2, 0x96, 0x14);
+
+        message_edit->vfptr->set_fixed_position(message_edit, 568, 0x16, 0x14A, 0x3C);
+
+        obj_list_type_text->vfptr->set_fixed_position(obj_list_type_text, 0xE6, 0x3C, 0x96, 0x14);
+
+        obj_list_type_dropdown->vfptr->set_fixed_position(obj_list_type_dropdown, 0xE6, 0x50, 0x96, 0x14);
         break;
     case 0x2E:        //terrain
-        flush_ai_trigger_dropdown(_this);
+        TDropDownPanel__empty_list(ai_trigger_dropdown);
         for (int i = 0; i < terrains_loaded; i++)
             if (((i < 104) || (i > 128)) && (i != 53))
-                window_dropdown_addText(*(void**)((int)_this + 0xED0), terrain_names[i], i);
-        //ai trigger hlp
-        window_setRect(*(void**)((int)_this + 0xECC), 0x182, 2, 0xC8, 0x14);
-        window_setText(*(void**)((int)_this + 0xECC), "Terrain", 0);
-        //ai trigger
-        window_setRect(*(void**)((int)_this + 0xED0), 0x182, 0x16, 0xC8, 0x14);
+                TDropDownPanel__append_line(ai_trigger_dropdown, terrain_names[i], i);
+
+        ai_trigger_text->vfptr->set_fixed_position(ai_trigger_text, 0x182, 2, 0xC8, 0x14);
+        ai_trigger_text->vfptr->set_text2(ai_trigger_text, 10684); //"Terrain"
+
+        ai_trigger_dropdown->vfptr->set_fixed_position(ai_trigger_dropdown, 0x182, 0x16, 0xC8, 0x14);
         break;
     /*case 0x30:        //command
         flush_ai_trigger_dropdown(_this);
@@ -203,64 +169,49 @@ void* __stdcall getEffectParams_hook(void* _this, effect* e)
         window_setRect(*(void**)((int)_this + 0xE6C), 0x238, 0x74, 0x5A, 0x14);
         break;*/
     case 0x12:        //change ownership
-        //obj list type hlp
-        window_setRect(*(void**)((int)_this + 0xE58), 0x181, 0x67, 0x96, 0x14);
-        //obj list type
-        window_setRect(*(void**)((int)_this + 0xE5C), 0x181, 0x7B, 0x96, 0x14);
+        obj_list_type_text->vfptr->set_fixed_position(obj_list_type_text, 0x181, 0x67, 0x96, 0x14);
+
+        obj_list_type_dropdown->vfptr->set_fixed_position(obj_list_type_dropdown, 0x181, 0x7B, 0x96, 0x14);
         break;
     case 0x16:      //freeze unit
-        flush_ai_trigger_dropdown(_this);
-        window_dropdown_addText(*(void**)((int)_this + 0xED0), "Freeze unit", -1);
-        window_dropdown_addText(*(void**)((int)_this + 0xED0), "Aggressive", 1);
-        window_dropdown_addText(*(void**)((int)_this + 0xED0), "Defensive", 2);
-        window_dropdown_addText(*(void**)((int)_this + 0xED0), "Stand Ground", 3);
-        window_dropdown_addText(*(void**)((int)_this + 0xED0), "No Attack", 4);
-        //ai trigger hlp
-        window_setRect(*(void**)((int)_this + 0xECC), 0x238, 2, 0xC8, 0x14);
-        window_setText(*(void**)((int)_this + 0xECC), "Stance", 0);
-        //ai trigger
-        window_setRect(*(void**)((int)_this + 0xED0), 0x238, 0x16, 0xC8, 0x14);
+        TDropDownPanel__empty_list(ai_trigger_dropdown);
+        TDropDownPanel__append_line(ai_trigger_dropdown, "Freeze unit", -1);
+        TDropDownPanel__append_line(ai_trigger_dropdown, "Aggressive", 1);
+        TDropDownPanel__append_line(ai_trigger_dropdown, "Defensive", 2);
+        TDropDownPanel__append_line(ai_trigger_dropdown, "Stand Ground", 3);
+        TDropDownPanel__append_line(ai_trigger_dropdown, "No Attack", 4);
+
+        ai_trigger_text->vfptr->set_fixed_position(ai_trigger_text, 0x238, 2, 0xC8, 0x14);
+        ai_trigger_text->vfptr->set_text3(ai_trigger_text, "Stance", NULL);
+
+        ai_trigger_dropdown->vfptr->set_fixed_position(ai_trigger_dropdown, 0x238, 0x16, 0xC8, 0x14);
         break;
     default:
-        //timer hlp
-        window_setRect(*(void**)((int)_this + 0xE28), 0xE6, 2, 0x96, 0x14);
-        //timer
-        window_setRect(*(void**)((int)_this + 0xE2C), 0xE6, 0x16, 0x5A, 0x14);
-        //obj list type hlp
-        window_setRect(*(void**)((int)_this + 0xE58), 0xE6, 0x3C, 0x96, 0x14);
-        //obj list type
-        window_setRect(*(void**)((int)_this + 0xE5C), 0xE6, 0x50, 0x96, 0x14);
-        //message hlp
-        window_setRect(*(void**)((int)_this + 0xEB4), 0xE6, 0x41, 0x96, 0x14);
-        //message
-        window_setRect(*(void**)((int)_this + 0xEB8), 0xE6, 0x55, 0x14A, 0x3C);
+
+        timer_text->vfptr->set_fixed_position(timer_text, 0xE6, 2, 0x96, 0x14);
+
+        timer_edit->vfptr->set_fixed_position(timer_edit, 0xE6, 0x16, 0x5A, 0x14);
+
+        obj_list_type_text->vfptr->set_fixed_position(obj_list_type_text, 0xE6, 0x3C, 0x96, 0x14);
+
+        obj_list_type_dropdown->vfptr->set_fixed_position(obj_list_type_dropdown, 0xE6, 0x50, 0x96, 0x14);
+
+        message_text->vfptr->set_fixed_position(message_text, 0xE6, 0x41, 0x96, 0x14);
+
+        message_edit->vfptr->set_fixed_position(message_edit, 0xE6, 0x55, 0x14A, 0x3C);
         break;
     }
-    return _this;
+    return scr_sed;
 }
 
-__declspec(naked) void __fastcall flush_ai_signal_dropdown(void*)
+void init_ai_signal_dropdown(TDropDownPanel* ai_signal_dropdown)
 {
-    __asm
+    char b[0x100];
+    const char* ai_signal_str = get_string(10773).c_str(); //"AI Signal"
+    for (int i = 0; i < 256; i++)
     {
-        push    esi
-        mov     esi, ecx
-        lea     edx, [esi + 0ED8h]
-        mov     ecx, esi
-        push    edx
-        mov     eax, 00428520h
-        call    eax
-
-        mov     ecx, [esi + 918h]
-        lea     eax, [esi + 0ED8h]
-        push    eax
-        push    ecx
-        mov     ecx, esi
-        mov     eax, 00529E50h
-        call    eax
-
-        pop     esi
-        ret
+        sprintf(b, "%s %d", ai_signal_str, i);
+        TDropDownPanel__append_line(ai_signal_dropdown, b, i);
     }
 }
 
@@ -282,120 +233,112 @@ const char* var_names[] =
     //"Action"
 };
 
-const char* civ_names[] =
-{
-    "Galactic Empire",
-    "Gungans",
-    "Rebel Alliance",
-    "Royal Naboo",
-    "Trade Federation",
-    "Wookies",
-    "Republic",
-    "Confederacy",
-    "Zann Consortium",
-    "Geonosians",
-    "First Order",
-    "Resistance",
-    "Imperial Remnant",
-    "New Republic",
-    "Black Sun"
-};
-
-void* __stdcall getConditionParams_hook(void* _this, condition* c)
+void* __stdcall getConditionParams_hook(TRIBE_Screen_Sed* scr_sed, condition* c)
 {
     int civ_count = version_for_editor == VER_EF ? CIV_COUNT : 8;
+
+    //panels
+    TTextPanel* ai_signal_text = *(TTextPanel**)((DWORD)scr_sed + 0xED4);
+    TDropDownPanel* ai_signal_dropdown = *(TDropDownPanel**)((DWORD)scr_sed + 0xED8);
+
+    TTextPanel* timer_text = *(TTextPanel**)((DWORD)scr_sed + 0xE28);
+    TEditPanel* timer_edit = *(TEditPanel**)((DWORD)scr_sed + 0xE2C);
+
+    TTextPanel* obj_list_type_text = *(TTextPanel**)((DWORD)scr_sed + 0xE58);
+    TDropDownPanel* obj_list_type_dropdown = *(TDropDownPanel**)((DWORD)scr_sed + 0xE5C);
+
+    TTextPanel* quantity_text = *(TTextPanel**)((DWORD)scr_sed + 0xE68);
+    TEditPanel* quantity_edit = *(TEditPanel**)((DWORD)scr_sed + 0xE6C);
 
     switch (c->id)
     {
     case 5:            //objects in area
-        flush_ai_signal_dropdown(_this);
-        window_dropdown_addText(*(void**)((int)_this + 0xED8), "Default", -1);
-        window_dropdown_addText(*(void**)((int)_this + 0xED8), "Ungarrisoned only", 1);
-        window_dropdown_addText(*(void**)((int)_this + 0xED8), "Garrisoned only", 2);
+        TDropDownPanel__empty_list(ai_signal_dropdown);
+        TDropDownPanel__append_line(ai_signal_dropdown, "Default", -1);
+        TDropDownPanel__append_line(ai_signal_dropdown, "Ungarrisoned only", 1);
+        TDropDownPanel__append_line(ai_signal_dropdown, "Garrisoned only", 2);
         //ai signal hlp
-        window_setRect(*(void**)((int)_this + 0xED4), 0x240, 2, 0xC8, 0x14);
-        window_setText(*(void**)((int)_this + 0xED4), szOptions, 0);
+        ai_signal_text->vfptr->set_fixed_position(ai_signal_text, 0x240, 2, 0xC8, 0x14);
+        ai_signal_text->vfptr->set_text3(ai_signal_text, szOptions, NULL);
         //ai signal
-        window_setRect(*(void**)((int)_this + 0xED8), 0x240, 0x16, 0xC8, 0x14);
+        ai_signal_dropdown->vfptr->set_fixed_position(ai_signal_dropdown, 0x240, 0x16, 0xC8, 0x14);
         break;
     case 0xC:        //ai signal
-        writeByte(0x0052A977, 0x8D);
-        writeDword(0x0052A978, 0x6A102444);
-        flush_ai_signal_dropdown(_this);
-        setHook((void*)0x0052A977, (void*)0x0052A9C4);
+        TDropDownPanel__empty_list(ai_signal_dropdown);
+        init_ai_signal_dropdown(ai_signal_dropdown);
         //ai signal hlp
-        window_setRect(*(void**)((int)_this + 0xED4), 4, 0x3C, 0xC8, 0x14);
-        window_setText(*(void**)((int)_this + 0xED4), "AI Signal Value", 0);
+        ai_signal_text->vfptr->set_fixed_position(ai_signal_text, 4, 0x3C, 0xC8, 0x14);
+        ai_signal_text->vfptr->set_text2(ai_signal_text, 10772); //"AI Signal Value"
         //ai signal
-        window_setRect(*(void**)((int)_this + 0xED8), 4, 0x50, 0xC8, 0x14);
+        ai_signal_dropdown->vfptr->set_fixed_position(ai_signal_dropdown, 4, 0x50, 0xC8, 0x14);
         break;
     case 0x1A:        //alliance state
         //timer hlp
-        window_setRect(*(void**)((int)_this + 0xE28), 0xE6, 0x32, 0x96, 0x14);
-        window_setText(*(void**)((int)_this + 0xE28), szTargetPlayer, 0);
+        timer_text->vfptr->set_fixed_position(timer_text, 0xE6, 0x32, 0x96, 0x14);
+        timer_text->vfptr->set_text2(timer_text, 10733); //"Target Player"
         //timer
-        window_setRect(*(void**)((int)_this + 0xE2C), 0xE6, 0x46, 0x5A, 0x14);
+        timer_edit->vfptr->set_fixed_position(timer_edit, 0xE6, 0x46, 0x5A, 0x14);
 
-        flush_ai_signal_dropdown(_this);
-        window_dropdown_addText(*(void**)((int)_this + 0xED8), "Ally", 0);
-        window_dropdown_addText(*(void**)((int)_this + 0xED8), "Neutral", 1);
-        window_dropdown_addText(*(void**)((int)_this + 0xED8), "Enemy", 3);
+        TDropDownPanel__empty_list(ai_signal_dropdown);
+        TDropDownPanel__append_line2(ai_signal_dropdown, 10701, 0); //"Ally"
+        TDropDownPanel__append_line2(ai_signal_dropdown, 10702, 1); //"Neutral"
+        TDropDownPanel__append_line2(ai_signal_dropdown, 10703, 3); //"Enemy"
         //ai signal hlp
-        window_setRect(*(void**)((int)_this + 0xED4), 0x190, 2, 0xC8, 0x14);
-        window_setText(*(void**)((int)_this + 0xED4), "Alliance State", 0);
+        ai_signal_text->vfptr->set_fixed_position(ai_signal_text, 0x190, 2, 0xC8, 0x14);
+        ai_signal_text->vfptr->set_text2(ai_signal_text, 10738); //"Alliance State"
         //ai signal
-        window_setRect(*(void**)((int)_this + 0xED8), 0x190, 0x16, 0xC8, 0x14);
+        ai_signal_dropdown->vfptr->set_fixed_position(ai_signal_dropdown, 0x190, 0x16, 0xC8, 0x14);
         break;
     case 0x1B:        //var GE
     case 0x1C:        //var E
-        flush_ai_signal_dropdown(_this);
+        TDropDownPanel__empty_list(ai_signal_dropdown);
         for (int i = 0; i < sizeof(var_names) / sizeof(var_names[0]); i++)
-            window_dropdown_addText(*(void**)((int)_this + 0xED8), var_names[i], i);
+            TDropDownPanel__append_line(ai_signal_dropdown, var_names[i], i);
 
         //timer hlp
-        window_setRect(*(void**)((int)_this + 0xE28), 0x240, 0x3C, 0x96, 0x14);
-        window_setText(*(void**)((int)_this + 0xE28), szAmount, 0);
+        timer_text->vfptr->set_fixed_position(timer_text, 0x240, 0x3C, 0x96, 0x14);
+        timer_text->vfptr->set_text3(timer_text, szAmount, 0);
         //timer
-        window_setRect(*(void**)((int)_this + 0xE2C), 0x240, 0x50, 0x5A, 0x14);
+        timer_edit->vfptr->set_fixed_position(timer_edit, 0x240, 0x50, 0x5A, 0x14);
         //ai signal hlp
-        window_setRect(*(void**)((int)_this + 0xED4), 0x240, 2, 0xC8, 0x14);
-        window_setText(*(void**)((int)_this + 0xED4), "Variable", 0);
+        ai_signal_text->vfptr->set_fixed_position(ai_signal_text, 0x240, 2, 0xC8, 0x14);
+        ai_signal_text->vfptr->set_text3(ai_signal_text, "Variable", 0);
         //ai signal
-        window_setRect(*(void**)((int)_this + 0xED8), 0x240, 0x16, 0xC8, 0x14);
+        ai_signal_dropdown->vfptr->set_fixed_position(ai_signal_dropdown, 0x240, 0x16, 0xC8, 0x14);
         //quantity
-        window_setText(*(void**)((int)_this + 0xE68), szQuantity, 0);
+        quantity_text->vfptr->set_text2(quantity_text, 10731); //"Quantity"
 
         //
         //window_setText(*(void**)((int)_this + 0xED8), szQuantity, 0);
 
         break;
     case 0x1D:        //player civ
-        flush_ai_signal_dropdown(_this);
+        TDropDownPanel__empty_list(ai_signal_dropdown);
         for (int i = 0; i < civ_count; i++)
-            window_dropdown_addText(*(void**)((int)_this + 0xED8), civ_names[i], i + 1);
+            TDropDownPanel__append_line2(ai_signal_dropdown, 10231 + i, i + 1);
 
         //ai signal hlp
-        window_setRect(*(void**)((int)_this + 0xED4), 0x240, 2, 0xC8, 0x14);
-        window_setText(*(void**)((int)_this + 0xED4), "Civilization", 0);
+        ai_signal_text->vfptr->set_fixed_position(ai_signal_text, 0x240, 2, 0xC8, 0x14);
+        ai_signal_text->vfptr->set_text2(ai_signal_text, 10257); //"Civilization"
         //ai signal
-        window_setRect(*(void**)((int)_this + 0xED8), 0x240, 0x16, 0xC8, 0x14);
+        ai_signal_dropdown->vfptr->set_fixed_position(ai_signal_dropdown, 0x240, 0x16, 0xC8, 0x14);
         break;
     default:
         //timer hlp
-        window_setRect(*(void**)((int)_this + 0xE28), 0xE6, 2, 0x96, 0x14);
-        window_setText(*(void**)((int)_this + 0xE28), szTimer, 0);
+        timer_text->vfptr->set_fixed_position(timer_text, 0xE6, 2, 0x96, 0x14);
+        timer_text->vfptr->set_text2(timer_text, 10723); //"Timer"
         //window_setText(*(void**)((int)_this + 0xE28), 0, 10723);
         //timer
-        window_setRect(*(void**)((int)_this + 0xE2C), 0xE6, 0x16, 0x5A, 0x14);
+        timer_edit->vfptr->set_fixed_position(timer_edit, 0xE6, 0x16, 0x5A, 0x14);
         //obj list type hlp
-        window_setRect(*(void**)((int)_this + 0xE58), 0xE6, 0x3C, 0x96, 0x14);
+        obj_list_type_text->vfptr->set_fixed_position(obj_list_type_text, 0xE6, 0x3C, 0x96, 0x14);
         //obj list type
-        window_setRect(*(void**)((int)_this + 0xE5C), 0xE6, 0x50, 0x96, 0x14);
+        obj_list_type_dropdown->vfptr->set_fixed_position(obj_list_type_dropdown, 0xE6, 0x50, 0x96, 0x14);
         //quantity
-        window_setText(*(void**)((int)_this + 0xE68), szQuantity, 0);
+        quantity_text->vfptr->set_text2(quantity_text, 10731); //"Quantity"
         break;
     }
-    return _this;
+    return scr_sed;
 }
 
 __declspec(naked) void getEffectParams_new()

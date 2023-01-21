@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "common.h"
 
 RGE_Base_Game** const base_game = (RGE_Base_Game** const)0x006A3684;
@@ -92,28 +91,13 @@ errno_t __cdecl strcpy_safe(char* dest, size_t size, const char* source)
         return 0;
 }
 
-__declspec(naked) int __stdcall getWindowX()
+unsigned int get_worldtime()
 {
-    __asm
-    {
-        mov     eax, 006A3684h
-        mov     eax, [eax]
-        mov     eax, [eax + 24h]
-        mov     eax, [eax + 8F4h]
-        ret
-    }
-}
-
-__declspec(naked) int __stdcall getWindowY()
-{
-    __asm
-    {
-        mov     eax, 006A3684h
-        mov     eax, [eax]
-        mov     eax, [eax + 24h]
-        mov     eax, [eax + 8FCh]
-        ret
-    }
+    TRIBE_World* world = (*base_game)->world;
+    if (world)
+        return world->world_time;
+    else
+        return 0;
 }
 
 int __stdcall language_dll_load(UINT id, char* buf, int nmax)
@@ -128,6 +112,13 @@ int __stdcall language_dll_load(UINT id, char* buf, int nmax)
         return LoadString(GetModuleHandle("language.dll"), id, buf, nmax);
     else
         return n;
+}
+
+std::string get_string(int id)
+{
+    char temp_str_buffer[0x400];
+    (*base_game)->vfptr->get_string3(*base_game, id, temp_str_buffer, _countof(temp_str_buffer));
+    return temp_str_buffer;
 }
 
 //6A35D8 <- chat this
@@ -160,55 +151,6 @@ void __cdecl chat(char* format, ...)
     va_end(ap);
 }
 
-__declspec(naked) int __stdcall getMapSize()
-{
-    __asm
-    {
-        mov     eax, 006A3684h
-        mov     eax, [eax]
-        mov     eax, [eax + 420h]
-        mov     eax, [eax + 34h]
-        mov     eax, [eax + 8]
-        ret
-    }
-}
-
-void* __stdcall get_TRIBE_Command()
-{
-    return *(void**)(*(DWORD*)(*(DWORD*)0x006A3684 + 0x420) + 0x68);
-}
-
-__declspec(naked) void* __stdcall get_main_view()
-{
-    __asm
-    {
-        mov     ecx, 006A3684h
-        mov     ecx, [ecx]
-        mov     edx, [ecx]
-        call    dword ptr [edx + 30h]
-        ret
-    }
-}
-
-#pragma warning(push)
-#pragma warning(disable:4100)
-__declspec(naked) RGE_Player* __fastcall get_player(int)
-{
-    __asm
-    {
-        mov     edx, ecx
-        mov     ecx, 006A3684h
-        mov     ecx, [ecx]
-        mov     ecx, [ecx + 17B4h]
-        mov     ecx, [ecx + 126Ch]
-        mov     ecx, [ecx + 4Ch]
-        mov     eax, [ecx + edx * 4]
-        ret
-    }
-}
-
-#pragma warning(pop)
-
 void* (__cdecl* const calloc_internal)(size_t number, size_t size) =
     (void* (__cdecl* const) (size_t, size_t))0x00632D33;
 
@@ -217,9 +159,3 @@ void (__cdecl* const free_internal)(void* memory) =
 
 int (__cdecl* const rand_internal)() =
     (int (__cdecl* const)())0x00632BDD;
-
-void (__fastcall* const deflate_write) (void* outfile, void* buffer, unsigned int size) =
-    (void (__fastcall* const) (void*, void*, unsigned int))0x004D5790;
-
-void (__fastcall* const deflate_read) (void* infile, void* buffer, unsigned int size) =
-    (void (__fastcall* const) (void*, void*, unsigned int))0x004D5550;

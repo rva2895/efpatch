@@ -581,27 +581,24 @@ snow12:
     }
 }
 
-void(__thiscall* rmsDefine) (void* _this, char *str, int flag, int value, char, char, char, char) =
-    (void(__thiscall*) (void*, char*, int, int, char, char, char, char))0x004E1C20;
-
-void __stdcall mapsize_rms_define(int size, void* _this)
+void __stdcall mapsize_rms_define(int size, RGE_RMM_Script_Controller* script_controller)
 {
     switch (size)
     {
     case 320:
-        rmsDefine(_this, "MAPSIZE_320", 1, 0, 0, 0, 0, 0);
+        RGE_RMM_Script_Controller__sort_add_token(script_controller, "MAPSIZE_320", 1, 0, 0, 0, 0, 0);
         break;
     case 400:
-        rmsDefine(_this, "MAPSIZE_400", 1, 0, 0, 0, 0, 0);
+        RGE_RMM_Script_Controller__sort_add_token(script_controller, "MAPSIZE_400", 1, 0, 0, 0, 0, 0);
         break;
     case 480:
-        rmsDefine(_this, "MAPSIZE_480", 1, 0, 0, 0, 0, 0);
+        RGE_RMM_Script_Controller__sort_add_token(script_controller, "MAPSIZE_480", 1, 0, 0, 0, 0, 0);
         break;
     case 560:
-        rmsDefine(_this, "MAPSIZE_560", 1, 0, 0, 0, 0, 0);
+        RGE_RMM_Script_Controller__sort_add_token(script_controller, "MAPSIZE_560", 1, 0, 0, 0, 0, 0);
         break;
     case 640:
-        rmsDefine(_this, "MAPSIZE_640", 1, 0, 0, 0, 0, 0);
+        RGE_RMM_Script_Controller__sort_add_token(script_controller, "MAPSIZE_640", 1, 0, 0, 0, 0, 0);
         break;
     default:
         break;
@@ -810,11 +807,11 @@ __declspec(naked) void terrain_read_dat_split() //0048FAFC
         mov     ecx, ebp
         mov     dword ptr [esi], 0065B5C0h
         mov     [esi + 0BF7Ch], ebx
-        call    deflate_read
+        call    rge_read
         push    NEW_RGE_SIZE-NEW_RGE_STEP
         lea     edx, [esi+NEW_RGE_STEP]
         mov     ecx, ebp
-        call    deflate_read
+        call    rge_read
         //shift RGE
         push    RGE_POST_BORDER_SIZE       //count
         mov     eax, esi

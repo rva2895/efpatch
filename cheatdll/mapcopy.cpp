@@ -20,19 +20,16 @@ loc_52F0F1:
     }
 }
 
-void (__thiscall* setShape) (void* this_, int x1, int y1, int x2, int y2) =
-    (void (__thiscall*) (void*, int, int, int, int))0x0060AFC0;
-
-void __stdcall fixShape(void* this_, float x, float y, short c)
+void __stdcall fixShape(RGE_View* view, float x, float y, short c)
 {
     if (mapcopy)
     {
         int cx = (mapcopy_x + 1) % 2;
         int cy = (mapcopy_y + 1) % 2;
-        setShape(this_, x - (mapcopy_x >> 1), y - (mapcopy_y >> 1), x + (mapcopy_x >> 1) - cx, y + (mapcopy_y >> 1) - cy);
+        RGE_View__set_selection_area(view, x - (mapcopy_x >> 1), y - (mapcopy_y >> 1), x + (mapcopy_x >> 1) - cx, y + (mapcopy_y >> 1) - cy);
     }
     else
-        setShape(this_, x - (c >> 1), y - (c >> 1), x + (c >> 1), y + (c >> 1));
+        RGE_View__set_selection_area(view, x - (c >> 1), y - (c >> 1), x + (c >> 1), y + (c >> 1));
 }
 
 __declspec(naked) void onSetShape() //0060CBC1

@@ -15,15 +15,6 @@
 
 __int16 player_id_for_gaia_control = 0;
 
-int __stdcall getCurrentPlayerId()
-{
-    RGE_Player* c = RGE_Base_Game__get_player(*base_game);
-    for (int i = 0; i <= 8; i++)
-        if (c == get_player(i))
-            return i;
-    return -1;
-}
-
 bool __stdcall checkCheats(char* s2)
 {
     char dummy[0x80];
@@ -78,7 +69,7 @@ bool __stdcall checkCheats(char* s2)
             //new ef cheats, SP only
             if (strstr(s, "LUMINOUS BEINGS ARE WE"))
             {
-                int player_id = getCurrentPlayerId();
+                int player_id = RGE_Base_Game__get_player(*base_game)->id;
                 RGE_Player__unselect_object(player);
                 if (player_id != 0)
                 {

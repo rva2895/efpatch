@@ -68,7 +68,7 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
     s->GetDC(&hdc);
 
     RECT r;
-    r.left = getWindowX() - RECT_RIGHT_OFFSET;
+    r.left = (*base_game)->prog_info->game_wid - RECT_RIGHT_OFFSET;
     r.right = RECT_X + r.left;
     r.top = 8;
     r.bottom = RECT_Y + 8;
@@ -132,7 +132,7 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
 
     //rms stuff
     r.left = 600;
-    r.right = getWindowX();
+    r.right = (*base_game)->prog_info->game_wid;
     snprintf(buf, _countof(buf), "%s%s", rms_error_1.c_str(), rms_error_2.c_str());
     DrawText_outline(hdc, &r, buf);
     //

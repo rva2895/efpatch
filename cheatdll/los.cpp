@@ -88,10 +88,10 @@ bool __stdcall is_los_save_option_enabled2(RGE_Player* player)
     return *((unsigned char*)player + 0x21) >= 0xD;
 }
 
-void __stdcall los_read_save2(UNIT_LOS_DATA** los_data, void* infile)
+void __stdcall los_read_save2(UNIT_LOS_DATA** los_data, int infile)
 {
     bool flag;
-    deflate_read(infile, &flag, sizeof(flag));
+    rge_read(infile, &flag, sizeof(flag));
     if (flag)
     {
         /*UNIT_LOS_DATA** next_ptr = los_data;
@@ -113,16 +113,16 @@ void __stdcall los_read_save2(UNIT_LOS_DATA** los_data, void* infile)
 
         if (!*los_data)
             *los_data = (UNIT_LOS_DATA*)malloc(sizeof(UNIT_LOS_DATA));
-        deflate_read(infile, &(*los_data)->x, sizeof((*los_data)->x));
-        deflate_read(infile, &(*los_data)->y, sizeof((*los_data)->y));
-        deflate_read(infile, &(*los_data)->radius, sizeof((*los_data)->radius));
+        rge_read(infile, &(*los_data)->x, sizeof((*los_data)->x));
+        rge_read(infile, &(*los_data)->y, sizeof((*los_data)->y));
+        rge_read(infile, &(*los_data)->radius, sizeof((*los_data)->radius));
     }
 }
 
-void __stdcall los_write_save2(UNIT_LOS_DATA* los_data, void* outfile)
+void __stdcall los_write_save2(UNIT_LOS_DATA* los_data, int outfile)
 {
     bool flag = los_data;
-    deflate_write(outfile, &flag, sizeof(flag));
+    rge_write(outfile, &flag, sizeof(flag));
     if (flag)
     {
         /*UNIT_LOS_DATA* next_ptr = los_data;
@@ -141,9 +141,9 @@ void __stdcall los_write_save2(UNIT_LOS_DATA* los_data, void* outfile)
             next_ptr = next_ptr->next;
         } while (next_ptr);*/
 
-        deflate_write(outfile, &los_data->x, sizeof(los_data->x));
-        deflate_write(outfile, &los_data->y, sizeof(los_data->y));
-        deflate_write(outfile, &los_data->radius, sizeof(los_data->radius));
+        rge_write(outfile, &los_data->x, sizeof(los_data->x));
+        rge_write(outfile, &los_data->y, sizeof(los_data->y));
+        rge_write(outfile, &los_data->radius, sizeof(los_data->radius));
     }
 }
 
@@ -539,14 +539,14 @@ __declspec(naked) void visible_map_constructor2_2() //00615324
     }
 }
 
-void __stdcall read_visible_map(int x, int y, unsigned __int16* visible_map, RGE_Player* player, void* infile)
+void __stdcall read_visible_map(int x, int y, unsigned __int16* visible_map, RGE_Player* player, int infile)
 {
     if (is_los_save_option_enabled2(player))
-        deflate_read(infile, visible_map, x * y * 2);
+        rge_read(infile, visible_map, x * y * 2);
     else
     {
         unsigned __int8* temp_map = (unsigned char*)malloc(x * y);
-        deflate_read(infile, temp_map, x * y);
+        rge_read(infile, temp_map, x * y);
         for (int i = 0; i < (x * y); i++)
             visible_map[i] = temp_map[i] == 0xFF ? 0xFFFF : temp_map[i];
         free(temp_map);
@@ -574,16 +574,16 @@ __declspec(naked) void visible_map_constructor2_3() //00615335
     }
 }
 
-void __stdcall write_visible_map(int x, int y, unsigned __int16* visible_map, RGE_Player* player, void* outfile)
+void __stdcall write_visible_map(int x, int y, unsigned __int16* visible_map, RGE_Player* player, int outfile)
 {
     if (is_los_save_option_enabled2(player))
-        deflate_write(outfile, visible_map, x * y * 2);
+        rge_write(outfile, visible_map, x * y * 2);
     else
     {
         unsigned __int8* temp_map = (unsigned char*)malloc(x * y);
         for (int i = 0; i < (x * y); i++)
             temp_map[i] = visible_map[i] == 0xFFFF ? 0xFF : (visible_map[i] >= 0xF9 ? 0xF9 : (unsigned __int8)visible_map[i]);
-        deflate_write(outfile, temp_map, x * y);
+        rge_write(outfile, temp_map, x * y);
         free(temp_map);
     }
 }
