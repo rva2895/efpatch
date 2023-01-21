@@ -155,9 +155,9 @@ public:
     }
 };
 
-uint8_t get_player_number(void* player)
+int get_player_number(RGE_Player* player)
 {
-    return *(uint32_t*)((uint8_t*)player + 0xA0);
+    return player->id;
 }
 
 void set_target_obj(void* order, RGE_Static_Object* object)
@@ -267,7 +267,7 @@ void __declspec(nothrow) __stdcall do_effect_command(int qty, int command, RGE_P
         fy = (float)y + 0.5f;
     }
 
-    void* tribe_command = get_TRIBE_Command();
+    TRIBE_Command* tribe_command = (*base_game)->world->commands;
 
     MEMORY_STREAM m;
 

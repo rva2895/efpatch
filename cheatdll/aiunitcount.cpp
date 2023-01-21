@@ -706,49 +706,49 @@ int16_t* __stdcall get_player_counter_2F0(void* player)
     return *(int16_t**)((uint8_t*)player + 0x2F0);
 }
 
-void __stdcall read_player_counters(void* player, void* infile)
+void __stdcall read_player_counters(void* player, int infile)
 {
     int unit_count;
-    deflate_read(infile, &unit_count, sizeof(unit_count));
+    rge_read(infile, &unit_count, sizeof(unit_count));
 
     setup_player_counters(player);
 
     if (current_save_game_version >= 1) //new loader
     {
-        deflate_read(infile, get_player_counter_2F0(player) - 0x100, unit_count * sizeof(int16_t));
-        deflate_read(infile, get_player_counter_1038(player) - 0x100, unit_count * sizeof(int16_t));
+        rge_read(infile, get_player_counter_2F0(player) - 0x100, unit_count * sizeof(int16_t));
+        rge_read(infile, get_player_counter_1038(player) - 0x100, unit_count * sizeof(int16_t));
         /*int n_specified_builders_per_type;
-        deflate_read(infile, &n_specified_builders_per_type, sizeof(n_specified_builders_per_type));
+        rge_read(infile, &n_specified_builders_per_type, sizeof(n_specified_builders_per_type));
         for (int i = 0; i < n_specified_builders_per_type; i++)
         {
             int16_t unit_id;
             uint8_t builders;
-            deflate_read(infile, &unit_id, sizeof(unit_id));
-            deflate_read(infile, &builders, sizeof(builders));
+            rge_read(infile, &unit_id, sizeof(unit_id));
+            rge_read(infile, &builders, sizeof(builders));
             get_player_counter_builders_per_type(player)[unit_id] = builders;
         }*/
-        deflate_read(infile, get_player_counter_builders_per_type(player), unit_count);
+        rge_read(infile, get_player_counter_builders_per_type(player), unit_count);
     }
     else //old loader
     {
-        deflate_read(infile, get_player_counter_2F0(player) - 0x80, unit_count * sizeof(int16_t));
-        deflate_read(infile, (uint8_t*)get_player_counter_2F0(player) + 1600 * 2, 0xC8);
-        deflate_read(infile, get_player_counter_1038(player) - 0x80, unit_count * sizeof(int16_t));
-        deflate_read(infile, get_player_counter_builders_per_type(player), unit_count);
+        rge_read(infile, get_player_counter_2F0(player) - 0x80, unit_count * sizeof(int16_t));
+        rge_read(infile, (uint8_t*)get_player_counter_2F0(player) + 1600 * 2, 0xC8);
+        rge_read(infile, get_player_counter_1038(player) - 0x80, unit_count * sizeof(int16_t));
+        rge_read(infile, get_player_counter_builders_per_type(player), unit_count);
         //char dummy[0xC8];
-        //deflate_read(infile, dummy, 0xc8);
-        deflate_read(infile, (uint8_t*)get_player_counter_1038(player) + 1600 * 2, 0xC8);
+        //rge_read(infile, dummy, 0xc8);
+        rge_read(infile, (uint8_t*)get_player_counter_1038(player) + 1600 * 2, 0xC8);
     }
 }
 
-void __stdcall write_player_counters(void* player, void* outfile)
+void __stdcall write_player_counters(void* player, int outfile)
 {
     int unit_count = UNIT_COUNT_FOR_COUNTERS;
-    deflate_write(outfile, &unit_count, sizeof(unit_count));
+    rge_write(outfile, &unit_count, sizeof(unit_count));
 
-    deflate_write(outfile, get_player_counter_2F0(player) - 0x100, UNIT_COUNT_FOR_COUNTERS * sizeof(int16_t));
-    deflate_write(outfile, get_player_counter_1038(player) - 0x100, UNIT_COUNT_FOR_COUNTERS * sizeof(int16_t));
-    deflate_write(outfile, get_player_counter_builders_per_type(player), UNIT_COUNT_FOR_COUNTERS);
+    rge_write(outfile, get_player_counter_2F0(player) - 0x100, UNIT_COUNT_FOR_COUNTERS * sizeof(int16_t));
+    rge_write(outfile, get_player_counter_1038(player) - 0x100, UNIT_COUNT_FOR_COUNTERS * sizeof(int16_t));
+    rge_write(outfile, get_player_counter_builders_per_type(player), UNIT_COUNT_FOR_COUNTERS);
 }
 
 void __stdcall delete_player_counters(void* player)
@@ -864,22 +864,22 @@ int32_t* __stdcall get_info_ai_counter(void* info_ai)
     return *(int32_t**)((uint8_t*)info_ai + 0x3D8);
 }
 
-void __stdcall read_info_ai_counters(void* info_ai, void* infile)
+void __stdcall read_info_ai_counters(void* info_ai, int infile)
 {
     int unit_count;
-    deflate_read(infile, &unit_count, sizeof(unit_count));
+    rge_read(infile, &unit_count, sizeof(unit_count));
 
     setup_info_ai_counters(info_ai);
 
-    deflate_read(infile, get_info_ai_counter(info_ai), unit_count * sizeof(int32_t));
+    rge_read(infile, get_info_ai_counter(info_ai), unit_count * sizeof(int32_t));
 }
 
-void __stdcall write_info_ai_counters(void* info_ai, void* outfile)
+void __stdcall write_info_ai_counters(void* info_ai, int outfile)
 {
     int unit_count = UNIT_COUNT_FOR_COUNTERS;
-    deflate_write(outfile, &unit_count, sizeof(unit_count));
+    rge_write(outfile, &unit_count, sizeof(unit_count));
 
-    deflate_write(outfile, get_info_ai_counter(info_ai), UNIT_COUNT_FOR_COUNTERS * sizeof(int32_t));
+    rge_write(outfile, get_info_ai_counter(info_ai), UNIT_COUNT_FOR_COUNTERS * sizeof(int32_t));
 }
 
 void __stdcall delete_info_ai_counters(void* info_ai)

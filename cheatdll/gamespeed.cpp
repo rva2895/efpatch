@@ -3,22 +3,19 @@
 #include <MMSystem.h>
 #include <vector>
 
-void (__thiscall* setGameSpeed) (void* this_, float spd) =
-    (void(__thiscall*) (void*, float))0x005BD6B0;
-
 const float game_speeds[] =
 {
     0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0
 };
 
-void __stdcall setGameSpeed_new(void* this_, float spd, int isInc)
+void __stdcall setGameSpeed_new(TRIBE_Command* cmd, float spd, int isInc)
 {
     int i;
-    for (i = 0; (i < sizeof(game_speeds) / sizeof(game_speeds[0])) && (spd > game_speeds[i]); i++)
+    for (i = 0; (i < _countof(game_speeds)) && (spd > game_speeds[i]); i++)
         ;
     if (isInc) i++; else i--;
-    if ((i >= 0) && (i < sizeof(game_speeds) / sizeof(game_speeds[0])))
-        setGameSpeed(this_, game_speeds[i]);
+    if ((i >= 0) && (i < _countof(game_speeds)))
+        TRIBE_Command__command_game_speed(cmd, game_speeds[i]);
 }
 
 __declspec(naked) void onCheckGameSpeed() //0050189E
@@ -38,6 +35,7 @@ __declspec(naked) void onCheckGameSpeed() //0050189E
 }
 
 //recorded game
+/*
 void __fastcall printSpeed(int speed)
 {
     char* s = "";
@@ -79,6 +77,7 @@ void __fastcall printSpeed(int speed)
     }
     chat("Playback Speed: %s", s);
 }
+*/
 
 __declspec(naked) void onSlowDown() //004FAF6B
 {

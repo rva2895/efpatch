@@ -16,13 +16,6 @@ typedef DWORD DPID;
 #define __int32 int
 #define __int64 long long
 
-struct _GUID;
-struct $DC731844EB8703AC39E0F1B64989CDCD;
-struct tagWNDCLASSA;
-struct HWND__;
-struct HICON__;
-struct HBRUSH__;
-struct tagMCI_OPEN_PARMSA;
 struct RGE_Master_Animated_Object;
 struct RGE_Player;
 struct TRIBE_Player;
@@ -111,6 +104,7 @@ struct Visible_Resource_Manager;
 struct RGE_Doppleganger_Creator;
 struct RGE_Armor_Weapon_Info;
 struct LOSTBL;
+struct MShortPather;
 struct XYPoint;
 struct RGE_New_Object_List;
 struct BMovementData;
@@ -209,6 +203,7 @@ struct VSpan_Node;
 struct RGE_RMM_Token;
 struct RGE_Land_Data_Entry;
 struct RGE_RMM_Cliffs_Generator;
+struct IntersectRecord;
 struct NAME;
 struct Shape_Clip_Node;
 struct Shape_File_Header;
@@ -267,22 +262,6 @@ struct RGE_Master_Static_ObjectVtbl;
 struct RGE_Base_GameVtbl;
 struct TRIBE_GameVtbl;
 struct MouseClickInfo;
-struct IDirectDrawSurfaceVtbl;
-struct IDirectDrawSurface;
-struct _DDBLTFX;
-struct _DDBLTBATCH;
-struct IDirectDrawClipper;
-struct IDirectDrawClipperVtbl;
-struct _RGNDATA;
-struct IDirectDraw;
-struct IDirectDrawVtbl;
-struct IUnknown;
-struct IUnknownVtbl;
-struct IDirectDrawPalette;
-struct IDirectDrawPaletteVtbl;
-struct _DDCAPS;
-struct HDC__;
-struct _DDOVERLAYFX;
 struct RGE_ActionVtbl;
 struct RGE_Action_BirdVtbl;
 struct RGE_Action_AttackVtbl;
@@ -461,6 +440,26 @@ struct BaseItemVtbl;
 struct BuildAIModuleVtbl;
 struct UnitAIModule__UnitAIRetargetEntry;
 struct UnitAIModuleVtbl;
+struct SoftOb_ArrayList;
+struct RGE_Obstruction_Manager_LandVtbl;
+struct RGE_Obstruction_Manager_AirVtbl;
+struct ILine;
+struct NodeArrayInfo;
+struct ObListControl;
+struct TribeArtifactUnitAIModuleVtbl;
+struct TribeCivilianUnitAIModuleVtbl;
+struct TribePriestUnitAIModuleVtbl;
+struct TribeMedicUnitAIModuleVtbl;
+struct TribeHuntedAnimalUnitAIModuleVtbl;
+struct TribeElephantUnitAIModuleVtbl;
+struct TribeLionUnitAIModuleVtbl;
+struct TribeSiegeUnitAIModuleVtbl;
+struct TribeFishingShipUnitAIModuleVtbl;
+struct TribeTradeShipUnitAIModuleVtbl;
+struct TribeTransportShipUnitAIModuleVtbl;
+struct TribeBuildingUnitAIModuleVtbl;
+struct TribeTowerUnitAIModuleVtbl;
+struct TribeSoldierUnitAIModuleVtbl;
 
 /* 54 */
 #pragma pack(push, 1)
@@ -5676,9 +5675,23 @@ struct RGE_Action_Node
 #pragma pack(pop)
 
 /* 272 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct RGE_Player_Info
 {
+  char name[9][65];
+  char type[9];
+  char tribe[9];
+  __int16 color[9];
+  int player_id_hash[9];
+  __int16 player_num;
+  char *scenario;
+  RGE_Map_Gen_Info *map_info;
+  __int16 map_type;
+  __int16 map_width;
+  __int16 map_height;
+  __int16 ai_info;
+  unsigned __int8 campaign;
+  char map_script_name[260];
 };
 #pragma pack(pop)
 
@@ -6560,17 +6573,111 @@ struct UMV_Offset_Point
 };
 #pragma pack(pop)
 
+/* 971 */
+#pragma pack(push, 8)
+struct QTLevelInfo
+{
+  int Level;
+  int ShiftCount;
+  int YScale;
+  int NodeIndex;
+  NodeArrayInfo *NodeBase;
+};
+#pragma pack(pop)
+
 /* 191 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct RGE_Obstruction_Manager_Land
 {
+  RGE_Obstruction_Manager_LandVtbl *vfptr;
+  unsigned __int8 Active;
+  RGE_Game_World *World;
+  int Width;
+  int Height;
+  float mfwidth;
+  float mfheight;
+  unsigned int *HardObArrayData;
+  unsigned int **HardObArray;
+  int TempNodes;
+  int TempNodes2;
+  ILine *DebugLines[8];
+  int *LineColor[8];
+  int NumDebugLines[8];
+  int CurrentDebugLine;
+  int NumLevels;
+  NodeArrayInfo *NodeArray;
+  int NodeArraySize;
+  int NodeLevelIndex[32];
+  QTLevelInfo LevelInfo[8];
+  MShortPather *ShortPathFinder;
+  TDebuggingLog *OL;
+  FILE *oslogfile;
+  SoftOb_ArrayList *SoftNodeManager;
+  ObListControl *ListPool;
+  int ListPoolSize;
+  unsigned __int8 UseIgnoreList;
+  int NumIgnoreIDs;
+  int *IgnoreIDList;
+  IntersectRecord *IntersectionList;
+  int *NumIntersections;
+  int MaxIntersections;
+  unsigned __int8 DetailIntersect;
+  unsigned __int8 IgnoreMoving;
+  unsigned __int8 UseBufferRadius;
+  float BufferRadius;
+  void (__cdecl **CallBackPtr)(void *, int, int, int, int);
+  void *CallBackObj;
+  ObsRecord *TerrainObjectsList;
+  int mnplayernum;
+  ObsRecord *mpEdgeCollisions[4];
 };
 #pragma pack(pop)
 
 /* 192 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct RGE_Obstruction_Manager_Air
 {
+  RGE_Obstruction_Manager_AirVtbl *vfptr;
+  unsigned __int8 Active;
+  RGE_Game_World *World;
+  int Width;
+  int Height;
+  float mfwidth;
+  float mfheight;
+  unsigned int *HardObArrayData;
+  unsigned int **HardObArray;
+  int TempNodes;
+  int TempNodes2;
+  ILine *DebugLines[8];
+  int *LineColor[8];
+  int NumDebugLines[8];
+  int CurrentDebugLine;
+  int NumLevels;
+  NodeArrayInfo *NodeArray;
+  int NodeArraySize;
+  int NodeLevelIndex[32];
+  QTLevelInfo LevelInfo[8];
+  MShortPather *ShortPathFinder;
+  TDebuggingLog *OL;
+  FILE *oslogfile;
+  SoftOb_ArrayList *SoftNodeManager;
+  ObListControl *ListPool;
+  int ListPoolSize;
+  unsigned __int8 UseIgnoreList;
+  int NumIgnoreIDs;
+  int *IgnoreIDList;
+  IntersectRecord *IntersectionList;
+  int *NumIntersections;
+  int MaxIntersections;
+  unsigned __int8 DetailIntersect;
+  unsigned __int8 IgnoreMoving;
+  unsigned __int8 UseBufferRadius;
+  float BufferRadius;
+  void (__cdecl **CallBackPtr)(void *, int, int, int, int);
+  void *CallBackObj;
+  ObsRecord *TerrainObjectsList;
+  int mnplayernum;
+  ObsRecord *mpEdgeCollisions[4];
 };
 #pragma pack(pop)
 
@@ -7367,6 +7474,42 @@ struct RGE_ActionVtbl
   void (__thiscall *set_target_obj)(RGE_Action *, RGE_Static_Object *);
   void (__thiscall *set_target_obj2)(RGE_Action *, RGE_Static_Object *);
   void (__thiscall *set_state)(RGE_Action *, unsigned __int8);
+};
+#pragma pack(pop)
+
+/* 604 */
+#pragma pack(push, 8)
+struct RGE_Info_Line
+{
+  float clump_num;
+  __int16 percent_of_tiles_covered;
+  __int16 percent_updown;
+  __int16 min_elevation;
+  __int16 max_elevation;
+  __int16 terrain_type;
+  __int16 terrain_base;
+  char obj_id;
+};
+#pragma pack(pop)
+
+/* 605 */
+#pragma pack(push, 8)
+struct RGE_Map_Gen_Info
+{
+  __int16 base_terrain;
+  RGE_Info_Line land;
+  RGE_Info_Line elevation[20];
+  __int16 elevation_num;
+  RGE_Info_Line terrain[20];
+  __int16 terrain_num;
+  RGE_Info_Line objects[20];
+  __int16 objects_num;
+  __int16 player_num;
+  __int16 player_x[9];
+  __int16 player_y[9];
+  __int16 player_connect[9];
+  __int16 player_base_land[9];
+  __int16 space_between_islands_or_edge;
 };
 #pragma pack(pop)
 
@@ -9080,6 +9223,207 @@ struct TRIBE_Building_Object
 };
 #pragma pack(pop)
 
+/* 966 */
+#pragma pack(push, 8)
+struct RGE_Obstruction_Manager_LandVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Obstruction_Manager_Land *, unsigned int);
+  bool (__thiscall *Init)(RGE_Obstruction_Manager_Land *, RGE_Game_World *);
+  bool (__thiscall *DeInit)(RGE_Obstruction_Manager_Land *);
+  bool (__thiscall *InstallTerrain)(RGE_Obstruction_Manager_Land *);
+  void (__thiscall *ResetTerrainObjects)(RGE_Obstruction_Manager_Land *);
+  void (__thiscall *AddTerrainObject)(RGE_Obstruction_Manager_Land *, int, int);
+  bool (__thiscall *CheckForTerrainCollisions)(RGE_Obstruction_Manager_Land *, float, float, float, float, int);
+  int (__thiscall *GetTerrainMask)(RGE_Obstruction_Manager_Land *, float *);
+  bool (__thiscall *AddHardObstruction)(RGE_Obstruction_Manager_Land *, int, int, int, int, int, int, RGE_Static_Object *);
+  bool (__thiscall *RemoveHardObstruction)(RGE_Obstruction_Manager_Land *, int, int, int, int, RGE_Static_Object *);
+  bool (__thiscall *UpdateObjectObstruction)(RGE_Obstruction_Manager_Land *, RGE_Static_Object *);
+  bool (__thiscall *RemoveObjectObstruction)(RGE_Obstruction_Manager_Land *, RGE_Static_Object *);
+  void (__thiscall *ModifyObjectObstruction)(RGE_Obstruction_Manager_Land *, RGE_Static_Object *, int);
+  bool (__thiscall *unknown1)(RGE_Obstruction_Manager_Land *, int, int);
+  bool (__thiscall *unknown2)(RGE_Obstruction_Manager_Land *, int, int, int);
+  bool (__thiscall *unknown3)(RGE_Obstruction_Manager_Land *, int, int, int);
+  bool (__thiscall *DeleteObList)(RGE_Obstruction_Manager_Land *, RGE_Static_Object *);
+  int (__thiscall *unknown4)(RGE_Obstruction_Manager_Land *, int);
+  bool (__thiscall *unknown5)(RGE_Obstruction_Manager_Land *, int);
+  bool (__thiscall *CheckForCollisions)(RGE_Obstruction_Manager_Land *, float, float, float, float, int, int *, ObsRecord **, int, int, int *, int);
+  bool (__thiscall *CheckForSingleCollision)(RGE_Obstruction_Manager_Land *, float, float, float, float, int, int, int *, int);
+  void (__thiscall *SetIgnoreList)(RGE_Obstruction_Manager_Land *, bool, int *, int);
+  void (__thiscall *SetDetailList)(RGE_Obstruction_Manager_Land *, IntersectRecord *, int *, int);
+  void (__thiscall *SetBufferRadius)(RGE_Obstruction_Manager_Land *, bool, float);
+  void (__thiscall *DeleteObRecord)(RGE_Obstruction_Manager_Land *, ObsRecord *);
+  int (__thiscall *unknown6)(RGE_Obstruction_Manager_Land *);
+  int (__thiscall *unknown7)(RGE_Obstruction_Manager_Land *);
+  bool (__thiscall *DisplayObstructionInView)(RGE_Obstruction_Manager_Land *, ObsRecord *, int, int, int, int);
+  bool (__thiscall *unknown8)(RGE_Obstruction_Manager_Land *, int);
+  void (__thiscall *AddDebugLine)(RGE_Obstruction_Manager_Land *, float, float, float, float, int, int);
+  void (__thiscall *AddDebugLine2)(RGE_Obstruction_Manager_Land *, int, int, int, int, int, int);
+  void (__thiscall *ClearDebugLines)(RGE_Obstruction_Manager_Land *, int);
+  void (__thiscall *SetUpdateCallback)(RGE_Obstruction_Manager_Land *, void (__fastcall **)(void *, int, int, int, int), void *);
+  void (__thiscall *Reset)(RGE_Obstruction_Manager_Land *);
+  bool (__thiscall *CheckForCollisionsInNode)(RGE_Obstruction_Manager_Land *, int, int, int *, ObsRecord **, int, int *, int);
+  bool (__thiscall *CheckLineCollision)(RGE_Obstruction_Manager_Land *, float, float, float, float, ObsRecord *);
+  int (__thiscall *unknown9)(RGE_Obstruction_Manager_Land *, int);
+  bool (__thiscall *CheckBoxCollision)(RGE_Obstruction_Manager_Land *, ObsRecord *);
+  bool (__thiscall *CheckCircleCollision)(RGE_Obstruction_Manager_Land *, ObsRecord *);
+  bool (__thiscall *RecordDetails)(RGE_Obstruction_Manager_Land *, ObsRecord *, Point *);
+  bool (__thiscall *CheckForContainedPointInNode)(RGE_Obstruction_Manager_Land *, int, int, int *, ObsRecord **, int, int *, int);
+  bool (__thiscall *CheckForSingleCollisionsInNode)(RGE_Obstruction_Manager_Land *, int, int, int *, int, int);
+  bool (__thiscall *CheckSingleBoxCollision)(RGE_Obstruction_Manager_Land *, ObsRecord *);
+  bool (__thiscall *CheckSingleCircleCollision)(RGE_Obstruction_Manager_Land *, ObsRecord *);
+  void (__thiscall *addEdgeCollision)(RGE_Obstruction_Manager_Land *, float, float, float, float, int *, ObsRecord **, int);
+};
+#pragma pack(pop)
+
+/* 968 */
+#pragma pack(push, 8)
+struct IPoint
+{
+  int X;
+  int Y;
+};
+#pragma pack(pop)
+
+/* 969 */
+#pragma pack(push, 8)
+struct ILine
+{
+  IPoint P0;
+  IPoint P1;
+};
+#pragma pack(pop)
+
+/* 970 */
+#pragma pack(push, 8)
+struct NodeArrayInfo
+{
+  ObsRecord **RecList;
+  int NumActive;
+  int BlockSize;
+};
+#pragma pack(pop)
+
+/* 203 */
+#pragma pack(push, 1)
+struct MShortPather
+{
+};
+#pragma pack(pop)
+
+/* 288 */
+#pragma pack(push, 8)
+struct TDebuggingLog
+{
+  TDebuggingLogVtbl *vfptr;
+  int Timestamp;
+  int DateTimestamp;
+  int LogToFile;
+  int LogToOutput;
+  int Sequence;
+  int Flush;
+  int LogIsOpen;
+  int LogError;
+  unsigned int LogStartTickCount;
+  unsigned int SeqNo;
+  int NetworkLogging;
+  char TBuff[2000];
+  char osbuf[1000];
+  char Filename[128];
+  char BaseFilename[128];
+  FILE *logstream;
+};
+#pragma pack(pop)
+
+/* 965 */
+#pragma pack(push, 8)
+struct SoftOb_ArrayList
+{
+  ObsRecord **Zone_Ptrs;
+  int *Zone_Size_Ptrs;
+  int Used_Zones;
+  int Max_Zones;
+  ObsRecord *Free_Head;
+  int Free_Pool_Zone;
+  int Free_Pool_Index;
+  int Total_Blocks;
+  int Free_Blocks;
+  int Default_Grow_Size;
+};
+#pragma pack(pop)
+
+/* 972 */
+#pragma pack(push, 8)
+struct ObListControl
+{
+  RGE_Static_Object *Object;
+  ObsRecord **Records;
+  int NumRecords;
+  int AllocSize;
+};
+#pragma pack(pop)
+
+/* 502 */
+#pragma pack(push, 8)
+struct IntersectRecord
+{
+  ObsRecord *ObRec;
+  int ObjId;
+  Point IntPoint;
+};
+#pragma pack(pop)
+
+/* 967 */
+#pragma pack(push, 8)
+struct RGE_Obstruction_Manager_AirVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Obstruction_Manager_Air *, unsigned int);
+  bool (__thiscall *Init)(RGE_Obstruction_Manager_Air *, RGE_Game_World *);
+  bool (__thiscall *DeInit)(RGE_Obstruction_Manager_Air *);
+  bool (__thiscall *InstallTerrain)(RGE_Obstruction_Manager_Air *);
+  void (__thiscall *ResetTerrainObjects)(RGE_Obstruction_Manager_Air *);
+  void (__thiscall *AddTerrainObject)(RGE_Obstruction_Manager_Air *, int, int);
+  bool (__thiscall *CheckForTerrainCollisions)(RGE_Obstruction_Manager_Air *, float, float, float, float, int);
+  int (__thiscall *GetTerrainMask)(RGE_Obstruction_Manager_Air *, float *);
+  bool (__thiscall *AddHardObstruction)(RGE_Obstruction_Manager_Air *, int, int, int, int, int, int, RGE_Static_Object *);
+  bool (__thiscall *RemoveHardObstruction)(RGE_Obstruction_Manager_Air *, int, int, int, int, RGE_Static_Object *);
+  bool (__thiscall *UpdateObjectObstruction)(RGE_Obstruction_Manager_Air *, RGE_Static_Object *);
+  bool (__thiscall *RemoveObjectObstruction)(RGE_Obstruction_Manager_Air *, RGE_Static_Object *);
+  void (__thiscall *ModifyObjectObstruction)(RGE_Obstruction_Manager_Air *, RGE_Static_Object *, int);
+  bool (__thiscall *unknown1)(RGE_Obstruction_Manager_Air *, int, int);
+  bool (__thiscall *unknown2)(RGE_Obstruction_Manager_Air *, int, int, int);
+  bool (__thiscall *unknown3)(RGE_Obstruction_Manager_Air *, int, int, int);
+  bool (__thiscall *DeleteObList)(RGE_Obstruction_Manager_Air *, RGE_Static_Object *);
+  int (__thiscall *unknown4)(RGE_Obstruction_Manager_Air *, int);
+  bool (__thiscall *unknown5)(RGE_Obstruction_Manager_Air *, int);
+  bool (__thiscall *CheckForCollisions)(RGE_Obstruction_Manager_Air *, float, float, float, float, int, int *, ObsRecord **, int, int, int *, int);
+  bool (__thiscall *CheckForSingleCollision)(RGE_Obstruction_Manager_Air *, float, float, float, float, int, int, int *, int);
+  void (__thiscall *SetIgnoreList)(RGE_Obstruction_Manager_Air *, bool, int *, int);
+  void (__thiscall *SetDetailList)(RGE_Obstruction_Manager_Air *, IntersectRecord *, int *, int);
+  void (__thiscall *SetBufferRadius)(RGE_Obstruction_Manager_Air *, bool, float);
+  void (__thiscall *DeleteObRecord)(RGE_Obstruction_Manager_Air *, ObsRecord *);
+  int (__thiscall *unknown6)(RGE_Obstruction_Manager_Air *);
+  int (__thiscall *unknown7)(RGE_Obstruction_Manager_Air *);
+  bool (__thiscall *DisplayObstructionInView)(RGE_Obstruction_Manager_Air *, ObsRecord *, int, int, int, int);
+  bool (__thiscall *unknown8)(RGE_Obstruction_Manager_Air *, int);
+  void (__thiscall *AddDebugLine)(RGE_Obstruction_Manager_Air *, float, float, float, float, int, int);
+  void (__thiscall *AddDebugLine2)(RGE_Obstruction_Manager_Air *, int, int, int, int, int, int);
+  void (__thiscall *ClearDebugLines)(RGE_Obstruction_Manager_Air *, int);
+  void (__thiscall *SetUpdateCallback)(RGE_Obstruction_Manager_Air *, void (__fastcall **)(void *, int, int, int, int), void *);
+  void (__thiscall *Reset)(RGE_Obstruction_Manager_Air *);
+  bool (__thiscall *CheckForCollisionsInNode)(RGE_Obstruction_Manager_Air *, int, int, int *, ObsRecord **, int, int *, int);
+  bool (__thiscall *CheckLineCollision)(RGE_Obstruction_Manager_Air *, float, float, float, float, ObsRecord *);
+  int (__thiscall *unknown9)(RGE_Obstruction_Manager_Air *, int);
+  bool (__thiscall *CheckBoxCollision)(RGE_Obstruction_Manager_Air *, ObsRecord *);
+  bool (__thiscall *CheckCircleCollision)(RGE_Obstruction_Manager_Air *, ObsRecord *);
+  bool (__thiscall *RecordDetails)(RGE_Obstruction_Manager_Air *, ObsRecord *, Point *);
+  bool (__thiscall *CheckForContainedPointInNode)(RGE_Obstruction_Manager_Air *, int, int, int *, ObsRecord **, int, int *, int);
+  bool (__thiscall *CheckForSingleCollisionsInNode)(RGE_Obstruction_Manager_Air *, int, int, int *, int, int);
+  bool (__thiscall *CheckSingleBoxCollision)(RGE_Obstruction_Manager_Air *, ObsRecord *);
+  bool (__thiscall *CheckSingleCircleCollision)(RGE_Obstruction_Manager_Air *, ObsRecord *);
+  void (__thiscall *addEdgeCollision)(RGE_Obstruction_Manager_Air *, float, float, float, float, int *, ObsRecord **, int);
+};
+#pragma pack(pop)
+
 /* 835 */
 #pragma pack(push, 8)
 struct RGE_RMM_Database_ControllerVtbl
@@ -10388,12 +10732,12 @@ struct TTextPanelVtbl
   void (__thiscall *take_snapshot)(TTextPanel *);
   void (__thiscall *handle_reactivate)(TTextPanel *);
   int (__thiscall *pointing_at)(TTextPanel *, int, int, int *, int *, int *, int *, char *, int);
-  void (__thiscall *set_text_3)(TTextPanel *, char **, __int16);
-  void (__thiscall *set_text_2)(TTextPanel *, int);
-  void (__thiscall *set_text_1)(TTextPanel *, char *, TTextPanel__FontChangeNode *);
-  void (__thiscall *set_text_parsed_3)(TTextPanel *, char **, __int16, int, int);
-  void (__thiscall *set_text_parsed_2)(TTextPanel *, int, int, int);
-  void (__thiscall *set_text_parsed_1)(TTextPanel *, char *, int, int);
+  void (__thiscall *set_text)(TTextPanel *, char **, __int16);
+  void (__thiscall *set_text2)(TTextPanel *, int);
+  void (__thiscall *set_text3)(TTextPanel *, const char *, TTextPanel__FontChangeNode *);
+  void (__thiscall *set_text_parsed)(TTextPanel *, char **, __int16, int, int);
+  void (__thiscall *set_text_parsed2)(TTextPanel *, int, int, int);
+  void (__thiscall *set_text_parsed3)(TTextPanel *, const char *, int, int);
   void (__thiscall *set_bevel_info)(TTextPanel *, int, int, int, int, int, int, int);
   void (__thiscall *set_bevel_type)(TTextPanel *, int);
   void (__thiscall *draw_line)(TTextPanel *, HDC, __int16, __int16, unsigned __int8);
@@ -11751,6 +12095,14 @@ struct Production_Queue_Record
 };
 #pragma pack(pop)
 
+/* 561 */
+#pragma pack(push, 8)
+struct TDebuggingLogVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TDebuggingLog *, unsigned int);
+};
+#pragma pack(pop)
+
 /* 827 */
 #pragma pack(push, 8)
 struct RGE_Random_Map_ModuleVtbl
@@ -11918,12 +12270,12 @@ struct TInputPanelVtbl
   void (__thiscall *take_snapshot)(TInputPanel *);
   void (__thiscall *handle_reactivate)(TInputPanel *);
   int (__thiscall *pointing_at)(TInputPanel *, int, int, int *, int *, int *, int *, char *, int);
-  void (__thiscall *set_text_3)(TInputPanel *, char **, __int16);
-  void (__thiscall *set_text_2)(TInputPanel *, int);
-  void (__thiscall *set_text_1)(TInputPanel *, char *, TTextPanel__FontChangeNode *);
-  void (__thiscall *set_text_parsed_3)(TInputPanel *, char **, __int16, int, int);
-  void (__thiscall *set_text_parsed_2)(TInputPanel *, int, int, int);
-  void (__thiscall *set_text_parsed_1)(TInputPanel *, char *, int, int);
+  void (__thiscall *set_text)(TInputPanel *, char **, __int16);
+  void (__thiscall *set_text2)(TInputPanel *, int);
+  void (__thiscall *set_text3)(TInputPanel *, const char *, TTextPanel__FontChangeNode *);
+  void (__thiscall *set_text_parsed)(TInputPanel *, char **, __int16, int, int);
+  void (__thiscall *set_text_parsed2)(TInputPanel *, int, int, int);
+  void (__thiscall *set_text_parsed3)(TInputPanel *, const char *, int, int);
   void (__thiscall *set_bevel_info)(TInputPanel *, int, int, int, int, int, int, int);
   void (__thiscall *set_bevel_type)(TInputPanel *, int);
   void (__thiscall *draw_line)(TInputPanel *, HDC, __int16, __int16, unsigned __int8);
@@ -12003,12 +12355,12 @@ struct TListPanelVtbl
   void (__thiscall *take_snapshot)(TListPanel *);
   void (__thiscall *handle_reactivate)(TListPanel *);
   int (__thiscall *pointing_at)(TListPanel *, int, int, int *, int *, int *, int *, char *, int);
-  void (__thiscall *set_text_3)(TListPanel *, char **, __int16);
-  void (__thiscall *set_text_2)(TListPanel *, int);
-  void (__thiscall *set_text_1)(TListPanel *, char *, TTextPanel__FontChangeNode *);
-  void (__thiscall *set_text_parsed_3)(TListPanel *, char **, __int16, int, int);
-  void (__thiscall *set_text_parsed_2)(TListPanel *, int, int, int);
-  void (__thiscall *set_text_parsed_1)(TListPanel *, char *, int, int);
+  void (__thiscall *set_text)(TListPanel *, char **, __int16);
+  void (__thiscall *set_text2)(TListPanel *, int);
+  void (__thiscall *set_text3)(TListPanel *, const char *, TTextPanel__FontChangeNode *);
+  void (__thiscall *set_text_parsed)(TListPanel *, char **, __int16, int, int);
+  void (__thiscall *set_text_parsed2)(TListPanel *, int, int, int);
+  void (__thiscall *set_text_parsed3)(TListPanel *, const char *, int, int);
   void (__thiscall *set_bevel_info)(TListPanel *, int, int, int, int, int, int, int);
   void (__thiscall *set_bevel_type)(TListPanel *, int);
   void (__thiscall *draw_line)(TListPanel *, HDC, __int16, __int16, unsigned __int8);
@@ -13211,10 +13563,10 @@ struct RGE_Base_GameVtbl
   void (__thiscall *set_player)(RGE_Base_Game *, __int16);
   void (__thiscall *request_pause)(RGE_Base_Game *);
   int (__thiscall *get_error_code)(RGE_Base_Game *);
-  char *(__thiscall *get_string_3)(RGE_Base_Game *, int, int, char *, int);
-  char *(__thiscall *get_string_2)(RGE_Base_Game *, int);
-  char *(__thiscall *get_string_1)(RGE_Base_Game *, int, char *, int);
-  char *(__thiscall *get_string2)(RGE_Base_Game *, int, int, int, char *, int);
+  char *(__thiscall *get_string)(RGE_Base_Game *, int, int, char *, int);
+  char *(__thiscall *get_string2)(RGE_Base_Game *, int);
+  char *(__thiscall *get_string3)(RGE_Base_Game *, int, char *, int);
+  char *(__thiscall *get_string4)(RGE_Base_Game *, int, int, int, char *, int);
   TPanel *(__thiscall *get_view_panel)(RGE_Base_Game *);
   TPanel *(__thiscall *get_map_panel)(RGE_Base_Game *);
   RGE_Scenario_Header *(__thiscall *new_scenario_header_2)(RGE_Base_Game *, RGE_Scenario *);
@@ -13476,30 +13828,6 @@ struct SoundManager
 };
 #pragma pack(pop)
 
-/* 288 */
-#pragma pack(push, 8)
-struct TDebuggingLog
-{
-  TDebuggingLogVtbl *vfptr;
-  int Timestamp;
-  int DateTimestamp;
-  int LogToFile;
-  int LogToOutput;
-  int Sequence;
-  int Flush;
-  int LogIsOpen;
-  int LogError;
-  unsigned int LogStartTickCount;
-  unsigned int SeqNo;
-  int NetworkLogging;
-  char TBuff[2000];
-  char osbuf[1000];
-  char Filename[128];
-  char BaseFilename[128];
-  FILE *logstream;
-};
-#pragma pack(pop)
-
 /* 98 */
 #pragma pack(push, 8)
 struct TMousePointer
@@ -13663,14 +13991,6 @@ struct staticSoundNode
   staticSoundNode *prev;
   staticSoundNode *next;
   staticSound *sound;
-};
-#pragma pack(pop)
-
-/* 561 */
-#pragma pack(push, 8)
-struct TDebuggingLogVtbl
-{
-  void *(__thiscall *__vecDelDtor)(TDebuggingLog *, unsigned int);
 };
 #pragma pack(pop)
 
@@ -13979,10 +14299,10 @@ struct TRIBE_GameVtbl
   void (__thiscall *set_player)(TRIBE_Game *, __int16);
   void (__thiscall *request_pause)(TRIBE_Game *);
   int (__thiscall *get_error_code)(TRIBE_Game *);
-  char *(__thiscall *get_string_3)(TRIBE_Game *, int, int, char *, int);
-  char *(__thiscall *get_string_2)(TRIBE_Game *, int);
-  char *(__thiscall *get_string_1)(TRIBE_Game *, int, char *, int);
-  char *(__thiscall *get_string2)(TRIBE_Game *, int, int, int, char *, int);
+  char *(__thiscall *get_string)(TRIBE_Game *, int, int, char *, int);
+  char *(__thiscall *get_string2)(TRIBE_Game *, int);
+  char *(__thiscall *get_string3)(TRIBE_Game *, int, char *, int);
+  char *(__thiscall *get_string4)(TRIBE_Game *, int, int, int, char *, int);
   TPanel *(__thiscall *get_view_panel)(TRIBE_Game *);
   TPanel *(__thiscall *get_map_panel)(TRIBE_Game *);
   RGE_Scenario_Header *(__thiscall *new_scenario_header_2)(TRIBE_Game *, RGE_Scenario *);
@@ -17457,6 +17777,8 @@ struct PathingSystem
   int mTerrainException2;
   int mTerrainException3;
   int mAI;
+  int gbg_unknown1;
+  int gbg_unknown2;
 };
 #pragma pack(pop)
 
@@ -17465,13 +17787,6 @@ struct PathingSystem
 struct PathingSystemVtbl
 {
   void *(__thiscall *__vecDelDtor)(PathingSystem *, unsigned int);
-};
-#pragma pack(pop)
-
-/* 203 */
-#pragma pack(push, 1)
-struct MShortPather
-{
 };
 #pragma pack(pop)
 
@@ -22200,42 +22515,6 @@ struct TRIBE_MapVtbl
 };
 #pragma pack(pop)
 
-/* 604 */
-#pragma pack(push, 8)
-struct RGE_Info_Line
-{
-  float clump_num;
-  __int16 percent_of_tiles_covered;
-  __int16 percent_updown;
-  __int16 min_elevation;
-  __int16 max_elevation;
-  __int16 terrain_type;
-  __int16 terrain_base;
-  char obj_id;
-};
-#pragma pack(pop)
-
-/* 605 */
-#pragma pack(push, 8)
-struct RGE_Map_Gen_Info
-{
-  __int16 base_terrain;
-  RGE_Info_Line land;
-  RGE_Info_Line elevation[20];
-  __int16 elevation_num;
-  RGE_Info_Line terrain[20];
-  __int16 terrain_num;
-  RGE_Info_Line objects[20];
-  __int16 objects_num;
-  __int16 player_num;
-  __int16 player_x[9];
-  __int16 player_y[9];
-  __int16 player_connect[9];
-  __int16 player_base_land[9];
-  __int16 space_between_islands_or_edge;
-};
-#pragma pack(pop)
-
 /* 292 */
 #pragma pack(push, 8)
 struct TRIBE_RMM_Database_Controller
@@ -26635,12 +26914,12 @@ struct TScrollTextPanelVtbl
   void (__thiscall *take_snapshot)(TScrollTextPanel *);
   void (__thiscall *handle_reactivate)(TScrollTextPanel *);
   int (__thiscall *pointing_at)(TScrollTextPanel *, int, int, int *, int *, int *, int *, char *, int);
-  void (__thiscall *set_text_3)(TScrollTextPanel *, char **, __int16);
-  void (__thiscall *set_text_2)(TScrollTextPanel *, int);
-  void (__thiscall *set_text_1)(TScrollTextPanel *, char *, TTextPanel__FontChangeNode *);
-  void (__thiscall *set_text_parsed_3)(TScrollTextPanel *, char **, __int16, int, int);
-  void (__thiscall *set_text_parsed_2)(TScrollTextPanel *, int, int, int);
-  void (__thiscall *set_text_parsed_1)(TScrollTextPanel *, char *, int, int);
+  void (__thiscall *set_text)(TScrollTextPanel *, char **, __int16);
+  void (__thiscall *set_text2)(TScrollTextPanel *, int);
+  void (__thiscall *set_text3)(TScrollTextPanel *, const char *, TTextPanel__FontChangeNode *);
+  void (__thiscall *set_text_parsed)(TScrollTextPanel *, char **, __int16, int, int);
+  void (__thiscall *set_text_parsed2)(TScrollTextPanel *, int, int, int);
+  void (__thiscall *set_text_parsed3)(TScrollTextPanel *, const char *, int, int);
   void (__thiscall *set_bevel_info)(TScrollTextPanel *, int, int, int, int, int, int, int);
   void (__thiscall *set_bevel_type)(TScrollTextPanel *, int);
   void (__thiscall *draw_line)(TScrollTextPanel *, HDC, __int16, __int16, unsigned __int8);
@@ -31105,100 +31384,1832 @@ struct TRIBE_RMM_Script_ControllerVtbl
 #pragma pack(pop)
 
 /* 482 */
-#pragma pack(push, 1)
-struct UnitAIModule_Trawler
+#pragma pack(push, 8)
+struct TribeFishingShipUnitAIModule
 {
+  TribeFishingShipUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+};
+#pragma pack(pop)
+
+/* 983 */
+#pragma pack(push, 8)
+struct TribeFishingShipUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeFishingShipUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeFishingShipUnitAIModule *, int);
+  void (__thiscall *load)(TribeFishingShipUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeFishingShipUnitAIModule *);
+  int (__thiscall *order)(TribeFishingShipUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeFishingShipUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeFishingShipUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeFishingShipUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeFishingShipUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeFishingShipUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeFishingShipUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeFishingShipUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeFishingShipUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeFishingShipUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeFishingShipUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeFishingShipUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeFishingShipUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeFishingShipUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeFishingShipUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeFishingShipUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeFishingShipUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeFishingShipUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeFishingShipUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeFishingShipUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeFishingShipUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeFishingShipUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeFishingShipUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeFishingShipUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeFishingShipUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeFishingShipUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeFishingShipUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeFishingShipUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeFishingShipUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeFishingShipUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeFishingShipUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeFishingShipUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeFishingShipUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeFishingShipUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeFishingShipUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeFishingShipUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeFishingShipUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeFishingShipUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeFishingShipUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeFishingShipUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeFishingShipUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeFishingShipUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeFishingShipUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeFishingShipUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeFishingShipUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeFishingShipUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeFishingShipUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeFishingShipUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeFishingShipUnitAIModule *);
+  int (__thiscall *processOrder)(TribeFishingShipUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeFishingShipUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeFishingShipUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeFishingShipUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeFishingShipUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeFishingShipUnitAIModule *);
 };
 #pragma pack(pop)
 
 /* 483 */
-#pragma pack(push, 1)
-struct UnitAIModule_CargoTrader
+#pragma pack(push, 8)
+struct TribeTradeShipUnitAIModule
 {
+  TribeTradeShipUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+};
+#pragma pack(pop)
+
+/* 984 */
+#pragma pack(push, 8)
+struct TribeTradeShipUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeTradeShipUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeTradeShipUnitAIModule *, int);
+  void (__thiscall *load)(TribeTradeShipUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeTradeShipUnitAIModule *);
+  int (__thiscall *order)(TribeTradeShipUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeTradeShipUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeTradeShipUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeTradeShipUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeTradeShipUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeTradeShipUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeTradeShipUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeTradeShipUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeTradeShipUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeTradeShipUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeTradeShipUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeTradeShipUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeTradeShipUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeTradeShipUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeTradeShipUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeTradeShipUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeTradeShipUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeTradeShipUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeTradeShipUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeTradeShipUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeTradeShipUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeTradeShipUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeTradeShipUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeTradeShipUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeTradeShipUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeTradeShipUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeTradeShipUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeTradeShipUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeTradeShipUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeTradeShipUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeTradeShipUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeTradeShipUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeTradeShipUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeTradeShipUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeTradeShipUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeTradeShipUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeTradeShipUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeTradeShipUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeTradeShipUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeTradeShipUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeTradeShipUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeTradeShipUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeTradeShipUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeTradeShipUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeTradeShipUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeTradeShipUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeTradeShipUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeTradeShipUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeTradeShipUnitAIModule *);
+  int (__thiscall *processOrder)(TribeTradeShipUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeTradeShipUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeTradeShipUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeTradeShipUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeTradeShipUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeTradeShipUnitAIModule *);
 };
 #pragma pack(pop)
 
 /* 484 */
-#pragma pack(push, 1)
-struct UnitAIModule_Transport
+#pragma pack(push, 8)
+struct TribeTransportShipUnitAIModule
 {
+  TribeTransportShipUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+};
+#pragma pack(pop)
+
+/* 985 */
+#pragma pack(push, 8)
+struct TribeTransportShipUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeTransportShipUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeTransportShipUnitAIModule *, int);
+  void (__thiscall *load)(TribeTransportShipUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeTransportShipUnitAIModule *);
+  int (__thiscall *order)(TribeTransportShipUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeTransportShipUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeTransportShipUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeTransportShipUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeTransportShipUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeTransportShipUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeTransportShipUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeTransportShipUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeTransportShipUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeTransportShipUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeTransportShipUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeTransportShipUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeTransportShipUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeTransportShipUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeTransportShipUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeTransportShipUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeTransportShipUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeTransportShipUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeTransportShipUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeTransportShipUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeTransportShipUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeTransportShipUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeTransportShipUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeTransportShipUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeTransportShipUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeTransportShipUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeTransportShipUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeTransportShipUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeTransportShipUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeTransportShipUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeTransportShipUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeTransportShipUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeTransportShipUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeTransportShipUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeTransportShipUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeTransportShipUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeTransportShipUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeTransportShipUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeTransportShipUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeTransportShipUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeTransportShipUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeTransportShipUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeTransportShipUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeTransportShipUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeTransportShipUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeTransportShipUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeTransportShipUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeTransportShipUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeTransportShipUnitAIModule *);
+  int (__thiscall *processOrder)(TribeTransportShipUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeTransportShipUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeTransportShipUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeTransportShipUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeTransportShipUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeTransportShipUnitAIModule *);
 };
 #pragma pack(pop)
 
 /* 485 */
-#pragma pack(push, 1)
-struct UnitAIModule_Jedi
+#pragma pack(push, 8)
+struct TribePriestUnitAIModule
 {
+  TribePriestUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+};
+#pragma pack(pop)
+
+/* 977 */
+#pragma pack(push, 8)
+struct TribePriestUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribePriestUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribePriestUnitAIModule *, int);
+  void (__thiscall *load)(TribePriestUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribePriestUnitAIModule *);
+  int (__thiscall *order)(TribePriestUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribePriestUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribePriestUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribePriestUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribePriestUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribePriestUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribePriestUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribePriestUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribePriestUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribePriestUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribePriestUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribePriestUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribePriestUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribePriestUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribePriestUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribePriestUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribePriestUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribePriestUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribePriestUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribePriestUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribePriestUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribePriestUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribePriestUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribePriestUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribePriestUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribePriestUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribePriestUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribePriestUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribePriestUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribePriestUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribePriestUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribePriestUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribePriestUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribePriestUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribePriestUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribePriestUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribePriestUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribePriestUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribePriestUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribePriestUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribePriestUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribePriestUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribePriestUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribePriestUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribePriestUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribePriestUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribePriestUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribePriestUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribePriestUnitAIModule *);
+  int (__thiscall *processOrder)(TribePriestUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribePriestUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribePriestUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribePriestUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribePriestUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribePriestUnitAIModule *);
+  int (__thiscall *bestUnitToConvert)(TribePriestUnitAIModule *, float *);
 };
 #pragma pack(pop)
 
 /* 486 */
-#pragma pack(push, 1)
-struct UnitAIModule_Medic
+#pragma pack(push, 8)
+struct TribeMedicUnitAIModule
 {
+  TribeMedicUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+};
+#pragma pack(pop)
+
+/* 978 */
+#pragma pack(push, 8)
+struct TribeMedicUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeMedicUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeMedicUnitAIModule *, int);
+  void (__thiscall *load)(TribeMedicUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeMedicUnitAIModule *);
+  int (__thiscall *order)(TribeMedicUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeMedicUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeMedicUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeMedicUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeMedicUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeMedicUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeMedicUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeMedicUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeMedicUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeMedicUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeMedicUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeMedicUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeMedicUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeMedicUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeMedicUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeMedicUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeMedicUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeMedicUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeMedicUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeMedicUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeMedicUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeMedicUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeMedicUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeMedicUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeMedicUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeMedicUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeMedicUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeMedicUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeMedicUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeMedicUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeMedicUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeMedicUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeMedicUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeMedicUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeMedicUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeMedicUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeMedicUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeMedicUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeMedicUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeMedicUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeMedicUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeMedicUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeMedicUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeMedicUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeMedicUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeMedicUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeMedicUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeMedicUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeMedicUnitAIModule *);
+  int (__thiscall *processOrder)(TribeMedicUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeMedicUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeMedicUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeMedicUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeMedicUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeMedicUnitAIModule *);
+  int (__thiscall *bestUnitToHeal)(TribeMedicUnitAIModule *, int, float *);
 };
 #pragma pack(pop)
 
 /* 487 */
-#pragma pack(push, 1)
-struct UnitAIModule_Worker
+#pragma pack(push, 8)
+struct TribeCivilianUnitAIModule
 {
+  TribeCivilianUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+};
+#pragma pack(pop)
+
+/* 976 */
+#pragma pack(push, 8)
+struct TribeCivilianUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeCivilianUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeCivilianUnitAIModule *, int);
+  void (__thiscall *load)(TribeCivilianUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeCivilianUnitAIModule *);
+  int (__thiscall *order)(TribeCivilianUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeCivilianUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeCivilianUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeCivilianUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeCivilianUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeCivilianUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeCivilianUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeCivilianUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeCivilianUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeCivilianUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeCivilianUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeCivilianUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeCivilianUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeCivilianUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeCivilianUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeCivilianUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeCivilianUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeCivilianUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeCivilianUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeCivilianUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeCivilianUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeCivilianUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeCivilianUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeCivilianUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeCivilianUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeCivilianUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeCivilianUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeCivilianUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeCivilianUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeCivilianUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeCivilianUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeCivilianUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeCivilianUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeCivilianUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeCivilianUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeCivilianUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeCivilianUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeCivilianUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeCivilianUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeCivilianUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeCivilianUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeCivilianUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeCivilianUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeCivilianUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeCivilianUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeCivilianUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeCivilianUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeCivilianUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeCivilianUnitAIModule *);
+  int (__thiscall *processOrder)(TribeCivilianUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeCivilianUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeCivilianUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeCivilianUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeCivilianUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeCivilianUnitAIModule *);
+  int (__thiscall *shepherdObject)(TribeCivilianUnitAIModule *, int, int);
 };
 #pragma pack(pop)
 
 /* 488 */
-#pragma pack(push, 1)
-struct UnitAIModule_Artifact
+#pragma pack(push, 8)
+struct TribeArtifactUnitAIModule
 {
+  TribeArtifactUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+};
+#pragma pack(pop)
+
+/* 975 */
+#pragma pack(push, 8)
+struct TribeArtifactUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeArtifactUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeArtifactUnitAIModule *, int);
+  void (__thiscall *load)(TribeArtifactUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeArtifactUnitAIModule *);
+  int (__thiscall *order)(TribeArtifactUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeArtifactUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeArtifactUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeArtifactUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeArtifactUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeArtifactUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeArtifactUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeArtifactUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeArtifactUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeArtifactUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeArtifactUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeArtifactUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeArtifactUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeArtifactUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeArtifactUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeArtifactUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeArtifactUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeArtifactUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeArtifactUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeArtifactUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeArtifactUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeArtifactUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeArtifactUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeArtifactUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeArtifactUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeArtifactUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeArtifactUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeArtifactUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeArtifactUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeArtifactUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeArtifactUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeArtifactUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeArtifactUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeArtifactUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeArtifactUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeArtifactUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeArtifactUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeArtifactUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeArtifactUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeArtifactUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeArtifactUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeArtifactUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeArtifactUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeArtifactUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeArtifactUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeArtifactUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeArtifactUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeArtifactUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeArtifactUnitAIModule *);
+  int (__thiscall *processOrder)(TribeArtifactUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeArtifactUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeArtifactUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeArtifactUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeArtifactUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeArtifactUnitAIModule *);
 };
 #pragma pack(pop)
 
 /* 489 */
-#pragma pack(push, 1)
-struct UnitAIModule_Artillery
+#pragma pack(push, 8)
+struct TribeSiegeUnitAIModule
 {
+  TribeSiegeUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+};
+#pragma pack(pop)
+
+/* 982 */
+#pragma pack(push, 8)
+struct TribeSiegeUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeSiegeUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeSiegeUnitAIModule *, int);
+  void (__thiscall *load)(TribeSiegeUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeSiegeUnitAIModule *);
+  int (__thiscall *order)(TribeSiegeUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeSiegeUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeSiegeUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeSiegeUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeSiegeUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeSiegeUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeSiegeUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeSiegeUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeSiegeUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeSiegeUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeSiegeUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeSiegeUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeSiegeUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeSiegeUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeSiegeUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeSiegeUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeSiegeUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeSiegeUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeSiegeUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeSiegeUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeSiegeUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeSiegeUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeSiegeUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeSiegeUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeSiegeUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeSiegeUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeSiegeUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeSiegeUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeSiegeUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeSiegeUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeSiegeUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeSiegeUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeSiegeUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeSiegeUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeSiegeUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeSiegeUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeSiegeUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeSiegeUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeSiegeUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeSiegeUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeSiegeUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeSiegeUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeSiegeUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeSiegeUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeSiegeUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeSiegeUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeSiegeUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeSiegeUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeSiegeUnitAIModule *);
+  int (__thiscall *processOrder)(TribeSiegeUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeSiegeUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeSiegeUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeSiegeUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeSiegeUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeSiegeUnitAIModule *);
 };
 #pragma pack(pop)
 
 /* 490 */
-#pragma pack(push, 1)
-struct UnitAIModule_Hazard
+#pragma pack(push, 8)
+struct TribeLionUnitAIModule
 {
+  TribeLionUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+  unsigned int last_animal_hunt;
+};
+#pragma pack(pop)
+
+/* 981 */
+#pragma pack(push, 8)
+struct TribeLionUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeLionUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeLionUnitAIModule *, int);
+  void (__thiscall *load)(TribeLionUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeLionUnitAIModule *);
+  int (__thiscall *order)(TribeLionUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeLionUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeLionUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeLionUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeLionUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeLionUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeLionUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeLionUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeLionUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeLionUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeLionUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeLionUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeLionUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeLionUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeLionUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeLionUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeLionUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeLionUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeLionUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeLionUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeLionUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeLionUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeLionUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeLionUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeLionUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeLionUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeLionUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeLionUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeLionUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeLionUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeLionUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeLionUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeLionUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeLionUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeLionUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeLionUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeLionUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeLionUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeLionUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeLionUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeLionUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeLionUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeLionUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeLionUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeLionUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeLionUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeLionUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeLionUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeLionUnitAIModule *);
+  int (__thiscall *processOrder)(TribeLionUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeLionUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeLionUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeLionUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeLionUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeLionUnitAIModule *);
 };
 #pragma pack(pop)
 
 /* 491 */
-#pragma pack(push, 1)
-struct UnitAIModule_WildAnimal
+#pragma pack(push, 8)
+struct TribeElephantUnitAIModule
 {
+  TribeElephantUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+  float originX;
+  float originY;
+  float originZ;
+};
+#pragma pack(pop)
+
+/* 980 */
+#pragma pack(push, 8)
+struct TribeElephantUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeElephantUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeElephantUnitAIModule *, int);
+  void (__thiscall *load)(TribeElephantUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeElephantUnitAIModule *);
+  int (__thiscall *order)(TribeElephantUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeElephantUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeElephantUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeElephantUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeElephantUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeElephantUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeElephantUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeElephantUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeElephantUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeElephantUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeElephantUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeElephantUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeElephantUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeElephantUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeElephantUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeElephantUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeElephantUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeElephantUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeElephantUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeElephantUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeElephantUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeElephantUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeElephantUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeElephantUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeElephantUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeElephantUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeElephantUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeElephantUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeElephantUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeElephantUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeElephantUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeElephantUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeElephantUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeElephantUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeElephantUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeElephantUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeElephantUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeElephantUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeElephantUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeElephantUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeElephantUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeElephantUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeElephantUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeElephantUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeElephantUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeElephantUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeElephantUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeElephantUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeElephantUnitAIModule *);
+  int (__thiscall *processOrder)(TribeElephantUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeElephantUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeElephantUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeElephantUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeElephantUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeElephantUnitAIModule *);
 };
 #pragma pack(pop)
 
 /* 492 */
-#pragma pack(push, 1)
-struct UnitAIModule_TameAnimal
+#pragma pack(push, 8)
+struct TribeHuntedAnimalUnitAIModule
 {
+  TribeHuntedAnimalUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+  float originX;
+  float originY;
+  float originZ;
+};
+#pragma pack(pop)
+
+/* 979 */
+#pragma pack(push, 8)
+struct TribeHuntedAnimalUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeHuntedAnimalUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeHuntedAnimalUnitAIModule *, int);
+  void (__thiscall *load)(TribeHuntedAnimalUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeHuntedAnimalUnitAIModule *);
+  int (__thiscall *order)(TribeHuntedAnimalUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeHuntedAnimalUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeHuntedAnimalUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeHuntedAnimalUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeHuntedAnimalUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeHuntedAnimalUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeHuntedAnimalUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeHuntedAnimalUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeHuntedAnimalUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeHuntedAnimalUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeHuntedAnimalUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeHuntedAnimalUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeHuntedAnimalUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeHuntedAnimalUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeHuntedAnimalUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeHuntedAnimalUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeHuntedAnimalUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeHuntedAnimalUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeHuntedAnimalUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeHuntedAnimalUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeHuntedAnimalUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeHuntedAnimalUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeHuntedAnimalUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeHuntedAnimalUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeHuntedAnimalUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeHuntedAnimalUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeHuntedAnimalUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeHuntedAnimalUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeHuntedAnimalUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeHuntedAnimalUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeHuntedAnimalUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeHuntedAnimalUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeHuntedAnimalUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeHuntedAnimalUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeHuntedAnimalUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeHuntedAnimalUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeHuntedAnimalUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeHuntedAnimalUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeHuntedAnimalUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeHuntedAnimalUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeHuntedAnimalUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeHuntedAnimalUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeHuntedAnimalUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeHuntedAnimalUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeHuntedAnimalUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeHuntedAnimalUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeHuntedAnimalUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeHuntedAnimalUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeHuntedAnimalUnitAIModule *);
+  int (__thiscall *processOrder)(TribeHuntedAnimalUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeHuntedAnimalUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeHuntedAnimalUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeHuntedAnimalUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeHuntedAnimalUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeHuntedAnimalUnitAIModule *);
 };
 #pragma pack(pop)
 
 /* 493 */
-#pragma pack(push, 1)
-struct UnitAIModule_Building
+#pragma pack(push, 8)
+struct TribeBuildingUnitAIModule
 {
+  TribeBuildingUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+};
+#pragma pack(pop)
+
+/* 986 */
+#pragma pack(push, 8)
+struct TribeBuildingUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeBuildingUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeBuildingUnitAIModule *, int);
+  void (__thiscall *load)(TribeBuildingUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeBuildingUnitAIModule *);
+  int (__thiscall *order)(TribeBuildingUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeBuildingUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeBuildingUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeBuildingUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeBuildingUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeBuildingUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeBuildingUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeBuildingUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeBuildingUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeBuildingUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeBuildingUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeBuildingUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeBuildingUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeBuildingUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeBuildingUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeBuildingUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeBuildingUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeBuildingUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeBuildingUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeBuildingUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeBuildingUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeBuildingUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeBuildingUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeBuildingUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeBuildingUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeBuildingUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeBuildingUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeBuildingUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeBuildingUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeBuildingUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeBuildingUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeBuildingUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeBuildingUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeBuildingUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeBuildingUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeBuildingUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeBuildingUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeBuildingUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeBuildingUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeBuildingUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeBuildingUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeBuildingUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeBuildingUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeBuildingUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeBuildingUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeBuildingUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeBuildingUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeBuildingUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeBuildingUnitAIModule *);
+  int (__thiscall *processOrder)(TribeBuildingUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeBuildingUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeBuildingUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeBuildingUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeBuildingUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeBuildingUnitAIModule *);
 };
 #pragma pack(pop)
 
 /* 494 */
-#pragma pack(push, 1)
-struct UnitAIModule_Turret
+#pragma pack(push, 8)
+struct TribeTowerUnitAIModule
 {
+  TribeTowerUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+};
+#pragma pack(pop)
+
+/* 987 */
+#pragma pack(push, 8)
+struct TribeTowerUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeTowerUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeTowerUnitAIModule *, int);
+  void (__thiscall *load)(TribeTowerUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeTowerUnitAIModule *);
+  int (__thiscall *order)(TribeTowerUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeTowerUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeTowerUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeTowerUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeTowerUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeTowerUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeTowerUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeTowerUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeTowerUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeTowerUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeTowerUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeTowerUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeTowerUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeTowerUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeTowerUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeTowerUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeTowerUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeTowerUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeTowerUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeTowerUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeTowerUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeTowerUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeTowerUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeTowerUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeTowerUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeTowerUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeTowerUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeTowerUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeTowerUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeTowerUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeTowerUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeTowerUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeTowerUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeTowerUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeTowerUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeTowerUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeTowerUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeTowerUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeTowerUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeTowerUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeTowerUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeTowerUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeTowerUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeTowerUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeTowerUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeTowerUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeTowerUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeTowerUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeTowerUnitAIModule *);
+  int (__thiscall *processOrder)(TribeTowerUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeTowerUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeTowerUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeTowerUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeTowerUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeTowerUnitAIModule *);
 };
 #pragma pack(pop)
 
 /* 495 */
-#pragma pack(push, 1)
-struct UnitAIModule_Military
+#pragma pack(push, 8)
+struct TribeSoldierUnitAIModule
 {
+  TribeSoldierUnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+};
+#pragma pack(pop)
+
+/* 988 */
+#pragma pack(push, 8)
+struct TribeSoldierUnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeSoldierUnitAIModule *, unsigned int);
+  void (__thiscall *save)(TribeSoldierUnitAIModule *, int);
+  void (__thiscall *load)(TribeSoldierUnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(TribeSoldierUnitAIModule *);
+  int (__thiscall *order)(TribeSoldierUnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(TribeSoldierUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(TribeSoldierUnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(TribeSoldierUnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(TribeSoldierUnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(TribeSoldierUnitAIModule *, int);
+  int (__thiscall *retryableOrder)(TribeSoldierUnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(TribeSoldierUnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(TribeSoldierUnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(TribeSoldierUnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(TribeSoldierUnitAIModule *, float *);
+  int (__thiscall *closestObject)(TribeSoldierUnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(TribeSoldierUnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(TribeSoldierUnitAIModule *, int *, int *, int);
+  void (*logDebug)(TribeSoldierUnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(TribeSoldierUnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(TribeSoldierUnitAIModule *, int);
+  int (__thiscall *stopObject)(TribeSoldierUnitAIModule *, int);
+  int (__thiscall *attackObject)(TribeSoldierUnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(TribeSoldierUnitAIModule *, int);
+  int (__thiscall *huntObject)(TribeSoldierUnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(TribeSoldierUnitAIModule *, int, int);
+  int (__thiscall *convertObject)(TribeSoldierUnitAIModule *, int, int);
+  int (__thiscall *healObject)(TribeSoldierUnitAIModule *, int, int);
+  int (__thiscall *repairObject)(TribeSoldierUnitAIModule *, int, int);
+  int (__thiscall *buildObject)(TribeSoldierUnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(TribeSoldierUnitAIModule *, int, int);
+  int (__thiscall *explore)(TribeSoldierUnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(TribeSoldierUnitAIModule *, int, int);
+  int (__thiscall *unload)(TribeSoldierUnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(TribeSoldierUnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(TribeSoldierUnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(TribeSoldierUnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(TribeSoldierUnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(TribeSoldierUnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(TribeSoldierUnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(TribeSoldierUnitAIModule *, int, int);
+  int (__thiscall *followObject)(TribeSoldierUnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(TribeSoldierUnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(TribeSoldierUnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(TribeSoldierUnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(TribeSoldierUnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(TribeSoldierUnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(TribeSoldierUnitAIModule *, int);
+  int (__thiscall *canConvert)(TribeSoldierUnitAIModule *, int, int);
+  void (__thiscall *setState)(TribeSoldierUnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(TribeSoldierUnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(TribeSoldierUnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(TribeSoldierUnitAIModule *);
+  int (__thiscall *processOrder)(TribeSoldierUnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(TribeSoldierUnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(TribeSoldierUnitAIModule *, int);
+  int (__thiscall *processIdle_search)(TribeSoldierUnitAIModule *, int, int);
+  int (__thiscall *processMisc)(TribeSoldierUnitAIModule *);
+  int (__thiscall *processRetryableOrder)(TribeSoldierUnitAIModule *);
 };
 #pragma pack(pop)
 
@@ -31294,16 +33305,6 @@ struct FULL_MAP_PRINT
   int YBMPpad;
   int BMP_Width;
   int BMP_Height;
-};
-#pragma pack(pop)
-
-/* 502 */
-#pragma pack(push, 8)
-struct IntersectRecord
-{
-  ObsRecord *ObRec;
-  int ObjId;
-  Point IntPoint;
 };
 #pragma pack(pop)
 
@@ -31592,3 +33593,17 @@ struct UnitDeathMemory
 };
 #pragma pack(pop)
 
+/* 964 */
+#pragma pack(push, 8)
+struct gameOptions_s
+{
+  int deathMatch;
+  int regicide;
+  TRIBE_Game__MapSize mapSize;
+  TRIBE_Game__MapType mapType;
+  TRIBE_Game__ResourceLevel startingResources;
+  TRIBE_Game__Age startingAge;
+  int cheatsEnabled;
+  int difficulty;
+};
+#pragma pack(pop)

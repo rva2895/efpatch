@@ -10,76 +10,73 @@ int* terrain_language_dll = NULL;
 extern BYTE* terrain_array;
 int terrains_loaded = 0;
 
-void (__thiscall* terrain1_load) (void* this_, int language_dll_id, int terrain) =
-    (void(__thiscall*) (void*, int, int))0x004C82D0;
-
-void __stdcall terrain1_(void* this_)
+void __stdcall terrain1_sub(TDropDownPanel* dropdown)
 {
     if (t_ver != VER_EF)
     {
-        terrain1_load(this_, 0x297D, 0);
-        terrain1_load(this_, 0x2980, 1);
-        terrain1_load(this_, 10926, 2);
-        terrain1_load(this_, 0x2993, 3);
-        terrain1_load(this_, 0x2983, 4);
-        terrain1_load(this_, 0x299A, 5);
-        terrain1_load(this_, 10622, 6);
-        terrain1_load(this_, 10920, 7);
-        terrain1_load(this_, 10921, 8);
-        terrain1_load(this_, 0x2991, 9);
-        terrain1_load(this_, 0x297F, 10);
-        terrain1_load(this_, 0x2992, 11);
-        terrain1_load(this_, 0x2990, 12);
-        terrain1_load(this_, 0x2981, 13);
-        terrain1_load(this_, 0x2998, 14);
-        terrain1_load(this_, 0x2A2D, 15);
-        terrain1_load(this_, 0x2A2E, 16);
-        terrain1_load(this_, 0x29A8, 17);
-        terrain1_load(this_, 0x2999, 18);
-        terrain1_load(this_, 0x2984, 19);
-        terrain1_load(this_, 0x2982, 20);
-        terrain1_load(this_, 0x29A9, 21);
-        terrain1_load(this_, 0x2985, 22);
-        terrain1_load(this_, 0x2994, 23);
-        terrain1_load(this_, 0x2995, 24);
-        terrain1_load(this_, 0x2996, 25);
-        terrain1_load(this_, 0x299B, 26);
-        terrain1_load(this_, 10927, 27);
-        terrain1_load(this_, 10929, 28);
-        terrain1_load(this_, 10922, 29);
-        terrain1_load(this_, 10925, 30);
-        terrain1_load(this_, 10924, 31);
-        terrain1_load(this_, 0x29AA, 32);
-        terrain1_load(this_, 10668, 33);
-        terrain1_load(this_, 0x29AB, 34);
-        terrain1_load(this_, 0x29AD, 35);
-        terrain1_load(this_, 10928, 36);
-        terrain1_load(this_, 10930, 37);
-        terrain1_load(this_, 0x29B5, 38);
-        terrain1_load(this_, 0x29B6, 39);
-        terrain1_load(this_, 10931, 40);
-        terrain1_load(this_, 10790, 41);
-        terrain1_load(this_, 0x2A27, 42);
-        terrain1_load(this_, 0x2A28, 43);
-        terrain1_load(this_, 0x2A29, 44);
-        terrain1_load(this_, 0x2A2A, 45);
-        terrain1_load(this_, 0x2A2B, 46);
-        terrain1_load(this_, 0x2A2C, 47);
-        terrain1_load(this_, 10923, 48);
-        terrain1_load(this_, 0x2A2F, 49);
-        terrain1_load(this_, 0x2A30, 50);
-        terrain1_load(this_, 0x29B7, 51);
-        terrain1_load(this_, 0x29B8, 52);
-        //terrain1_load(this_, 10931, 53);
-        //terrain1_load(this_, 10931, 54);
-        //terrain1_load(this_, 1, 55);
-        //terrain1_load(this_, 2, 56);
+        TDropDownPanel__append_line2(dropdown, 0x297D, 0);
+        TDropDownPanel__append_line2(dropdown, 0x2980, 1);
+        TDropDownPanel__append_line2(dropdown, 10926, 2);
+        TDropDownPanel__append_line2(dropdown, 0x2993, 3);
+        TDropDownPanel__append_line2(dropdown, 0x2983, 4);
+        TDropDownPanel__append_line2(dropdown, 0x299A, 5);
+        TDropDownPanel__append_line2(dropdown, 10622, 6);
+        TDropDownPanel__append_line2(dropdown, 10920, 7);
+        TDropDownPanel__append_line2(dropdown, 10921, 8);
+        TDropDownPanel__append_line2(dropdown, 0x2991, 9);
+        TDropDownPanel__append_line2(dropdown, 0x297F, 10);
+        TDropDownPanel__append_line2(dropdown, 0x2992, 11);
+        TDropDownPanel__append_line2(dropdown, 0x2990, 12);
+        TDropDownPanel__append_line2(dropdown, 0x2981, 13);
+        TDropDownPanel__append_line2(dropdown, 0x2998, 14);
+        TDropDownPanel__append_line2(dropdown, 0x2A2D, 15);
+        TDropDownPanel__append_line2(dropdown, 0x2A2E, 16);
+        TDropDownPanel__append_line2(dropdown, 0x29A8, 17);
+        TDropDownPanel__append_line2(dropdown, 0x2999, 18);
+        TDropDownPanel__append_line2(dropdown, 0x2984, 19);
+        TDropDownPanel__append_line2(dropdown, 0x2982, 20);
+        TDropDownPanel__append_line2(dropdown, 0x29A9, 21);
+        TDropDownPanel__append_line2(dropdown, 0x2985, 22);
+        TDropDownPanel__append_line2(dropdown, 0x2994, 23);
+        TDropDownPanel__append_line2(dropdown, 0x2995, 24);
+        TDropDownPanel__append_line2(dropdown, 0x2996, 25);
+        TDropDownPanel__append_line2(dropdown, 0x299B, 26);
+        TDropDownPanel__append_line2(dropdown, 10927, 27);
+        TDropDownPanel__append_line2(dropdown, 10929, 28);
+        TDropDownPanel__append_line2(dropdown, 10922, 29);
+        TDropDownPanel__append_line2(dropdown, 10925, 30);
+        TDropDownPanel__append_line2(dropdown, 10924, 31);
+        TDropDownPanel__append_line2(dropdown, 0x29AA, 32);
+        TDropDownPanel__append_line2(dropdown, 10668, 33);
+        TDropDownPanel__append_line2(dropdown, 0x29AB, 34);
+        TDropDownPanel__append_line2(dropdown, 0x29AD, 35);
+        TDropDownPanel__append_line2(dropdown, 10928, 36);
+        TDropDownPanel__append_line2(dropdown, 10930, 37);
+        TDropDownPanel__append_line2(dropdown, 0x29B5, 38);
+        TDropDownPanel__append_line2(dropdown, 0x29B6, 39);
+        TDropDownPanel__append_line2(dropdown, 10931, 40);
+        TDropDownPanel__append_line2(dropdown, 10790, 41);
+        TDropDownPanel__append_line2(dropdown, 0x2A27, 42);
+        TDropDownPanel__append_line2(dropdown, 0x2A28, 43);
+        TDropDownPanel__append_line2(dropdown, 0x2A29, 44);
+        TDropDownPanel__append_line2(dropdown, 0x2A2A, 45);
+        TDropDownPanel__append_line2(dropdown, 0x2A2B, 46);
+        TDropDownPanel__append_line2(dropdown, 0x2A2C, 47);
+        TDropDownPanel__append_line2(dropdown, 10923, 48);
+        TDropDownPanel__append_line2(dropdown, 0x2A2F, 49);
+        TDropDownPanel__append_line2(dropdown, 0x2A30, 50);
+        TDropDownPanel__append_line2(dropdown, 0x29B7, 51);
+        TDropDownPanel__append_line2(dropdown, 0x29B8, 52);
+        //TDropDownPanel__append_line2(dropdown, 10931, 53);
+        //TDropDownPanel__append_line2(dropdown, 10931, 54);
+        //TDropDownPanel__append_line2(dropdown, 1, 55);
+        //TDropDownPanel__append_line2(dropdown, 2, 56);
     }
     else
     {
         for (int i = 0; i < terrains_loaded; i++)
             if (terrain_array[i])
-                terrain1_load(this_, terrain_language_dll[i], i);
+                TDropDownPanel__append_line2(dropdown, terrain_language_dll[i], i);
     }
 }
 
@@ -89,7 +86,7 @@ __declspec(naked) int terrain1()
     {
         mov     ecx, [edi]
         push    ecx
-        call    terrain1_
+        call    terrain1_sub
         mov     ecx, 0052A388h
         jmp     ecx
     }
@@ -98,7 +95,7 @@ __declspec(naked) int terrain1()
 void (__thiscall* terrain2_load) (void* this_, int language_dll_id, int terrain) =
     (void (__thiscall*) (void*, int, int))0x0053AB20;
 
-void __stdcall terrain2_(void* this_)
+void __stdcall terrain2_sub(void* this_)
 {
     if (t_ver != VER_EF)
     {
@@ -176,7 +173,7 @@ __declspec(naked) int terrain2()
     {
         mov     ecx, ebx
         push    ecx
-        call    terrain2_
+        call    terrain2_sub
         mov     ecx, 0053B53Bh
         jmp     ecx
     }

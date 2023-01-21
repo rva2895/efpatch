@@ -11,7 +11,6 @@ extern std::map<const std::string, const CHANGE_UNIT_MASTER_PARAMS&> unit_master
 char* s;
 
 extern const char* resourceNames[];
-extern const char* civ_names[];
 
 const char* condNames[] =
 {
@@ -56,7 +55,7 @@ const char* effectNames[] =
     "Research Tech",
     "Chat",
     "Play Sound",
-    "Tribute",
+    "Trib",
     "Unlock Gate",
     "Lock Gate",
     "Trigger On",        //0x08
@@ -94,8 +93,8 @@ const char* effectNames[] =
     "Change Speed",
     "Give Ability",        //0x28
     "Remove Ability",
-    "Data",
-    "Prop",
+    "Own",
+    "Plr",
     "Explore",
     "Var",
     "Terrain",
@@ -104,12 +103,6 @@ const char* effectNames[] =
     "Breakpoint"
 #endif
 };
-
-void __stdcall condGeneral(condition* p, int index)
-{
-    int cn = *(int*)((int)p + 4);
-    sprintf(s, "C#%d:%s", index, condNames[cn]);
-}
 
 void __stdcall c_default(condition*, int) {};
 void __stdcall e_default(effect*, int) {};
@@ -181,7 +174,7 @@ void __stdcall c_var(condition* p, int)
 
 void __stdcall c_civ(condition* p, int)
 {
-    sprintf(s + strlen(s), " (P%d: %s)", p->player, civ_names[p->ai_signal - 1]);
+    sprintf(s + strlen(s), " (P%d: %s)", p->player, get_string(10230 + p->ai_signal).c_str());
 }
 
 void(__stdcall* condPrint[]) (condition*, int) =
@@ -316,19 +309,10 @@ void __stdcall e_command(effect* p, int)
 }
 */
 
-void* getTrigger(int i)
-{
-    void* (__thiscall* f) (void*, int) = (void* (__thiscall*) (void*, int))0x5F5F20;
-    return f((void*)*(int*)(*(int*)(*(int*)0x6A3684 + 0x420) + 0x2B8), i);
-}
-
 void __stdcall e_trigger(effect* p, int)
 {
-    void* t = getTrigger(p->trigger);
-    if (t)
-        sprintf(s + strlen(s), " (%s)", *(char**)((int)t + 0x14));
-    else
-        strcpy(s + strlen(s), " (none)");
+    TRIBE_Trigger* t = TRIBE_Trigger_System__get_trigger((*base_game)->world->trigger_system, p->trigger);
+    sprintf(s + strlen(s), " (%s)", t ? t->name : "none");
 }
 
 void __stdcall e_alliance(effect* p, int)
@@ -382,17 +366,21 @@ bool check_data(char* str_)
 
 void __stdcall e_str_data(effect* p, int)
 {
-    if (check_data(p->str))
-        sprintf(s + strlen(s), " (%s)", p->str);
-    else
-        sprintf(s + strlen(s), " (<syntax error>)");
+    sprintf(s + strlen(s), " (%s)", check_data(p->str) ? p->str : "<syntax error>");
 }
 
 extern char** terrain_names;
+extern int terrains_loaded;
 
 void __stdcall e_terrain(effect* p, int)
 {
-    sprintf(s + strlen(s), " (%s)", terrain_names[p->ai_trigger_number]);
+    sprintf(s + strlen(s), " (%s)",
+        (p->ai_trigger_number >= 0) && (p->ai_trigger_number < terrains_loaded) ? terrain_names[p->ai_trigger_number] : "Unknown");
+}
+
+void __stdcall e_goal(effect* p, int)
+{
+    sprintf(s + strlen(s), " (P%d: %d)", p->source_player, p->ai_trigger_number);
 }
 
 void(__stdcall* effectPrint[]) (effect*, int) =
@@ -407,7 +395,7 @@ void(__stdcall* effectPrint[]) (effect*, int) =
     e_default, //lock gate
     e_trigger, //activate trigger
     e_trigger, //deactivate trigger
-    e_default, //ai script goal
+    e_goal, //ai script goal
     e_player_unit, //create object
     e_default, //task object
     e_player, //victory

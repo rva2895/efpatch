@@ -15,7 +15,7 @@ void make_cheat_by_id(RGE_Player* player, int ef_cheat_id)
         *((uint8_t*)cmd + 2) = issuer;
         *((uint8_t*)cmd + 3) = ef_cheat_id;
 
-        RGE_Command__submit((RGE_Command*)get_TRIBE_Command(), cmd, order_size, issuer);
+        RGE_Command__submit((RGE_Command*)(*base_game)->world->commands, cmd, order_size, issuer);
     }
 }
 
@@ -34,7 +34,7 @@ void make_cheat_by_id_with_unit_list(RGE_Player* player, int ef_cheat_id, RGE_St
         for (int i = 0; i < n; i++)
             *((int*)cmd + 2 + i) = units[i]->id;
 
-        RGE_Command__submit((RGE_Command*)get_TRIBE_Command(), cmd, order_size, issuer);
+        RGE_Command__submit((RGE_Command*)(*base_game)->world->commands, cmd, order_size, issuer);
     }
 }
 
@@ -53,7 +53,7 @@ void make_cheat_by_id_with_position(RGE_Player* player, int ef_cheat_id, float x
         *((float*)cmd + 1) = x;
         *((float*)cmd + 2) = y;
 
-        RGE_Command__submit((RGE_Command*)get_TRIBE_Command(), cmd, order_size, issuer);
+        RGE_Command__submit((RGE_Command*)(*base_game)->world->commands, cmd, order_size, issuer);
     }
 }
 
@@ -73,7 +73,7 @@ void __stdcall ef_do_command(void* this_, void* order)
         {
             uint8_t player_id = *((uint8_t*)order + 2);
             uint8_t ef_cheat_id = *((uint8_t*)order + 3);
-            RGE_Player* player = get_player(player_id);
+            RGE_Player* player = (RGE_Player*)(*base_game)->world->players[player_id];
             switch (ef_cheat_id)
             {
             case EF_CHEAT_HELP_ME_OBIWAN: //tech cheats
@@ -147,7 +147,7 @@ void __stdcall ef_do_command(void* this_, void* order)
                                     (unit->master_obj->master_type != 80 || *((DWORD*)unit + 0x77) == 0))
                                 {
                                     RGE_Base_Game__play_sound(*base_game, 0x26, 0, 0);
-                                    RGE_View* main_view = (RGE_View*)get_main_view();
+                                    RGE_View* main_view = (RGE_View*)(*base_game)->vfptr->get_view_panel(*base_game);
                                     if (main_view)
                                         RGE_View__display_object_selection(main_view, unit->id, 1500, 2, 4);
                                 }

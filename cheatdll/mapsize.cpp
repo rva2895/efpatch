@@ -1024,7 +1024,7 @@ __declspec(naked) void ai_findres_save() //0058670C
         push    1
         lea     edx, [ecx + ebp + 7]
         mov     ecx, esi
-        call    deflate_write
+        call    rge_write
         mov     edx, [edi - 20h]
         push    4
         mov     ecx, esi
@@ -1041,7 +1041,7 @@ __declspec(naked) void ai_findres_load() //00584A5A
         push    1
         mov     ecx, ebp
         lea     edx, [eax + ebx + 7]
-        call    deflate_read
+        call    rge_read
         mov     ecx, [edi - 20h]
         push    4
         lea     edx, [ecx + ebx + 8]

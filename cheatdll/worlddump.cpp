@@ -15,28 +15,14 @@ int max_worldtime = INT_MAX;
 
 const char rec_stop_str[] = "Reached break point: replaying stopped - worldtime: %ld";
 
-extern int __fastcall get_gametime2();
-
-__declspec(naked) float* __fastcall player_getResources2(void* player)
-{
-    __asm
-    {
-        mov     eax, [ecx + 0ACh]
-        ret
-    }
-}
-
-unsigned int(__thiscall* player_checksumInternal)(void* player) =
-    (unsigned int(__thiscall*) (void*))0x004C1680;
-
-unsigned int player_checksumInternalWithRestore(void* player)
+unsigned int player_checksumInternalWithRestore(RGE_Player* player)
 {
     char player_20 = *((char*)player + 0x20);
     int player_unk_14 = *(int*)((uint8_t*)player + 0x14);
     int player_unk_18 = *(int*)((uint8_t*)player + 0x18);
     int player_unk_1C = *(int*)((uint8_t*)player + 0x1C);
 
-    unsigned int retval = player_checksumInternal(player);
+    unsigned int retval = RGE_Player__create_checksum(player);
 
     *((char*)player + 0x20) = player_20;
     *(int*)((uint8_t*)player + 0x14) = player_unk_14;
@@ -57,32 +43,6 @@ void __cdecl printf_if_exists(FILE* f, char* format, ...)
     }
 }
 
-__declspec(naked) char __stdcall get_n_players()
-{
-    __asm
-    {
-        mov     ecx, base_game
-        mov     ecx, [ecx]
-        mov     ecx, [ecx + 17B4h]
-        mov     ecx, [ecx + 126Ch]
-        mov     al, [ecx + 48h]
-        ret
-    }
-}
-
-__declspec(naked) RGE_Player** __stdcall get_players()
-{
-    __asm
-    {
-        mov     ecx, base_game
-        mov     ecx, [ecx]
-        mov     ecx, [ecx + 17B4h]
-        mov     ecx, [ecx + 126Ch]
-        mov     eax, [ecx + 4Ch]
-        ret
-    }
-}
-
 int __cdecl compare_unit_ordinal(const void* u1, const void* u2)
 {
     return ((*(RGE_Static_Object**)u1)->id - (*(RGE_Static_Object**)u2)->id);
@@ -94,12 +54,12 @@ unsigned int dump_objects(const char* filename)
     FILE* dump_file = NULL;
     if (filename)
         dump_file = fopen(filename, "wt");
-    if ((dump_file || !filename) && get_gametime2() >= 0)
+    if ((dump_file || !filename) && get_worldtime() >= 0)
     {
-        printf_if_exists(dump_file, "Out Of Sync world dump, worldtime=%d\n\n", get_gametime2());
+        printf_if_exists(dump_file, "Out Of Sync world dump, worldtime=%u\n\n", get_worldtime());
         unsigned int game_checksum = 0;
-        RGE_Player** players = get_players();
-        int n_players = get_n_players();
+        RGE_Player** players = (RGE_Player**)(*base_game)->world->players;
+        int n_players = (*base_game)->world->player_num;
         for (int p = 0; p < n_players; p++)
             if (players[p])
             {
@@ -115,7 +75,7 @@ unsigned int dump_objects(const char* filename)
                     player_unk_A0, player_unk_14, player_unk_18, player_unk_1C);
                 player_checksum += player_unk_A0 + player_unk_14 + player_unk_18 + player_unk_1C;
 
-                float* resources = player_getResources2(players[p]);
+                float* resources = players[p]->attributes;
                 printf_if_exists(dump_file, "  Resources:\n");
 
                 for (int i = 0; i <= MAX_RES; i++)
@@ -215,22 +175,17 @@ void __stdcall dump_checksums(long time)
     }
 }
 
-void(__thiscall* GameScreen__pause)(void* this_) =
-    (void(__thiscall*)(void*))0x00501C30;
-
 void __stdcall pause_game()
 {
-    void* game_screen = *(void**)((uint8_t*)(*base_game) + 0x17B4);
+    TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
     if (game_screen)
-    {
-        GameScreen__pause(game_screen);
-    }
+        TRIBE_Screen_Game__command_pause(game_screen);
 }
 
 void __stdcall rec_breakpoint_reached()
 {
     pause_game();
-    chat("Reached breakpoint, worldtime=%d", get_gametime2());
+    chat("Reached breakpoint, worldtime=%u", get_worldtime());
 }
 
 __declspec(naked) void onCheckTime()
@@ -291,7 +246,7 @@ void __stdcall dump_expected_checksum(long* checksum)
     FILE* f = fopen("rge_expected_checksum_dump.txt", "at");
     if (f)
     {
-        fprintf(f, "%d,%ld\n", get_gametime2(), *checksum);
+        fprintf(f, "%u,%ld\n", get_worldtime(), *checksum);
         fclose(f);
     }
 }
@@ -327,7 +282,7 @@ void __stdcall make_oos_dump()
     tm_time = localtime(&rawtime);
     strftime(name, MAX_PATH, "world_dumps\\World_Dump-%Y-%m-%d_%H-%M-%S_", tm_time);
     strcpy(name + strlen(name), r_n);
-    snprintf(r_n, _countof(r_n), "_%d.txt", get_gametime2());
+    snprintf(r_n, _countof(r_n), "_%u.txt", get_worldtime());
     strcpy(name + strlen(name), r_n);
     FILE* f = fopen(name, "wt");
     if (f)
@@ -348,7 +303,7 @@ void __stdcall update_dump()
 {
     if (world_dump_enabled)
     {
-        int worldtime = get_gametime2();
+        int worldtime = get_worldtime();
         if ((worldtime >= 0) && (wd_queue.check_worldtime(worldtime)))
         {
             DWORD t1 = timeGetTime();
@@ -443,7 +398,7 @@ __declspec(naked) void __stdcall flush_stack()
 
 void __stdcall unit_update_log_before(RGE_Static_Object* unit)
 {
-    if ((get_gametime2() == 527900) && (unit->id == 4325))
+    if ((get_worldtime() == 527900) && (unit->id == 4325))
     {
         wp_cs = unit->vfptr->get_waypoint_checksum(unit);
         print_stats = true;
@@ -540,7 +495,7 @@ void __stdcall check_action(RGE_Action* action)
             if (f)
             {
                 //chat("Action found ")
-                fprintf(f, "WT=%d, act=%p, x=%.4f, y=%.4f\n", get_gametime2(), action, *((float*)action + 8), *((float*)action + 9));
+                fprintf(f, "WT=%u, act=%p, x=%.4f, y=%.4f\n", get_worldtime(), action, *((float*)action + 8), *((float*)action + 9));
                 fclose(f);
             }
         }
@@ -555,12 +510,12 @@ void __stdcall check_create_action(RGE_Action_Object* unit, RGE_Action* action, 
         if (f)
         {
             //chat("Action found ")
-            fprintf(f, "WT=%d, NEW act %X, stack: \n", get_gametime2(), action);
+            fprintf(f, "WT=%u, NEW act %X, stack: \n", get_worldtime(), action);
             for (int i = 0; i < 20; i++)
                 fprintf(f, "  %08X\n", *stack++);
             fclose(f);
         }
-        if (get_gametime2() == 527900 && unit->id == 4325)
+        if (get_worldtime() == 527900 && unit->id == 4325)
             __debugbreak();
     }
 }
@@ -618,12 +573,12 @@ void setWorldDumpHooks()
 
 WORLD_DUMP::WORLD_DUMP()
 {
-    worldtime = get_gametime2();
+    worldtime = get_worldtime();
     if (worldtime >= 0)
     {
         cs = 0;
-        RGE_Player** players_ptr = get_players();
-        int n_players = get_n_players();
+        RGE_Player** players_ptr = (RGE_Player**)(*base_game)->world->players;
+        int n_players = (*base_game)->world->player_num;
         players.reserve(n_players);
         for (int p = 0; p < n_players; p++)
             if (players_ptr[p])
@@ -633,7 +588,7 @@ WORLD_DUMP::WORLD_DUMP()
                 player.cs = 0;
                 
                 //Resources
-                float* resources = player_getResources2(players_ptr[p]);
+                float* resources = players_ptr[p]->attributes;
                 player.resources.reserve(MAX_RES);
                 for (int i = 0; i <= MAX_RES; i++)
                     player.resources.push_back(resources[i]);

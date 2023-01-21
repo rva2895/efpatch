@@ -492,7 +492,7 @@ stealth_off:
 #pragma warning(push)
 #pragma warning(disable:4100)
 
-void __stdcall readUnitExtra(RGE_Static_Object* unit, void* stream)
+void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
 {
     char flag;
     UNIT_EXTRA* ud;
@@ -500,12 +500,12 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, void* stream)
     switch (current_save_game_version)
     {
     case 0:
-        deflate_read(stream, &flag, sizeof(flag));
+        rge_read(stream, &flag, sizeof(flag));
         if (flag)
         {
             ud = new UNIT_EXTRA;
             UNIT_EXTRA_OLD ud_old;
-            deflate_read(stream, &ud_old, sizeof(UNIT_EXTRA_OLD));
+            rge_read(stream, &ud_old, sizeof(UNIT_EXTRA_OLD));
 
             ud->speedReductionEnabled = ud_old.speedReductionEnabled;
             ud->speedReductionModifier = ud_old.speedReductionModifier;
@@ -542,39 +542,39 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, void* stream)
     case 2:
     case 3:
     case 4:
-        deflate_read(stream, &flag, sizeof(flag));
+        rge_read(stream, &flag, sizeof(flag));
         if (flag)
         {
             ud = new UNIT_EXTRA;
             memset(ud, 0, sizeof(UNIT_EXTRA));
 
-            deflate_read(stream, &ud->speedReductionEnabled, sizeof(ud->speedReductionEnabled));
-            deflate_read(stream, &ud->speedReductionModifier, sizeof(ud->speedReductionModifier));
-            deflate_read(stream, &ud->speedReductionTime, sizeof(ud->speedReductionTime));
+            rge_read(stream, &ud->speedReductionEnabled, sizeof(ud->speedReductionEnabled));
+            rge_read(stream, &ud->speedReductionModifier, sizeof(ud->speedReductionModifier));
+            rge_read(stream, &ud->speedReductionTime, sizeof(ud->speedReductionTime));
             
-            deflate_read(stream, &ud->stealthOffEnabled, sizeof(ud->stealthOffEnabled));
-            deflate_read(stream, &ud->stealthOffTime, sizeof(ud->stealthOffTime));
+            rge_read(stream, &ud->stealthOffEnabled, sizeof(ud->stealthOffEnabled));
+            rge_read(stream, &ud->stealthOffTime, sizeof(ud->stealthOffTime));
 
-            deflate_read(stream, &ud->reloadTimeEnabled, sizeof(ud->reloadTimeEnabled));
-            deflate_read(stream, &ud->reloadTimeModifier, sizeof(ud->reloadTimeModifier));
-            deflate_read(stream, &ud->reloadTimeTime, sizeof(ud->reloadTimeTime));
+            rge_read(stream, &ud->reloadTimeEnabled, sizeof(ud->reloadTimeEnabled));
+            rge_read(stream, &ud->reloadTimeModifier, sizeof(ud->reloadTimeModifier));
+            rge_read(stream, &ud->reloadTimeTime, sizeof(ud->reloadTimeTime));
 
-            deflate_read(stream, &ud->hpDrainEnabled, sizeof(ud->hpDrainEnabled));
-            deflate_read(stream, &ud->hpDrainPerSecond, sizeof(ud->hpDrainPerSecond));
-            deflate_read(stream, &ud->hpDrainTime, sizeof(ud->hpDrainTime));
-            deflate_read(stream, &ud->hpDrainLeftover, sizeof(ud->hpDrainLeftover));
+            rge_read(stream, &ud->hpDrainEnabled, sizeof(ud->hpDrainEnabled));
+            rge_read(stream, &ud->hpDrainPerSecond, sizeof(ud->hpDrainPerSecond));
+            rge_read(stream, &ud->hpDrainTime, sizeof(ud->hpDrainTime));
+            rge_read(stream, &ud->hpDrainLeftover, sizeof(ud->hpDrainLeftover));
 
-            deflate_read(stream, &ud->hpDrainPercentEnabled, sizeof(ud->hpDrainPercentEnabled));
-            deflate_read(stream, &ud->hpDrainPercentPerSecond, sizeof(ud->hpDrainPercentPerSecond));
-            deflate_read(stream, &ud->hpDrainPercentTime, sizeof(ud->hpDrainPercentTime));
-            deflate_read(stream, &ud->hpDrainPercentLeftover, sizeof(ud->hpDrainPercentLeftover));
+            rge_read(stream, &ud->hpDrainPercentEnabled, sizeof(ud->hpDrainPercentEnabled));
+            rge_read(stream, &ud->hpDrainPercentPerSecond, sizeof(ud->hpDrainPercentPerSecond));
+            rge_read(stream, &ud->hpDrainPercentTime, sizeof(ud->hpDrainPercentTime));
+            rge_read(stream, &ud->hpDrainPercentLeftover, sizeof(ud->hpDrainPercentLeftover));
 
-            deflate_read(stream, &ud->countersUsed, sizeof(ud->countersUsed));
-            deflate_read(stream, &ud->miscCounter1, sizeof(ud->miscCounter1));
-            deflate_read(stream, &ud->miscCounter2, sizeof(ud->miscCounter2));
-            deflate_read(stream, &ud->miscCounter3, sizeof(ud->miscCounter3));
-            deflate_read(stream, &ud->miscCounter4, sizeof(ud->miscCounter4));
-            deflate_read(stream, &ud->miscCounter5, sizeof(ud->miscCounter5));
+            rge_read(stream, &ud->countersUsed, sizeof(ud->countersUsed));
+            rge_read(stream, &ud->miscCounter1, sizeof(ud->miscCounter1));
+            rge_read(stream, &ud->miscCounter2, sizeof(ud->miscCounter2));
+            rge_read(stream, &ud->miscCounter3, sizeof(ud->miscCounter3));
+            rge_read(stream, &ud->miscCounter4, sizeof(ud->miscCounter4));
+            rge_read(stream, &ud->miscCounter5, sizeof(ud->miscCounter5));
 
             addUnitExtra(unit, ud);
         }
@@ -587,47 +587,47 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, void* stream)
     }
 }
 
-void __stdcall writeUnitExtra(RGE_Static_Object* unit, void* stream)
+void __stdcall writeUnitExtra(RGE_Static_Object* unit, int stream)
 {
     char flag;
     UNIT_EXTRA* ud = getUnitExtra(unit);
     if (ud)
     {
         flag = 1;
-        deflate_write(stream, &flag, sizeof(flag));
+        rge_write(stream, &flag, sizeof(flag));
         
-        deflate_write(stream, &ud->speedReductionEnabled, sizeof(ud->speedReductionEnabled));
-        deflate_write(stream, &ud->speedReductionModifier, sizeof(ud->speedReductionModifier));
-        deflate_write(stream, &ud->speedReductionTime, sizeof(ud->speedReductionTime));
+        rge_write(stream, &ud->speedReductionEnabled, sizeof(ud->speedReductionEnabled));
+        rge_write(stream, &ud->speedReductionModifier, sizeof(ud->speedReductionModifier));
+        rge_write(stream, &ud->speedReductionTime, sizeof(ud->speedReductionTime));
 
-        deflate_write(stream, &ud->stealthOffEnabled, sizeof(ud->stealthOffEnabled));
-        deflate_write(stream, &ud->stealthOffTime, sizeof(ud->stealthOffTime));
+        rge_write(stream, &ud->stealthOffEnabled, sizeof(ud->stealthOffEnabled));
+        rge_write(stream, &ud->stealthOffTime, sizeof(ud->stealthOffTime));
 
-        deflate_write(stream, &ud->reloadTimeEnabled, sizeof(ud->reloadTimeEnabled));
-        deflate_write(stream, &ud->reloadTimeModifier, sizeof(ud->reloadTimeModifier));
-        deflate_write(stream, &ud->reloadTimeTime, sizeof(ud->reloadTimeTime));
+        rge_write(stream, &ud->reloadTimeEnabled, sizeof(ud->reloadTimeEnabled));
+        rge_write(stream, &ud->reloadTimeModifier, sizeof(ud->reloadTimeModifier));
+        rge_write(stream, &ud->reloadTimeTime, sizeof(ud->reloadTimeTime));
 
-        deflate_write(stream, &ud->hpDrainEnabled, sizeof(ud->hpDrainEnabled));
-        deflate_write(stream, &ud->hpDrainPerSecond, sizeof(ud->hpDrainPerSecond));
-        deflate_write(stream, &ud->hpDrainTime, sizeof(ud->hpDrainTime));
-        deflate_write(stream, &ud->hpDrainLeftover, sizeof(ud->hpDrainLeftover));
+        rge_write(stream, &ud->hpDrainEnabled, sizeof(ud->hpDrainEnabled));
+        rge_write(stream, &ud->hpDrainPerSecond, sizeof(ud->hpDrainPerSecond));
+        rge_write(stream, &ud->hpDrainTime, sizeof(ud->hpDrainTime));
+        rge_write(stream, &ud->hpDrainLeftover, sizeof(ud->hpDrainLeftover));
 
-        deflate_write(stream, &ud->hpDrainPercentEnabled, sizeof(ud->hpDrainPercentEnabled));
-        deflate_write(stream, &ud->hpDrainPercentPerSecond, sizeof(ud->hpDrainPercentPerSecond));
-        deflate_write(stream, &ud->hpDrainPercentTime, sizeof(ud->hpDrainPercentTime));
-        deflate_write(stream, &ud->hpDrainPercentLeftover, sizeof(ud->hpDrainPercentLeftover));
+        rge_write(stream, &ud->hpDrainPercentEnabled, sizeof(ud->hpDrainPercentEnabled));
+        rge_write(stream, &ud->hpDrainPercentPerSecond, sizeof(ud->hpDrainPercentPerSecond));
+        rge_write(stream, &ud->hpDrainPercentTime, sizeof(ud->hpDrainPercentTime));
+        rge_write(stream, &ud->hpDrainPercentLeftover, sizeof(ud->hpDrainPercentLeftover));
 
-        deflate_write(stream, &ud->countersUsed, sizeof(ud->countersUsed));
-        deflate_write(stream, &ud->miscCounter1, sizeof(ud->miscCounter1));
-        deflate_write(stream, &ud->miscCounter2, sizeof(ud->miscCounter2));
-        deflate_write(stream, &ud->miscCounter3, sizeof(ud->miscCounter3));
-        deflate_write(stream, &ud->miscCounter4, sizeof(ud->miscCounter4));
-        deflate_write(stream, &ud->miscCounter5, sizeof(ud->miscCounter5));
+        rge_write(stream, &ud->countersUsed, sizeof(ud->countersUsed));
+        rge_write(stream, &ud->miscCounter1, sizeof(ud->miscCounter1));
+        rge_write(stream, &ud->miscCounter2, sizeof(ud->miscCounter2));
+        rge_write(stream, &ud->miscCounter3, sizeof(ud->miscCounter3));
+        rge_write(stream, &ud->miscCounter4, sizeof(ud->miscCounter4));
+        rge_write(stream, &ud->miscCounter5, sizeof(ud->miscCounter5));
     }
     else
     {
         flag = 0;
-        deflate_write(stream, &flag, sizeof(flag));
+        rge_write(stream, &flag, sizeof(flag));
     }
 }
 
@@ -661,7 +661,7 @@ __declspec(naked) void readSaveHook() //004AEEEE
     }
 }
 
-bool __stdcall test_save_game_version(char* version, void* stream, bool from_chapter)
+bool __stdcall test_save_game_version(char* version, int stream, bool from_chapter)
 {
     bool setup_dat_file_ret = false;
     if (!strncmp(version, "VER 9.4", 8))
@@ -680,7 +680,7 @@ bool __stdcall test_save_game_version(char* version, void* stream, bool from_cha
     else if (!strncmp(version, "VER 9.9", 8))
     {
         int sub_version;
-        deflate_read(stream, &sub_version, sizeof(sub_version));
+        rge_read(stream, &sub_version, sizeof(sub_version));
         if (sub_version >= 1)
         {
             current_save_game_version = sub_version;
@@ -733,10 +733,10 @@ bad_version2:
     }
 }
 
-void __stdcall write_save_game_version(void* stream)
+void __stdcall write_save_game_version(int stream)
 {
     int version = CURRENT_VERSION;
-    deflate_write(stream, &version, sizeof(version));
+    rge_write(stream, &version, sizeof(version));
 }
 
 __declspec(naked) void verSaveHook1() //0062059F

@@ -7,7 +7,7 @@ char* __stdcall loadDLLString_new(UINT uID, char* dest, int cchBufferMax, RGE_Ba
 {
     if (!our_dll || !MyLoadStringA(our_dll, uID, dest, cchBufferMax))
         if (!*hInstance_dll || !MyLoadStringA(*hInstance_dll, uID, dest, cchBufferMax))
-            RGE_Base_Game__get_string2(this_, uID, dest, cchBufferMax);
+            RGE_Base_Game__get_string3(this_, uID, dest, cchBufferMax);
     dest[cchBufferMax - 1] = 0;
     return dest;
 }

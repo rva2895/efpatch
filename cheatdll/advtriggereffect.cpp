@@ -316,6 +316,7 @@ void modify_sound(RGE_Sound** old_sound, short new_sound_id)
     }
 }
 
+/*
 void modify_value(void* address, size_t offset, UNIT_MASTER_DATA_OPERATION op, float v)
 {
     switch (op)
@@ -343,9 +344,10 @@ void modify_value(void* address, size_t offset, UNIT_MASTER_DATA_OPERATION op, f
         break;
     }
 }
+*/
 
 template<class T>
-void modify_value(void* address, size_t offset, UNIT_MASTER_DATA_OPERATION op, T v)
+void modify_value(void* address, size_t offset, UNIT_MASTER_DATA_OPERATION op, float v)
 {
     switch (op)
     {
@@ -364,12 +366,12 @@ void modify_value(void* address, size_t offset, UNIT_MASTER_DATA_OPERATION op, T
     case OP_DIV:
         *(T*)((size_t)address + offset) /= v;
         break;
-    case OP_AND:
+    /*case OP_AND:
         *(T*)((size_t)address + offset) &= v;
         break;
     case OP_OR:
         *(T*)((size_t)address + offset) |= v;
-        break;
+        break;*/
     case OP_POW:
         *(T*)((size_t)address + offset) = (T)pow(*(T*)((size_t)address + offset), v);
         break;
@@ -401,7 +403,7 @@ void modify_armor_class(RGE_Master_Static_Object* master, size_t offset, UNIT_MA
         (*count)++;
     }
 
-    modify_value(&type_ptr->value, 0, op, value);
+    modify_value<short>(&type_ptr->value, 0, op, value);
 }
 
 bool is_master_field_in_this_master(const CHANGE_UNIT_MASTER_PARAMS& param, unsigned __int8 master_type)
@@ -485,26 +487,26 @@ void __stdcall advTriggerEffect_do_single_line_effect(RGE_Master_Static_Object* 
             switch ((*r).second.val_type)
             {
             case T_UINT8:
-                if (sscanf_s(amount, "%hhu", &uint8Amount) > 0)
-                    modify_value(master, (*r).second.offset, op, uint8Amount);
+                if (sscanf_s(amount, "%f", &floatAmount) > 0)
+                    modify_value<unsigned char>(master, (*r).second.offset, op, floatAmount);
                 else
                     log("Error: value %s is invalid for variable %s", amount, variable);
                 break;
             case T_INT16:
-                if (sscanf_s(amount, "%hd", &int16Amount) > 0)
-                    modify_value(master, (*r).second.offset, op, int16Amount);
+                if (sscanf_s(amount, "%f", &floatAmount) > 0)
+                    modify_value<short>(master, (*r).second.offset, op, floatAmount);
                 else
                     log("Error: value %s is invalid for variable %s", amount, variable);
                 break;
             case T_INT32:
-                if (sscanf_s(amount, "%d", &int32Amount) > 0)
-                    modify_value(master, (*r).second.offset, op, int32Amount);
+                if (sscanf_s(amount, "%f", &floatAmount) > 0)
+                    modify_value<int>(master, (*r).second.offset, op, floatAmount);
                 else
                     log("Error: value %s is invalid for variable %s", amount, variable);
                 break;
             case T_FLOAT:
                 if (sscanf_s(amount, "%f", &floatAmount) > 0)
-                    modify_value(master, (*r).second.offset, op, floatAmount);
+                    modify_value<float>(master, (*r).second.offset, op, floatAmount);
                 else
                     log("Error: value %s is invalid for variable %s", amount, variable);
                 break;

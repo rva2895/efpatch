@@ -38,9 +38,6 @@ void fixCurrentDir()
 
 extern crash_rpt::CrashRpt* g_crashRpt;
 
-int (WINAPI* WinMain_exe) (HINSTANCE, HINSTANCE, LPSTR, int) =
-    (int (WINAPI*) (HINSTANCE, HINSTANCE, LPSTR, INT)) 0x0048EFC0;
-
 extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
@@ -107,9 +104,6 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
     return retval;
 }
 #endif
-
-int (CALLBACK* WndProc_exe) (HWND, UINT, WPARAM, LPARAM) =
-    (int (CALLBACK*) (HWND, UINT, WPARAM, LPARAM)) 0x00426530;
 
 HWND hWnd_main = NULL;
 
