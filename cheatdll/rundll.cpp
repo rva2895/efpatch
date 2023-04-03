@@ -15,8 +15,6 @@ extern int cliff_type;
 
 extern bool editorstatus_isValid;
 
-extern void* scen_ptr;
-
 extern CONFIG_DATA cd;
 
 const int cliff_types_ef[] = { 0x108, 3971, 3981, 3991, 4196, 4206, 4216, 4226, 4236, 0 };
@@ -226,7 +224,7 @@ int CALLBACK WndProc_dll(HWND hWnd,
                             current_cliff_index = 0;
                             cliff_type = cliff_types_ef[0];
                         }
-                        setCliffType(cliff_type, scen_ptr);
+                        setCliffType(cliff_type, (*base_game)->world->map);
                         editorstatus_isValid = false;
                     }
                 }

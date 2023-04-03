@@ -1,34 +1,9 @@
 #include "stdafx.h"
 #include "cliff.h"
 
-void* scen_ptr;
-
-__declspec(naked) void scen_ptr_hook() //005C9D57
-{
-    __asm
-    {
-        mov     scen_ptr, esi
-        mov     eax, esi
-        pop     edi
-        pop     esi
-        mov     ecx, [esp + 8]
-        mov     ebx, 005C9D5Fh
-        jmp     ebx
-    }
-}
-
-__declspec(naked) void sub_5CAF00()
-{
-    __asm
-    {
-        mov     eax, 005CAF00h
-        jmp     eax
-    }
-}
-
 #pragma warning(push)
 #pragma warning(disable:4100)
-__declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
+__declspec(naked) void __stdcall setCliffType(int id, RGE_Map* map) //base id
 {
     __asm
     {
@@ -53,7 +28,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    ebx
         push    1
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    edi
@@ -66,7 +41,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    1
         push    ebx
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    edi
@@ -79,7 +54,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    ebx
         push    ebx
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    edi
@@ -92,7 +67,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    ebx
         push    ebx
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    edi
@@ -106,7 +81,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    ebx
         push    edi
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    edi
@@ -120,7 +95,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    edi
         push    ebx
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    edi
@@ -134,7 +109,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    ebx
         push    ebx
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    edi
@@ -148,7 +123,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    ebx
         push    ebx
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    40000000h
         push    3FC00000h
         push    edi
@@ -162,7 +137,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    1
         push    edi
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    40000000h
         push    3F800000h
         push    edi
@@ -176,7 +151,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    edi
         push    ebx
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3F800000h
         push    edi
@@ -190,7 +165,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    ebx
         push    ebx
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    edi
@@ -203,7 +178,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    ebx
         push    1
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    40000000h
         push    edi
@@ -217,7 +192,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    edi
         push    1
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    edi
@@ -230,7 +205,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    1
         push    ebx
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3F800000h
         push    3FC00000h
         push    edi
@@ -244,7 +219,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    ebx
         push    ebx
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3F800000h
         push    40000000h
         push    edi
@@ -258,7 +233,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    ebx
         push    edi
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    5
@@ -271,7 +246,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    ebx
         push    1
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    2
@@ -284,7 +259,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    1
         push    ebx
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    0Ah
@@ -298,7 +273,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    ebx
         push    edi
         mov     ecx, esi
-        call    sub_5CAF00
+        call    TRIBE_Map__setup_cliff_type
         push    3FC00000h
         push    3FC00000h
         push    7
@@ -312,76 +287,7 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
         push    edi
         push    ebx
         mov     ecx, esi
-        call    sub_5CAF00
-
-        //
-        mov     ebx, [ebp + 8]
-        mov     esi, ebx
-        add     esi, 9
-        mov     edi, writeByte
-        push    ebx
-        push    005CAFF5h
-        call    edi
-        mov     al, bh
-        push    eax
-        push    005CAFF6h
-        call    edi
-        push    ebx
-        push    005CB02Fh
-        call    edi
-        mov     al, bh
-        push    eax
-        push    005CB030h
-        call    edi
-        //
-        push    ebx
-        push    005CB083h
-        call    edi
-        mov     al, bh
-        push    eax
-        push    005CB084h
-        call    edi
-        push    ebx
-        push    005CB0B6h
-        call    edi
-        mov     al, bh
-        push    eax
-        push    005CB0B7h
-        call    edi
-        //
-        mov     ebx, esi
-        push    ebx
-        push    005CAFFCh
-        call    edi
-        mov     al, bh
-        push    eax
-        push    005CAFFDh
-        call    edi
-        push    ebx
-        push    005CB036h
-        call    edi
-        mov     al, bh
-        push    eax
-        push    005CB037h
-        call    edi
-        //
-        push    ebx
-        push    005CB08Ah
-        call    edi
-        mov     al, bh
-        push    eax
-        push    005CB08Bh
-        call    edi
-        push    ebx
-        push    005CB0BDh
-        call    edi
-        mov     al, bh
-        push    eax
-        push    005CB0BEh
-        call    edi
-        //
-        add     esp, 8*2*4*2
-        //
+        call    TRIBE_Map__setup_cliff_type
 
         pop     ebx
         pop     esi
@@ -395,20 +301,98 @@ __declspec(naked) void __stdcall setCliffType(int id, void* ptr) //base id
 
 int cliff_type = 0x108;
 
-__declspec(naked) void onCliffPaint() //005CB1B0
+__declspec(naked) void find_cliff_1() //005CAFF2
 {
     __asm
     {
-        push    ecx
-        push    ecx
-        mov     eax, cliff_type
         push    eax
-        call    setCliffType
-        pop     ecx
+        mov     eax, cliff_type
+        cmp     di, ax
+        jl      short loc_5CB000
+        add     eax, 9
+        cmp     di, ax
+        jle     short loc_5CB044
 
-        sub     esp, 14h
-        mov     eax, [esp + 20h]
-        mov     edx, 005CB1B7h
+loc_5CB000:
+        pop     eax
+        mov     edi, 005CB000h
+        jmp     edi
+
+loc_5CB044:
+        pop     eax
+        mov     edi, 005CB044h
+        jmp     edi
+    }
+}
+
+__declspec(naked) void find_cliff_2() //005CB02C
+{
+    __asm
+    {
+        push    eax
+        mov     eax, cliff_type
+        cmp     bx, ax
+        jl      short loc_5CB03A
+        add     eax, 9
+        cmp     bx, ax
+        jle     short loc_5CB053
+
+loc_5CB03A:
+        pop     eax
+        mov     ebx, 005CB03Ah
+        jmp     ebx
+
+loc_5CB053:
+        pop     eax
+        mov     ebx, 005CB053h
+        jmp     ebx
+    }
+}
+
+__declspec(naked) void find_cliff_3() //005CB080
+{
+    __asm
+    {
+        push    eax
+        mov     eax, cliff_type
+        cmp     si, ax
+        jl      short loc_5CB08E
+        add     eax, 9
+        cmp     si, ax
+        jle     short loc_5CB0D3
+
+loc_5CB08E:
+        pop     eax
+        mov     esi, 005CB08Eh
+        jmp     esi
+
+loc_5CB0D3:
+        pop     eax
+        mov     esi, 005CB0D3h
+        jmp     esi
+    }
+}
+
+__declspec(naked) void find_cliff_4() //005CB0B3
+{
+    __asm
+    {
+        push    eax
+        mov     eax, cliff_type
+        cmp     dx, ax
+        jl      short loc_5CB0C1
+        add     eax, 9
+        cmp     dx, ax
+        jle     short loc_5CB0DF
+
+loc_5CB0C1:
+        pop     eax
+        mov     edx, 005CB0C1h
+        jmp     edx
+
+loc_5CB0DF:
+        pop     eax
+        mov     edx, 005CB0DFh
         jmp     edx
     }
 }
@@ -425,11 +409,14 @@ __declspec(naked) void onRmsCliff() //004E3780
         jz      _set_cliff
         mov     edx, 004E3787h
         jmp     edx
+
 _set_cliff:
-        mov     edx, scen_ptr
+        mov     edx, [ecx + 140h]
+        mov     edx, [edx + 34h] //RGE_Map
         mov     eax, [ecx + 46678h]
         push    edx
         push    eax
+        mov     cliff_type, eax
         call    setCliffType
         mov     edx, 004E37F7h
         jmp     edx
@@ -440,10 +427,12 @@ __declspec(naked) void onResetCliffType() //004DFA63
 {
     __asm
     {
-        mov     edx, scen_ptr
+        mov     edx, [ebp + 140h]
+        mov     edx, [edx + 34h] //RGE_Map
         mov     eax, 108h
         push    edx
         push    eax
+        mov     cliff_type, eax
         call    setCliffType
         mov     ecx, [ebp + 140h]
         mov     edx, 004DFA69h
@@ -451,13 +440,15 @@ __declspec(naked) void onResetCliffType() //004DFA63
     }
 }
 
-
 #pragma optimize( "s", on )
 void setCliffTypeHooks()
 {
-    //setHook((void*)0x005CB1B0, &onCliffPaint);
-    setHook((void*)0x005C9D57, scen_ptr_hook);
     setHook((void*)0x004E3780, onRmsCliff);
     setHook((void*)0x004DFA63, onResetCliffType);
+
+    setHook((void*)0x005CAFF2, find_cliff_1);
+    setHook((void*)0x005CB02C, find_cliff_2);
+    setHook((void*)0x005CB080, find_cliff_3);
+    setHook((void*)0x005CB0B3, find_cliff_4);
 }
 #pragma optimize( "", on )
