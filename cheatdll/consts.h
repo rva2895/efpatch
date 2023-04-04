@@ -30,5 +30,7 @@
 //1 1.4.1 rc1
 //2 1.4.1
 //3 1.4.2
+//4 1.5.0
+//5 1.5.1
 
-#define CURRENT_VERSION 4
+#define CURRENT_VERSION 5
