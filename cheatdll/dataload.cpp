@@ -172,10 +172,14 @@ bool setup_dat_file()
         data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.2\\";
         break;
     case 4:
+        setup_data_file_name(DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.0\\genie_x2.dat");
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.0\\";
+        break;
+    case 5:
         setup_data_file_name(DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat");
         data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT;
         break;
-#if CURRENT_VERSION != 4
+#if CURRENT_VERSION != 5
 #error Must update for new CURRENT_VERSION
 #endif
     default:
