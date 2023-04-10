@@ -324,6 +324,7 @@
     <ClInclude Include="resgenbldgs.h" />
     <ClInclude Include="resolution.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="revealmap.h" />
     <ClInclude Include="revertToX1.h" />
     <ClInclude Include="rge_command.h" />
     <ClInclude Include="rge_communications_queue.h" />
@@ -489,6 +490,7 @@
     <ClCompile Include="resfile.cpp" />
     <ClCompile Include="resgenbldgs.cpp" />
     <ClCompile Include="resolution.cpp" />
+    <ClCompile Include="revealmap.cpp" />
     <ClCompile Include="revertToX1.cpp" />
     <ClCompile Include="rge_command.cpp" />
     <ClCompile Include="rge_communications_queue.cpp" />

@@ -118,6 +118,7 @@
 #include "editcontrol.h"
 #include "attribute_held.h"
 #include "buildingconv.h"
+#include "revealmap.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -329,6 +330,8 @@ void setHooksCC()
 
     if (cd.chatBox)
         setEditControlHooks();
+
+    setRevealMapHooks();
 
     //function hook!
     //setFunctionListHooks();
