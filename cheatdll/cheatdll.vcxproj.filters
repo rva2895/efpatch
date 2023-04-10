@@ -504,6 +504,9 @@
     <ClInclude Include="buildingconv.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
+    <ClInclude Include="revealmap.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -948,6 +951,9 @@
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
     <ClCompile Include="buildingconv.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="revealmap.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
   </ItemGroup>
