@@ -443,9 +443,9 @@ void __stdcall advTriggerEffect_do_single_line_effect(RGE_Master_Static_Object* 
     amount[0] = '\0';
     amount2[0] = '\0';
 
-    unsigned char uint8Amount;
+    //unsigned char uint8Amount;
     short int16Amount;
-    int int32Amount;
+    //int int32Amount;
     float floatAmount;
     short int16Amount2;
 
@@ -467,10 +467,10 @@ void __stdcall advTriggerEffect_do_single_line_effect(RGE_Master_Static_Object* 
         op = OP_MUL;
     else if (!strcmp(command, "DIV"))
         op = OP_DIV;
-    else if (!strcmp(command, "AND"))
+    /*else if (!strcmp(command, "AND"))
         op = OP_AND;
     else if (!strcmp(command, "OR"))
-        op = OP_OR;
+        op = OP_OR;*/
     else if (!strcmp(command, "POW"))
         op = OP_POW;
     else

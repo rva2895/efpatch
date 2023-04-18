@@ -19,8 +19,8 @@ enum UNIT_MASTER_DATA_OPERATION
     OP_SUB,
     OP_MUL,
     OP_DIV,
-    OP_AND,
-    OP_OR,
+    //OP_AND,
+    //OP_OR,
     OP_POW
 };
 

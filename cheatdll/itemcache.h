@@ -342,7 +342,7 @@ void insert_item_data(SCEN_DATA& sd, ITEM_CACHE<SCEN_DATA>& cache)
     if (!sc1->loaded)
     {
         delete sc1;
-        std::string scxscen = sd.file.c_str();
+        std::string scxscen = sd.file;
         scxscen[scxscen.length() - 1] = 'x';
         sc1 = new SCEN(scxscen.c_str());
     }

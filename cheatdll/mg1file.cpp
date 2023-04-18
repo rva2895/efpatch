@@ -78,6 +78,8 @@ MG1::MG1(const char* filename)
     d.pop_limit = -1;
     d.game_type = 3;
     map_type = NULL;
+    p = NULL;
+
     FILE* f = fopen(filename, "rb");
 
     if (!f)
@@ -401,11 +403,13 @@ MG1::MG1(const char* filename)
     }
     fread(&start, 4, 1, f);
     fread(&end, 4, 1, f);
+    long next_chapter = end;
     if (!end)
     {
         fseek(f, 0, SEEK_END);
         end = ftell(f);
     }
+
     dst = malloc(end - start);
     fseek(f, start, SEEK_SET);
     fread(dst, end - start, 1, f);
@@ -431,40 +435,71 @@ MG1::MG1(const char* filename)
     int len;
     int command;
 
-    while (p < ((char*)dst + end - start))
+    bool first_chapter = true;
+
+    do
     {
-        type = read4();
-        switch (type)
+        if (!first_chapter)
         {
-        case 1: //command
-            len = read4();
-            command = read4();
-            skip(len);
-            break;
-        case 2: //sync
-            d.duration += read4();
-            skip(4 * 4);
-            break;
-        case 0: //time sync
-            skip(4);
-            d.duration2 = read4();
-            skip(4 * 4);
-            break;
-        case 4: //chat
-            skip(4);
-            len = read4();
-#ifdef S_DEBUG
-            fputs(p, fptr);
-            fputs("\n", fptr);
-#endif
-            skip(len);    //chat string
-            break;
-        default: //error!
-            free(dst);
-            return;
+            f = fopen(filename, "rb");
+            if (!f)
+            {
+                log("Error: cannot open file %s", filename);
+                return;
+            }
+            fseek(f, next_chapter, SEEK_SET);
+            fread(&start, 4, 1, f);
+            fread(&end, 4, 1, f);
+            next_chapter = end;
+            if (!end)
+            {
+                fseek(f, 0, SEEK_END);
+                end = ftell(f);
+            }
+
+            dst = malloc(end - start);
+            fseek(f, start, SEEK_SET);
+            fread(dst, end - start, 1, f);
+            fclose(f);
+            p = (char*)dst;
         }
-    }
-    free(dst);
+
+        while (p < ((char*)dst + end - start))
+        {
+            type = read4();
+            switch (type)
+            {
+            case 1: //command
+                len = read4();
+                command = read4();
+                skip(len);
+                break;
+            case 2: //sync
+                d.duration += read4();
+                skip(4 * 4);
+                break;
+            case 0: //time sync
+                skip(4);
+                d.duration2 = read4();
+                skip(4 * 4);
+                break;
+            case 4: //chat
+                skip(4);
+                len = read4();
+#ifdef S_DEBUG
+                fputs(p, fptr);
+                fputs("\n", fptr);
+#endif
+                skip(len);    //chat string
+                break;
+            default: //error!
+                free(dst);
+                return;
+            }
+        }
+        free(dst);
+        first_chapter = false;
+    } while (next_chapter);
 
     //unit counter
     /*if (cnt > 10)
