@@ -21,8 +21,6 @@
 
 extern RESFILE resfile;
 
-int current_worldtime = 0;
-
 #ifdef _DEBUG
 
 int effectsFired = 0;
@@ -355,7 +353,6 @@ void thread_proc(void* p)
 
 //DWORD performance_time = 0;
 
-extern float* __fastcall player_getResources2(void*);
 extern void __stdcall make_oos_dump();
 
 //extern std::vector<FUNCTION_HOOK*> function_hooks;
@@ -406,12 +403,13 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         return 1;
     }
     */
-    
+    /*
     else if (!strcmp(s, "/worldtime"))
     {
         chat("Worldtime = %u", get_worldtime());
         return 1;
     }
+    */
     /*
     else if (strstr(s, "/set-max"))
     {
@@ -460,6 +458,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
     }
     */
     
+    /*
     else if (strstr(s, "/obj") || strstr(s, "/object"))
     {
         char d[0x100];
@@ -509,6 +508,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         RGE_Player__set_view_loc(RGE_Base_Game__get_player(*base_game), x, y, 0);
         return true;
     }
+    */
 
     /*else if (strstr(s, "/load-all"))
     {

@@ -105,7 +105,6 @@ SCEN::SCEN(const char* filename)
 #ifdef _DEBUG
 		log("Error: Cannot open %s", filename);
 #endif
-		loaded = false;
 		last_error = SC_CONV_ERROR_CANNOT_OPEN_FILE;
 		return;
 	}
@@ -123,16 +122,15 @@ SCEN::SCEN(const char* filename)
 	{
 #ifdef _DEBUG
 		log(" ERROR");
-#endif
 		char ver[5];
 		*(int*)ver = header.version;
-#ifdef _DEBUG
 		log("Cannot load file (unknown ASCII header - expected: 1.21, file: %s)", ver);
 #endif
-		loaded = false;
 		last_error = SC_CONV_ERROR_INVALID_SCENARIO;
+		fclose(f);
 		return;
 	}
+
 	read_str32(&header.instructions, f);
 	fread(&header.individual_victories_used, sizeof(header.individual_victories_used), 1, f);
 	fread(&header.players, sizeof(header.players), 1, f);
@@ -141,8 +139,6 @@ SCEN::SCEN(const char* filename)
 	memset(&st, 0, sizeof(st));
 	//int r = inflateInit2_(&st, -15, "1.2.8", 56);
 	//int r = inflateInit2_(&st, -15, "1.2.8", sizeof(st));
-
-	void* buf = malloc(SCEN_STEP);
 
 	int dst_n = SCEN_STEP;
 	void* dst = malloc(SCEN_STEP);
@@ -180,12 +176,19 @@ SCEN::SCEN(const char* filename)
 			st.next_in = (Bytef*)data;
 			st.avail_in = end - start;
 			break;
+		default:
+			inflateEnd(&st);
+			free(data);
+			free(dst);
+			return;
+			break;
 		}
 	}
 
 	int total = st.total_out;
 
 	inflateEnd(&st);
+	free(data);
 
 	char* p = (char*)dst;
 
@@ -211,7 +214,6 @@ SCEN::SCEN(const char* filename)
 #ifdef _DEBUG
 		log("Error: incorrect format version (expected: 1.30 or 1.22, file version: %.2f", header2.version2);
 #endif
-		loaded = false;
 		last_error = SC_CONV_ERROR_INVALID_SCENARIO;
 		return;
 	}
@@ -536,7 +538,6 @@ SCEN::SCEN(const char* filename)
 	tail.data = (char*)malloc(tail.len);
 	read(tail.data, &p, tail.len);
 
-	free(buf);
 	free(dst);
 
 #ifdef _DEBUG

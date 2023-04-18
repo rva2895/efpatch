@@ -71,10 +71,10 @@ extern int terrains_loaded;
 void init_ai_trigger_dropdown(TDropDownPanel* ai_trigger_dropdown)
 {
     char b[0x100];
-    const char* ai_trigger_str = get_string(10708).c_str(); //"AI Trigger"
+    std::string ai_trigger_str = get_string(10708); //"AI Trigger"
     for (int i = 1; i <= 256; i++)
     {
-        sprintf(b, "%s %d", ai_trigger_str, i);
+        sprintf(b, "%s %d", ai_trigger_str.c_str(), i);
         TDropDownPanel__append_line(ai_trigger_dropdown, b, i);
     }
 }
@@ -207,10 +207,10 @@ void* __stdcall getEffectParams_hook(TRIBE_Screen_Sed* scr_sed, effect* e)
 void init_ai_signal_dropdown(TDropDownPanel* ai_signal_dropdown)
 {
     char b[0x100];
-    const char* ai_signal_str = get_string(10773).c_str(); //"AI Signal"
+    std::string ai_signal_str = get_string(10773); //"AI Signal"
     for (int i = 0; i < 256; i++)
     {
-        sprintf(b, "%s %d", ai_signal_str, i);
+        sprintf(b, "%s %d", ai_signal_str.c_str(), i);
         TDropDownPanel__append_line(ai_signal_dropdown, b, i);
     }
 }

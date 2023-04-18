@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "resgenbldgs.h"
 
 int numberOfResProducers = 0;
@@ -57,6 +56,8 @@ void initBldgResProdList(const char* prefix, const char* filename)
                 resProducersData[numberOfResProducers - 1] = resgen_entry;
             }
         }
+
+        fclose(f);
 
         if (!resGenHooksInstalled)
         {
