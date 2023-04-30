@@ -337,6 +337,7 @@
     <ClInclude Include="scroll.h" />
     <ClInclude Include="slp.h" />
     <ClInclude Include="sngoal.h" />
+    <ClInclude Include="spectate.h" />
     <ClInclude Include="spregen.h" />
     <ClInclude Include="src\idb\idb_functions.h" />
     <ClInclude Include="src\idb\idb_types.h" />
@@ -503,6 +504,7 @@
     <ClCompile Include="scroll.cpp" />
     <ClCompile Include="slp.cpp" />
     <ClCompile Include="sngoal.cpp" />
+    <ClCompile Include="spectate.cpp" />
     <ClCompile Include="spregen.cpp" />
     <ClCompile Include="startupload.cpp" />
     <ClCompile Include="statusscreen.cpp" />
