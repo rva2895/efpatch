@@ -119,6 +119,7 @@
 #include "attribute_held.h"
 #include "buildingconv.h"
 #include "revealmap.h"
+#include "spectate.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -332,6 +333,8 @@ void setHooksCC()
         setEditControlHooks();
 
     setRevealMapHooks();
+
+    //setSpectateHooks();
 
     //function hook!
     //setFunctionListHooks();
