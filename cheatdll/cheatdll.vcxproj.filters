@@ -507,6 +507,9 @@
     <ClInclude Include="revealmap.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
+    <ClInclude Include="spectate.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -954,6 +957,9 @@
       <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
     <ClCompile Include="revealmap.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="spectate.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
   </ItemGroup>
