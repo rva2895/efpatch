@@ -11,11 +11,6 @@ typedef DWORD DPID;
    the type library 'battlegrounds_x2'
 */
 
-#define __int8 char
-#define __int16 short
-#define __int32 int
-#define __int64 long long
-
 struct RGE_Master_Animated_Object;
 struct RGE_Player;
 struct TRIBE_Player;
@@ -208,7 +203,6 @@ struct NAME;
 struct Shape_Clip_Node;
 struct Shape_File_Header;
 struct RGE_Sound_Info;
-struct tagMIXERCONTROLA;
 struct BMotionVtbl;
 struct BSpecificMove;
 struct BContextPlanElement;
@@ -234,7 +228,6 @@ struct RGE_Map_Gen_Info;
 struct VISIBLE_UNIT_PTR;
 struct Wall_Info_Node;
 struct TRIBE_Game__TRIBE_Game_Options;
-struct tWAVEFORMATEX;
 struct RGE_Effect_Command;
 struct RGE_EffectsVtbl;
 struct RGE_Scenario_Info;
@@ -460,6 +453,11 @@ struct TribeTransportShipUnitAIModuleVtbl;
 struct TribeBuildingUnitAIModuleVtbl;
 struct TribeTowerUnitAIModuleVtbl;
 struct TribeSoldierUnitAIModuleVtbl;
+struct RGE_Diamond_MapVtbl;
+struct RGE_Map_Image_Line;
+struct RGE_Map_Tile_Row;
+struct RGE_Diamond_Map_ViewVtbl;
+struct TRIBE_Diamond_Map_ViewVtbl;
 
 /* 54 */
 #pragma pack(push, 1)
@@ -8307,9 +8305,128 @@ struct TRIBE_Main_View
 #pragma pack(pop)
 
 /* 181 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Diamond_Map_View
 {
+  TRIBE_Diamond_Map_ViewVtbl *vfptr;
+  TPanel *previousPanelValue;
+  TPanel *previousModalPanelValue;
+  int pnl_x;
+  int pnl_y;
+  int pnl_wid;
+  int pnl_hgt;
+  char *panelNameValue;
+  TDrawArea *render_area;
+  RECT clip_rect;
+  TPanel__PositionMode position_mode;
+  TPanel__RedrawMode need_redraw;
+  TPanel *curr_child;
+  TPanel *parent_panel;
+  TPanel *left_panel;
+  TPanel *top_panel;
+  TPanel *right_panel;
+  TPanel *bottom_panel;
+  PanelNode *node;
+  PanelNode *first_child_node;
+  PanelNode *last_child_node;
+  TPanel *tab_prev_panel;
+  TPanel *tab_next_panel;
+  int mouse_captured;
+  int active;
+  int visible;
+  int tab_stop;
+  int have_focus;
+  int overlapping_children;
+  int handle_mouse_input;
+  int just_drawn;
+  int enabled;
+  HRGN clip_rgn;
+  RECT render_rect;
+  int left_border;
+  int top_border;
+  int right_border;
+  int bottom_border;
+  int min_wid;
+  int max_wid;
+  int min_hgt;
+  int max_hgt;
+  int mouse_hold_interval;
+  int mouse_move_tolerance;
+  int mouse_down_x;
+  int mouse_down_y;
+  int mouse_down_ctrl;
+  int mouse_down_shift;
+  unsigned int mouse_down_time;
+  int error_code;
+  int z_order;
+  int display_changed_count;
+  int help_string_id;
+  int help_page_id;
+  unsigned __int8 mouse_action;
+  unsigned __int8 mouse_down_button;
+  unsigned __int8 panel_type;
+  unsigned __int8 color;
+  unsigned __int8 fill_in_background;
+  unsigned __int8 clip_to_parent;
+  unsigned __int8 draw_rect2_flag;
+  unsigned __int8 need_restore;
+  RGE_Game_World *world;
+  RGE_Player *player;
+  RGE_Map *map;
+  int all_visible;
+  int render_all;
+  int mouse_last_x;
+  int mouse_last_y;
+  int repos_mouse;
+  RECT view_rect;
+  RGE_Player *last_player;
+  RGE_Map_Image_Line *map_image_lines;
+  RGE_Map_Tile_Row *map_tile_rows;
+  __int16 map_wid;
+  __int16 map_hgt;
+  __int16 map_image_start_y;
+  __int16 map_image_wid;
+  __int16 map_image_hgt;
+  __int16 map_tile_row_cnt;
+  float map_row_step;
+  float map_col_ratio;
+  float map_row_ratio;
+  __int16 map_tile_draw_hgt;
+  __int16 map_tile_draw_wid;
+  __int16 view_col;
+  __int16 view_row;
+  RGE_View *main_view;
+  int scrolling;
+  unsigned __int8 fog_color;
+  int draw_objects_mode;
+  unsigned int cur_player_bit;
+  int own_save_area;
+  TDrawArea *save_area;
+  int view_mode;
+  unsigned __int8 colors_installed;
+  unsigned int last_attack_time;
+  int flags;
+  unsigned int flare_blink_timer;
+  int outline;
+  int outlineSize;
+  unsigned __int8 outlineColor;
+  unsigned __int8 focus_area_index;
+  unsigned __int8 focus_area_cycle_index;
+  unsigned __int8 focus_area_looped;
+  int previous_area;
+  float last_x;
+  float last_y;
+  float last_z;
+  float prev_x;
+  float prev_y;
+  float prev_z;
+  int last_focus_area_added;
+  int focus_area[5];
+  int focus_area_id[5];
+  unsigned int focus_area_time[5];
+  float focus_area_x[5];
+  float focus_area_y[5];
+  float focus_area_z[5];
 };
 #pragma pack(pop)
 
@@ -10984,6 +11101,115 @@ struct TEditPanelVtbl
 };
 #pragma pack(pop)
 
+/* 993 */
+#pragma pack(push, 8)
+struct TRIBE_Diamond_Map_ViewVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TRIBE_Diamond_Map_View *, unsigned int);
+  int (__thiscall *setup)(TRIBE_Diamond_Map_View *, TDrawArea *, TPanel *, int, int, int, int, unsigned __int8);
+  void (__thiscall *set_rect_2)(TRIBE_Diamond_Map_View *, RECT);
+  void (__thiscall *set_rect_1)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  void (__thiscall *set_color)(TRIBE_Diamond_Map_View *, unsigned __int8);
+  void (__thiscall *set_active)(TRIBE_Diamond_Map_View *, int);
+  void (__thiscall *unknown1)(TRIBE_Diamond_Map_View *);
+  void (__thiscall *unknown2)(TRIBE_Diamond_Map_View *, int, int, int, int, int, int);
+  void (__thiscall *set_positioning)(TRIBE_Diamond_Map_View *, TPanel__PositionMode, int, int, int, int, int, int, int, int, TPanel *, TPanel *, TPanel *, TPanel *);
+  void (__thiscall *unknown3)(TRIBE_Diamond_Map_View *, int);
+  void (__thiscall *set_fixed_position)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  void (__thiscall *set_redraw)(TRIBE_Diamond_Map_View *, TPanel__RedrawMode);
+  void (__thiscall *set_overlapped_redraw)(TRIBE_Diamond_Map_View *, TPanel *, TPanel *, TPanel__RedrawMode);
+  void (__thiscall *draw_setup)(TRIBE_Diamond_Map_View *, int);
+  void (__thiscall *draw_finish)(TRIBE_Diamond_Map_View *);
+  void (__thiscall *draw)(TRIBE_Diamond_Map_View *);
+  void (__thiscall *draw_rect)(TRIBE_Diamond_Map_View *, RECT *);
+  void (__thiscall *draw_offset)(TRIBE_Diamond_Map_View *, int, int, RECT *);
+  void (__thiscall *draw_rect2)(TRIBE_Diamond_Map_View *, RECT *);
+  void (__thiscall *draw_offset2)(TRIBE_Diamond_Map_View *, int, int, RECT *);
+  void (__thiscall *paint)(TRIBE_Diamond_Map_View *);
+  int (__thiscall *wnd_proc)(TRIBE_Diamond_Map_View *, HWND, unsigned int, unsigned int, int);
+  int (__thiscall *handle_idle)(TRIBE_Diamond_Map_View *);
+  int (__thiscall *handle_size)(TRIBE_Diamond_Map_View *, int, int);
+  int (__thiscall *handle_paint)(TRIBE_Diamond_Map_View *);
+  int (__thiscall *handle_key_down)(TRIBE_Diamond_Map_View *, int, __int16, int, int, int);
+  int (__thiscall *handle_char)(TRIBE_Diamond_Map_View *, int, __int16);
+  int (__thiscall *handle_command)(TRIBE_Diamond_Map_View *, unsigned int, int);
+  int (__thiscall *handle_user_command)(TRIBE_Diamond_Map_View *, unsigned int, int);
+  int (__thiscall *handle_timer_command)(TRIBE_Diamond_Map_View *, unsigned int, int);
+  int (__thiscall *handle_scroll)(TRIBE_Diamond_Map_View *, int, int);
+  int (__thiscall *handle_mouse_down)(TRIBE_Diamond_Map_View *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_move)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *handle_mouse_up)(TRIBE_Diamond_Map_View *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_dbl_click)(TRIBE_Diamond_Map_View *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_wheel)(TRIBE_Diamond_Map_View *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_wheel_action)(TRIBE_Diamond_Map_View *, unsigned int, unsigned int, int);
+  int (__thiscall *handle_mouse_xbuttons)(TRIBE_Diamond_Map_View *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_xbuttons_action)(TRIBE_Diamond_Map_View *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_move_action)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_left_down_action)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_left_hold_action)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_left_move_action)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_left_up_action)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_left_dbl_click_action)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_right_down_action)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_right_hold_action)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_right_move_action)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_right_up_action)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_right_dbl_click_action)(TRIBE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *key_down_action)(TRIBE_Diamond_Map_View *, int, __int16, int, int, int);
+  int (__thiscall *char_action)(TRIBE_Diamond_Map_View *, int, __int16);
+  int (__thiscall *action)(TRIBE_Diamond_Map_View *, TPanel *, int, unsigned int, unsigned int);
+  void (__thiscall *get_true_render_rect)(TRIBE_Diamond_Map_View *, RECT *);
+  int (__thiscall *is_inside)(TRIBE_Diamond_Map_View *, int, int);
+  void (__thiscall *set_focus)(TRIBE_Diamond_Map_View *, int);
+  void (__thiscall *set_tab_order_2)(TRIBE_Diamond_Map_View *, TPanel *, TPanel *);
+  void (__thiscall *set_tab_order_1)(TRIBE_Diamond_Map_View *, TPanel **, __int16);
+  TDrawArea *(__thiscall *renderArea)(TRIBE_Diamond_Map_View *);
+  unsigned __int8 (__thiscall *get_help_info)(TRIBE_Diamond_Map_View *, char **, int *, int, int);
+  void (__thiscall *stop_sound_system)(TRIBE_Diamond_Map_View *);
+  int (__thiscall *restart_sound_system)(TRIBE_Diamond_Map_View *);
+  void (__thiscall *take_snapshot)(TRIBE_Diamond_Map_View *);
+  void (__thiscall *handle_reactivate)(TRIBE_Diamond_Map_View *);
+  int (__thiscall *pointing_at)(TRIBE_Diamond_Map_View *, int, int, int *, int *, int *, int *, char *, int);
+  void (__thiscall *draw_tile)(TRIBE_Diamond_Map_View *, __int16, __int16, int, unsigned __int8);
+  void (__thiscall *draw_selected_area)(TRIBE_Diamond_Map_View *);
+  void (__thiscall *draw_objects)(TRIBE_Diamond_Map_View *);
+  void (__thiscall *draw_visible_object)(TRIBE_Diamond_Map_View *, RGE_Static_Object *, unsigned __int8, unsigned __int8);
+  void (__thiscall *draw_object)(TRIBE_Diamond_Map_View *, __int16, __int16, unsigned __int8, __int16, RGE_Static_Object *);
+  void (__thiscall *draw_view_rect)(TRIBE_Diamond_Map_View *);
+  int (__thiscall *command_make_do)(TRIBE_Diamond_Map_View *, int, int);
+  int (__thiscall *command_make_move)(TRIBE_Diamond_Map_View *, int, int);
+  int (__thiscall *command_make_work)(TRIBE_Diamond_Map_View *, int, int);
+};
+#pragma pack(pop)
+
+/* 990 */
+#pragma pack(push, 8)
+struct RGE_Map_Image_Line
+{
+  __int16 tile_row;
+  __int16 start_x;
+  __int16 line_len;
+};
+#pragma pack(pop)
+
+/* 991 */
+#pragma pack(push, 8)
+struct RGE_Map_Tile_Row
+{
+  __int16 image_line;
+  unsigned __int8 draw;
+  __int16 row_len;
+  float col_step;
+  float col_extra;
+  __int16 map_col;
+  __int16 map_row;
+  __int16 draw_wid;
+  float draw_step;
+  __int16 num_tiles;
+  float ratio;
+};
+#pragma pack(pop)
+
 /* 897 */
 #pragma pack(push, 8)
 struct TRIBE_Panel_InvenVtbl
@@ -11630,9 +11856,103 @@ struct TScreenPanel
 #pragma pack(pop)
 
 /* 330 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct RGE_Diamond_Map
 {
+  RGE_Diamond_MapVtbl *vfptr;
+  TPanel *previousPanelValue;
+  TPanel *previousModalPanelValue;
+  int pnl_x;
+  int pnl_y;
+  int pnl_wid;
+  int pnl_hgt;
+  char *panelNameValue;
+  TDrawArea *render_area;
+  RECT clip_rect;
+  TPanel__PositionMode position_mode;
+  TPanel__RedrawMode need_redraw;
+  TPanel *curr_child;
+  TPanel *parent_panel;
+  TPanel *left_panel;
+  TPanel *top_panel;
+  TPanel *right_panel;
+  TPanel *bottom_panel;
+  PanelNode *node;
+  PanelNode *first_child_node;
+  PanelNode *last_child_node;
+  TPanel *tab_prev_panel;
+  TPanel *tab_next_panel;
+  int mouse_captured;
+  int active;
+  int visible;
+  int tab_stop;
+  int have_focus;
+  int overlapping_children;
+  int handle_mouse_input;
+  int just_drawn;
+  int enabled;
+  HRGN clip_rgn;
+  RECT render_rect;
+  int left_border;
+  int top_border;
+  int right_border;
+  int bottom_border;
+  int min_wid;
+  int max_wid;
+  int min_hgt;
+  int max_hgt;
+  int mouse_hold_interval;
+  int mouse_move_tolerance;
+  int mouse_down_x;
+  int mouse_down_y;
+  int mouse_down_ctrl;
+  int mouse_down_shift;
+  unsigned int mouse_down_time;
+  int error_code;
+  int z_order;
+  int display_changed_count;
+  int help_string_id;
+  int help_page_id;
+  unsigned __int8 mouse_action;
+  unsigned __int8 mouse_down_button;
+  unsigned __int8 panel_type;
+  unsigned __int8 color;
+  unsigned __int8 fill_in_background;
+  unsigned __int8 clip_to_parent;
+  unsigned __int8 draw_rect2_flag;
+  unsigned __int8 need_restore;
+  RGE_Game_World *world;
+  RGE_Player *player;
+  RGE_Map *map;
+  int all_visible;
+  int render_all;
+  int mouse_last_x;
+  int mouse_last_y;
+  int repos_mouse;
+  RECT view_rect;
+  RGE_Player *last_player;
+  RGE_Map_Image_Line *map_image_lines;
+  RGE_Map_Tile_Row *map_tile_rows;
+  __int16 map_wid;
+  __int16 map_hgt;
+  __int16 map_image_start_y;
+  __int16 map_image_wid;
+  __int16 map_image_hgt;
+  __int16 map_tile_row_cnt;
+  float map_row_step;
+  float map_col_ratio;
+  float map_row_ratio;
+  __int16 map_tile_draw_hgt;
+  __int16 map_tile_draw_wid;
+  __int16 view_col;
+  __int16 view_row;
+  RGE_View *main_view;
+  int scrolling;
+  unsigned __int8 fog_color;
+  int draw_objects_mode;
+  unsigned int cur_player_bit;
+  int own_save_area;
+  TDrawArea *save_area;
 };
 #pragma pack(pop)
 
@@ -12191,16 +12511,6 @@ struct CMemoryPool
 };
 #pragma pack(pop)
 
-/* 697 */
-#pragma pack(push, 8)
-struct IUnknownVtbl
-{
-  HRESULT (__stdcall *QueryInterface)(IUnknown *This, const IID *const riid, void **ppvObject);
-  ULONG (__stdcall *AddRef)(IUnknown *This);
-  ULONG (__stdcall *Release)(IUnknown *This);
-};
-#pragma pack(pop)
-
 /* 878 */
 #pragma pack(push, 8)
 struct TInputPanelVtbl
@@ -12282,7 +12592,7 @@ struct TInputPanelVtbl
   int (__thiscall *insert_line)(TInputPanel *, int, char *, char *, int, TTextPanel__FontChangeNode *);
   char *(__thiscall *get_text)(TInputPanel *, int);
   void (__thiscall *free_text)(TInputPanel *);
-  void (__thiscall *set_text_4)(TInputPanel *, char *);
+  void (__thiscall *set_text4)(TInputPanel *, char *);
 };
 #pragma pack(pop)
 
@@ -12727,6 +13037,84 @@ struct TScreenPanelVtbl
   int (__thiscall *create_picture_1)(TScreenPanel *, TPanel *, TPicturePanel **, char *, int, int, int, int, int, int, int, unsigned int, unsigned __int8, unsigned __int8);
   int (__thiscall *create_timeline)(TScreenPanel *, TPanel *, Time_Line_Panel **, int, int, int, int, int, int, int, int, int, int);
   void (__thiscall *position_panel)(TScreenPanel *, TPanel *, int, int, int, int);
+};
+#pragma pack(pop)
+
+/* 989 */
+#pragma pack(push, 8)
+struct RGE_Diamond_MapVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Diamond_Map *, unsigned int);
+  int (__thiscall *setup)(RGE_Diamond_Map *, TDrawArea *, TPanel *, int, int, int, int, unsigned __int8);
+  void (__thiscall *set_rect_2)(RGE_Diamond_Map *, RECT);
+  void (__thiscall *set_rect_1)(RGE_Diamond_Map *, int, int, int, int);
+  void (__thiscall *set_color)(RGE_Diamond_Map *, unsigned __int8);
+  void (__thiscall *set_active)(RGE_Diamond_Map *, int);
+  void (__thiscall *unknown1)(RGE_Diamond_Map *);
+  void (__thiscall *unknown2)(RGE_Diamond_Map *, int, int, int, int, int, int);
+  void (__thiscall *set_positioning)(RGE_Diamond_Map *, TPanel__PositionMode, int, int, int, int, int, int, int, int, TPanel *, TPanel *, TPanel *, TPanel *);
+  void (__thiscall *unknown3)(RGE_Diamond_Map *, int);
+  void (__thiscall *set_fixed_position)(RGE_Diamond_Map *, int, int, int, int);
+  void (__thiscall *set_redraw)(RGE_Diamond_Map *, TPanel__RedrawMode);
+  void (__thiscall *set_overlapped_redraw)(RGE_Diamond_Map *, TPanel *, TPanel *, TPanel__RedrawMode);
+  void (__thiscall *draw_setup)(RGE_Diamond_Map *, int);
+  void (__thiscall *draw_finish)(RGE_Diamond_Map *);
+  void (__thiscall *draw)(RGE_Diamond_Map *);
+  void (__thiscall *draw_rect)(RGE_Diamond_Map *, RECT *);
+  void (__thiscall *draw_offset)(RGE_Diamond_Map *, int, int, RECT *);
+  void (__thiscall *draw_rect2)(RGE_Diamond_Map *, RECT *);
+  void (__thiscall *draw_offset2)(RGE_Diamond_Map *, int, int, RECT *);
+  void (__thiscall *paint)(RGE_Diamond_Map *);
+  int (__thiscall *wnd_proc)(RGE_Diamond_Map *, HWND, unsigned int, unsigned int, int);
+  int (__thiscall *handle_idle)(RGE_Diamond_Map *);
+  int (__thiscall *handle_size)(RGE_Diamond_Map *, int, int);
+  int (__thiscall *handle_paint)(RGE_Diamond_Map *);
+  int (__thiscall *handle_key_down)(RGE_Diamond_Map *, int, __int16, int, int, int);
+  int (__thiscall *handle_char)(RGE_Diamond_Map *, int, __int16);
+  int (__thiscall *handle_command)(RGE_Diamond_Map *, unsigned int, int);
+  int (__thiscall *handle_user_command)(RGE_Diamond_Map *, unsigned int, int);
+  int (__thiscall *handle_timer_command)(RGE_Diamond_Map *, unsigned int, int);
+  int (__thiscall *handle_scroll)(RGE_Diamond_Map *, int, int);
+  int (__thiscall *handle_mouse_down)(RGE_Diamond_Map *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_move)(RGE_Diamond_Map *, int, int, int, int);
+  int (__thiscall *handle_mouse_up)(RGE_Diamond_Map *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_dbl_click)(RGE_Diamond_Map *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_wheel)(RGE_Diamond_Map *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_wheel_action)(RGE_Diamond_Map *, unsigned int, unsigned int, int);
+  int (__thiscall *handle_mouse_xbuttons)(RGE_Diamond_Map *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_xbuttons_action)(RGE_Diamond_Map *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_move_action)(RGE_Diamond_Map *, int, int, int, int);
+  int (__thiscall *mouse_left_down_action)(RGE_Diamond_Map *, int, int, int, int);
+  int (__thiscall *mouse_left_hold_action)(RGE_Diamond_Map *, int, int, int, int);
+  int (__thiscall *mouse_left_move_action)(RGE_Diamond_Map *, int, int, int, int);
+  int (__thiscall *mouse_left_up_action)(RGE_Diamond_Map *, int, int, int, int);
+  int (__thiscall *mouse_left_dbl_click_action)(RGE_Diamond_Map *, int, int, int, int);
+  int (__thiscall *mouse_right_down_action)(RGE_Diamond_Map *, int, int, int, int);
+  int (__thiscall *mouse_right_hold_action)(RGE_Diamond_Map *, int, int, int, int);
+  int (__thiscall *mouse_right_move_action)(RGE_Diamond_Map *, int, int, int, int);
+  int (__thiscall *mouse_right_up_action)(RGE_Diamond_Map *, int, int, int, int);
+  int (__thiscall *mouse_right_dbl_click_action)(RGE_Diamond_Map *, int, int, int, int);
+  int (__thiscall *key_down_action)(RGE_Diamond_Map *, int, __int16, int, int, int);
+  int (__thiscall *char_action)(RGE_Diamond_Map *, int, __int16);
+  int (__thiscall *action)(RGE_Diamond_Map *, TPanel *, int, unsigned int, unsigned int);
+  void (__thiscall *get_true_render_rect)(RGE_Diamond_Map *, RECT *);
+  int (__thiscall *is_inside)(RGE_Diamond_Map *, int, int);
+  void (__thiscall *set_focus)(RGE_Diamond_Map *, int);
+  void (__thiscall *set_tab_order_2)(RGE_Diamond_Map *, TPanel *, TPanel *);
+  void (__thiscall *set_tab_order_1)(RGE_Diamond_Map *, TPanel **, __int16);
+  TDrawArea *(__thiscall *renderArea)(RGE_Diamond_Map *);
+  unsigned __int8 (__thiscall *get_help_info)(RGE_Diamond_Map *, char **, int *, int, int);
+  void (__thiscall *stop_sound_system)(RGE_Diamond_Map *);
+  int (__thiscall *restart_sound_system)(RGE_Diamond_Map *);
+  void (__thiscall *take_snapshot)(RGE_Diamond_Map *);
+  void (__thiscall *handle_reactivate)(RGE_Diamond_Map *);
+  int (__thiscall *pointing_at)(RGE_Diamond_Map *, int, int, int *, int *, int *, int *, char *, int);
+  void (__thiscall *draw_tile)(RGE_Diamond_Map *, __int16, __int16, int, unsigned __int8);
+  void (__thiscall *draw_selected_area)(RGE_Diamond_Map *);
+  void (__thiscall *draw_objects)(RGE_Diamond_Map *);
+  void (__thiscall *draw_visible_object)(RGE_Diamond_Map *, RGE_Static_Object *, unsigned __int8, unsigned __int8);
+  void (__thiscall *draw_object)(RGE_Diamond_Map *, __int16, __int16, unsigned __int8, __int16, RGE_Static_Object *);
+  void (__thiscall *draw_view_rect)(RGE_Diamond_Map *);
 };
 #pragma pack(pop)
 
@@ -23535,9 +23923,184 @@ struct SLP_Template
 #pragma pack(pop)
 
 /* 329 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct RGE_Diamond_Map_View
 {
+  RGE_Diamond_Map_ViewVtbl *vfptr;
+  TPanel *previousPanelValue;
+  TPanel *previousModalPanelValue;
+  int pnl_x;
+  int pnl_y;
+  int pnl_wid;
+  int pnl_hgt;
+  char *panelNameValue;
+  TDrawArea *render_area;
+  RECT clip_rect;
+  TPanel__PositionMode position_mode;
+  TPanel__RedrawMode need_redraw;
+  TPanel *curr_child;
+  TPanel *parent_panel;
+  TPanel *left_panel;
+  TPanel *top_panel;
+  TPanel *right_panel;
+  TPanel *bottom_panel;
+  PanelNode *node;
+  PanelNode *first_child_node;
+  PanelNode *last_child_node;
+  TPanel *tab_prev_panel;
+  TPanel *tab_next_panel;
+  int mouse_captured;
+  int active;
+  int visible;
+  int tab_stop;
+  int have_focus;
+  int overlapping_children;
+  int handle_mouse_input;
+  int just_drawn;
+  int enabled;
+  HRGN clip_rgn;
+  RECT render_rect;
+  int left_border;
+  int top_border;
+  int right_border;
+  int bottom_border;
+  int min_wid;
+  int max_wid;
+  int min_hgt;
+  int max_hgt;
+  int mouse_hold_interval;
+  int mouse_move_tolerance;
+  int mouse_down_x;
+  int mouse_down_y;
+  int mouse_down_ctrl;
+  int mouse_down_shift;
+  unsigned int mouse_down_time;
+  int error_code;
+  int z_order;
+  int display_changed_count;
+  int help_string_id;
+  int help_page_id;
+  unsigned __int8 mouse_action;
+  unsigned __int8 mouse_down_button;
+  unsigned __int8 panel_type;
+  unsigned __int8 color;
+  unsigned __int8 fill_in_background;
+  unsigned __int8 clip_to_parent;
+  unsigned __int8 draw_rect2_flag;
+  unsigned __int8 need_restore;
+  RGE_Game_World *world;
+  RGE_Player *player;
+  RGE_Map *map;
+  int all_visible;
+  int render_all;
+  int mouse_last_x;
+  int mouse_last_y;
+  int repos_mouse;
+  RECT view_rect;
+  RGE_Player *last_player;
+  RGE_Map_Image_Line *map_image_lines;
+  RGE_Map_Tile_Row *map_tile_rows;
+  __int16 map_wid;
+  __int16 map_hgt;
+  __int16 map_image_start_y;
+  __int16 map_image_wid;
+  __int16 map_image_hgt;
+  __int16 map_tile_row_cnt;
+  float map_row_step;
+  float map_col_ratio;
+  float map_row_ratio;
+  __int16 map_tile_draw_hgt;
+  __int16 map_tile_draw_wid;
+  __int16 view_col;
+  __int16 view_row;
+  RGE_View *main_view;
+  int scrolling;
+  unsigned __int8 fog_color;
+  int draw_objects_mode;
+  unsigned int cur_player_bit;
+  int own_save_area;
+  TDrawArea *save_area;
+};
+#pragma pack(pop)
+
+/* 992 */
+#pragma pack(push, 8)
+struct RGE_Diamond_Map_ViewVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Diamond_Map_View *, unsigned int);
+  int (__thiscall *setup)(RGE_Diamond_Map_View *, TDrawArea *, TPanel *, int, int, int, int, unsigned __int8);
+  void (__thiscall *set_rect_2)(RGE_Diamond_Map_View *, RECT);
+  void (__thiscall *set_rect_1)(RGE_Diamond_Map_View *, int, int, int, int);
+  void (__thiscall *set_color)(RGE_Diamond_Map_View *, unsigned __int8);
+  void (__thiscall *set_active)(RGE_Diamond_Map_View *, int);
+  void (__thiscall *unknown1)(RGE_Diamond_Map_View *);
+  void (__thiscall *unknown2)(RGE_Diamond_Map_View *, int, int, int, int, int, int);
+  void (__thiscall *set_positioning)(RGE_Diamond_Map_View *, TPanel__PositionMode, int, int, int, int, int, int, int, int, TPanel *, TPanel *, TPanel *, TPanel *);
+  void (__thiscall *unknown3)(RGE_Diamond_Map_View *, int);
+  void (__thiscall *set_fixed_position)(RGE_Diamond_Map_View *, int, int, int, int);
+  void (__thiscall *set_redraw)(RGE_Diamond_Map_View *, TPanel__RedrawMode);
+  void (__thiscall *set_overlapped_redraw)(RGE_Diamond_Map_View *, TPanel *, TPanel *, TPanel__RedrawMode);
+  void (__thiscall *draw_setup)(RGE_Diamond_Map_View *, int);
+  void (__thiscall *draw_finish)(RGE_Diamond_Map_View *);
+  void (__thiscall *draw)(RGE_Diamond_Map_View *);
+  void (__thiscall *draw_rect)(RGE_Diamond_Map_View *, RECT *);
+  void (__thiscall *draw_offset)(RGE_Diamond_Map_View *, int, int, RECT *);
+  void (__thiscall *draw_rect2)(RGE_Diamond_Map_View *, RECT *);
+  void (__thiscall *draw_offset2)(RGE_Diamond_Map_View *, int, int, RECT *);
+  void (__thiscall *paint)(RGE_Diamond_Map_View *);
+  int (__thiscall *wnd_proc)(RGE_Diamond_Map_View *, HWND, unsigned int, unsigned int, int);
+  int (__thiscall *handle_idle)(RGE_Diamond_Map_View *);
+  int (__thiscall *handle_size)(RGE_Diamond_Map_View *, int, int);
+  int (__thiscall *handle_paint)(RGE_Diamond_Map_View *);
+  int (__thiscall *handle_key_down)(RGE_Diamond_Map_View *, int, __int16, int, int, int);
+  int (__thiscall *handle_char)(RGE_Diamond_Map_View *, int, __int16);
+  int (__thiscall *handle_command)(RGE_Diamond_Map_View *, unsigned int, int);
+  int (__thiscall *handle_user_command)(RGE_Diamond_Map_View *, unsigned int, int);
+  int (__thiscall *handle_timer_command)(RGE_Diamond_Map_View *, unsigned int, int);
+  int (__thiscall *handle_scroll)(RGE_Diamond_Map_View *, int, int);
+  int (__thiscall *handle_mouse_down)(RGE_Diamond_Map_View *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_move)(RGE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *handle_mouse_up)(RGE_Diamond_Map_View *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_dbl_click)(RGE_Diamond_Map_View *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_wheel)(RGE_Diamond_Map_View *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_wheel_action)(RGE_Diamond_Map_View *, unsigned int, unsigned int, int);
+  int (__thiscall *handle_mouse_xbuttons)(RGE_Diamond_Map_View *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_xbuttons_action)(RGE_Diamond_Map_View *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_move_action)(RGE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_left_down_action)(RGE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_left_hold_action)(RGE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_left_move_action)(RGE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_left_up_action)(RGE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_left_dbl_click_action)(RGE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_right_down_action)(RGE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_right_hold_action)(RGE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_right_move_action)(RGE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_right_up_action)(RGE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *mouse_right_dbl_click_action)(RGE_Diamond_Map_View *, int, int, int, int);
+  int (__thiscall *key_down_action)(RGE_Diamond_Map_View *, int, __int16, int, int, int);
+  int (__thiscall *char_action)(RGE_Diamond_Map_View *, int, __int16);
+  int (__thiscall *action)(RGE_Diamond_Map_View *, TPanel *, int, unsigned int, unsigned int);
+  void (__thiscall *get_true_render_rect)(RGE_Diamond_Map_View *, RECT *);
+  int (__thiscall *is_inside)(RGE_Diamond_Map_View *, int, int);
+  void (__thiscall *set_focus)(RGE_Diamond_Map_View *, int);
+  void (__thiscall *set_tab_order_2)(RGE_Diamond_Map_View *, TPanel *, TPanel *);
+  void (__thiscall *set_tab_order_1)(RGE_Diamond_Map_View *, TPanel **, __int16);
+  TDrawArea *(__thiscall *renderArea)(RGE_Diamond_Map_View *);
+  unsigned __int8 (__thiscall *get_help_info)(RGE_Diamond_Map_View *, char **, int *, int, int);
+  void (__thiscall *stop_sound_system)(RGE_Diamond_Map_View *);
+  int (__thiscall *restart_sound_system)(RGE_Diamond_Map_View *);
+  void (__thiscall *take_snapshot)(RGE_Diamond_Map_View *);
+  void (__thiscall *handle_reactivate)(RGE_Diamond_Map_View *);
+  int (__thiscall *pointing_at)(RGE_Diamond_Map_View *, int, int, int *, int *, int *, int *, char *, int);
+  void (__thiscall *draw_tile)(RGE_Diamond_Map_View *, __int16, __int16, int, unsigned __int8);
+  void (__thiscall *draw_selected_area)(RGE_Diamond_Map_View *);
+  void (__thiscall *draw_objects)(RGE_Diamond_Map_View *);
+  void (__thiscall *draw_visible_object)(RGE_Diamond_Map_View *, RGE_Static_Object *, unsigned __int8, unsigned __int8);
+  void (__thiscall *draw_object)(RGE_Diamond_Map_View *, __int16, __int16, unsigned __int8, __int16, RGE_Static_Object *);
+  void (__thiscall *draw_view_rect)(RGE_Diamond_Map_View *);
+  int (__thiscall *command_make_do)(RGE_Diamond_Map_View *, int, int);
+  int (__thiscall *command_make_move)(RGE_Diamond_Map_View *, int, int);
+  int (__thiscall *command_make_work)(RGE_Diamond_Map_View *, int, int);
 };
 #pragma pack(pop)
 
@@ -27559,48 +28122,45 @@ struct RGE_Command_Form_Formation
 /* 397 */
 typedef $65758D9D43B54B363A052B56EC34040F DPSESSIONDESC2;
 
-/* 400 */
-typedef WCHAR *LPWSTR;
-
 /* 399 */
 union $65758D9D43B54B363A052B56EC34040F__$4BC380B0414FD4D1A387B4548A8B198D
 {
-  LPWSTR lpszSessionName;
-  LPSTR lpszSessionNameA;
+    LPWSTR lpszSessionName;
+    LPSTR lpszSessionNameA;
 };
 
 /* 401 */
 union $65758D9D43B54B363A052B56EC34040F__$9D1752F92D652BDA7BF3CD505478029C
 {
-  LPWSTR lpszPassword;
-  LPSTR lpszPasswordA;
+    LPWSTR lpszPassword;
+    LPSTR lpszPasswordA;
 };
 
 /* 398 */
 struct $65758D9D43B54B363A052B56EC34040F
 {
-  DWORD dwSize;
-  DWORD dwFlags;
-  GUID guidInstance;
-  GUID guidApplication;
-  DWORD dwMaxPlayers;
-  DWORD dwCurrentPlayers;
-  union
-  {
-    LPWSTR lpszSessionName;
-    LPSTR lpszSessionNameA;
-  };
-  union
-  {
-    LPWSTR lpszPassword;
-    LPSTR lpszPasswordA;
-  };
-  DWORD dwReserved1;
-  DWORD dwReserved2;
-  DWORD dwUser1;
-  DWORD dwUser2;
-  DWORD dwUser3;
-  DWORD dwUser4;
+    DWORD dwSize;
+    DWORD dwFlags;
+    GUID guidInstance;
+    GUID guidApplication;
+    DWORD dwMaxPlayers;
+    DWORD dwCurrentPlayers;
+    union
+    {
+        LPWSTR lpszSessionName;
+        LPSTR lpszSessionNameA;
+    };
+    union
+    {
+        LPWSTR lpszPassword;
+        LPSTR lpszPasswordA;
+    };
+    DWORD dwReserved1;
+    DWORD dwReserved2;
+    DWORD dwUser1;
+    DWORD dwUser2;
+    DWORD dwUser3;
+    DWORD dwUser4;
 };
 
 /* 404 */
