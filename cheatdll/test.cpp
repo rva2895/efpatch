@@ -378,6 +378,18 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         sendChat(EFPATCH_VERSION, -1);
         return 1;
     }
+    /*else if (strstr(s, "/control"))
+    {
+        char d[0x100];
+        int p;
+        sscanf(s, "%s %d", d, &p);
+        if ((p >= 0) && (p <= 8))
+        {
+            RGE_Player__unselect_object(RGE_Base_Game__get_player(*base_game));
+            TRIBE_Game__set_player(*(TRIBE_Game**)base_game, p);
+        }
+        return 1;
+    }*/
     /*else if (!strcmp(s, "/test"))
     {
         sendChat("Started integrity check", player_id);
@@ -457,7 +469,6 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         return 1;
     }
     */
-    
     /*
     else if (strstr(s, "/obj") || strstr(s, "/object"))
     {
@@ -509,7 +520,6 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         return true;
     }
     */
-
     /*else if (strstr(s, "/load-all"))
     {
         int ext_types[] = {0x736C7020, 0x77617620, 0x62696E61};

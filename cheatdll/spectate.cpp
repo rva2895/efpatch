@@ -11,14 +11,7 @@
 
 #pragma comment (lib, "Ws2_32.lib")
 
-const int* world_update_counter = (const int*)0x007A22F8;
-
 unsigned int up_read_next_time = 0;
-
-int (__cdecl* read_internal)(int handle, void* buffer, int size) = (int(__cdecl*)(int, void*, int))0x006340C7;
-int (__cdecl* write_internal)(int handle, void* buffer, int size) = (int(__cdecl*)(int, void*, int))0x00634638;
-int (__cdecl* tell_internal)(int handle) = (int(__cdecl*)(int))0x0063458D;
-int (__cdecl* lseek_internal)(int handle, int distance, int orig) = (int(__cdecl*)(int, int, int))0x0063459E;
 
 int __stdcall up_read_do(TCommCommandLog* comm_log, int handle, void* buffer, unsigned int size)
 {
@@ -273,6 +266,7 @@ __declspec(naked) void rec_header_pos_fix() //0042F0B6
     }
 }
 
+#pragma optimize( "s", on )
 void setSpectateHooks()
 {
     set_up_read_call(0x0042EC09);
@@ -322,3 +316,4 @@ void setSpectateHooks()
     unsigned threadID;
     HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, &spec_server, NULL, 0, &threadID);
 }
+#pragma optimize( "", on )

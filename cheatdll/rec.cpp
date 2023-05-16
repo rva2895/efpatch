@@ -1,31 +1,11 @@
 #include "stdafx.h"
 #include "rec.h"
 
-__declspec(naked) int __stdcall isRec()
+bool __stdcall isRec()
 {
-    __asm
-    {
-        mov     ecx, 006A3684h
-        mov     ecx, [ecx]
-        mov     ecx, [ecx + 17B4h]
-        test    ecx, ecx
-        jz      not_rec
-        mov     ecx, [ecx + 126Ch]
-        test    ecx, ecx
-        jz      not_rec
-        mov     ecx, [ecx + 0Ch]
-        test    ecx, ecx
-        jz      not_rec
-        mov     edx, [ecx + 1614h]
-        mov     eax, [edx + 4]
-        test    eax, eax
-        setg    al
-        movzx   eax, al
-        ret
-not_rec:
-        xor     eax, eax
-        ret
-    }
+    return ((*base_game)->comm_handler
+        && (*base_game)->comm_handler->mCommandLog
+        && (*base_game)->comm_handler->mCommandLog->mReplaying > 0);
 }
 
 __declspec(naked) void onMenuInit() //0045E425
@@ -35,6 +15,7 @@ __declspec(naked) void onMenuInit() //0045E425
         cmp     dword ptr [esp + 18h], 1
         jz      cont_menu_init
         call    isRec
+        movzx   eax, al
         mov     [esp + 18h], eax
 cont_menu_init:
         mov     ecx, 006A3684h

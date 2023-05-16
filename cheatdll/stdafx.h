@@ -1,22 +1,14 @@
-// stdafx.h: включаемый файл дл€ стандартных системных включаемых файлов
-// или включаемых файлов дл€ конкретного проекта, которые часто используютс€, но
-// не часто измен€ютс€
-//
-
 #pragma once
 
 #include "targetver.h"
 
-//#define WIN32_LEAN_AND_MEAN             // »сключите редко используемые компоненты из заголовков Windows
-// ‘айлы заголовков Windows:
+//#define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <windows.h>
 
 #include <stdint.h>
 #include <vector>
 #include <string>
-
-// TODO: ”становите здесь ссылки на дополнительные заголовки, требующиес€ дл€ программы
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,4 +30,4 @@
 
 //#define CHEATDLL_NOLOG
 
-#define EFPATCH_VERSION "EFPATCH for EF v1.5.1-rc2 (1.5.0.2) " __DATE__ " " __TIME__
+#define EFPATCH_VERSION "EFPATCH for EF v1.5.1-rc3 (1.5.0.3) " __DATE__ " " __TIME__
