@@ -54,7 +54,7 @@ struct POINT2
 struct sc1effect
 {
 	long type;	//see constants below
-	long check;	//always = 0x17. For internal use by AOK (and AOKTS).
+	long values_saved;
 	long ai_goal;	//AI Script goal
 	long amount;	//used for resources, hp, attack
 	long resource;	//resource type (stone = 2)
@@ -85,7 +85,7 @@ struct sc1effect
 struct sc1condition
 {
 	long type;	//see constants below
-	long check;	//always = 0x10 (for internal use)
+	long values_saved;
 	long amount;	//of objects, difficult level
 	long resource;	//resource type (see constants below)
 	long unit_object;

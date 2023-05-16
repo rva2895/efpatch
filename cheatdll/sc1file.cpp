@@ -45,6 +45,17 @@ void read_str32(str32* s, char** ptr)
 	(*ptr) += s->len;
 }
 
+void read_trigger_value(long* dst, char** ptr, long* values_remaining)
+{
+	if (*values_remaining > 0)
+	{
+		read(dst, ptr, sizeof(long));
+		(*values_remaining)--;
+	}
+	else
+		*dst = -1;
+}
+
 SCEN::SCEN(const char* filename)
 {
 	loaded = false;
@@ -242,18 +253,6 @@ SCEN::SCEN(const char* filename)
 	read(&messages.bitmap_height, &p, sizeof(messages.bitmap_height));
 	read(&messages.picture_orientation, &p, sizeof(messages.picture_orientation));
 
-	/*if (messages.picture_version)
-	{
-		read(messages.bitmapinfoheader, &p, 40);
-
-		BITMAPINFOHEADER* bm = (BITMAPINFOHEADER*)messages.bitmapinfoheader;
-
-		//reading bitmap
-		messages.bitmap_data = (char*)malloc(bm->biSizeImage + 4 * bm->biClrUsed);
-		read(messages.bitmap_data, &p, bm->biSizeImage + 4 * bm->biClrUsed);
-	}
-	else
-		messages.bitmap_data = NULL;*/
 	if (messages.bitmap_width > 0 && messages.bitmap_height > 0)
 	{
 		messages.bitmap_size = ((messages.bitmap_width + 3) & 0xFFFFFFFC) * messages.bitmap_height + 0x428;
@@ -265,7 +264,7 @@ SCEN::SCEN(const char* filename)
 		messages.bitmap_size = 0;
 		messages.bitmap_data = NULL;
 	}
-
+	
 	//player data 2
 	for (int i = 0; i < 32; i++)
 		read_str16(&player_data2.unknown_strings[i], &p);
@@ -279,6 +278,17 @@ SCEN::SCEN(const char* filename)
 	}
 	read(&player_data2.ai_type, &p, sizeof(player_data2.ai_type));
 	read(&player_data2.separator, &p, sizeof(player_data2.separator));
+
+	if (player_data2.separator != 0xFFFFFF9D)
+	{
+#ifdef _DEBUG
+		log("Error: incorrect separator value (expected: 0xFFFFFF9D, file: 0x%X", player_data2.separator);
+#endif
+		free(dst);
+		last_error = SC_CONV_ERROR_INVALID_SCENARIO;
+		return;
+	}
+
 	for (int i = 0; i < 16; i++)
 	{
 		read(&player_data2.resources[i].food, &p, sizeof(player_data2.resources[i].food));
@@ -430,30 +440,33 @@ SCEN::SCEN(const char* filename)
 				for (int j = 0; j < triggers.triggers[i].n_effects; j++)
 				{
 					read(&triggers.triggers[i].effects[j].type, &p, sizeof(triggers.triggers[i].effects[j].type));
-					read(&triggers.triggers[i].effects[j].check, &p, sizeof(triggers.triggers[i].effects[j].check));
-					read(&triggers.triggers[i].effects[j].ai_goal, &p, sizeof(triggers.triggers[i].effects[j].ai_goal));
-					read(&triggers.triggers[i].effects[j].amount, &p, sizeof(triggers.triggers[i].effects[j].amount));
-					read(&triggers.triggers[i].effects[j].resource, &p, sizeof(triggers.triggers[i].effects[j].resource));
-					read(&triggers.triggers[i].effects[j].diplomacy, &p, sizeof(triggers.triggers[i].effects[j].diplomacy));
-					read(&triggers.triggers[i].effects[j].num_selected, &p, sizeof(triggers.triggers[i].effects[j].num_selected));
-					read(&triggers.triggers[i].effects[j].location_unit, &p, sizeof(triggers.triggers[i].effects[j].location_unit));
-					read(&triggers.triggers[i].effects[j].unit_id, &p, sizeof(triggers.triggers[i].effects[j].unit_id));
-					read(&triggers.triggers[i].effects[j].player_source, &p, sizeof(triggers.triggers[i].effects[j].player_source));
-					read(&triggers.triggers[i].effects[j].player_target, &p, sizeof(triggers.triggers[i].effects[j].player_target));
-					read(&triggers.triggers[i].effects[j].technology, &p, sizeof(triggers.triggers[i].effects[j].technology));
-					read(&triggers.triggers[i].effects[j].string_id, &p, sizeof(triggers.triggers[i].effects[j].string_id));
-					read(&triggers.triggers[i].effects[j].sound_id, &p, sizeof(triggers.triggers[i].effects[j].sound_id));
-					read(&triggers.triggers[i].effects[j].display_time, &p, sizeof(triggers.triggers[i].effects[j].display_time));
-					read(&triggers.triggers[i].effects[j].index, &p, sizeof(triggers.triggers[i].effects[j].index));
-					read(&triggers.triggers[i].effects[j].location.x, &p, sizeof(triggers.triggers[i].effects[j].location.x));
-					read(&triggers.triggers[i].effects[j].location.y, &p, sizeof(triggers.triggers[i].effects[j].location.y));
-					read(&triggers.triggers[i].effects[j].area_ll.x, &p, sizeof(triggers.triggers[i].effects[j].area_ll.x));
-					read(&triggers.triggers[i].effects[j].area_ll.y, &p, sizeof(triggers.triggers[i].effects[j].area_ll.y));
-					read(&triggers.triggers[i].effects[j].area_ur.x, &p, sizeof(triggers.triggers[i].effects[j].area_ur.x));
-					read(&triggers.triggers[i].effects[j].area_ur.y, &p, sizeof(triggers.triggers[i].effects[j].area_ur.y));
-					read(&triggers.triggers[i].effects[j].unit_group, &p, sizeof(triggers.triggers[i].effects[j].unit_group));
-					read(&triggers.triggers[i].effects[j].unit_type, &p, sizeof(triggers.triggers[i].effects[j].unit_type));
-					read(&triggers.triggers[i].effects[j].instruction_panel, &p, sizeof(triggers.triggers[i].effects[j].instruction_panel));
+
+					read(&triggers.triggers[i].effects[j].values_saved, &p, sizeof(triggers.triggers[i].effects[j].values_saved));
+					read_trigger_value(&triggers.triggers[i].effects[j].ai_goal, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].amount, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].resource, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].diplomacy, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].num_selected, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].location_unit, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].unit_id, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].player_source, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].player_target, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].technology, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].string_id, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].sound_id, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].display_time, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].index, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].location.x, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].location.y, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].area_ll.x, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].area_ll.y, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].area_ur.x, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].area_ur.y, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].unit_group, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].unit_type, &p, &triggers.triggers[i].effects[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].effects[j].instruction_panel, &p, &triggers.triggers[i].effects[j].values_saved);
+					triggers.triggers[i].effects[j].values_saved = 23;
+
 					read(&triggers.triggers[i].effects[j].text_len, &p, sizeof(triggers.triggers[i].effects[j].text_len));
 
 					//read(&triggers.triggers[i].effects[j], &p, sizeof(effect) - 4 * sizeof(long));
@@ -496,23 +509,25 @@ SCEN::SCEN(const char* filename)
 				for (int j = 0; j < triggers.triggers[i].n_conditions; j++)
 				{
 					read(&triggers.triggers[i].conditions[j].type, &p, sizeof(triggers.triggers[i].conditions[j].type));
-					read(&triggers.triggers[i].conditions[j].check, &p, sizeof(triggers.triggers[i].conditions[j].check));
-					read(&triggers.triggers[i].conditions[j].amount, &p, sizeof(triggers.triggers[i].conditions[j].amount));
-					read(&triggers.triggers[i].conditions[j].resource, &p, sizeof(triggers.triggers[i].conditions[j].resource));
-					read(&triggers.triggers[i].conditions[j].unit_object, &p, sizeof(triggers.triggers[i].conditions[j].unit_object));
-					read(&triggers.triggers[i].conditions[j].unit_location, &p, sizeof(triggers.triggers[i].conditions[j].unit_location));
-					read(&triggers.triggers[i].conditions[j].unit_id, &p, sizeof(triggers.triggers[i].conditions[j].unit_id));
-					read(&triggers.triggers[i].conditions[j].player, &p, sizeof(triggers.triggers[i].conditions[j].player));
-					read(&triggers.triggers[i].conditions[j].technology, &p, sizeof(triggers.triggers[i].conditions[j].technology));
-					read(&triggers.triggers[i].conditions[j].timer, &p, sizeof(triggers.triggers[i].conditions[j].timer));
-					read(&triggers.triggers[i].conditions[j].unknown, &p, sizeof(triggers.triggers[i].conditions[j].unknown));
-					read(&triggers.triggers[i].conditions[j].area_ll.x, &p, sizeof(triggers.triggers[i].conditions[j].area_ll.x));
-					read(&triggers.triggers[i].conditions[j].area_ll.y, &p, sizeof(triggers.triggers[i].conditions[j].area_ll.y));
-					read(&triggers.triggers[i].conditions[j].area_ur.x, &p, sizeof(triggers.triggers[i].conditions[j].area_ur.x));
-					read(&triggers.triggers[i].conditions[j].area_ur.y, &p, sizeof(triggers.triggers[i].conditions[j].area_ur.y));
-					read(&triggers.triggers[i].conditions[j].unit_group, &p, sizeof(triggers.triggers[i].conditions[j].unit_group));
-					read(&triggers.triggers[i].conditions[j].unit_type, &p, sizeof(triggers.triggers[i].conditions[j].unit_type));
-					read(&triggers.triggers[i].conditions[j].ai_signal, &p, sizeof(triggers.triggers[i].conditions[j].ai_signal));
+					read(&triggers.triggers[i].conditions[j].values_saved, &p, sizeof(triggers.triggers[i].conditions[j].values_saved));
+
+					read_trigger_value(&triggers.triggers[i].conditions[j].amount, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].resource, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].unit_object, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].unit_location, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].unit_id, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].player, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].technology, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].timer, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].unknown, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].area_ll.x, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].area_ll.y, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].area_ur.x, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].area_ur.y, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].unit_group, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].unit_type, &p, &triggers.triggers[i].conditions[j].values_saved);
+					read_trigger_value(&triggers.triggers[i].conditions[j].ai_signal, &p, &triggers.triggers[i].conditions[j].values_saved);
+					triggers.triggers[i].conditions[j].values_saved = 16;
 
 				}
 				triggers.triggers[i].condition_order = (long*)malloc(triggers.triggers[i].n_conditions * sizeof(long));
