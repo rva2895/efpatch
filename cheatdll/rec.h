@@ -2,4 +2,4 @@
 
 void setRecHooks();
 void recSwitch(int p);
-int __stdcall isRec();
+bool __stdcall isRec();

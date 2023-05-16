@@ -5,7 +5,7 @@ __declspec(naked) void on_review_chat_messages() //00506D1E
 {
     __asm
     {
-        mov     ecx, chat_p
+        mov     ecx, tchat
         mov     ecx, [ecx]
         cmp     [esp + 12Ch], ebx
         mov     edx, [ecx + 120h]

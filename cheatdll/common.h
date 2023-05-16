@@ -40,17 +40,22 @@ struct BYTE_ASSIGN
 
 std::string get_string(int id);
 
-void __stdcall sendChat(char* s, int p);
-void __cdecl chat(char* format, ...);
+void __stdcall sendChat(const char* s, int p);
+void __cdecl chat(const char* format, ...);
 
 extern RGE_Base_Game** const base_game;
 extern TPanelSystem* const panel_system;
+extern int* const world_update_counter;
 
 extern TCommunications_Handler** const comm;
-extern TChat** const chat_p;
+extern TChat** const tchat;
 
 extern HINSTANCE* const hInstance_dll;
 
 extern void* (__cdecl* const calloc_internal)(size_t number, size_t size);
 extern void (__cdecl* const free_internal)(void* memory);
 extern int (__cdecl* const rand_internal)();
+extern int (__cdecl* const read_internal)(int handle, void* buffer, int size);
+extern int (__cdecl* const write_internal)(int handle, void* buffer, int size);
+extern int (__cdecl* const tell_internal)(int handle);
+extern int (__cdecl* const lseek_internal)(int handle, int distance, int orig);

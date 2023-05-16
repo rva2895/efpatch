@@ -6,7 +6,7 @@ TPanelSystem* const panel_system = (TPanelSystem* const)0x006ADBB8;
 int* const world_update_counter = (int* const)0x007A22F8;
 
 TCommunications_Handler** const comm = (TCommunications_Handler** const)0x006A35E0;
-TChat** const chat_p = (TChat** const)0x006A35D8;
+TChat** const tchat = (TChat** const)0x006A35D8;
 
 HINSTANCE* const hInstance_dll = (HINSTANCE* const)0x0078F81C;
 
@@ -121,27 +121,13 @@ std::string get_string(int id)
     return temp_str_buffer;
 }
 
-//6A35D8 <- chat this
-
-void __stdcall sendChat(char* s, int p)
+void __stdcall sendChat(const char* s, int p)
 {
-    __asm
-    {
-        mov     eax, 006A35D8h
-        mov     ecx, [eax]
-        mov     edx, s
-        mov     eax, p
-        push    0
-        push    0
-        push    eax     //player
-        push    edx     //str
-        push    0       //int
-        mov     eax, 0042D5E0h
-        call    eax
-    }
+    if (*tchat)
+        TChat__AddChatMsg(*tchat, NULL, s, p, 0, 0);
 }
 
-void __cdecl chat(char* format, ...)
+void __cdecl chat(const char* format, ...)
 {
     char s[0x100];
     va_list ap;
@@ -159,3 +145,15 @@ void (__cdecl* const free_internal)(void* memory) =
 
 int (__cdecl* const rand_internal)() =
     (int (__cdecl* const)())0x00632BDD;
+
+int (__cdecl* const read_internal)(int handle, void* buffer, int size) =
+    (int (__cdecl* const)(int, void*, int))0x006340C7;
+
+int (__cdecl* const write_internal)(int handle, void* buffer, int size) =
+    (int (__cdecl* const)(int, void*, int))0x00634638;
+
+int (__cdecl* const tell_internal)(int handle) =
+    (int (__cdecl* const)(int))0x0063458D;
+
+int (__cdecl* const lseek_internal)(int handle, int distance, int orig) =
+    (int (__cdecl* const)(int, int, int))0x0063459E;
