@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "rec.h"
 #include <MMSystem.h>
-#include <vector>
+
+#define REC_SPEED_COUNT 12
 
 const float game_speeds[] =
 {
@@ -34,62 +35,17 @@ __declspec(naked) void onCheckGameSpeed() //0050189E
     }
 }
 
-//recorded game
-/*
-void __fastcall printSpeed(int speed)
-{
-    char* s = "";
-    switch (speed)
-    {
-    case 0:
-        s = "0.5";
-        break;
-    case 1:
-        s = "0.7";
-        break;
-    case 2:
-        s = "1.0";
-        break;
-    case 3:
-        s = "1.3";
-        break;
-    case 4:
-        s = "1.6";
-        break;
-    case 5:
-        s = "2.0";
-        break;
-    case 6:
-        s = "4.0";
-        break;
-    case 7:
-        s = "8.0";
-        break;
-    case 8:
-        s = "16.0";
-        break;
-    case 9:
-        s = "unbounded";
-        break;
-    default:
-        s = "";
-        break;
-    }
-    chat("Playback Speed: %s", s);
-}
-*/
-
 __declspec(naked) void onSlowDown() //004FAF6B
 {
     __asm
     {
         mov     ecx, [eax + 540h]
         test    ecx, ecx
-        jle     _no_slow_down
+        jle     rec_no_slow_down
         dec     ecx
-_no_slow_down:
+
+rec_no_slow_down:
         mov     [eax + 540h], ecx
-        //call    printSpeed
         mov     eax, 004FAF75h
         jmp     eax
     }
@@ -100,12 +56,12 @@ __declspec(naked) void onSpeedUp() //004FAF38
     __asm
     {
         mov     ecx, [eax + 540h]
-        cmp     ecx, 9
-        jge     _no_speed_up
+        cmp     ecx, REC_SPEED_COUNT
+        jge     rec_no_speed_up
         inc     ecx
-_no_speed_up:
+
+rec_no_speed_up:
         mov     [eax + 540h], ecx
-        //call    printSpeed
         mov     eax, 004FAF42h
         jmp     eax
     }
@@ -117,34 +73,20 @@ __declspec(naked) void onSpeedNormal() //004FAF9F
     {
         mov     ecx, 2
         mov     [eax + 540h], ecx
-        //call    printSpeed
         mov     eax, 004FAFA9h
         jmp     eax
     }
 }
 
-#define SPEED_STAT_MAX 20
-
-float rec_speed = 0;
-//float avg_interval = 0;
-float avg_speed = 0;
-
-DWORD interval_game = 0;
-DWORD interval_real = 0;
-int n_speed_captured = 0;
-//std::vector
-
-int current_frame_interval = 10;
+float rec_speed = 0.0f;
 
 void __stdcall onPrintTime2(char* s)
 {
-    //float avg = avg_interval / 2;
-
     char s2[0x100];
     strcpy_safe(s2, _countof(s2), s);
-    //sprintf(s, "%s (%3.3f / %3.3f -> %d)", s2, avg_speed, rec_speed, current_frame_interval);
     if (isRec())
         sprintf(s, "%s (%2.2f)", s2, rec_speed);
+        //sprintf(s, "%s (%3.3f / %3.3f)", s2, rec_speed, avg_speed);
     else
         sprintf(s, "%s", s2);
 }
@@ -163,325 +105,98 @@ __declspec(naked) void onPrintTime() //005E01E6
     }
 }
 
-DWORD time_game_last = 0;
-DWORD time_real_last = 0;
-int time_i = 0;
-
-int __stdcall rec_speed_test(DWORD time_game, int speed)
+void __stdcall do_rec_speed_adjust(int speed)
 {
     switch (speed)
     {
     case 0:
-        rec_speed = 0.500f;
+        rec_speed = 0.50f;
         break;
     case 1:
-        rec_speed = 0.667f;
+        rec_speed = 0.75f;
         break;
     case 2:
-        rec_speed = 1.000f;
+        rec_speed = 1.00f;
         break;
     case 3:
-        rec_speed = 1.333f;
+        rec_speed = 1.25f;
         break;
     case 4:
-        rec_speed = 1.600f;
+        rec_speed = 1.50f;
         break;
     case 5:
-        rec_speed = 2.000f;
+        rec_speed = 2.00f;
         break;
     case 6:
-        rec_speed = 4.000f;
+        rec_speed = 2.50f;
         break;
     case 7:
-        rec_speed = 8.000f;
+        rec_speed = 3.00f;
         break;
     case 8:
-        rec_speed = 16.00f;
+        rec_speed = 4.00f;
         break;
     case 9:
+        rec_speed = 6.00f;
+        break;
+    case 10:
+        rec_speed = 10.00f;
+        break;
+    case 11:
+        rec_speed = 16.00f;
+        break;
+    case 12:
         rec_speed = INFINITY;
         break;
     default:
-        rec_speed = NAN;
+        rec_speed = 1.00f;
         break;
     }
-    DWORD time_real = timeGetTime();
-    //avg_interval -= intervals[time_i] / N_INTERVAL;
-    //intervals[time_i] = (float)(time_game - time_game_last) / (time_real - time_real_last);
-    //avg_interval += intervals[time_i] / N_INTERVAL;
-
-    interval_game += (time_game - time_game_last);
-    interval_real += (time_real - time_real_last);
-    n_speed_captured++;
-
-    time_game_last = time_game;
-    time_real_last = time_real;
-    //time_i++;
-    //if (time_i >= N_INTERVAL)
-    //    time_i = 0;
-
-    /*float avg = avg_interval / 2;
-    if (avg / rec_speed < 0.75) //if more than 25% slower than target
-        current_frame_interval++;
-    else
-        current_frame_interval--;
-    if (current_frame_interval < 10)
-        current_frame_interval = 10;
-    if (current_frame_interval > 100)
-        current_frame_interval = 100;*/
-
-    return speed;
 }
 
-__declspec(naked) void onCheckSpeed() //0061EB93 -> 0061EB81
+__declspec(naked) void onCheckSpeed2() //0061EB81
 {
     __asm
     {
-        //
         push    ecx
-        mov     ecx, [ebx]
         push    eax
-        push    ecx
-        call    rec_speed_test
-        pop     ecx
-        //
-        cmp     eax, 1
-        jnz     short _next1
-        mov     eax, [ebp - 10h]        //1.5
-        lea     eax, [eax + eax * 2]
-        shr     eax, 1
-        jmp     _end
-_next1:
-        cmp     eax, 2
-        jnz     _next2
-        mov     eax, [ebp - 10h]        //1.0
-        jmp     _end
-_next2:
-        cmp     eax, 3
-        jnz     _next3
-        mov     eax, [ebp - 10h]        //0.75
-        lea     eax, [eax + eax * 2]
-        shr     eax, 2
-        jmp     _end
-_next3:
-        cmp     eax, 4
-        jnz     _next4
-        mov     eax, [ebp - 10h]        //0.625
-        lea     eax, [eax + eax * 4]
-        shr     eax, 3
-        jmp     _end
-_next4:
-        cmp     eax, 5
-        jnz     _next5
-        mov     eax, [ebp - 10h]        // 1/2
-        shr     eax, 1
-        jmp     _end
-_next5:
-        cmp     eax, 6
-        jnz     _next6
-        mov     eax, [ebp - 10h]        // 1/4
-        shr     eax, 2
-        jmp     _end
-_next6:
-        cmp     eax, 7
-        jnz     _next7
-        mov     eax, [ebp - 10h]        // 1/8
-        shr     eax, 3
-        jmp     _end
-_next7:
-        cmp     eax, 8
-        jnz     _next8
-        mov     eax, [ebp - 10h]        // 1/16
-        shr     eax, 4
-_end:
+        mov     eax, [ebp - 10h]
         mov     [edi + 204h], eax
-_next8:
+        call    do_rec_speed_adjust
+        pop     ecx
+
         mov     eax, 0061EBA1h
         jmp     eax
     }
 }
 
-bool screen_drawn = false;
-bool allow_screen_draw = true;
-
-DWORD last_draw_window = 0;
-DWORD last_draw_game = 0;
-DWORD last_speed_stat = 0;
-
-DWORD last_screen_drawn = 0;
-
-bool force_update_window = false;
-bool force_update_view = false;
-
-int __stdcall skip_frames()
+int __stdcall do_new_rec_speed_control(RGE_Game_World* world)
 {
-    if (current_frame_interval <= 10)
-        return true;
-
-    DWORD t = timeGetTime();
-    if (t - last_screen_drawn > 500)
-        return true;
-
-    if (force_update_window)
+    unsigned int t = timeGetTime();
+    if (world->mReplayTimeStart)
     {
-        force_update_window = false;
-        return true;
+        unsigned int delta = t - world->mReplayTimeStart;
+        if ((float)world->mReplayRecordedInterval > (float)delta * world->game_speed * rec_speed)
+            return 0;
     }
-
-    if (t - last_draw_window > current_frame_interval)
-    {
-        last_draw_window = t;
-        return true;
-        //allow_screen_draw = true;
-    }
-    else
-        return false;
+    world->mReplayTimeStart = t;
+    return 1;
 }
 
-/*__declspec(naked) void onDrawScreen() //00471CB0
+__declspec(naked) void new_rec_speed_control() //0061EABA
 {
     __asm
     {
-        push    esi
-        mov     esi, ecx
-        call    skip_frames
-        mov     ecx, esi
-        pop     esi
-        
+        push    edi
+        call    do_new_rec_speed_control
         test    eax, eax
-        jz      do_skip
-
-        sub     esp, 20h
-        push    ebp
-        push    esi
-        mov     esi, ecx
-        mov     eax, 00471CB7h
+        jz      rec_speed_control_end
+        mov     eax, 0061EAFAh
         jmp     eax
 
-do_skip:
-        ret     4
-    }
-}*/
-
-__declspec(naked) void onDrawScreen2() //00428B02
-{
-    __asm
-    {
-        call    skip_frames
-        test    eax, eax
-        jz      do_skip2
-        mov     eax, [esi]
-        mov     ecx, esi
-        call    dword ptr [eax + 120h]
-        jmp     do_ok2
-do_skip2:
-        add     esp, 10h
-        xor     eax, eax
-        inc     eax
-do_ok2:
-        mov     ecx, 00428B08h
-        jmp     ecx
-    }
-}
-
-int __stdcall allow_screen_draw_test()
-{
-    DWORD t = timeGetTime();
-    last_screen_drawn = t;
-    if (t - last_speed_stat > 250) //if it's time to evaluate performance
-    {
-        if (n_speed_captured == 0)
-        {
-            current_frame_interval = 10;
-            return true;
-        }
-
-        avg_speed = (float)interval_game / interval_real / 2;
-        interval_game = 0;
-        interval_real = 0;
-
-        if ((avg_speed / rec_speed) < 0.75)
-            current_frame_interval += 20;
-        else
-            current_frame_interval -= 5;
-        if (current_frame_interval < 10)
-            current_frame_interval = 10;
-        if (current_frame_interval > 100)
-            current_frame_interval = 100;
-        last_speed_stat = t;
-        n_speed_captured = 0;
-    }
-
-    if (current_frame_interval < 100)
-        return true;
-    
-    if (force_update_view)
-    {
-        force_update_view = false;
-        return true;
-    }
-
-    if (t - last_draw_game > current_frame_interval)
-    {
-        last_draw_game = t;
-        return true;
-        //allow_screen_draw = true;
-    }
-    else
-        return false;
-}
-
-__declspec(naked) void onDrawView() //004B6A00
-{
-    __asm
-    {
-        push    ecx
-        call    allow_screen_draw_test
-        pop     ecx
-        test    eax, eax
-        jnz     allow_draw
-        ret
-allow_draw:
-        push    esi
-        mov     esi, ecx
-        mov     eax, [esi + 20h]
-        mov     ecx, 004B6A06h
-        jmp     ecx
-    }
-}
-
-__declspec(naked) void onDrawView2() //005FC160
-{
-    __asm
-    {
-        push    ecx
-        call    allow_screen_draw_test
-        pop     ecx
-        test    eax, eax
-        jz      no_allow_draw
-        push    esi
-        mov     esi, ecx
-        mov     eax, 00618DC0h
-        call    eax
-        mov     eax, 005FC168h
+rec_speed_control_end:
+        mov     eax, 0061E884h
         jmp     eax
-no_allow_draw:
-        ret
-    }
-}
-
-__declspec(naked) void onScrollView() //004C2010
-{
-    __asm
-    {
-        xor     eax, eax
-        inc     eax
-        mov     force_update_window, al
-        mov     force_update_view, al
-        mov     eax, 006A35E0h
-        mov     eax, [eax]
-        mov     edx, 004C2015h
-        jmp     edx
     }
 }
 
@@ -497,35 +212,98 @@ __declspec(naked) void fixDefaultRecSpeed() //0042E8E2
     }
 }
 
-DWORD last_paint_time = 0;
-#define MAX_SCREEN_UPDATE 33
+int __stdcall check_main_view_redraw(TRIBE_Screen_Game* game_screen, unsigned int t, unsigned int wt_delta)
+{
+    if (isRec())
+    {
+        int result = 0;
+        switch ((*comm)->mCommandLog->mReplaySpeed)
+        {
+        default:
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            result = (wt_delta || t - game_screen->last_view_time >= game_screen->view_interval);
+            break;
+        case 4:
+        case 5:
+        case 6:
+            result = (t - game_screen->last_view_time >= 16);
+            break;
+        case 7:
+        case 8:
+        case 9:
+            result = (t - game_screen->last_view_time >= 33);
+            break;
+        case 10:
+        case 11:
+            result = (t - game_screen->last_view_time >= 100);
+            break;
+        case 12:
+            result = (t - game_screen->last_view_time >= 333);
+            break;
+        }
+        if ((*comm)->mCommandLog->mReplaySpeed > 5 && result)
+        {
+            game_screen->time_panel->vfptr->set_redraw(game_screen->time_panel, 1);
+            game_screen->time_panel->parent_panel->vfptr->set_redraw(game_screen->time_panel->parent_panel, 1);
+        }
+        return result;
+    }
+    else
+        return (wt_delta || t - game_screen->last_view_time >= game_screen->view_interval);
+}
 
-__declspec(naked) void on_paint_to_screen() //00429AD1
+__declspec(naked) void on_main_view_redraw() //004F8DD6
 {
     __asm
     {
-        mov     ebp, eax
-
-        call    isRec
-        test    eax, eax
-        jz      paint_always
-
-        call    timeGetTime
-        mov     edx, eax
-        mov     ecx, last_paint_time
-        sub     eax, ecx
-        cmp     eax, MAX_SCREEN_UPDATE
-        jl      skip_screen_paint
-        mov     last_paint_time, edx
-
-paint_always:
-        mov     eax, 00471CB0h
-        mov     ecx, [esi + 68h]
+        mov     ebx, [esp + 18h]
+        mov     edi, [esp + 10h]
         push    ebx
-        call    eax
+        push    edi
+        push    esi
+        call    check_main_view_redraw
+        test    eax, eax
+        jz      skip_main_view_redraw
+        
+        mov     eax, 004F8DF6h
+        jmp     eax
 
-skip_screen_paint:
-        mov     eax, 00429AD9h
+skip_main_view_redraw:
+        mov     eax, 004F8E09h
+        jmp     eax
+    }
+}
+
+int __stdcall check_time_panel_redraw(TRIBE_Panel_Time* time_panel)
+{
+    TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
+    if (game_screen
+        && game_screen->time_panel == time_panel
+        && time_panel->clock_type == 2
+        && isRec()
+        && (*comm)->mCommandLog->mReplaySpeed > 5)
+        return false;
+    else
+        return time_panel->game_time != time_panel->last_game_time;
+}
+
+__declspec(naked) void on_time_panel_redraw() //005DFFA5
+{
+    __asm
+    {
+        push    esi
+        call    check_time_panel_redraw
+        test    eax, eax
+        jz      skip_time_panel_redraw
+
+        mov     eax, 005DFFB5h
+        jmp     eax
+
+skip_time_panel_redraw:
+        mov     eax, 005DFFD4h
         jmp     eax
     }
 }
@@ -536,8 +314,17 @@ void setGameSpeedHooks()
     setHook((void*)0x0050189E, onCheckGameSpeed);
 
     //recorded game
-    writeByte(0x0061EBC2, 9);
-    setHook((void*)0x0061EB81, onCheckSpeed);
+    writeByte(0x0061EBC2, REC_SPEED_COUNT);
+    setHook((void*)0x0061EB81, onCheckSpeed2);
+
+    writeWord(0x0061EB66, 0x9090);
+    writeDword(0x0061EB68, 0x90909090);
+    writeByte(0x0061EB6F, 0x90);
+    writeDword(0x0061EB70, 0x90909090);
+    writeByte(0x0061EB74, 0x90);
+
+    setHook((void*)0x0061EABA, new_rec_speed_control);
+
     setHook((void*)0x004FAF6B, onSlowDown);
     setHook((void*)0x004FAF38, onSpeedUp);
     setHook((void*)0x004FAF9F, onSpeedNormal);
@@ -546,13 +333,7 @@ void setGameSpeedHooks()
 
     setHook((void*)0x0042E8E2, fixDefaultRecSpeed);
 
-    //setHook((void*)0x00429AD1, on_paint_to_screen);
-
-    //setHook((void*)0x00471CB0, onDrawScreen); //obsolete
-    //setHook((void*)0x00428B02, onDrawScreen2);
-    //setHook((void*)0x004B6A00, onDrawView);
-    //setHook((void*)0x005FC160, onDrawView2);
-
-    //setHook((void*)0x004C2010, onScrollView);
+    setHook((void*)0x004F8DD6, on_main_view_redraw);
+    setHook((void*)0x005DFFA5, on_time_panel_redraw);
 }
 #pragma optimize( "", on )
