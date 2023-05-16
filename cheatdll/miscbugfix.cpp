@@ -103,6 +103,128 @@ random_sound_countdown_rnd:
     }
 }
 
+void __stdcall minimap_terrain_do_switch(TRIBE_Screen_Game* game_screen)
+{
+    game_screen->vfptr->set_redraw(game_screen, 1);
+    game_screen->map_view->vfptr->set_redraw(game_screen->map_view, 2);
+}
+
+__declspec(naked) void minimap_terrain_1() //004FA199
+{
+    __asm
+    {
+        pop     eax
+        push    ebp
+        call    minimap_terrain_do_switch
+        mov     eax, 004FA1A1h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void minimap_terrain_2() //004FC12E
+{
+    __asm
+    {
+        pop     eax
+        push    esi
+        call    minimap_terrain_do_switch
+        mov     eax, 004FC135h
+        jmp     eax
+    }
+}
+
+void __stdcall do_set_view_loc_minimap_update()
+{
+    TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
+    if (game_screen)
+        game_screen->map_view->vfptr->set_redraw(game_screen->map_view, 1);
+}
+
+__declspec(naked) void set_view_loc_minimap_update() //004C21A2
+{
+    __asm
+    {
+        mov     [edx + 178h], eax
+        call    do_set_view_loc_minimap_update
+        ret     0Ch
+    }
+}
+
+unsigned int idle_found_timer = 0;
+bool idle_button_blink_state = false;
+bool idle_button_blinking = false;
+
+void __stdcall do_handle_idle_button(TRIBE_Screen_Game* game_screen, unsigned int t, unsigned int wt_delta)
+{
+    bool set_active = false;
+    bool reset_blink_timer = false;
+    if (wt_delta)
+    {
+        RGE_Player_Object_List* list = RGE_Base_Game__get_player(*base_game)->objects;
+        bool idle_found = false;
+        for (int i = 0; i < list->Number_of_objects; i++)
+        {
+            RGE_Static_Object* obj = list->List[i];
+            if (obj && obj->vfptr->gbg_unknown9(obj) && obj->vfptr->is_idle(obj))
+            {
+                idle_found = true;
+                break;
+            }
+        }
+        if (idle_found)
+        {
+            if (t - idle_found_timer > 500)
+            {
+                set_active = true;
+                if (!idle_button_blinking)
+                {
+                    idle_button_blinking = true;
+                    reset_blink_timer = true;
+                }
+            }
+        }
+        else
+        {
+            idle_found_timer = t;
+            set_active = false;
+            if (idle_button_blinking)
+            {
+                idle_button_blinking = false;
+                reset_blink_timer = true;
+            }
+        }
+    }
+    if (reset_blink_timer || t - game_screen->gbg_last_unknown_time >= game_screen->gbg_unknown_interval)
+    {
+        if (idle_button_blinking)
+            idle_button_blink_state = !idle_button_blink_state;
+        else
+            idle_button_blink_state = false;
+
+        short button_pic_index = idle_button_blink_state ? 16 : 12;
+        TButtonPanel__set_picture((TButtonPanel*)game_screen->buttons[25], 0, game_screen->game_icon_pic, button_pic_index);
+
+        game_screen->gbg_last_unknown_time = t;
+    }
+}
+
+__declspec(naked) void on_handle_idle_button() //004F8AEB
+{
+    __asm
+    {
+        mov     ecx, [esp + 18h]
+        mov     [esp + 10h], eax
+        push    ecx
+        push    eax
+        push    esi
+        call    do_handle_idle_button
+
+        mov     eax, [esp + 18h]
+        mov     ecx, 004F8AF3h
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks()
 {
@@ -174,5 +296,27 @@ void setMiscBugfixHooks()
     //mirror random sound fix
     setHook((void*)0x00517484, random_sound_start);
     setHook((void*)0x0051B2A1, random_sound_countdown);
+
+    //minimap terrain toggle
+    setHook((void*)0x004FA199, minimap_terrain_1);
+    setHook((void*)0x004FC12E, minimap_terrain_2);
+
+    //minimap scroll update
+    setHook((void*)0x004C21A2, set_view_loc_minimap_update);
+
+    //remove forced map redraw
+    writeDword(0x0061F04E, 0x90909090);
+    writeWord(0x0061F052, 0x9090);
+    writeByte(0x0061F054, 0x90);
+
+    //map redraw on pause
+    writeByte(0x004F8E0B, 0xEB);
+
+    //remove GetMessage loop
+    writeByte(0x00425EC1, 0xEB);
+
+    //new idle worker button handling
+    setHook((void*)0x004F8AFB, (void*)0x004F8C78);
+    setHook((void*)0x004F8AEB, on_handle_idle_button);
 }
 #pragma optimize( "", on )

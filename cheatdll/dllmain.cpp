@@ -648,13 +648,20 @@ void initialSetup()
 
 #ifndef TARGET_VOOBLY
     if (!cd.useFPS)
+    {
         writeByte(0x0061E92C, 0x20);
+
+        //mad redraw interval
+        writeDword(0x004F2F1D, 200);
+    }
     else
     {
-        //unsigned long interval = 100;
         writeDword(0x005DDBA4, 100);
         writeDword(0x005DDB7B, 100);
         writeWord(0x005DDB73, 0x9090);
+
+        //mad redraw interval
+        writeDword(0x004F2F1D, 100);
     }
 #else
     //fps and UI bar
@@ -662,6 +669,9 @@ void initialSetup()
     writeDword(0x005DDBA4, 100);
     writeDword(0x005DDB7B, 100);
     writeWord(0x005DDB73, 0x9090);
+
+    //mad redraw interval
+    writeDword(0x004F2F1D, 100);
 #endif
 
     log("Initial setup complete, returning");
