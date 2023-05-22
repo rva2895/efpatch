@@ -133,7 +133,7 @@ void getSettings()
 #ifndef TARGET_VOOBLY
     bool key = GetKeyState(VK_SHIFT) & 0x8000;
 
-    if (cd.askAtStartup || key)
+    if (!setStartupLoadHooks() && (cd.askAtStartup || key))
         DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_STARTUP), 0, VersionSelectDlgProc);
 #endif
 }
@@ -255,10 +255,6 @@ void setHooksCC()
     if (cd.largeText)
         writeDword(0x004276F6, 116);
 
-#ifndef TARGET_VOOBLY
-    setStartupLoadHooks(cd.gameVersion);
-#endif
-
     setRecHooks();
     setHotkeyJumpHooks();
 
@@ -365,6 +361,8 @@ void setHooksEF()
     writeByte(0x00690C78, 0x65);
     writeByte(0x00690FD8, 0x65);
     writeByte(0x00691218, 0x65);
+    writeByte(0x00690C80, 0x32);
+    writeByte(0x00690FD0, 0x32);
 
     setAdvCheatHooks();
 

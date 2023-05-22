@@ -116,6 +116,12 @@ bool __stdcall checkCheats(char* s2)
                     floor(player->view_x) + 0.5f, floor(player->view_y) + 0.5f);
                 return true;
             }
+            if (strstr(s, "THERE'S ALWAYS A BIGGER FISH"))
+            {
+                make_cheat_by_id_with_position(player, EF_CHEAT_THERES_ALWAYS_A_BIGGER_FISH,
+                    floor(player->view_x) + 0.5f, floor(player->view_y) + 0.5f);
+                return true;
+            }
         }
         //new EF cheats, SP and MP
         if (strstr(s, "HELP ME OBI-WAN"))
