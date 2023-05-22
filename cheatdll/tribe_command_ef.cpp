@@ -90,6 +90,7 @@ void __stdcall ef_do_command(void* this_, void* order)
             case EF_CHEAT_TANTIVE_IV:
             case EF_CHEAT_GALACTIC_UPHEAVAL:
             case EF_CHEAT_KOELSCH:
+            case EF_CHEAT_THERES_ALWAYS_A_BIGGER_FISH:
                 cheat_x = *((float*)order + 1);
                 cheat_y = *((float*)order + 2);
                 TRIBE_World__cheat(*((TRIBE_World**)this_ + 1), player_id, ef_cheat_id + 0x64);
@@ -214,6 +215,8 @@ int __fastcall get_unit_or_tech_id(int cheat_id) //returns positive if unit, neg
         return 545;
     case EF_CHEAT_KOELSCH:
         return 4894;
+    case EF_CHEAT_THERES_ALWAYS_A_BIGGER_FISH:
+        return 6324;
     default:
         return 0;
     }

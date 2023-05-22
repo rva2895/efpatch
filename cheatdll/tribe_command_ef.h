@@ -29,3 +29,4 @@ void make_cheat_by_id_with_position(RGE_Player* player, int ef_cheat_id, float x
 #define EF_CHEAT_KOELSCH 0x3F
 #define EF_CHEAT_JOIN_US_OR_DIE 0x40
 #define EF_CHEAT_DEPLOY_THE_GARRISON 0x41
+#define EF_CHEAT_THERES_ALWAYS_A_BIGGER_FISH 0x42

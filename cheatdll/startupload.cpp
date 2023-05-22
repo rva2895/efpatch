@@ -1,36 +1,8 @@
 #include "stdafx.h"
-
+#include "registry.h"
 #include "startupload.h"
 
-char sz_ga1[] = ".GA1";
-char sz_mg1[] = ".MG1";
-char sz_sc1[] = ".SC1";
-
-char* cmdLine;
-char* filename;
-
-__declspec(naked) void afterLoadHook() //005EC3DF
-{
-    __asm
-    {
-        pop     edi
-        pop     esi
-        pop     ebp
-        pop     ebx
-        add     esp, 10Ch
-        mov     eax, 1
-        push    8Bh
-        push    005EC3DFh
-        call    writeByte
-        push    75EB3BE8h
-        push    005EC3E0h
-        call    writeDword
-        push    3Ch
-        push    005EC3E4h
-        call    writeByte
-        retn    20h
-    }
-}
+extern CONFIG_DATA cd;
 
 char* getCmdFilename(char* s)
 {
@@ -43,182 +15,190 @@ char* getCmdFilename(char* s)
     p++;
     //if (k)
     //    p++;
-    return p;
+    char* f = (char*)malloc(strlen(p) + 1);
+    strcpy_safe(f, strlen(p) + 1, p);
+    return f;
 }
 
-char* __stdcall checkCmdLine(char* ext)
+char* __stdcall checkCmdLine(const char* command_line, const char* ext)
 {
-    char* cmdLine_ = GetCommandLine();
-
-    cmdLine = (char*)malloc(strlen(cmdLine_) + 1);
-    strcpy_safe(cmdLine, strlen(cmdLine_) + 1, cmdLine_);
+    char* cmdLine = (char*)malloc(strlen(command_line) + 1);
+    strcpy_safe(cmdLine, strlen(command_line) + 1, command_line);
 
     _strupr(cmdLine);
 
     char* ext_start = strstr(cmdLine, ext);
     if (ext_start)
     {
-        filename = getCmdFilename(cmdLine);
-        //free(cmdLine);
+        char* filename = getCmdFilename(cmdLine);
+        free(cmdLine);
         return filename;
     }
     else
     {
         free(cmdLine);
-        return 0;
+        return NULL;
     }
 }
 
-/*__declspec(naked) void cmdLineHook () //005E55DB
+bool startup_game = false;
+bool replay_startup = false;
+bool edit_scenario = false;
+char* startup_filename = NULL;
+
+void copy_filename(const char* s)
+{
+    startup_filename = (char*)malloc(strlen(s) + 1);
+    strcpy_safe(startup_filename, strlen(s) + 1, s);
+}
+
+void __stdcall setup_startup_filename(TRIBE_Game* game)
+{
+    if (startup_game)
+        strcpy_safe(game->startup_game, _countof(game->startup_game), startup_filename);
+    else if (edit_scenario)
+        strcpy_safe(game->edit_scenario, _countof(game->edit_scenario), startup_filename);
+}
+
+__declspec(naked) void on_game_setup() //005E4A83
 {
     __asm
     {
+        push    ecx
+        call    setup_startup_filename
+        xor     ebx, ebx
         push    esi
-        call    checkCmdLine
-        test    eax, eax
-        jz      _noCmdLine
-        push    eax
+        push    edi
+        cmp     [ebp + 60h], ebx
         mov     ecx, ebp
-        mov     eax, 005EC2D0h
-        push    005E55F4h
-        jmp     eax
-_noCmdLine:
-
-    }
-}*/
-
-void __stdcall setAbsScen();
-void __stdcall onLoadSave();
-
-__declspec(naked) void hookLoadSave() //005E5652
-{
-    __asm
-    {
-        push    ebx
-        push    offset sz_ga1
-        call    checkCmdLine
-        test    eax, eax
-        jnz     _yes_cmd_line_save
-        push    offset sz_mg1
-        call    checkCmdLine
-        test    eax, eax
-        jz      _noCmdLine_save
-        //mg1: push 3
-        mov     [esp], 3
-_yes_cmd_line_save:
-        push    eax
-    }
-    setHook((void*)0x0061D928, onLoadSave);
-    __asm
-    {
-        mov     ecx, ebp
-        mov     eax, 005EC580h
-        push    005E55F4h
-        jmp     eax
-_noCmdLine_save:
-        pop     ebx
-        push    005E566Dh
-        ret
-    }
-}
-
-__declspec(naked) void hookLoadScen() //005E5636
-{
-    __asm
-    {
-        push    offset sz_sc1
-        call    checkCmdLine
-        test    eax, eax
-        jz      _noCmdLine_save
-        push    ebx
-        push    ebx
-        push    eax
-        call    setAbsScen
-        mov     ecx, ebp
-        mov     eax, 005EE090h
-        push    005E55F4h
-        jmp     eax
-_noCmdLine_save:
-        mov     eax, 005E5652h
+        mov     eax, 005E4A8Ah
         jmp     eax
     }
 }
 
-__declspec(naked) void scenAbsPath() //00620F07
+bool is_abs_path(const char* s)
+{
+    return strstr(s, "\\");
+}
+
+char* __stdcall load_game_or_scen_abs_path_sub(bool scen, char* dest, const char* name)
+{
+    if ((scen ? edit_scenario : startup_game) && is_abs_path(name))
+        strcpy_safe(dest, 300, name);
+
+    return dest;
+}
+
+__declspec(naked) void load_game_abs_path() //0061D928
 {
     __asm
     {
-        push    8Ah
-        push    00620F07h
-        call    writeByte
-        push    01502484h
-        push    00620F08h
-        call    writeDword
+        mov     eax, [esp + 1138h]
+        lea     ecx, [esp + 0A8h]
+        push    eax
+        push    ecx
         push    0
-        push    00620F0Ch
-        call    writeByte
-        add     esp, 18h
-        mov     eax, 1
-        mov     ecx, 00620F3Dh
+        call    load_game_or_scen_abs_path_sub
+
+        mov     edx, 8000h
+        mov     ecx, eax
+        mov     eax, 0061D934h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void load_scen_abs_path() //00620F74
+{
+    __asm
+    {
+        mov     eax, [esp + 148h]
+        lea     ecx, [esp + 18h]
+        push    eax
+        push    ecx
+        push    1
+        call    load_game_or_scen_abs_path_sub
+
+        mov     edx, 8000h
+        mov     ecx, eax
+        mov     eax, 00620F7Dh
+        jmp     eax
+    }
+}
+
+__declspec(naked) void load_game_set_replay_mode() //005E5662
+{
+    __asm
+    {
+        xor     ecx, ecx
+        mov     cl, replay_startup
+        push    ecx
+        push    eax
+        mov     ecx, ebp
+        call    TRIBE_Game__load_game
+        mov     ecx, 005E55F4h
         jmp     ecx
     }
 }
 
-void __stdcall setAbsScen()
-{
-    setHook((void*)0x00620F07, scenAbsPath);
-}
-
-__declspec(naked) void rec_filename_fix() //0061DACF
-{
-    __asm
-    {
-        add     eax, 9
-        push    eax
-        push    edx
-        push    50h
-        push    0061DACFh
-        call    writeByte
-        push    16148A8Bh
-        push    0061DAD0h
-        call    writeDword
-        push    0A5E80000h
-        push    0061DAD4h
-        call    writeDword
-        add     esp, 4 * 6
-        pop     edx
-        mov     ecx, [edx + 1614h]
-        mov     eax, 0061DAD6h
-        jmp     eax
-    }
-}
-
-__declspec(naked) void __stdcall onLoadSave() //0061D928
-{
-    writeDword(0x0061D928, 0x008000BA);
-    writeDword(0x0061D92C, 0x248C8D00);
-    setHook((void*)0x0061DACF, rec_filename_fix);
-    __asm
-    {
-        lea     ecx, [esp + 0B1h]
-        mov     edx, 8000h
-        push    0061D939h
-        mov     eax, 004D5330h
-        jmp     eax
-    }
-}
-
 #pragma optimize( "s", on )
-void setStartupLoadHooks(int ver)
+bool setStartupLoadHooks()
 {
-    if (ver)    //EF
+    char* filename;
+    char* command_line = GetCommandLine();
+
+    //savegame
+    if (filename = checkCmdLine(command_line, ".GA1"))
     {
-        sz_ga1[3] = '2';
-        sz_mg1[3] = '2';
-        sz_sc1[3] = '2';
+        cd.gameVersion = VER_CC;
+        startup_game = true;
+        copy_filename(filename);
     }
-    setHook((void*)0x005E5652, hookLoadSave);
-    setHook((void*)0x005E5636, hookLoadScen);
-    //writeByte(0x0061D930, 0xB1);
+    else if (filename = checkCmdLine(command_line, ".GA2"))
+    {
+        cd.gameVersion = VER_EF;
+        startup_game = true;
+        copy_filename(filename);
+    }
+    //recorded game
+    else if (filename = checkCmdLine(command_line, ".MG1"))
+    {
+        cd.gameVersion = VER_CC;
+        startup_game = true;
+        replay_startup = true;
+        copy_filename(filename);
+    }
+    else if (filename = checkCmdLine(command_line, ".MG2"))
+    {
+        cd.gameVersion = VER_EF;
+        startup_game = true;
+        replay_startup = true;
+        copy_filename(filename);
+    }
+    //scenario
+    else if (filename = checkCmdLine(command_line, ".SCX"))
+    {
+        cd.gameVersion = VER_CC;
+        edit_scenario = true;
+        copy_filename(filename);
+    }
+    else if (filename = checkCmdLine(command_line, ".SC1"))
+    {
+        cd.gameVersion = VER_CC;
+        edit_scenario = true;
+        copy_filename(filename);
+    }
+    else if (filename = checkCmdLine(command_line, ".SC2"))
+    {
+        cd.gameVersion = VER_EF;
+        edit_scenario = true;
+        copy_filename(filename);
+    }
+
+    setHook((void*)0x005E4A83, on_game_setup);
+    setHook((void*)0x0061D928, load_game_abs_path);
+    setHook((void*)0x005E5662, load_game_set_replay_mode);
+    setHook((void*)0x00620F74, load_scen_abs_path);
+
+    return startup_game || edit_scenario;
 }
 #pragma optimize( "", on )

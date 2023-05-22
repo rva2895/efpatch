@@ -121,7 +121,7 @@ const CHANGE_UNIT_MASTER_PARAMS change_master_params[] =
     {40, offsetof(RGE_Master_Action_Object, move_sound),                T_SOUND_PTR,    false,  {"MoveSound", "move_sound"}},
     {40, offsetof(RGE_Master_Action_Object, run_pattern),               T_UINT8,        false,  {"AnimalMode", "RunPattern", "run_pattern"}},
 
-    {50, offsetof(RGE_Master_Combat_Object, run_pattern),               T_SPRITE_PTR,   false,  {"AttackGraphics", "fight_sprite"}},
+    {50, offsetof(RGE_Master_Combat_Object, fight_sprite),              T_SPRITE_PTR,   false,  {"AttackGraphics", "fight_sprite"}},
     {50, offsetof(RGE_Master_Combat_Object, base_armor),                T_INT16,        true,   {"DefaultArmor", "base_armor"}},
     {50, offsetof(RGE_Master_Combat_Object, armor_num),                 T_FORBIDDEN,    true,   {"armor_num"}},
     {50, offsetof(RGE_Master_Combat_Object, armor),                     T_ARMOR_CLASS,  true,   {"Armor", "armor"}},

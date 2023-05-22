@@ -1,3 +1,3 @@
 #pragma once
 
-void setStartupLoadHooks (int ver);
+bool setStartupLoadHooks();
