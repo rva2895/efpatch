@@ -120,6 +120,7 @@
 #include "buildingconv.h"
 #include "revealmap.h"
 #include "spectate.h"
+#include "maplist.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -465,6 +466,8 @@ void setHooksEF()
     setBldgHealRateSaveHooks();
 
     setBuildingConvHooks();
+
+    setMapListHooks();
 
     log("setHooksEF() complete");
 }
