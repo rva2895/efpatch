@@ -1,11 +1,16 @@
 #include "stdafx.h"
-
 #include "rms.h"
+#include "maplist.h"
+#include <vector>
+#include <map>
 
 char** filenames;
 int nFiles;
 
-const RMS_ASSIGN ra[] =
+std::vector<std::string> rms_files;
+extern std::map<int, MAP_INFO> map_list;
+
+const RMS_ASSIGN rms_assign[] =
 {
     {38, 13544},
     {39, 13545},
@@ -29,102 +34,13 @@ const RMS_ASSIGN ra[] =
     {60, 13568}
 };
 
-const int nRa = (sizeof(ra) / sizeof(ra[0]));
-
-__declspec(naked) void rmsListLoadHook() //0052A2BE
-{
-    __asm
-    {
-        mov     ecx, [esi]
-        push    1Fh
-        push    2A8Eh
-        mov     eax, 004C82D0h
-        call    eax
-
-        push    edi
-        push    ebx
-
-        mov     edi, offset ra
-        xor     ebx, ebx
-
-cont1:
-        mov     eax, nRa
-        cmp     ebx, eax
-        jz      end1
-        mov     al, [edi]
-        movsx   eax, al
-        push    eax
-        mov     ax, [edi + 2]
-        movsx   eax, ax
-        push    eax
-        mov     ecx, [esi]
-        mov     eax, 004C82D0h
-        call    eax
-        inc     ebx
-        add     edi, 4
-        jmp     cont1
-end1:
-        //
-        call    rmsNameHookLoad
-        mov     edi, 004C82D0h
-        xor     ebx, ebx
-
-cont:
-        mov     eax, nFiles
-        cmp     ebx, eax
-        jz      end
-        mov     ecx, [esi]
-        push    0FFh
-        push    ebx
-        call    edi
-        inc     ebx
-        jmp     cont
-end:
-        call    rmsNameHookUnload
-        pop     ebx
-        pop     edi
-        mov     ecx, 0052A2CCh
-        jmp     ecx
-    }
-}
-
-__declspec(naked) void rmsNameLoad() //004D392C
-{
-    __asm
-    {
-        //eax - char*
-        //ecx - language dll id, change to array index
-        mov     edx, filenames
-        lea     edx, [edx + ecx * 4]
-        mov     edx, [edx]
-        push    100h
-        push    edx
-        push    eax
-        call    strncpy
-        add     esp, 0Ch
-        mov     ecx, 004D393Ah
-        jmp     ecx
-    }
-}
-
-void rmsNameHookLoad()
-{
-    setHook((void*)0x004D392C, rmsNameLoad);
-}
-
-void rmsNameHookUnload()
-{
-    writeDword(0x004D392C, 0x00010068);
-    writeDword(0x004D3930, 0x8B515000);
-    writeDword(0x004D3934, 0x3D86E8CE);
-    writeDword(0x004D3938, 0x848BFFFE);
-}
-
-void findFiles()
+void list_rms_files()
 {
     log("Listing RMS files...");
-    filenames = 0;
-    nFiles = 0;
+
+    if (!rms_files.empty())
+        rms_files.clear();
+
     WIN32_FIND_DATA fd;
     HANDLE hFile = FindFirstFile("random\\*.rms", &fd);
     if (hFile == INVALID_HANDLE_VALUE)
@@ -135,29 +51,49 @@ void findFiles()
     {
         do
         {
-#ifdef _DEBUG
-            log("found %s", fd.cFileName);
-#endif
-            nFiles++;
-            filenames = (char**)realloc(filenames, sizeof(char*)*nFiles);
-            filenames[nFiles - 1] = (char*)malloc(strlen(fd.cFileName) + 1);
-            strcpy_safe(filenames[nFiles - 1], strlen(fd.cFileName) + 1, fd.cFileName);
-            filenames[nFiles - 1][strstr(fd.cFileName, ".rms") - fd.cFileName] = 0;
+            std::string filename(fd.cFileName);
+            filename.erase(filename.length() - 4);
+            rms_files.push_back(filename);
         } while (FindNextFile(hFile, &fd));
-        int err = GetLastError();
+        DWORD err = GetLastError();
         if (err != ERROR_NO_MORE_FILES)
-            log("WARNING: FindNextFile(): unrecognised error %d", err);
+            log("WARNING: FindNextFile(): unrecognised error %u", err);
         else
             log("Finished listing files");
         FindClose(hFile);
     }
-    log("Found %d RMS files", nFiles);
+    log("Found %zu RMS files", rms_files.size());
+}
+
+void __stdcall setup_editor_rms_list(TDropDownPanel* dropdown)
+{
+    for (int i = 0; i < _countof(rms_assign); i++)
+        TDropDownPanel__append_line2(dropdown, rms_assign[i].string_id, rms_assign[i].id);
+
+    for (auto it = map_list.begin(); it != map_list.end(); ++it)
+        TDropDownPanel__append_line2(dropdown, it->second.string_id, it->first);
+    
+    list_rms_files();
+    int rms_index = 1000;
+    for (auto it = rms_files.begin(); it != rms_files.end(); ++it)
+        TDropDownPanel__append_line(dropdown, it->c_str(), rms_index++);
+}
+
+__declspec(naked) void on_editor_rms_list() //0052A2CC
+{
+    __asm
+    {
+        mov     ecx, [esi]
+        push    ecx
+        call    setup_editor_rms_list
+        mov     eax, 0052AAD5h
+        jmp     eax
+    }
 }
 
 #pragma optimize( "s", on )
 void setRmsEditorHooks()
 {
-    findFiles();
-    setHook((void*)0x0052A2BE, rmsListLoadHook);
+    setHook((void*)0x0052A2CC, on_editor_rms_list);
 }
 #pragma optimize( "", on )
