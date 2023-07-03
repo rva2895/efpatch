@@ -288,6 +288,7 @@
     <ClInclude Include="log.h" />
     <ClInclude Include="los.h" />
     <ClInclude Include="mapcopy.h" />
+    <ClInclude Include="maplist.h" />
     <ClInclude Include="mapsize.h" />
     <ClInclude Include="mastervolume.h" />
     <ClInclude Include="mbs.h" />
@@ -455,6 +456,7 @@
     <ClCompile Include="log.cpp" />
     <ClCompile Include="los.cpp" />
     <ClCompile Include="mapcopy.cpp" />
+    <ClCompile Include="maplist.cpp" />
     <ClCompile Include="mapsize.cpp" />
     <ClCompile Include="mastervolume.cpp" />
     <ClCompile Include="mbs.cpp" />

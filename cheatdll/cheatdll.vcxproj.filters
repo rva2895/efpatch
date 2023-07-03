@@ -510,6 +510,9 @@
     <ClInclude Include="spectate.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
+    <ClInclude Include="maplist.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -961,6 +964,9 @@
     </ClCompile>
     <ClCompile Include="spectate.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="maplist.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
