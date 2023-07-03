@@ -1,8 +1,8 @@
 #include "stdafx.h"
-
 #include "terrain.h"
 
 uint8_t* terrain_array = NULL;
+
 /*BYTE terrain_array[] =
 {
     4, 1, 2, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1,    //0
@@ -57,57 +57,255 @@ const uint8_t indirect_table_water[] =    //starts from 1 (TERR-WATER1)
     /* 210 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     /* 220 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     /* 230 */ 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, //TREE-NEW-23
-    /* 240 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    /* 240 */ 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, //SWAMP
     /* 250 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
-#define TERR_MAX_CONST 240 //before TROPICALSHALLOWS, used for indirect table water
+#define TERR_MAX_CONST 250 //used for indirect table water
 
-//BYTE indirect_table_water_2[TERR_MAX_CONST+1];
-
-/*void terrain_transition_change(int state)
+bool __stdcall isIce(uint8_t terrain)
 {
-    //writeByte(0x005CBE20, state ? 0xFF : 2);
-    indirect_table_water[0] = state;    //WATER1
-    indirect_table_water[3] = state;    //WATERSWAMP
-    indirect_table_water[21] = state;    //WATER2
-    indirect_table_water[22] = state;    //WATER3
-    indirect_table_water[58] = state;    //MARSH
-    for (int i = 0; i < sizeof(indirect_table_water); i++)
-        switch (i)
-        {
-        case 0:
-        case 3:
-        case 21:
-        case 22:
-        case 58:
-            break;
-        default:
-            indirect_table_water[i] = !state;
-        }
+    switch (terrain)
+    {
+    case 35:    //ICE2
+    case 37:    //SHOREICE
+    case 157:   //ICE2-N
+    case 158:   //ICE3
+    case 159:   //ICE4
+    case 160:   //ICE5
+    case 238:   //ICE6
+        return true;
+    default:
+        return false;
+    }
 }
-*/
 
-__declspec(naked) void ice_terrain_fix() //005CBCCE
+bool __stdcall isIceNoShore(uint8_t terrain)
+{
+    return terrain != 37 && isIce(terrain);
+}
+
+__declspec(naked) void ice_terrain_fix_1() //005CBCCE
 {
     __asm
     {
-        cmp     ebx, 35
-        jz      ice1
-        cmp     ebx, 37
-        jz      ice1
-        cmp     ebx, 157
-        jb      not_ice1
-        cmp     ebx, 160
-        jbe     ice1
-        cmp     ebx, 238
-        jnz     not_ice1
-ice1:
-        mov     ebx, 005CBCDCh
-        jmp     ebx
-not_ice1:
-        mov     ebx, 005CBE1Eh
-        jmp     ebx
+        push    eax
+        push    ecx
+        push    edx
+
+        push    ebx
+        call    isIce
+
+        test    al, al
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     ice_1
+
+        push    005CBE1Eh
+        ret
+
+ice_1:
+        push    005CBCDCh
+        ret
+    }
+}
+
+__declspec(naked) void ice_terrain_fix_2() //0049A456
+{
+    __asm
+    {
+        mov     al, [eax + edx + 5]
+        push    eax
+        push    edx
+        push    eax
+        call    isIceNoShore
+
+        not     al
+        test    al, al
+
+        pop     edx
+        pop     eax
+
+        push    0049A45Ch
+        ret
+    }
+}
+
+__declspec(naked) void ice_terrain_fix_3() //0049A549
+{
+    __asm
+    {
+        push    eax
+        push    edx
+        push    eax
+        call    isIceNoShore
+
+        test    al, al
+
+        pop     edx
+        pop     eax
+
+        jz      not_ice_3
+
+        mov     esi, 258h
+
+        push    0049A563h
+        ret
+
+not_ice_3:
+        push    0049A554h
+        ret
+    }
+}
+
+bool __stdcall isCliffRestricted(uint8_t terrain)
+{
+    switch (terrain)
+    {
+    case 1:     //WATER1
+    case 4:     //WATERSWAMP
+    case 15:    //WATEROLD
+    case 16:    //GRASSOLD
+    case 22:    //WATER2
+    case 23:    //WATER3
+    case 35:    //ICE2
+    case 51:    //LAVA
+    case 56:    //BLANK
+    case 59:    //MARSH
+    case 139:   //TROPICALWATER1
+    case 140:   //TROPICALWATER2
+    case 141:   //TROPICALWATER3
+    case 142:   //TROPICALSHALLOWS
+    case 157:   //ICE2-N
+    case 158:   //ICE3
+    case 159:   //ICE4
+    case 160:   //ICE5
+    case 171:   //SLUDGE
+    case 201:   //CLOUDS-STORM
+    case 202:   //WATER-DEEP2
+    case 203:   //WATER-MUD
+    case 210:   //CLOUDS-YELLOW
+    case 211:   //CLOUDS-FOG
+    case 233:   //CLOUDS-FOREST
+    case 235:   //TREE-NEW-23
+    case 238:   //ICE6
+    case 246:   //SWAMP
+        return true;
+    default:
+        return false;
+    }
+}
+
+__declspec(naked) void ice_terrain_fix_4() //004D77BE
+{
+    __asm
+    {
+        push    eax
+        push    ecx
+        push    edx
+        push    eax
+        call    isCliffRestricted
+
+        test    al, al
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jz      no_cliff_restricted
+
+        push    004D7801h
+        ret
+
+no_cliff_restricted:
+        push    004D77DAh
+        ret
+    }
+}
+
+__declspec(naked) void ice_terrain_fix_5() //004E43A3
+{
+    __asm
+    {
+        push    eax
+        push    ecx
+        push    edx
+        push    ebx
+        mov     edi, ebx
+        and     edi, 0FFh
+        call    isIce
+
+        test    al, al
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     ice_5
+
+        push    004E4510h
+        ret
+
+ice_5:
+        push    004E43BBh
+        ret
+    }
+}
+
+__declspec(naked) void ice_terrain_fix_6() //004E6093
+{
+    __asm
+    {
+        push    eax
+        push    ecx
+        push    edx
+        push    ebx
+        mov     edi, ebx
+        and     edi, 0FFh
+        call    isIce
+
+        test    al, al
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     ice_6
+
+        push    004E6200h
+        ret
+
+ice_6:
+        push    004E60ABh
+        ret
+    }
+}
+
+bool __stdcall isSnow(uint8_t terrain)
+{
+    switch (terrain)
+    {
+    case 32:    //SNOW1
+    case 33:    //SNOW2
+    case 34:    //SNOW3
+    case 36:    //FOUNDATIONSNOW
+    case 47:    //SNOW-DIRT
+    case 55:    //SNOW-GRASS2
+    case 63:    //SNOW2-NEW
+    case 134:   //SNOW-ROCK2
+    case 135:   //SNOW-ROCK3
+    case 195:   //SNOW-GRASSN
+    case 208:   //CAVEICE1
+    case 209:   //CAVEICE2
+    case 215:   //SNOW-ROCK4
+    case 216:   //SNOW3
+    case 217:   //SNOW4
+        return true;
+    default:
+        return false;
     }
 }
 
@@ -115,36 +313,23 @@ __declspec(naked) void snow_terrain_fix_1() //005CBE92
 {
     __asm
     {
-        cmp     dl, 20h
-        jb      not_snow1
-        cmp     dl, 22h
-        jbe     snow1
-        cmp     dl, 36
-        jz      snow1
-        cmp     dl, 47
-        jz      snow1
-        cmp     dl, 55
-        jz      snow1
-        cmp     dl, 63
-        jz      snow1
-        cmp     dl, 134
-        jz      snow1
-        cmp     dl, 135
-        jz      snow1
-        cmp     dl, 195
-        jz      snow1
-        cmp     dl, 208
-        jz      snow1
-        cmp     dl, 209
-        jz      snow1
-        cmp     dl, 215
-        jb      not_snow1
-        cmp     dl, 217
-        jbe     snow1
-not_snow1:
+        push    eax
+        push    ecx
+        push    edx
+
+        push    edx
+        call    isSnow
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     snow_1
+
         push    005CBEA1h
         ret
-snow1:
+
+snow_1:
         push    005CBEBEh
         ret
     }
@@ -154,36 +339,23 @@ __declspec(naked) void snow_terrain_fix_2() //005CBEAF
 {
     __asm
     {
-        cmp     dl, 20h
-        jb      not_snow2
-        cmp     dl, 22h
-        jbe     snow2
-        cmp     dl, 36
-        jz      snow2
-        cmp     dl, 47
-        jz      snow2
-        cmp     dl, 55
-        jz      snow2
-        cmp     dl, 63
-        jz      snow2
-        cmp     dl, 134
-        jz      snow2
-        cmp     dl, 135
-        jz      snow2
-        cmp     dl, 195
-        jz      snow2
-        cmp     dl, 208
-        jz      snow2
-        cmp     dl, 209
-        jz      snow2
-        cmp     dl, 215
-        jb      not_snow2
-        cmp     dl, 217
-        jbe     snow2
-not_snow2:
+        push    eax
+        push    ecx
+        push    edx
+
+        push    edx
+        call    isSnow
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     snow_2
+
         push    005CBEC3h
         ret
-snow2:
+
+snow_2:
         push    005CBEBEh
         ret
     }
@@ -193,36 +365,23 @@ __declspec(naked) void snow_terrain_fix_3() //005CBF42
 {
     __asm
     {
-        cmp     bl, 20h
-        jb      not_snow3
-        cmp     bl, 22h
-        jbe     snow3
-        cmp     bl, 36
-        jz      snow3
-        cmp     bl, 47
-        jz      snow3
-        cmp     bl, 55
-        jz      snow3
-        cmp     bl, 63
-        jz      snow3
-        cmp     bl, 134
-        jz      snow3
-        cmp     bl, 135
-        jz      snow3
-        cmp     bl, 195
-        jz      snow3
-        cmp     bl, 208
-        jz      snow3
-        cmp     bl, 209
-        jz      snow3
-        cmp     bl, 215
-        jb      not_snow3
-        cmp     bl, 217
-        jbe     snow3
-not_snow3:
+        push    eax
+        push    ecx
+        push    edx
+
+        push    ebx
+        call    isSnow
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     snow_3
+
         push    005CBF51h
         ret
-snow3:
+
+snow_3:
         push    005CBF89h
         ret
     }
@@ -232,36 +391,23 @@ __declspec(naked) void snow_terrain_fix_4() //005CBF5D
 {
     __asm
     {
-        cmp     dl, 20h
-        jb      not_snow4
-        cmp     dl, 22h
-        jbe     snow4
-        cmp     dl, 36
-        jz      snow4
-        cmp     dl, 47
-        jz      snow4
-        cmp     dl, 55
-        jz      snow4
-        cmp     dl, 63
-        jz      snow4
-        cmp     dl, 134
-        jz      snow4
-        cmp     dl, 135
-        jz      snow4
-        cmp     dl, 195
-        jz      snow4
-        cmp     dl, 208
-        jz      snow4
-        cmp     dl, 209
-        jz      snow4
-        cmp     dl, 215
-        jb      not_snow4
-        cmp     dl, 217
-        jbe     snow4
-not_snow4:
+        push    eax
+        push    ecx
+        push    edx
+
+        push    edx
+        call    isSnow
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     snow_4
+
         push    005CBF6Ch
         ret
-snow4:
+
+snow_4:
         push    005CBF89h
         ret
     }
@@ -271,36 +417,23 @@ __declspec(naked) void snow_terrain_fix_5() //005CBF7A
 {
     __asm
     {
-        cmp     dl, 20h
-        jb      not_snow5
-        cmp     dl, 22h
-        jbe     snow5
-        cmp     dl, 36
-        jz      snow5
-        cmp     dl, 47
-        jz      snow5
-        cmp     dl, 55
-        jz      snow5
-        cmp     dl, 63
-        jz      snow5
-        cmp     dl, 134
-        jz      snow5
-        cmp     dl, 135
-        jz      snow5
-        cmp     dl, 195
-        jz      snow5
-        cmp     dl, 208
-        jz      snow5
-        cmp     dl, 209
-        jz      snow5
-        cmp     dl, 215
-        jb      not_snow5
-        cmp     dl, 217
-        jbe     snow5
-not_snow5:
+        push    eax
+        push    ecx
+        push    edx
+
+        push    edx
+        call    isSnow
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     snow_5
+
         push    005CBF8Eh
         ret
-snow5:
+
+snow_5:
         push    005CBF89h
         ret
     }
@@ -310,36 +443,23 @@ __declspec(naked) void snow_terrain_fix_6() //005CC011
 {
     __asm
     {
-        cmp     bl, 20h
-        jb      not_snow6
-        cmp     bl, 22h
-        jbe     snow6
-        cmp     bl, 36
-        jz      snow6
-        cmp     bl, 47
-        jz      snow6
-        cmp     bl, 55
-        jz      snow6
-        cmp     bl, 63
-        jz      snow6
-        cmp     bl, 134
-        jz      snow6
-        cmp     bl, 135
-        jz      snow6
-        cmp     bl, 195
-        jz      snow6
-        cmp     bl, 208
-        jz      snow6
-        cmp     bl, 209
-        jz      snow6
-        cmp     bl, 215
-        jb      not_snow6
-        cmp     bl, 217
-        jbe     snow6
-not_snow6:
+        push    eax
+        push    ecx
+        push    edx
+
+        push    ebx
+        call    isSnow
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     snow_6
+
         push    005CC020h
         ret
-snow6:
+
+snow_6:
         push    005CC055h
         ret
     }
@@ -349,36 +469,23 @@ __declspec(naked) void snow_terrain_fix_7() //005CC02C
 {
     __asm
     {
-        cmp     dl, 20h
-        jb      not_snow7
-        cmp     dl, 22h
-        jbe     snow7
-        cmp     dl, 36
-        jz      snow7
-        cmp     dl, 47
-        jz      snow7
-        cmp     dl, 55
-        jz      snow7
-        cmp     dl, 63
-        jz      snow7
-        cmp     dl, 134
-        jz      snow7
-        cmp     dl, 135
-        jz      snow7
-        cmp     dl, 195
-        jz      snow7
-        cmp     dl, 208
-        jz      snow7
-        cmp     dl, 209
-        jz      snow7
-        cmp     dl, 215
-        jb      not_snow7
-        cmp     dl, 217
-        jbe     snow7
-not_snow7:
+        push    eax
+        push    ecx
+        push    edx
+
+        push    edx
+        call    isSnow
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     snow_7
+
         push    005CC03Bh
         ret
-snow7:
+
+snow_7:
         push    005CC055h
         ret
     }
@@ -388,36 +495,23 @@ __declspec(naked) void snow_terrain_fix_8() //005CC049
 {
     __asm
     {
-        cmp     al, 20h
-        jb      not_snow8
-        cmp     al, 22h
-        jbe     snow8
-        cmp     al, 36
-        jz      snow8
-        cmp     al, 47
-        jz      snow8
-        cmp     al, 55
-        jz      snow8
-        cmp     al, 63
-        jz      snow8
-        cmp     al, 134
-        jz      snow8
-        cmp     al, 135
-        jz      snow8
-        cmp     al, 195
-        jz      snow8
-        cmp     al, 208
-        jz      snow8
-        cmp     al, 209
-        jz      snow8
-        cmp     al, 215
-        jb      not_snow8
-        cmp     al, 217
-        jbe     snow8
-not_snow8:
+        push    eax
+        push    ecx
+        push    edx
+
+        push    eax
+        call    isSnow
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     snow_8
+
         push    005CC05Ah
         ret
-snow8:
+
+snow_8:
         push    005CC055h
         ret
     }
@@ -427,77 +521,49 @@ __declspec(naked) void snow_terrain_fix_9() //005CC095
 {
     __asm
     {
-        cmp     dl, 20h
-        jb      not_snow9
-        cmp     dl, 22h
-        jbe     snow9
-        cmp     dl, 36
-        jz      snow9
-        cmp     dl, 47
-        jz      snow9
-        cmp     dl, 55
-        jz      snow9
-        cmp     dl, 63
-        jz      snow9
-        cmp     dl, 134
-        jz      snow9
-        cmp     dl, 135
-        jz      snow9
-        cmp     dl, 195
-        jz      snow9
-        cmp     dl, 208
-        jz      snow9
-        cmp     dl, 209
-        jz      snow9
-        cmp     dl, 215
-        jb      not_snow9
-        cmp     dl, 217
-        jbe     snow9
-not_snow9:
+        push    eax
+        push    ecx
+        push    edx
+
+        push    edx
+        call    isSnow
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     snow_9
+
         push    005CC1F6h
         ret
-snow9:
+
+snow_9:
         push    005CC0ACh
         ret
     }
 }
 
-//new
-
 __declspec(naked) void snow_terrain_fix_10() //004E4519
 {
     __asm
     {
-        cmp     bl, 20h
-        jb      not_snow10
-        cmp     bl, 22h
-        jbe     snow10
-        cmp     bl, 36
-        jz      snow10
-        cmp     bl, 47
-        jz      snow10
-        cmp     bl, 55
-        jz      snow10
-        cmp     bl, 63
-        jz      snow10
-        cmp     bl, 134
-        jz      snow10
-        cmp     bl, 135
-        jz      snow10
-        cmp     bl, 195
-        jz      snow10
-        cmp     bl, 208
-        jz      snow10
-        cmp     bl, 209
-        jz      snow10
-        cmp     bl, 215
-        jb      not_snow10
-        cmp     bl, 217
-        jbe     snow10
-not_snow10:
+        push    eax
+        push    ecx
+        push    edx
+
+        push    ebx
+        call    isSnow
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     snow_10
+
         push    004E4684h
         ret
-snow10:
+
+snow_10:
         push    004E4530h
         ret
     }
@@ -507,36 +573,23 @@ __declspec(naked) void snow_terrain_fix_11() //004E6209
 {
     __asm
     {
-        cmp     bl, 20h
-        jb      not_snow11
-        cmp     bl, 22h
-        jbe     snow11
-        cmp     bl, 36
-        jz      snow11
-        cmp     bl, 47
-        jz      snow11
-        cmp     bl, 55
-        jz      snow11
-        cmp     bl, 63
-        jz      snow11
-        cmp     bl, 134
-        jz      snow11
-        cmp     bl, 135
-        jz      snow11
-        cmp     bl, 195
-        jz      snow11
-        cmp     bl, 208
-        jz      snow11
-        cmp     bl, 209
-        jz      snow11
-        cmp     bl, 215
-        jb      not_snow11
-        cmp     bl, 217
-        jbe     snow11
-not_snow11:
+        push    eax
+        push    ecx
+        push    edx
+
+        push    ebx
+        call    isSnow
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     snow_11
+
         push    004E6374h
         ret
-snow11:
+
+snow_11:
         push    004E6220h
         ret
     }
@@ -546,37 +599,72 @@ __declspec(naked) void snow_terrain_fix_12() //00554995
 {
     __asm
     {
-        cmp     cl, 20h
-        jb      not_snow12
-        cmp     cl, 22h
-        jbe     snow12
-        cmp     cl, 36
-        jz      snow12
-        cmp     cl, 47
-        jz      snow12
-        cmp     cl, 55
-        jz      snow12
-        cmp     cl, 63
-        jz      snow12
-        cmp     cl, 134
-        jz      snow12
-        cmp     cl, 135
-        jz      snow12
-        cmp     cl, 195
-        jz      snow12
-        cmp     cl, 208
-        jz      snow12
-        cmp     cl, 209
-        jz      snow12
-        cmp     cl, 215
-        jb      not_snow12
-        cmp     cl, 217
-        jbe     snow12
-not_snow12:
+        push    eax
+        push    ecx
+        push    edx
+
+        push    ecx
+        call    isSnow
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     snow_12
+
         push    005549CCh
         ret
-snow12:
+
+snow_12:
         push    005549AEh
+        ret
+    }
+}
+
+bool __stdcall isWater(uint8_t terrain)
+{
+    switch (terrain)
+    {
+    case 1:     //WATER1
+    case 4:     //WATERSWAMP
+    case 22:    //WATER2
+    case 23:    //WATER3
+    case 59:    //MARSH
+    case 139:   //TROPICALWATER1
+    case 140:   //TROPICALWATER2
+    case 141:   //TROPICALWATER3
+    case 142:   //TROPICALSHALLOWS
+    case 202:   //WATER-DEEP2
+    case 203:   //WATER-MUD
+    case 246:   //SWAMP
+        return true;
+    default:
+        return false;
+    }
+}
+
+__declspec(naked) void water_terrain_fix() //005876DA
+{
+    __asm
+    {
+        push    eax
+        push    ecx
+        push    edx
+
+        push    eax
+        call    isWater
+
+        pop     edx
+        pop     ecx
+        pop     eax
+
+        jnz     water_1
+
+        push    00587985h
+        ret
+
+water_1:
+        push    005876EAh
         ret
     }
 }
@@ -641,10 +729,10 @@ __declspec(naked) void terrain_asm_2() //0049479F
     __asm
     {
         cmp     ebp, 129  //forbidden ID+1
-        jg      short not_forbidden
+        jg      short not_forbidden_1
         cmp     ebp, 105
         jge     short loc_494805
-not_forbidden:
+not_forbidden_1:
         cmp     [esi - 24h], bl
         jz      short loc_494805
         mov     edx, 004947A4h
@@ -664,7 +752,7 @@ __declspec(naked) void terrain_forbidden_ids_2() //0060DC77
         cmp     ecx, 104
         jge     short forbidden_2
 not_forbidden_2:
-        mov     byte ptr[edx + eax + 0D9h], 0
+        mov     byte ptr [edx + eax + 0D9h], 0
 forbidden_2:
         mov     eax, 0060DC7Fh
         jmp     eax
@@ -872,6 +960,12 @@ int __fastcall isCarbon(uint8_t terrain)
     case 229:
     case 232:
     case 235:
+    case 240:
+    case 241:
+    case 242:
+    case 243:
+    case 244:
+    case 245:
         return true;
         break;
     default:
@@ -896,10 +990,59 @@ found_carbon:
     }
 }
 
+bool __stdcall check_center_tile(short check_center_tile_1, short check_center_tile_2, short this_tile)
+{
+    if ((check_center_tile_1 == 1 && check_center_tile_2 == 4)
+        || (check_center_tile_1 == 4 && check_center_tile_2 == 1))
+    {
+        switch (this_tile)
+        {
+        case 1:     //WATER1
+        case 4:     //WATERSWAMP
+        case 59:    //MARSH
+        case 139:   //TROPICALWATER1
+        case 142:   //TROPICALSHALLOWS
+        case 235:   //TREE-NEW-23
+        case 246:   //SWAMP
+            return true;
+        default:
+            return false;
+        }
+    }
+    else
+        return check_center_tile_1 == this_tile || check_center_tile_2 == this_tile;
+}
+
+__declspec(naked) void shipyard_center_tile_req() //0048E2F5
+{
+    __asm
+    {
+        push    eax
+
+        mov     ax, [ebp + 6Ah]
+        push    ecx
+        push    eax
+        push    esi
+        call    check_center_tile
+
+        mov     cl, al
+        pop     eax
+        test    al, al
+        jz      bad_center_tile
+
+        mov     ecx, 0048E30Ch
+        jmp     ecx
+
+bad_center_tile:
+        mov     ecx, 0048E300h
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void setExtraTerrainHooks()
 {
-    //new terrain implementatio:
+    //new terrain implementation:
     setHook((void*)0x004B0CC3, terrain_asm_1);
     setHook((void*)0x0049479F, terrain_asm_2);
     setHook((void*)0x004DE9DF, terrain_asm_3);
@@ -1176,7 +1319,14 @@ void setExtraTerrainHooks()
     setHook((void*)0x004E6209, snow_terrain_fix_11);
     setHook((void*)0x00554995, snow_terrain_fix_12);
 
-    setHook((void*)0x005CBCCE, ice_terrain_fix);
+    setHook((void*)0x005CBCCE, ice_terrain_fix_1);
+    setHook((void*)0x0049A456, ice_terrain_fix_2);
+    setHook((void*)0x0049A549, ice_terrain_fix_3);
+    setHook((void*)0x004D77BE, ice_terrain_fix_4);
+    setHook((void*)0x004E43A3, ice_terrain_fix_5);
+    setHook((void*)0x004E6093, ice_terrain_fix_6);
+
+    setHook((void*)0x005876DA, water_terrain_fix);
 
     //RGE stack array
     writeDword(0x004DE832, 0x13C + (TERRAIN_COUNT - 55) * 4);
@@ -1218,6 +1368,8 @@ void setExtraTerrainHooks()
     setHook((void*)0x005006F4, terrain_sound_fix);
 
     setHook((void*)0x005856DE, onResourceFound_carbon);
+
+    setHook((void*)0x0048E2F5, shipyard_center_tile_req);
 }
 
 void setExtraTerrainHooks_CC()
