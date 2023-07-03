@@ -318,5 +318,14 @@ void setMiscBugfixHooks()
     //new idle worker button handling
     setHook((void*)0x004F8AFB, (void*)0x004F8C78);
     setHook((void*)0x004F8AEB, on_handle_idle_button);
+
+    //#include_drs
+    writeWord(0x004E27A6, 0x9090);
+    writeDword(0x004E27A8, 0x90909090);
+
+    //#include
+    writeByte(0x004E2773, 0x90);
+    writeDword(0x004E2774, 0x90909090);
+    writeByte(0x004E2778, 0x90);
 }
 #pragma optimize( "", on )
