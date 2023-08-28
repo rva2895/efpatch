@@ -173,6 +173,7 @@ __declspec(naked) void langDllRead2() //005DF2F3
     }
 }
 
+/*
 int secondColFlag = 0;
 
 __declspec(naked) void popup1() //005DF2B4
@@ -192,6 +193,7 @@ noflag1:
         jmp     edx
     }
 }
+*/
 
 int startEbp;
 

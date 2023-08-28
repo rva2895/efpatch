@@ -22,7 +22,6 @@
     <ProjectGuid>{C02AB7BB-4125-4DB8-954A-CA6079C8815D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>cheatdll</RootNamespace>
-    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -349,6 +348,7 @@
     <ClInclude Include="structs.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="tchat.h" />
+    <ClInclude Include="TCommunications_Handler2.h" />
     <ClInclude Include="techtree.h" />
     <ClInclude Include="techtree_ui.h" />
     <ClInclude Include="techupcolor.h" />
@@ -518,6 +518,7 @@
     </ClCompile>
     <ClCompile Include="storemode.cpp" />
     <ClCompile Include="tchat.cpp" />
+    <ClCompile Include="TCommunications_Handler2.cpp" />
     <ClCompile Include="techtree.cpp" />
     <ClCompile Include="techtree_ui.cpp" />
     <ClCompile Include="techupcolor.cpp" />

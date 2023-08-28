@@ -264,10 +264,12 @@ __declspec(naked) void colors_fill_players_2() //0051CD8E
         push    eax
         mov     ecx, comm
         mov     ecx, [ecx]
-        call    TCommunications_Handler__WhoAmI
-        cmp     eax, [ecx + 200Ch]
+        //call    TCommunications_Handler__WhoAmI
+        //cmp     eax, [ecx + 200Ch]
+        call    TCommunications_Handler__IsHost
+        test    eax, eax
         pop     eax
-        jnz     short loc_7E3824
+        jz      short loc_7E3824
         cmp     ebx, 4
         jnz     short loc_7E3824
         mov     ecx, 1
@@ -477,12 +479,12 @@ void setFixedPosHooks()
 
     setHook((void*)0x004E789B, remove_rnd_pos);
 
-    writeWord(0x005ECDF2, 0x9090);
+    writeNops(0x005ECDF2, 2);
     writeWord(0x00516CB9, 0x08B2);
     writeByte(0x005192CB, 1);
     writeByte(0x00519809, 9);
-    writeWord(0x0051CD9B, 0x9090);
-    writeWord(0x0051CDAA, 0x9090);
+    writeNops(0x0051CD9B, 2);
+    writeNops(0x0051CDAA, 2);
     writeWord(0x0051D30B, 0xF685);
     writeByte(0x0051D30E, 0x84);
     writeByte(0x0051E9D0, 0xEB);
@@ -510,13 +512,8 @@ void setFixedPosHooks()
 
     setHook((void*)0x0051D862, colors_update_summary);
 
-    writeByte(0x0051D967, 0x90);
-    writeDword(0x0051D968, 0x90909090);
-    writeWord(0x0051D96C, 0x9090);
-
-    writeWord(0x0051D996, 0x9090);
-    writeDword(0x0051D998, 0x90909090);
-    writeWord(0x0051D99C, 0x9090);
+    writeNops(0x0051D967, 7);
+    writeNops(0x0051D996, 8);
 }
 #pragma optimize( "", on )
 

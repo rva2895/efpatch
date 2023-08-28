@@ -89,6 +89,7 @@ __declspec(naked) int triggerLogHook() //005F54D2
 }
 #endif
 
+/*
 int retSave;
 int data;
 
@@ -133,6 +134,7 @@ __declspec(naked) int readDatHook() //004D5550
         ret
     }
 }
+*/
 
 FILE* rms_f = NULL;
 
@@ -1427,28 +1429,18 @@ void setTestHook()
     fix_function_call(0x004336D8, (DWORD)nullsub_26_2); //Starting turn
     //
 
-    writeByte(0x004428F6, 0x90);
-    writeDword(0x004428F7, 0x90909090);
-    writeByte(0x0061B129, 0x90);
-    writeDword(0x0061B12A, 0x90909090);
-    writeByte(0x005B944D, 0x90);
-    writeDword(0x005B944E, 0x90909090);
-    writeByte(0x005A05DD, 0x90);
-    writeDword(0x005A05DE, 0x90909090);
-    writeByte(0x0050D0F3, 0x90);
-    writeDword(0x0050D0F4, 0x90909090);
-    writeDword(0x00410D38, 0x90909090);
-    writeByte(0x00410D3C, 0x90);
-    writeByte(0x0042520B, 0x90);
-    writeDword(0x0042520C, 0x90909090);
-    writeDword(0x004776BE, 0x90909090);
-    writeByte(0x004776C2, 0x90);
-    writeByte(0x005A0559, 0x90);
-    writeDword(0x005A055A, 0x90909090);
-    writeByte(0x005A0581, 0x90);
-    writeDword(0x005A0582, 0x90909090);
-    writeByte(0x005A05DD, 0x90);
-    writeDword(0x005A05DE, 0x90909090);
+    writeNops(0x004428F6, 5);
+    writeNops(0x0061B129, 5);
+    writeNops(0x005B944D, 5);
+    writeNops(0x005A05DD, 5);
+    writeNops(0x0050D0F3, 5);
+    writeNops(0x00410D38, 5);
+    writeNops(0x0042520B, 5);
+    writeNops(0x004776BE, 5);
+    writeNops(0x005A0559, 5);
+    writeNops(0x005A0581, 5);
+    writeNops(0x005A05DD, 5);
+
     setHook((void*)0x0060F920, log_int_wr);
 
     setHook((void*)0x004E1801, rms_fptr);

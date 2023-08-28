@@ -73,14 +73,7 @@ void setWndModeHooks()
 
     setHook((void*)0x00616C0F, wndtmp);
 
-    writeByte(0x0047166E, 0x90);
-    writeByte(0x0047166F, 0x90);
-    writeDword(0x00471670, 0x90909090);
-    writeDword(0x00471674, 0x90909090);
-    writeDword(0x00471678, 0x90909090);
-    writeDword(0x0047167C, 0x90909090);
-    writeByte(0x00471680, 0x90);
-    writeByte(0x00471681, 0x90);
+    writeNops(0x0047166E, 0x14);
 
     //tech tree mouse
     setHook((void*)0x00462352, onTechTreeCreate);

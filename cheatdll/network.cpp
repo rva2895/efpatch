@@ -863,9 +863,7 @@ void setNetworkHooks()
 
     writeWord(0x00434A60, 0x26EB);
 
-    writeDword(0x00435396, 0x90909090);
-    writeDword(0x0043539A, 0x90909090);
-    writeByte(0x0043539E, 0x90);
+    writeNops(0x00435396, 9);
 
     writeWord(0x004353B1, 0x6C76);
 
@@ -905,11 +903,8 @@ void setNetworkHooks()
 
     writeByte(0x00439880, 1);
     
-    writeDword(0x004398AF, 0x90909090);
-    writeWord(0x004398B3, 0x9090);
-    writeDword(0x004398B9, 0x90909090);
-    writeDword(0x004398BD, 0x90909090);
-    writeByte(0x004398C1, 0x90);
+    writeNops(0x004398AF, 6);
+    writeNops(0x004398B9, 9);
 
     writeDword(0x0043C3AD, 0xC044);
     writeDword(0x0043C3B7, 0xC044);
