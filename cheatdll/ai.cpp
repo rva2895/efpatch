@@ -162,8 +162,7 @@ void setAIHooks(int version)
         writeByte(0x0057B10D, 0);
         writeByte(0x0057B10E, 0x7C);    //jle -> jl
         //can-afford-unit
-        writeDword(0x0057B214, 0x90909090);
-        writeByte(0x0057B218, 0x90);
+        writeNops(0x0057B214, 5);
         //can-build
         writeByte(0x0057B2AE, 10);
         writeByte(0x0057B2B3, 0);
@@ -173,31 +172,25 @@ void setAIHooks(int version)
         writeByte(0x0057B5E3, 0);
         writeByte(0x0057B5E4, 0x7C);    //jle -> jl
         //can-train
-        writeDword(0x0057B7D7, 0x90909090);
-        writeByte(0x0057B7DB, 0x90);
+        writeNops(0x0057B7D7, 5);
         //can-train-with-escrow
-        writeDword(0x0057B857, 0x90909090);
-        writeByte(0x0057B85B, 0x90);
+        writeNops(0x0057B857, 5);
         //cc-players-building-type-count
         writeByte(0x0057B9EF, 10);
         writeByte(0x0057B9F4, 0);
         writeByte(0x0057B9F5, 0x7C);    //jle -> jl
         //cc-players-unit-type-count
-        writeDword(0x0057BD7F, 0x90909090);
-        writeByte(0x0057BD83, 0x90);
+        writeNops(0x0057BD7F, 5);
         //players-building-type-count
         writeByte(0x0057CE6E, 10);
         writeByte(0x0057CE73, 0);
         writeByte(0x0057CE74, 0x7C);    //jle -> jl
         //players-unit-type-count
-        writeDword(0x0057DB01, 0x90909090);
-        writeByte(0x0057DB05, 0x90);
+        writeNops(0x0057DB01, 5);
         //unit-type-count
-        writeDword(0x0057E5A5, 0x90909090);
-        writeByte(0x0057E5A9, 0x90);
+        writeNops(0x0057E5A5, 5);
         //unit-type-count-total
-        writeDword(0x0057E715, 0x90909090);
-        writeByte(0x0057E719, 0x90);
+        writeNops(0x0057E715, 5);
 
         //actions
         //build
@@ -209,8 +202,7 @@ void setAIHooks(int version)
         writeByte(0x00575D15, 0);
         writeByte(0x00575D16, 0x7C);    //jle -> jl
         //train
-        writeDword(0x00577388, 0x90909090);
-        writeByte(0x0057738C, 0x90);
+        writeNops(0x00577388, 5);
     }
 }
 #pragma optimize( "", on )

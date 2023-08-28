@@ -132,7 +132,7 @@ stop_replaying:
 void setRecHooks()
 {
     setHook((void*)0x0045E425, onMenuInit);
-    writeWord(0x0061FCD6, 0x9090); //remove chat rec ownership check
+    writeNops(0x0061FCD6, 2); //remove chat rec ownership check
     setHook((void*)0x00502C12, rec_player_list_color);
     writeByte(0x004F55C5, 0x14); //shrink rec player dropdown arrow
     setHook((void*)0x0061FD04, rec_unexpected_eof);

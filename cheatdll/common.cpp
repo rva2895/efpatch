@@ -41,6 +41,29 @@ void __cdecl writeDword(DWORD addr, DWORD val)
 #endif
 }
 
+BYTE* nops = NULL;
+size_t nops_len = 0;
+
+void __cdecl writeNops(DWORD addr, size_t len)
+{
+    if (len > nops_len)
+    {
+        while (len > nops_len)
+        {
+            nops_len += 0x20;
+        }
+        free(nops);
+        nops = (BYTE*)malloc(nops_len);
+        memset(nops, 0x90, nops_len);
+    }
+
+#ifndef TARGET_VOOBLY
+    WriteProcessMemory(GetCurrentProcess(), (void*)addr, nops, len, NULL);
+#else
+    g_pVoobly->Write(addr, nops, len);
+#endif
+}
+
 void __cdecl writeByteF(DWORD addr, BYTE val)
 {
 #ifndef TARGET_VOOBLY
@@ -59,7 +82,7 @@ void __cdecl writeDwordF(DWORD addr, DWORD val)
 #endif
 }
 
-void __cdecl writeData(DWORD addr, const void* data, int len)
+void __cdecl writeData(DWORD addr, const void* data, size_t len)
 {
 #ifndef TARGET_VOOBLY
     WriteProcessMemory(GetCurrentProcess(), (void*)addr, data, len, NULL);

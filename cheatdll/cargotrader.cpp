@@ -78,7 +78,7 @@ loc_41C6EB:
 #pragma optimize( "s", on )
 void setCargoTraderHooks()
 {
-    BYTE c_edx[] = { 0x66, 0x83, 0x7A, 0x1E, 0x2D, 0x90 };
+    static BYTE c_edx[] = { 0x66, 0x83, 0x7A, 0x1E, 0x2D, 0x90 };
     writeData(0x0041ECF9, c_edx, 6);
     writeData(0x00572C08, c_edx, 6);
     writeData(0x00572CA2, c_edx, 6);

@@ -239,9 +239,7 @@ void setMiscBugfixHooks()
     setHook((void*)0x0048F7BD, error_txt_fopen_fix);
 
     //renderer fix (THIS_COD)
-    BYTE nops[25];
-    memset(nops, 0x90, 25);
-    writeData(0x0064DC8D, nops, 25);
+    writeNops(0x0064DC8D, 25);
 
     //workaround for annex unit crash from state 0
     setHook((void*)0x00555640, annex_unit_crash_mitigation);
@@ -305,9 +303,7 @@ void setMiscBugfixHooks()
     setHook((void*)0x004C21A2, set_view_loc_minimap_update);
 
     //remove forced map redraw
-    writeDword(0x0061F04E, 0x90909090);
-    writeWord(0x0061F052, 0x9090);
-    writeByte(0x0061F054, 0x90);
+    writeNops(0x0061F04E, 7);
 
     //map redraw on pause
     writeByte(0x004F8E0B, 0xEB);
@@ -320,12 +316,9 @@ void setMiscBugfixHooks()
     setHook((void*)0x004F8AEB, on_handle_idle_button);
 
     //#include_drs
-    writeWord(0x004E27A6, 0x9090);
-    writeDword(0x004E27A8, 0x90909090);
+    writeNops(0x004E27A6, 6);
 
     //#include
-    writeByte(0x004E2773, 0x90);
-    writeDword(0x004E2774, 0x90909090);
-    writeByte(0x004E2778, 0x90);
+    writeNops(0x004E2773, 6);
 }
 #pragma optimize( "", on )

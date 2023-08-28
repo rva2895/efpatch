@@ -483,10 +483,9 @@ void setEffectHooks()
     
     writeDword(0x007B2240 + 29 * 4, (DWORD)&effectSnapView_new);
     writeDword(0x007B2240 + 15 * 4, (DWORD)&effectScrollView_new);
-    for (DWORD p = 0x005F5B09; p < 0x005F5B1B; p++)
-        writeByte(p, 0x90);
-    for (DWORD p = 0x005F5AEE; p < 0x005F5B00; p++)
-        writeByte(p, 0x90);
+
+    writeNops(0x005F5B09, 0x005F5B1B - 0x005F5B09);
+    writeNops(0x005F5AEE, 0x005F5B00 - 0x005F5AEE);
 
     snapscroll_setJMP(0x005F374F+1);
     snapscroll_setJMP(0x005F3768);

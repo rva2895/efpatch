@@ -759,8 +759,6 @@ void setMouseOverrideHooks()
     setHook((void*)0x0050138B, mouseoverride11);
     setHook((void*)0x004C2050, mouseoverride12);
 
-    writeDword(0x004B6F93, 0x90909090);
-    writeWord(0x004B6F97, 0x9090);
-    writeByte(0x004B6F99, 0x90);
+    writeNops(0x004B6F93, 7);
 }
 #pragma optimize( "", on )

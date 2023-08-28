@@ -19,10 +19,11 @@
 void __cdecl writeByte(DWORD addr, BYTE val);
 void __cdecl writeWord(DWORD addr, WORD val);
 void __cdecl writeDword(DWORD addr, DWORD val);
+void __cdecl writeNops(DWORD addr, size_t len);
 void __cdecl writeByteF(DWORD addr, BYTE val);
 void __cdecl writeDwordF(DWORD addr, DWORD val);
 void __cdecl setHook(void* addr, void* newAddr);
-void __cdecl writeData(DWORD addr, const void* data, int len);
+void __cdecl writeData(DWORD addr, const void* data, size_t len);
 //void __cdecl setHookRestorable (void* addr, void* newAddr, void* oldData);
 //void __cdecl restoreHook (void* addr, void* oldData);
 

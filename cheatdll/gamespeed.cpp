@@ -317,11 +317,8 @@ void setGameSpeedHooks()
     writeByte(0x0061EBC2, REC_SPEED_COUNT);
     setHook((void*)0x0061EB81, onCheckSpeed2);
 
-    writeWord(0x0061EB66, 0x9090);
-    writeDword(0x0061EB68, 0x90909090);
-    writeByte(0x0061EB6F, 0x90);
-    writeDword(0x0061EB70, 0x90909090);
-    writeByte(0x0061EB74, 0x90);
+    writeNops(0x0061EB66, 6);
+    writeNops(0x0061EB6F, 6);
 
     setHook((void*)0x0061EABA, new_rec_speed_control);
 

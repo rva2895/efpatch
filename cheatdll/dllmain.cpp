@@ -662,7 +662,7 @@ void initialSetup()
     {
         writeDword(0x005DDBA4, 100);
         writeDword(0x005DDB7B, 100);
-        writeWord(0x005DDB73, 0x9090);
+        writeNops(0x005DDB73, 2);
 
         //mad redraw interval
         writeDword(0x004F2F1D, 100);
@@ -672,7 +672,7 @@ void initialSetup()
     writeByte(0x0061E92C, 0x10);
     writeDword(0x005DDBA4, 100);
     writeDword(0x005DDB7B, 100);
-    writeWord(0x005DDB73, 0x9090);
+    writeNops(0x005DDB73, 2);
 
     //mad redraw interval
     writeDword(0x004F2F1D, 100);
