@@ -121,6 +121,7 @@
 #include "revealmap.h"
 #include "spectate.h"
 #include "maplist.h"
+#include "TCommunications_Handler2.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -335,6 +336,8 @@ void setHooksCC()
 
     //function hook!
     //setFunctionListHooks();
+
+    //setTCommunications_Handler2hooks();
 
     log("setHooksCC() complete");
 }
