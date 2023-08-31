@@ -69,7 +69,6 @@ struct TRIBE_Command;
 struct AIExpert;
 struct RGE_View;
 struct T_Scenario;
-struct BPath;
 struct RGE_Object_List;
 struct UnitAIModule;
 struct RGE_Sprite_Particle_System;
@@ -176,6 +175,7 @@ struct TMessagePanel;
 struct RGE_Communications_Addresses;
 struct IPAD;
 struct RGE_TimeSinceLastCall;
+struct Tech_Tree_Node;
 struct TScrollTextPanel;
 struct TCommLog;
 struct MsgQueue;
@@ -458,6 +458,8 @@ struct RGE_Map_Image_Line;
 struct RGE_Map_Tile_Row;
 struct RGE_Diamond_Map_ViewVtbl;
 struct TRIBE_Diamond_Map_ViewVtbl;
+struct Tech_Tree;
+struct Tech_Player_Tree;
 
 /* 54 */
 #pragma pack(push, 1)
@@ -467,416 +469,34 @@ struct TRIBE_Tech_Tree
 #pragma pack(pop)
 
 /* 55 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Player_Tech
 {
-};
-#pragma pack(pop)
-
-/* 589 */
-typedef int LOSLastActions;
-
-/* 328 */
-#pragma pack(push, 8)
-struct LOS_ExploreInfo
-{
-  RGE_Static_Object *theObj;
-  LOSLastActions LastAction;
-  int x1;
-  int y1;
-  int x2;
-  int y2;
-  int Radius;
-  int Square;
-  int PlayerNum;
-};
-#pragma pack(pop)
-
-/* 56 */
-#pragma pack(push, 8)
-struct RGE_Animated_Object
-{
-  RGE_Animated_ObjectVtbl *vfptr;
-  int gbg_unknown_1;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
-  int id;
-  RGE_Master_Animated_Object *master_obj;
+  Tech_Player_Tree *tech_player_tree;
+  __int16 tech_player_tree_num;
+  TRIBE_Tech *base_tech;
   TRIBE_Player *owner;
-  RGE_Sprite *sprite;
-  RGE_Sprite *old_sprite;
-  RGE_Active_Sprite_List *sprite_list;
-  RGE_Tile *tile;
-  RGE_Static_Object *inside_obj;
-  RGE_New_Object_List *objects;
-  __int16 screen_x_offset;
-  __int16 screen_y_offset;
-  __int16 shadow_x_offset;
-  __int16 shadow_y_offset;
-  float hp;
-  float sp;
-  unsigned __int8 curr_damage_percent;
-  unsigned __int8 facet;
-  unsigned __int8 selected;
-  float world_x;
-  float world_y;
-  float world_z;
-  float attribute_amount_held;
-  unsigned __int8 object_state;
-  unsigned __int8 sleep_flag;
-  unsigned __int8 dopple_flag;
-  unsigned __int8 goto_sleep_flag;
-  __int16 attribute_type_held;
-  unsigned __int8 type;
-  unsigned __int8 worker_num;
-  ObsRecord *CurrentObstructionData;
-  ObsRecord *ObstructionDataList;
-  RGE_Static_Object **player_object_node;
-  int *mPathingGroup;
-  int mPathingGroupSize;
-  int mMaximumPathingGroupSize;
-  int damaged_lately_timer;
-  UnitAIModule *unitAIValue;
-  int zoneMapIndex;
-  unsigned __int8 inObstructionMapValue;
-  unsigned __int8 lastInObstructionMapValue;
-  unsigned __int8 underAttackValue;
-  int mGroupID;
-  unsigned __int8 mROOAlreadyCalled;
-  LOS_ExploreInfo ei;
-  float speed;
 };
 #pragma pack(pop)
 
-/* 201 */
+/* 1024 */
 #pragma pack(push, 8)
-struct XYZPoint
+struct Tech_Player_Tree
 {
-  int x;
-  int y;
-  int z;
+  float research_done;
+  __int16 state;
+  __int16 cost_adj[3];
+  __int16 research_adj;
 };
 #pragma pack(pop)
 
-/* 159 */
+/* 251 */
 #pragma pack(push, 8)
-struct BVector
+struct TRIBE_Tech
 {
-  float x;
-  float y;
-  float z;
-};
-#pragma pack(pop)
-
-/* 757 */
-#pragma pack(push, 8)
-struct RGE_Animated_ObjectVtbl
-{
-  void *(__thiscall *__vecDelDtor)(RGE_Animated_Object *, unsigned int);
-  int (__thiscall *gbg_unknown1)(RGE_Animated_Object *);
-  int (__thiscall *gbg_get_civ_override)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown3)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown4)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown5)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown6)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown7)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown8)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown9)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown10)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown11)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_isPadawan)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_isMaster)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown14)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_isShielded)(RGE_Animated_Object *);
-  void (__thiscall *gbg_unknown16)(RGE_Animated_Object *);
-  void (__thiscall *gbg_unknown17)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown18)(RGE_Animated_Object *, int);
-  unsigned __int8 (__thiscall *gbg_isDetector)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown20)(RGE_Animated_Object *, int);
-  unsigned __int8 (__thiscall *gbg_isPowered)(RGE_Animated_Object *, int);
-  void (__thiscall *gbg_unknown22)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown23)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_isBiological)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_isDamaged)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown26)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *gbg_canBeHealedByPlayer)(RGE_Animated_Object *, int);
-  unsigned __int8 (__thiscall *gbg_canBeRepairedByPlayer)(RGE_Animated_Object *, int);
-  void (__thiscall *recycle_in_to_game)(RGE_Animated_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
-  void (__thiscall *recycle_out_of_game)(RGE_Animated_Object *);
-  void (__thiscall *draw)(RGE_Animated_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *);
-  void (__thiscall *shadow_draw)(RGE_Animated_Object *, TDrawArea *, __int16, __int16, unsigned __int8);
-  void (__thiscall *normal_draw)(RGE_Animated_Object *, TDrawArea *, __int16, __int16);
-  void (__thiscall *draw_front_frame)(RGE_Animated_Object *, TDrawArea *, __int16, __int16);
-  void (__thiscall *draw_back_frame)(RGE_Animated_Object *, TDrawArea *, __int16, __int16);
-  void (__thiscall *draw_frame)(RGE_Animated_Object *, TDrawArea *, __int16, __int16);
-  unsigned __int8 (__thiscall *update)(RGE_Animated_Object *);
-  void (__thiscall *check_damage_sprites)(RGE_Animated_Object *);
-  void (__thiscall *rehook)(RGE_Animated_Object *);
-  void (__thiscall *save)(RGE_Animated_Object *, int);
-  void (__thiscall *teleport_off_map)(RGE_Animated_Object *);
-  float (__thiscall *teleport)(RGE_Animated_Object *, float, float, float);
-  float (__thiscall *handle_teleport_z_correction)(RGE_Animated_Object *, float);
-  void (__thiscall *new_sprite)(RGE_Animated_Object *, RGE_Sprite *);
-  void (__thiscall *add_overlay_sprite)(RGE_Animated_Object *, RGE_Sprite *, unsigned __int8);
-  void (__thiscall *remove_overlay_sprite)(RGE_Animated_Object *, RGE_Sprite *);
-  void (__thiscall *change_ownership)(RGE_Animated_Object *, RGE_Player *);
-  void (__thiscall *modify)(RGE_Animated_Object *, float, unsigned __int8);
-  void (__thiscall *modify_delta)(RGE_Animated_Object *, float, unsigned __int8);
-  void (__thiscall *modify_percent)(RGE_Animated_Object *, float, unsigned __int8);
-  void (__thiscall *transform)(RGE_Animated_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *copy_obj)(RGE_Animated_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *set_object_state)(RGE_Animated_Object *, unsigned __int8);
-  void (__thiscall *remove_visible_resource)(RGE_Animated_Object *);
-  void (__thiscall *create_doppleganger_when_dying)(RGE_Animated_Object *);
-  void (__thiscall *destroy_obj)(RGE_Animated_Object *);
-  void (__thiscall *die_die_die)(RGE_Animated_Object *);
-  void (__thiscall *damage)(RGE_Animated_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *, int);
-  float (__thiscall *calculateDamage)(RGE_Animated_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *);
-  void (__thiscall *rotate)(RGE_Animated_Object *, int);
-  unsigned __int8 (__thiscall *can_attack)(RGE_Animated_Object *);
-  void (__thiscall *set_attribute)(RGE_Animated_Object *, __int16, float);
-  void (__thiscall *set_attribute_amount)(RGE_Animated_Object *, float, unsigned __int8, unsigned __int8);
-  int (__thiscall *heal_2)(RGE_Animated_Object *, int, int);
-  unsigned __int8 (__thiscall *heal_1)(RGE_Animated_Object *, float);
-  int (__thiscall *canRepair)(RGE_Animated_Object *);
-  void (__thiscall *notify_of_relation)(RGE_Animated_Object *, int, unsigned __int8);
-  void (__thiscall *do_command)(RGE_Animated_Object *, RGE_Static_Object *, float, float, float);
-  int (__thiscall *actionTypeIfOrdered)(RGE_Animated_Object *, RGE_Static_Object *, float, float, float, float *);
-  unsigned __int8 (__thiscall *move_to)(RGE_Animated_Object *, RGE_Static_Object *, float, float, float);
-  void (__thiscall *work)(RGE_Animated_Object *, RGE_Static_Object *, float, float, float);
-  void (__thiscall *stop)(RGE_Animated_Object *);
-  void (__thiscall *set_attack)(RGE_Animated_Object *, RGE_Static_Object *);
-  void (__thiscall *play_command_sound)(RGE_Animated_Object *);
-  void (__thiscall *play_move_sound)(RGE_Animated_Object *);
-  void (__thiscall *new_angle)(RGE_Animated_Object *, float);
-  RGE_Static_Object *(__thiscall *spawn_death_obj)(RGE_Animated_Object *);
-  RGE_Master_Static_Object *(__thiscall *get_command_master)(RGE_Animated_Object *, RGE_Static_Object *, float, float, float);
-  void (__thiscall *set_being_worked_on)(RGE_Animated_Object *, RGE_Action_Object *, __int16, unsigned __int8);
-  void (__thiscall *release_being_worked_on)(RGE_Animated_Object *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *is_moving)(RGE_Animated_Object *);
-  RGE_Static_Object *(__thiscall *get_target_obj)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *more_room)(RGE_Animated_Object *, RGE_Static_Object *);
-  void (__thiscall *enter_obj)(RGE_Animated_Object *, RGE_Static_Object *, unsigned __int8);
-  void (__thiscall *exit_obj)(RGE_Animated_Object *);
-  void (__thiscall *add_obj)(RGE_Animated_Object *, RGE_Static_Object *);
-  void (__thiscall *remove_obj)(RGE_Animated_Object *, RGE_Static_Object *);
-  int (__thiscall *explore_terrain)(RGE_Animated_Object *, RGE_Player *, unsigned __int8, int, int);
-  void (__thiscall *unexplore_terrain)(RGE_Animated_Object *, RGE_Player *, unsigned __int8, int, int);
-  LOSTBL *(__thiscall *get_los_table)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *get_visibility)(RGE_Animated_Object *, RGE_Player *);
-  int (__thiscall *inAttackRange)(RGE_Animated_Object *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *underAttack)(RGE_Animated_Object *);
-  void (__thiscall *setUnderAttack)(RGE_Animated_Object *, unsigned __int8);
-  float (__thiscall *calc_attack_modifier)(RGE_Animated_Object *, RGE_Static_Object *);
-  float (__thiscall *getSpeed)(RGE_Animated_Object *);
-  float (__thiscall *getAngle)(RGE_Animated_Object *);
-  float (__thiscall *maximumSpeed)(RGE_Animated_Object *);
-  float (__thiscall *rateOfFire)(RGE_Animated_Object *);
-  float (__thiscall *damageCapability_2)(RGE_Animated_Object *, RGE_Static_Object *);
-  float (__thiscall *damageCapability_1)(RGE_Animated_Object *);
-  float (__thiscall *weaponRange)(RGE_Animated_Object *);
-  float (__thiscall *minimumWeaponRange)(RGE_Animated_Object *);
-  int (__thiscall *passableTile_2)(RGE_Animated_Object *, float, float, int *, int);
-  int (__thiscall *passableTile_1)(RGE_Animated_Object *, float, float);
-  int (__thiscall *currentTargetID)(RGE_Animated_Object *);
-  float (__thiscall *currentTargetX)(RGE_Animated_Object *);
-  float (__thiscall *currentTargetY)(RGE_Animated_Object *);
-  float (__thiscall *currentTargetZ)(RGE_Animated_Object *);
-  void (__thiscall *setWaitingToMove)(RGE_Animated_Object *, unsigned __int8);
-  unsigned __int8 (__thiscall *waitingToMove)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *actionState)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *keepGatheringWhenObjectIsOut)(RGE_Animated_Object *, int);
-  unsigned __int8 (__thiscall *produceWhenKilledBy)(RGE_Animated_Object *, int);
-  unsigned __int8 (__thiscall *useSameZoneDropsite)(RGE_Animated_Object *);
-  float (__thiscall *searchRadius)(RGE_Animated_Object *);
-  unsigned __int8 (__thiscall *is_idle)(RGE_Animated_Object *);
-  void (*logDebug)(RGE_Animated_Object *, char *, ...);
-  void (*debug)(RGE_Animated_Object *, char *, ...);
-  void (__thiscall *notify)(RGE_Animated_Object *, int, int, int, int, int, int);
-  int (__thiscall *attack_2)(RGE_Animated_Object *, float, float, float, int);
-  int (__thiscall *attack_1)(RGE_Animated_Object *, int, int);
-  int (__thiscall *moveTo_3)(RGE_Animated_Object *, float, float, float, float, int, int);
-  int (__thiscall *moveTo_2)(RGE_Animated_Object *, int, float, int);
-  int (__thiscall *moveTo_1)(RGE_Animated_Object *, int, int);
-  int (__thiscall *moveAwayFrom)(RGE_Animated_Object *, int, int);
-  int (__thiscall *hunt)(RGE_Animated_Object *, int, int);
-  int (__thiscall *gather)(RGE_Animated_Object *, int, int);
-  int (__thiscall *convert)(RGE_Animated_Object *, int, int);
-  int (__thiscall *repair)(RGE_Animated_Object *, int, int);
-  int (__thiscall *build)(RGE_Animated_Object *, int, int);
-  int (__thiscall *trade)(RGE_Animated_Object *, int, int);
-  int (__thiscall *explore)(RGE_Animated_Object *, int, int, int);
-  int (__thiscall *enter)(RGE_Animated_Object *, int, int);
-  int (__thiscall *unload)(RGE_Animated_Object *, int, float, float, float);
-  int (__thiscall *transport)(RGE_Animated_Object *, float, float, float, int);
-  int (__thiscall *stopAction)(RGE_Animated_Object *);
-  int (__thiscall *pause)(RGE_Animated_Object *);
-  int (__thiscall *canPath_2)(RGE_Animated_Object *, int, float, float *, int, int, bool);
-  int (__thiscall *canPath_1)(RGE_Animated_Object *, XYZPoint, float, int, float *, int, int, bool);
-  int (__thiscall *canQuickPath)(RGE_Animated_Object *, int, float, float *);
-  int (__thiscall *canPathWithObstructions)(RGE_Animated_Object *, int, float, float *, int, int, ManagedArray_int_ *);
-  int (__thiscall *canPathWithAdditionalPassability)(RGE_Animated_Object *, XYZPoint, float, int, float *, int, int, int, int, int, BPath *);
-  int (__thiscall *findFirstTerrainAlongExceptionPath)(RGE_Animated_Object *, int, float *, float *, BPath *);
-  int (__thiscall *canLinePath_2)(RGE_Animated_Object *, int, int, int, int, float, int);
-  int (__thiscall *canLinePath_1)(RGE_Animated_Object *, const XYPoint *, const XYPoint *, float, XYPoint *, int);
-  int (__thiscall *firstTileAlongLine)(RGE_Animated_Object *, const XYPoint *, const XYPoint *, XYPoint *, int, int, int);
-  unsigned __int8 (__thiscall *have_action)(RGE_Animated_Object *);
-  int (__thiscall *gameActionType)(RGE_Animated_Object *);
-  BVector *(__thiscall *userDefinedWaypoint)(RGE_Animated_Object *, int);
-  int (__thiscall *addUserDefinedWaypoint)(RGE_Animated_Object *, float, float, float);
-  void (__thiscall *zeroUserDefinedWaypoints)(RGE_Animated_Object *);
-  void (__thiscall *removeAllUserDefinedWaypoints)(RGE_Animated_Object *);
-  int (__thiscall *numberUserDefinedWaypoints)(RGE_Animated_Object *);
-  BPath *(__thiscall *getPatrolInformation)(RGE_Animated_Object *, int *);
-  float (__thiscall *distanceToHighestLevelPath_2)(RGE_Animated_Object *, BVector);
-  float (__thiscall *distanceToHighestLevelPath_1)(RGE_Animated_Object *);
-  BPath *(__thiscall *findAvoidancePath)(RGE_Animated_Object *, XYZPoint *, float, int);
-  int (__thiscall *get_action_checksum)(RGE_Animated_Object *);
-  int (__thiscall *get_waypoint_checksum)(RGE_Animated_Object *);
-  void (__thiscall *setPatrolMode)(RGE_Animated_Object *, unsigned __int8);
-  int (__thiscall *garrisoned_count)(RGE_Animated_Object *);
-  int (__thiscall *lock_down)(RGE_Animated_Object *);
-  int (__thiscall *unlock_down)(RGE_Animated_Object *);
-  int (__thiscall *get_locked_down_count)(RGE_Animated_Object *);
-  float (__thiscall *getTradeAmount)(RGE_Animated_Object *, float, float, float, float);
-  int (__thiscall *setup_2)(RGE_Animated_Object *, int, RGE_Game_World *);
-  int (__thiscall *setup_1)(RGE_Animated_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
-  RGE_New_Object_List *(__thiscall *create_object_list)(RGE_Animated_Object *);
-  RGE_Active_Sprite_List *(__thiscall *create_sprite_list)(RGE_Animated_Object *);
-  BVector *(__thiscall *position)(RGE_Animated_Object *, BVector *);
-  BPathData *(__thiscall *getPathData)(RGE_Animated_Object *);
-  int (__thiscall *actionType)(RGE_Animated_Object *);
-  int (__thiscall *hasActionOfType)(RGE_Animated_Object *, int);
-  int (__thiscall *gbg_hasActionOfType2)(RGE_Animated_Object *, int);
-  int (__thiscall *addMove)(RGE_Animated_Object *, int, float, int, int, int);
-  int (__thiscall *addCurrentPath)(RGE_Animated_Object *, BPath *, int, float, int);
-  int (__thiscall *addFuturePath)(RGE_Animated_Object *, BPath *, int, float, int);
-  void (__thiscall *stopAllMovement)(RGE_Animated_Object *);
-  void (__thiscall *setOrientation)(RGE_Animated_Object *, BVector *, BVector *);
-  BVector *(__thiscall *velocity)(RGE_Animated_Object *, BVector *);
-  void (__thiscall *setVelocity)(RGE_Animated_Object *, BVector *);
-  BVector *(__thiscall *acceleration)(RGE_Animated_Object *, BVector *);
-  void (__thiscall *setAcceleration)(RGE_Animated_Object *, BVector *);
-  float (__thiscall *forwardVelocity)(RGE_Animated_Object *);
-  void (__thiscall *setForwardVelocity)(RGE_Animated_Object *, float);
-  float (__thiscall *forwardAcceleration)(RGE_Animated_Object *);
-  void (__thiscall *setForwardAcceleration)(RGE_Animated_Object *, float);
-  void (__thiscall *moveForward)(RGE_Animated_Object *, float);
-  void (__thiscall *setPosition)(RGE_Animated_Object *, BVector *);
-  void (__thiscall *yaw)(RGE_Animated_Object *, float);
-  int (__thiscall *isMoving)(RGE_Animated_Object *);
-  void (__thiscall *stopMoving)(RGE_Animated_Object *);
-  float (__thiscall *calculateFutureVelocity)(RGE_Animated_Object *, float, float, float, BVector *);
-  unsigned int (__thiscall *lastMoveTime)(RGE_Animated_Object *);
-  void (__thiscall *pauseMovement)(RGE_Animated_Object *, float);
-  int (__thiscall *movementPriority)(RGE_Animated_Object *);
-  int (__thiscall *intelligentMovementUpdate)(RGE_Animated_Object *);
-  float (__thiscall *calculateMaximumSpeed)(RGE_Animated_Object *, int);
-  int (__thiscall *calculateForward)(RGE_Animated_Object *, BVector *, BVector *, BVector *);
-  float (__thiscall *calculateYawAngle)(RGE_Animated_Object *, BVector *, BVector *, float, int *);
-  int (__thiscall *calculateReachedPoint)(RGE_Animated_Object *, BVector *, BVector *, BVector *);
-  float (__thiscall *calculateTurnRadius)(RGE_Animated_Object *);
-  int (__thiscall *checkAcceleration)(RGE_Animated_Object *, BVector *, int, int);
-  BVector *(__thiscall *straightProjectedPosition)(RGE_Animated_Object *, BVector *, BVector *, float);
-  int (__thiscall *onPatrol)(RGE_Animated_Object *);
-  BVector *(__thiscall *orientationForward)(RGE_Animated_Object *, BVector *);
-  int (__thiscall *setRunSprite)(RGE_Animated_Object *);
-  int (__thiscall *setMoveSprite)(RGE_Animated_Object *);
-  int (__thiscall *setFidgetSprite)(RGE_Animated_Object *);
-  int (__thiscall *getGateLocked)(RGE_Animated_Object *);
-  void (__thiscall *setGateLocked)(RGE_Animated_Object *, int);
-  int (__thiscall *isGateOpenable)(RGE_Animated_Object *, int);
-  int (__thiscall *getLinkedChild)(RGE_Animated_Object *, int);
-  int (__thiscall *get_next_selected_group)(RGE_Animated_Object *, int);
-  __int16 (__thiscall *get_Selected_Groups)(RGE_Animated_Object *);
-  void (__thiscall *set_Selected_Groups)(RGE_Animated_Object *, __int16);
-  int (__thiscall *get_num_Selected_groups)(RGE_Animated_Object *);
-  int (__thiscall *setup_3)(RGE_Animated_Object *, RGE_Master_Animated_Object *, RGE_Player *, float, float, float);
-};
-#pragma pack(pop)
-
-/* 57 */
-#pragma pack(push, 8)
-struct RGE_Master_Animated_Object
-{
-  RGE_Master_Animated_ObjectVtbl *vfptr;
-  unsigned __int8 master_type;
-  char *name;
-  char *gbg_name2;
-  __int16 unit_line;
-  unsigned __int8 min_tech_level;
-  __int16 string_id;
-  __int16 string_id2;
-  __int16 id;
-  __int16 copy_id;
-  __int16 base_id;
-  __int16 object_group;
-  RGE_Sprite *sprite;
-  RGE_Sprite *sprite2;
-  RGE_Sprite *death_sprite;
-  RGE_Sprite *undead_sprite;
-  unsigned __int8 undead_flag;
-  __int16 hp;
-  float los;
-  unsigned __int8 obj_max;
-  float radius_x;
-  float radius_y;
-  float radius_z;
-  RGE_Sound *selected_sound;
-  RGE_Sound *created_sound;
-  RGE_Sound *death_sound;
-  RGE_Sound *damage_sound;
-  __int16 death_spawn_obj_id;
-  unsigned __int8 sort_number;
-  unsigned __int8 can_be_built_on;
-  __int16 button_pict;
-  unsigned __int8 hide_in_scenario_editor;
-  __int16 portrait_pict;
-  unsigned __int8 available;
-  unsigned __int8 disabled;
-  __int16 tile_req1;
-  __int16 tile_req2;
-  __int16 center_tile_req1;
-  __int16 center_tile_req2;
-  float construction_radius_x;
-  float construction_radius_y;
-  unsigned __int8 elevation_flag;
-  unsigned __int8 fog_flag;
-  __int16 terrain;
-  unsigned __int8 movement_type;
-  __int16 attribute_type_held[3];
-  float attribute_amount_held[3];
-  __int16 attribute_max_amount;
-  float attribute_rot;
-  float multiple_attribute_mod;
-  unsigned __int8 attribute_flag[3];
-  unsigned __int8 area_effect_object_level;
-  unsigned __int8 combat_level;
-  unsigned __int8 select_level;
-  unsigned __int8 map_draw_level;
-  unsigned __int8 unit_level;
-  unsigned __int8 map_color;
-  unsigned __int8 attack_reaction;
-  unsigned __int8 convert_terrain_flag;
-  unsigned __int8 damage_sprite_num;
-  RGE_Damage_Sprite_Info *damage_sprites;
-  unsigned __int8 occlusion_flag;
-  unsigned __int8 obstruction_type;
-  unsigned __int8 obstruction_class;
-  unsigned int object_flags;
-  int help_string_id;
-  int help_page_id;
-  int hotkey_id;
-  unsigned __int8 recyclable;
-  unsigned __int8 track_as_resource;
-  unsigned __int8 create_doppleganger_on_death;
-  unsigned __int8 resource_group;
-  unsigned __int8 draw_flag;
-  unsigned __int8 draw_color;
-  float outline_radius_x;
-  float outline_radius_y;
-  float outline_radius_z;
-  float speed;
+  Tech_Tree *tech_tree;
+  __int16 tech_tree_num;
+  TRIBE_World *world;
 };
 #pragma pack(pop)
 
@@ -1089,772 +709,35 @@ struct TRIBE_Player
 };
 #pragma pack(pop)
 
-/* 77 */
+/* 1023 */
 #pragma pack(push, 8)
-struct RGE_Sprite
+struct Tech_Tree
 {
-  char pict_name[25];
-  int resource_id;
-  unsigned __int8 loaded;
-  RGE_Color_Table **color_tables;
-  TShape *shape;
-  int last_time;
-  int delta_time;
-  unsigned __int8 color_flag;
-  unsigned __int8 draw_level;
-  __int16 color_table;
-  unsigned __int8 transparent_picking_flag;
-  __int16 box_x1;
-  __int16 box_y1;
-  __int16 box_x2;
-  __int16 box_y2;
-  __int16 draw_list_num;
-  RGE_Picture_List *draw_list;
-  RGE_Sound *main_sound;
-  unsigned __int8 micro_man_sound;
-  RGE_Sound_List *sound_list;
-  char name[25];
-  __int16 frame_num;
-  __int16 facet_num;
-  float base_speed;
-  float duration;
-  float pause_between_loops;
-  unsigned __int8 flag;
-  __int16 id;
-  unsigned __int8 mirror_flag;
-  unsigned __int8 editor_flag;
-};
-#pragma pack(pop)
-
-/* 76 */
-#pragma pack(push, 8)
-struct RGE_Active_Sprite_List
-{
-  RGE_Active_Sprite_ListVtbl *vfptr;
-  RGE_Active_Sprite_Node *list;
-  RGE_Static_Object *owner;
-};
-#pragma pack(pop)
-
-/* 190 */
-#pragma pack(push, 8)
-struct RGE_Tile
-{
-  __int16 screen_xpos;
-  __int16 screen_ypos;
-  unsigned __int8 tile_type;
-  unsigned __int8 terrain_type;
-  unsigned __int8 height;
-  unsigned __int8 last_drawn_as;
-  unsigned __int8 last_drawn_shape;
-  unsigned __int8 draw_as;
-  unsigned __int8 draw_attribute;
-  unsigned __int8 area_control;
-  unsigned __int8 multi_tile_vector;
-  unsigned __int8 TileObject_Count;
-  unsigned __int8 last_drawn_shape2;
-  unsigned __int8 ObjectDeleteLock;
-  TShape *TileShape;
-  RGE_Static_Object **Object_List;
-  RGE_Sprite_Particle *particle_list;
-  unsigned __int8 particle_list_count;
-  unsigned __int8 place_holder1;
-  unsigned __int8 place_holder2;
-  unsigned __int8 place_holder3;
-};
-#pragma pack(pop)
-
-/* 60 */
-#pragma pack(push, 8)
-struct RGE_Static_Object
-{
-  RGE_Static_ObjectVtbl *vfptr;
-  int gbg_civ_override;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
-  int id;
-  RGE_Master_Static_Object *master_obj;
-  TRIBE_Player *owner;
-  RGE_Sprite *sprite;
-  RGE_Sprite *old_sprite;
-  RGE_Active_Sprite_List *sprite_list;
-  RGE_Tile *tile;
-  RGE_Static_Object *inside_obj;
-  RGE_New_Object_List *objects;
-  __int16 screen_x_offset;
-  __int16 screen_y_offset;
-  __int16 shadow_x_offset;
-  __int16 shadow_y_offset;
-  float hp;
-  float sp;
-  unsigned __int8 curr_damage_percent;
-  unsigned __int8 facet;
-  unsigned __int8 selected;
-  float world_x;
-  float world_y;
-  float world_z;
-  float attribute_amount_held;
-  unsigned __int8 object_state;
-  unsigned __int8 sleep_flag;
-  unsigned __int8 dopple_flag;
-  unsigned __int8 goto_sleep_flag;
-  __int16 attribute_type_held;
-  unsigned __int8 type;
-  unsigned __int8 worker_num;
-  ObsRecord *CurrentObstructionData;
-  ObsRecord *ObstructionDataList;
-  RGE_Static_Object **player_object_node;
-  int *mPathingGroup;
-  int mPathingGroupSize;
-  int mMaximumPathingGroupSize;
-  int damaged_lately_timer;
-  UnitAIModule *unitAIValue;
-  int zoneMapIndex;
-  unsigned __int8 inObstructionMapValue;
-  unsigned __int8 lastInObstructionMapValue;
-  unsigned __int8 underAttackValue;
-  int mGroupID;
-  unsigned __int8 mROOAlreadyCalled;
-  LOS_ExploreInfo ei;
-};
-#pragma pack(pop)
-
-/* 205 */
-#pragma pack(push, 8)
-struct RGE_New_Object_List
-{
-  RGE_Static_Object **List;
-  int Number_of_objects;
-  int ListSize;
-  int GrowSize;
-  bool DeletingAll;
-};
-#pragma pack(pop)
-
-/* 503 */
-#pragma pack(push, 8)
-struct ObsRecord__$B9193B69CC5E42799476A322097F919A__$E40FE0E4C69CE251F817A0E38191C2E3
-{
-  float X;
-  float Y;
-  float Radius;
-  float Radius2;
-  float Xmin;
-  float Ymin;
-  float Xmax;
-  float Ymax;
-};
-#pragma pack(pop)
-
-/* 443 */
-#pragma pack(push, 8)
-struct Point
-{
-  float X;
-  float Y;
-};
-#pragma pack(pop)
-
-/* 448 */
-#pragma pack(push, 8)
-struct Line
-{
-  Point P0;
-  Point P1;
-};
-#pragma pack(pop)
-
-/* 504 */
-#pragma pack(push, 8)
-struct ObsRecord__$B9193B69CC5E42799476A322097F919A__$C9A9179C5B769E253E4D5622F321340B
-{
-  Line LineSeg;
-  float X3;
-  float Y3;
-  float X4;
-  float Y4;
-};
-#pragma pack(pop)
-
-/* 505 */
-#pragma pack(push, 8)
-struct ObsRecord__$B9193B69CC5E42799476A322097F919A__$515678BC539BA2526E795D19D27B6BF1
-{
-  float X1;
-  float Y1;
-  float X2;
-  float Y2;
-  float Slope;
-  bool isVertical;
-  bool isHorizontal;
-};
-#pragma pack(pop)
-
-/* 506 */
-#pragma pack(push, 8)
-union ObsRecord__$B9193B69CC5E42799476A322097F919A
-{
-  float DirectVal[8];
-  #pragma pack(push, 8)
-  struct
-  {
-    float X;
-    float Y;
-    float Radius;
-    float Radius2;
-    float Xmin;
-    float Ymin;
-    float Xmax;
-    float Ymax;
-  };
-  #pragma pack(pop)
-  #pragma pack(push, 8)
-  struct
-  {
-    Line LineSeg;
-    float X3;
-    float Y3;
-    float X4;
-    float Y4;
-  };
-  #pragma pack(pop)
-  #pragma pack(push, 8)
-  struct
-  {
-    float X1;
-    float Y1;
-    float X2;
-    float Y2;
-    float Slope;
-    bool isVertical;
-    bool isHorizontal;
-  };
-  #pragma pack(pop)
-};
-#pragma pack(pop)
-
-/* 193 */
-#pragma pack(push, 8)
-struct ObsRecord
-{
-  int NodeProperties;
-  unsigned __int8 Type;
-  unsigned __int8 Status;
-  unsigned __int8 NodeType;
-  unsigned __int8 Color;
-  RGE_Static_Object *Object;
-  ObsRecord *Next;
-  int ThisNodeIdx;
-  int ThisPtrIdx;
-  unsigned int id;
-  unsigned __int8 idxMinX;
-  unsigned __int8 idxMinY;
-  unsigned __int8 idxMaxX;
-  unsigned __int8 idxMaxY;
-  #pragma pack(push, 8)
-  union
-  {
-    float DirectVal[8];
-    #pragma pack(push, 8)
-    struct
-    {
-      float X;
-      float Y;
-      float Radius;
-      float Radius2;
-      float Xmin;
-      float Ymin;
-      float Xmax;
-      float Ymax;
-    };
-    #pragma pack(pop)
-    #pragma pack(push, 8)
-    struct
-    {
-      Line LineSeg;
-      float X3;
-      float Y3;
-      float X4;
-      float Y4;
-    };
-    #pragma pack(pop)
-    #pragma pack(push, 8)
-    struct
-    {
-      float X1;
-      float Y1;
-      float X2;
-      float Y2;
-      float Slope;
-      bool isVertical;
-      bool isHorizontal;
-    };
-    #pragma pack(pop)
-  };
-  #pragma pack(pop)
-};
-#pragma pack(pop)
-
-/* 960 */
-#pragma pack(push, 8)
-struct UnitAIOrderHistory
-{
-  int mOrder;
-  int mAction;
-  unsigned int mTime;
-  BVector mPosition;
-  int mTargetID;
-  int mTargetAttackCategory;
-  BVector mTargetPosition;
-  UnitAIOrderHistory *next;
-  UnitAIOrderHistory *prev;
-};
-#pragma pack(pop)
-
-/* 402 */
-#pragma pack(push, 1)
-struct __declspec(align(4)) ManagedArray_int_
-{
-  int value;
-  int numberValue;
-  int desiredNumberValue;
-  int maximumSizeValue;
-};
-#pragma pack(pop)
-
-/* 938 */
-#pragma pack(push, 8)
-struct Waypoint
-{
-  float x;
-  float y;
-  float z;
-  unsigned __int8 facetToNextWaypoint;
-};
-#pragma pack(pop)
-
-/* 140 */
-#pragma pack(push, 8)
-struct UnitAIModule
-{
-  UnitAIModuleVtbl *vfptr;
-  RGE_Combat_Object *objectValue;
-  int moodValue;
-  int objectCategoryValue;
-  int orderQueueSizeValue;
-  int orderQueueMaxSizeValue;
-  OrderEvent *orderQueueValue;
-  int notifyQueueSizeValue;
-  int notifyQueueMaxSizeValue;
-  NotifyEvent *notifyQueueValue;
-  int currentOrderValue;
-  int currentOrderPriorityValue;
-  int currentActionValue;
-  int currentTargetValue;
-  int currentTargetTypeValue;
-  float currentTargetXValue;
-  float currentTargetYValue;
-  float currentTargetZValue;
-  float desiredTargetDistanceValue;
-  int defendTargetValue;
-  int lastOrderValue;
-  int lastActionValue;
-  int lastTargetValue;
-  int lastTargetTypeValue;
-  UnitAIOrderHistory mOrderHistory;
-  int mOrderHistorySize;
-  unsigned int mLastRetargetTime;
-  ManagedArray_int_ attackingUnitsValue;
-  Waypoint waypointQueue[8];
-  int waypointQueueSizeValue;
-  unsigned int lastUpdateTimeValue;
-  unsigned int idleTimerValue;
-  unsigned int adjustedIdleTimeoutValue;
-  unsigned int idleTimeoutValue;
-  unsigned int secondaryTimerValue;
-  unsigned int lookAroundTimerValue;
-  unsigned int lookAroundTimeoutValue;
-  Waypoint lastWorldPositionValue;
-  float defenseBufferValue;
-  int *importantObjects;
-  int numberImportantObjects;
-  unsigned __int8 stopAfterTargetKilledValue;
-  unsigned __int8 stateValue;
-  float statePositionXValue;
-  float statePositionYValue;
-  float timeSinceEnemySighting;
-  unsigned __int8 alertModeValue;
-  int alertModeObjectIDValue;
-  BPath *mPatrolPath;
-  int mPatrolCurrentWaypoint;
-  unsigned int mRandomizedRetargetTimer;
-  int mBestUnitToAttackThisUpdate;
-  unsigned __int8 mFormationType;
-  unsigned __int8 autoAttackOrderFlag;
-  int mNumberRetargetEntries;
-  int mMaximumNumberRetargetEntries;
-  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
-};
-#pragma pack(pop)
-
-/* 61 */
-#pragma pack(push, 8)
-struct RGE_Master_Static_Object
-{
-  RGE_Master_Static_ObjectVtbl *vfptr;
-  unsigned __int8 master_type;
   char *name;
   char *gbg_name2;
-  __int16 unit_line;
-  unsigned __int8 min_tech_level;
+  __int16 pre_reqs[6];
+  __int16 pre_reqs_required;
+  __int16 pre_req_civ;
+  __int16 pre_req_civ_ignore_full_tech_flag;
+  __int16 attribute[3];
+  __int16 attribute_cost[3];
+  unsigned __int8 attribute_used[3];
+  __int16 research;
+  __int16 effect;
+  __int16 track;
+  __int16 icon;
+  unsigned __int8 button_location;
+  __int16 build_obj_id;
   __int16 string_id;
   __int16 string_id2;
-  __int16 id;
-  __int16 copy_id;
-  __int16 base_id;
-  __int16 object_group;
-  RGE_Sprite *sprite;
-  RGE_Sprite *sprite2;
-  RGE_Sprite *death_sprite;
-  RGE_Sprite *undead_sprite;
-  unsigned __int8 undead_flag;
-  __int16 hp;
-  float los;
-  unsigned __int8 obj_max;
-  float radius_x;
-  float radius_y;
-  float radius_z;
-  RGE_Sound *selected_sound;
-  RGE_Sound *created_sound;
-  RGE_Sound *death_sound;
-  RGE_Sound *damage_sound;
-  __int16 death_spawn_obj_id;
-  unsigned __int8 sort_number;
-  unsigned __int8 can_be_built_on;
-  __int16 button_pict;
-  unsigned __int8 hide_in_scenario_editor;
-  __int16 portrait_pict;
-  unsigned __int8 available;
-  unsigned __int8 disabled;
-  __int16 tile_req1;
-  __int16 tile_req2;
-  __int16 center_tile_req1;
-  __int16 center_tile_req2;
-  float construction_radius_x;
-  float construction_radius_y;
-  unsigned __int8 elevation_flag;
-  unsigned __int8 fog_flag;
-  __int16 terrain;
-  unsigned __int8 movement_type;
-  __int16 attribute_type_held[3];
-  float attribute_amount_held[3];
-  __int16 attribute_max_amount;
-  float attribute_rot;
-  float multiple_attribute_mod;
-  unsigned __int8 attribute_flag[3];
-  unsigned __int8 area_effect_object_level;
-  unsigned __int8 combat_level;
-  unsigned __int8 select_level;
-  unsigned __int8 map_draw_level;
-  unsigned __int8 unit_level;
-  unsigned __int8 map_color;
-  unsigned __int8 attack_reaction;
-  unsigned __int8 convert_terrain_flag;
-  unsigned __int8 damage_sprite_num;
-  RGE_Damage_Sprite_Info *damage_sprites;
-  unsigned __int8 occlusion_flag;
-  unsigned __int8 obstruction_type;
-  unsigned __int8 obstruction_class;
-  unsigned int object_flags;
   int help_string_id;
   int help_page_id;
   int hotkey_id;
-  unsigned __int8 recyclable;
-  unsigned __int8 track_as_resource;
-  unsigned __int8 create_doppleganger_on_death;
-  unsigned __int8 resource_group;
-  unsigned __int8 draw_flag;
-  unsigned __int8 draw_color;
-  float outline_radius_x;
-  float outline_radius_y;
-  float outline_radius_z;
 };
 #pragma pack(pop)
 
-/* 58 */
-#pragma pack(push, 8)
-struct RGE_Player
-{
-  RGE_PlayerVtbl *vfptr;
-  int computerPlayerValue;
-  int pathingAttemptCapValue;
-  int pathingDelayCapValue;
-  int currentUpdatePathingAttemptsValue;
-  int checksum;
-  int position_checksum;
-  int action_checksum;
-  unsigned __int8 checksum_created_this_update;
-  int mLineRatio;
-  int mColumnRatio;
-  int mMinColumnDistance;
-  int mColumnToLineDistance;
-  int mAutoFormations;
-  float mFormationInfluenceDistance;
-  int mBreakAutoFormationsBySpeed;
-  float pendingDebit[4];
-  float escrow[4];
-  float escrowPercentage[4];
-  int master_object_num;
-  RGE_Master_Static_Object **master_objects;
-  RGE_Player_Object_List *objects;
-  RGE_Player_Object_List *sleeping_objects;
-  RGE_Player_Object_List *doppleganger_objects;
-  RGE_Victory_Conditions *victory_conditions;
-  RGE_Visible_Map *visible;
-  RGE_Game_World *world;
-  RGE_Doppleganger_Creator *doppleganger_creator;
-  RGE_Visible_Object_Updator *visible_object_updator;
-  unsigned __int8 gbg_unknown_mask;
-  char *name;
-  int id;
-  unsigned __int8 type;
-  unsigned __int8 culture;
-  unsigned __int8 game_status;
-  unsigned __int8 resigned;
-  int attribute_num;
-  float *attributes;
-  RGE_Tile_List tile_list;
-  RGE_Tile_List diam_tile_list;
-  unsigned __int8 *relations;
-  int unitDiplomacy[9];
-  int mutualAlly[9];
-  unsigned int mutualExploredMask;
-  unsigned int mutualVisibleMask;
-  unsigned int nonMutualVisibleMask;
-  unsigned int RemoveVisibleBits[9];
-  int allied_LOS_Enable;
-  unsigned __int8 allied_victory;
-  unsigned __int8 master_player_id;
-  RGE_Color_Table *color_table;
-  RGE_Color_Table *true_color_table;
-  int tribe_effect;
-  int team_effect;
-  Visible_Resource_Manager *VR_List;
-  float view_x;
-  float view_y;
-  __int16 map_x;
-  __int16 map_y;
-  RGE_View_Stack *view_stack;
-  int view_stack_size;
-  int start_x;
-  int start_y;
-  float map_scroll_vector_x;
-  float map_scroll_vector_y;
-  float map_scroll_end_x;
-  float map_scroll_end_y;
-  float map_scroll_start_x;
-  float map_scroll_start_y;
-  float map_scroll_total_distance;
-  float map_scroll_distance;
-  __int16 selected_start_col;
-  __int16 selected_start_row;
-  __int16 selected_end_col;
-  __int16 selected_end_row;
-  __int16 replacement_terrain;
-  __int16 replacement_overlay;
-  __int16 replacement_overlay_shape;
-  RGE_Static_Object *selected_obj;
-  RGE_Static_Object *sel_list[40];
-  unsigned int sel_object_properties;
-  int sel_count;
-  unsigned __int8 groups_used[127];
-  __int16 object_category_count[1600];
-  __int16 object_group_count[100];
-  __int16 built_object_category_count[1600];
-  __int16 built_object_group_count[100];
-  __int16 total_unit_count;
-  __int16 total_building_count;
-  __int16 built_unit_count;
-  __int16 built_building_count;
-  int easiest_reaction_percentage;
-  int easier_reaction_percentage;
-  unsigned __int8 task_ungrouped_soldiers;
-  unsigned __int8 RGE_Player_gap[3];
-};
-#pragma pack(pop)
-
-/* 82 */
-#pragma pack(push, 8)
-struct TDrawArea
-{
-  TDrawSystem *DrawSystem;
-  HWND Wnd;
-  unsigned __int8 *Bits;
-  BITMAPINFO256 *BitmapInfo;
-  HBITMAP Bitmap;
-  HBITMAP OldBitmap;
-  int Width;
-  int Height;
-  int Pitch;
-  int Orien;
-  RECT ClipRect;
-  HDC DrawDc;
-  IDirectDrawSurface *DrawSurface;
-  DDSURFACEDESC SurfaceDesc;
-  DrawAreaNode *Node;
-  char *Name;
-  unsigned __int8 *LastBits;
-  int LastPitch;
-  void **DisplayOffsets;
-  void **CurDisplayOffsets;
-  void **FloatOffsets;
-  RGE_Color_Table *shadow_color_table;
-  TSpan_List_Manager *SpanList;
-  TSpan_List_Manager *CurSpanList;
-  int Float_X_Delta;
-  int Float_Y_Delta;
-  int DisplayOffsetsSz;
-  int FloatOffsetsSz;
-  int SystemMemOnly;
-  int UsingVidMem;
-  int UseTrans;
-  int IsPrimarySurface;
-  int Restored;
-  int ExtendedLines;
-  unsigned __int8 TransColor;
-  unsigned __int8 ***MasterBlendTable;
-  char BlendFileName[260];
-};
-#pragma pack(pop)
-
-/* 83 */
-#pragma pack(push, 8)
-struct RGE_Color_Table
-{
-  RGE_Color_TableVtbl *vfptr;
-  int id;
-  int reference_id;
-  unsigned __int8 *TranslateTable;
-  int ColorTransformBase;
-  int UnitOutlineColor;
-  int SelectionColor1;
-  int SelectionColor2;
-  int MiniMapColor1;
-  int MiniMapColor2;
-  int MiniMapColor3;
-  int TextColor1;
-  int TextColor2;
-  unsigned __int8 TextColorR;
-  unsigned __int8 TextColorG;
-  unsigned __int8 TextColorB;
-  unsigned __int8 Reserved;
-};
-#pragma pack(pop)
-
-/* 198 */
-#pragma pack(push, 8)
-struct RGE_Armor_Weapon_Info
-{
-  __int16 type;
-  __int16 value;
-};
-#pragma pack(pop)
-
-/* 64 */
-#pragma pack(push, 8)
-struct RGE_Action_Object
-{
-  RGE_Action_ObjectVtbl *vfptr;
-  int gbg_unknown_1;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
-  int id;
-  RGE_Master_Action_Object *master_obj;
-  TRIBE_Player *owner;
-  RGE_Sprite *sprite;
-  RGE_Sprite *old_sprite;
-  RGE_Active_Sprite_List *sprite_list;
-  RGE_Tile *tile;
-  RGE_Static_Object *inside_obj;
-  RGE_New_Object_List *objects;
-  __int16 screen_x_offset;
-  __int16 screen_y_offset;
-  __int16 shadow_x_offset;
-  __int16 shadow_y_offset;
-  float hp;
-  float sp;
-  unsigned __int8 curr_damage_percent;
-  unsigned __int8 facet;
-  unsigned __int8 selected;
-  float world_x;
-  float world_y;
-  float world_z;
-  float attribute_amount_held;
-  unsigned __int8 object_state;
-  unsigned __int8 sleep_flag;
-  unsigned __int8 dopple_flag;
-  unsigned __int8 goto_sleep_flag;
-  __int16 attribute_type_held;
-  unsigned __int8 type;
-  unsigned __int8 worker_num;
-  ObsRecord *CurrentObstructionData;
-  ObsRecord *ObstructionDataList;
-  RGE_Static_Object **player_object_node;
-  int *mPathingGroup;
-  int mPathingGroupSize;
-  int mMaximumPathingGroupSize;
-  int damaged_lately_timer;
-  UnitAIModule *unitAIValue;
-  int zoneMapIndex;
-  unsigned __int8 inObstructionMapValue;
-  unsigned __int8 lastInObstructionMapValue;
-  unsigned __int8 underAttackValue;
-  int mGroupID;
-  unsigned __int8 mROOAlreadyCalled;
-  LOS_ExploreInfo ei;
-  float speed;
-  float trail_remainder;
-  float velocity_x;
-  float velocity_y;
-  float velocity_z;
-  float angle;
-  float turn_towards_time;
-  unsigned __int8 on_ground;
-  float turnTimer;
-  int continueCounter;
-  int currentTerrainException1;
-  int currentTerrainException2;
-  unsigned __int8 waitingToMoveValue;
-  unsigned __int8 numberWaitDelays;
-  BVector *userDefinedWaypoints;
-  int numberUserDefinedWaypointsValue;
-  int maximumNumberUserDefinedWaypointsValue;
-  BVector positionValue;
-  BVector orientationForwardValue;
-  BVector orientationRightValue;
-  BPathData *pathData;
-  BPathData *mFuturePathData;
-  BMovementData *movementData;
-  unsigned int lastMoveTimeValue;
-  int mHasSubstitutePosition;
-  BVector mSubstitutePosition;
-  int mConsecutiveSubstituteCount;
-  RGE_Action_List *actions;
-  unsigned __int8 waiting;
-  unsigned __int8 command_flag;
-  __int16 Selected_Group_Info;
-};
-#pragma pack(pop)
-
-/* 200 */
-#pragma pack(push, 8)
-struct LOSTBL
-{
-  int y_delta;
-  int x_left;
-  int x_right;
-};
-#pragma pack(pop)
+/* 653 */
+typedef int eSaveLoadModes_e;
 
 /* 403 */
 #pragma pack(push, 8)
@@ -1881,358 +764,6 @@ struct BPath
   int mReferenceCount;
   int mNumberIgnoreUnits;
   int *mIgnoreUnits;
-};
-#pragma pack(pop)
-
-/* 204 */
-#pragma pack(push, 8)
-struct XYPoint
-{
-  int x;
-  int y;
-};
-#pragma pack(pop)
-
-/* 653 */
-typedef int eSaveLoadModes_e;
-
-/* 72 */
-#pragma pack(push, 8)
-struct RGE_Game_World
-{
-  RGE_Game_WorldVtbl *vfptr;
-  eSaveLoadModes_e eSaveLoadModes;
-  unsigned int mExpertSystemChecksum;
-  TCommunications_Handler *com_handler;
-  unsigned int world_time;
-  unsigned int old_world_time;
-  unsigned int world_time_delta;
-  float timer;
-  unsigned int old_time;
-  float game_speed;
-  unsigned __int8 temp_pause;
-  unsigned __int8 game_state;
-  unsigned __int8 game_end_condition;
-  int sound_update_index;
-  int sprite_update_index;
-  RGE_Map *map;
-  __int16 sound_num;
-  RGE_Sound **sounds;
-  __int16 sprite_num;
-  RGE_Sprite **sprites;
-  __int16 player_num;
-  RGE_Player **players;
-  __int16 master_player_num;
-  RGE_Master_Player **master_players;
-  RGE_Effects *effects;
-  __int16 terrain_num;
-  __int16 terrain_size;
-  float **terrains;
-  RGE_Extra_Terrain_Table **extra_terrain_info;
-  RGE_Command *commands;
-  RGE_Scenario *scenario;
-  RGE_Sprite_Particle_System *particle_system;
-  RGE_Map_Analysis_System *map_analysis_system;
-  __int16 color_table_num;
-  RGE_Color_Table **color_tables;
-  int next_object_id;
-  int next_reusable_object_id;
-  int scenario_object_id;
-  unsigned __int8 scenario_object_flag;
-  unsigned int random_seed;
-  __int16 curr_player;
-  float view_x;
-  float view_y;
-  float sound_falloff_ratio;
-  TSound_Driver *sound_driver;
-  float world_time_delta_seconds;
-  RGE_Static_Object **objectsValue;
-  int numberObjectsValue;
-  int maxNumberObjectsValue;
-  RGE_Static_Object **negativeObjectsValue;
-  int numberNegativeObjectsValue;
-  int maxNumberNegativeObjectsValue;
-  int campaign;
-  int campaign_player;
-  int campaign_scenario;
-  int player_turn;
-  unsigned int player_time_delta[9];
-  RGE_Object_List *reusable_static_objects;
-  RGE_Object_List *reusable_animated_objects;
-  RGE_Object_List *reusable_moving_objects;
-  RGE_Object_List *reusable_action_objects;
-  RGE_Object_List *reusable_combat_objects;
-  RGE_Object_List *reusable_missile_objects;
-  RGE_Object_List *reusable_doppleganger_objects;
-  unsigned int maximumComputerPlayerUpdateTime;
-  unsigned int availableComputerPlayerUpdateTime;
-  int currentUpdateComputerPlayer;
-  char auto_save_name[100];
-  int auto_save_count;
-  int auto_save_timer;
-  RGE_Task_List **tasks;
-  int task_count;
-  int gbg_unknown_1;
-  int gbg_unknown_2;
-  int gbg_unknown_3;
-  int gbg_unknown_4;
-  int gbg_unknown_5;
-  int gbg_unknown_6;
-  int difficultyLevelValue;
-  int allianceLocked;
-  BPath paths;
-  int numberPathsValue;
-  int pathIDCounterValue;
-  BUnitGroup *unitGroups;
-  int mNumberUnitGroups;
-  int mUnitGroupCounter;
-  BContextAnalyzer *mContextAnalyzer;
-  unsigned int mReplayTimeStart;
-  unsigned int mReplayRecordedInterval;
-  unsigned int mReplayPauseTime;
-};
-#pragma pack(pop)
-
-/* 160 */
-#pragma pack(push, 8)
-struct BPathData
-{
-  int id;
-  BPathData *linkedPath;
-  int linkedPathType;
-  int waypointLevel;
-  BPath *path;
-  int pathID;
-  int waypoint;
-  int state;
-  float range;
-  int targetID;
-  float pauseTime;
-  int continueCounter;
-  BBitVector mFlags;
-};
-#pragma pack(pop)
-
-/* 767 */
-#pragma pack(push, 8)
-struct RGE_Master_Animated_ObjectVtbl
-{
-  unsigned __int8 (__thiscall *gbg_needs_power)(RGE_Master_Animated_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_sprite_civ_override)(RGE_Master_Animated_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_sprite2_civ_override)(RGE_Master_Animated_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_death_sprite_civ_override)(RGE_Master_Animated_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_undead_sprite_civ_override)(RGE_Master_Animated_Object *, RGE_Static_Object *);
-  void *(__thiscall *__vecDelDtor)(RGE_Master_Animated_Object *, unsigned int);
-  void (__thiscall *copy_obj)(RGE_Master_Animated_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *modify)(RGE_Master_Animated_Object *, float, unsigned __int8);
-  void (__thiscall *modify_delta)(RGE_Master_Animated_Object *, float, unsigned __int8);
-  void (__thiscall *modify_percent)(RGE_Master_Animated_Object *, float, unsigned __int8);
-  void (__thiscall *small_save)(RGE_Master_Animated_Object *, int);
-  void (__thiscall *save)(RGE_Master_Animated_Object *, int);
-  RGE_Static_Object *(__thiscall *make_new_obj)(RGE_Master_Animated_Object *, RGE_Player *, float, float, float);
-  RGE_Master_Static_Object *(__thiscall *make_new_master)(RGE_Master_Animated_Object *);
-  unsigned __int8 (__thiscall *check_placement)(RGE_Master_Animated_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
-  unsigned __int8 (__thiscall *alignment)(RGE_Master_Animated_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
-  int (__thiscall *calc_base_damage_ability)(RGE_Master_Animated_Object *, RGE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(RGE_Master_Animated_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(RGE_Master_Animated_Object *, RGE_Player *);
-  void (__thiscall *draw)(RGE_Master_Animated_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
-  float (__thiscall *maximumSpeed)(RGE_Master_Animated_Object *, int);
-  float (__thiscall *acceleration)(RGE_Master_Animated_Object *, int);
-  float (__thiscall *deceleration)(RGE_Master_Animated_Object *, int);
-  float (__thiscall *getTurnRadius)(RGE_Master_Animated_Object *);
-  float (__thiscall *getTurnRadiusSpeed)(RGE_Master_Animated_Object *);
-  int (__thiscall *setTurnRadiusOffTurnSpeed)(RGE_Master_Animated_Object *);
-  int (__thiscall *setTurnRadius)(RGE_Master_Animated_Object *, float, float);
-  float (__thiscall *getMaximumYawPerSecondMoving)(RGE_Master_Animated_Object *);
-  float (__thiscall *getMaximumYawPerSecondStationary)(RGE_Master_Animated_Object *);
-  void (__thiscall *setStationaryYawRevolutionTime)(RGE_Master_Animated_Object *, float);
-};
-#pragma pack(pop)
-
-/* 89 */
-#pragma pack(push, 8)
-struct RGE_Sound
-{
-  __int16 play_at_update_count;
-  __int16 sound_num;
-  RGE_Sound_Info *sounds;
-  unsigned int cache_time;
-  __int16 id;
-};
-#pragma pack(pop)
-
-/* 562 */
-#pragma pack(push, 8)
-struct RGE_Damage_Sprite_Info
-{
-  RGE_Sprite *sprite;
-  unsigned __int8 damage_percent;
-  unsigned __int8 flag;
-};
-#pragma pack(pop)
-
-/* 651 */
-#pragma pack(push, 8)
-struct TRIBE_PlayerVtbl
-{
-  void *(__thiscall *__vecDelDtor)(TRIBE_Player *, unsigned int);
-  int (__thiscall *unknown1)(TRIBE_Player *, int);
-  void (__thiscall *set_game_status)(TRIBE_Player *, unsigned __int8);
-  void (__thiscall *do_resign)(TRIBE_Player *, int);
-  void (__thiscall *changeToHumanPlayer)(TRIBE_Player *);
-  void (__thiscall *changeToComputerPlayer)(TRIBE_Player *);
-  char *(__thiscall *aiStatus)(TRIBE_Player *, int);
-  int (__thiscall *computerPlayer)(TRIBE_Player *);
-  int (__thiscall *isEnemy)(TRIBE_Player *, int);
-  int (__thiscall *isAlly)(TRIBE_Player *, int);
-  int (__thiscall *isNeutral)(TRIBE_Player *, int);
-  int (__thiscall *isAllNeutral)(TRIBE_Player *);
-  void (__thiscall *setDiplomaticStance)(TRIBE_Player *, int, int);
-  void (__thiscall *loadAIInformation)(TRIBE_Player *, char *, char *, char *, int, int);
-  void (__thiscall *sendUnitAIOrder)(TRIBE_Player *, int, int, int, int, int, float, float, float, float, int, int, int);
-  void (__thiscall *processAIOrder)(TRIBE_Player *, int, int, int, int, int, float, float, float, float, int, int, int);
-  void (__thiscall *kickAI)(TRIBE_Player *, int);
-  int (__thiscall *strategicNumber)(TRIBE_Player *, int);
-  void (__thiscall *sendGameOrder)(TRIBE_Player *, RGE_Static_Object *, RGE_Static_Object *, float, float);
-  void (__thiscall *sendAddWaypointCommand)(TRIBE_Player *, int, XYZBYTEPoint *, int);
-  void (__thiscall *processAddWaypointCommand)(TRIBE_Player *, int, XYZBYTEPoint *, int);
-  int (__thiscall *sendAICommand)(TRIBE_Player *, int, int, int, int, int);
-  void (__thiscall *setTileExplored)(TRIBE_Player *, int, int);
-  int (__thiscall *objectCostByType)(TRIBE_Player *, int);
-  void (__thiscall *trackUnitGather)(TRIBE_Player *, int, int, int);
-  RGE_Static_Object *(__thiscall *make_scenario_obj)(TRIBE_Player *, float, float, float, __int16, unsigned __int8, float);
-  void (__thiscall *scenario_save)(TRIBE_Player *, int);
-  void (__thiscall *scenario_load)(TRIBE_Player *, int, int *, float);
-  void (__thiscall *scenario_postsave)(TRIBE_Player *, int);
-  void (__thiscall *scenario_postload)(TRIBE_Player *, int, int *, float);
-  void (__thiscall *load)(TRIBE_Player *, int);
-  void (__thiscall *new_attribute_num)(TRIBE_Player *, __int16, float);
-  void (__thiscall *add_attribute_num)(TRIBE_Player *, __int16, float, unsigned __int8);
-  void (__thiscall *update)(TRIBE_Player *);
-  void (__thiscall *update_dopplegangers)(TRIBE_Player *);
-  void (__thiscall *save)(TRIBE_Player *, int);
-  void (__thiscall *save2)(TRIBE_Player *, int);
-  void (__thiscall *save_info)(TRIBE_Player *, int);
-  void (__thiscall *random_start)(TRIBE_Player *);
-  void (__thiscall *modify_tobj)(TRIBE_Player *, __int16, __int16, float, unsigned __int8);
-  void (__thiscall *modify_tobj_delta)(TRIBE_Player *, __int16, __int16, float, unsigned __int8);
-  void (__thiscall *modify_tobj_percent)(TRIBE_Player *, __int16, __int16, float, unsigned __int8);
-  void (__thiscall *copy_obj)(TRIBE_Player *, __int16, __int16);
-  void (__thiscall *effect_add_attribute)(TRIBE_Player *, __int16, float, unsigned __int8);
-  void (__thiscall *effect_multiply_attribute)(TRIBE_Player *, __int16, float);
-  RGE_Static_Object *(__thiscall *make_new_object)(TRIBE_Player *, int, float, float, float, int);
-  unsigned __int8 (__thiscall *get_selected_objects_to_command)(TRIBE_Player *, RGE_Static_Object ***, __int16 *, __int16, __int16, __int16, __int16, unsigned __int8, unsigned __int8, unsigned int);
-  void (__thiscall *analyize_selected_objects)(TRIBE_Player *);
-  int (__thiscall *get_mouse_pointer_action_vars)(TRIBE_Player *, int, int, int, int, int, int *, int *);
-  unsigned __int8 (__thiscall *command_make_move)(TRIBE_Player *, RGE_Static_Object *, float, float);
-  unsigned __int8 (__thiscall *command_make_work)(TRIBE_Player *, RGE_Static_Object *, float, float);
-  unsigned __int8 (__thiscall *command_make_do)(TRIBE_Player *, RGE_Static_Object *, float, float);
-  unsigned __int8 (__thiscall *command_make_unit_do)(TRIBE_Player *, RGE_Static_Object *, RGE_Static_Object *, float, float);
-  unsigned __int8 (__thiscall *command_stop)(TRIBE_Player *);
-  unsigned __int8 (__thiscall *command_place_object)(TRIBE_Player *, __int16, float, float, float);
-  unsigned __int8 (__thiscall *command_add_attribute)(TRIBE_Player *, int, float);
-  unsigned __int8 (__thiscall *command_give_attribute)(TRIBE_Player *, int, int, float);
-  unsigned __int8 (__thiscall *command_stand_ground)(TRIBE_Player *);
-  unsigned __int8 (__thiscall *command_resign)(TRIBE_Player *, int, int);
-  unsigned __int8 (__thiscall *command_add_waypoint)(TRIBE_Player *, float, float, float);
-  unsigned __int8 (__thiscall *command_unit_ai_state)(TRIBE_Player *, unsigned __int8);
-  unsigned __int8 (__thiscall *command_guard)(TRIBE_Player *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *command_follow)(TRIBE_Player *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *command_patrol)(TRIBE_Player *, unsigned __int8, float *, float *);
-  unsigned __int8 (__thiscall *command_scout)(TRIBE_Player *, float, float);
-  unsigned __int8 (__thiscall *command_form_formation)(TRIBE_Player *, int);
-  unsigned __int8 (__thiscall *command_break_formation)(TRIBE_Player *, int);
-  unsigned __int8 (__thiscall *command_wheel_formation)(TRIBE_Player *, int, int);
-  unsigned __int8 (__thiscall *command_about_face_formation)(TRIBE_Player *, int);
-  unsigned __int8 (__thiscall *command_lock_formation)(TRIBE_Player *, int, int);
-  unsigned __int8 (__thiscall *command_formation_parameters)(TRIBE_Player *, int, int, int, int, float, int);
-  unsigned __int8 (__thiscall *command_auto_formations)(TRIBE_Player *, int);
-  RGE_Static_Object **(__thiscall *addObject)(TRIBE_Player *, RGE_Static_Object *, int, int);
-  void (__thiscall *removeObject)(TRIBE_Player *, RGE_Static_Object *, int, int, RGE_Static_Object **);
-  void (*logMessage)(TRIBE_Player *, char *, ...);
-  void (__thiscall *notify)(TRIBE_Player *, int, int, int, int, int, int);
-  void (__thiscall *notifyUnitDeath)(TRIBE_Player *, int, int);
-  int (__thiscall *isInTacticalAIGroup)(TRIBE_Player *, int);
-  void (__thiscall *logStatus)(TRIBE_Player *, FILE *, int);
-  void (__thiscall *load_victory)(TRIBE_Player *, int, int *, unsigned __int8);
-  void (__thiscall *new_victory)(TRIBE_Player *);
-  void (__thiscall *open_gates_for_pathing)(TRIBE_Player *, int);
-  void (__thiscall *close_gates_for_pathing)(TRIBE_Player *, int);
-  int (__thiscall *isGateLocked)(TRIBE_Player *, int);
-  void (__thiscall *setGateLocked)(TRIBE_Player *, int, int);
-  int (__thiscall *closeGate)(TRIBE_Player *, int);
-  int (__thiscall *openGate)(TRIBE_Player *, int);
-  unsigned __int8 (__thiscall *command_give_attribute_2)(TRIBE_Player *, int, int, float, float);
-  void (__thiscall *addResource)(TRIBE_Player *, int, int);
-  void (__thiscall *registerTrigger)(TRIBE_Player *, int);
-  void (__thiscall *buildObject)(TRIBE_Player *, int, int, float, float, int);
-  void (__thiscall *buildWall)(TRIBE_Player *, int, int, int, int, int, int, int);
-  void (__thiscall *cancelBuild)(TRIBE_Player *, int, int, int, float, float, int, int);
-  void (__thiscall *registerBuild)(TRIBE_Player *, RGE_Static_Object *, int);
-  void (__thiscall *trainUnit)(TRIBE_Player *, int, int, int);
-  void (__thiscall *cancelTrain)(TRIBE_Player *, int, int, int, int);
-  void (__thiscall *registerTrain)(TRIBE_Player *, int, int, int, int);
-  void (__thiscall *research)(TRIBE_Player *, int, int, int);
-  void (__thiscall *cancelResearch)(TRIBE_Player *, int, int, int, int);
-  void (__thiscall *registerResearch)(TRIBE_Player *, int, int, int);
-  void (__thiscall *spy)(TRIBE_Player *);
-  void (__thiscall *taskTrader)(TRIBE_Player *, int, int, int, float, float);
-  void (__thiscall *taskResourceGatherer)(TRIBE_Player *, int, int, int, float, float);
-  void (__thiscall *notifyAI)(TRIBE_Player *, int, int, int, int, int, int);
-  int (__thiscall *convertMasterTypeToFormationType)(TRIBE_Player *, int);
-};
-#pragma pack(pop)
-
-/* 169 */
-#pragma pack(push, 8)
-struct RGE_Player_Object_List
-{
-  RGE_Player_Object_ListVtbl *vfptr;
-  RGE_Static_Object **List;
-  int Number_of_objects;
-  int ListSize;
-  int GrowSize;
-  unsigned __int8 DeletingAll;
-  unsigned __int8 RGE_Player_Object_List_gap[3];
-};
-#pragma pack(pop)
-
-/* 257 */
-#pragma pack(push, 8)
-struct RGE_Victory_Conditions
-{
-  RGE_Victory_ConditionsVtbl *vfptr;
-  RGE_Victory_Entry *victory_list;
-  int list_num;
-  RGE_Player *player;
-  unsigned __int8 victory;
-  RGE_Victory_Point_Entry *victory_point_list;
-  int point_list_num;
-  int tot_victory_points;
-  int starting_points;
-  int starting_group;
-};
-#pragma pack(pop)
-
-/* 88 */
-#pragma pack(push, 8)
-struct RGE_Visible_Map
-{
-  unsigned __int8 **map_offsets;
-  RGE_Game_World *world;
-  RGE_Player *player;
-  RGE_Map *map;
-  unsigned __int8 *visible_map;
-  int widthValue;
-  int heightValue;
-  int numberTilesExploredValue;
-  int numberTotalTilesValue;
-  unsigned int PlayerVisibleMaskValue;
-  unsigned int PlayerVisibleMaskInvertValue;
-  unsigned int PlayerExploredMaskValue;
-  unsigned int PlayerExploredMaskInvertValue;
-  unsigned int input_csum;
 };
 #pragma pack(pop)
 
@@ -2386,1150 +917,123 @@ struct TRIBE_World
 };
 #pragma pack(pop)
 
-/* 197 */
+/* 651 */
 #pragma pack(push, 8)
-struct RGE_Doppleganger_Creator
+struct TRIBE_PlayerVtbl
 {
-  RGE_Player *owner;
-  int allocated_size;
-  int active_size;
-  RGE_Static_Object **Objects;
-  unsigned int **Map_Addresses;
-  unsigned int *Last_Map_Value;
-  int *Object_ids;
+  void *(__thiscall *__vecDelDtor)(TRIBE_Player *, unsigned int);
+  int (__thiscall *unknown1)(TRIBE_Player *, int);
+  void (__thiscall *set_game_status)(TRIBE_Player *, unsigned __int8);
+  void (__thiscall *do_resign)(TRIBE_Player *, int);
+  void (__thiscall *changeToHumanPlayer)(TRIBE_Player *);
+  void (__thiscall *changeToComputerPlayer)(TRIBE_Player *);
+  char *(__thiscall *aiStatus)(TRIBE_Player *, int);
+  int (__thiscall *computerPlayer)(TRIBE_Player *);
+  int (__thiscall *isEnemy)(TRIBE_Player *, int);
+  int (__thiscall *isAlly)(TRIBE_Player *, int);
+  int (__thiscall *isNeutral)(TRIBE_Player *, int);
+  int (__thiscall *isAllNeutral)(TRIBE_Player *);
+  void (__thiscall *setDiplomaticStance)(TRIBE_Player *, int, int);
+  void (__thiscall *loadAIInformation)(TRIBE_Player *, char *, char *, char *, int, int);
+  void (__thiscall *sendUnitAIOrder)(TRIBE_Player *, int, int, int, int, int, float, float, float, float, int, int, int);
+  void (__thiscall *processAIOrder)(TRIBE_Player *, int, int, int, int, int, float, float, float, float, int, int, int);
+  void (__thiscall *kickAI)(TRIBE_Player *, int);
+  int (__thiscall *strategicNumber)(TRIBE_Player *, int);
+  void (__thiscall *sendGameOrder)(TRIBE_Player *, RGE_Static_Object *, RGE_Static_Object *, float, float);
+  void (__thiscall *sendAddWaypointCommand)(TRIBE_Player *, int, XYZBYTEPoint *, int);
+  void (__thiscall *processAddWaypointCommand)(TRIBE_Player *, int, XYZBYTEPoint *, int);
+  int (__thiscall *sendAICommand)(TRIBE_Player *, int, int, int, int, int);
+  void (__thiscall *setTileExplored)(TRIBE_Player *, int, int);
+  int (__thiscall *objectCostByType)(TRIBE_Player *, int);
+  void (__thiscall *trackUnitGather)(TRIBE_Player *, int, int, int);
+  RGE_Static_Object *(__thiscall *make_scenario_obj)(TRIBE_Player *, float, float, float, __int16, unsigned __int8, float);
+  void (__thiscall *scenario_save)(TRIBE_Player *, int);
+  void (__thiscall *scenario_load)(TRIBE_Player *, int, int *, float);
+  void (__thiscall *scenario_postsave)(TRIBE_Player *, int);
+  void (__thiscall *scenario_postload)(TRIBE_Player *, int, int *, float);
+  void (__thiscall *load)(TRIBE_Player *, int);
+  void (__thiscall *new_attribute_num)(TRIBE_Player *, __int16, float);
+  void (__thiscall *add_attribute_num)(TRIBE_Player *, __int16, float, unsigned __int8);
+  void (__thiscall *update)(TRIBE_Player *);
+  void (__thiscall *update_dopplegangers)(TRIBE_Player *);
+  void (__thiscall *save)(TRIBE_Player *, int);
+  void (__thiscall *save2)(TRIBE_Player *, int);
+  void (__thiscall *save_info)(TRIBE_Player *, int);
+  void (__thiscall *random_start)(TRIBE_Player *);
+  void (__thiscall *modify_tobj)(TRIBE_Player *, __int16, __int16, float, unsigned __int8);
+  void (__thiscall *modify_tobj_delta)(TRIBE_Player *, __int16, __int16, float, unsigned __int8);
+  void (__thiscall *modify_tobj_percent)(TRIBE_Player *, __int16, __int16, float, unsigned __int8);
+  void (__thiscall *copy_obj)(TRIBE_Player *, __int16, __int16);
+  void (__thiscall *effect_add_attribute)(TRIBE_Player *, __int16, float, unsigned __int8);
+  void (__thiscall *effect_multiply_attribute)(TRIBE_Player *, __int16, float);
+  RGE_Static_Object *(__thiscall *make_new_object)(TRIBE_Player *, int, float, float, float, int);
+  unsigned __int8 (__thiscall *get_selected_objects_to_command)(TRIBE_Player *, RGE_Static_Object ***, __int16 *, __int16, __int16, __int16, __int16, unsigned __int8, unsigned __int8, unsigned int);
+  void (__thiscall *analyize_selected_objects)(TRIBE_Player *);
+  int (__thiscall *get_mouse_pointer_action_vars)(TRIBE_Player *, int, int, int, int, int, int *, int *);
+  unsigned __int8 (__thiscall *command_make_move)(TRIBE_Player *, RGE_Static_Object *, float, float);
+  unsigned __int8 (__thiscall *command_make_work)(TRIBE_Player *, RGE_Static_Object *, float, float);
+  unsigned __int8 (__thiscall *command_make_do)(TRIBE_Player *, RGE_Static_Object *, float, float);
+  unsigned __int8 (__thiscall *command_make_unit_do)(TRIBE_Player *, RGE_Static_Object *, RGE_Static_Object *, float, float);
+  unsigned __int8 (__thiscall *command_stop)(TRIBE_Player *);
+  unsigned __int8 (__thiscall *command_place_object)(TRIBE_Player *, __int16, float, float, float);
+  unsigned __int8 (__thiscall *command_add_attribute)(TRIBE_Player *, int, float);
+  unsigned __int8 (__thiscall *command_give_attribute)(TRIBE_Player *, int, int, float);
+  unsigned __int8 (__thiscall *command_stand_ground)(TRIBE_Player *);
+  unsigned __int8 (__thiscall *command_resign)(TRIBE_Player *, int, int);
+  unsigned __int8 (__thiscall *command_add_waypoint)(TRIBE_Player *, float, float, float);
+  unsigned __int8 (__thiscall *command_unit_ai_state)(TRIBE_Player *, unsigned __int8);
+  unsigned __int8 (__thiscall *command_guard)(TRIBE_Player *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *command_follow)(TRIBE_Player *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *command_patrol)(TRIBE_Player *, unsigned __int8, float *, float *);
+  unsigned __int8 (__thiscall *command_scout)(TRIBE_Player *, float, float);
+  unsigned __int8 (__thiscall *command_form_formation)(TRIBE_Player *, int);
+  unsigned __int8 (__thiscall *command_break_formation)(TRIBE_Player *, int);
+  unsigned __int8 (__thiscall *command_wheel_formation)(TRIBE_Player *, int, int);
+  unsigned __int8 (__thiscall *command_about_face_formation)(TRIBE_Player *, int);
+  unsigned __int8 (__thiscall *command_lock_formation)(TRIBE_Player *, int, int);
+  unsigned __int8 (__thiscall *command_formation_parameters)(TRIBE_Player *, int, int, int, int, float, int);
+  unsigned __int8 (__thiscall *command_auto_formations)(TRIBE_Player *, int);
+  RGE_Static_Object **(__thiscall *addObject)(TRIBE_Player *, RGE_Static_Object *, int, int);
+  void (__thiscall *removeObject)(TRIBE_Player *, RGE_Static_Object *, int, int, RGE_Static_Object **);
+  void (*logMessage)(TRIBE_Player *, char *, ...);
+  void (__thiscall *notify)(TRIBE_Player *, int, int, int, int, int, int);
+  void (__thiscall *notifyUnitDeath)(TRIBE_Player *, int, int);
+  int (__thiscall *isInTacticalAIGroup)(TRIBE_Player *, int);
+  void (__thiscall *logStatus)(TRIBE_Player *, FILE *, int);
+  void (__thiscall *load_victory)(TRIBE_Player *, int, int *, unsigned __int8);
+  void (__thiscall *new_victory)(TRIBE_Player *);
+  void (__thiscall *open_gates_for_pathing)(TRIBE_Player *, int);
+  void (__thiscall *close_gates_for_pathing)(TRIBE_Player *, int);
+  int (__thiscall *isGateLocked)(TRIBE_Player *, int);
+  void (__thiscall *setGateLocked)(TRIBE_Player *, int, int);
+  int (__thiscall *closeGate)(TRIBE_Player *, int);
+  int (__thiscall *openGate)(TRIBE_Player *, int);
+  unsigned __int8 (__thiscall *command_give_attribute_2)(TRIBE_Player *, int, int, float, float);
+  void (__thiscall *addResource)(TRIBE_Player *, int, int);
+  void (__thiscall *registerTrigger)(TRIBE_Player *, int);
+  void (__thiscall *buildObject)(TRIBE_Player *, int, int, float, float, int);
+  void (__thiscall *buildWall)(TRIBE_Player *, int, int, int, int, int, int, int);
+  void (__thiscall *cancelBuild)(TRIBE_Player *, int, int, int, float, float, int, int);
+  void (__thiscall *registerBuild)(TRIBE_Player *, RGE_Static_Object *, int);
+  void (__thiscall *trainUnit)(TRIBE_Player *, int, int, int);
+  void (__thiscall *cancelTrain)(TRIBE_Player *, int, int, int, int);
+  void (__thiscall *registerTrain)(TRIBE_Player *, int, int, int, int);
+  void (__thiscall *research)(TRIBE_Player *, int, int, int);
+  void (__thiscall *cancelResearch)(TRIBE_Player *, int, int, int, int);
+  void (__thiscall *registerResearch)(TRIBE_Player *, int, int, int);
+  void (__thiscall *spy)(TRIBE_Player *);
+  void (__thiscall *taskTrader)(TRIBE_Player *, int, int, int, float, float);
+  void (__thiscall *taskResourceGatherer)(TRIBE_Player *, int, int, int, float, float);
+  void (__thiscall *notifyAI)(TRIBE_Player *, int, int, int, int, int, int);
+  int (__thiscall *convertMasterTypeToFormationType)(TRIBE_Player *, int);
 };
 #pragma pack(pop)
 
-/* 210 */
+/* 61 */
 #pragma pack(push, 8)
-struct RGE_Visible_Object_Updator
+struct RGE_Master_Static_Object
 {
-  RGE_Player *owner;
-  int ObjectListSize;
-  int ObjectListUsed;
-  vis_Upd_info *List;
-  unsigned __int8 *SizeList;
-};
-#pragma pack(pop)
-
-/* 263 */
-#pragma pack(push, 8)
-struct RGE_Tile_List_Node
-{
-  int col;
-  int row;
-};
-#pragma pack(pop)
-
-/* 196 */
-#pragma pack(push, 8)
-struct Visible_Resource_Manager
-{
-  VISIBLE_RESOURCE_REC **VR_List;
-  int *VR_ListSize;
-  int *VR_ListUsed;
-  RGE_Player *owner;
-  int num_visible_resource_lists;
-};
-#pragma pack(pop)
-
-/* 648 */
-#pragma pack(push, 8)
-struct RGE_View_Stack
-{
-  float X;
-  float Y;
-};
-#pragma pack(pop)
-
-/* 649 */
-#pragma pack(push, 8)
-struct Combat_Notifications
-{
-  int attacked_obj_id;
-  int count;
-  int player_id;
-  float x;
-  float y;
-  unsigned __int8 flags;
-  Combat_Notifications *next;
-};
-#pragma pack(pop)
-
-/* 297 */
-#pragma pack(push, 1)
-struct TribeMainDecisionAIModule
-{
-};
-#pragma pack(pop)
-
-/* 211 */
-#pragma pack(push, 8)
-struct TRIBE_History_Info
-{
-  TRIBE_History_Entry *history;
-  TRIBE_History_Events *events;
-  TRIBE_Player *player;
-  int number_of_events;
-  int number_of_entries;
-  int max_number_of_entries;
-  int update_history_count;
-  int old_total_razings;
-  int old_build_value_razings;
-  int old_total_razings_other;
-  int old_build_value_razings_other;
-  int old_total_kills;
-  int old_build_value_kills;
-  int old_total_kills_other;
-  int old_build_value_kills_other;
-  float razings_weight;
-  float kills_weight;
-  float razing_percent;
-  float kills_perecent;
-  int razings_flag;
-  int battle_flag;
-  unsigned int old_current_build_value_units;
-  unsigned int old_current_build_value_buildings;
-  unsigned __int16 old_player_kills[8];
-  unsigned int old_player_kill_BV[8];
-  unsigned __int16 old_player_razings[8];
-  unsigned int old_player_razing_BV[8];
-  float running_ave_BV_percent;
-  unsigned int running_total_BV_kills;
-  unsigned int running_total_BV_razings;
-  unsigned __int16 running_total_kills;
-  unsigned __int16 running_total_razings;
-};
-#pragma pack(pop)
-
-/* 138 */
-#pragma pack(push, 8)
-struct RGE_Object_List
-{
-  RGE_Object_ListVtbl *vfptr;
-  RGE_Object_Node *list;
-  __int16 number_of_objects;
-  RGE_Object_Node *next_node;
-};
-#pragma pack(pop)
-
-/* 81 */
-#pragma pack(push, 8)
-struct TShape
-{
-  int load_type;
-  int load_size;
-  Shape_Clip_Mask **ClipMasks;
-  Shape_File_Header *FShape;
-  Shape_Info *shape_info;
-  unsigned __int8 Is_Loaded;
-  int Num_Shapes;
-};
-#pragma pack(pop)
-
-/* 777 */
-#pragma pack(push, 8)
-struct RGE_Picture_List
-{
-  __int16 picture_num;
-  RGE_Sprite *sprite;
-  __int16 offset_x;
-  __int16 offset_y;
-  __int16 facet;
-};
-#pragma pack(pop)
-
-/* 778 */
-#pragma pack(push, 8)
-struct RGE_Sound_List
-{
-  RGE_Sound *sound[3];
-  __int16 frame[3];
-};
-#pragma pack(pop)
-
-/* 856 */
-#pragma pack(push, 8)
-struct RGE_Active_Sprite_ListVtbl
-{
-  void *(__thiscall *__vecDelDtor)(RGE_Active_Sprite_List *, unsigned int);
-  __int16 (__thiscall *frame)(RGE_Active_Sprite_List *, RGE_Sprite *);
-  void (__thiscall *update)(RGE_Active_Sprite_List *, float, float);
-  void (__thiscall *draw)(RGE_Active_Sprite_List *, __int16, __int16, __int16, __int16, __int16, RGE_Color_Table *, TDrawArea *);
-  void (__thiscall *normal_draw)(RGE_Active_Sprite_List *, __int16, __int16, __int16, RGE_Color_Table *, TDrawArea *);
-  void (__thiscall *shadow_draw)(RGE_Active_Sprite_List *, __int16, __int16, __int16, RGE_Color_Table *, TDrawArea *, unsigned __int8);
-  unsigned __int8 (__thiscall *is_animating)(RGE_Active_Sprite_List *, RGE_Sprite *);
-  void (__thiscall *set_frame)(RGE_Active_Sprite_List *, RGE_Sprite *, __int16);
-  void (__thiscall *set_facet)(RGE_Active_Sprite_List *, __int16, int, int);
-  unsigned __int8 (__thiscall *frame_passed)(RGE_Active_Sprite_List *, RGE_Sprite *, __int16);
-  unsigned __int8 (__thiscall *looped)(RGE_Active_Sprite_List *, RGE_Sprite *);
-  __int16 (__thiscall *get_facetindex)(RGE_Active_Sprite_List *, RGE_Sprite *, __int16);
-  unsigned __int8 (__thiscall *load_node)(RGE_Active_Sprite_List *, int, unsigned __int8, RGE_Sprite **);
-};
-#pragma pack(pop)
-
-/* 217 */
-#pragma pack(push, 8)
-struct RGE_Active_Sprite_Node
-{
-  RGE_Active_Sprite *node;
-  unsigned __int8 order;
-  unsigned __int8 flag;
-  unsigned __int8 count;
-  RGE_Active_Sprite_Node *next;
-};
-#pragma pack(pop)
-
-/* 143 */
-#pragma pack(push, 8)
-struct RGE_Sprite_Particle
-{
-  int pixel_offset_x;
-  int pixel_offset_y;
-  int start_time;
-  int facet;
-  int update_passes_untill_deletion;
-  int frame_duration;
-  int update_array_index;
-  float x;
-  float y;
-  float z;
-  RGE_Sprite *sprite;
-  RGE_Tile *tile;
-  RGE_Sprite_Particle *next;
-  RGE_Sprite_Particle *prev;
-  RGE_Sprite_Particle *update_next;
-  RGE_Sprite_Particle *tile_next;
-  RGE_Sprite_Particle *tile_prev;
-  unsigned __int8 flags;
-};
-#pragma pack(pop)
-
-/* 652 */
-#pragma pack(push, 8)
-struct RGE_Static_ObjectVtbl
-{
-  void *(__thiscall *__vecDelDtor)(RGE_Static_Object *, unsigned int);
-  int (__thiscall *gbg_unknown1)(RGE_Static_Object *);
-  int (__thiscall *gbg_get_civ_override)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown3)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown4)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown5)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown6)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown7)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown8)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown9)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown10)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown11)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_isPadawan)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_isMaster)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown14)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_isShielded)(RGE_Static_Object *);
-  void (__thiscall *gbg_unknown16)(RGE_Static_Object *);
-  void (__thiscall *gbg_unknown17)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown18)(RGE_Static_Object *, int);
-  unsigned __int8 (__thiscall *gbg_isDetector)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown20)(RGE_Static_Object *, int);
-  unsigned __int8 (__thiscall *gbg_isPowered)(RGE_Static_Object *, int);
-  void (__thiscall *gbg_unknown22)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown23)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_isBiological)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_isDamaged)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown26)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *gbg_canBeHealedByPlayer)(RGE_Static_Object *, int);
-  unsigned __int8 (__thiscall *gbg_canBeRepairedByPlayer)(RGE_Static_Object *, int);
-  void (__thiscall *recycle_in_to_game)(RGE_Static_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
-  void (__thiscall *recycle_out_of_game)(RGE_Static_Object *);
-  void (__thiscall *draw)(RGE_Static_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *);
-  void (__thiscall *shadow_draw)(RGE_Static_Object *, TDrawArea *, __int16, __int16, unsigned __int8);
-  void (__thiscall *normal_draw)(RGE_Static_Object *, TDrawArea *, __int16, __int16);
-  void (__thiscall *draw_front_frame)(RGE_Static_Object *, TDrawArea *, __int16, __int16);
-  void (__thiscall *draw_back_frame)(RGE_Static_Object *, TDrawArea *, __int16, __int16);
-  void (__thiscall *draw_frame)(RGE_Static_Object *, TDrawArea *, __int16, __int16);
-  unsigned __int8 (__thiscall *update)(RGE_Static_Object *);
-  void (__thiscall *check_damage_sprites)(RGE_Static_Object *);
-  void (__thiscall *rehook)(RGE_Static_Object *);
-  void (__thiscall *save)(RGE_Static_Object *, int);
-  void (__thiscall *teleport_off_map)(RGE_Static_Object *);
-  float (__thiscall *teleport)(RGE_Static_Object *, float, float, float);
-  float (__thiscall *handle_teleport_z_correction)(RGE_Static_Object *, float);
-  void (__thiscall *new_sprite)(RGE_Static_Object *, RGE_Sprite *);
-  void (__thiscall *add_overlay_sprite)(RGE_Static_Object *, RGE_Sprite *, unsigned __int8);
-  void (__thiscall *remove_overlay_sprite)(RGE_Static_Object *, RGE_Sprite *);
-  void (__thiscall *change_ownership)(RGE_Static_Object *, RGE_Player *);
-  void (__thiscall *modify)(RGE_Static_Object *, float, unsigned __int8);
-  void (__thiscall *modify_delta)(RGE_Static_Object *, float, unsigned __int8);
-  void (__thiscall *modify_percent)(RGE_Static_Object *, float, unsigned __int8);
-  void (__thiscall *transform)(RGE_Static_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *copy_obj)(RGE_Static_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *set_object_state)(RGE_Static_Object *, unsigned __int8);
-  void (__thiscall *remove_visible_resource)(RGE_Static_Object *);
-  void (__thiscall *create_doppleganger_when_dying)(RGE_Static_Object *);
-  void (__thiscall *destroy_obj)(RGE_Static_Object *);
-  void (__thiscall *die_die_die)(RGE_Static_Object *);
-  void (__thiscall *damage)(RGE_Static_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *, int);
-  float (__thiscall *calculateDamage)(RGE_Static_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *);
-  void (__thiscall *rotate)(RGE_Static_Object *, int);
-  unsigned __int8 (__thiscall *can_attack)(RGE_Static_Object *);
-  void (__thiscall *set_attribute)(RGE_Static_Object *, __int16, float);
-  void (__thiscall *set_attribute_amount)(RGE_Static_Object *, float, unsigned __int8, unsigned __int8);
-  int (__thiscall *heal_2)(RGE_Static_Object *, int, int);
-  unsigned __int8 (__thiscall *heal_1)(RGE_Static_Object *, float);
-  int (__thiscall *canRepair)(RGE_Static_Object *);
-  void (__thiscall *notify_of_relation)(RGE_Static_Object *, int, unsigned __int8);
-  void (__thiscall *do_command)(RGE_Static_Object *, RGE_Static_Object *, float, float, float);
-  int (__thiscall *actionTypeIfOrdered)(RGE_Static_Object *, RGE_Static_Object *, float, float, float, float *);
-  unsigned __int8 (__thiscall *move_to)(RGE_Static_Object *, RGE_Static_Object *, float, float, float);
-  void (__thiscall *work)(RGE_Static_Object *, RGE_Static_Object *, float, float, float);
-  void (__thiscall *stop)(RGE_Static_Object *);
-  void (__thiscall *set_attack)(RGE_Static_Object *, RGE_Static_Object *);
-  void (__thiscall *play_command_sound)(RGE_Static_Object *);
-  void (__thiscall *play_move_sound)(RGE_Static_Object *);
-  void (__thiscall *new_angle)(RGE_Static_Object *, float);
-  RGE_Static_Object *(__thiscall *spawn_death_obj)(RGE_Static_Object *);
-  RGE_Master_Static_Object *(__thiscall *get_command_master)(RGE_Static_Object *, RGE_Static_Object *, float, float, float);
-  void (__thiscall *set_being_worked_on)(RGE_Static_Object *, RGE_Action_Object *, __int16, unsigned __int8);
-  void (__thiscall *release_being_worked_on)(RGE_Static_Object *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *is_moving)(RGE_Static_Object *);
-  RGE_Static_Object *(__thiscall *get_target_obj)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *more_room)(RGE_Static_Object *, RGE_Static_Object *);
-  void (__thiscall *enter_obj)(RGE_Static_Object *, RGE_Static_Object *, unsigned __int8);
-  void (__thiscall *exit_obj)(RGE_Static_Object *);
-  void (__thiscall *add_obj)(RGE_Static_Object *, RGE_Static_Object *);
-  void (__thiscall *remove_obj)(RGE_Static_Object *, RGE_Static_Object *);
-  int (__thiscall *explore_terrain)(RGE_Static_Object *, RGE_Player *, unsigned __int8, int, int);
-  void (__thiscall *unexplore_terrain)(RGE_Static_Object *, RGE_Player *, unsigned __int8, int, int);
-  LOSTBL *(__thiscall *get_los_table)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *get_visibility)(RGE_Static_Object *, RGE_Player *);
-  int (__thiscall *inAttackRange)(RGE_Static_Object *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *underAttack)(RGE_Static_Object *);
-  void (__thiscall *setUnderAttack)(RGE_Static_Object *, unsigned __int8);
-  float (__thiscall *calc_attack_modifier)(RGE_Static_Object *, RGE_Static_Object *);
-  float (__thiscall *getSpeed)(RGE_Static_Object *);
-  float (__thiscall *getAngle)(RGE_Static_Object *);
-  float (__thiscall *maximumSpeed)(RGE_Static_Object *);
-  float (__thiscall *rateOfFire)(RGE_Static_Object *);
-  float (__thiscall *damageCapability_2)(RGE_Static_Object *, RGE_Static_Object *);
-  float (__thiscall *damageCapability_1)(RGE_Static_Object *);
-  float (__thiscall *weaponRange)(RGE_Static_Object *);
-  float (__thiscall *minimumWeaponRange)(RGE_Static_Object *);
-  int (__thiscall *passableTile_2)(RGE_Static_Object *, float, float, int *, int);
-  int (__thiscall *passableTile_1)(RGE_Static_Object *, float, float);
-  int (__thiscall *currentTargetID)(RGE_Static_Object *);
-  float (__thiscall *currentTargetX)(RGE_Static_Object *);
-  float (__thiscall *currentTargetY)(RGE_Static_Object *);
-  float (__thiscall *currentTargetZ)(RGE_Static_Object *);
-  void (__thiscall *setWaitingToMove)(RGE_Static_Object *, unsigned __int8);
-  unsigned __int8 (__thiscall *waitingToMove)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *actionState)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *keepGatheringWhenObjectIsOut)(RGE_Static_Object *, int);
-  unsigned __int8 (__thiscall *produceWhenKilledBy)(RGE_Static_Object *, int);
-  unsigned __int8 (__thiscall *useSameZoneDropsite)(RGE_Static_Object *);
-  float (__thiscall *searchRadius)(RGE_Static_Object *);
-  unsigned __int8 (__thiscall *is_idle)(RGE_Static_Object *);
-  void (*logDebug)(RGE_Static_Object *, char *, ...);
-  void (*debug)(RGE_Static_Object *, char *, ...);
-  void (__thiscall *notify)(RGE_Static_Object *, int, int, int, int, int, int);
-  int (__thiscall *attack_2)(RGE_Static_Object *, float, float, float, int);
-  int (__thiscall *attack_1)(RGE_Static_Object *, int, int);
-  int (__thiscall *moveTo_3)(RGE_Static_Object *, float, float, float, float, int, int);
-  int (__thiscall *moveTo_2)(RGE_Static_Object *, int, float, int);
-  int (__thiscall *moveTo_1)(RGE_Static_Object *, int, int);
-  int (__thiscall *moveAwayFrom)(RGE_Static_Object *, int, int);
-  int (__thiscall *hunt)(RGE_Static_Object *, int, int);
-  int (__thiscall *gather)(RGE_Static_Object *, int, int);
-  int (__thiscall *convert)(RGE_Static_Object *, int, int);
-  int (__thiscall *repair)(RGE_Static_Object *, int, int);
-  int (__thiscall *build)(RGE_Static_Object *, int, int);
-  int (__thiscall *trade)(RGE_Static_Object *, int, int);
-  int (__thiscall *explore)(RGE_Static_Object *, int, int, int);
-  int (__thiscall *enter)(RGE_Static_Object *, int, int);
-  int (__thiscall *unload)(RGE_Static_Object *, int, float, float, float);
-  int (__thiscall *transport)(RGE_Static_Object *, float, float, float, int);
-  int (__thiscall *stopAction)(RGE_Static_Object *);
-  int (__thiscall *pause)(RGE_Static_Object *);
-  int (__thiscall *canPath_2)(RGE_Static_Object *, int, float, float *, int, int, bool);
-  int (__thiscall *canPath_1)(RGE_Static_Object *, XYZPoint, float, int, float *, int, int, bool);
-  int (__thiscall *canQuickPath)(RGE_Static_Object *, int, float, float *);
-  int (__thiscall *canPathWithObstructions)(RGE_Static_Object *, int, float, float *, int, int, ManagedArray_int_ *);
-  int (__thiscall *canPathWithAdditionalPassability)(RGE_Static_Object *, XYZPoint, float, int, float *, int, int, int, int, int, BPath *);
-  int (__thiscall *findFirstTerrainAlongExceptionPath)(RGE_Static_Object *, int, float *, float *, BPath *);
-  int (__thiscall *canLinePath_2)(RGE_Static_Object *, int, int, int, int, float, int);
-  int (__thiscall *canLinePath_1)(RGE_Static_Object *, const XYPoint *, const XYPoint *, float, XYPoint *, int);
-  int (__thiscall *firstTileAlongLine)(RGE_Static_Object *, const XYPoint *, const XYPoint *, XYPoint *, int, int, int);
-  unsigned __int8 (__thiscall *have_action)(RGE_Static_Object *);
-  int (__thiscall *gameActionType)(RGE_Static_Object *);
-  BVector *(__thiscall *userDefinedWaypoint)(RGE_Static_Object *, int);
-  int (__thiscall *addUserDefinedWaypoint)(RGE_Static_Object *, float, float, float);
-  void (__thiscall *zeroUserDefinedWaypoints)(RGE_Static_Object *);
-  void (__thiscall *removeAllUserDefinedWaypoints)(RGE_Static_Object *);
-  int (__thiscall *numberUserDefinedWaypoints)(RGE_Static_Object *);
-  BPath *(__thiscall *getPatrolInformation)(RGE_Static_Object *, int *);
-  float (__thiscall *distanceToHighestLevelPath_2)(RGE_Static_Object *, BVector);
-  float (__thiscall *distanceToHighestLevelPath_1)(RGE_Static_Object *);
-  BPath *(__thiscall *findAvoidancePath)(RGE_Static_Object *, XYZPoint *, float, int);
-  int (__thiscall *get_action_checksum)(RGE_Static_Object *);
-  int (__thiscall *get_waypoint_checksum)(RGE_Static_Object *);
-  void (__thiscall *setPatrolMode)(RGE_Static_Object *, unsigned __int8);
-  int (__thiscall *garrisoned_count)(RGE_Static_Object *);
-  int (__thiscall *lock_down)(RGE_Static_Object *);
-  int (__thiscall *unlock_down)(RGE_Static_Object *);
-  int (__thiscall *get_locked_down_count)(RGE_Static_Object *);
-  float (__thiscall *getTradeAmount)(RGE_Static_Object *, float, float, float, float);
-  int (__thiscall *setup_2)(RGE_Static_Object *, int, RGE_Game_World *);
-  int (__thiscall *setup_1)(RGE_Static_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
-  RGE_New_Object_List *(__thiscall *create_object_list)(RGE_Static_Object *);
-  RGE_Active_Sprite_List *(__thiscall *create_sprite_list)(RGE_Static_Object *);
-  BVector *(__thiscall *position)(RGE_Static_Object *, BVector *);
-  BPathData *(__thiscall *getPathData)(RGE_Static_Object *);
-  int (__thiscall *actionType)(RGE_Static_Object *);
-  int (__thiscall *hasActionOfType)(RGE_Static_Object *, int);
-  int (__thiscall *gbg_hasActionOfType2)(RGE_Static_Object *, int);
-  int (__thiscall *addMove)(RGE_Static_Object *, int, float, int, int, int);
-  int (__thiscall *addCurrentPath)(RGE_Static_Object *, BPath *, int, float, int);
-  int (__thiscall *addFuturePath)(RGE_Static_Object *, BPath *, int, float, int);
-  void (__thiscall *stopAllMovement)(RGE_Static_Object *);
-  void (__thiscall *setOrientation)(RGE_Static_Object *, BVector *, BVector *);
-  BVector *(__thiscall *velocity)(RGE_Static_Object *, BVector *);
-  void (__thiscall *setVelocity)(RGE_Static_Object *, BVector *);
-  BVector *(__thiscall *acceleration)(RGE_Static_Object *, BVector *);
-  void (__thiscall *setAcceleration)(RGE_Static_Object *, BVector *);
-  float (__thiscall *forwardVelocity)(RGE_Static_Object *);
-  void (__thiscall *setForwardVelocity)(RGE_Static_Object *, float);
-  float (__thiscall *forwardAcceleration)(RGE_Static_Object *);
-  void (__thiscall *setForwardAcceleration)(RGE_Static_Object *, float);
-  void (__thiscall *moveForward)(RGE_Static_Object *, float);
-  void (__thiscall *setPosition)(RGE_Static_Object *, BVector *);
-  void (__thiscall *yaw)(RGE_Static_Object *, float);
-  int (__thiscall *isMoving)(RGE_Static_Object *);
-  void (__thiscall *stopMoving)(RGE_Static_Object *);
-  float (__thiscall *calculateFutureVelocity)(RGE_Static_Object *, float, float, float, BVector *);
-  unsigned int (__thiscall *lastMoveTime)(RGE_Static_Object *);
-  void (__thiscall *pauseMovement)(RGE_Static_Object *, float);
-  int (__thiscall *movementPriority)(RGE_Static_Object *);
-  int (__thiscall *intelligentMovementUpdate)(RGE_Static_Object *);
-  float (__thiscall *calculateMaximumSpeed)(RGE_Static_Object *, int);
-  int (__thiscall *calculateForward)(RGE_Static_Object *, BVector *, BVector *, BVector *);
-  float (__thiscall *calculateYawAngle)(RGE_Static_Object *, BVector *, BVector *, float, int *);
-  int (__thiscall *calculateReachedPoint)(RGE_Static_Object *, BVector *, BVector *, BVector *);
-  float (__thiscall *calculateTurnRadius)(RGE_Static_Object *);
-  int (__thiscall *checkAcceleration)(RGE_Static_Object *, BVector *, int, int);
-  BVector *(__thiscall *straightProjectedPosition)(RGE_Static_Object *, BVector *, BVector *, float);
-  int (__thiscall *onPatrol)(RGE_Static_Object *);
-  BVector *(__thiscall *orientationForward)(RGE_Static_Object *, BVector *);
-  int (__thiscall *setRunSprite)(RGE_Static_Object *);
-  int (__thiscall *setMoveSprite)(RGE_Static_Object *);
-  int (__thiscall *setFidgetSprite)(RGE_Static_Object *);
-  int (__thiscall *getGateLocked)(RGE_Static_Object *);
-  void (__thiscall *setGateLocked)(RGE_Static_Object *, int);
-  int (__thiscall *isGateOpenable)(RGE_Static_Object *, int);
-  int (__thiscall *getLinkedChild)(RGE_Static_Object *, int);
-  int (__thiscall *get_next_selected_group)(RGE_Static_Object *, int);
-  __int16 (__thiscall *get_Selected_Groups)(RGE_Static_Object *);
-  void (__thiscall *set_Selected_Groups)(RGE_Static_Object *, __int16);
-  int (__thiscall *get_num_Selected_groups)(RGE_Static_Object *);
-};
-#pragma pack(pop)
-
-/* 959 */
-#pragma pack(push, 8)
-struct UnitAIModuleVtbl
-{
-  void *(__thiscall *__vecDelDtor)(UnitAIModule *, unsigned int);
-  void (__thiscall *save)(UnitAIModule *, int);
-  void (__thiscall *load)(UnitAIModule *, int);
-  RGE_Player *(__thiscall *owner)(UnitAIModule *);
-  int (__thiscall *order)(UnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
-  int (__thiscall *notify)(UnitAIModule *, int, int, int, int, int, int);
-  int (__thiscall *notifyCommander_2)(UnitAIModule *, int, int, int, int, int, int);
-  int (__thiscall *notifyCommander_1)(UnitAIModule *, NotifyEvent *);
-  void (__thiscall *search)(UnitAIModule *, float, float, bool);
-  int (__thiscall *importantWhenDead)(UnitAIModule *, int);
-  int (__thiscall *retryableOrder)(UnitAIModule *, int);
-  int (__thiscall *actionRequiresLiveTarget)(UnitAIModule *, int);
-  int (__thiscall *mostDangerousEnemy)(UnitAIModule *, float *);
-  int (__thiscall *weakestEnemy)(UnitAIModule *, float *);
-  int (__thiscall *closestAttacker)(UnitAIModule *, float *);
-  int (__thiscall *closestObject)(UnitAIModule *, int, int, int, int, int, int *);
-  int (__thiscall *closestResourceObject)(UnitAIModule *, int, int, int, int *);
-  int (__thiscall *closestUndiscoveredTile)(UnitAIModule *, int *, int *, int);
-  void (*logDebug)(UnitAIModule *, char *, ...);
-  int (__thiscall *canAttackUnit)(UnitAIModule *, RGE_Static_Object *);
-  int (__thiscall *canAttackUnitAtNeutrality)(UnitAIModule *, int);
-  int (__thiscall *stopObject)(UnitAIModule *, int);
-  int (__thiscall *attackObject)(UnitAIModule *, int, int);
-  int (__thiscall *attackRoundupObject)(UnitAIModule *, int);
-  int (__thiscall *huntObject)(UnitAIModule *, int, int);
-  int (__thiscall *gatherObject)(UnitAIModule *, int, int);
-  int (__thiscall *convertObject)(UnitAIModule *, int, int);
-  int (__thiscall *healObject)(UnitAIModule *, int, int);
-  int (__thiscall *repairObject)(UnitAIModule *, int, int);
-  int (__thiscall *buildObject)(UnitAIModule *, int, int);
-  int (__thiscall *tradeWithObject)(UnitAIModule *, int, int);
-  int (__thiscall *explore)(UnitAIModule *, int, int, int);
-  int (__thiscall *enterObject)(UnitAIModule *, int, int);
-  int (__thiscall *unload)(UnitAIModule *, int, float, float);
-  int (__thiscall *transportObject)(UnitAIModule *, float, float, float, int);
-  int (__thiscall *moveTo_3)(UnitAIModule *, float, float, float, float, int, int);
-  int (__thiscall *moveTo_2)(UnitAIModule *, int, float, int);
-  int (__thiscall *moveTo_1)(UnitAIModule *, int, int);
-  int (__thiscall *evasiveMoveTo)(UnitAIModule *, float, float, float, int);
-  int (__thiscall *intelligentEvasiveMoveTo)(UnitAIModule *, float, float, float, int, int);
-  int (__thiscall *runAwayFromAttackers)(UnitAIModule *, int, int);
-  int (__thiscall *followObject)(UnitAIModule *, int, float, int);
-  int (__thiscall *defendObject)(UnitAIModule *, int, float, int);
-  int (__thiscall *defendPosition)(UnitAIModule *, float, float, float, int);
-  int (__thiscall *seekAndDestroy)(UnitAIModule *, int, int, int, int);
-  int (__thiscall *exploreAndDestroy)(UnitAIModule *, int, int, int);
-  int (__thiscall *importantObject)(UnitAIModule *, int);
-  int (__thiscall *convertToLOSResourceType)(UnitAIModule *, int);
-  int (__thiscall *canConvert)(UnitAIModule *, int, int);
-  void (__thiscall *setState)(UnitAIModule *, unsigned __int8);
-  char *(__thiscall *stateName)(UnitAIModule *, int);
-  int (__thiscall *canMoveToAttack)(UnitAIModule *, int);
-  int (__thiscall *findAlertModeObject)(UnitAIModule *);
-  int (__thiscall *processOrder)(UnitAIModule *, OrderEvent *, int);
-  int (__thiscall *processNotify)(UnitAIModule *, NotifyEvent *, unsigned int);
-  int (__thiscall *processIdle)(UnitAIModule *, int);
-  int (__thiscall *processIdle_search)(UnitAIModule *, int, int);
-  int (__thiscall *processMisc)(UnitAIModule *);
-  int (__thiscall *processRetryableOrder)(UnitAIModule *);
-};
-#pragma pack(pop)
-
-/* 66 */
-#pragma pack(push, 8)
-struct RGE_Combat_Object
-{
-  RGE_Combat_ObjectVtbl *vfptr;
-  int gbg_unknown_1;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
-  int id;
-  RGE_Master_Combat_Object *master_obj;
-  TRIBE_Player *owner;
-  RGE_Sprite *sprite;
-  RGE_Sprite *old_sprite;
-  RGE_Active_Sprite_List *sprite_list;
-  RGE_Tile *tile;
-  RGE_Static_Object *inside_obj;
-  RGE_New_Object_List *objects;
-  __int16 screen_x_offset;
-  __int16 screen_y_offset;
-  __int16 shadow_x_offset;
-  __int16 shadow_y_offset;
-  float hp;
-  float sp;
-  unsigned __int8 curr_damage_percent;
-  unsigned __int8 facet;
-  unsigned __int8 selected;
-  float world_x;
-  float world_y;
-  float world_z;
-  float attribute_amount_held;
-  unsigned __int8 object_state;
-  unsigned __int8 sleep_flag;
-  unsigned __int8 dopple_flag;
-  unsigned __int8 goto_sleep_flag;
-  __int16 attribute_type_held;
-  unsigned __int8 type;
-  unsigned __int8 worker_num;
-  ObsRecord *CurrentObstructionData;
-  ObsRecord *ObstructionDataList;
-  RGE_Static_Object **player_object_node;
-  int *mPathingGroup;
-  int mPathingGroupSize;
-  int mMaximumPathingGroupSize;
-  int damaged_lately_timer;
-  UnitAIModule *unitAIValue;
-  int zoneMapIndex;
-  unsigned __int8 inObstructionMapValue;
-  unsigned __int8 lastInObstructionMapValue;
-  unsigned __int8 underAttackValue;
-  int mGroupID;
-  unsigned __int8 mROOAlreadyCalled;
-  LOS_ExploreInfo ei;
-  float speed;
-  float trail_remainder;
-  float velocity_x;
-  float velocity_y;
-  float velocity_z;
-  float angle;
-  float turn_towards_time;
-  unsigned __int8 on_ground;
-  float turnTimer;
-  int continueCounter;
-  int currentTerrainException1;
-  int currentTerrainException2;
-  unsigned __int8 waitingToMoveValue;
-  unsigned __int8 numberWaitDelays;
-  BVector *userDefinedWaypoints;
-  int numberUserDefinedWaypointsValue;
-  int maximumNumberUserDefinedWaypointsValue;
-  BVector positionValue;
-  BVector orientationForwardValue;
-  BVector orientationRightValue;
-  BPathData *pathData;
-  BPathData *mFuturePathData;
-  BMovementData *movementData;
-  unsigned int lastMoveTimeValue;
-  int mHasSubstitutePosition;
-  BVector mSubstitutePosition;
-  int mConsecutiveSubstituteCount;
-  RGE_Action_List *actions;
-  unsigned __int8 waiting;
-  unsigned __int8 command_flag;
-  __int16 Selected_Group_Info;
-  VISIBLE_UNIT_REC *VUR_Ptrs[9];
-  unsigned int Unified_Map_Value;
-  unsigned __int8 Multi_Unified_Points;
-  unsigned __int8 Large_Object_Radius;
-  int attack_count;
-  float attack_timer;
-  unsigned __int8 capture_flag;
-  unsigned __int8 formation_id;
-  unsigned __int8 formation_row;
-  unsigned __int8 formation_col;
-};
-#pragma pack(pop)
-
-/* 221 */
-#pragma pack(push, 8)
-struct OrderEvent
-{
-  int issuer;
-  int orderType;
-  int priority;
-  int target;
-  int targetOwner;
-  float targetX;
-  float targetY;
-  float targetZ;
-  float range;
-};
-#pragma pack(pop)
-
-/* 222 */
-#pragma pack(push, 8)
-struct NotifyEvent
-{
-  int caller;
-  int recipient;
-  int mType;
-  int p1;
-  int p2;
-  int p3;
-};
-#pragma pack(pop)
-
-/* 958 */
-#pragma pack(push, 8)
-struct UnitAIModule__UnitAIRetargetEntry
-{
-  int mTargetID;
-  unsigned int mRetargetTimeout;
-};
-#pragma pack(pop)
-
-/* 657 */
-#pragma pack(push, 8)
-struct RGE_Master_Static_ObjectVtbl
-{
-  unsigned __int8 (__thiscall *gbg_needs_power)(RGE_Master_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_sprite_civ_override)(RGE_Master_Static_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_sprite2_civ_override)(RGE_Master_Static_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_death_sprite_civ_override)(RGE_Master_Static_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_undead_sprite_civ_override)(RGE_Master_Static_Object *, RGE_Static_Object *);
-  void *(__thiscall *__vecDelDtor)(RGE_Master_Static_Object *, unsigned int);
-  void (__thiscall *copy_obj)(RGE_Master_Static_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *modify)(RGE_Master_Static_Object *, float, unsigned __int8);
-  void (__thiscall *modify_delta)(RGE_Master_Static_Object *, float, unsigned __int8);
-  void (__thiscall *modify_percent)(RGE_Master_Static_Object *, float, unsigned __int8);
-  void (__thiscall *small_save)(RGE_Master_Static_Object *, int);
-  void (__thiscall *save)(RGE_Master_Static_Object *, int);
-  RGE_Static_Object *(__thiscall *make_new_obj)(RGE_Master_Static_Object *, RGE_Player *, float, float, float);
-  RGE_Master_Static_Object *(__thiscall *make_new_master)(RGE_Master_Static_Object *);
-  unsigned __int8 (__thiscall *check_placement)(RGE_Master_Static_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
-  unsigned __int8 (__thiscall *alignment)(RGE_Master_Static_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
-  int (__thiscall *calc_base_damage_ability)(RGE_Master_Static_Object *, RGE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(RGE_Master_Static_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(RGE_Master_Static_Object *, RGE_Player *);
-  void (__thiscall *draw)(RGE_Master_Static_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
-  float (__thiscall *maximumSpeed)(RGE_Master_Static_Object *, int);
-  float (__thiscall *acceleration)(RGE_Master_Static_Object *, int);
-  float (__thiscall *deceleration)(RGE_Master_Static_Object *, int);
-  float (__thiscall *getTurnRadius)(RGE_Master_Static_Object *);
-  float (__thiscall *getTurnRadiusSpeed)(RGE_Master_Static_Object *);
-  int (__thiscall *setTurnRadiusOffTurnSpeed)(RGE_Master_Static_Object *);
-  int (__thiscall *setTurnRadius)(RGE_Master_Static_Object *, float, float);
-  float (__thiscall *getMaximumYawPerSecondMoving)(RGE_Master_Static_Object *);
-  float (__thiscall *getMaximumYawPerSecondStationary)(RGE_Master_Static_Object *);
-  void (__thiscall *setStationaryYawRevolutionTime)(RGE_Master_Static_Object *, float);
-};
-#pragma pack(pop)
-
-/* 647 */
-#pragma pack(push, 8)
-struct RGE_PlayerVtbl
-{
-  void *(__thiscall *__vecDelDtor)(RGE_Player *, unsigned int);
-  int (__thiscall *unknown1)(RGE_Player *, int);
-  void (__thiscall *set_game_status)(RGE_Player *, unsigned __int8);
-  void (__thiscall *do_resign)(RGE_Player *, int);
-  void (__thiscall *changeToHumanPlayer)(RGE_Player *);
-  void (__thiscall *changeToComputerPlayer)(RGE_Player *);
-  char *(__thiscall *aiStatus)(RGE_Player *, int);
-  int (__thiscall *computerPlayer)(RGE_Player *);
-  int (__thiscall *isEnemy)(RGE_Player *, int);
-  int (__thiscall *isAlly)(RGE_Player *, int);
-  int (__thiscall *isNeutral)(RGE_Player *, int);
-  int (__thiscall *isAllNeutral)(RGE_Player *);
-  void (__thiscall *setDiplomaticStance)(RGE_Player *, int, int);
-  void (__thiscall *loadAIInformation)(RGE_Player *, char *, char *, char *, int, int);
-  void (__thiscall *sendUnitAIOrder)(RGE_Player *, int, int, int, int, int, float, float, float, float, int, int, int);
-  void (__thiscall *processAIOrder)(RGE_Player *, int, int, int, int, int, float, float, float, float, int, int, int);
-  void (__thiscall *kickAI)(RGE_Player *, int);
-  int (__thiscall *strategicNumber)(RGE_Player *, int);
-  void (__thiscall *sendGameOrder)(RGE_Player *, RGE_Static_Object *, RGE_Static_Object *, float, float);
-  void (__thiscall *sendAddWaypointCommand)(RGE_Player *, int, XYZBYTEPoint *, int);
-  void (__thiscall *processAddWaypointCommand)(RGE_Player *, int, XYZBYTEPoint *, int);
-  int (__thiscall *sendAICommand)(RGE_Player *, int, int, int, int, int);
-  void (__thiscall *setTileExplored)(RGE_Player *, int, int);
-  int (__thiscall *objectCostByType)(RGE_Player *, int);
-  void (__thiscall *trackUnitGather)(RGE_Player *, int, int, int);
-  RGE_Static_Object *(__thiscall *make_scenario_obj)(RGE_Player *, float, float, float, __int16, unsigned __int8, float);
-  void (__thiscall *scenario_save)(RGE_Player *, int);
-  void (__thiscall *scenario_load)(RGE_Player *, int, int *, float);
-  void (__thiscall *scenario_postsave)(RGE_Player *, int);
-  void (__thiscall *scenario_postload)(RGE_Player *, int, int *, float);
-  void (__thiscall *load)(RGE_Player *, int);
-  void (__thiscall *new_attribute_num)(RGE_Player *, __int16, float);
-  void (__thiscall *add_attribute_num)(RGE_Player *, __int16, float, unsigned __int8);
-  void (__thiscall *update)(RGE_Player *);
-  void (__thiscall *update_dopplegangers)(RGE_Player *);
-  void (__thiscall *save)(RGE_Player *, int);
-  void (__thiscall *save2)(RGE_Player *, int);
-  void (__thiscall *save_info)(RGE_Player *, int);
-  void (__thiscall *random_start)(RGE_Player *);
-  void (__thiscall *modify_tobj)(RGE_Player *, __int16, __int16, float, unsigned __int8);
-  void (__thiscall *modify_tobj_delta)(RGE_Player *, __int16, __int16, float, unsigned __int8);
-  void (__thiscall *modify_tobj_percent)(RGE_Player *, __int16, __int16, float, unsigned __int8);
-  void (__thiscall *copy_obj)(RGE_Player *, __int16, __int16);
-  void (__thiscall *effect_add_attribute)(RGE_Player *, __int16, float, unsigned __int8);
-  void (__thiscall *effect_multiply_attribute)(RGE_Player *, __int16, float);
-  RGE_Static_Object *(__thiscall *make_new_object)(RGE_Player *, int, float, float, float, int);
-  unsigned __int8 (__thiscall *get_selected_objects_to_command)(RGE_Player *, RGE_Static_Object ***, __int16 *, __int16, __int16, __int16, __int16, unsigned __int8, unsigned __int8, unsigned int);
-  void (__thiscall *analyize_selected_objects)(RGE_Player *);
-  int (__thiscall *get_mouse_pointer_action_vars)(RGE_Player *, int, int, int, int, int, int *, int *);
-  unsigned __int8 (__thiscall *command_make_move)(RGE_Player *, RGE_Static_Object *, float, float);
-  unsigned __int8 (__thiscall *command_make_work)(RGE_Player *, RGE_Static_Object *, float, float);
-  unsigned __int8 (__thiscall *command_make_do)(RGE_Player *, RGE_Static_Object *, float, float);
-  unsigned __int8 (__thiscall *command_make_unit_do)(RGE_Player *, RGE_Static_Object *, RGE_Static_Object *, float, float);
-  unsigned __int8 (__thiscall *command_stop)(RGE_Player *);
-  unsigned __int8 (__thiscall *command_place_object)(RGE_Player *, __int16, float, float, float);
-  unsigned __int8 (__thiscall *command_add_attribute)(RGE_Player *, int, float);
-  unsigned __int8 (__thiscall *command_give_attribute)(RGE_Player *, int, int, float);
-  unsigned __int8 (__thiscall *command_stand_ground)(RGE_Player *);
-  unsigned __int8 (__thiscall *command_resign)(RGE_Player *, int, int);
-  unsigned __int8 (__thiscall *command_add_waypoint)(RGE_Player *, float, float, float);
-  unsigned __int8 (__thiscall *command_unit_ai_state)(RGE_Player *, unsigned __int8);
-  unsigned __int8 (__thiscall *command_guard)(RGE_Player *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *command_follow)(RGE_Player *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *command_patrol)(RGE_Player *, unsigned __int8, float *, float *);
-  unsigned __int8 (__thiscall *command_scout)(RGE_Player *, float, float);
-  unsigned __int8 (__thiscall *command_form_formation)(RGE_Player *, int);
-  unsigned __int8 (__thiscall *command_break_formation)(RGE_Player *, int);
-  unsigned __int8 (__thiscall *command_wheel_formation)(RGE_Player *, int, int);
-  unsigned __int8 (__thiscall *command_about_face_formation)(RGE_Player *, int);
-  unsigned __int8 (__thiscall *command_lock_formation)(RGE_Player *, int, int);
-  unsigned __int8 (__thiscall *command_formation_parameters)(RGE_Player *, int, int, int, int, float, int);
-  unsigned __int8 (__thiscall *command_auto_formations)(RGE_Player *, int);
-  RGE_Static_Object **(__thiscall *addObject)(RGE_Player *, RGE_Static_Object *, int, int);
-  void (__thiscall *removeObject)(RGE_Player *, RGE_Static_Object *, int, int, RGE_Static_Object **);
-  void (*logMessage)(RGE_Player *, char *, ...);
-  void (__thiscall *notify)(RGE_Player *, int, int, int, int, int, int);
-  void (__thiscall *notifyUnitDeath)(RGE_Player *, int, int);
-  int (__thiscall *isInTacticalAIGroup)(RGE_Player *, int);
-  void (__thiscall *logStatus)(RGE_Player *, FILE *, int);
-  void (__thiscall *load_victory)(RGE_Player *, int, int *, unsigned __int8);
-  void (__thiscall *new_victory)(RGE_Player *);
-  void (__thiscall *open_gates_for_pathing)(RGE_Player *, int);
-  void (__thiscall *close_gates_for_pathing)(RGE_Player *, int);
-  int (__thiscall *isGateLocked)(RGE_Player *, int);
-  void (__thiscall *setGateLocked)(RGE_Player *, int, int);
-  int (__thiscall *closeGate)(RGE_Player *, int);
-  int (__thiscall *openGate)(RGE_Player *, int);
-};
-#pragma pack(pop)
-
-/* 805 */
-typedef tagPALETTEENTRY PALETTEENTRY;
-
-/* 99 */
-#pragma pack(push, 8)
-struct TDrawSystem
-{
-  HINSTANCE Inst;
-  HWND Wnd;
-  HPALETTE Pal;
-  TDrawArea *DrawArea;
-  TDrawArea *PrimaryArea;
-  DrawAreaNode *DrawAreaList;
-  IDirectDraw *DirDraw;
-  IDirectDrawSurface *PrimarySurface;
-  IDirectDrawClipper *Clipper;
-  IDirectDrawPalette *DirDrawPal;
-  unsigned int Flags;
-  int ScreenWidth;
-  int ScreenHeight;
-  int ColorBits;
-  int ErrorCode;
-  unsigned __int8 DrawType;
-  unsigned __int8 ScreenMode;
-  int ChangedMode;
-  int IsBanked;
-  int CanSrcBlt;
-  int Restored;
-  int system_ignore_size_messages;
-  int ModeAvail640;
-  int ModeAvail800;
-  int ModeAvail1024;
-  int ModeAvail1280;
-  int ModeAvail1600;
-  int ModeAvail320_200;
-  int ModeAvail320_240;
-  int ModeAvail320_200_16;
-  int ModeAvail320_240_16;
-  int ModeAvail640_16;
-  int ModeAvail800_16;
-  int ModeAvail1024_16;
-  int ModeAvail1600_16;
-  int ModeAvail320_200_24;
-  int ModeAvail320_240_24;
-  int ModeAvail640_24;
-  int ModeAvail800_24;
-  int ModeAvail1024_24;
-  int ModeAvail1600_24;
-  int ModeAvail320_200_32;
-  int ModeAvail320_240_32;
-  int ModeAvail640_32;
-  int ModeAvail800_32;
-  int ModeAvail1024_32;
-  int ModeAvail1600_32;
-  PALETTEENTRY palette[256];
-};
-#pragma pack(pop)
-
-/* 563 */
-#pragma pack(push, 8)
-struct DrawAreaNode
-{
-  TDrawArea *DrawArea;
-  DrawAreaNode *PrevNode;
-  DrawAreaNode *NextNode;
-};
-#pragma pack(pop)
-
-/* 456 */
-#pragma pack(push, 8)
-struct TSpan_Node_List
-{
-  VSpan_Node **Zone_Ptrs;
-  int *Zone_Size_Ptrs;
-  int Used_Zones;
-  int Max_Zones;
-  VSpan_Node *Free_Head;
-  int Free_Pool_Zone;
-  int Free_Pool_Index;
-  int Total_Blocks;
-  int Free_Blocks;
-  int Default_Grow_Size;
-  int Element_Size;
-  int Alloc_Count;
-  int Dealloc_Count;
-  int NewZone_Count;
-  int Reset_Count;
-};
-#pragma pack(pop)
-
-/* 239 */
-#pragma pack(push, 8)
-struct TSpan_List_Manager
-{
-  TSpan_Node_List VSList;
-  VSpan_Node **Line_Head_Ptrs;
-  VSpan_Node **Line_Tail_Ptrs;
-  int *LeftMostPx;
-  int *RightMostPx;
-  int *Span_Count;
-  int Num_Lines;
-  int Num_Pixels;
-  int Min_Span_Px;
-  int Max_Span_Px;
-  int Min_Line;
-  int Max_Line;
-};
-#pragma pack(pop)
-
-/* 591 */
-#pragma pack(push, 8)
-struct RGE_Color_TableVtbl
-{
-  void *(__thiscall *__vecDelDtor)(RGE_Color_Table *, unsigned int);
-  int (__thiscall *get_id)(RGE_Color_Table *);
-  int (__thiscall *get_real_id)(RGE_Color_Table *);
-};
-#pragma pack(pop)
-
-/* 759 */
-#pragma pack(push, 8)
-struct RGE_Action_ObjectVtbl
-{
-  void *(__thiscall *__vecDelDtor)(RGE_Action_Object *, unsigned int);
-  int (__thiscall *gbg_unknown1)(RGE_Action_Object *);
-  int (__thiscall *gbg_get_civ_override)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown3)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown4)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown5)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown6)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown7)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown8)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown9)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown10)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown11)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_isPadawan)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_isMaster)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown14)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_isShielded)(RGE_Action_Object *);
-  void (__thiscall *gbg_unknown16)(RGE_Action_Object *);
-  void (__thiscall *gbg_unknown17)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown18)(RGE_Action_Object *, int);
-  unsigned __int8 (__thiscall *gbg_isDetector)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown20)(RGE_Action_Object *, int);
-  unsigned __int8 (__thiscall *gbg_isPowered)(RGE_Action_Object *, int);
-  void (__thiscall *gbg_unknown22)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown23)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_isBiological)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_isDamaged)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown26)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *gbg_canBeHealedByPlayer)(RGE_Action_Object *, int);
-  unsigned __int8 (__thiscall *gbg_canBeRepairedByPlayer)(RGE_Action_Object *, int);
-  void (__thiscall *recycle_in_to_game)(RGE_Action_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
-  void (__thiscall *recycle_out_of_game)(RGE_Action_Object *);
-  void (__thiscall *draw)(RGE_Action_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *);
-  void (__thiscall *shadow_draw)(RGE_Action_Object *, TDrawArea *, __int16, __int16, unsigned __int8);
-  void (__thiscall *normal_draw)(RGE_Action_Object *, TDrawArea *, __int16, __int16);
-  void (__thiscall *draw_front_frame)(RGE_Action_Object *, TDrawArea *, __int16, __int16);
-  void (__thiscall *draw_back_frame)(RGE_Action_Object *, TDrawArea *, __int16, __int16);
-  void (__thiscall *draw_frame)(RGE_Action_Object *, TDrawArea *, __int16, __int16);
-  unsigned __int8 (__thiscall *update)(RGE_Action_Object *);
-  void (__thiscall *check_damage_sprites)(RGE_Action_Object *);
-  void (__thiscall *rehook)(RGE_Action_Object *);
-  void (__thiscall *save)(RGE_Action_Object *, int);
-  void (__thiscall *teleport_off_map)(RGE_Action_Object *);
-  float (__thiscall *teleport)(RGE_Action_Object *, float, float, float);
-  float (__thiscall *handle_teleport_z_correction)(RGE_Action_Object *, float);
-  void (__thiscall *new_sprite)(RGE_Action_Object *, RGE_Sprite *);
-  void (__thiscall *add_overlay_sprite)(RGE_Action_Object *, RGE_Sprite *, unsigned __int8);
-  void (__thiscall *remove_overlay_sprite)(RGE_Action_Object *, RGE_Sprite *);
-  void (__thiscall *change_ownership)(RGE_Action_Object *, RGE_Player *);
-  void (__thiscall *modify)(RGE_Action_Object *, float, unsigned __int8);
-  void (__thiscall *modify_delta)(RGE_Action_Object *, float, unsigned __int8);
-  void (__thiscall *modify_percent)(RGE_Action_Object *, float, unsigned __int8);
-  void (__thiscall *transform)(RGE_Action_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *copy_obj)(RGE_Action_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *set_object_state)(RGE_Action_Object *, unsigned __int8);
-  void (__thiscall *remove_visible_resource)(RGE_Action_Object *);
-  void (__thiscall *create_doppleganger_when_dying)(RGE_Action_Object *);
-  void (__thiscall *destroy_obj)(RGE_Action_Object *);
-  void (__thiscall *die_die_die)(RGE_Action_Object *);
-  void (__thiscall *damage)(RGE_Action_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *, int);
-  float (__thiscall *calculateDamage)(RGE_Action_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *);
-  void (__thiscall *rotate)(RGE_Action_Object *, int);
-  unsigned __int8 (__thiscall *can_attack)(RGE_Action_Object *);
-  void (__thiscall *set_attribute)(RGE_Action_Object *, __int16, float);
-  void (__thiscall *set_attribute_amount)(RGE_Action_Object *, float, unsigned __int8, unsigned __int8);
-  int (__thiscall *heal_2)(RGE_Action_Object *, int, int);
-  unsigned __int8 (__thiscall *heal_1)(RGE_Action_Object *, float);
-  int (__thiscall *canRepair)(RGE_Action_Object *);
-  void (__thiscall *notify_of_relation)(RGE_Action_Object *, int, unsigned __int8);
-  void (__thiscall *do_command)(RGE_Action_Object *, RGE_Static_Object *, float, float, float);
-  int (__thiscall *actionTypeIfOrdered)(RGE_Action_Object *, RGE_Static_Object *, float, float, float, float *);
-  unsigned __int8 (__thiscall *move_to)(RGE_Action_Object *, RGE_Static_Object *, float, float, float);
-  void (__thiscall *work)(RGE_Action_Object *, RGE_Static_Object *, float, float, float);
-  void (__thiscall *stop)(RGE_Action_Object *);
-  void (__thiscall *set_attack)(RGE_Action_Object *, RGE_Static_Object *);
-  void (__thiscall *play_command_sound)(RGE_Action_Object *);
-  void (__thiscall *play_move_sound)(RGE_Action_Object *);
-  void (__thiscall *new_angle)(RGE_Action_Object *, float);
-  RGE_Static_Object *(__thiscall *spawn_death_obj)(RGE_Action_Object *);
-  RGE_Master_Static_Object *(__thiscall *get_command_master)(RGE_Action_Object *, RGE_Static_Object *, float, float, float);
-  void (__thiscall *set_being_worked_on)(RGE_Action_Object *, RGE_Action_Object *, __int16, unsigned __int8);
-  void (__thiscall *release_being_worked_on)(RGE_Action_Object *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *is_moving)(RGE_Action_Object *);
-  RGE_Static_Object *(__thiscall *get_target_obj)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *more_room)(RGE_Action_Object *, RGE_Static_Object *);
-  void (__thiscall *enter_obj)(RGE_Action_Object *, RGE_Static_Object *, unsigned __int8);
-  void (__thiscall *exit_obj)(RGE_Action_Object *);
-  void (__thiscall *add_obj)(RGE_Action_Object *, RGE_Static_Object *);
-  void (__thiscall *remove_obj)(RGE_Action_Object *, RGE_Static_Object *);
-  int (__thiscall *explore_terrain)(RGE_Action_Object *, RGE_Player *, unsigned __int8, int, int);
-  void (__thiscall *unexplore_terrain)(RGE_Action_Object *, RGE_Player *, unsigned __int8, int, int);
-  LOSTBL *(__thiscall *get_los_table)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *get_visibility)(RGE_Action_Object *, RGE_Player *);
-  int (__thiscall *inAttackRange)(RGE_Action_Object *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *underAttack)(RGE_Action_Object *);
-  void (__thiscall *setUnderAttack)(RGE_Action_Object *, unsigned __int8);
-  float (__thiscall *calc_attack_modifier)(RGE_Action_Object *, RGE_Static_Object *);
-  float (__thiscall *getSpeed)(RGE_Action_Object *);
-  float (__thiscall *getAngle)(RGE_Action_Object *);
-  float (__thiscall *maximumSpeed)(RGE_Action_Object *);
-  float (__thiscall *rateOfFire)(RGE_Action_Object *);
-  float (__thiscall *damageCapability_2)(RGE_Action_Object *, RGE_Static_Object *);
-  float (__thiscall *damageCapability_1)(RGE_Action_Object *);
-  float (__thiscall *weaponRange)(RGE_Action_Object *);
-  float (__thiscall *minimumWeaponRange)(RGE_Action_Object *);
-  int (__thiscall *passableTile_2)(RGE_Action_Object *, float, float, int *, int);
-  int (__thiscall *passableTile_1)(RGE_Action_Object *, float, float);
-  int (__thiscall *currentTargetID)(RGE_Action_Object *);
-  float (__thiscall *currentTargetX)(RGE_Action_Object *);
-  float (__thiscall *currentTargetY)(RGE_Action_Object *);
-  float (__thiscall *currentTargetZ)(RGE_Action_Object *);
-  void (__thiscall *setWaitingToMove)(RGE_Action_Object *, unsigned __int8);
-  unsigned __int8 (__thiscall *waitingToMove)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *actionState)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *keepGatheringWhenObjectIsOut)(RGE_Action_Object *, int);
-  unsigned __int8 (__thiscall *produceWhenKilledBy)(RGE_Action_Object *, int);
-  unsigned __int8 (__thiscall *useSameZoneDropsite)(RGE_Action_Object *);
-  float (__thiscall *searchRadius)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *is_idle)(RGE_Action_Object *);
-  void (*logDebug)(RGE_Action_Object *, char *, ...);
-  void (*debug)(RGE_Action_Object *, char *, ...);
-  void (__thiscall *notify)(RGE_Action_Object *, int, int, int, int, int, int);
-  int (__thiscall *attack_2)(RGE_Action_Object *, float, float, float, int);
-  int (__thiscall *attack_1)(RGE_Action_Object *, int, int);
-  int (__thiscall *moveTo_3)(RGE_Action_Object *, float, float, float, float, int, int);
-  int (__thiscall *moveTo_2)(RGE_Action_Object *, int, float, int);
-  int (__thiscall *moveTo_1)(RGE_Action_Object *, int, int);
-  int (__thiscall *moveAwayFrom)(RGE_Action_Object *, int, int);
-  int (__thiscall *hunt)(RGE_Action_Object *, int, int);
-  int (__thiscall *gather)(RGE_Action_Object *, int, int);
-  int (__thiscall *convert)(RGE_Action_Object *, int, int);
-  int (__thiscall *repair)(RGE_Action_Object *, int, int);
-  int (__thiscall *build)(RGE_Action_Object *, int, int);
-  int (__thiscall *trade)(RGE_Action_Object *, int, int);
-  int (__thiscall *explore)(RGE_Action_Object *, int, int, int);
-  int (__thiscall *enter)(RGE_Action_Object *, int, int);
-  int (__thiscall *unload)(RGE_Action_Object *, int, float, float, float);
-  int (__thiscall *transport)(RGE_Action_Object *, float, float, float, int);
-  int (__thiscall *stopAction)(RGE_Action_Object *);
-  int (__thiscall *pause)(RGE_Action_Object *);
-  int (__thiscall *canPath_2)(RGE_Action_Object *, int, float, float *, int, int, bool);
-  int (__thiscall *canPath_1)(RGE_Action_Object *, XYZPoint, float, int, float *, int, int, bool);
-  int (__thiscall *canQuickPath)(RGE_Action_Object *, int, float, float *);
-  int (__thiscall *canPathWithObstructions)(RGE_Action_Object *, int, float, float *, int, int, ManagedArray_int_ *);
-  int (__thiscall *canPathWithAdditionalPassability)(RGE_Action_Object *, XYZPoint, float, int, float *, int, int, int, int, int, BPath *);
-  int (__thiscall *findFirstTerrainAlongExceptionPath)(RGE_Action_Object *, int, float *, float *, BPath *);
-  int (__thiscall *canLinePath_2)(RGE_Action_Object *, int, int, int, int, float, int);
-  int (__thiscall *canLinePath_1)(RGE_Action_Object *, const XYPoint *, const XYPoint *, float, XYPoint *, int);
-  int (__thiscall *firstTileAlongLine)(RGE_Action_Object *, const XYPoint *, const XYPoint *, XYPoint *, int, int, int);
-  unsigned __int8 (__thiscall *have_action)(RGE_Action_Object *);
-  int (__thiscall *gameActionType)(RGE_Action_Object *);
-  BVector *(__thiscall *userDefinedWaypoint)(RGE_Action_Object *, int);
-  int (__thiscall *addUserDefinedWaypoint)(RGE_Action_Object *, float, float, float);
-  void (__thiscall *zeroUserDefinedWaypoints)(RGE_Action_Object *);
-  void (__thiscall *removeAllUserDefinedWaypoints)(RGE_Action_Object *);
-  int (__thiscall *numberUserDefinedWaypoints)(RGE_Action_Object *);
-  BPath *(__thiscall *getPatrolInformation)(RGE_Action_Object *, int *);
-  float (__thiscall *distanceToHighestLevelPath_2)(RGE_Action_Object *, BVector);
-  float (__thiscall *distanceToHighestLevelPath_1)(RGE_Action_Object *);
-  BPath *(__thiscall *findAvoidancePath)(RGE_Action_Object *, XYZPoint *, float, int);
-  int (__thiscall *get_action_checksum)(RGE_Action_Object *);
-  int (__thiscall *get_waypoint_checksum)(RGE_Action_Object *);
-  void (__thiscall *setPatrolMode)(RGE_Action_Object *, unsigned __int8);
-  int (__thiscall *garrisoned_count)(RGE_Action_Object *);
-  int (__thiscall *lock_down)(RGE_Action_Object *);
-  int (__thiscall *unlock_down)(RGE_Action_Object *);
-  int (__thiscall *get_locked_down_count)(RGE_Action_Object *);
-  float (__thiscall *getTradeAmount)(RGE_Action_Object *, float, float, float, float);
-  int (__thiscall *setup_2)(RGE_Action_Object *, int, RGE_Game_World *);
-  int (__thiscall *setup_1)(RGE_Action_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
-  RGE_New_Object_List *(__thiscall *create_object_list)(RGE_Action_Object *);
-  RGE_Active_Sprite_List *(__thiscall *create_sprite_list)(RGE_Action_Object *);
-  BVector *(__thiscall *position)(RGE_Action_Object *, BVector *);
-  BPathData *(__thiscall *getPathData)(RGE_Action_Object *);
-  int (__thiscall *actionType)(RGE_Action_Object *);
-  int (__thiscall *hasActionOfType)(RGE_Action_Object *, int);
-  int (__thiscall *gbg_hasActionOfType2)(RGE_Action_Object *, int);
-  int (__thiscall *addMove)(RGE_Action_Object *, int, float, int, int, int);
-  int (__thiscall *addCurrentPath)(RGE_Action_Object *, BPath *, int, float, int);
-  int (__thiscall *addFuturePath)(RGE_Action_Object *, BPath *, int, float, int);
-  void (__thiscall *stopAllMovement)(RGE_Action_Object *);
-  void (__thiscall *setOrientation)(RGE_Action_Object *, BVector *, BVector *);
-  BVector *(__thiscall *velocity)(RGE_Action_Object *, BVector *);
-  void (__thiscall *setVelocity)(RGE_Action_Object *, BVector *);
-  BVector *(__thiscall *acceleration)(RGE_Action_Object *, BVector *);
-  void (__thiscall *setAcceleration)(RGE_Action_Object *, BVector *);
-  float (__thiscall *forwardVelocity)(RGE_Action_Object *);
-  void (__thiscall *setForwardVelocity)(RGE_Action_Object *, float);
-  float (__thiscall *forwardAcceleration)(RGE_Action_Object *);
-  void (__thiscall *setForwardAcceleration)(RGE_Action_Object *, float);
-  void (__thiscall *moveForward)(RGE_Action_Object *, float);
-  void (__thiscall *setPosition)(RGE_Action_Object *, BVector *);
-  void (__thiscall *yaw)(RGE_Action_Object *, float);
-  int (__thiscall *isMoving)(RGE_Action_Object *);
-  void (__thiscall *stopMoving)(RGE_Action_Object *);
-  float (__thiscall *calculateFutureVelocity)(RGE_Action_Object *, float, float, float, BVector *);
-  unsigned int (__thiscall *lastMoveTime)(RGE_Action_Object *);
-  void (__thiscall *pauseMovement)(RGE_Action_Object *, float);
-  int (__thiscall *movementPriority)(RGE_Action_Object *);
-  int (__thiscall *intelligentMovementUpdate)(RGE_Action_Object *);
-  float (__thiscall *calculateMaximumSpeed)(RGE_Action_Object *, int);
-  int (__thiscall *calculateForward)(RGE_Action_Object *, BVector *, BVector *, BVector *);
-  float (__thiscall *calculateYawAngle)(RGE_Action_Object *, BVector *, BVector *, float, int *);
-  int (__thiscall *calculateReachedPoint)(RGE_Action_Object *, BVector *, BVector *, BVector *);
-  float (__thiscall *calculateTurnRadius)(RGE_Action_Object *);
-  int (__thiscall *checkAcceleration)(RGE_Action_Object *, BVector *, int, int);
-  BVector *(__thiscall *straightProjectedPosition)(RGE_Action_Object *, BVector *, BVector *, float);
-  int (__thiscall *onPatrol)(RGE_Action_Object *);
-  BVector *(__thiscall *orientationForward)(RGE_Action_Object *, BVector *);
-  int (__thiscall *setRunSprite)(RGE_Action_Object *);
-  int (__thiscall *setMoveSprite)(RGE_Action_Object *);
-  int (__thiscall *setFidgetSprite)(RGE_Action_Object *);
-  int (__thiscall *getGateLocked)(RGE_Action_Object *);
-  void (__thiscall *setGateLocked)(RGE_Action_Object *, int);
-  int (__thiscall *isGateOpenable)(RGE_Action_Object *, int);
-  int (__thiscall *getLinkedChild)(RGE_Action_Object *, int);
-  int (__thiscall *get_next_selected_group)(RGE_Action_Object *, int);
-  __int16 (__thiscall *get_Selected_Groups)(RGE_Action_Object *);
-  void (__thiscall *set_Selected_Groups)(RGE_Action_Object *, __int16);
-  int (__thiscall *get_num_Selected_groups)(RGE_Action_Object *);
-  int (__thiscall *setup_3)(RGE_Action_Object *, RGE_Master_Animated_Object *, RGE_Player *, float, float, float);
-  void (__thiscall *stop_moving)(RGE_Action_Object *);
-  unsigned __int8 (__thiscall *turn_towards)(RGE_Action_Object *, RGE_Static_Object *, float, float);
-  void (__thiscall *set_angle)(RGE_Action_Object *);
-  int (__thiscall *canLinePath_4)(RGE_Action_Object *, int, int, int, int, float);
-  int (__thiscall *canLinePath_3)(RGE_Action_Object *, XYPoint *, XYPoint *, float, XYPoint *);
-  int (__thiscall *setup_4)(RGE_Action_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
-  int (__thiscall *addMove_2)(RGE_Action_Object *, int, float, float, float, float, int, int, int);
-  void (__thiscall *work2)(RGE_Action_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
-  void (__thiscall *set_task)(RGE_Action_Object *, __int16);
-  void (__thiscall *setTaskByTaskID)(RGE_Action_Object *, int);
-  void (__thiscall *set_action)(RGE_Action_Object *, RGE_Action *);
-  void (__thiscall *set_only_action)(RGE_Action_Object *, RGE_Action *);
-  void (__thiscall *set_end_action)(RGE_Action_Object *, RGE_Action *);
-  RGE_Task *(__thiscall *getTask)(RGE_Action_Object *, RGE_Static_Object *, float, float, float, __int16);
-  void (__thiscall *setUnitAIAction)(RGE_Action_Object *, int, RGE_Static_Object *, float, float, float);
-  int (__thiscall *setup_5)(RGE_Action_Object *, RGE_Master_Action_Object *, RGE_Player *, float, float, float);
-  RGE_Action_List *(__thiscall *create_action_list)(RGE_Action_Object *);
-};
-#pragma pack(pop)
-
-/* 65 */
-#pragma pack(push, 8)
-struct RGE_Master_Action_Object
-{
-  RGE_Master_Action_ObjectVtbl *vfptr;
+  RGE_Master_Static_ObjectVtbl *vfptr;
   unsigned __int8 master_type;
   char *name;
   char *gbg_name2;
@@ -3606,131 +1110,363 @@ struct RGE_Master_Action_Object
   float outline_radius_x;
   float outline_radius_y;
   float outline_radius_z;
-  float speed;
-  RGE_Sprite *move_sprite;
-  RGE_Sprite *run_sprite;
-  float turn_speed;
-  unsigned __int8 size_class;
-  __int16 obj_trail_id;
-  unsigned __int8 obj_trail_options;
-  float obj_trail_spacing;
-  unsigned __int8 move_algorithem;
-  float mTurnRadius;
-  float mTurnRadiusSpeed;
-  float mMaximumYawPerSecondMoving;
-  float mStationaryYawRevolutionTime;
-  float mMaximumYawPerSecondStationary;
-  RGE_Task_List *tasks;
-  __int16 default_task;
-  float search_radius;
-  float work_rate;
-  float gbg_work_rate_2;
-  __int16 drop_site;
-  __int16 backup_drop_site;
-  unsigned __int8 task_by_group;
-  RGE_Sound *command_sound;
-  RGE_Sound *move_sound;
-  unsigned __int8 run_pattern;
-  unsigned __int8 RGE_Master_Action_Object_gap[3];
 };
 #pragma pack(pop)
 
-/* 206 */
+/* 169 */
 #pragma pack(push, 8)
-struct BMovementData
+struct RGE_Player_Object_List
 {
-  BVector velocity;
-  BVector acceleration;
+  RGE_Player_Object_ListVtbl *vfptr;
+  RGE_Static_Object **List;
+  int Number_of_objects;
+  int ListSize;
+  int GrowSize;
+  unsigned __int8 DeletingAll;
+  unsigned __int8 RGE_Player_Object_List_gap[3];
 };
 #pragma pack(pop)
 
-/* 146 */
+/* 257 */
 #pragma pack(push, 8)
-struct RGE_Action_List
+struct RGE_Victory_Conditions
 {
-  RGE_Action_ListVtbl *vfptr;
-  RGE_Action_Object *obj;
-  RGE_Action_Node *list;
+  RGE_Victory_ConditionsVtbl *vfptr;
+  RGE_Victory_Entry *victory_list;
+  int list_num;
+  RGE_Player *player;
+  unsigned __int8 victory;
+  RGE_Victory_Point_Entry *victory_point_list;
+  int point_list_num;
+  int tot_victory_points;
+  int starting_points;
+  int starting_group;
 };
 #pragma pack(pop)
 
-/* 655 */
+/* 88 */
 #pragma pack(push, 8)
-struct RGE_Game_WorldVtbl
+struct RGE_Visible_Map
 {
-  unsigned __int8 (__thiscall *data_load_world)(RGE_Game_World *, FILE *);
-  unsigned __int8 (__thiscall *data_load_terrain_tables)(RGE_Game_World *, char *);
-  unsigned __int8 (__thiscall *data_load_players)(RGE_Game_World *, char *);
-  unsigned __int8 (__thiscall *data_load_tasks)(RGE_Game_World *, char *);
-  unsigned __int8 (__thiscall *data_load_objects)(RGE_Game_World *, char *);
-  unsigned __int8 (__thiscall *data_load_sounds)(RGE_Game_World *, char *);
-  unsigned __int8 (__thiscall *data_load_color_tables)(RGE_Game_World *, char *);
-  unsigned __int8 (__thiscall *data_load_sprites)(RGE_Game_World *, char *);
-  void (__thiscall *data_load_players_type)(RGE_Game_World *, __int16, __int16, FILE *);
-  void (__thiscall *data_load_effects)(RGE_Game_World *, char *);
-  void (__thiscall *data_load_map)(RGE_Game_World *, char *, char *, char *, char *, __int16, __int16, __int16, RGE_Sound **, char *);
-  void (__thiscall *data_load_random_map)(RGE_Game_World *, char *, char *, char *, char *);
-  void (__thiscall *data_load_unitlines)(RGE_Game_World *, char *);
-  unsigned __int8 (__thiscall *init_player_type)(RGE_Game_World *, int, __int16, unsigned __int8);
-  unsigned __int8 (__thiscall *init_player)(RGE_Game_World *, int);
-  void (__thiscall *load_player)(RGE_Game_World *, int, unsigned __int8, __int16);
-  void (__thiscall *color_table_init)(RGE_Game_World *, int);
-  void (__thiscall *terrain_tables_init)(RGE_Game_World *, int);
-  void (__thiscall *init_sounds)(RGE_Game_World *, int, TSound_Driver *);
-  void (__thiscall *init_sprites)(RGE_Game_World *, int);
-  void (__thiscall *map_init)(RGE_Game_World *, int, TSound_Driver *);
-  void (__thiscall *effects_init)(RGE_Game_World *, int);
-  void (__thiscall *master_player_init)(RGE_Game_World *, int);
-  void (__thiscall *command_init)(RGE_Game_World *, int, TCommunications_Handler *);
-  void (__thiscall *world_init)(RGE_Game_World *, int, TSound_Driver *, TCommunications_Handler *);
-  void (__thiscall *setup_gaia)(RGE_Game_World *);
-  unsigned __int8 (__thiscall *modify_gaia)(RGE_Game_World *);
-  void (__thiscall *setup_players)(RGE_Game_World *, RGE_Player_Info *);
-  unsigned __int8 (__thiscall *new_random_game)(RGE_Game_World *, RGE_Player_Info *);
-  void (__thiscall *save)(RGE_Game_World *, int, int);
-  void (__thiscall *scenario_make_player)(RGE_Game_World *, __int16, unsigned __int8, unsigned __int8, unsigned __int8, char *);
-  void (__thiscall *scenario_make_map)(RGE_Game_World *, int);
-  unsigned __int8 (__thiscall *load_scenario_2)(RGE_Game_World *, RGE_Player_Info *);
-  unsigned __int8 (__thiscall *load_scenario_1)(RGE_Game_World *, char *, RGE_Player_Info *, unsigned __int8);
-  void (__thiscall *load_scenario1)(RGE_Game_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario2)(RGE_Game_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario3)(RGE_Game_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario4)(RGE_Game_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario5)(RGE_Game_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario6)(RGE_Game_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario7)(RGE_Game_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario8)(RGE_Game_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario9)(RGE_Game_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario10)(RGE_Game_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario11)(RGE_Game_World *, int, RGE_Player_Info *, int, unsigned __int8);
-  void (__thiscall *logStatus)(RGE_Game_World *, FILE *, int);
-  void *(__thiscall *__vecDelDtor)(RGE_Game_World *, unsigned int);
-  void (__thiscall *setup_player_colors_2)(RGE_Game_World *);
-  void (__thiscall *setup_player_colors_1)(RGE_Game_World *, RGE_Player_Info *);
-  unsigned __int8 (__thiscall *data_load)(RGE_Game_World *, char *, char *);
-  unsigned __int8 (__thiscall *init)(RGE_Game_World *, char *, TSound_Driver *, TCommunications_Handler *);
-  void (__thiscall *turn_sound_off)(RGE_Game_World *);
-  void (__thiscall *del_game_info)(RGE_Game_World *);
-  unsigned __int8 (__thiscall *update)(RGE_Game_World *);
-  void (__thiscall *perform_auto_save)(RGE_Game_World *);
-  unsigned __int8 (__thiscall *get_game_state)(RGE_Game_World *);
-  unsigned __int8 (__thiscall *check_game_state)(RGE_Game_World *);
-  unsigned __int8 (__thiscall *load_world)(RGE_Game_World *, int, int);
-  unsigned __int8 (__thiscall *load_game)(RGE_Game_World *, char *, int);
-  unsigned __int8 (__thiscall *new_game)(RGE_Game_World *, RGE_Player_Info *, int);
-  unsigned __int8 (__thiscall *new_scenario)(RGE_Game_World *, RGE_Player_Info *, int);
-  unsigned __int8 (__thiscall *save_game)(RGE_Game_World *, char *, int, unsigned __int8);
-  void (__thiscall *base_save_2)(RGE_Game_World *, char *);
-  void (__thiscall *base_save_1)(RGE_Game_World *, int);
-  unsigned __int8 (__thiscall *save_scenario)(RGE_Game_World *, char *);
-  void (__thiscall *save_scenario_main)(RGE_Game_World *, int, char *);
-  RGE_Scenario *(__thiscall *get_scenario_info)(RGE_Game_World *, char *);
-  void (__thiscall *pause)(RGE_Game_World *, unsigned __int8);
-  void (__thiscall *update_mutual_allies)(RGE_Game_World *);
-  void (__thiscall *scenario_init_2)(RGE_Game_World *, RGE_Game_World *);
-  void (__thiscall *scenario_init_1)(RGE_Game_World *, int, RGE_Game_World *, unsigned __int8);
-  int (__thiscall *addObject)(RGE_Game_World *, RGE_Static_Object *);
-  int (__thiscall *removeObject)(RGE_Game_World *, int);
+  unsigned __int8 **map_offsets;
+  RGE_Game_World *world;
+  RGE_Player *player;
+  RGE_Map *map;
+  unsigned __int8 *visible_map;
+  int widthValue;
+  int heightValue;
+  int numberTilesExploredValue;
+  int numberTotalTilesValue;
+  unsigned int PlayerVisibleMaskValue;
+  unsigned int PlayerVisibleMaskInvertValue;
+  unsigned int PlayerExploredMaskValue;
+  unsigned int PlayerExploredMaskInvertValue;
+  unsigned int input_csum;
+};
+#pragma pack(pop)
+
+/* 197 */
+#pragma pack(push, 8)
+struct RGE_Doppleganger_Creator
+{
+  RGE_Player *owner;
+  int allocated_size;
+  int active_size;
+  RGE_Static_Object **Objects;
+  unsigned int **Map_Addresses;
+  unsigned int *Last_Map_Value;
+  int *Object_ids;
+};
+#pragma pack(pop)
+
+/* 210 */
+#pragma pack(push, 8)
+struct RGE_Visible_Object_Updator
+{
+  RGE_Player *owner;
+  int ObjectListSize;
+  int ObjectListUsed;
+  vis_Upd_info *List;
+  unsigned __int8 *SizeList;
+};
+#pragma pack(pop)
+
+/* 263 */
+#pragma pack(push, 8)
+struct RGE_Tile_List_Node
+{
+  int col;
+  int row;
+};
+#pragma pack(pop)
+
+/* 83 */
+#pragma pack(push, 8)
+struct RGE_Color_Table
+{
+  RGE_Color_TableVtbl *vfptr;
+  int id;
+  int reference_id;
+  unsigned __int8 *TranslateTable;
+  int ColorTransformBase;
+  int UnitOutlineColor;
+  int SelectionColor1;
+  int SelectionColor2;
+  int MiniMapColor1;
+  int MiniMapColor2;
+  int MiniMapColor3;
+  int TextColor1;
+  int TextColor2;
+  unsigned __int8 TextColorR;
+  unsigned __int8 TextColorG;
+  unsigned __int8 TextColorB;
+  unsigned __int8 Reserved;
+};
+#pragma pack(pop)
+
+/* 196 */
+#pragma pack(push, 8)
+struct Visible_Resource_Manager
+{
+  VISIBLE_RESOURCE_REC **VR_List;
+  int *VR_ListSize;
+  int *VR_ListUsed;
+  RGE_Player *owner;
+  int num_visible_resource_lists;
+};
+#pragma pack(pop)
+
+/* 648 */
+#pragma pack(push, 8)
+struct RGE_View_Stack
+{
+  float X;
+  float Y;
+};
+#pragma pack(pop)
+
+/* 589 */
+typedef int LOSLastActions;
+
+/* 328 */
+#pragma pack(push, 8)
+struct LOS_ExploreInfo
+{
+  RGE_Static_Object *theObj;
+  LOSLastActions LastAction;
+  int x1;
+  int y1;
+  int x2;
+  int y2;
+  int Radius;
+  int Square;
+  int PlayerNum;
+};
+#pragma pack(pop)
+
+/* 60 */
+#pragma pack(push, 8)
+struct RGE_Static_Object
+{
+  RGE_Static_ObjectVtbl *vfptr;
+  int gbg_civ_override;
+  float gbg_unknown_2;
+  int gbg_unknown_3;
+  int id;
+  RGE_Master_Static_Object *master_obj;
+  TRIBE_Player *owner;
+  RGE_Sprite *sprite;
+  RGE_Sprite *old_sprite;
+  RGE_Active_Sprite_List *sprite_list;
+  RGE_Tile *tile;
+  RGE_Static_Object *inside_obj;
+  RGE_New_Object_List *objects;
+  __int16 screen_x_offset;
+  __int16 screen_y_offset;
+  __int16 shadow_x_offset;
+  __int16 shadow_y_offset;
+  float hp;
+  float sp;
+  unsigned __int8 curr_damage_percent;
+  unsigned __int8 facet;
+  unsigned __int8 selected;
+  float world_x;
+  float world_y;
+  float world_z;
+  float attribute_amount_held;
+  unsigned __int8 object_state;
+  unsigned __int8 sleep_flag;
+  unsigned __int8 dopple_flag;
+  unsigned __int8 goto_sleep_flag;
+  __int16 attribute_type_held;
+  unsigned __int8 type;
+  unsigned __int8 worker_num;
+  ObsRecord *CurrentObstructionData;
+  ObsRecord *ObstructionDataList;
+  RGE_Static_Object **player_object_node;
+  int *mPathingGroup;
+  int mPathingGroupSize;
+  int mMaximumPathingGroupSize;
+  int damaged_lately_timer;
+  UnitAIModule *unitAIValue;
+  int zoneMapIndex;
+  unsigned __int8 inObstructionMapValue;
+  unsigned __int8 lastInObstructionMapValue;
+  unsigned __int8 underAttackValue;
+  int mGroupID;
+  unsigned __int8 mROOAlreadyCalled;
+  LOS_ExploreInfo ei;
+};
+#pragma pack(pop)
+
+/* 649 */
+#pragma pack(push, 8)
+struct Combat_Notifications
+{
+  int attacked_obj_id;
+  int count;
+  int player_id;
+  float x;
+  float y;
+  unsigned __int8 flags;
+  Combat_Notifications *next;
+};
+#pragma pack(pop)
+
+/* 297 */
+#pragma pack(push, 1)
+struct TribeMainDecisionAIModule
+{
+};
+#pragma pack(pop)
+
+/* 211 */
+#pragma pack(push, 8)
+struct TRIBE_History_Info
+{
+  TRIBE_History_Entry *history;
+  TRIBE_History_Events *events;
+  TRIBE_Player *player;
+  int number_of_events;
+  int number_of_entries;
+  int max_number_of_entries;
+  int update_history_count;
+  int old_total_razings;
+  int old_build_value_razings;
+  int old_total_razings_other;
+  int old_build_value_razings_other;
+  int old_total_kills;
+  int old_build_value_kills;
+  int old_total_kills_other;
+  int old_build_value_kills_other;
+  float razings_weight;
+  float kills_weight;
+  float razing_percent;
+  float kills_perecent;
+  int razings_flag;
+  int battle_flag;
+  unsigned int old_current_build_value_units;
+  unsigned int old_current_build_value_buildings;
+  unsigned __int16 old_player_kills[8];
+  unsigned int old_player_kill_BV[8];
+  unsigned __int16 old_player_razings[8];
+  unsigned int old_player_razing_BV[8];
+  float running_ave_BV_percent;
+  unsigned int running_total_BV_kills;
+  unsigned int running_total_BV_razings;
+  unsigned __int16 running_total_kills;
+  unsigned __int16 running_total_razings;
+};
+#pragma pack(pop)
+
+/* 138 */
+#pragma pack(push, 8)
+struct RGE_Object_List
+{
+  RGE_Object_ListVtbl *vfptr;
+  RGE_Object_Node *list;
+  __int16 number_of_objects;
+  RGE_Object_Node *next_node;
+};
+#pragma pack(pop)
+
+/* 656 */
+#pragma pack(push, 8)
+struct TRIBE_WorldVtbl
+{
+  unsigned __int8 (__thiscall *data_load_world)(TRIBE_World *, FILE *);
+  unsigned __int8 (__thiscall *data_load_terrain_tables)(TRIBE_World *, char *);
+  unsigned __int8 (__thiscall *data_load_players)(TRIBE_World *, char *);
+  unsigned __int8 (__thiscall *data_load_tasks)(TRIBE_World *, char *);
+  unsigned __int8 (__thiscall *data_load_objects)(TRIBE_World *, char *);
+  unsigned __int8 (__thiscall *data_load_sounds)(TRIBE_World *, char *);
+  unsigned __int8 (__thiscall *data_load_color_tables)(TRIBE_World *, char *);
+  unsigned __int8 (__thiscall *data_load_sprites)(TRIBE_World *, char *);
+  void (__thiscall *data_load_players_type)(TRIBE_World *, __int16, __int16, FILE *);
+  void (__thiscall *data_load_effects)(TRIBE_World *, char *);
+  void (__thiscall *data_load_map)(TRIBE_World *, char *, char *, char *, char *, __int16, __int16, __int16, RGE_Sound **, char *);
+  void (__thiscall *data_load_random_map)(TRIBE_World *, char *, char *, char *, char *);
+  void (__thiscall *data_load_unitlines)(TRIBE_World *, char *);
+  unsigned __int8 (__thiscall *init_player_type)(TRIBE_World *, int, __int16, unsigned __int8);
+  unsigned __int8 (__thiscall *init_player)(TRIBE_World *, int);
+  void (__thiscall *load_player)(TRIBE_World *, int, unsigned __int8, __int16);
+  void (__thiscall *color_table_init)(TRIBE_World *, int);
+  void (__thiscall *terrain_tables_init)(TRIBE_World *, int);
+  void (__thiscall *init_sounds)(TRIBE_World *, int, TSound_Driver *);
+  void (__thiscall *init_sprites)(TRIBE_World *, int);
+  void (__thiscall *map_init)(TRIBE_World *, int, TSound_Driver *);
+  void (__thiscall *effects_init)(TRIBE_World *, int);
+  void (__thiscall *master_player_init)(TRIBE_World *, int);
+  void (__thiscall *command_init)(TRIBE_World *, int, TCommunications_Handler *);
+  void (__thiscall *world_init)(TRIBE_World *, int, TSound_Driver *, TCommunications_Handler *);
+  void (__thiscall *setup_gaia)(TRIBE_World *);
+  unsigned __int8 (__thiscall *modify_gaia)(TRIBE_World *);
+  void (__thiscall *setup_players)(TRIBE_World *, RGE_Player_Info *);
+  unsigned __int8 (__thiscall *new_random_game)(TRIBE_World *, RGE_Player_Info *);
+  void (__thiscall *save)(TRIBE_World *, int, int);
+  void (__thiscall *scenario_make_player)(TRIBE_World *, __int16, unsigned __int8, unsigned __int8, unsigned __int8, char *);
+  void (__thiscall *scenario_make_map)(TRIBE_World *, int);
+  unsigned __int8 (__thiscall *load_scenario_2)(TRIBE_World *, RGE_Player_Info *);
+  unsigned __int8 (__thiscall *load_scenario_1)(TRIBE_World *, char *, RGE_Player_Info *, unsigned __int8);
+  void (__thiscall *load_scenario1)(TRIBE_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario2)(TRIBE_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario3)(TRIBE_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario4)(TRIBE_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario5)(TRIBE_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario6)(TRIBE_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario7)(TRIBE_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario8)(TRIBE_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario9)(TRIBE_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario10)(TRIBE_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario11)(TRIBE_World *, int, RGE_Player_Info *, int, unsigned __int8);
+  void (__thiscall *logStatus)(TRIBE_World *, FILE *, int);
+  void *(__thiscall *__vecDelDtor)(TRIBE_World *, unsigned int);
+  void (__thiscall *setup_player_colors_2)(TRIBE_World *);
+  void (__thiscall *setup_player_colors_1)(TRIBE_World *, RGE_Player_Info *);
+  unsigned __int8 (__thiscall *data_load)(TRIBE_World *, char *, char *);
+  unsigned __int8 (__thiscall *init)(TRIBE_World *, char *, TSound_Driver *, TCommunications_Handler *);
+  void (__thiscall *turn_sound_off)(TRIBE_World *);
+  void (__thiscall *del_game_info)(TRIBE_World *);
+  unsigned __int8 (__thiscall *update)(TRIBE_World *);
+  void (__thiscall *perform_auto_save)(TRIBE_World *);
+  unsigned __int8 (__thiscall *get_game_state)(TRIBE_World *);
+  unsigned __int8 (__thiscall *check_game_state)(TRIBE_World *);
+  unsigned __int8 (__thiscall *load_world)(TRIBE_World *, int, int);
+  unsigned __int8 (__thiscall *load_game)(TRIBE_World *, char *, int);
+  unsigned __int8 (__thiscall *new_game)(TRIBE_World *, RGE_Player_Info *, int);
+  unsigned __int8 (__thiscall *new_scenario)(TRIBE_World *, RGE_Player_Info *, int);
+  unsigned __int8 (__thiscall *save_game)(TRIBE_World *, char *, int, unsigned __int8);
+  void (__thiscall *base_save_2)(TRIBE_World *, char *);
+  void (__thiscall *base_save_1)(TRIBE_World *, int);
+  unsigned __int8 (__thiscall *save_scenario)(TRIBE_World *, char *);
+  void (__thiscall *save_scenario_main)(TRIBE_World *, int, char *);
+  RGE_Scenario *(__thiscall *get_scenario_info)(TRIBE_World *, char *);
+  void (__thiscall *pause)(TRIBE_World *, unsigned __int8);
+  void (__thiscall *update_mutual_allies)(TRIBE_World *);
+  void (__thiscall *scenario_init_2)(TRIBE_World *, RGE_Game_World *);
+  void (__thiscall *scenario_init_1)(TRIBE_World *, int, RGE_Game_World *, unsigned __int8);
+  int (__thiscall *addObject)(TRIBE_World *, RGE_Static_Object *);
+  int (__thiscall *removeObject)(TRIBE_World *, int);
 };
 #pragma pack(pop)
 
@@ -3757,6 +1493,9 @@ struct FILE_XFER_STRUCT
 
 /* 515 */
 typedef int COMMSTATES;
+
+/* 999 */
+typedef DWORD DPID;
 
 /* 516 */
 typedef int PLAYERHUMANITY;
@@ -4291,6 +2030,55 @@ struct RGE_Map
 };
 #pragma pack(pop)
 
+/* 89 */
+#pragma pack(push, 8)
+struct RGE_Sound
+{
+  __int16 play_at_update_count;
+  __int16 sound_num;
+  RGE_Sound_Info *sounds;
+  unsigned int cache_time;
+  __int16 id;
+};
+#pragma pack(pop)
+
+/* 77 */
+#pragma pack(push, 8)
+struct RGE_Sprite
+{
+  char pict_name[25];
+  int resource_id;
+  unsigned __int8 loaded;
+  RGE_Color_Table **color_tables;
+  TShape *shape;
+  int last_time;
+  int delta_time;
+  unsigned __int8 color_flag;
+  unsigned __int8 draw_level;
+  __int16 color_table;
+  unsigned __int8 transparent_picking_flag;
+  __int16 box_x1;
+  __int16 box_y1;
+  __int16 box_x2;
+  __int16 box_y2;
+  __int16 draw_list_num;
+  RGE_Picture_List *draw_list;
+  RGE_Sound *main_sound;
+  unsigned __int8 micro_man_sound;
+  RGE_Sound_List *sound_list;
+  char name[25];
+  __int16 frame_num;
+  __int16 facet_num;
+  float base_speed;
+  float duration;
+  float pause_between_loops;
+  unsigned __int8 flag;
+  __int16 id;
+  unsigned __int8 mirror_flag;
+  unsigned __int8 editor_flag;
+};
+#pragma pack(pop)
+
 /* 265 */
 #pragma pack(push, 8)
 struct RGE_Master_Player
@@ -4364,11 +2152,11 @@ struct RGE_Command_AI_Order
 };
 #pragma pack(pop)
 
-/* 127 */
+/* 128 */
 #pragma pack(push, 8)
-struct RGE_Command
+struct TRIBE_Command
 {
-  RGE_CommandVtbl *vfptr;
+  TRIBE_CommandVtbl *vfptr;
   RGE_Game_World *world;
   unsigned __int8 *last_order;
   int last_order_size;
@@ -4511,6 +2299,16 @@ struct RGE_Task_List
   RGE_Task **list;
   __int16 list_num;
   unsigned __int8 RGE_Task_List_gap[2];
+};
+#pragma pack(pop)
+
+/* 159 */
+#pragma pack(push, 8)
+struct BVector
+{
+  float x;
+  float y;
+  float z;
 };
 #pragma pack(pop)
 
@@ -4690,152 +2488,36 @@ struct BContextAnalyzer
 };
 #pragma pack(pop)
 
-/* 67 */
-#pragma pack(push, 8)
-struct RGE_Master_Combat_Object
+/* 129 */
+#pragma pack(push, 1)
+struct AIExpert
 {
-  RGE_Master_Combat_ObjectVtbl *vfptr;
-  unsigned __int8 master_type;
-  char *name;
-  char *gbg_name2;
-  __int16 unit_line;
-  unsigned __int8 min_tech_level;
-  __int16 string_id;
-  __int16 string_id2;
-  __int16 id;
-  __int16 copy_id;
-  __int16 base_id;
-  __int16 object_group;
-  RGE_Sprite *sprite;
-  RGE_Sprite *sprite2;
-  RGE_Sprite *death_sprite;
-  RGE_Sprite *undead_sprite;
-  unsigned __int8 undead_flag;
-  __int16 hp;
-  float los;
-  unsigned __int8 obj_max;
-  float radius_x;
-  float radius_y;
-  float radius_z;
-  RGE_Sound *selected_sound;
-  RGE_Sound *created_sound;
-  RGE_Sound *death_sound;
-  RGE_Sound *damage_sound;
-  __int16 death_spawn_obj_id;
-  unsigned __int8 sort_number;
-  unsigned __int8 can_be_built_on;
-  __int16 button_pict;
-  unsigned __int8 hide_in_scenario_editor;
-  __int16 portrait_pict;
-  unsigned __int8 available;
-  unsigned __int8 disabled;
-  __int16 tile_req1;
-  __int16 tile_req2;
-  __int16 center_tile_req1;
-  __int16 center_tile_req2;
-  float construction_radius_x;
-  float construction_radius_y;
-  unsigned __int8 elevation_flag;
-  unsigned __int8 fog_flag;
-  __int16 terrain;
-  unsigned __int8 movement_type;
-  __int16 attribute_type_held[3];
-  float attribute_amount_held[3];
-  __int16 attribute_max_amount;
-  float attribute_rot;
-  float multiple_attribute_mod;
-  unsigned __int8 attribute_flag[3];
-  unsigned __int8 area_effect_object_level;
-  unsigned __int8 combat_level;
-  unsigned __int8 select_level;
-  unsigned __int8 map_draw_level;
-  unsigned __int8 unit_level;
-  unsigned __int8 map_color;
-  unsigned __int8 attack_reaction;
-  unsigned __int8 convert_terrain_flag;
-  unsigned __int8 damage_sprite_num;
-  RGE_Damage_Sprite_Info *damage_sprites;
-  unsigned __int8 occlusion_flag;
-  unsigned __int8 obstruction_type;
-  unsigned __int8 obstruction_class;
-  unsigned int object_flags;
-  int help_string_id;
-  int help_page_id;
-  int hotkey_id;
-  unsigned __int8 recyclable;
-  unsigned __int8 track_as_resource;
-  unsigned __int8 create_doppleganger_on_death;
-  unsigned __int8 resource_group;
-  unsigned __int8 draw_flag;
-  unsigned __int8 draw_color;
-  float outline_radius_x;
-  float outline_radius_y;
-  float outline_radius_z;
-  float speed;
-  RGE_Sprite *move_sprite;
-  RGE_Sprite *run_sprite;
-  float turn_speed;
-  unsigned __int8 size_class;
-  __int16 obj_trail_id;
-  unsigned __int8 obj_trail_options;
-  float obj_trail_spacing;
-  unsigned __int8 move_algorithem;
-  float mTurnRadius;
-  float mTurnRadiusSpeed;
-  float mMaximumYawPerSecondMoving;
-  float mStationaryYawRevolutionTime;
-  float mMaximumYawPerSecondStationary;
-  RGE_Task_List *tasks;
-  __int16 default_task;
-  float search_radius;
-  float work_rate;
-  float gbg_work_rate_2;
-  __int16 drop_site;
-  __int16 backup_drop_site;
-  unsigned __int8 task_by_group;
-  RGE_Sound *command_sound;
-  RGE_Sound *move_sound;
-  unsigned __int8 run_pattern;
-  unsigned __int8 RGE_Master_Action_Object_gap[3];
-  RGE_Sprite *fight_sprite;
-  __int16 base_armor;
-  __int16 armor_num;
-  RGE_Armor_Weapon_Info *armor;
-  __int16 weapon_num;
-  RGE_Armor_Weapon_Info *weapon;
-  __int16 defense_terrain_bonus;
-  float weapon_range;
-  float area_effect_range;
-  unsigned __int8 area_effect_level;
-  float speed_of_attack;
-  __int16 missile_id;
-  __int16 base_hit_chance;
-  unsigned __int8 break_off_combat;
-  __int16 fire_missile_at_frame;
-  float weapon_offset_x;
-  float weapon_offset_y;
-  float weapon_offset_z;
-  float minimum_weapon_range;
-  __int16 orig_armor;
-  __int16 orig_weapon;
-  float orig_weapon_range;
-  float orig_speed_of_attack;
-  float missed_missile_spread;
 };
 #pragma pack(pop)
 
-/* 520 */
+/* 274 */
 #pragma pack(push, 8)
-struct RGE_Sound_Info
+struct TribeAIFacts
 {
-  char name[13];
-  int resource_id;
-  __int16 percent;
-  __int16 player_id;
-  __int16 culture;
-  TDigital *digital_sound;
-  unsigned __int8 loaded;
-  unsigned int time;
+};
+#pragma pack(pop)
+
+/* 120 */
+#pragma pack(push, 8)
+struct TRIBE_Trigger_System
+{
+  TRIBE_World *world;
+  unsigned __int8 objectives_updated;
+  unsigned __int8 **shared_valid_condition_info;
+  unsigned __int8 **shared_valid_effect_info;
+  TRIBE_Trigger **trigger_list;
+  int *trigger_order;
+  int trigger_num;
+  int max_trigger_num;
+  float timer;
+  int current_objective_order;
+  int current_objective_index;
+  int next_objective_order;
 };
 #pragma pack(pop)
 
@@ -4846,6 +2528,53 @@ struct XYZBYTEPoint
   unsigned __int8 x;
   unsigned __int8 y;
   unsigned __int8 z;
+};
+#pragma pack(pop)
+
+/* 657 */
+#pragma pack(push, 8)
+struct RGE_Master_Static_ObjectVtbl
+{
+  unsigned __int8 (__thiscall *gbg_needs_power)(RGE_Master_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_sprite_civ_override)(RGE_Master_Static_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_sprite2_civ_override)(RGE_Master_Static_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_death_sprite_civ_override)(RGE_Master_Static_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_undead_sprite_civ_override)(RGE_Master_Static_Object *, RGE_Static_Object *);
+  void *(__thiscall *__vecDelDtor)(RGE_Master_Static_Object *, unsigned int);
+  void (__thiscall *copy_obj)(RGE_Master_Static_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *modify)(RGE_Master_Static_Object *, float, unsigned __int8);
+  void (__thiscall *modify_delta)(RGE_Master_Static_Object *, float, unsigned __int8);
+  void (__thiscall *modify_percent)(RGE_Master_Static_Object *, float, unsigned __int8);
+  void (__thiscall *small_save)(RGE_Master_Static_Object *, int);
+  void (__thiscall *save)(RGE_Master_Static_Object *, int);
+  RGE_Static_Object *(__thiscall *make_new_obj)(RGE_Master_Static_Object *, RGE_Player *, float, float, float);
+  RGE_Master_Static_Object *(__thiscall *make_new_master)(RGE_Master_Static_Object *);
+  unsigned __int8 (__thiscall *check_placement)(RGE_Master_Static_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
+  unsigned __int8 (__thiscall *alignment)(RGE_Master_Static_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
+  int (__thiscall *calc_base_damage_ability)(RGE_Master_Static_Object *, RGE_Master_Combat_Object *);
+  void (__thiscall *play_command_sound)(RGE_Master_Static_Object *, RGE_Player *);
+  void (__thiscall *play_move_sound)(RGE_Master_Static_Object *, RGE_Player *);
+  void (__thiscall *draw)(RGE_Master_Static_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
+  float (__thiscall *maximumSpeed)(RGE_Master_Static_Object *, int);
+  float (__thiscall *acceleration)(RGE_Master_Static_Object *, int);
+  float (__thiscall *deceleration)(RGE_Master_Static_Object *, int);
+  float (__thiscall *getTurnRadius)(RGE_Master_Static_Object *);
+  float (__thiscall *getTurnRadiusSpeed)(RGE_Master_Static_Object *);
+  int (__thiscall *setTurnRadiusOffTurnSpeed)(RGE_Master_Static_Object *);
+  int (__thiscall *setTurnRadius)(RGE_Master_Static_Object *, float, float);
+  float (__thiscall *getMaximumYawPerSecondMoving)(RGE_Master_Static_Object *);
+  float (__thiscall *getMaximumYawPerSecondStationary)(RGE_Master_Static_Object *);
+  void (__thiscall *setStationaryYawRevolutionTime)(RGE_Master_Static_Object *, float);
+};
+#pragma pack(pop)
+
+/* 562 */
+#pragma pack(push, 8)
+struct RGE_Damage_Sprite_Info
+{
+  RGE_Sprite *sprite;
+  unsigned __int8 damage_percent;
+  unsigned __int8 flag;
 };
 #pragma pack(pop)
 
@@ -4891,6 +2620,108 @@ struct RGE_Victory_Entry
 };
 #pragma pack(pop)
 
+/* 58 */
+#pragma pack(push, 8)
+struct RGE_Player
+{
+  RGE_PlayerVtbl *vfptr;
+  int computerPlayerValue;
+  int pathingAttemptCapValue;
+  int pathingDelayCapValue;
+  int currentUpdatePathingAttemptsValue;
+  int checksum;
+  int position_checksum;
+  int action_checksum;
+  unsigned __int8 checksum_created_this_update;
+  int mLineRatio;
+  int mColumnRatio;
+  int mMinColumnDistance;
+  int mColumnToLineDistance;
+  int mAutoFormations;
+  float mFormationInfluenceDistance;
+  int mBreakAutoFormationsBySpeed;
+  float pendingDebit[4];
+  float escrow[4];
+  float escrowPercentage[4];
+  int master_object_num;
+  RGE_Master_Static_Object **master_objects;
+  RGE_Player_Object_List *objects;
+  RGE_Player_Object_List *sleeping_objects;
+  RGE_Player_Object_List *doppleganger_objects;
+  RGE_Victory_Conditions *victory_conditions;
+  RGE_Visible_Map *visible;
+  RGE_Game_World *world;
+  RGE_Doppleganger_Creator *doppleganger_creator;
+  RGE_Visible_Object_Updator *visible_object_updator;
+  unsigned __int8 gbg_unknown_mask;
+  char *name;
+  int id;
+  unsigned __int8 type;
+  unsigned __int8 culture;
+  unsigned __int8 game_status;
+  unsigned __int8 resigned;
+  int attribute_num;
+  float *attributes;
+  RGE_Tile_List tile_list;
+  RGE_Tile_List diam_tile_list;
+  unsigned __int8 *relations;
+  int unitDiplomacy[9];
+  int mutualAlly[9];
+  unsigned int mutualExploredMask;
+  unsigned int mutualVisibleMask;
+  unsigned int nonMutualVisibleMask;
+  unsigned int RemoveVisibleBits[9];
+  int allied_LOS_Enable;
+  unsigned __int8 allied_victory;
+  unsigned __int8 master_player_id;
+  RGE_Color_Table *color_table;
+  RGE_Color_Table *true_color_table;
+  int tribe_effect;
+  int team_effect;
+  Visible_Resource_Manager *VR_List;
+  float view_x;
+  float view_y;
+  __int16 map_x;
+  __int16 map_y;
+  RGE_View_Stack *view_stack;
+  int view_stack_size;
+  int start_x;
+  int start_y;
+  float map_scroll_vector_x;
+  float map_scroll_vector_y;
+  float map_scroll_end_x;
+  float map_scroll_end_y;
+  float map_scroll_start_x;
+  float map_scroll_start_y;
+  float map_scroll_total_distance;
+  float map_scroll_distance;
+  __int16 selected_start_col;
+  __int16 selected_start_row;
+  __int16 selected_end_col;
+  __int16 selected_end_row;
+  __int16 replacement_terrain;
+  __int16 replacement_overlay;
+  __int16 replacement_overlay_shape;
+  RGE_Static_Object *selected_obj;
+  RGE_Static_Object *sel_list[40];
+  unsigned int sel_object_properties;
+  int sel_count;
+  unsigned __int8 groups_used[127];
+  __int16 object_category_count[1600];
+  __int16 object_group_count[100];
+  __int16 built_object_category_count[1600];
+  __int16 built_object_group_count[100];
+  __int16 total_unit_count;
+  __int16 total_building_count;
+  __int16 built_unit_count;
+  __int16 built_building_count;
+  int easiest_reaction_percentage;
+  int easier_reaction_percentage;
+  unsigned __int8 task_ungrouped_soldiers;
+  unsigned __int8 RGE_Player_gap[3];
+};
+#pragma pack(pop)
+
 /* 295 */
 #pragma pack(push, 8)
 struct RGE_Victory_Point_Entry
@@ -4910,148 +2741,100 @@ struct RGE_Victory_Point_Entry
 };
 #pragma pack(pop)
 
-/* 656 */
+/* 72 */
 #pragma pack(push, 8)
-struct TRIBE_WorldVtbl
+struct RGE_Game_World
 {
-  unsigned __int8 (__thiscall *data_load_world)(TRIBE_World *, FILE *);
-  unsigned __int8 (__thiscall *data_load_terrain_tables)(TRIBE_World *, char *);
-  unsigned __int8 (__thiscall *data_load_players)(TRIBE_World *, char *);
-  unsigned __int8 (__thiscall *data_load_tasks)(TRIBE_World *, char *);
-  unsigned __int8 (__thiscall *data_load_objects)(TRIBE_World *, char *);
-  unsigned __int8 (__thiscall *data_load_sounds)(TRIBE_World *, char *);
-  unsigned __int8 (__thiscall *data_load_color_tables)(TRIBE_World *, char *);
-  unsigned __int8 (__thiscall *data_load_sprites)(TRIBE_World *, char *);
-  void (__thiscall *data_load_players_type)(TRIBE_World *, __int16, __int16, FILE *);
-  void (__thiscall *data_load_effects)(TRIBE_World *, char *);
-  void (__thiscall *data_load_map)(TRIBE_World *, char *, char *, char *, char *, __int16, __int16, __int16, RGE_Sound **, char *);
-  void (__thiscall *data_load_random_map)(TRIBE_World *, char *, char *, char *, char *);
-  void (__thiscall *data_load_unitlines)(TRIBE_World *, char *);
-  unsigned __int8 (__thiscall *init_player_type)(TRIBE_World *, int, __int16, unsigned __int8);
-  unsigned __int8 (__thiscall *init_player)(TRIBE_World *, int);
-  void (__thiscall *load_player)(TRIBE_World *, int, unsigned __int8, __int16);
-  void (__thiscall *color_table_init)(TRIBE_World *, int);
-  void (__thiscall *terrain_tables_init)(TRIBE_World *, int);
-  void (__thiscall *init_sounds)(TRIBE_World *, int, TSound_Driver *);
-  void (__thiscall *init_sprites)(TRIBE_World *, int);
-  void (__thiscall *map_init)(TRIBE_World *, int, TSound_Driver *);
-  void (__thiscall *effects_init)(TRIBE_World *, int);
-  void (__thiscall *master_player_init)(TRIBE_World *, int);
-  void (__thiscall *command_init)(TRIBE_World *, int, TCommunications_Handler *);
-  void (__thiscall *world_init)(TRIBE_World *, int, TSound_Driver *, TCommunications_Handler *);
-  void (__thiscall *setup_gaia)(TRIBE_World *);
-  unsigned __int8 (__thiscall *modify_gaia)(TRIBE_World *);
-  void (__thiscall *setup_players)(TRIBE_World *, RGE_Player_Info *);
-  unsigned __int8 (__thiscall *new_random_game)(TRIBE_World *, RGE_Player_Info *);
-  void (__thiscall *save)(TRIBE_World *, int, int);
-  void (__thiscall *scenario_make_player)(TRIBE_World *, __int16, unsigned __int8, unsigned __int8, unsigned __int8, char *);
-  void (__thiscall *scenario_make_map)(TRIBE_World *, int);
-  unsigned __int8 (__thiscall *load_scenario_2)(TRIBE_World *, RGE_Player_Info *);
-  unsigned __int8 (__thiscall *load_scenario_1)(TRIBE_World *, char *, RGE_Player_Info *, unsigned __int8);
-  void (__thiscall *load_scenario1)(TRIBE_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario2)(TRIBE_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario3)(TRIBE_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario4)(TRIBE_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario5)(TRIBE_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario6)(TRIBE_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario7)(TRIBE_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario8)(TRIBE_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario9)(TRIBE_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario10)(TRIBE_World *, int, RGE_Player_Info *);
-  void (__thiscall *load_scenario11)(TRIBE_World *, int, RGE_Player_Info *, int, unsigned __int8);
-  void (__thiscall *logStatus)(TRIBE_World *, FILE *, int);
-  void *(__thiscall *__vecDelDtor)(TRIBE_World *, unsigned int);
-  void (__thiscall *setup_player_colors_2)(TRIBE_World *);
-  void (__thiscall *setup_player_colors_1)(TRIBE_World *, RGE_Player_Info *);
-  unsigned __int8 (__thiscall *data_load)(TRIBE_World *, char *, char *);
-  unsigned __int8 (__thiscall *init)(TRIBE_World *, char *, TSound_Driver *, TCommunications_Handler *);
-  void (__thiscall *turn_sound_off)(TRIBE_World *);
-  void (__thiscall *del_game_info)(TRIBE_World *);
-  unsigned __int8 (__thiscall *update)(TRIBE_World *);
-  void (__thiscall *perform_auto_save)(TRIBE_World *);
-  unsigned __int8 (__thiscall *get_game_state)(TRIBE_World *);
-  unsigned __int8 (__thiscall *check_game_state)(TRIBE_World *);
-  unsigned __int8 (__thiscall *load_world)(TRIBE_World *, int, int);
-  unsigned __int8 (__thiscall *load_game)(TRIBE_World *, char *, int);
-  unsigned __int8 (__thiscall *new_game)(TRIBE_World *, RGE_Player_Info *, int);
-  unsigned __int8 (__thiscall *new_scenario)(TRIBE_World *, RGE_Player_Info *, int);
-  unsigned __int8 (__thiscall *save_game)(TRIBE_World *, char *, int, unsigned __int8);
-  void (__thiscall *base_save_2)(TRIBE_World *, char *);
-  void (__thiscall *base_save_1)(TRIBE_World *, int);
-  unsigned __int8 (__thiscall *save_scenario)(TRIBE_World *, char *);
-  void (__thiscall *save_scenario_main)(TRIBE_World *, int, char *);
-  RGE_Scenario *(__thiscall *get_scenario_info)(TRIBE_World *, char *);
-  void (__thiscall *pause)(TRIBE_World *, unsigned __int8);
-  void (__thiscall *update_mutual_allies)(TRIBE_World *);
-  void (__thiscall *scenario_init_2)(TRIBE_World *, RGE_Game_World *);
-  void (__thiscall *scenario_init_1)(TRIBE_World *, int, RGE_Game_World *, unsigned __int8);
-  int (__thiscall *addObject)(TRIBE_World *, RGE_Static_Object *);
-  int (__thiscall *removeObject)(TRIBE_World *, int);
-};
-#pragma pack(pop)
-
-/* 128 */
-#pragma pack(push, 8)
-struct TRIBE_Command
-{
-  TRIBE_CommandVtbl *vfptr;
-  RGE_Game_World *world;
-  unsigned __int8 *last_order;
-  int last_order_size;
-  int last_order_time;
-  int mReplayViewOldUnitID;
-  int mReplayViewOldTargetID;
-  unsigned int mReplayViewTimer1;
-  unsigned int mReplayViewTimer2;
-  unsigned int mReplayViewTimer3;
-  __int16 sent_commanded_count;
-  int sent_commanded_valid;
-  int sent_commanded_units[40];
-  unsigned __int8 last_commanded_count[9];
-  RGE_Obj_Info last_commanded_units[9][40];
-  RGE_Command_AI_Order ai_orders[200];
-  int ai_order_count;
-  TCommunications_Handler *com_hand;
-};
-#pragma pack(pop)
-
-/* 251 */
-#pragma pack(push, 1)
-struct TRIBE_Tech
-{
-};
-#pragma pack(pop)
-
-/* 129 */
-#pragma pack(push, 1)
-struct AIExpert
-{
-};
-#pragma pack(pop)
-
-/* 274 */
-#pragma pack(push, 1)
-struct TribeAIFacts
-{
-};
-#pragma pack(pop)
-
-/* 120 */
-#pragma pack(push, 8)
-struct TRIBE_Trigger_System
-{
-  TRIBE_World *world;
-  unsigned __int8 objectives_updated;
-  unsigned __int8 **shared_valid_condition_info;
-  unsigned __int8 **shared_valid_effect_info;
-  TRIBE_Trigger **trigger_list;
-  int *trigger_order;
-  int trigger_num;
-  int max_trigger_num;
+  RGE_Game_WorldVtbl *vfptr;
+  eSaveLoadModes_e eSaveLoadModes;
+  unsigned int mExpertSystemChecksum;
+  TCommunications_Handler *com_handler;
+  unsigned int world_time;
+  unsigned int old_world_time;
+  unsigned int world_time_delta;
   float timer;
-  int current_objective_order;
-  int current_objective_index;
-  int next_objective_order;
+  unsigned int old_time;
+  float game_speed;
+  unsigned __int8 temp_pause;
+  unsigned __int8 game_state;
+  unsigned __int8 game_end_condition;
+  int sound_update_index;
+  int sprite_update_index;
+  RGE_Map *map;
+  __int16 sound_num;
+  RGE_Sound **sounds;
+  __int16 sprite_num;
+  RGE_Sprite **sprites;
+  __int16 player_num;
+  RGE_Player **players;
+  __int16 master_player_num;
+  RGE_Master_Player **master_players;
+  RGE_Effects *effects;
+  __int16 terrain_num;
+  __int16 terrain_size;
+  float **terrains;
+  RGE_Extra_Terrain_Table **extra_terrain_info;
+  RGE_Command *commands;
+  RGE_Scenario *scenario;
+  RGE_Sprite_Particle_System *particle_system;
+  RGE_Map_Analysis_System *map_analysis_system;
+  __int16 color_table_num;
+  RGE_Color_Table **color_tables;
+  int next_object_id;
+  int next_reusable_object_id;
+  int scenario_object_id;
+  unsigned __int8 scenario_object_flag;
+  unsigned int random_seed;
+  __int16 curr_player;
+  float view_x;
+  float view_y;
+  float sound_falloff_ratio;
+  TSound_Driver *sound_driver;
+  float world_time_delta_seconds;
+  RGE_Static_Object **objectsValue;
+  int numberObjectsValue;
+  int maxNumberObjectsValue;
+  RGE_Static_Object **negativeObjectsValue;
+  int numberNegativeObjectsValue;
+  int maxNumberNegativeObjectsValue;
+  int campaign;
+  int campaign_player;
+  int campaign_scenario;
+  int player_turn;
+  unsigned int player_time_delta[9];
+  RGE_Object_List *reusable_static_objects;
+  RGE_Object_List *reusable_animated_objects;
+  RGE_Object_List *reusable_moving_objects;
+  RGE_Object_List *reusable_action_objects;
+  RGE_Object_List *reusable_combat_objects;
+  RGE_Object_List *reusable_missile_objects;
+  RGE_Object_List *reusable_doppleganger_objects;
+  unsigned int maximumComputerPlayerUpdateTime;
+  unsigned int availableComputerPlayerUpdateTime;
+  int currentUpdateComputerPlayer;
+  char auto_save_name[100];
+  int auto_save_count;
+  int auto_save_timer;
+  RGE_Task_List **tasks;
+  int task_count;
+  int gbg_unknown_1;
+  int gbg_unknown_2;
+  int gbg_unknown_3;
+  int gbg_unknown_4;
+  int gbg_unknown_5;
+  int gbg_unknown_6;
+  int difficultyLevelValue;
+  int allianceLocked;
+  BPath paths;
+  int numberPathsValue;
+  int pathIDCounterValue;
+  BUnitGroup *unitGroups;
+  int mNumberUnitGroups;
+  int mUnitGroupCounter;
+  BContextAnalyzer *mContextAnalyzer;
+  unsigned int mReplayTimeStart;
+  unsigned int mReplayRecordedInterval;
+  unsigned int mReplayPauseTime;
 };
 #pragma pack(pop)
 
@@ -5066,6 +2849,16 @@ struct vis_Upd_info
 };
 #pragma pack(pop)
 
+/* 591 */
+#pragma pack(push, 8)
+struct RGE_Color_TableVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Color_Table *, unsigned int);
+  int (__thiscall *get_id)(RGE_Color_Table *);
+  int (__thiscall *get_real_id)(RGE_Color_Table *);
+};
+#pragma pack(pop)
+
 /* 327 */
 #pragma pack(push, 8)
 struct VISIBLE_RESOURCE_REC
@@ -5075,6 +2868,558 @@ struct VISIBLE_RESOURCE_REC
   unsigned __int8 zone;
   unsigned __int8 pos_x;
   unsigned __int8 pos_y;
+};
+#pragma pack(pop)
+
+/* 201 */
+#pragma pack(push, 8)
+struct XYZPoint
+{
+  int x;
+  int y;
+  int z;
+};
+#pragma pack(pop)
+
+/* 652 */
+#pragma pack(push, 8)
+struct RGE_Static_ObjectVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Static_Object *, unsigned int);
+  int (__thiscall *gbg_unknown1)(RGE_Static_Object *);
+  int (__thiscall *gbg_get_civ_override)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isSpaceport)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isGEAssaultMech)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isAircraft)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isAirCruiser)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isResourceBuilding)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isMilitaryUnit)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isCivilianUnit)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isPredatorUnit)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isStaticPredatorUnit)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isPadawan)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isMaster)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isAttackGroundButtonAvailable)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isShielded)(RGE_Static_Object *);
+  void (__thiscall *gbg_unknown16)(RGE_Static_Object *);
+  void (__thiscall *gbg_unknown17)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isStealth)(RGE_Static_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isDetector)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isObjectSpriteDisplayed)(RGE_Static_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isPowered)(RGE_Static_Object *, int);
+  void (__thiscall *gbg_unknown22)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_unknown23)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isBiological)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_isDamaged)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_unknown26)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *gbg_canBeHealedByPlayer)(RGE_Static_Object *, int);
+  unsigned __int8 (__thiscall *gbg_canBeRepairedByPlayer)(RGE_Static_Object *, int);
+  void (__thiscall *recycle_in_to_game)(RGE_Static_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
+  void (__thiscall *recycle_out_of_game)(RGE_Static_Object *);
+  void (__thiscall *draw)(RGE_Static_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *);
+  void (__thiscall *shadow_draw)(RGE_Static_Object *, TDrawArea *, __int16, __int16, unsigned __int8);
+  void (__thiscall *normal_draw)(RGE_Static_Object *, TDrawArea *, __int16, __int16);
+  void (__thiscall *draw_front_frame)(RGE_Static_Object *, TDrawArea *, __int16, __int16);
+  void (__thiscall *draw_back_frame)(RGE_Static_Object *, TDrawArea *, __int16, __int16);
+  void (__thiscall *draw_frame)(RGE_Static_Object *, TDrawArea *, __int16, __int16);
+  unsigned __int8 (__thiscall *update)(RGE_Static_Object *);
+  void (__thiscall *check_damage_sprites)(RGE_Static_Object *);
+  void (__thiscall *rehook)(RGE_Static_Object *);
+  void (__thiscall *save)(RGE_Static_Object *, int);
+  void (__thiscall *teleport_off_map)(RGE_Static_Object *);
+  float (__thiscall *teleport)(RGE_Static_Object *, float, float, float);
+  float (__thiscall *handle_teleport_z_correction)(RGE_Static_Object *, float);
+  void (__thiscall *new_sprite)(RGE_Static_Object *, RGE_Sprite *);
+  void (__thiscall *add_overlay_sprite)(RGE_Static_Object *, RGE_Sprite *, unsigned __int8);
+  void (__thiscall *remove_overlay_sprite)(RGE_Static_Object *, RGE_Sprite *);
+  void (__thiscall *change_ownership)(RGE_Static_Object *, RGE_Player *);
+  void (__thiscall *modify)(RGE_Static_Object *, float, unsigned __int8);
+  void (__thiscall *modify_delta)(RGE_Static_Object *, float, unsigned __int8);
+  void (__thiscall *modify_percent)(RGE_Static_Object *, float, unsigned __int8);
+  void (__thiscall *transform)(RGE_Static_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *copy_obj)(RGE_Static_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *set_object_state)(RGE_Static_Object *, unsigned __int8);
+  void (__thiscall *remove_visible_resource)(RGE_Static_Object *);
+  void (__thiscall *create_doppleganger_when_dying)(RGE_Static_Object *);
+  void (__thiscall *destroy_obj)(RGE_Static_Object *);
+  void (__thiscall *die_die_die)(RGE_Static_Object *);
+  void (__thiscall *damage)(RGE_Static_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *, int);
+  float (__thiscall *calculateDamage)(RGE_Static_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *);
+  void (__thiscall *rotate)(RGE_Static_Object *, int);
+  unsigned __int8 (__thiscall *can_attack)(RGE_Static_Object *);
+  void (__thiscall *set_attribute)(RGE_Static_Object *, __int16, float);
+  void (__thiscall *set_attribute_amount)(RGE_Static_Object *, float, unsigned __int8, unsigned __int8);
+  int (__thiscall *heal_2)(RGE_Static_Object *, int, int);
+  unsigned __int8 (__thiscall *heal_1)(RGE_Static_Object *, float);
+  int (__thiscall *canRepair)(RGE_Static_Object *);
+  void (__thiscall *notify_of_relation)(RGE_Static_Object *, int, unsigned __int8);
+  void (__thiscall *do_command)(RGE_Static_Object *, RGE_Static_Object *, float, float, float);
+  int (__thiscall *actionTypeIfOrdered)(RGE_Static_Object *, RGE_Static_Object *, float, float, float, float *);
+  unsigned __int8 (__thiscall *move_to)(RGE_Static_Object *, RGE_Static_Object *, float, float, float);
+  void (__thiscall *work)(RGE_Static_Object *, RGE_Static_Object *, float, float, float);
+  void (__thiscall *stop)(RGE_Static_Object *);
+  void (__thiscall *set_attack)(RGE_Static_Object *, RGE_Static_Object *);
+  void (__thiscall *play_command_sound)(RGE_Static_Object *);
+  void (__thiscall *play_move_sound)(RGE_Static_Object *);
+  void (__thiscall *new_angle)(RGE_Static_Object *, float);
+  RGE_Static_Object *(__thiscall *spawn_death_obj)(RGE_Static_Object *);
+  RGE_Master_Static_Object *(__thiscall *get_command_master)(RGE_Static_Object *, RGE_Static_Object *, float, float, float);
+  void (__thiscall *set_being_worked_on)(RGE_Static_Object *, RGE_Action_Object *, __int16, unsigned __int8);
+  void (__thiscall *release_being_worked_on)(RGE_Static_Object *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *is_moving)(RGE_Static_Object *);
+  RGE_Static_Object *(__thiscall *get_target_obj)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *more_room)(RGE_Static_Object *, RGE_Static_Object *);
+  void (__thiscall *enter_obj)(RGE_Static_Object *, RGE_Static_Object *, unsigned __int8);
+  void (__thiscall *exit_obj)(RGE_Static_Object *);
+  void (__thiscall *add_obj)(RGE_Static_Object *, RGE_Static_Object *);
+  void (__thiscall *remove_obj)(RGE_Static_Object *, RGE_Static_Object *);
+  int (__thiscall *explore_terrain)(RGE_Static_Object *, RGE_Player *, unsigned __int8, int, int);
+  void (__thiscall *unexplore_terrain)(RGE_Static_Object *, RGE_Player *, unsigned __int8, int, int);
+  LOSTBL *(__thiscall *get_los_table)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *get_visibility)(RGE_Static_Object *, RGE_Player *);
+  int (__thiscall *inAttackRange)(RGE_Static_Object *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *underAttack)(RGE_Static_Object *);
+  void (__thiscall *setUnderAttack)(RGE_Static_Object *, unsigned __int8);
+  float (__thiscall *calc_attack_modifier)(RGE_Static_Object *, RGE_Static_Object *);
+  float (__thiscall *getSpeed)(RGE_Static_Object *);
+  float (__thiscall *getAngle)(RGE_Static_Object *);
+  float (__thiscall *maximumSpeed)(RGE_Static_Object *);
+  float (__thiscall *rateOfFire)(RGE_Static_Object *);
+  float (__thiscall *damageCapability_2)(RGE_Static_Object *, RGE_Static_Object *);
+  float (__thiscall *damageCapability_1)(RGE_Static_Object *);
+  float (__thiscall *weaponRange)(RGE_Static_Object *);
+  float (__thiscall *minimumWeaponRange)(RGE_Static_Object *);
+  int (__thiscall *passableTile_2)(RGE_Static_Object *, float, float, int *, int);
+  int (__thiscall *passableTile_1)(RGE_Static_Object *, float, float);
+  int (__thiscall *currentTargetID)(RGE_Static_Object *);
+  float (__thiscall *currentTargetX)(RGE_Static_Object *);
+  float (__thiscall *currentTargetY)(RGE_Static_Object *);
+  float (__thiscall *currentTargetZ)(RGE_Static_Object *);
+  void (__thiscall *setWaitingToMove)(RGE_Static_Object *, unsigned __int8);
+  unsigned __int8 (__thiscall *waitingToMove)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *actionState)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *keepGatheringWhenObjectIsOut)(RGE_Static_Object *, int);
+  unsigned __int8 (__thiscall *produceWhenKilledBy)(RGE_Static_Object *, int);
+  unsigned __int8 (__thiscall *useSameZoneDropsite)(RGE_Static_Object *);
+  float (__thiscall *searchRadius)(RGE_Static_Object *);
+  unsigned __int8 (__thiscall *is_idle)(RGE_Static_Object *);
+  void (*logDebug)(RGE_Static_Object *, char *, ...);
+  void (*debug)(RGE_Static_Object *, char *, ...);
+  void (__thiscall *notify)(RGE_Static_Object *, int, int, int, int, int, int);
+  int (__thiscall *attack_2)(RGE_Static_Object *, float, float, float, int);
+  int (__thiscall *attack_1)(RGE_Static_Object *, int, int);
+  int (__thiscall *moveTo_3)(RGE_Static_Object *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(RGE_Static_Object *, int, float, int);
+  int (__thiscall *moveTo_1)(RGE_Static_Object *, int, int);
+  int (__thiscall *moveAwayFrom)(RGE_Static_Object *, int, int);
+  int (__thiscall *hunt)(RGE_Static_Object *, int, int);
+  int (__thiscall *gather)(RGE_Static_Object *, int, int);
+  int (__thiscall *convert)(RGE_Static_Object *, int, int);
+  int (__thiscall *repair)(RGE_Static_Object *, int, int);
+  int (__thiscall *build)(RGE_Static_Object *, int, int);
+  int (__thiscall *trade)(RGE_Static_Object *, int, int);
+  int (__thiscall *explore)(RGE_Static_Object *, int, int, int);
+  int (__thiscall *enter)(RGE_Static_Object *, int, int);
+  int (__thiscall *unload)(RGE_Static_Object *, int, float, float, float);
+  int (__thiscall *transport)(RGE_Static_Object *, float, float, float, int);
+  int (__thiscall *stopAction)(RGE_Static_Object *);
+  int (__thiscall *pause)(RGE_Static_Object *);
+  int (__thiscall *canPath_2)(RGE_Static_Object *, int, float, float *, int, int, bool);
+  int (__thiscall *canPath_1)(RGE_Static_Object *, XYZPoint, float, int, float *, int, int, bool);
+  int (__thiscall *canQuickPath)(RGE_Static_Object *, int, float, float *);
+  int (__thiscall *canPathWithObstructions)(RGE_Static_Object *, int, float, float *, int, int, ManagedArray_int_ *);
+  int (__thiscall *canPathWithAdditionalPassability)(RGE_Static_Object *, XYZPoint, float, int, float *, int, int, int, int, int, BPath *);
+  int (__thiscall *findFirstTerrainAlongExceptionPath)(RGE_Static_Object *, int, float *, float *, BPath *);
+  int (__thiscall *canLinePath_2)(RGE_Static_Object *, int, int, int, int, float, int);
+  int (__thiscall *canLinePath_1)(RGE_Static_Object *, const XYPoint *, const XYPoint *, float, XYPoint *, int);
+  int (__thiscall *firstTileAlongLine)(RGE_Static_Object *, const XYPoint *, const XYPoint *, XYPoint *, int, int, int);
+  unsigned __int8 (__thiscall *have_action)(RGE_Static_Object *);
+  int (__thiscall *gameActionType)(RGE_Static_Object *);
+  BVector *(__thiscall *userDefinedWaypoint)(RGE_Static_Object *, int);
+  int (__thiscall *addUserDefinedWaypoint)(RGE_Static_Object *, float, float, float);
+  void (__thiscall *zeroUserDefinedWaypoints)(RGE_Static_Object *);
+  void (__thiscall *removeAllUserDefinedWaypoints)(RGE_Static_Object *);
+  int (__thiscall *numberUserDefinedWaypoints)(RGE_Static_Object *);
+  BPath *(__thiscall *getPatrolInformation)(RGE_Static_Object *, int *);
+  float (__thiscall *distanceToHighestLevelPath_2)(RGE_Static_Object *, BVector);
+  float (__thiscall *distanceToHighestLevelPath_1)(RGE_Static_Object *);
+  BPath *(__thiscall *findAvoidancePath)(RGE_Static_Object *, XYZPoint *, float, int);
+  int (__thiscall *get_action_checksum)(RGE_Static_Object *);
+  int (__thiscall *get_waypoint_checksum)(RGE_Static_Object *);
+  void (__thiscall *setPatrolMode)(RGE_Static_Object *, unsigned __int8);
+  int (__thiscall *garrisoned_count)(RGE_Static_Object *);
+  int (__thiscall *lock_down)(RGE_Static_Object *);
+  int (__thiscall *unlock_down)(RGE_Static_Object *);
+  int (__thiscall *get_locked_down_count)(RGE_Static_Object *);
+  float (__thiscall *getTradeAmount)(RGE_Static_Object *, float, float, float, float);
+  int (__thiscall *setup_2)(RGE_Static_Object *, int, RGE_Game_World *);
+  int (__thiscall *setup_1)(RGE_Static_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
+  RGE_New_Object_List *(__thiscall *create_object_list)(RGE_Static_Object *);
+  RGE_Active_Sprite_List *(__thiscall *create_sprite_list)(RGE_Static_Object *);
+  BVector *(__thiscall *position)(RGE_Static_Object *, BVector *);
+  BPathData *(__thiscall *getPathData)(RGE_Static_Object *);
+  int (__thiscall *actionType)(RGE_Static_Object *);
+  int (__thiscall *hasActionOfType)(RGE_Static_Object *, int);
+  int (__thiscall *gbg_hasActionOfType2)(RGE_Static_Object *, int);
+  int (__thiscall *addMove)(RGE_Static_Object *, int, float, int, int, int);
+  int (__thiscall *addCurrentPath)(RGE_Static_Object *, BPath *, int, float, int);
+  int (__thiscall *addFuturePath)(RGE_Static_Object *, BPath *, int, float, int);
+  void (__thiscall *stopAllMovement)(RGE_Static_Object *);
+  void (__thiscall *setOrientation)(RGE_Static_Object *, BVector *, BVector *);
+  BVector *(__thiscall *velocity)(RGE_Static_Object *, BVector *);
+  void (__thiscall *setVelocity)(RGE_Static_Object *, BVector *);
+  BVector *(__thiscall *acceleration)(RGE_Static_Object *, BVector *);
+  void (__thiscall *setAcceleration)(RGE_Static_Object *, BVector *);
+  float (__thiscall *forwardVelocity)(RGE_Static_Object *);
+  void (__thiscall *setForwardVelocity)(RGE_Static_Object *, float);
+  float (__thiscall *forwardAcceleration)(RGE_Static_Object *);
+  void (__thiscall *setForwardAcceleration)(RGE_Static_Object *, float);
+  void (__thiscall *moveForward)(RGE_Static_Object *, float);
+  void (__thiscall *setPosition)(RGE_Static_Object *, BVector *);
+  void (__thiscall *yaw)(RGE_Static_Object *, float);
+  int (__thiscall *isMoving)(RGE_Static_Object *);
+  void (__thiscall *stopMoving)(RGE_Static_Object *);
+  float (__thiscall *calculateFutureVelocity)(RGE_Static_Object *, float, float, float, BVector *);
+  unsigned int (__thiscall *lastMoveTime)(RGE_Static_Object *);
+  void (__thiscall *pauseMovement)(RGE_Static_Object *, float);
+  int (__thiscall *movementPriority)(RGE_Static_Object *);
+  int (__thiscall *intelligentMovementUpdate)(RGE_Static_Object *);
+  float (__thiscall *calculateMaximumSpeed)(RGE_Static_Object *, int);
+  int (__thiscall *calculateForward)(RGE_Static_Object *, BVector *, BVector *, BVector *);
+  float (__thiscall *calculateYawAngle)(RGE_Static_Object *, BVector *, BVector *, float, int *);
+  int (__thiscall *calculateReachedPoint)(RGE_Static_Object *, BVector *, BVector *, BVector *);
+  float (__thiscall *calculateTurnRadius)(RGE_Static_Object *);
+  int (__thiscall *checkAcceleration)(RGE_Static_Object *, BVector *, int, int);
+  BVector *(__thiscall *straightProjectedPosition)(RGE_Static_Object *, BVector *, BVector *, float);
+  int (__thiscall *onPatrol)(RGE_Static_Object *);
+  BVector *(__thiscall *orientationForward)(RGE_Static_Object *, BVector *);
+  int (__thiscall *setRunSprite)(RGE_Static_Object *);
+  int (__thiscall *setMoveSprite)(RGE_Static_Object *);
+  int (__thiscall *setFidgetSprite)(RGE_Static_Object *);
+  int (__thiscall *getGateLocked)(RGE_Static_Object *);
+  void (__thiscall *setGateLocked)(RGE_Static_Object *, int);
+  int (__thiscall *isGateOpenable)(RGE_Static_Object *, int);
+  int (__thiscall *getLinkedChild)(RGE_Static_Object *, int);
+  int (__thiscall *get_next_selected_group)(RGE_Static_Object *, int);
+  __int16 (__thiscall *get_Selected_Groups)(RGE_Static_Object *);
+  void (__thiscall *set_Selected_Groups)(RGE_Static_Object *, __int16);
+  int (__thiscall *get_num_Selected_groups)(RGE_Static_Object *);
+};
+#pragma pack(pop)
+
+/* 76 */
+#pragma pack(push, 8)
+struct RGE_Active_Sprite_List
+{
+  RGE_Active_Sprite_ListVtbl *vfptr;
+  RGE_Active_Sprite_Node *list;
+  RGE_Static_Object *owner;
+};
+#pragma pack(pop)
+
+/* 190 */
+#pragma pack(push, 8)
+struct RGE_Tile
+{
+  __int16 screen_xpos;
+  __int16 screen_ypos;
+  unsigned __int8 tile_type;
+  unsigned __int8 terrain_type;
+  unsigned __int8 height;
+  unsigned __int8 last_drawn_as;
+  unsigned __int8 last_drawn_shape;
+  unsigned __int8 draw_as;
+  unsigned __int8 draw_attribute;
+  unsigned __int8 area_control;
+  unsigned __int8 multi_tile_vector;
+  unsigned __int8 TileObject_Count;
+  unsigned __int8 last_drawn_shape2;
+  unsigned __int8 ObjectDeleteLock;
+  TShape *TileShape;
+  RGE_Static_Object **Object_List;
+  RGE_Sprite_Particle *particle_list;
+  unsigned __int8 particle_list_count;
+  unsigned __int8 place_holder1;
+  unsigned __int8 place_holder2;
+  unsigned __int8 place_holder3;
+};
+#pragma pack(pop)
+
+/* 205 */
+#pragma pack(push, 8)
+struct RGE_New_Object_List
+{
+  RGE_Static_Object **List;
+  int Number_of_objects;
+  int ListSize;
+  int GrowSize;
+  bool DeletingAll;
+};
+#pragma pack(pop)
+
+/* 503 */
+#pragma pack(push, 8)
+struct ObsRecord__$B9193B69CC5E42799476A322097F919A__$E40FE0E4C69CE251F817A0E38191C2E3
+{
+  float X;
+  float Y;
+  float Radius;
+  float Radius2;
+  float Xmin;
+  float Ymin;
+  float Xmax;
+  float Ymax;
+};
+#pragma pack(pop)
+
+/* 443 */
+#pragma pack(push, 8)
+struct Point
+{
+  float X;
+  float Y;
+};
+#pragma pack(pop)
+
+/* 448 */
+#pragma pack(push, 8)
+struct Line
+{
+  Point P0;
+  Point P1;
+};
+#pragma pack(pop)
+
+/* 504 */
+#pragma pack(push, 8)
+struct ObsRecord__$B9193B69CC5E42799476A322097F919A__$C9A9179C5B769E253E4D5622F321340B
+{
+  Line LineSeg;
+  float X3;
+  float Y3;
+  float X4;
+  float Y4;
+};
+#pragma pack(pop)
+
+/* 505 */
+#pragma pack(push, 8)
+struct ObsRecord__$B9193B69CC5E42799476A322097F919A__$515678BC539BA2526E795D19D27B6BF1
+{
+  float X1;
+  float Y1;
+  float X2;
+  float Y2;
+  float Slope;
+  bool isVertical;
+  bool isHorizontal;
+};
+#pragma pack(pop)
+
+/* 506 */
+#pragma pack(push, 8)
+union ObsRecord__$B9193B69CC5E42799476A322097F919A
+{
+  float DirectVal[8];
+  #pragma pack(push, 8)
+  struct
+  {
+    float X;
+    float Y;
+    float Radius;
+    float Radius2;
+    float Xmin;
+    float Ymin;
+    float Xmax;
+    float Ymax;
+  };
+  #pragma pack(pop)
+  #pragma pack(push, 8)
+  struct
+  {
+    Line LineSeg;
+    float X3;
+    float Y3;
+    float X4;
+    float Y4;
+  };
+  #pragma pack(pop)
+  #pragma pack(push, 8)
+  struct
+  {
+    float X1;
+    float Y1;
+    float X2;
+    float Y2;
+    float Slope;
+    bool isVertical;
+    bool isHorizontal;
+  };
+  #pragma pack(pop)
+};
+#pragma pack(pop)
+
+/* 193 */
+#pragma pack(push, 8)
+struct ObsRecord
+{
+  int NodeProperties;
+  unsigned __int8 Type;
+  unsigned __int8 Status;
+  unsigned __int8 NodeType;
+  unsigned __int8 Color;
+  RGE_Static_Object *Object;
+  ObsRecord *Next;
+  int ThisNodeIdx;
+  int ThisPtrIdx;
+  unsigned int id;
+  unsigned __int8 idxMinX;
+  unsigned __int8 idxMinY;
+  unsigned __int8 idxMaxX;
+  unsigned __int8 idxMaxY;
+  #pragma pack(push, 8)
+  union
+  {
+    float DirectVal[8];
+    #pragma pack(push, 8)
+    struct
+    {
+      float X;
+      float Y;
+      float Radius;
+      float Radius2;
+      float Xmin;
+      float Ymin;
+      float Xmax;
+      float Ymax;
+    };
+    #pragma pack(pop)
+    #pragma pack(push, 8)
+    struct
+    {
+      Line LineSeg;
+      float X3;
+      float Y3;
+      float X4;
+      float Y4;
+    };
+    #pragma pack(pop)
+    #pragma pack(push, 8)
+    struct
+    {
+      float X1;
+      float Y1;
+      float X2;
+      float Y2;
+      float Slope;
+      bool isVertical;
+      bool isHorizontal;
+    };
+    #pragma pack(pop)
+  };
+  #pragma pack(pop)
+};
+#pragma pack(pop)
+
+/* 960 */
+#pragma pack(push, 8)
+struct UnitAIOrderHistory
+{
+  int mOrder;
+  int mAction;
+  unsigned int mTime;
+  BVector mPosition;
+  int mTargetID;
+  int mTargetAttackCategory;
+  BVector mTargetPosition;
+  UnitAIOrderHistory *next;
+  UnitAIOrderHistory *prev;
+};
+#pragma pack(pop)
+
+/* 402 */
+#pragma pack(push, 1)
+struct __declspec(align(4)) ManagedArray_int_
+{
+  int value;
+  int numberValue;
+  int desiredNumberValue;
+  int maximumSizeValue;
+};
+#pragma pack(pop)
+
+/* 938 */
+#pragma pack(push, 8)
+struct Waypoint
+{
+  float x;
+  float y;
+  float z;
+  unsigned __int8 facetToNextWaypoint;
+};
+#pragma pack(pop)
+
+/* 140 */
+#pragma pack(push, 8)
+struct UnitAIModule
+{
+  UnitAIModuleVtbl *vfptr;
+  RGE_Combat_Object *objectValue;
+  int moodValue;
+  int objectCategoryValue;
+  int orderQueueSizeValue;
+  int orderQueueMaxSizeValue;
+  OrderEvent *orderQueueValue;
+  int notifyQueueSizeValue;
+  int notifyQueueMaxSizeValue;
+  NotifyEvent *notifyQueueValue;
+  int currentOrderValue;
+  int currentOrderPriorityValue;
+  int currentActionValue;
+  int currentTargetValue;
+  int currentTargetTypeValue;
+  float currentTargetXValue;
+  float currentTargetYValue;
+  float currentTargetZValue;
+  float desiredTargetDistanceValue;
+  int defendTargetValue;
+  int lastOrderValue;
+  int lastActionValue;
+  int lastTargetValue;
+  int lastTargetTypeValue;
+  UnitAIOrderHistory mOrderHistory;
+  int mOrderHistorySize;
+  unsigned int mLastRetargetTime;
+  ManagedArray_int_ attackingUnitsValue;
+  Waypoint waypointQueue[8];
+  int waypointQueueSizeValue;
+  unsigned int lastUpdateTimeValue;
+  unsigned int idleTimerValue;
+  unsigned int adjustedIdleTimeoutValue;
+  unsigned int idleTimeoutValue;
+  unsigned int secondaryTimerValue;
+  unsigned int lookAroundTimerValue;
+  unsigned int lookAroundTimeoutValue;
+  Waypoint lastWorldPositionValue;
+  float defenseBufferValue;
+  int *importantObjects;
+  int numberImportantObjects;
+  unsigned __int8 stopAfterTargetKilledValue;
+  unsigned __int8 stateValue;
+  float statePositionXValue;
+  float statePositionYValue;
+  float timeSinceEnemySighting;
+  unsigned __int8 alertModeValue;
+  int alertModeObjectIDValue;
+  BPath *mPatrolPath;
+  int mPatrolCurrentWaypoint;
+  unsigned int mRandomizedRetargetTimer;
+  int mBestUnitToAttackThisUpdate;
+  unsigned __int8 mFormationType;
+  unsigned __int8 autoAttackOrderFlag;
+  int mNumberRetargetEntries;
+  int mMaximumNumberRetargetEntries;
+  UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
 };
 #pragma pack(pop)
 
@@ -5117,558 +3462,6 @@ struct RGE_Object_Node
   RGE_Object_Node *next;
   RGE_Object_Node *prev;
   unsigned __int8 centered;
-};
-#pragma pack(pop)
-
-/* 451 */
-#pragma pack(push, 8)
-struct Shape_Clip_Mask
-{
-  int Width;
-  int Height;
-  int Node_Count;
-  Shape_Clip_Node **LineList;
-  Shape_Clip_Node *NodeHeap;
-};
-#pragma pack(pop)
-
-/* 518 */
-#pragma pack(push, 8)
-struct Shape_File_Header
-{
-  char Version[4];
-  int Num_Shapes;
-  char Comment[24];
-};
-#pragma pack(pop)
-
-/* 85 */
-#pragma pack(push, 8)
-struct Shape_Info
-{
-  unsigned int Shape_Data_Offsets;
-  unsigned int Shape_Outline_Offset;
-  unsigned int Palette_Offset;
-  unsigned int Properties;
-  int Width;
-  int Height;
-  int Hotspot_X;
-  int Hotspot_Y;
-};
-#pragma pack(pop)
-
-/* 79 */
-#pragma pack(push, 8)
-struct RGE_Active_Sprite
-{
-  RGE_Active_SpriteVtbl *vfptr;
-  RGE_Sprite *sprite;
-  unsigned __int8 type;
-  int offset_x;
-  int offset_y;
-  __int16 frame;
-  unsigned __int8 invis_flag;
-  unsigned __int8 RGE_Active_Sprite_gap;
-};
-#pragma pack(pop)
-
-/* 760 */
-#pragma pack(push, 8)
-struct RGE_Combat_ObjectVtbl
-{
-  void *(__thiscall *__vecDelDtor)(RGE_Combat_Object *, unsigned int);
-  int (__thiscall *gbg_unknown1)(RGE_Combat_Object *);
-  int (__thiscall *gbg_get_civ_override)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown3)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown4)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown5)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown6)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown7)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown8)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown9)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown10)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown11)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_isPadawan)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_isMaster)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown14)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_isShielded)(RGE_Combat_Object *);
-  void (__thiscall *gbg_unknown16)(RGE_Combat_Object *);
-  void (__thiscall *gbg_unknown17)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown18)(RGE_Combat_Object *, int);
-  unsigned __int8 (__thiscall *gbg_isDetector)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown20)(RGE_Combat_Object *, int);
-  unsigned __int8 (__thiscall *gbg_isPowered)(RGE_Combat_Object *, int);
-  void (__thiscall *gbg_unknown22)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown23)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_isBiological)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_isDamaged)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown26)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_canBeHealedByPlayer)(RGE_Combat_Object *, int);
-  unsigned __int8 (__thiscall *gbg_canBeRepairedByPlayer)(RGE_Combat_Object *, int);
-  void (__thiscall *recycle_in_to_game)(RGE_Combat_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
-  void (__thiscall *recycle_out_of_game)(RGE_Combat_Object *);
-  void (__thiscall *draw)(RGE_Combat_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *);
-  void (__thiscall *shadow_draw)(RGE_Combat_Object *, TDrawArea *, __int16, __int16, unsigned __int8);
-  void (__thiscall *normal_draw)(RGE_Combat_Object *, TDrawArea *, __int16, __int16);
-  void (__thiscall *draw_front_frame)(RGE_Combat_Object *, TDrawArea *, __int16, __int16);
-  void (__thiscall *draw_back_frame)(RGE_Combat_Object *, TDrawArea *, __int16, __int16);
-  void (__thiscall *draw_frame)(RGE_Combat_Object *, TDrawArea *, __int16, __int16);
-  unsigned __int8 (__thiscall *update)(RGE_Combat_Object *);
-  void (__thiscall *check_damage_sprites)(RGE_Combat_Object *);
-  void (__thiscall *rehook)(RGE_Combat_Object *);
-  void (__thiscall *save)(RGE_Combat_Object *, int);
-  void (__thiscall *teleport_off_map)(RGE_Combat_Object *);
-  float (__thiscall *teleport)(RGE_Combat_Object *, float, float, float);
-  float (__thiscall *handle_teleport_z_correction)(RGE_Combat_Object *, float);
-  void (__thiscall *new_sprite)(RGE_Combat_Object *, RGE_Sprite *);
-  void (__thiscall *add_overlay_sprite)(RGE_Combat_Object *, RGE_Sprite *, unsigned __int8);
-  void (__thiscall *remove_overlay_sprite)(RGE_Combat_Object *, RGE_Sprite *);
-  void (__thiscall *change_ownership)(RGE_Combat_Object *, RGE_Player *);
-  void (__thiscall *modify)(RGE_Combat_Object *, float, unsigned __int8);
-  void (__thiscall *modify_delta)(RGE_Combat_Object *, float, unsigned __int8);
-  void (__thiscall *modify_percent)(RGE_Combat_Object *, float, unsigned __int8);
-  void (__thiscall *transform)(RGE_Combat_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *copy_obj)(RGE_Combat_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *set_object_state)(RGE_Combat_Object *, unsigned __int8);
-  void (__thiscall *remove_visible_resource)(RGE_Combat_Object *);
-  void (__thiscall *create_doppleganger_when_dying)(RGE_Combat_Object *);
-  void (__thiscall *destroy_obj)(RGE_Combat_Object *);
-  void (__thiscall *die_die_die)(RGE_Combat_Object *);
-  void (__thiscall *damage)(RGE_Combat_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *, int);
-  float (__thiscall *calculateDamage)(RGE_Combat_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *);
-  void (__thiscall *rotate)(RGE_Combat_Object *, int);
-  unsigned __int8 (__thiscall *can_attack)(RGE_Combat_Object *);
-  void (__thiscall *set_attribute)(RGE_Combat_Object *, __int16, float);
-  void (__thiscall *set_attribute_amount)(RGE_Combat_Object *, float, unsigned __int8, unsigned __int8);
-  int (__thiscall *heal_2)(RGE_Combat_Object *, int, int);
-  unsigned __int8 (__thiscall *heal_1)(RGE_Combat_Object *, float);
-  int (__thiscall *canRepair)(RGE_Combat_Object *);
-  void (__thiscall *notify_of_relation)(RGE_Combat_Object *, int, unsigned __int8);
-  void (__thiscall *do_command)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float);
-  int (__thiscall *actionTypeIfOrdered)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float, float *);
-  unsigned __int8 (__thiscall *move_to)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float);
-  void (__thiscall *work)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float);
-  void (__thiscall *stop)(RGE_Combat_Object *);
-  void (__thiscall *set_attack)(RGE_Combat_Object *, RGE_Static_Object *);
-  void (__thiscall *play_command_sound)(RGE_Combat_Object *);
-  void (__thiscall *play_move_sound)(RGE_Combat_Object *);
-  void (__thiscall *new_angle)(RGE_Combat_Object *, float);
-  RGE_Static_Object *(__thiscall *spawn_death_obj)(RGE_Combat_Object *);
-  RGE_Master_Static_Object *(__thiscall *get_command_master)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float);
-  void (__thiscall *set_being_worked_on)(RGE_Combat_Object *, RGE_Action_Object *, __int16, unsigned __int8);
-  void (__thiscall *release_being_worked_on)(RGE_Combat_Object *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *is_moving)(RGE_Combat_Object *);
-  RGE_Static_Object *(__thiscall *get_target_obj)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *more_room)(RGE_Combat_Object *, RGE_Static_Object *);
-  void (__thiscall *enter_obj)(RGE_Combat_Object *, RGE_Static_Object *, unsigned __int8);
-  void (__thiscall *exit_obj)(RGE_Combat_Object *);
-  void (__thiscall *add_obj)(RGE_Combat_Object *, RGE_Static_Object *);
-  void (__thiscall *remove_obj)(RGE_Combat_Object *, RGE_Static_Object *);
-  int (__thiscall *explore_terrain)(RGE_Combat_Object *, RGE_Player *, unsigned __int8, int, int);
-  void (__thiscall *unexplore_terrain)(RGE_Combat_Object *, RGE_Player *, unsigned __int8, int, int);
-  LOSTBL *(__thiscall *get_los_table)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *get_visibility)(RGE_Combat_Object *, RGE_Player *);
-  int (__thiscall *inAttackRange)(RGE_Combat_Object *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *underAttack)(RGE_Combat_Object *);
-  void (__thiscall *setUnderAttack)(RGE_Combat_Object *, unsigned __int8);
-  float (__thiscall *calc_attack_modifier)(RGE_Combat_Object *, RGE_Static_Object *);
-  float (__thiscall *getSpeed)(RGE_Combat_Object *);
-  float (__thiscall *getAngle)(RGE_Combat_Object *);
-  float (__thiscall *maximumSpeed)(RGE_Combat_Object *);
-  float (__thiscall *rateOfFire)(RGE_Combat_Object *);
-  float (__thiscall *damageCapability_2)(RGE_Combat_Object *, RGE_Static_Object *);
-  float (__thiscall *damageCapability_1)(RGE_Combat_Object *);
-  float (__thiscall *weaponRange)(RGE_Combat_Object *);
-  float (__thiscall *minimumWeaponRange)(RGE_Combat_Object *);
-  int (__thiscall *passableTile_2)(RGE_Combat_Object *, float, float, int *, int);
-  int (__thiscall *passableTile_1)(RGE_Combat_Object *, float, float);
-  int (__thiscall *currentTargetID)(RGE_Combat_Object *);
-  float (__thiscall *currentTargetX)(RGE_Combat_Object *);
-  float (__thiscall *currentTargetY)(RGE_Combat_Object *);
-  float (__thiscall *currentTargetZ)(RGE_Combat_Object *);
-  void (__thiscall *setWaitingToMove)(RGE_Combat_Object *, unsigned __int8);
-  unsigned __int8 (__thiscall *waitingToMove)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *actionState)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *keepGatheringWhenObjectIsOut)(RGE_Combat_Object *, int);
-  unsigned __int8 (__thiscall *produceWhenKilledBy)(RGE_Combat_Object *, int);
-  unsigned __int8 (__thiscall *useSameZoneDropsite)(RGE_Combat_Object *);
-  float (__thiscall *searchRadius)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *is_idle)(RGE_Combat_Object *);
-  void (*logDebug)(RGE_Combat_Object *, char *, ...);
-  void (*debug)(RGE_Combat_Object *, char *, ...);
-  void (__thiscall *notify)(RGE_Combat_Object *, int, int, int, int, int, int);
-  int (__thiscall *attack_2)(RGE_Combat_Object *, float, float, float, int);
-  int (__thiscall *attack_1)(RGE_Combat_Object *, int, int);
-  int (__thiscall *moveTo_3)(RGE_Combat_Object *, float, float, float, float, int, int);
-  int (__thiscall *moveTo_2)(RGE_Combat_Object *, int, float, int);
-  int (__thiscall *moveTo_1)(RGE_Combat_Object *, int, int);
-  int (__thiscall *moveAwayFrom)(RGE_Combat_Object *, int, int);
-  int (__thiscall *hunt)(RGE_Combat_Object *, int, int);
-  int (__thiscall *gather)(RGE_Combat_Object *, int, int);
-  int (__thiscall *convert)(RGE_Combat_Object *, int, int);
-  int (__thiscall *repair)(RGE_Combat_Object *, int, int);
-  int (__thiscall *build)(RGE_Combat_Object *, int, int);
-  int (__thiscall *trade)(RGE_Combat_Object *, int, int);
-  int (__thiscall *explore)(RGE_Combat_Object *, int, int, int);
-  int (__thiscall *enter)(RGE_Combat_Object *, int, int);
-  int (__thiscall *unload)(RGE_Combat_Object *, int, float, float, float);
-  int (__thiscall *transport)(RGE_Combat_Object *, float, float, float, int);
-  int (__thiscall *stopAction)(RGE_Combat_Object *);
-  int (__thiscall *pause)(RGE_Combat_Object *);
-  int (__thiscall *canPath_2)(RGE_Combat_Object *, int, float, float *, int, int, bool);
-  int (__thiscall *canPath_1)(RGE_Combat_Object *, XYZPoint, float, int, float *, int, int, bool);
-  int (__thiscall *canQuickPath)(RGE_Combat_Object *, int, float, float *);
-  int (__thiscall *canPathWithObstructions)(RGE_Combat_Object *, int, float, float *, int, int, ManagedArray_int_ *);
-  int (__thiscall *canPathWithAdditionalPassability)(RGE_Combat_Object *, XYZPoint, float, int, float *, int, int, int, int, int, BPath *);
-  int (__thiscall *findFirstTerrainAlongExceptionPath)(RGE_Combat_Object *, int, float *, float *, BPath *);
-  int (__thiscall *canLinePath_2)(RGE_Combat_Object *, int, int, int, int, float, int);
-  int (__thiscall *canLinePath_1)(RGE_Combat_Object *, const XYPoint *, const XYPoint *, float, XYPoint *, int);
-  int (__thiscall *firstTileAlongLine)(RGE_Combat_Object *, const XYPoint *, const XYPoint *, XYPoint *, int, int, int);
-  unsigned __int8 (__thiscall *have_action)(RGE_Combat_Object *);
-  int (__thiscall *gameActionType)(RGE_Combat_Object *);
-  BVector *(__thiscall *userDefinedWaypoint)(RGE_Combat_Object *, int);
-  int (__thiscall *addUserDefinedWaypoint)(RGE_Combat_Object *, float, float, float);
-  void (__thiscall *zeroUserDefinedWaypoints)(RGE_Combat_Object *);
-  void (__thiscall *removeAllUserDefinedWaypoints)(RGE_Combat_Object *);
-  int (__thiscall *numberUserDefinedWaypoints)(RGE_Combat_Object *);
-  BPath *(__thiscall *getPatrolInformation)(RGE_Combat_Object *, int *);
-  float (__thiscall *distanceToHighestLevelPath_2)(RGE_Combat_Object *, BVector);
-  float (__thiscall *distanceToHighestLevelPath_1)(RGE_Combat_Object *);
-  BPath *(__thiscall *findAvoidancePath)(RGE_Combat_Object *, XYZPoint *, float, int);
-  int (__thiscall *get_action_checksum)(RGE_Combat_Object *);
-  int (__thiscall *get_waypoint_checksum)(RGE_Combat_Object *);
-  void (__thiscall *setPatrolMode)(RGE_Combat_Object *, unsigned __int8);
-  int (__thiscall *garrisoned_count)(RGE_Combat_Object *);
-  int (__thiscall *lock_down)(RGE_Combat_Object *);
-  int (__thiscall *unlock_down)(RGE_Combat_Object *);
-  int (__thiscall *get_locked_down_count)(RGE_Combat_Object *);
-  float (__thiscall *getTradeAmount)(RGE_Combat_Object *, float, float, float, float);
-  int (__thiscall *setup_2)(RGE_Combat_Object *, int, RGE_Game_World *);
-  int (__thiscall *setup_1)(RGE_Combat_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
-  RGE_New_Object_List *(__thiscall *create_object_list)(RGE_Combat_Object *);
-  RGE_Active_Sprite_List *(__thiscall *create_sprite_list)(RGE_Combat_Object *);
-  BVector *(__thiscall *position)(RGE_Combat_Object *, BVector *);
-  BPathData *(__thiscall *getPathData)(RGE_Combat_Object *);
-  int (__thiscall *actionType)(RGE_Combat_Object *);
-  int (__thiscall *hasActionOfType)(RGE_Combat_Object *, int);
-  int (__thiscall *gbg_hasActionOfType2)(RGE_Combat_Object *, int);
-  int (__thiscall *addMove)(RGE_Combat_Object *, int, float, int, int, int);
-  int (__thiscall *addCurrentPath)(RGE_Combat_Object *, BPath *, int, float, int);
-  int (__thiscall *addFuturePath)(RGE_Combat_Object *, BPath *, int, float, int);
-  void (__thiscall *stopAllMovement)(RGE_Combat_Object *);
-  void (__thiscall *setOrientation)(RGE_Combat_Object *, BVector *, BVector *);
-  BVector *(__thiscall *velocity)(RGE_Combat_Object *, BVector *);
-  void (__thiscall *setVelocity)(RGE_Combat_Object *, BVector *);
-  BVector *(__thiscall *acceleration)(RGE_Combat_Object *, BVector *);
-  void (__thiscall *setAcceleration)(RGE_Combat_Object *, BVector *);
-  float (__thiscall *forwardVelocity)(RGE_Combat_Object *);
-  void (__thiscall *setForwardVelocity)(RGE_Combat_Object *, float);
-  float (__thiscall *forwardAcceleration)(RGE_Combat_Object *);
-  void (__thiscall *setForwardAcceleration)(RGE_Combat_Object *, float);
-  void (__thiscall *moveForward)(RGE_Combat_Object *, float);
-  void (__thiscall *setPosition)(RGE_Combat_Object *, BVector *);
-  void (__thiscall *yaw)(RGE_Combat_Object *, float);
-  int (__thiscall *isMoving)(RGE_Combat_Object *);
-  void (__thiscall *stopMoving)(RGE_Combat_Object *);
-  float (__thiscall *calculateFutureVelocity)(RGE_Combat_Object *, float, float, float, BVector *);
-  unsigned int (__thiscall *lastMoveTime)(RGE_Combat_Object *);
-  void (__thiscall *pauseMovement)(RGE_Combat_Object *, float);
-  int (__thiscall *movementPriority)(RGE_Combat_Object *);
-  int (__thiscall *intelligentMovementUpdate)(RGE_Combat_Object *);
-  float (__thiscall *calculateMaximumSpeed)(RGE_Combat_Object *, int);
-  int (__thiscall *calculateForward)(RGE_Combat_Object *, BVector *, BVector *, BVector *);
-  float (__thiscall *calculateYawAngle)(RGE_Combat_Object *, BVector *, BVector *, float, int *);
-  int (__thiscall *calculateReachedPoint)(RGE_Combat_Object *, BVector *, BVector *, BVector *);
-  float (__thiscall *calculateTurnRadius)(RGE_Combat_Object *);
-  int (__thiscall *checkAcceleration)(RGE_Combat_Object *, BVector *, int, int);
-  BVector *(__thiscall *straightProjectedPosition)(RGE_Combat_Object *, BVector *, BVector *, float);
-  int (__thiscall *onPatrol)(RGE_Combat_Object *);
-  BVector *(__thiscall *orientationForward)(RGE_Combat_Object *, BVector *);
-  int (__thiscall *setRunSprite)(RGE_Combat_Object *);
-  int (__thiscall *setMoveSprite)(RGE_Combat_Object *);
-  int (__thiscall *setFidgetSprite)(RGE_Combat_Object *);
-  int (__thiscall *getGateLocked)(RGE_Combat_Object *);
-  void (__thiscall *setGateLocked)(RGE_Combat_Object *, int);
-  int (__thiscall *isGateOpenable)(RGE_Combat_Object *, int);
-  int (__thiscall *getLinkedChild)(RGE_Combat_Object *, int);
-  int (__thiscall *get_next_selected_group)(RGE_Combat_Object *, int);
-  __int16 (__thiscall *get_Selected_Groups)(RGE_Combat_Object *);
-  void (__thiscall *set_Selected_Groups)(RGE_Combat_Object *, __int16);
-  int (__thiscall *get_num_Selected_groups)(RGE_Combat_Object *);
-  int (__thiscall *setup_3)(RGE_Combat_Object *, RGE_Master_Animated_Object *, RGE_Player *, float, float, float);
-  void (__thiscall *stop_moving)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *turn_towards)(RGE_Combat_Object *, RGE_Static_Object *, float, float);
-  void (__thiscall *set_angle)(RGE_Combat_Object *);
-  int (__thiscall *canLinePath_4)(RGE_Combat_Object *, int, int, int, int, float);
-  int (__thiscall *canLinePath_3)(RGE_Combat_Object *, XYPoint *, XYPoint *, float, XYPoint *);
-  int (__thiscall *setup_4)(RGE_Combat_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
-  int (__thiscall *addMove_2)(RGE_Combat_Object *, int, float, float, float, float, int, int, int);
-  void (__thiscall *work2)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
-  void (__thiscall *set_task)(RGE_Combat_Object *, __int16);
-  void (__thiscall *setTaskByTaskID)(RGE_Combat_Object *, int);
-  void (__thiscall *set_action)(RGE_Combat_Object *, RGE_Action *);
-  void (__thiscall *set_only_action)(RGE_Combat_Object *, RGE_Action *);
-  void (__thiscall *set_end_action)(RGE_Combat_Object *, RGE_Action *);
-  RGE_Task *(__thiscall *getTask)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float, __int16);
-  void (__thiscall *setUnitAIAction)(RGE_Combat_Object *, int, RGE_Static_Object *, float, float, float);
-  int (__thiscall *setup_5)(RGE_Combat_Object *, RGE_Master_Action_Object *, RGE_Player *, float, float, float);
-  RGE_Action_List *(__thiscall *create_action_list)(RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *area_attack)(RGE_Combat_Object *, float, float, float, RGE_Combat_Object *, RGE_Static_Object *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *attack_4)(RGE_Combat_Object *, float, float, float, RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *attack_3)(RGE_Combat_Object *, RGE_Static_Object *, RGE_Combat_Object *);
-  unsigned __int8 (__thiscall *do_attack)(RGE_Combat_Object *, RGE_Static_Object *, RGE_Combat_Object *, float, float, float, float);
-  void (__thiscall *get_armor)(RGE_Combat_Object *, __int16 *, __int16 *);
-  void (__thiscall *get_weapon)(RGE_Combat_Object *, __int16 *, __int16 *);
-  void (__thiscall *get_weapon_range)(RGE_Combat_Object *, float *, float *);
-  void (__thiscall *get_speed_of_attack)(RGE_Combat_Object *, float *, float *);
-  int (__thiscall *inAttackRange_2)(RGE_Combat_Object *, RGE_Static_Object *, int *);
-  int (__thiscall *setup_6)(RGE_Combat_Object *, RGE_Master_Combat_Object *, RGE_Player *, float, float, float);
-};
-#pragma pack(pop)
-
-/* 194 */
-#pragma pack(push, 8)
-struct VISIBLE_UNIT_REC
-{
-  int object_id;
-  unsigned __int8 distance;
-  unsigned __int8 player;
-  unsigned __int8 pos_x;
-  unsigned __int8 pos_y;
-};
-#pragma pack(pop)
-
-/* 455 */
-#pragma pack(push, 8)
-struct VSpan_Node
-{
-  VSpan_Node *Next;
-  VSpan_Node *Prev;
-  int StartPx;
-  int EndPx;
-};
-#pragma pack(pop)
-
-/* 63 */
-#pragma pack(push, 8)
-struct RGE_Master_Moving_Object
-{
-  RGE_Master_Moving_ObjectVtbl *vfptr;
-  unsigned __int8 master_type;
-  char *name;
-  char *gbg_name2;
-  __int16 unit_line;
-  unsigned __int8 min_tech_level;
-  __int16 string_id;
-  __int16 string_id2;
-  __int16 id;
-  __int16 copy_id;
-  __int16 base_id;
-  __int16 object_group;
-  RGE_Sprite *sprite;
-  RGE_Sprite *sprite2;
-  RGE_Sprite *death_sprite;
-  RGE_Sprite *undead_sprite;
-  unsigned __int8 undead_flag;
-  __int16 hp;
-  float los;
-  unsigned __int8 obj_max;
-  float radius_x;
-  float radius_y;
-  float radius_z;
-  RGE_Sound *selected_sound;
-  RGE_Sound *created_sound;
-  RGE_Sound *death_sound;
-  RGE_Sound *damage_sound;
-  __int16 death_spawn_obj_id;
-  unsigned __int8 sort_number;
-  unsigned __int8 can_be_built_on;
-  __int16 button_pict;
-  unsigned __int8 hide_in_scenario_editor;
-  __int16 portrait_pict;
-  unsigned __int8 available;
-  unsigned __int8 disabled;
-  __int16 tile_req1;
-  __int16 tile_req2;
-  __int16 center_tile_req1;
-  __int16 center_tile_req2;
-  float construction_radius_x;
-  float construction_radius_y;
-  unsigned __int8 elevation_flag;
-  unsigned __int8 fog_flag;
-  __int16 terrain;
-  unsigned __int8 movement_type;
-  __int16 attribute_type_held[3];
-  float attribute_amount_held[3];
-  __int16 attribute_max_amount;
-  float attribute_rot;
-  float multiple_attribute_mod;
-  unsigned __int8 attribute_flag[3];
-  unsigned __int8 area_effect_object_level;
-  unsigned __int8 combat_level;
-  unsigned __int8 select_level;
-  unsigned __int8 map_draw_level;
-  unsigned __int8 unit_level;
-  unsigned __int8 map_color;
-  unsigned __int8 attack_reaction;
-  unsigned __int8 convert_terrain_flag;
-  unsigned __int8 damage_sprite_num;
-  RGE_Damage_Sprite_Info *damage_sprites;
-  unsigned __int8 occlusion_flag;
-  unsigned __int8 obstruction_type;
-  unsigned __int8 obstruction_class;
-  unsigned int object_flags;
-  int help_string_id;
-  int help_page_id;
-  int hotkey_id;
-  unsigned __int8 recyclable;
-  unsigned __int8 track_as_resource;
-  unsigned __int8 create_doppleganger_on_death;
-  unsigned __int8 resource_group;
-  unsigned __int8 draw_flag;
-  unsigned __int8 draw_color;
-  float outline_radius_x;
-  float outline_radius_y;
-  float outline_radius_z;
-  float speed;
-  RGE_Sprite *move_sprite;
-  RGE_Sprite *run_sprite;
-  float turn_speed;
-  unsigned __int8 size_class;
-  __int16 obj_trail_id;
-  unsigned __int8 obj_trail_options;
-  float obj_trail_spacing;
-  unsigned __int8 move_algorithem;
-  float mTurnRadius;
-  float mTurnRadiusSpeed;
-  float mMaximumYawPerSecondMoving;
-  float mStationaryYawRevolutionTime;
-  float mMaximumYawPerSecondStationary;
-};
-#pragma pack(pop)
-
-/* 145 */
-#pragma pack(push, 8)
-struct RGE_Action
-{
-  RGE_ActionVtbl *vfptr;
-  __int16 action_type;
-  RGE_Action_Object *obj;
-  unsigned __int8 state;
-  RGE_Static_Object *target_obj;
-  RGE_Static_Object *target_obj2;
-  int targetID;
-  int target2ID;
-  float target_x;
-  float target_y;
-  float target_z;
-  float timer;
-  RGE_Task *task;
-  RGE_Action_List *sub_actions;
-  RGE_Sprite *sprite;
-  unsigned __int8 subActionValue;
-  unsigned __int8 mTargetMovedState;
-  unsigned __int8 RGE_Action_gap[2];
-};
-#pragma pack(pop)
-
-/* 208 */
-#pragma pack(push, 8)
-struct RGE_Task
-{
-  __int16 task_type;
-  __int16 id;
-  unsigned __int8 is_default;
-  __int16 action_type;
-  __int16 object_group;
-  __int16 object_id;
-  unsigned __int8 combat_level;
-  unsigned __int8 combat_level_flag;
-  __int16 terrain_id;
-  unsigned __int8 owner_type;
-  unsigned __int8 holding_attr;
-  unsigned __int8 state_building;
-  __int16 attribute_type;
-  __int16 attribute_type2;
-  __int16 attribute_type3;
-  __int16 attribute_type4;
-  float work_val1;
-  float work_val2;
-  float work_range;
-  unsigned __int8 search_flag;
-  float search_wait_time;
-  __int16 work_flag;
-  __int16 work_flag2;
-  RGE_Sprite *move_sprite;
-  RGE_Sprite *work_sprite;
-  RGE_Sprite *work_sprite2;
-  RGE_Sprite *carry_sprite;
-  RGE_Sound *work_sound;
-  RGE_Sound *work_sound2;
-};
-#pragma pack(pop)
-
-/* 769 */
-#pragma pack(push, 8)
-struct RGE_Master_Action_ObjectVtbl
-{
-  unsigned __int8 (__thiscall *gbg_needs_power)(RGE_Master_Action_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_sprite_civ_override)(RGE_Master_Action_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_sprite2_civ_override)(RGE_Master_Action_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_death_sprite_civ_override)(RGE_Master_Action_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_undead_sprite_civ_override)(RGE_Master_Action_Object *, RGE_Static_Object *);
-  void *(__thiscall *__vecDelDtor)(RGE_Master_Action_Object *, unsigned int);
-  void (__thiscall *copy_obj)(RGE_Master_Action_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *modify)(RGE_Master_Action_Object *, float, unsigned __int8);
-  void (__thiscall *modify_delta)(RGE_Master_Action_Object *, float, unsigned __int8);
-  void (__thiscall *modify_percent)(RGE_Master_Action_Object *, float, unsigned __int8);
-  void (__thiscall *small_save)(RGE_Master_Action_Object *, int);
-  void (__thiscall *save)(RGE_Master_Action_Object *, int);
-  RGE_Static_Object *(__thiscall *make_new_obj)(RGE_Master_Action_Object *, RGE_Player *, float, float, float);
-  RGE_Master_Static_Object *(__thiscall *make_new_master)(RGE_Master_Action_Object *);
-  unsigned __int8 (__thiscall *check_placement)(RGE_Master_Action_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
-  unsigned __int8 (__thiscall *alignment)(RGE_Master_Action_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
-  int (__thiscall *calc_base_damage_ability)(RGE_Master_Action_Object *, RGE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(RGE_Master_Action_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(RGE_Master_Action_Object *, RGE_Player *);
-  void (__thiscall *draw)(RGE_Master_Action_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
-  float (__thiscall *maximumSpeed)(RGE_Master_Action_Object *, int);
-  float (__thiscall *acceleration)(RGE_Master_Action_Object *, int);
-  float (__thiscall *deceleration)(RGE_Master_Action_Object *, int);
-  float (__thiscall *getTurnRadius)(RGE_Master_Action_Object *);
-  float (__thiscall *getTurnRadiusSpeed)(RGE_Master_Action_Object *);
-  int (__thiscall *setTurnRadiusOffTurnSpeed)(RGE_Master_Action_Object *);
-  int (__thiscall *setTurnRadius)(RGE_Master_Action_Object *, float, float);
-  float (__thiscall *getMaximumYawPerSecondMoving)(RGE_Master_Action_Object *);
-  float (__thiscall *getMaximumYawPerSecondStationary)(RGE_Master_Action_Object *);
-  void (__thiscall *setStationaryYawRevolutionTime)(RGE_Master_Action_Object *, float);
-  RGE_Sprite *(__thiscall *gbg_get_move_sprite_civ_override)(RGE_Master_Action_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_run_sprite_civ_override)(RGE_Master_Action_Object *, RGE_Static_Object *);
-  RGE_Task_List *(__thiscall *create_task_list)(RGE_Master_Action_Object *);
-};
-#pragma pack(pop)
-
-/* 754 */
-#pragma pack(push, 8)
-struct RGE_Action_ListVtbl
-{
-  void *(__thiscall *__vecDelDtor)(RGE_Action_List *, unsigned int);
-  RGE_Action *(__thiscall *create_action)(RGE_Action_List *, int, __int16);
-  RGE_Action *(__thiscall *create_task_action)(RGE_Action_List *, RGE_Task *, RGE_Static_Object *, float, float, float);
-  unsigned __int8 (__thiscall *inside_obj_update)(RGE_Action_List *);
-  unsigned __int8 (__thiscall *update)(RGE_Action_List *);
-  void (__thiscall *get_action_name)(RGE_Action_List *, char *);
-  void (__thiscall *copy_obj)(RGE_Action_List *, RGE_Master_Action_Object *);
-  void (__thiscall *copy_obj_sprites)(RGE_Action_List *, RGE_Master_Action_Object *, RGE_Task *, RGE_Task *);
-};
-#pragma pack(pop)
-
-/* 755 */
-#pragma pack(push, 8)
-struct RGE_Action_Node
-{
-  RGE_Action *action;
-  RGE_Action_Node *next;
 };
 #pragma pack(pop)
 
@@ -6562,6 +4355,20 @@ struct RGE_MapVtbl
 };
 #pragma pack(pop)
 
+/* 81 */
+#pragma pack(push, 8)
+struct TShape
+{
+  int load_type;
+  int load_size;
+  Shape_Clip_Mask **ClipMasks;
+  Shape_File_Header *FShape;
+  Shape_Info *shape_info;
+  unsigned __int8 Is_Loaded;
+  int Num_Shapes;
+};
+#pragma pack(pop)
+
 /* 601 */
 #pragma pack(push, 8)
 struct UMV_Offset_Point
@@ -6930,6 +4737,42 @@ struct DynamicTileCacheNode
 };
 #pragma pack(pop)
 
+/* 520 */
+#pragma pack(push, 8)
+struct RGE_Sound_Info
+{
+  char name[13];
+  int resource_id;
+  __int16 percent;
+  __int16 player_id;
+  __int16 culture;
+  TDigital *digital_sound;
+  unsigned __int8 loaded;
+  unsigned int time;
+};
+#pragma pack(pop)
+
+/* 777 */
+#pragma pack(push, 8)
+struct RGE_Picture_List
+{
+  __int16 picture_num;
+  RGE_Sprite *sprite;
+  __int16 offset_x;
+  __int16 offset_y;
+  __int16 facet;
+};
+#pragma pack(pop)
+
+/* 778 */
+#pragma pack(push, 8)
+struct RGE_Sound_List
+{
+  RGE_Sound *sound[3];
+  __int16 frame[3];
+};
+#pragma pack(pop)
+
 /* 915 */
 #pragma pack(push, 8)
 struct RGE_Master_PlayerVtbl
@@ -6965,15 +4808,17 @@ struct RGE_Effect
 };
 #pragma pack(pop)
 
-/* 592 */
+/* 862 */
 #pragma pack(push, 8)
-struct RGE_CommandVtbl
+struct TRIBE_CommandVtbl
 {
-  void (__thiscall *do_command_create)(RGE_Command *, RGE_Command_Create *);
-  void (__thiscall *do_command_give_attribute)(RGE_Command *, RGE_Command_Give_Attribute *);
-  void *(__thiscall *__vecDelDtor)(RGE_Command *, unsigned int);
-  void (__thiscall *do_command)(RGE_Command *, void *);
-  void (__thiscall *command_give_attribute)(RGE_Command *, int, int, int, float);
+  void (__thiscall *do_command_create)(TRIBE_Command *, RGE_Command_Create *);
+  void (__thiscall *do_command_give_attribute)(TRIBE_Command *, RGE_Command_Give_Attribute *);
+  void *(__thiscall *__vecDelDtor)(TRIBE_Command *, unsigned int);
+  void (__thiscall *do_command)(TRIBE_Command *, void *);
+  void (__thiscall *command_give_attribute)(TRIBE_Command *, int, int, int, float);
+  void (__thiscall *do_command_give_attribute_2)(TRIBE_Command *, TRIBE_Command_Give_Attribute *);
+  void (__thiscall *command_give_attribute_2)(TRIBE_Command *, int, int, int, float, float);
 };
 #pragma pack(pop)
 
@@ -7014,6 +4859,31 @@ struct TPicture
   int Height;
   __int16 Orien;
   int frame;
+};
+#pragma pack(pop)
+
+/* 143 */
+#pragma pack(push, 8)
+struct RGE_Sprite_Particle
+{
+  int pixel_offset_x;
+  int pixel_offset_y;
+  int start_time;
+  int facet;
+  int update_passes_untill_deletion;
+  int frame_duration;
+  int update_array_index;
+  float x;
+  float y;
+  float z;
+  RGE_Sprite *sprite;
+  RGE_Tile *tile;
+  RGE_Sprite_Particle *next;
+  RGE_Sprite_Particle *prev;
+  RGE_Sprite_Particle *update_next;
+  RGE_Sprite_Particle *tile_next;
+  RGE_Sprite_Particle *tile_prev;
+  unsigned __int8 flags;
 };
 #pragma pack(pop)
 
@@ -7110,6 +4980,42 @@ struct RGE_Task_ListVtbl
 };
 #pragma pack(pop)
 
+/* 208 */
+#pragma pack(push, 8)
+struct RGE_Task
+{
+  __int16 task_type;
+  __int16 id;
+  unsigned __int8 is_default;
+  __int16 action_type;
+  __int16 object_group;
+  __int16 object_id;
+  unsigned __int8 combat_level;
+  unsigned __int8 combat_level_flag;
+  __int16 terrain_id;
+  unsigned __int8 owner_type;
+  unsigned __int8 holding_attr;
+  unsigned __int8 state_building;
+  __int16 attribute_type;
+  __int16 attribute_type2;
+  __int16 attribute_type3;
+  __int16 attribute_type4;
+  float work_val1;
+  float work_val2;
+  float work_range;
+  unsigned __int8 search_flag;
+  float search_wait_time;
+  __int16 work_flag;
+  __int16 work_flag2;
+  RGE_Sprite *move_sprite;
+  RGE_Sprite *work_sprite;
+  RGE_Sprite *work_sprite2;
+  RGE_Sprite *carry_sprite;
+  RGE_Sound *work_sound;
+  RGE_Sound *work_sound2;
+};
+#pragma pack(pop)
+
 /* 548 */
 #pragma pack(push, 8)
 struct BUnitGroupVtbl
@@ -7157,6 +5063,26 @@ struct BUnitGroupVtbl
   void (__thiscall *save)(BUnitGroup *, int);
   void (__thiscall *load)(BUnitGroup *, int);
   int (__thiscall *update_2)(BUnitGroup *);
+};
+#pragma pack(pop)
+
+/* 160 */
+#pragma pack(push, 8)
+struct BPathData
+{
+  int id;
+  BPathData *linkedPath;
+  int linkedPathType;
+  int waypointLevel;
+  BPath *path;
+  int pathID;
+  int waypoint;
+  int state;
+  float range;
+  int targetID;
+  float pauseTime;
+  int continueCounter;
+  BBitVector mFlags;
 };
 #pragma pack(pop)
 
@@ -7290,61 +5216,6 @@ struct BContextPlanElement
 };
 #pragma pack(pop)
 
-/* 770 */
-#pragma pack(push, 8)
-struct RGE_Master_Combat_ObjectVtbl
-{
-  unsigned __int8 (__thiscall *gbg_needs_power)(RGE_Master_Combat_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_sprite_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_sprite2_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_death_sprite_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_undead_sprite_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
-  void *(__thiscall *__vecDelDtor)(RGE_Master_Combat_Object *, unsigned int);
-  void (__thiscall *copy_obj)(RGE_Master_Combat_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *modify)(RGE_Master_Combat_Object *, float, unsigned __int8);
-  void (__thiscall *modify_delta)(RGE_Master_Combat_Object *, float, unsigned __int8);
-  void (__thiscall *modify_percent)(RGE_Master_Combat_Object *, float, unsigned __int8);
-  void (__thiscall *small_save)(RGE_Master_Combat_Object *, int);
-  void (__thiscall *save)(RGE_Master_Combat_Object *, int);
-  RGE_Static_Object *(__thiscall *make_new_obj)(RGE_Master_Combat_Object *, RGE_Player *, float, float, float);
-  RGE_Master_Static_Object *(__thiscall *make_new_master)(RGE_Master_Combat_Object *);
-  unsigned __int8 (__thiscall *check_placement)(RGE_Master_Combat_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
-  unsigned __int8 (__thiscall *alignment)(RGE_Master_Combat_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
-  int (__thiscall *calc_base_damage_ability)(RGE_Master_Combat_Object *, RGE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(RGE_Master_Combat_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(RGE_Master_Combat_Object *, RGE_Player *);
-  void (__thiscall *draw)(RGE_Master_Combat_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
-  float (__thiscall *maximumSpeed)(RGE_Master_Combat_Object *, int);
-  float (__thiscall *acceleration)(RGE_Master_Combat_Object *, int);
-  float (__thiscall *deceleration)(RGE_Master_Combat_Object *, int);
-  float (__thiscall *getTurnRadius)(RGE_Master_Combat_Object *);
-  float (__thiscall *getTurnRadiusSpeed)(RGE_Master_Combat_Object *);
-  int (__thiscall *setTurnRadiusOffTurnSpeed)(RGE_Master_Combat_Object *);
-  int (__thiscall *setTurnRadius)(RGE_Master_Combat_Object *, float, float);
-  float (__thiscall *getMaximumYawPerSecondMoving)(RGE_Master_Combat_Object *);
-  float (__thiscall *getMaximumYawPerSecondStationary)(RGE_Master_Combat_Object *);
-  void (__thiscall *setStationaryYawRevolutionTime)(RGE_Master_Combat_Object *, float);
-  RGE_Sprite *(__thiscall *gbg_get_move_sprite_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_run_sprite_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
-  RGE_Task_List *(__thiscall *create_task_list)(RGE_Master_Combat_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_fight_sprite_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
-};
-#pragma pack(pop)
-
-/* 862 */
-#pragma pack(push, 8)
-struct TRIBE_CommandVtbl
-{
-  void (__thiscall *do_command_create)(TRIBE_Command *, RGE_Command_Create *);
-  void (__thiscall *do_command_give_attribute)(TRIBE_Command *, RGE_Command_Give_Attribute *);
-  void *(__thiscall *__vecDelDtor)(TRIBE_Command *, unsigned int);
-  void (__thiscall *do_command)(TRIBE_Command *, void *);
-  void (__thiscall *command_give_attribute)(TRIBE_Command *, int, int, int, float);
-  void (__thiscall *do_command_give_attribute_2)(TRIBE_Command *, TRIBE_Command_Give_Attribute *);
-  void (__thiscall *command_give_attribute_2)(TRIBE_Command *, int, int, int, float, float);
-};
-#pragma pack(pop)
-
 /* 850 */
 typedef int TRIBE_Trigger__Trigger_State;
 
@@ -7372,106 +5243,726 @@ struct TRIBE_Trigger
 };
 #pragma pack(pop)
 
-/* 517 */
+/* 67 */
 #pragma pack(push, 8)
-struct Shape_Clip_Node
+struct RGE_Master_Combat_Object
 {
-  int Start;
-  int End;
+  RGE_Master_Combat_ObjectVtbl *vfptr;
+  unsigned __int8 master_type;
+  char *name;
+  char *gbg_name2;
+  __int16 unit_line;
+  unsigned __int8 min_tech_level;
+  __int16 string_id;
+  __int16 string_id2;
+  __int16 id;
+  __int16 copy_id;
+  __int16 base_id;
+  __int16 object_group;
+  RGE_Sprite *sprite;
+  RGE_Sprite *sprite2;
+  RGE_Sprite *death_sprite;
+  RGE_Sprite *undead_sprite;
+  unsigned __int8 undead_flag;
+  __int16 hp;
+  float los;
+  unsigned __int8 obj_max;
+  float radius_x;
+  float radius_y;
+  float radius_z;
+  RGE_Sound *selected_sound;
+  RGE_Sound *created_sound;
+  RGE_Sound *death_sound;
+  RGE_Sound *damage_sound;
+  __int16 death_spawn_obj_id;
+  unsigned __int8 sort_number;
+  unsigned __int8 can_be_built_on;
+  __int16 button_pict;
+  unsigned __int8 hide_in_scenario_editor;
+  __int16 portrait_pict;
+  unsigned __int8 available;
+  unsigned __int8 disabled;
+  __int16 tile_req1;
+  __int16 tile_req2;
+  __int16 center_tile_req1;
+  __int16 center_tile_req2;
+  float construction_radius_x;
+  float construction_radius_y;
+  unsigned __int8 elevation_flag;
+  unsigned __int8 fog_flag;
+  __int16 terrain;
+  unsigned __int8 movement_type;
+  __int16 attribute_type_held[3];
+  float attribute_amount_held[3];
+  __int16 attribute_max_amount;
+  float attribute_rot;
+  float multiple_attribute_mod;
+  unsigned __int8 attribute_flag[3];
+  unsigned __int8 area_effect_object_level;
+  unsigned __int8 combat_level;
+  unsigned __int8 select_level;
+  unsigned __int8 map_draw_level;
+  unsigned __int8 unit_level;
+  unsigned __int8 map_color;
+  unsigned __int8 attack_reaction;
+  unsigned __int8 convert_terrain_flag;
+  unsigned __int8 damage_sprite_num;
+  RGE_Damage_Sprite_Info *damage_sprites;
+  unsigned __int8 occlusion_flag;
+  unsigned __int8 obstruction_type;
+  unsigned __int8 obstruction_class;
+  unsigned int object_flags;
+  int help_string_id;
+  int help_page_id;
+  int hotkey_id;
+  unsigned __int8 recyclable;
+  unsigned __int8 track_as_resource;
+  unsigned __int8 create_doppleganger_on_death;
+  unsigned __int8 resource_group;
+  unsigned __int8 draw_flag;
+  unsigned __int8 draw_color;
+  float outline_radius_x;
+  float outline_radius_y;
+  float outline_radius_z;
+  float speed;
+  RGE_Sprite *move_sprite;
+  RGE_Sprite *run_sprite;
+  float turn_speed;
+  unsigned __int8 size_class;
+  __int16 obj_trail_id;
+  unsigned __int8 obj_trail_options;
+  float obj_trail_spacing;
+  unsigned __int8 move_algorithem;
+  float mTurnRadius;
+  float mTurnRadiusSpeed;
+  float mMaximumYawPerSecondMoving;
+  float mStationaryYawRevolutionTime;
+  float mMaximumYawPerSecondStationary;
+  RGE_Task_List *tasks;
+  __int16 default_task;
+  float search_radius;
+  float work_rate;
+  float gbg_work_rate_2;
+  __int16 drop_site;
+  __int16 backup_drop_site;
+  unsigned __int8 task_by_group;
+  RGE_Sound *command_sound;
+  RGE_Sound *move_sound;
+  unsigned __int8 run_pattern;
+  unsigned __int8 RGE_Master_Action_Object_gap[3];
+  RGE_Sprite *fight_sprite;
+  __int16 base_armor;
+  __int16 armor_num;
+  RGE_Armor_Weapon_Info *armor;
+  __int16 weapon_num;
+  RGE_Armor_Weapon_Info *weapon;
+  __int16 defense_terrain_bonus;
+  float weapon_range;
+  float area_effect_range;
+  unsigned __int8 area_effect_level;
+  float speed_of_attack;
+  __int16 missile_id;
+  __int16 base_hit_chance;
+  unsigned __int8 break_off_combat;
+  __int16 fire_missile_at_frame;
+  float weapon_offset_x;
+  float weapon_offset_y;
+  float weapon_offset_z;
+  float minimum_weapon_range;
+  __int16 orig_armor;
+  __int16 orig_weapon;
+  float orig_weapon_range;
+  float orig_speed_of_attack;
+  float missed_missile_spread;
 };
 #pragma pack(pop)
 
-/* 855 */
+/* 82 */
 #pragma pack(push, 8)
-struct RGE_Active_SpriteVtbl
+struct TDrawArea
 {
-  void *(__thiscall *__vecDelDtor)(RGE_Active_Sprite *, unsigned int);
-  void (__thiscall *set_offset)(RGE_Active_Sprite *, int, int);
-  void (__thiscall *save)(RGE_Active_Sprite *, int);
-  void (__thiscall *update)(RGE_Active_Sprite *, float, float);
-  void (__thiscall *draw)(RGE_Active_Sprite *, __int16, int, int, int, int, RGE_Color_Table *, TDrawArea *, RGE_Static_Object *);
-  void (__thiscall *normal_draw)(RGE_Active_Sprite *, __int16, int, int, RGE_Color_Table *, TDrawArea *, RGE_Static_Object *);
-  void (__thiscall *shadow_draw)(RGE_Active_Sprite *, __int16, int, int, RGE_Color_Table *, TDrawArea *, unsigned __int8);
-  __int16 (__thiscall *what_frame)(RGE_Active_Sprite *);
-  unsigned __int8 (__thiscall *is_animating)(RGE_Active_Sprite *);
-  void (__thiscall *set_frame)(RGE_Active_Sprite *, __int16);
-  void (__thiscall *set_facet)(RGE_Active_Sprite *, __int16, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *frame_passed)(RGE_Active_Sprite *, __int16);
-  unsigned __int8 (__thiscall *looped)(RGE_Active_Sprite *);
-  __int16 (__thiscall *get_facetindex)(RGE_Active_Sprite *, __int16);
-  unsigned __int8 (__thiscall *get_frame)(RGE_Active_Sprite *, __int16 *, __int16 *, __int16 *, __int16 *, int);
-  void (__thiscall *setToFirstFrame)(RGE_Active_Sprite *);
+  TDrawSystem *DrawSystem;
+  HWND Wnd;
+  unsigned __int8 *Bits;
+  BITMAPINFO256 *BitmapInfo;
+  HBITMAP Bitmap;
+  HBITMAP OldBitmap;
+  int Width;
+  int Height;
+  int Pitch;
+  int Orien;
+  RECT ClipRect;
+  HDC DrawDc;
+  IDirectDrawSurface *DrawSurface;
+  DDSURFACEDESC SurfaceDesc;
+  DrawAreaNode *Node;
+  char *Name;
+  unsigned __int8 *LastBits;
+  int LastPitch;
+  void **DisplayOffsets;
+  void **CurDisplayOffsets;
+  void **FloatOffsets;
+  RGE_Color_Table *shadow_color_table;
+  TSpan_List_Manager *SpanList;
+  TSpan_List_Manager *CurSpanList;
+  int Float_X_Delta;
+  int Float_Y_Delta;
+  int DisplayOffsetsSz;
+  int FloatOffsetsSz;
+  int SystemMemOnly;
+  int UsingVidMem;
+  int UseTrans;
+  int IsPrimarySurface;
+  int Restored;
+  int ExtendedLines;
+  unsigned __int8 TransColor;
+  unsigned __int8 ***MasterBlendTable;
+  char BlendFileName[260];
 };
 #pragma pack(pop)
 
-/* 768 */
+/* 647 */
 #pragma pack(push, 8)
-struct RGE_Master_Moving_ObjectVtbl
+struct RGE_PlayerVtbl
 {
-  unsigned __int8 (__thiscall *gbg_needs_power)(RGE_Master_Moving_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_sprite_civ_override)(RGE_Master_Moving_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_sprite2_civ_override)(RGE_Master_Moving_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_death_sprite_civ_override)(RGE_Master_Moving_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_undead_sprite_civ_override)(RGE_Master_Moving_Object *, RGE_Static_Object *);
-  void *(__thiscall *__vecDelDtor)(RGE_Master_Moving_Object *, unsigned int);
-  void (__thiscall *copy_obj)(RGE_Master_Moving_Object *, RGE_Master_Static_Object *);
-  void (__thiscall *modify)(RGE_Master_Moving_Object *, float, unsigned __int8);
-  void (__thiscall *modify_delta)(RGE_Master_Moving_Object *, float, unsigned __int8);
-  void (__thiscall *modify_percent)(RGE_Master_Moving_Object *, float, unsigned __int8);
-  void (__thiscall *small_save)(RGE_Master_Moving_Object *, int);
-  void (__thiscall *save)(RGE_Master_Moving_Object *, int);
-  RGE_Static_Object *(__thiscall *make_new_obj)(RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
-  RGE_Master_Static_Object *(__thiscall *make_new_master)(RGE_Master_Moving_Object *);
-  unsigned __int8 (__thiscall *check_placement)(RGE_Master_Moving_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
-  unsigned __int8 (__thiscall *alignment)(RGE_Master_Moving_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
-  int (__thiscall *calc_base_damage_ability)(RGE_Master_Moving_Object *, RGE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(RGE_Master_Moving_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(RGE_Master_Moving_Object *, RGE_Player *);
-  void (__thiscall *draw)(RGE_Master_Moving_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
-  float (__thiscall *maximumSpeed)(RGE_Master_Moving_Object *, int);
-  float (__thiscall *acceleration)(RGE_Master_Moving_Object *, int);
-  float (__thiscall *deceleration)(RGE_Master_Moving_Object *, int);
-  float (__thiscall *getTurnRadius)(RGE_Master_Moving_Object *);
-  float (__thiscall *getTurnRadiusSpeed)(RGE_Master_Moving_Object *);
-  int (__thiscall *setTurnRadiusOffTurnSpeed)(RGE_Master_Moving_Object *);
-  int (__thiscall *setTurnRadius)(RGE_Master_Moving_Object *, float, float);
-  float (__thiscall *getMaximumYawPerSecondMoving)(RGE_Master_Moving_Object *);
-  float (__thiscall *getMaximumYawPerSecondStationary)(RGE_Master_Moving_Object *);
-  void (__thiscall *setStationaryYawRevolutionTime)(RGE_Master_Moving_Object *, float);
-  RGE_Sprite *(__thiscall *gbg_get_move_sprite_civ_override)(RGE_Master_Moving_Object *, RGE_Static_Object *);
-  RGE_Sprite *(__thiscall *gbg_get_run_sprite_civ_override)(RGE_Master_Moving_Object *, RGE_Static_Object *);
+  void *(__thiscall *__vecDelDtor)(RGE_Player *, unsigned int);
+  int (__thiscall *unknown1)(RGE_Player *, int);
+  void (__thiscall *set_game_status)(RGE_Player *, unsigned __int8);
+  void (__thiscall *do_resign)(RGE_Player *, int);
+  void (__thiscall *changeToHumanPlayer)(RGE_Player *);
+  void (__thiscall *changeToComputerPlayer)(RGE_Player *);
+  char *(__thiscall *aiStatus)(RGE_Player *, int);
+  int (__thiscall *computerPlayer)(RGE_Player *);
+  int (__thiscall *isEnemy)(RGE_Player *, int);
+  int (__thiscall *isAlly)(RGE_Player *, int);
+  int (__thiscall *isNeutral)(RGE_Player *, int);
+  int (__thiscall *isAllNeutral)(RGE_Player *);
+  void (__thiscall *setDiplomaticStance)(RGE_Player *, int, int);
+  void (__thiscall *loadAIInformation)(RGE_Player *, char *, char *, char *, int, int);
+  void (__thiscall *sendUnitAIOrder)(RGE_Player *, int, int, int, int, int, float, float, float, float, int, int, int);
+  void (__thiscall *processAIOrder)(RGE_Player *, int, int, int, int, int, float, float, float, float, int, int, int);
+  void (__thiscall *kickAI)(RGE_Player *, int);
+  int (__thiscall *strategicNumber)(RGE_Player *, int);
+  void (__thiscall *sendGameOrder)(RGE_Player *, RGE_Static_Object *, RGE_Static_Object *, float, float);
+  void (__thiscall *sendAddWaypointCommand)(RGE_Player *, int, XYZBYTEPoint *, int);
+  void (__thiscall *processAddWaypointCommand)(RGE_Player *, int, XYZBYTEPoint *, int);
+  int (__thiscall *sendAICommand)(RGE_Player *, int, int, int, int, int);
+  void (__thiscall *setTileExplored)(RGE_Player *, int, int);
+  int (__thiscall *objectCostByType)(RGE_Player *, int);
+  void (__thiscall *trackUnitGather)(RGE_Player *, int, int, int);
+  RGE_Static_Object *(__thiscall *make_scenario_obj)(RGE_Player *, float, float, float, __int16, unsigned __int8, float);
+  void (__thiscall *scenario_save)(RGE_Player *, int);
+  void (__thiscall *scenario_load)(RGE_Player *, int, int *, float);
+  void (__thiscall *scenario_postsave)(RGE_Player *, int);
+  void (__thiscall *scenario_postload)(RGE_Player *, int, int *, float);
+  void (__thiscall *load)(RGE_Player *, int);
+  void (__thiscall *new_attribute_num)(RGE_Player *, __int16, float);
+  void (__thiscall *add_attribute_num)(RGE_Player *, __int16, float, unsigned __int8);
+  void (__thiscall *update)(RGE_Player *);
+  void (__thiscall *update_dopplegangers)(RGE_Player *);
+  void (__thiscall *save)(RGE_Player *, int);
+  void (__thiscall *save2)(RGE_Player *, int);
+  void (__thiscall *save_info)(RGE_Player *, int);
+  void (__thiscall *random_start)(RGE_Player *);
+  void (__thiscall *modify_tobj)(RGE_Player *, __int16, __int16, float, unsigned __int8);
+  void (__thiscall *modify_tobj_delta)(RGE_Player *, __int16, __int16, float, unsigned __int8);
+  void (__thiscall *modify_tobj_percent)(RGE_Player *, __int16, __int16, float, unsigned __int8);
+  void (__thiscall *copy_obj)(RGE_Player *, __int16, __int16);
+  void (__thiscall *effect_add_attribute)(RGE_Player *, __int16, float, unsigned __int8);
+  void (__thiscall *effect_multiply_attribute)(RGE_Player *, __int16, float);
+  RGE_Static_Object *(__thiscall *make_new_object)(RGE_Player *, int, float, float, float, int);
+  unsigned __int8 (__thiscall *get_selected_objects_to_command)(RGE_Player *, RGE_Static_Object ***, __int16 *, __int16, __int16, __int16, __int16, unsigned __int8, unsigned __int8, unsigned int);
+  void (__thiscall *analyize_selected_objects)(RGE_Player *);
+  int (__thiscall *get_mouse_pointer_action_vars)(RGE_Player *, int, int, int, int, int, int *, int *);
+  unsigned __int8 (__thiscall *command_make_move)(RGE_Player *, RGE_Static_Object *, float, float);
+  unsigned __int8 (__thiscall *command_make_work)(RGE_Player *, RGE_Static_Object *, float, float);
+  unsigned __int8 (__thiscall *command_make_do)(RGE_Player *, RGE_Static_Object *, float, float);
+  unsigned __int8 (__thiscall *command_make_unit_do)(RGE_Player *, RGE_Static_Object *, RGE_Static_Object *, float, float);
+  unsigned __int8 (__thiscall *command_stop)(RGE_Player *);
+  unsigned __int8 (__thiscall *command_place_object)(RGE_Player *, __int16, float, float, float);
+  unsigned __int8 (__thiscall *command_add_attribute)(RGE_Player *, int, float);
+  unsigned __int8 (__thiscall *command_give_attribute)(RGE_Player *, int, int, float);
+  unsigned __int8 (__thiscall *command_stand_ground)(RGE_Player *);
+  unsigned __int8 (__thiscall *command_resign)(RGE_Player *, int, int);
+  unsigned __int8 (__thiscall *command_add_waypoint)(RGE_Player *, float, float, float);
+  unsigned __int8 (__thiscall *command_unit_ai_state)(RGE_Player *, unsigned __int8);
+  unsigned __int8 (__thiscall *command_guard)(RGE_Player *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *command_follow)(RGE_Player *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *command_patrol)(RGE_Player *, unsigned __int8, float *, float *);
+  unsigned __int8 (__thiscall *command_scout)(RGE_Player *, float, float);
+  unsigned __int8 (__thiscall *command_form_formation)(RGE_Player *, int);
+  unsigned __int8 (__thiscall *command_break_formation)(RGE_Player *, int);
+  unsigned __int8 (__thiscall *command_wheel_formation)(RGE_Player *, int, int);
+  unsigned __int8 (__thiscall *command_about_face_formation)(RGE_Player *, int);
+  unsigned __int8 (__thiscall *command_lock_formation)(RGE_Player *, int, int);
+  unsigned __int8 (__thiscall *command_formation_parameters)(RGE_Player *, int, int, int, int, float, int);
+  unsigned __int8 (__thiscall *command_auto_formations)(RGE_Player *, int);
+  RGE_Static_Object **(__thiscall *addObject)(RGE_Player *, RGE_Static_Object *, int, int);
+  void (__thiscall *removeObject)(RGE_Player *, RGE_Static_Object *, int, int, RGE_Static_Object **);
+  void (*logMessage)(RGE_Player *, char *, ...);
+  void (__thiscall *notify)(RGE_Player *, int, int, int, int, int, int);
+  void (__thiscall *notifyUnitDeath)(RGE_Player *, int, int);
+  int (__thiscall *isInTacticalAIGroup)(RGE_Player *, int);
+  void (__thiscall *logStatus)(RGE_Player *, FILE *, int);
+  void (__thiscall *load_victory)(RGE_Player *, int, int *, unsigned __int8);
+  void (__thiscall *new_victory)(RGE_Player *);
+  void (__thiscall *open_gates_for_pathing)(RGE_Player *, int);
+  void (__thiscall *close_gates_for_pathing)(RGE_Player *, int);
+  int (__thiscall *isGateLocked)(RGE_Player *, int);
+  void (__thiscall *setGateLocked)(RGE_Player *, int, int);
+  int (__thiscall *closeGate)(RGE_Player *, int);
+  int (__thiscall *openGate)(RGE_Player *, int);
 };
 #pragma pack(pop)
 
-/* 721 */
+/* 655 */
 #pragma pack(push, 8)
-struct RGE_ActionVtbl
+struct RGE_Game_WorldVtbl
 {
-  void *(__thiscall *__vecDelDtor)(RGE_Action *, unsigned int);
-  int (__thiscall *setup_2)(RGE_Action *, RGE_Action_Object *);
-  int (__thiscall *setup_1)(RGE_Action *, int, RGE_Action_Object *);
-  RGE_Action_List *(__thiscall *create_action_list)(RGE_Action *, RGE_Action_Object *);
-  void (__thiscall *rehook)(RGE_Action *);
-  void (__thiscall *save)(RGE_Action *, int);
-  __int16 (__thiscall *type)(RGE_Action *);
-  void (__thiscall *first_in_stack)(RGE_Action *, unsigned __int8);
-  unsigned __int8 (__thiscall *inside_obj_update)(RGE_Action *);
-  unsigned __int8 (__thiscall *idle_update)(RGE_Action *);
-  unsigned __int8 (__thiscall *update)(RGE_Action *);
-  int (__thiscall *stop)(RGE_Action *);
-  int (__thiscall *move_to)(RGE_Action *, RGE_Static_Object *, float, float, float);
-  int (__thiscall *work)(RGE_Action *, RGE_Static_Object *, float, float, float);
-  int (__thiscall *gbg_unknown1)(RGE_Action *, int, int);
-  unsigned __int8 (__thiscall *attack_response)(RGE_Action *, RGE_Static_Object *);
-  unsigned __int8 (__thiscall *relation_response)(RGE_Action *, int, unsigned __int8);
-  void (__thiscall *copy_obj)(RGE_Action *, RGE_Master_Action_Object *);
-  void (__thiscall *copy_obj_sprites)(RGE_Action *, RGE_Master_Action_Object *, RGE_Task *, RGE_Task *);
-  void (__thiscall *get_state_name)(RGE_Action *, char *);
-  RGE_Static_Object *(__thiscall *get_target_obj)(RGE_Action *);
-  RGE_Static_Object *(__thiscall *get_target_obj2)(RGE_Action *);
-  void (__thiscall *set_target_obj)(RGE_Action *, RGE_Static_Object *);
-  void (__thiscall *set_target_obj2)(RGE_Action *, RGE_Static_Object *);
-  void (__thiscall *set_state)(RGE_Action *, unsigned __int8);
+  unsigned __int8 (__thiscall *data_load_world)(RGE_Game_World *, FILE *);
+  unsigned __int8 (__thiscall *data_load_terrain_tables)(RGE_Game_World *, char *);
+  unsigned __int8 (__thiscall *data_load_players)(RGE_Game_World *, char *);
+  unsigned __int8 (__thiscall *data_load_tasks)(RGE_Game_World *, char *);
+  unsigned __int8 (__thiscall *data_load_objects)(RGE_Game_World *, char *);
+  unsigned __int8 (__thiscall *data_load_sounds)(RGE_Game_World *, char *);
+  unsigned __int8 (__thiscall *data_load_color_tables)(RGE_Game_World *, char *);
+  unsigned __int8 (__thiscall *data_load_sprites)(RGE_Game_World *, char *);
+  void (__thiscall *data_load_players_type)(RGE_Game_World *, __int16, __int16, FILE *);
+  void (__thiscall *data_load_effects)(RGE_Game_World *, char *);
+  void (__thiscall *data_load_map)(RGE_Game_World *, char *, char *, char *, char *, __int16, __int16, __int16, RGE_Sound **, char *);
+  void (__thiscall *data_load_random_map)(RGE_Game_World *, char *, char *, char *, char *);
+  void (__thiscall *data_load_unitlines)(RGE_Game_World *, char *);
+  unsigned __int8 (__thiscall *init_player_type)(RGE_Game_World *, int, __int16, unsigned __int8);
+  unsigned __int8 (__thiscall *init_player)(RGE_Game_World *, int);
+  void (__thiscall *load_player)(RGE_Game_World *, int, unsigned __int8, __int16);
+  void (__thiscall *color_table_init)(RGE_Game_World *, int);
+  void (__thiscall *terrain_tables_init)(RGE_Game_World *, int);
+  void (__thiscall *init_sounds)(RGE_Game_World *, int, TSound_Driver *);
+  void (__thiscall *init_sprites)(RGE_Game_World *, int);
+  void (__thiscall *map_init)(RGE_Game_World *, int, TSound_Driver *);
+  void (__thiscall *effects_init)(RGE_Game_World *, int);
+  void (__thiscall *master_player_init)(RGE_Game_World *, int);
+  void (__thiscall *command_init)(RGE_Game_World *, int, TCommunications_Handler *);
+  void (__thiscall *world_init)(RGE_Game_World *, int, TSound_Driver *, TCommunications_Handler *);
+  void (__thiscall *setup_gaia)(RGE_Game_World *);
+  unsigned __int8 (__thiscall *modify_gaia)(RGE_Game_World *);
+  void (__thiscall *setup_players)(RGE_Game_World *, RGE_Player_Info *);
+  unsigned __int8 (__thiscall *new_random_game)(RGE_Game_World *, RGE_Player_Info *);
+  void (__thiscall *save)(RGE_Game_World *, int, int);
+  void (__thiscall *scenario_make_player)(RGE_Game_World *, __int16, unsigned __int8, unsigned __int8, unsigned __int8, char *);
+  void (__thiscall *scenario_make_map)(RGE_Game_World *, int);
+  unsigned __int8 (__thiscall *load_scenario_2)(RGE_Game_World *, RGE_Player_Info *);
+  unsigned __int8 (__thiscall *load_scenario_1)(RGE_Game_World *, char *, RGE_Player_Info *, unsigned __int8);
+  void (__thiscall *load_scenario1)(RGE_Game_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario2)(RGE_Game_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario3)(RGE_Game_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario4)(RGE_Game_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario5)(RGE_Game_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario6)(RGE_Game_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario7)(RGE_Game_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario8)(RGE_Game_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario9)(RGE_Game_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario10)(RGE_Game_World *, int, RGE_Player_Info *);
+  void (__thiscall *load_scenario11)(RGE_Game_World *, int, RGE_Player_Info *, int, unsigned __int8);
+  void (__thiscall *logStatus)(RGE_Game_World *, FILE *, int);
+  void *(__thiscall *__vecDelDtor)(RGE_Game_World *, unsigned int);
+  void (__thiscall *setup_player_colors_2)(RGE_Game_World *);
+  void (__thiscall *setup_player_colors_1)(RGE_Game_World *, RGE_Player_Info *);
+  unsigned __int8 (__thiscall *data_load)(RGE_Game_World *, char *, char *);
+  unsigned __int8 (__thiscall *init)(RGE_Game_World *, char *, TSound_Driver *, TCommunications_Handler *);
+  void (__thiscall *turn_sound_off)(RGE_Game_World *);
+  void (__thiscall *del_game_info)(RGE_Game_World *);
+  unsigned __int8 (__thiscall *update)(RGE_Game_World *);
+  void (__thiscall *perform_auto_save)(RGE_Game_World *);
+  unsigned __int8 (__thiscall *get_game_state)(RGE_Game_World *);
+  unsigned __int8 (__thiscall *check_game_state)(RGE_Game_World *);
+  unsigned __int8 (__thiscall *load_world)(RGE_Game_World *, int, int);
+  unsigned __int8 (__thiscall *load_game)(RGE_Game_World *, char *, int);
+  unsigned __int8 (__thiscall *new_game)(RGE_Game_World *, RGE_Player_Info *, int);
+  unsigned __int8 (__thiscall *new_scenario)(RGE_Game_World *, RGE_Player_Info *, int);
+  unsigned __int8 (__thiscall *save_game)(RGE_Game_World *, char *, int, unsigned __int8);
+  void (__thiscall *base_save_2)(RGE_Game_World *, char *);
+  void (__thiscall *base_save_1)(RGE_Game_World *, int);
+  unsigned __int8 (__thiscall *save_scenario)(RGE_Game_World *, char *);
+  void (__thiscall *save_scenario_main)(RGE_Game_World *, int, char *);
+  RGE_Scenario *(__thiscall *get_scenario_info)(RGE_Game_World *, char *);
+  void (__thiscall *pause)(RGE_Game_World *, unsigned __int8);
+  void (__thiscall *update_mutual_allies)(RGE_Game_World *);
+  void (__thiscall *scenario_init_2)(RGE_Game_World *, RGE_Game_World *);
+  void (__thiscall *scenario_init_1)(RGE_Game_World *, int, RGE_Game_World *, unsigned __int8);
+  int (__thiscall *addObject)(RGE_Game_World *, RGE_Static_Object *);
+  int (__thiscall *removeObject)(RGE_Game_World *, int);
+};
+#pragma pack(pop)
+
+/* 127 */
+#pragma pack(push, 8)
+struct RGE_Command
+{
+  RGE_CommandVtbl *vfptr;
+  RGE_Game_World *world;
+  unsigned __int8 *last_order;
+  int last_order_size;
+  int last_order_time;
+  int mReplayViewOldUnitID;
+  int mReplayViewOldTargetID;
+  unsigned int mReplayViewTimer1;
+  unsigned int mReplayViewTimer2;
+  unsigned int mReplayViewTimer3;
+  __int16 sent_commanded_count;
+  int sent_commanded_valid;
+  int sent_commanded_units[40];
+  unsigned __int8 last_commanded_count[9];
+  RGE_Obj_Info last_commanded_units[9][40];
+  RGE_Command_AI_Order ai_orders[200];
+  int ai_order_count;
+  TCommunications_Handler *com_hand;
+};
+#pragma pack(pop)
+
+/* 66 */
+#pragma pack(push, 8)
+struct RGE_Combat_Object
+{
+  RGE_Combat_ObjectVtbl *vfptr;
+  int gbg_unknown_1;
+  float gbg_unknown_2;
+  int gbg_unknown_3;
+  int id;
+  RGE_Master_Combat_Object *master_obj;
+  TRIBE_Player *owner;
+  RGE_Sprite *sprite;
+  RGE_Sprite *old_sprite;
+  RGE_Active_Sprite_List *sprite_list;
+  RGE_Tile *tile;
+  RGE_Static_Object *inside_obj;
+  RGE_New_Object_List *objects;
+  __int16 screen_x_offset;
+  __int16 screen_y_offset;
+  __int16 shadow_x_offset;
+  __int16 shadow_y_offset;
+  float hp;
+  float sp;
+  unsigned __int8 curr_damage_percent;
+  unsigned __int8 facet;
+  unsigned __int8 selected;
+  float world_x;
+  float world_y;
+  float world_z;
+  float attribute_amount_held;
+  unsigned __int8 object_state;
+  unsigned __int8 sleep_flag;
+  unsigned __int8 dopple_flag;
+  unsigned __int8 goto_sleep_flag;
+  __int16 attribute_type_held;
+  unsigned __int8 type;
+  unsigned __int8 worker_num;
+  ObsRecord *CurrentObstructionData;
+  ObsRecord *ObstructionDataList;
+  RGE_Static_Object **player_object_node;
+  int *mPathingGroup;
+  int mPathingGroupSize;
+  int mMaximumPathingGroupSize;
+  int damaged_lately_timer;
+  UnitAIModule *unitAIValue;
+  int zoneMapIndex;
+  unsigned __int8 inObstructionMapValue;
+  unsigned __int8 lastInObstructionMapValue;
+  unsigned __int8 underAttackValue;
+  int mGroupID;
+  unsigned __int8 mROOAlreadyCalled;
+  LOS_ExploreInfo ei;
+  float speed;
+  float trail_remainder;
+  float velocity_x;
+  float velocity_y;
+  float velocity_z;
+  float angle;
+  float turn_towards_time;
+  unsigned __int8 on_ground;
+  float turnTimer;
+  int continueCounter;
+  int currentTerrainException1;
+  int currentTerrainException2;
+  unsigned __int8 waitingToMoveValue;
+  unsigned __int8 numberWaitDelays;
+  BVector *userDefinedWaypoints;
+  int numberUserDefinedWaypointsValue;
+  int maximumNumberUserDefinedWaypointsValue;
+  BVector positionValue;
+  BVector orientationForwardValue;
+  BVector orientationRightValue;
+  BPathData *pathData;
+  BPathData *mFuturePathData;
+  BMovementData *movementData;
+  unsigned int lastMoveTimeValue;
+  int mHasSubstitutePosition;
+  BVector mSubstitutePosition;
+  int mConsecutiveSubstituteCount;
+  RGE_Action_List *actions;
+  unsigned __int8 waiting;
+  unsigned __int8 command_flag;
+  __int16 Selected_Group_Info;
+  VISIBLE_UNIT_REC *VUR_Ptrs[9];
+  unsigned int Unified_Map_Value;
+  unsigned __int8 Multi_Unified_Points;
+  unsigned __int8 Large_Object_Radius;
+  int attack_count;
+  float attack_timer;
+  unsigned __int8 capture_flag;
+  unsigned __int8 formation_id;
+  unsigned __int8 formation_row;
+  unsigned __int8 formation_col;
+};
+#pragma pack(pop)
+
+/* 198 */
+#pragma pack(push, 8)
+struct RGE_Armor_Weapon_Info
+{
+  __int16 type;
+  __int16 value;
+};
+#pragma pack(pop)
+
+/* 64 */
+#pragma pack(push, 8)
+struct RGE_Action_Object
+{
+  RGE_Action_ObjectVtbl *vfptr;
+  int gbg_unknown_1;
+  float gbg_unknown_2;
+  int gbg_unknown_3;
+  int id;
+  RGE_Master_Action_Object *master_obj;
+  TRIBE_Player *owner;
+  RGE_Sprite *sprite;
+  RGE_Sprite *old_sprite;
+  RGE_Active_Sprite_List *sprite_list;
+  RGE_Tile *tile;
+  RGE_Static_Object *inside_obj;
+  RGE_New_Object_List *objects;
+  __int16 screen_x_offset;
+  __int16 screen_y_offset;
+  __int16 shadow_x_offset;
+  __int16 shadow_y_offset;
+  float hp;
+  float sp;
+  unsigned __int8 curr_damage_percent;
+  unsigned __int8 facet;
+  unsigned __int8 selected;
+  float world_x;
+  float world_y;
+  float world_z;
+  float attribute_amount_held;
+  unsigned __int8 object_state;
+  unsigned __int8 sleep_flag;
+  unsigned __int8 dopple_flag;
+  unsigned __int8 goto_sleep_flag;
+  __int16 attribute_type_held;
+  unsigned __int8 type;
+  unsigned __int8 worker_num;
+  ObsRecord *CurrentObstructionData;
+  ObsRecord *ObstructionDataList;
+  RGE_Static_Object **player_object_node;
+  int *mPathingGroup;
+  int mPathingGroupSize;
+  int mMaximumPathingGroupSize;
+  int damaged_lately_timer;
+  UnitAIModule *unitAIValue;
+  int zoneMapIndex;
+  unsigned __int8 inObstructionMapValue;
+  unsigned __int8 lastInObstructionMapValue;
+  unsigned __int8 underAttackValue;
+  int mGroupID;
+  unsigned __int8 mROOAlreadyCalled;
+  LOS_ExploreInfo ei;
+  float speed;
+  float trail_remainder;
+  float velocity_x;
+  float velocity_y;
+  float velocity_z;
+  float angle;
+  float turn_towards_time;
+  unsigned __int8 on_ground;
+  float turnTimer;
+  int continueCounter;
+  int currentTerrainException1;
+  int currentTerrainException2;
+  unsigned __int8 waitingToMoveValue;
+  unsigned __int8 numberWaitDelays;
+  BVector *userDefinedWaypoints;
+  int numberUserDefinedWaypointsValue;
+  int maximumNumberUserDefinedWaypointsValue;
+  BVector positionValue;
+  BVector orientationForwardValue;
+  BVector orientationRightValue;
+  BPathData *pathData;
+  BPathData *mFuturePathData;
+  BMovementData *movementData;
+  unsigned int lastMoveTimeValue;
+  int mHasSubstitutePosition;
+  BVector mSubstitutePosition;
+  int mConsecutiveSubstituteCount;
+  RGE_Action_List *actions;
+  unsigned __int8 waiting;
+  unsigned __int8 command_flag;
+  __int16 Selected_Group_Info;
+};
+#pragma pack(pop)
+
+/* 200 */
+#pragma pack(push, 8)
+struct LOSTBL
+{
+  int y_delta;
+  int x_left;
+  int x_right;
+};
+#pragma pack(pop)
+
+/* 204 */
+#pragma pack(push, 8)
+struct XYPoint
+{
+  int x;
+  int y;
+};
+#pragma pack(pop)
+
+/* 856 */
+#pragma pack(push, 8)
+struct RGE_Active_Sprite_ListVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Active_Sprite_List *, unsigned int);
+  __int16 (__thiscall *frame)(RGE_Active_Sprite_List *, RGE_Sprite *);
+  void (__thiscall *update)(RGE_Active_Sprite_List *, float, float);
+  void (__thiscall *draw)(RGE_Active_Sprite_List *, __int16, __int16, __int16, __int16, __int16, RGE_Color_Table *, TDrawArea *);
+  void (__thiscall *normal_draw)(RGE_Active_Sprite_List *, __int16, __int16, __int16, RGE_Color_Table *, TDrawArea *);
+  void (__thiscall *shadow_draw)(RGE_Active_Sprite_List *, __int16, __int16, __int16, RGE_Color_Table *, TDrawArea *, unsigned __int8);
+  unsigned __int8 (__thiscall *is_animating)(RGE_Active_Sprite_List *, RGE_Sprite *);
+  void (__thiscall *set_frame)(RGE_Active_Sprite_List *, RGE_Sprite *, __int16);
+  void (__thiscall *set_facet)(RGE_Active_Sprite_List *, __int16, int, int);
+  unsigned __int8 (__thiscall *frame_passed)(RGE_Active_Sprite_List *, RGE_Sprite *, __int16);
+  unsigned __int8 (__thiscall *looped)(RGE_Active_Sprite_List *, RGE_Sprite *);
+  __int16 (__thiscall *get_facetindex)(RGE_Active_Sprite_List *, RGE_Sprite *, __int16);
+  unsigned __int8 (__thiscall *load_node)(RGE_Active_Sprite_List *, int, unsigned __int8, RGE_Sprite **);
+};
+#pragma pack(pop)
+
+/* 217 */
+#pragma pack(push, 8)
+struct RGE_Active_Sprite_Node
+{
+  RGE_Active_Sprite *node;
+  unsigned __int8 order;
+  unsigned __int8 flag;
+  unsigned __int8 count;
+  RGE_Active_Sprite_Node *next;
+};
+#pragma pack(pop)
+
+/* 959 */
+#pragma pack(push, 8)
+struct UnitAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(UnitAIModule *, unsigned int);
+  void (__thiscall *save)(UnitAIModule *, int);
+  void (__thiscall *load)(UnitAIModule *, int);
+  RGE_Player *(__thiscall *owner)(UnitAIModule *);
+  int (__thiscall *order)(UnitAIModule *, int, int, int, int, float, float, float, float, int, int, int);
+  int (__thiscall *notify)(UnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_2)(UnitAIModule *, int, int, int, int, int, int);
+  int (__thiscall *notifyCommander_1)(UnitAIModule *, NotifyEvent *);
+  void (__thiscall *search)(UnitAIModule *, float, float, bool);
+  int (__thiscall *importantWhenDead)(UnitAIModule *, int);
+  int (__thiscall *retryableOrder)(UnitAIModule *, int);
+  int (__thiscall *actionRequiresLiveTarget)(UnitAIModule *, int);
+  int (__thiscall *mostDangerousEnemy)(UnitAIModule *, float *);
+  int (__thiscall *weakestEnemy)(UnitAIModule *, float *);
+  int (__thiscall *closestAttacker)(UnitAIModule *, float *);
+  int (__thiscall *closestObject)(UnitAIModule *, int, int, int, int, int, int *);
+  int (__thiscall *closestResourceObject)(UnitAIModule *, int, int, int, int *);
+  int (__thiscall *closestUndiscoveredTile)(UnitAIModule *, int *, int *, int);
+  void (*logDebug)(UnitAIModule *, char *, ...);
+  int (__thiscall *canAttackUnit)(UnitAIModule *, RGE_Static_Object *);
+  int (__thiscall *canAttackUnitAtNeutrality)(UnitAIModule *, int);
+  int (__thiscall *stopObject)(UnitAIModule *, int);
+  int (__thiscall *attackObject)(UnitAIModule *, int, int);
+  int (__thiscall *attackRoundupObject)(UnitAIModule *, int);
+  int (__thiscall *huntObject)(UnitAIModule *, int, int);
+  int (__thiscall *gatherObject)(UnitAIModule *, int, int);
+  int (__thiscall *convertObject)(UnitAIModule *, int, int);
+  int (__thiscall *healObject)(UnitAIModule *, int, int);
+  int (__thiscall *repairObject)(UnitAIModule *, int, int);
+  int (__thiscall *buildObject)(UnitAIModule *, int, int);
+  int (__thiscall *tradeWithObject)(UnitAIModule *, int, int);
+  int (__thiscall *explore)(UnitAIModule *, int, int, int);
+  int (__thiscall *enterObject)(UnitAIModule *, int, int);
+  int (__thiscall *unload)(UnitAIModule *, int, float, float);
+  int (__thiscall *transportObject)(UnitAIModule *, float, float, float, int);
+  int (__thiscall *moveTo_3)(UnitAIModule *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(UnitAIModule *, int, float, int);
+  int (__thiscall *moveTo_1)(UnitAIModule *, int, int);
+  int (__thiscall *evasiveMoveTo)(UnitAIModule *, float, float, float, int);
+  int (__thiscall *intelligentEvasiveMoveTo)(UnitAIModule *, float, float, float, int, int);
+  int (__thiscall *runAwayFromAttackers)(UnitAIModule *, int, int);
+  int (__thiscall *followObject)(UnitAIModule *, int, float, int);
+  int (__thiscall *defendObject)(UnitAIModule *, int, float, int);
+  int (__thiscall *defendPosition)(UnitAIModule *, float, float, float, int);
+  int (__thiscall *seekAndDestroy)(UnitAIModule *, int, int, int, int);
+  int (__thiscall *exploreAndDestroy)(UnitAIModule *, int, int, int);
+  int (__thiscall *importantObject)(UnitAIModule *, int);
+  int (__thiscall *convertToLOSResourceType)(UnitAIModule *, int);
+  int (__thiscall *canConvert)(UnitAIModule *, int, int);
+  void (__thiscall *setState)(UnitAIModule *, unsigned __int8);
+  char *(__thiscall *stateName)(UnitAIModule *, int);
+  int (__thiscall *canMoveToAttack)(UnitAIModule *, int);
+  int (__thiscall *findAlertModeObject)(UnitAIModule *);
+  int (__thiscall *processOrder)(UnitAIModule *, OrderEvent *, int);
+  int (__thiscall *processNotify)(UnitAIModule *, NotifyEvent *, unsigned int);
+  int (__thiscall *processIdle)(UnitAIModule *, int);
+  int (__thiscall *processIdle_search)(UnitAIModule *, int, int);
+  int (__thiscall *processMisc)(UnitAIModule *);
+  int (__thiscall *processRetryableOrder)(UnitAIModule *);
+};
+#pragma pack(pop)
+
+/* 221 */
+#pragma pack(push, 8)
+struct OrderEvent
+{
+  int issuer;
+  int orderType;
+  int priority;
+  int target;
+  int targetOwner;
+  float targetX;
+  float targetY;
+  float targetZ;
+  float range;
+};
+#pragma pack(pop)
+
+/* 222 */
+#pragma pack(push, 8)
+struct NotifyEvent
+{
+  int caller;
+  int recipient;
+  int mType;
+  int p1;
+  int p2;
+  int p3;
+};
+#pragma pack(pop)
+
+/* 958 */
+#pragma pack(push, 8)
+struct UnitAIModule__UnitAIRetargetEntry
+{
+  int mTargetID;
+  unsigned int mRetargetTimeout;
 };
 #pragma pack(pop)
 
@@ -9340,6 +7831,43 @@ struct TRIBE_Building_Object
 };
 #pragma pack(pop)
 
+/* 451 */
+#pragma pack(push, 8)
+struct Shape_Clip_Mask
+{
+  int Width;
+  int Height;
+  int Node_Count;
+  Shape_Clip_Node **LineList;
+  Shape_Clip_Node *NodeHeap;
+};
+#pragma pack(pop)
+
+/* 518 */
+#pragma pack(push, 8)
+struct Shape_File_Header
+{
+  char Version[4];
+  int Num_Shapes;
+  char Comment[24];
+};
+#pragma pack(pop)
+
+/* 85 */
+#pragma pack(push, 8)
+struct Shape_Info
+{
+  unsigned int Shape_Data_Offsets;
+  unsigned int Shape_Outline_Offset;
+  unsigned int Palette_Offset;
+  unsigned int Properties;
+  int Width;
+  int Height;
+  int Hotspot_X;
+  int Hotspot_Y;
+};
+#pragma pack(pop)
+
 /* 966 */
 #pragma pack(push, 8)
 struct RGE_Obstruction_Manager_LandVtbl
@@ -9675,6 +8203,18 @@ struct VISIBLE_UNIT_PTR
 };
 #pragma pack(pop)
 
+/* 194 */
+#pragma pack(push, 8)
+struct VISIBLE_UNIT_REC
+{
+  int object_id;
+  unsigned __int8 distance;
+  unsigned __int8 player;
+  unsigned __int8 pos_x;
+  unsigned __int8 pos_y;
+};
+#pragma pack(pop)
+
 /* 599 */
 #pragma pack(push, 8)
 struct RGE_Map_Copy_Object_Data
@@ -9724,6 +8264,13 @@ struct RGE_Command_Give_Attribute
 };
 #pragma pack(pop)
 
+/* 153 */
+#pragma pack(push, 1)
+struct TRIBE_Command_Give_Attribute
+{
+};
+#pragma pack(pop)
+
 /* 924 */
 #pragma pack(push, 8)
 struct RGE_TimelineVtbl
@@ -9752,6 +8299,13 @@ struct RGE_Time_Entry
 };
 #pragma pack(pop)
 
+/* 103 */
+#pragma pack(push, 1)
+struct BITMAPINFO256
+{
+};
+#pragma pack(pop)
+
 /* 104 */
 #pragma pack(push, 1)
 struct TRANSINFO
@@ -9768,6 +8322,116 @@ struct Mip_Square
 };
 #pragma pack(pop)
 
+/* 65 */
+#pragma pack(push, 8)
+struct RGE_Master_Action_Object
+{
+  RGE_Master_Action_ObjectVtbl *vfptr;
+  unsigned __int8 master_type;
+  char *name;
+  char *gbg_name2;
+  __int16 unit_line;
+  unsigned __int8 min_tech_level;
+  __int16 string_id;
+  __int16 string_id2;
+  __int16 id;
+  __int16 copy_id;
+  __int16 base_id;
+  __int16 object_group;
+  RGE_Sprite *sprite;
+  RGE_Sprite *sprite2;
+  RGE_Sprite *death_sprite;
+  RGE_Sprite *undead_sprite;
+  unsigned __int8 undead_flag;
+  __int16 hp;
+  float los;
+  unsigned __int8 obj_max;
+  float radius_x;
+  float radius_y;
+  float radius_z;
+  RGE_Sound *selected_sound;
+  RGE_Sound *created_sound;
+  RGE_Sound *death_sound;
+  RGE_Sound *damage_sound;
+  __int16 death_spawn_obj_id;
+  unsigned __int8 sort_number;
+  unsigned __int8 can_be_built_on;
+  __int16 button_pict;
+  unsigned __int8 hide_in_scenario_editor;
+  __int16 portrait_pict;
+  unsigned __int8 available;
+  unsigned __int8 disabled;
+  __int16 tile_req1;
+  __int16 tile_req2;
+  __int16 center_tile_req1;
+  __int16 center_tile_req2;
+  float construction_radius_x;
+  float construction_radius_y;
+  unsigned __int8 elevation_flag;
+  unsigned __int8 fog_flag;
+  __int16 terrain;
+  unsigned __int8 movement_type;
+  __int16 attribute_type_held[3];
+  float attribute_amount_held[3];
+  __int16 attribute_max_amount;
+  float attribute_rot;
+  float multiple_attribute_mod;
+  unsigned __int8 attribute_flag[3];
+  unsigned __int8 area_effect_object_level;
+  unsigned __int8 combat_level;
+  unsigned __int8 select_level;
+  unsigned __int8 map_draw_level;
+  unsigned __int8 unit_level;
+  unsigned __int8 map_color;
+  unsigned __int8 attack_reaction;
+  unsigned __int8 convert_terrain_flag;
+  unsigned __int8 damage_sprite_num;
+  RGE_Damage_Sprite_Info *damage_sprites;
+  unsigned __int8 occlusion_flag;
+  unsigned __int8 obstruction_type;
+  unsigned __int8 obstruction_class;
+  unsigned int object_flags;
+  int help_string_id;
+  int help_page_id;
+  int hotkey_id;
+  unsigned __int8 recyclable;
+  unsigned __int8 track_as_resource;
+  unsigned __int8 create_doppleganger_on_death;
+  unsigned __int8 resource_group;
+  unsigned __int8 draw_flag;
+  unsigned __int8 draw_color;
+  float outline_radius_x;
+  float outline_radius_y;
+  float outline_radius_z;
+  float speed;
+  RGE_Sprite *move_sprite;
+  RGE_Sprite *run_sprite;
+  float turn_speed;
+  unsigned __int8 size_class;
+  __int16 obj_trail_id;
+  unsigned __int8 obj_trail_options;
+  float obj_trail_spacing;
+  unsigned __int8 move_algorithem;
+  float mTurnRadius;
+  float mTurnRadiusSpeed;
+  float mMaximumYawPerSecondMoving;
+  float mStationaryYawRevolutionTime;
+  float mMaximumYawPerSecondStationary;
+  RGE_Task_List *tasks;
+  __int16 default_task;
+  float search_radius;
+  float work_rate;
+  float gbg_work_rate_2;
+  __int16 drop_site;
+  __int16 backup_drop_site;
+  unsigned __int8 task_by_group;
+  RGE_Sound *command_sound;
+  RGE_Sound *move_sound;
+  unsigned __int8 run_pattern;
+  unsigned __int8 RGE_Master_Action_Object_gap[3];
+};
+#pragma pack(pop)
+
 /* 758 */
 #pragma pack(push, 8)
 struct RGE_Moving_ObjectVtbl
@@ -9775,24 +8439,24 @@ struct RGE_Moving_ObjectVtbl
   void *(__thiscall *__vecDelDtor)(RGE_Moving_Object *, unsigned int);
   int (__thiscall *gbg_unknown1)(RGE_Moving_Object *);
   int (__thiscall *gbg_get_civ_override)(RGE_Moving_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown3)(RGE_Moving_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown4)(RGE_Moving_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown5)(RGE_Moving_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown6)(RGE_Moving_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown7)(RGE_Moving_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown8)(RGE_Moving_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown9)(RGE_Moving_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown10)(RGE_Moving_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown11)(RGE_Moving_Object *);
+  unsigned __int8 (__thiscall *gbg_isSpaceport)(RGE_Moving_Object *);
+  unsigned __int8 (__thiscall *gbg_isGEAssaultMech)(RGE_Moving_Object *);
+  unsigned __int8 (__thiscall *gbg_isAircraft)(RGE_Moving_Object *);
+  unsigned __int8 (__thiscall *gbg_isAirCruiser)(RGE_Moving_Object *);
+  unsigned __int8 (__thiscall *gbg_isResourceBuilding)(RGE_Moving_Object *);
+  unsigned __int8 (__thiscall *gbg_isMilitaryUnit)(RGE_Moving_Object *);
+  unsigned __int8 (__thiscall *gbg_isCivilianUnit)(RGE_Moving_Object *);
+  unsigned __int8 (__thiscall *gbg_isPredatorUnit)(RGE_Moving_Object *);
+  unsigned __int8 (__thiscall *gbg_isStaticPredatorUnit)(RGE_Moving_Object *);
   unsigned __int8 (__thiscall *gbg_isPadawan)(RGE_Moving_Object *);
   unsigned __int8 (__thiscall *gbg_isMaster)(RGE_Moving_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown14)(RGE_Moving_Object *);
+  unsigned __int8 (__thiscall *gbg_isAttackGroundButtonAvailable)(RGE_Moving_Object *);
   unsigned __int8 (__thiscall *gbg_isShielded)(RGE_Moving_Object *);
   void (__thiscall *gbg_unknown16)(RGE_Moving_Object *);
   void (__thiscall *gbg_unknown17)(RGE_Moving_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown18)(RGE_Moving_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isStealth)(RGE_Moving_Object *, int);
   unsigned __int8 (__thiscall *gbg_isDetector)(RGE_Moving_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown20)(RGE_Moving_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isObjectSpriteDisplayed)(RGE_Moving_Object *, int);
   unsigned __int8 (__thiscall *gbg_isPowered)(RGE_Moving_Object *, int);
   void (__thiscall *gbg_unknown22)(RGE_Moving_Object *);
   unsigned __int8 (__thiscall *gbg_unknown23)(RGE_Moving_Object *);
@@ -10002,6 +8666,113 @@ struct RGE_Moving_ObjectVtbl
 };
 #pragma pack(pop)
 
+/* 63 */
+#pragma pack(push, 8)
+struct RGE_Master_Moving_Object
+{
+  RGE_Master_Moving_ObjectVtbl *vfptr;
+  unsigned __int8 master_type;
+  char *name;
+  char *gbg_name2;
+  __int16 unit_line;
+  unsigned __int8 min_tech_level;
+  __int16 string_id;
+  __int16 string_id2;
+  __int16 id;
+  __int16 copy_id;
+  __int16 base_id;
+  __int16 object_group;
+  RGE_Sprite *sprite;
+  RGE_Sprite *sprite2;
+  RGE_Sprite *death_sprite;
+  RGE_Sprite *undead_sprite;
+  unsigned __int8 undead_flag;
+  __int16 hp;
+  float los;
+  unsigned __int8 obj_max;
+  float radius_x;
+  float radius_y;
+  float radius_z;
+  RGE_Sound *selected_sound;
+  RGE_Sound *created_sound;
+  RGE_Sound *death_sound;
+  RGE_Sound *damage_sound;
+  __int16 death_spawn_obj_id;
+  unsigned __int8 sort_number;
+  unsigned __int8 can_be_built_on;
+  __int16 button_pict;
+  unsigned __int8 hide_in_scenario_editor;
+  __int16 portrait_pict;
+  unsigned __int8 available;
+  unsigned __int8 disabled;
+  __int16 tile_req1;
+  __int16 tile_req2;
+  __int16 center_tile_req1;
+  __int16 center_tile_req2;
+  float construction_radius_x;
+  float construction_radius_y;
+  unsigned __int8 elevation_flag;
+  unsigned __int8 fog_flag;
+  __int16 terrain;
+  unsigned __int8 movement_type;
+  __int16 attribute_type_held[3];
+  float attribute_amount_held[3];
+  __int16 attribute_max_amount;
+  float attribute_rot;
+  float multiple_attribute_mod;
+  unsigned __int8 attribute_flag[3];
+  unsigned __int8 area_effect_object_level;
+  unsigned __int8 combat_level;
+  unsigned __int8 select_level;
+  unsigned __int8 map_draw_level;
+  unsigned __int8 unit_level;
+  unsigned __int8 map_color;
+  unsigned __int8 attack_reaction;
+  unsigned __int8 convert_terrain_flag;
+  unsigned __int8 damage_sprite_num;
+  RGE_Damage_Sprite_Info *damage_sprites;
+  unsigned __int8 occlusion_flag;
+  unsigned __int8 obstruction_type;
+  unsigned __int8 obstruction_class;
+  unsigned int object_flags;
+  int help_string_id;
+  int help_page_id;
+  int hotkey_id;
+  unsigned __int8 recyclable;
+  unsigned __int8 track_as_resource;
+  unsigned __int8 create_doppleganger_on_death;
+  unsigned __int8 resource_group;
+  unsigned __int8 draw_flag;
+  unsigned __int8 draw_color;
+  float outline_radius_x;
+  float outline_radius_y;
+  float outline_radius_z;
+  float speed;
+  RGE_Sprite *move_sprite;
+  RGE_Sprite *run_sprite;
+  float turn_speed;
+  unsigned __int8 size_class;
+  __int16 obj_trail_id;
+  unsigned __int8 obj_trail_options;
+  float obj_trail_spacing;
+  unsigned __int8 move_algorithem;
+  float mTurnRadius;
+  float mTurnRadiusSpeed;
+  float mMaximumYawPerSecondMoving;
+  float mStationaryYawRevolutionTime;
+  float mMaximumYawPerSecondStationary;
+};
+#pragma pack(pop)
+
+/* 206 */
+#pragma pack(push, 8)
+struct BMovementData
+{
+  BVector velocity;
+  BVector acceleration;
+};
+#pragma pack(pop)
+
 /* 425 */
 #pragma pack(push, 8)
 struct BFormationSlot
@@ -10033,13 +8804,6 @@ struct BFormationLine
 };
 #pragma pack(pop)
 
-/* 153 */
-#pragma pack(push, 1)
-struct TRIBE_Command_Give_Attribute
-{
-};
-#pragma pack(pop)
-
 /* 852 */
 typedef int TRIBE_Trigger_Condition__Conditions;
 
@@ -10068,6 +8832,688 @@ struct TRIBE_Trigger_Effect
   int *objects;
   char *chat_text;
   char *wave_file;
+};
+#pragma pack(pop)
+
+/* 770 */
+#pragma pack(push, 8)
+struct RGE_Master_Combat_ObjectVtbl
+{
+  unsigned __int8 (__thiscall *gbg_needs_power)(RGE_Master_Combat_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_sprite_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_sprite2_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_death_sprite_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_undead_sprite_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
+  void *(__thiscall *__vecDelDtor)(RGE_Master_Combat_Object *, unsigned int);
+  void (__thiscall *copy_obj)(RGE_Master_Combat_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *modify)(RGE_Master_Combat_Object *, float, unsigned __int8);
+  void (__thiscall *modify_delta)(RGE_Master_Combat_Object *, float, unsigned __int8);
+  void (__thiscall *modify_percent)(RGE_Master_Combat_Object *, float, unsigned __int8);
+  void (__thiscall *small_save)(RGE_Master_Combat_Object *, int);
+  void (__thiscall *save)(RGE_Master_Combat_Object *, int);
+  RGE_Static_Object *(__thiscall *make_new_obj)(RGE_Master_Combat_Object *, RGE_Player *, float, float, float);
+  RGE_Master_Static_Object *(__thiscall *make_new_master)(RGE_Master_Combat_Object *);
+  unsigned __int8 (__thiscall *check_placement)(RGE_Master_Combat_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
+  unsigned __int8 (__thiscall *alignment)(RGE_Master_Combat_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
+  int (__thiscall *calc_base_damage_ability)(RGE_Master_Combat_Object *, RGE_Master_Combat_Object *);
+  void (__thiscall *play_command_sound)(RGE_Master_Combat_Object *, RGE_Player *);
+  void (__thiscall *play_move_sound)(RGE_Master_Combat_Object *, RGE_Player *);
+  void (__thiscall *draw)(RGE_Master_Combat_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
+  float (__thiscall *maximumSpeed)(RGE_Master_Combat_Object *, int);
+  float (__thiscall *acceleration)(RGE_Master_Combat_Object *, int);
+  float (__thiscall *deceleration)(RGE_Master_Combat_Object *, int);
+  float (__thiscall *getTurnRadius)(RGE_Master_Combat_Object *);
+  float (__thiscall *getTurnRadiusSpeed)(RGE_Master_Combat_Object *);
+  int (__thiscall *setTurnRadiusOffTurnSpeed)(RGE_Master_Combat_Object *);
+  int (__thiscall *setTurnRadius)(RGE_Master_Combat_Object *, float, float);
+  float (__thiscall *getMaximumYawPerSecondMoving)(RGE_Master_Combat_Object *);
+  float (__thiscall *getMaximumYawPerSecondStationary)(RGE_Master_Combat_Object *);
+  void (__thiscall *setStationaryYawRevolutionTime)(RGE_Master_Combat_Object *, float);
+  RGE_Sprite *(__thiscall *gbg_get_move_sprite_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_run_sprite_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
+  RGE_Task_List *(__thiscall *create_task_list)(RGE_Master_Combat_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_fight_sprite_civ_override)(RGE_Master_Combat_Object *, RGE_Static_Object *);
+};
+#pragma pack(pop)
+
+/* 99 */
+#pragma pack(push, 8)
+struct TDrawSystem
+{
+  HINSTANCE Inst;
+  HWND Wnd;
+  HPALETTE Pal;
+  TDrawArea *DrawArea;
+  TDrawArea *PrimaryArea;
+  DrawAreaNode *DrawAreaList;
+  IDirectDraw *DirDraw;
+  IDirectDrawSurface *PrimarySurface;
+  IDirectDrawClipper *Clipper;
+  IDirectDrawPalette *DirDrawPal;
+  unsigned int Flags;
+  int ScreenWidth;
+  int ScreenHeight;
+  int ColorBits;
+  int ErrorCode;
+  unsigned __int8 DrawType;
+  unsigned __int8 ScreenMode;
+  int ChangedMode;
+  int IsBanked;
+  int CanSrcBlt;
+  int Restored;
+  int system_ignore_size_messages;
+  int ModeAvail640;
+  int ModeAvail800;
+  int ModeAvail1024;
+  int ModeAvail1280;
+  int ModeAvail1600;
+  int ModeAvail320_200;
+  int ModeAvail320_240;
+  int ModeAvail320_200_16;
+  int ModeAvail320_240_16;
+  int ModeAvail640_16;
+  int ModeAvail800_16;
+  int ModeAvail1024_16;
+  int ModeAvail1600_16;
+  int ModeAvail320_200_24;
+  int ModeAvail320_240_24;
+  int ModeAvail640_24;
+  int ModeAvail800_24;
+  int ModeAvail1024_24;
+  int ModeAvail1600_24;
+  int ModeAvail320_200_32;
+  int ModeAvail320_240_32;
+  int ModeAvail640_32;
+  int ModeAvail800_32;
+  int ModeAvail1024_32;
+  int ModeAvail1600_32;
+  PALETTEENTRY palette[256];
+};
+#pragma pack(pop)
+
+/* 563 */
+#pragma pack(push, 8)
+struct DrawAreaNode
+{
+  TDrawArea *DrawArea;
+  DrawAreaNode *PrevNode;
+  DrawAreaNode *NextNode;
+};
+#pragma pack(pop)
+
+/* 456 */
+#pragma pack(push, 8)
+struct TSpan_Node_List
+{
+  VSpan_Node **Zone_Ptrs;
+  int *Zone_Size_Ptrs;
+  int Used_Zones;
+  int Max_Zones;
+  VSpan_Node *Free_Head;
+  int Free_Pool_Zone;
+  int Free_Pool_Index;
+  int Total_Blocks;
+  int Free_Blocks;
+  int Default_Grow_Size;
+  int Element_Size;
+  int Alloc_Count;
+  int Dealloc_Count;
+  int NewZone_Count;
+  int Reset_Count;
+};
+#pragma pack(pop)
+
+/* 239 */
+#pragma pack(push, 8)
+struct TSpan_List_Manager
+{
+  TSpan_Node_List VSList;
+  VSpan_Node **Line_Head_Ptrs;
+  VSpan_Node **Line_Tail_Ptrs;
+  int *LeftMostPx;
+  int *RightMostPx;
+  int *Span_Count;
+  int Num_Lines;
+  int Num_Pixels;
+  int Min_Span_Px;
+  int Max_Span_Px;
+  int Min_Line;
+  int Max_Line;
+};
+#pragma pack(pop)
+
+/* 592 */
+#pragma pack(push, 8)
+struct RGE_CommandVtbl
+{
+  void (__thiscall *do_command_create)(RGE_Command *, RGE_Command_Create *);
+  void (__thiscall *do_command_give_attribute)(RGE_Command *, RGE_Command_Give_Attribute *);
+  void *(__thiscall *__vecDelDtor)(RGE_Command *, unsigned int);
+  void (__thiscall *do_command)(RGE_Command *, void *);
+  void (__thiscall *command_give_attribute)(RGE_Command *, int, int, int, float);
+};
+#pragma pack(pop)
+
+/* 760 */
+#pragma pack(push, 8)
+struct RGE_Combat_ObjectVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Combat_Object *, unsigned int);
+  int (__thiscall *gbg_unknown1)(RGE_Combat_Object *);
+  int (__thiscall *gbg_get_civ_override)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isSpaceport)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isGEAssaultMech)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isAircraft)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isAirCruiser)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isResourceBuilding)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isMilitaryUnit)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isCivilianUnit)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isPredatorUnit)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isStaticPredatorUnit)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isPadawan)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isMaster)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isAttackGroundButtonAvailable)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isShielded)(RGE_Combat_Object *);
+  void (__thiscall *gbg_unknown16)(RGE_Combat_Object *);
+  void (__thiscall *gbg_unknown17)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isStealth)(RGE_Combat_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isDetector)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isObjectSpriteDisplayed)(RGE_Combat_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isPowered)(RGE_Combat_Object *, int);
+  void (__thiscall *gbg_unknown22)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_unknown23)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isBiological)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isDamaged)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_unknown26)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_canBeHealedByPlayer)(RGE_Combat_Object *, int);
+  unsigned __int8 (__thiscall *gbg_canBeRepairedByPlayer)(RGE_Combat_Object *, int);
+  void (__thiscall *recycle_in_to_game)(RGE_Combat_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
+  void (__thiscall *recycle_out_of_game)(RGE_Combat_Object *);
+  void (__thiscall *draw)(RGE_Combat_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *);
+  void (__thiscall *shadow_draw)(RGE_Combat_Object *, TDrawArea *, __int16, __int16, unsigned __int8);
+  void (__thiscall *normal_draw)(RGE_Combat_Object *, TDrawArea *, __int16, __int16);
+  void (__thiscall *draw_front_frame)(RGE_Combat_Object *, TDrawArea *, __int16, __int16);
+  void (__thiscall *draw_back_frame)(RGE_Combat_Object *, TDrawArea *, __int16, __int16);
+  void (__thiscall *draw_frame)(RGE_Combat_Object *, TDrawArea *, __int16, __int16);
+  unsigned __int8 (__thiscall *update)(RGE_Combat_Object *);
+  void (__thiscall *check_damage_sprites)(RGE_Combat_Object *);
+  void (__thiscall *rehook)(RGE_Combat_Object *);
+  void (__thiscall *save)(RGE_Combat_Object *, int);
+  void (__thiscall *teleport_off_map)(RGE_Combat_Object *);
+  float (__thiscall *teleport)(RGE_Combat_Object *, float, float, float);
+  float (__thiscall *handle_teleport_z_correction)(RGE_Combat_Object *, float);
+  void (__thiscall *new_sprite)(RGE_Combat_Object *, RGE_Sprite *);
+  void (__thiscall *add_overlay_sprite)(RGE_Combat_Object *, RGE_Sprite *, unsigned __int8);
+  void (__thiscall *remove_overlay_sprite)(RGE_Combat_Object *, RGE_Sprite *);
+  void (__thiscall *change_ownership)(RGE_Combat_Object *, RGE_Player *);
+  void (__thiscall *modify)(RGE_Combat_Object *, float, unsigned __int8);
+  void (__thiscall *modify_delta)(RGE_Combat_Object *, float, unsigned __int8);
+  void (__thiscall *modify_percent)(RGE_Combat_Object *, float, unsigned __int8);
+  void (__thiscall *transform)(RGE_Combat_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *copy_obj)(RGE_Combat_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *set_object_state)(RGE_Combat_Object *, unsigned __int8);
+  void (__thiscall *remove_visible_resource)(RGE_Combat_Object *);
+  void (__thiscall *create_doppleganger_when_dying)(RGE_Combat_Object *);
+  void (__thiscall *destroy_obj)(RGE_Combat_Object *);
+  void (__thiscall *die_die_die)(RGE_Combat_Object *);
+  void (__thiscall *damage)(RGE_Combat_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *, int);
+  float (__thiscall *calculateDamage)(RGE_Combat_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *);
+  void (__thiscall *rotate)(RGE_Combat_Object *, int);
+  unsigned __int8 (__thiscall *can_attack)(RGE_Combat_Object *);
+  void (__thiscall *set_attribute)(RGE_Combat_Object *, __int16, float);
+  void (__thiscall *set_attribute_amount)(RGE_Combat_Object *, float, unsigned __int8, unsigned __int8);
+  int (__thiscall *heal_2)(RGE_Combat_Object *, int, int);
+  unsigned __int8 (__thiscall *heal_1)(RGE_Combat_Object *, float);
+  int (__thiscall *canRepair)(RGE_Combat_Object *);
+  void (__thiscall *notify_of_relation)(RGE_Combat_Object *, int, unsigned __int8);
+  void (__thiscall *do_command)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float);
+  int (__thiscall *actionTypeIfOrdered)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float, float *);
+  unsigned __int8 (__thiscall *move_to)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float);
+  void (__thiscall *work)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float);
+  void (__thiscall *stop)(RGE_Combat_Object *);
+  void (__thiscall *set_attack)(RGE_Combat_Object *, RGE_Static_Object *);
+  void (__thiscall *play_command_sound)(RGE_Combat_Object *);
+  void (__thiscall *play_move_sound)(RGE_Combat_Object *);
+  void (__thiscall *new_angle)(RGE_Combat_Object *, float);
+  RGE_Static_Object *(__thiscall *spawn_death_obj)(RGE_Combat_Object *);
+  RGE_Master_Static_Object *(__thiscall *get_command_master)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float);
+  void (__thiscall *set_being_worked_on)(RGE_Combat_Object *, RGE_Action_Object *, __int16, unsigned __int8);
+  void (__thiscall *release_being_worked_on)(RGE_Combat_Object *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *is_moving)(RGE_Combat_Object *);
+  RGE_Static_Object *(__thiscall *get_target_obj)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *more_room)(RGE_Combat_Object *, RGE_Static_Object *);
+  void (__thiscall *enter_obj)(RGE_Combat_Object *, RGE_Static_Object *, unsigned __int8);
+  void (__thiscall *exit_obj)(RGE_Combat_Object *);
+  void (__thiscall *add_obj)(RGE_Combat_Object *, RGE_Static_Object *);
+  void (__thiscall *remove_obj)(RGE_Combat_Object *, RGE_Static_Object *);
+  int (__thiscall *explore_terrain)(RGE_Combat_Object *, RGE_Player *, unsigned __int8, int, int);
+  void (__thiscall *unexplore_terrain)(RGE_Combat_Object *, RGE_Player *, unsigned __int8, int, int);
+  LOSTBL *(__thiscall *get_los_table)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *get_visibility)(RGE_Combat_Object *, RGE_Player *);
+  int (__thiscall *inAttackRange)(RGE_Combat_Object *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *underAttack)(RGE_Combat_Object *);
+  void (__thiscall *setUnderAttack)(RGE_Combat_Object *, unsigned __int8);
+  float (__thiscall *calc_attack_modifier)(RGE_Combat_Object *, RGE_Static_Object *);
+  float (__thiscall *getSpeed)(RGE_Combat_Object *);
+  float (__thiscall *getAngle)(RGE_Combat_Object *);
+  float (__thiscall *maximumSpeed)(RGE_Combat_Object *);
+  float (__thiscall *rateOfFire)(RGE_Combat_Object *);
+  float (__thiscall *damageCapability_2)(RGE_Combat_Object *, RGE_Static_Object *);
+  float (__thiscall *damageCapability_1)(RGE_Combat_Object *);
+  float (__thiscall *weaponRange)(RGE_Combat_Object *);
+  float (__thiscall *minimumWeaponRange)(RGE_Combat_Object *);
+  int (__thiscall *passableTile_2)(RGE_Combat_Object *, float, float, int *, int);
+  int (__thiscall *passableTile_1)(RGE_Combat_Object *, float, float);
+  int (__thiscall *currentTargetID)(RGE_Combat_Object *);
+  float (__thiscall *currentTargetX)(RGE_Combat_Object *);
+  float (__thiscall *currentTargetY)(RGE_Combat_Object *);
+  float (__thiscall *currentTargetZ)(RGE_Combat_Object *);
+  void (__thiscall *setWaitingToMove)(RGE_Combat_Object *, unsigned __int8);
+  unsigned __int8 (__thiscall *waitingToMove)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *actionState)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *keepGatheringWhenObjectIsOut)(RGE_Combat_Object *, int);
+  unsigned __int8 (__thiscall *produceWhenKilledBy)(RGE_Combat_Object *, int);
+  unsigned __int8 (__thiscall *useSameZoneDropsite)(RGE_Combat_Object *);
+  float (__thiscall *searchRadius)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *is_idle)(RGE_Combat_Object *);
+  void (*logDebug)(RGE_Combat_Object *, char *, ...);
+  void (*debug)(RGE_Combat_Object *, char *, ...);
+  void (__thiscall *notify)(RGE_Combat_Object *, int, int, int, int, int, int);
+  int (__thiscall *attack_2)(RGE_Combat_Object *, float, float, float, int);
+  int (__thiscall *attack_1)(RGE_Combat_Object *, int, int);
+  int (__thiscall *moveTo_3)(RGE_Combat_Object *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(RGE_Combat_Object *, int, float, int);
+  int (__thiscall *moveTo_1)(RGE_Combat_Object *, int, int);
+  int (__thiscall *moveAwayFrom)(RGE_Combat_Object *, int, int);
+  int (__thiscall *hunt)(RGE_Combat_Object *, int, int);
+  int (__thiscall *gather)(RGE_Combat_Object *, int, int);
+  int (__thiscall *convert)(RGE_Combat_Object *, int, int);
+  int (__thiscall *repair)(RGE_Combat_Object *, int, int);
+  int (__thiscall *build)(RGE_Combat_Object *, int, int);
+  int (__thiscall *trade)(RGE_Combat_Object *, int, int);
+  int (__thiscall *explore)(RGE_Combat_Object *, int, int, int);
+  int (__thiscall *enter)(RGE_Combat_Object *, int, int);
+  int (__thiscall *unload)(RGE_Combat_Object *, int, float, float, float);
+  int (__thiscall *transport)(RGE_Combat_Object *, float, float, float, int);
+  int (__thiscall *stopAction)(RGE_Combat_Object *);
+  int (__thiscall *pause)(RGE_Combat_Object *);
+  int (__thiscall *canPath_2)(RGE_Combat_Object *, int, float, float *, int, int, bool);
+  int (__thiscall *canPath_1)(RGE_Combat_Object *, XYZPoint, float, int, float *, int, int, bool);
+  int (__thiscall *canQuickPath)(RGE_Combat_Object *, int, float, float *);
+  int (__thiscall *canPathWithObstructions)(RGE_Combat_Object *, int, float, float *, int, int, ManagedArray_int_ *);
+  int (__thiscall *canPathWithAdditionalPassability)(RGE_Combat_Object *, XYZPoint, float, int, float *, int, int, int, int, int, BPath *);
+  int (__thiscall *findFirstTerrainAlongExceptionPath)(RGE_Combat_Object *, int, float *, float *, BPath *);
+  int (__thiscall *canLinePath_2)(RGE_Combat_Object *, int, int, int, int, float, int);
+  int (__thiscall *canLinePath_1)(RGE_Combat_Object *, const XYPoint *, const XYPoint *, float, XYPoint *, int);
+  int (__thiscall *firstTileAlongLine)(RGE_Combat_Object *, const XYPoint *, const XYPoint *, XYPoint *, int, int, int);
+  unsigned __int8 (__thiscall *have_action)(RGE_Combat_Object *);
+  int (__thiscall *gameActionType)(RGE_Combat_Object *);
+  BVector *(__thiscall *userDefinedWaypoint)(RGE_Combat_Object *, int);
+  int (__thiscall *addUserDefinedWaypoint)(RGE_Combat_Object *, float, float, float);
+  void (__thiscall *zeroUserDefinedWaypoints)(RGE_Combat_Object *);
+  void (__thiscall *removeAllUserDefinedWaypoints)(RGE_Combat_Object *);
+  int (__thiscall *numberUserDefinedWaypoints)(RGE_Combat_Object *);
+  BPath *(__thiscall *getPatrolInformation)(RGE_Combat_Object *, int *);
+  float (__thiscall *distanceToHighestLevelPath_2)(RGE_Combat_Object *, BVector);
+  float (__thiscall *distanceToHighestLevelPath_1)(RGE_Combat_Object *);
+  BPath *(__thiscall *findAvoidancePath)(RGE_Combat_Object *, XYZPoint *, float, int);
+  int (__thiscall *get_action_checksum)(RGE_Combat_Object *);
+  int (__thiscall *get_waypoint_checksum)(RGE_Combat_Object *);
+  void (__thiscall *setPatrolMode)(RGE_Combat_Object *, unsigned __int8);
+  int (__thiscall *garrisoned_count)(RGE_Combat_Object *);
+  int (__thiscall *lock_down)(RGE_Combat_Object *);
+  int (__thiscall *unlock_down)(RGE_Combat_Object *);
+  int (__thiscall *get_locked_down_count)(RGE_Combat_Object *);
+  float (__thiscall *getTradeAmount)(RGE_Combat_Object *, float, float, float, float);
+  int (__thiscall *setup_2)(RGE_Combat_Object *, int, RGE_Game_World *);
+  int (__thiscall *setup_1)(RGE_Combat_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
+  RGE_New_Object_List *(__thiscall *create_object_list)(RGE_Combat_Object *);
+  RGE_Active_Sprite_List *(__thiscall *create_sprite_list)(RGE_Combat_Object *);
+  BVector *(__thiscall *position)(RGE_Combat_Object *, BVector *);
+  BPathData *(__thiscall *getPathData)(RGE_Combat_Object *);
+  int (__thiscall *actionType)(RGE_Combat_Object *);
+  int (__thiscall *hasActionOfType)(RGE_Combat_Object *, int);
+  int (__thiscall *gbg_hasActionOfType2)(RGE_Combat_Object *, int);
+  int (__thiscall *addMove)(RGE_Combat_Object *, int, float, int, int, int);
+  int (__thiscall *addCurrentPath)(RGE_Combat_Object *, BPath *, int, float, int);
+  int (__thiscall *addFuturePath)(RGE_Combat_Object *, BPath *, int, float, int);
+  void (__thiscall *stopAllMovement)(RGE_Combat_Object *);
+  void (__thiscall *setOrientation)(RGE_Combat_Object *, BVector *, BVector *);
+  BVector *(__thiscall *velocity)(RGE_Combat_Object *, BVector *);
+  void (__thiscall *setVelocity)(RGE_Combat_Object *, BVector *);
+  BVector *(__thiscall *acceleration)(RGE_Combat_Object *, BVector *);
+  void (__thiscall *setAcceleration)(RGE_Combat_Object *, BVector *);
+  float (__thiscall *forwardVelocity)(RGE_Combat_Object *);
+  void (__thiscall *setForwardVelocity)(RGE_Combat_Object *, float);
+  float (__thiscall *forwardAcceleration)(RGE_Combat_Object *);
+  void (__thiscall *setForwardAcceleration)(RGE_Combat_Object *, float);
+  void (__thiscall *moveForward)(RGE_Combat_Object *, float);
+  void (__thiscall *setPosition)(RGE_Combat_Object *, BVector *);
+  void (__thiscall *yaw)(RGE_Combat_Object *, float);
+  int (__thiscall *isMoving)(RGE_Combat_Object *);
+  void (__thiscall *stopMoving)(RGE_Combat_Object *);
+  float (__thiscall *calculateFutureVelocity)(RGE_Combat_Object *, float, float, float, BVector *);
+  unsigned int (__thiscall *lastMoveTime)(RGE_Combat_Object *);
+  void (__thiscall *pauseMovement)(RGE_Combat_Object *, float);
+  int (__thiscall *movementPriority)(RGE_Combat_Object *);
+  int (__thiscall *intelligentMovementUpdate)(RGE_Combat_Object *);
+  float (__thiscall *calculateMaximumSpeed)(RGE_Combat_Object *, int);
+  int (__thiscall *calculateForward)(RGE_Combat_Object *, BVector *, BVector *, BVector *);
+  float (__thiscall *calculateYawAngle)(RGE_Combat_Object *, BVector *, BVector *, float, int *);
+  int (__thiscall *calculateReachedPoint)(RGE_Combat_Object *, BVector *, BVector *, BVector *);
+  float (__thiscall *calculateTurnRadius)(RGE_Combat_Object *);
+  int (__thiscall *checkAcceleration)(RGE_Combat_Object *, BVector *, int, int);
+  BVector *(__thiscall *straightProjectedPosition)(RGE_Combat_Object *, BVector *, BVector *, float);
+  int (__thiscall *onPatrol)(RGE_Combat_Object *);
+  BVector *(__thiscall *orientationForward)(RGE_Combat_Object *, BVector *);
+  int (__thiscall *setRunSprite)(RGE_Combat_Object *);
+  int (__thiscall *setMoveSprite)(RGE_Combat_Object *);
+  int (__thiscall *setFidgetSprite)(RGE_Combat_Object *);
+  int (__thiscall *getGateLocked)(RGE_Combat_Object *);
+  void (__thiscall *setGateLocked)(RGE_Combat_Object *, int);
+  int (__thiscall *isGateOpenable)(RGE_Combat_Object *, int);
+  int (__thiscall *getLinkedChild)(RGE_Combat_Object *, int);
+  int (__thiscall *get_next_selected_group)(RGE_Combat_Object *, int);
+  __int16 (__thiscall *get_Selected_Groups)(RGE_Combat_Object *);
+  void (__thiscall *set_Selected_Groups)(RGE_Combat_Object *, __int16);
+  int (__thiscall *get_num_Selected_groups)(RGE_Combat_Object *);
+  int (__thiscall *setup_3)(RGE_Combat_Object *, RGE_Master_Animated_Object *, RGE_Player *, float, float, float);
+  void (__thiscall *stop_moving)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *turn_towards)(RGE_Combat_Object *, RGE_Static_Object *, float, float);
+  void (__thiscall *set_angle)(RGE_Combat_Object *);
+  int (__thiscall *canLinePath_4)(RGE_Combat_Object *, int, int, int, int, float);
+  int (__thiscall *canLinePath_3)(RGE_Combat_Object *, XYPoint *, XYPoint *, float, XYPoint *);
+  int (__thiscall *setup_4)(RGE_Combat_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
+  int (__thiscall *addMove_2)(RGE_Combat_Object *, int, float, float, float, float, int, int, int);
+  void (__thiscall *work2)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
+  void (__thiscall *set_task)(RGE_Combat_Object *, __int16);
+  void (__thiscall *setTaskByTaskID)(RGE_Combat_Object *, int);
+  void (__thiscall *set_action)(RGE_Combat_Object *, RGE_Action *);
+  void (__thiscall *set_only_action)(RGE_Combat_Object *, RGE_Action *);
+  void (__thiscall *set_end_action)(RGE_Combat_Object *, RGE_Action *);
+  RGE_Task *(__thiscall *getTask)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float, __int16);
+  void (__thiscall *setUnitAIAction)(RGE_Combat_Object *, int, RGE_Static_Object *, float, float, float);
+  int (__thiscall *setup_5)(RGE_Combat_Object *, RGE_Master_Action_Object *, RGE_Player *, float, float, float);
+  RGE_Action_List *(__thiscall *create_action_list)(RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *area_attack)(RGE_Combat_Object *, float, float, float, RGE_Combat_Object *, RGE_Static_Object *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *attack_4)(RGE_Combat_Object *, float, float, float, RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *attack_3)(RGE_Combat_Object *, RGE_Static_Object *, RGE_Combat_Object *);
+  unsigned __int8 (__thiscall *do_attack)(RGE_Combat_Object *, RGE_Static_Object *, RGE_Combat_Object *, float, float, float, float);
+  void (__thiscall *get_armor)(RGE_Combat_Object *, __int16 *, __int16 *);
+  void (__thiscall *get_weapon)(RGE_Combat_Object *, __int16 *, __int16 *);
+  void (__thiscall *get_weapon_range)(RGE_Combat_Object *, float *, float *);
+  void (__thiscall *get_speed_of_attack)(RGE_Combat_Object *, float *, float *);
+  int (__thiscall *inAttackRange_2)(RGE_Combat_Object *, RGE_Static_Object *, int *);
+  int (__thiscall *setup_6)(RGE_Combat_Object *, RGE_Master_Combat_Object *, RGE_Player *, float, float, float);
+};
+#pragma pack(pop)
+
+/* 146 */
+#pragma pack(push, 8)
+struct RGE_Action_List
+{
+  RGE_Action_ListVtbl *vfptr;
+  RGE_Action_Object *obj;
+  RGE_Action_Node *list;
+};
+#pragma pack(pop)
+
+/* 759 */
+#pragma pack(push, 8)
+struct RGE_Action_ObjectVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Action_Object *, unsigned int);
+  int (__thiscall *gbg_unknown1)(RGE_Action_Object *);
+  int (__thiscall *gbg_get_civ_override)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isSpaceport)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isGEAssaultMech)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isAircraft)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isAirCruiser)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isResourceBuilding)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isMilitaryUnit)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isCivilianUnit)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isPredatorUnit)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isStaticPredatorUnit)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isPadawan)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isMaster)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isAttackGroundButtonAvailable)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isShielded)(RGE_Action_Object *);
+  void (__thiscall *gbg_unknown16)(RGE_Action_Object *);
+  void (__thiscall *gbg_unknown17)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isStealth)(RGE_Action_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isDetector)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isObjectSpriteDisplayed)(RGE_Action_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isPowered)(RGE_Action_Object *, int);
+  void (__thiscall *gbg_unknown22)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_unknown23)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isBiological)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_isDamaged)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_unknown26)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *gbg_canBeHealedByPlayer)(RGE_Action_Object *, int);
+  unsigned __int8 (__thiscall *gbg_canBeRepairedByPlayer)(RGE_Action_Object *, int);
+  void (__thiscall *recycle_in_to_game)(RGE_Action_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
+  void (__thiscall *recycle_out_of_game)(RGE_Action_Object *);
+  void (__thiscall *draw)(RGE_Action_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *);
+  void (__thiscall *shadow_draw)(RGE_Action_Object *, TDrawArea *, __int16, __int16, unsigned __int8);
+  void (__thiscall *normal_draw)(RGE_Action_Object *, TDrawArea *, __int16, __int16);
+  void (__thiscall *draw_front_frame)(RGE_Action_Object *, TDrawArea *, __int16, __int16);
+  void (__thiscall *draw_back_frame)(RGE_Action_Object *, TDrawArea *, __int16, __int16);
+  void (__thiscall *draw_frame)(RGE_Action_Object *, TDrawArea *, __int16, __int16);
+  unsigned __int8 (__thiscall *update)(RGE_Action_Object *);
+  void (__thiscall *check_damage_sprites)(RGE_Action_Object *);
+  void (__thiscall *rehook)(RGE_Action_Object *);
+  void (__thiscall *save)(RGE_Action_Object *, int);
+  void (__thiscall *teleport_off_map)(RGE_Action_Object *);
+  float (__thiscall *teleport)(RGE_Action_Object *, float, float, float);
+  float (__thiscall *handle_teleport_z_correction)(RGE_Action_Object *, float);
+  void (__thiscall *new_sprite)(RGE_Action_Object *, RGE_Sprite *);
+  void (__thiscall *add_overlay_sprite)(RGE_Action_Object *, RGE_Sprite *, unsigned __int8);
+  void (__thiscall *remove_overlay_sprite)(RGE_Action_Object *, RGE_Sprite *);
+  void (__thiscall *change_ownership)(RGE_Action_Object *, RGE_Player *);
+  void (__thiscall *modify)(RGE_Action_Object *, float, unsigned __int8);
+  void (__thiscall *modify_delta)(RGE_Action_Object *, float, unsigned __int8);
+  void (__thiscall *modify_percent)(RGE_Action_Object *, float, unsigned __int8);
+  void (__thiscall *transform)(RGE_Action_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *copy_obj)(RGE_Action_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *set_object_state)(RGE_Action_Object *, unsigned __int8);
+  void (__thiscall *remove_visible_resource)(RGE_Action_Object *);
+  void (__thiscall *create_doppleganger_when_dying)(RGE_Action_Object *);
+  void (__thiscall *destroy_obj)(RGE_Action_Object *);
+  void (__thiscall *die_die_die)(RGE_Action_Object *);
+  void (__thiscall *damage)(RGE_Action_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *, int);
+  float (__thiscall *calculateDamage)(RGE_Action_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *);
+  void (__thiscall *rotate)(RGE_Action_Object *, int);
+  unsigned __int8 (__thiscall *can_attack)(RGE_Action_Object *);
+  void (__thiscall *set_attribute)(RGE_Action_Object *, __int16, float);
+  void (__thiscall *set_attribute_amount)(RGE_Action_Object *, float, unsigned __int8, unsigned __int8);
+  int (__thiscall *heal_2)(RGE_Action_Object *, int, int);
+  unsigned __int8 (__thiscall *heal_1)(RGE_Action_Object *, float);
+  int (__thiscall *canRepair)(RGE_Action_Object *);
+  void (__thiscall *notify_of_relation)(RGE_Action_Object *, int, unsigned __int8);
+  void (__thiscall *do_command)(RGE_Action_Object *, RGE_Static_Object *, float, float, float);
+  int (__thiscall *actionTypeIfOrdered)(RGE_Action_Object *, RGE_Static_Object *, float, float, float, float *);
+  unsigned __int8 (__thiscall *move_to)(RGE_Action_Object *, RGE_Static_Object *, float, float, float);
+  void (__thiscall *work)(RGE_Action_Object *, RGE_Static_Object *, float, float, float);
+  void (__thiscall *stop)(RGE_Action_Object *);
+  void (__thiscall *set_attack)(RGE_Action_Object *, RGE_Static_Object *);
+  void (__thiscall *play_command_sound)(RGE_Action_Object *);
+  void (__thiscall *play_move_sound)(RGE_Action_Object *);
+  void (__thiscall *new_angle)(RGE_Action_Object *, float);
+  RGE_Static_Object *(__thiscall *spawn_death_obj)(RGE_Action_Object *);
+  RGE_Master_Static_Object *(__thiscall *get_command_master)(RGE_Action_Object *, RGE_Static_Object *, float, float, float);
+  void (__thiscall *set_being_worked_on)(RGE_Action_Object *, RGE_Action_Object *, __int16, unsigned __int8);
+  void (__thiscall *release_being_worked_on)(RGE_Action_Object *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *is_moving)(RGE_Action_Object *);
+  RGE_Static_Object *(__thiscall *get_target_obj)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *more_room)(RGE_Action_Object *, RGE_Static_Object *);
+  void (__thiscall *enter_obj)(RGE_Action_Object *, RGE_Static_Object *, unsigned __int8);
+  void (__thiscall *exit_obj)(RGE_Action_Object *);
+  void (__thiscall *add_obj)(RGE_Action_Object *, RGE_Static_Object *);
+  void (__thiscall *remove_obj)(RGE_Action_Object *, RGE_Static_Object *);
+  int (__thiscall *explore_terrain)(RGE_Action_Object *, RGE_Player *, unsigned __int8, int, int);
+  void (__thiscall *unexplore_terrain)(RGE_Action_Object *, RGE_Player *, unsigned __int8, int, int);
+  LOSTBL *(__thiscall *get_los_table)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *get_visibility)(RGE_Action_Object *, RGE_Player *);
+  int (__thiscall *inAttackRange)(RGE_Action_Object *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *underAttack)(RGE_Action_Object *);
+  void (__thiscall *setUnderAttack)(RGE_Action_Object *, unsigned __int8);
+  float (__thiscall *calc_attack_modifier)(RGE_Action_Object *, RGE_Static_Object *);
+  float (__thiscall *getSpeed)(RGE_Action_Object *);
+  float (__thiscall *getAngle)(RGE_Action_Object *);
+  float (__thiscall *maximumSpeed)(RGE_Action_Object *);
+  float (__thiscall *rateOfFire)(RGE_Action_Object *);
+  float (__thiscall *damageCapability_2)(RGE_Action_Object *, RGE_Static_Object *);
+  float (__thiscall *damageCapability_1)(RGE_Action_Object *);
+  float (__thiscall *weaponRange)(RGE_Action_Object *);
+  float (__thiscall *minimumWeaponRange)(RGE_Action_Object *);
+  int (__thiscall *passableTile_2)(RGE_Action_Object *, float, float, int *, int);
+  int (__thiscall *passableTile_1)(RGE_Action_Object *, float, float);
+  int (__thiscall *currentTargetID)(RGE_Action_Object *);
+  float (__thiscall *currentTargetX)(RGE_Action_Object *);
+  float (__thiscall *currentTargetY)(RGE_Action_Object *);
+  float (__thiscall *currentTargetZ)(RGE_Action_Object *);
+  void (__thiscall *setWaitingToMove)(RGE_Action_Object *, unsigned __int8);
+  unsigned __int8 (__thiscall *waitingToMove)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *actionState)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *keepGatheringWhenObjectIsOut)(RGE_Action_Object *, int);
+  unsigned __int8 (__thiscall *produceWhenKilledBy)(RGE_Action_Object *, int);
+  unsigned __int8 (__thiscall *useSameZoneDropsite)(RGE_Action_Object *);
+  float (__thiscall *searchRadius)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *is_idle)(RGE_Action_Object *);
+  void (*logDebug)(RGE_Action_Object *, char *, ...);
+  void (*debug)(RGE_Action_Object *, char *, ...);
+  void (__thiscall *notify)(RGE_Action_Object *, int, int, int, int, int, int);
+  int (__thiscall *attack_2)(RGE_Action_Object *, float, float, float, int);
+  int (__thiscall *attack_1)(RGE_Action_Object *, int, int);
+  int (__thiscall *moveTo_3)(RGE_Action_Object *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(RGE_Action_Object *, int, float, int);
+  int (__thiscall *moveTo_1)(RGE_Action_Object *, int, int);
+  int (__thiscall *moveAwayFrom)(RGE_Action_Object *, int, int);
+  int (__thiscall *hunt)(RGE_Action_Object *, int, int);
+  int (__thiscall *gather)(RGE_Action_Object *, int, int);
+  int (__thiscall *convert)(RGE_Action_Object *, int, int);
+  int (__thiscall *repair)(RGE_Action_Object *, int, int);
+  int (__thiscall *build)(RGE_Action_Object *, int, int);
+  int (__thiscall *trade)(RGE_Action_Object *, int, int);
+  int (__thiscall *explore)(RGE_Action_Object *, int, int, int);
+  int (__thiscall *enter)(RGE_Action_Object *, int, int);
+  int (__thiscall *unload)(RGE_Action_Object *, int, float, float, float);
+  int (__thiscall *transport)(RGE_Action_Object *, float, float, float, int);
+  int (__thiscall *stopAction)(RGE_Action_Object *);
+  int (__thiscall *pause)(RGE_Action_Object *);
+  int (__thiscall *canPath_2)(RGE_Action_Object *, int, float, float *, int, int, bool);
+  int (__thiscall *canPath_1)(RGE_Action_Object *, XYZPoint, float, int, float *, int, int, bool);
+  int (__thiscall *canQuickPath)(RGE_Action_Object *, int, float, float *);
+  int (__thiscall *canPathWithObstructions)(RGE_Action_Object *, int, float, float *, int, int, ManagedArray_int_ *);
+  int (__thiscall *canPathWithAdditionalPassability)(RGE_Action_Object *, XYZPoint, float, int, float *, int, int, int, int, int, BPath *);
+  int (__thiscall *findFirstTerrainAlongExceptionPath)(RGE_Action_Object *, int, float *, float *, BPath *);
+  int (__thiscall *canLinePath_2)(RGE_Action_Object *, int, int, int, int, float, int);
+  int (__thiscall *canLinePath_1)(RGE_Action_Object *, const XYPoint *, const XYPoint *, float, XYPoint *, int);
+  int (__thiscall *firstTileAlongLine)(RGE_Action_Object *, const XYPoint *, const XYPoint *, XYPoint *, int, int, int);
+  unsigned __int8 (__thiscall *have_action)(RGE_Action_Object *);
+  int (__thiscall *gameActionType)(RGE_Action_Object *);
+  BVector *(__thiscall *userDefinedWaypoint)(RGE_Action_Object *, int);
+  int (__thiscall *addUserDefinedWaypoint)(RGE_Action_Object *, float, float, float);
+  void (__thiscall *zeroUserDefinedWaypoints)(RGE_Action_Object *);
+  void (__thiscall *removeAllUserDefinedWaypoints)(RGE_Action_Object *);
+  int (__thiscall *numberUserDefinedWaypoints)(RGE_Action_Object *);
+  BPath *(__thiscall *getPatrolInformation)(RGE_Action_Object *, int *);
+  float (__thiscall *distanceToHighestLevelPath_2)(RGE_Action_Object *, BVector);
+  float (__thiscall *distanceToHighestLevelPath_1)(RGE_Action_Object *);
+  BPath *(__thiscall *findAvoidancePath)(RGE_Action_Object *, XYZPoint *, float, int);
+  int (__thiscall *get_action_checksum)(RGE_Action_Object *);
+  int (__thiscall *get_waypoint_checksum)(RGE_Action_Object *);
+  void (__thiscall *setPatrolMode)(RGE_Action_Object *, unsigned __int8);
+  int (__thiscall *garrisoned_count)(RGE_Action_Object *);
+  int (__thiscall *lock_down)(RGE_Action_Object *);
+  int (__thiscall *unlock_down)(RGE_Action_Object *);
+  int (__thiscall *get_locked_down_count)(RGE_Action_Object *);
+  float (__thiscall *getTradeAmount)(RGE_Action_Object *, float, float, float, float);
+  int (__thiscall *setup_2)(RGE_Action_Object *, int, RGE_Game_World *);
+  int (__thiscall *setup_1)(RGE_Action_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
+  RGE_New_Object_List *(__thiscall *create_object_list)(RGE_Action_Object *);
+  RGE_Active_Sprite_List *(__thiscall *create_sprite_list)(RGE_Action_Object *);
+  BVector *(__thiscall *position)(RGE_Action_Object *, BVector *);
+  BPathData *(__thiscall *getPathData)(RGE_Action_Object *);
+  int (__thiscall *actionType)(RGE_Action_Object *);
+  int (__thiscall *hasActionOfType)(RGE_Action_Object *, int);
+  int (__thiscall *gbg_hasActionOfType2)(RGE_Action_Object *, int);
+  int (__thiscall *addMove)(RGE_Action_Object *, int, float, int, int, int);
+  int (__thiscall *addCurrentPath)(RGE_Action_Object *, BPath *, int, float, int);
+  int (__thiscall *addFuturePath)(RGE_Action_Object *, BPath *, int, float, int);
+  void (__thiscall *stopAllMovement)(RGE_Action_Object *);
+  void (__thiscall *setOrientation)(RGE_Action_Object *, BVector *, BVector *);
+  BVector *(__thiscall *velocity)(RGE_Action_Object *, BVector *);
+  void (__thiscall *setVelocity)(RGE_Action_Object *, BVector *);
+  BVector *(__thiscall *acceleration)(RGE_Action_Object *, BVector *);
+  void (__thiscall *setAcceleration)(RGE_Action_Object *, BVector *);
+  float (__thiscall *forwardVelocity)(RGE_Action_Object *);
+  void (__thiscall *setForwardVelocity)(RGE_Action_Object *, float);
+  float (__thiscall *forwardAcceleration)(RGE_Action_Object *);
+  void (__thiscall *setForwardAcceleration)(RGE_Action_Object *, float);
+  void (__thiscall *moveForward)(RGE_Action_Object *, float);
+  void (__thiscall *setPosition)(RGE_Action_Object *, BVector *);
+  void (__thiscall *yaw)(RGE_Action_Object *, float);
+  int (__thiscall *isMoving)(RGE_Action_Object *);
+  void (__thiscall *stopMoving)(RGE_Action_Object *);
+  float (__thiscall *calculateFutureVelocity)(RGE_Action_Object *, float, float, float, BVector *);
+  unsigned int (__thiscall *lastMoveTime)(RGE_Action_Object *);
+  void (__thiscall *pauseMovement)(RGE_Action_Object *, float);
+  int (__thiscall *movementPriority)(RGE_Action_Object *);
+  int (__thiscall *intelligentMovementUpdate)(RGE_Action_Object *);
+  float (__thiscall *calculateMaximumSpeed)(RGE_Action_Object *, int);
+  int (__thiscall *calculateForward)(RGE_Action_Object *, BVector *, BVector *, BVector *);
+  float (__thiscall *calculateYawAngle)(RGE_Action_Object *, BVector *, BVector *, float, int *);
+  int (__thiscall *calculateReachedPoint)(RGE_Action_Object *, BVector *, BVector *, BVector *);
+  float (__thiscall *calculateTurnRadius)(RGE_Action_Object *);
+  int (__thiscall *checkAcceleration)(RGE_Action_Object *, BVector *, int, int);
+  BVector *(__thiscall *straightProjectedPosition)(RGE_Action_Object *, BVector *, BVector *, float);
+  int (__thiscall *onPatrol)(RGE_Action_Object *);
+  BVector *(__thiscall *orientationForward)(RGE_Action_Object *, BVector *);
+  int (__thiscall *setRunSprite)(RGE_Action_Object *);
+  int (__thiscall *setMoveSprite)(RGE_Action_Object *);
+  int (__thiscall *setFidgetSprite)(RGE_Action_Object *);
+  int (__thiscall *getGateLocked)(RGE_Action_Object *);
+  void (__thiscall *setGateLocked)(RGE_Action_Object *, int);
+  int (__thiscall *isGateOpenable)(RGE_Action_Object *, int);
+  int (__thiscall *getLinkedChild)(RGE_Action_Object *, int);
+  int (__thiscall *get_next_selected_group)(RGE_Action_Object *, int);
+  __int16 (__thiscall *get_Selected_Groups)(RGE_Action_Object *);
+  void (__thiscall *set_Selected_Groups)(RGE_Action_Object *, __int16);
+  int (__thiscall *get_num_Selected_groups)(RGE_Action_Object *);
+  int (__thiscall *setup_3)(RGE_Action_Object *, RGE_Master_Animated_Object *, RGE_Player *, float, float, float);
+  void (__thiscall *stop_moving)(RGE_Action_Object *);
+  unsigned __int8 (__thiscall *turn_towards)(RGE_Action_Object *, RGE_Static_Object *, float, float);
+  void (__thiscall *set_angle)(RGE_Action_Object *);
+  int (__thiscall *canLinePath_4)(RGE_Action_Object *, int, int, int, int, float);
+  int (__thiscall *canLinePath_3)(RGE_Action_Object *, XYPoint *, XYPoint *, float, XYPoint *);
+  int (__thiscall *setup_4)(RGE_Action_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
+  int (__thiscall *addMove_2)(RGE_Action_Object *, int, float, float, float, float, int, int, int);
+  void (__thiscall *work2)(RGE_Action_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
+  void (__thiscall *set_task)(RGE_Action_Object *, __int16);
+  void (__thiscall *setTaskByTaskID)(RGE_Action_Object *, int);
+  void (__thiscall *set_action)(RGE_Action_Object *, RGE_Action *);
+  void (__thiscall *set_only_action)(RGE_Action_Object *, RGE_Action *);
+  void (__thiscall *set_end_action)(RGE_Action_Object *, RGE_Action *);
+  RGE_Task *(__thiscall *getTask)(RGE_Action_Object *, RGE_Static_Object *, float, float, float, __int16);
+  void (__thiscall *setUnitAIAction)(RGE_Action_Object *, int, RGE_Static_Object *, float, float, float);
+  int (__thiscall *setup_5)(RGE_Action_Object *, RGE_Master_Action_Object *, RGE_Player *, float, float, float);
+  RGE_Action_List *(__thiscall *create_action_list)(RGE_Action_Object *);
+};
+#pragma pack(pop)
+
+/* 79 */
+#pragma pack(push, 8)
+struct RGE_Active_Sprite
+{
+  RGE_Active_SpriteVtbl *vfptr;
+  RGE_Sprite *sprite;
+  unsigned __int8 type;
+  int offset_x;
+  int offset_y;
+  __int16 frame;
+  unsigned __int8 invis_flag;
+  unsigned __int8 RGE_Active_Sprite_gap;
 };
 #pragma pack(pop)
 
@@ -10854,7 +10300,7 @@ struct TTextPanelVtbl
   void (__thiscall *set_text3)(TTextPanel *, const char *, TTextPanel__FontChangeNode *);
   void (__thiscall *set_text_parsed)(TTextPanel *, char **, __int16, int, int);
   void (__thiscall *set_text_parsed2)(TTextPanel *, int, int, int);
-  void (__thiscall *set_text_parsed3)(TTextPanel *, const char *, int, int);
+  void (__thiscall *set_text_parsed3)(TTextPanel *, char *, int, int);
   void (__thiscall *set_bevel_info)(TTextPanel *, int, int, int, int, int, int, int);
   void (__thiscall *set_bevel_type)(TTextPanel *, int);
   void (__thiscall *draw_line)(TTextPanel *, HDC, __int16, __int16, unsigned __int8);
@@ -11963,24 +11409,24 @@ struct TRIBE_Building_ObjectVtbl
   void *(__thiscall *__vecDelDtor)(TRIBE_Building_Object *, unsigned int);
   int (__thiscall *gbg_unknown1)(TRIBE_Building_Object *);
   int (__thiscall *gbg_get_civ_override)(TRIBE_Building_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown3)(TRIBE_Building_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown4)(TRIBE_Building_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown5)(TRIBE_Building_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown6)(TRIBE_Building_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown7)(TRIBE_Building_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown8)(TRIBE_Building_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown9)(TRIBE_Building_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown10)(TRIBE_Building_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown11)(TRIBE_Building_Object *);
+  unsigned __int8 (__thiscall *gbg_isSpaceport)(TRIBE_Building_Object *);
+  unsigned __int8 (__thiscall *gbg_isGEAssaultMech)(TRIBE_Building_Object *);
+  unsigned __int8 (__thiscall *gbg_isAircraft)(TRIBE_Building_Object *);
+  unsigned __int8 (__thiscall *gbg_isAirCruiser)(TRIBE_Building_Object *);
+  unsigned __int8 (__thiscall *gbg_isResourceBuilding)(TRIBE_Building_Object *);
+  unsigned __int8 (__thiscall *gbg_isMilitaryUnit)(TRIBE_Building_Object *);
+  unsigned __int8 (__thiscall *gbg_isCivilianUnit)(TRIBE_Building_Object *);
+  unsigned __int8 (__thiscall *gbg_isPredatorUnit)(TRIBE_Building_Object *);
+  unsigned __int8 (__thiscall *gbg_isStaticPredatorUnit)(TRIBE_Building_Object *);
   unsigned __int8 (__thiscall *gbg_isPadawan)(TRIBE_Building_Object *);
   unsigned __int8 (__thiscall *gbg_isMaster)(TRIBE_Building_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown14)(TRIBE_Building_Object *);
+  unsigned __int8 (__thiscall *gbg_isAttackGroundButtonAvailable)(TRIBE_Building_Object *);
   unsigned __int8 (__thiscall *gbg_isShielded)(TRIBE_Building_Object *);
   void (__thiscall *gbg_unknown16)(TRIBE_Building_Object *);
   void (__thiscall *gbg_unknown17)(TRIBE_Building_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown18)(TRIBE_Building_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isStealth)(TRIBE_Building_Object *, int);
   unsigned __int8 (__thiscall *gbg_isDetector)(TRIBE_Building_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown20)(TRIBE_Building_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isObjectSpriteDisplayed)(TRIBE_Building_Object *, int);
   unsigned __int8 (__thiscall *gbg_isPowered)(TRIBE_Building_Object *, int);
   void (__thiscall *gbg_unknown22)(TRIBE_Building_Object *);
   unsigned __int8 (__thiscall *gbg_unknown23)(TRIBE_Building_Object *);
@@ -12415,6 +11861,15 @@ struct Production_Queue_Record
 };
 #pragma pack(pop)
 
+/* 517 */
+#pragma pack(push, 8)
+struct Shape_Clip_Node
+{
+  int Start;
+  int End;
+};
+#pragma pack(pop)
+
 /* 561 */
 #pragma pack(push, 8)
 struct TDebuggingLogVtbl
@@ -12511,6 +11966,253 @@ struct CMemoryPool
 };
 #pragma pack(pop)
 
+/* 769 */
+#pragma pack(push, 8)
+struct RGE_Master_Action_ObjectVtbl
+{
+  unsigned __int8 (__thiscall *gbg_needs_power)(RGE_Master_Action_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_sprite_civ_override)(RGE_Master_Action_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_sprite2_civ_override)(RGE_Master_Action_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_death_sprite_civ_override)(RGE_Master_Action_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_undead_sprite_civ_override)(RGE_Master_Action_Object *, RGE_Static_Object *);
+  void *(__thiscall *__vecDelDtor)(RGE_Master_Action_Object *, unsigned int);
+  void (__thiscall *copy_obj)(RGE_Master_Action_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *modify)(RGE_Master_Action_Object *, float, unsigned __int8);
+  void (__thiscall *modify_delta)(RGE_Master_Action_Object *, float, unsigned __int8);
+  void (__thiscall *modify_percent)(RGE_Master_Action_Object *, float, unsigned __int8);
+  void (__thiscall *small_save)(RGE_Master_Action_Object *, int);
+  void (__thiscall *save)(RGE_Master_Action_Object *, int);
+  RGE_Static_Object *(__thiscall *make_new_obj)(RGE_Master_Action_Object *, RGE_Player *, float, float, float);
+  RGE_Master_Static_Object *(__thiscall *make_new_master)(RGE_Master_Action_Object *);
+  unsigned __int8 (__thiscall *check_placement)(RGE_Master_Action_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
+  unsigned __int8 (__thiscall *alignment)(RGE_Master_Action_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
+  int (__thiscall *calc_base_damage_ability)(RGE_Master_Action_Object *, RGE_Master_Combat_Object *);
+  void (__thiscall *play_command_sound)(RGE_Master_Action_Object *, RGE_Player *);
+  void (__thiscall *play_move_sound)(RGE_Master_Action_Object *, RGE_Player *);
+  void (__thiscall *draw)(RGE_Master_Action_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
+  float (__thiscall *maximumSpeed)(RGE_Master_Action_Object *, int);
+  float (__thiscall *acceleration)(RGE_Master_Action_Object *, int);
+  float (__thiscall *deceleration)(RGE_Master_Action_Object *, int);
+  float (__thiscall *getTurnRadius)(RGE_Master_Action_Object *);
+  float (__thiscall *getTurnRadiusSpeed)(RGE_Master_Action_Object *);
+  int (__thiscall *setTurnRadiusOffTurnSpeed)(RGE_Master_Action_Object *);
+  int (__thiscall *setTurnRadius)(RGE_Master_Action_Object *, float, float);
+  float (__thiscall *getMaximumYawPerSecondMoving)(RGE_Master_Action_Object *);
+  float (__thiscall *getMaximumYawPerSecondStationary)(RGE_Master_Action_Object *);
+  void (__thiscall *setStationaryYawRevolutionTime)(RGE_Master_Action_Object *, float);
+  RGE_Sprite *(__thiscall *gbg_get_move_sprite_civ_override)(RGE_Master_Action_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_run_sprite_civ_override)(RGE_Master_Action_Object *, RGE_Static_Object *);
+  RGE_Task_List *(__thiscall *create_task_list)(RGE_Master_Action_Object *);
+};
+#pragma pack(pop)
+
+/* 57 */
+#pragma pack(push, 8)
+struct RGE_Master_Animated_Object
+{
+  RGE_Master_Animated_ObjectVtbl *vfptr;
+  unsigned __int8 master_type;
+  char *name;
+  char *gbg_name2;
+  __int16 unit_line;
+  unsigned __int8 min_tech_level;
+  __int16 string_id;
+  __int16 string_id2;
+  __int16 id;
+  __int16 copy_id;
+  __int16 base_id;
+  __int16 object_group;
+  RGE_Sprite *sprite;
+  RGE_Sprite *sprite2;
+  RGE_Sprite *death_sprite;
+  RGE_Sprite *undead_sprite;
+  unsigned __int8 undead_flag;
+  __int16 hp;
+  float los;
+  unsigned __int8 obj_max;
+  float radius_x;
+  float radius_y;
+  float radius_z;
+  RGE_Sound *selected_sound;
+  RGE_Sound *created_sound;
+  RGE_Sound *death_sound;
+  RGE_Sound *damage_sound;
+  __int16 death_spawn_obj_id;
+  unsigned __int8 sort_number;
+  unsigned __int8 can_be_built_on;
+  __int16 button_pict;
+  unsigned __int8 hide_in_scenario_editor;
+  __int16 portrait_pict;
+  unsigned __int8 available;
+  unsigned __int8 disabled;
+  __int16 tile_req1;
+  __int16 tile_req2;
+  __int16 center_tile_req1;
+  __int16 center_tile_req2;
+  float construction_radius_x;
+  float construction_radius_y;
+  unsigned __int8 elevation_flag;
+  unsigned __int8 fog_flag;
+  __int16 terrain;
+  unsigned __int8 movement_type;
+  __int16 attribute_type_held[3];
+  float attribute_amount_held[3];
+  __int16 attribute_max_amount;
+  float attribute_rot;
+  float multiple_attribute_mod;
+  unsigned __int8 attribute_flag[3];
+  unsigned __int8 area_effect_object_level;
+  unsigned __int8 combat_level;
+  unsigned __int8 select_level;
+  unsigned __int8 map_draw_level;
+  unsigned __int8 unit_level;
+  unsigned __int8 map_color;
+  unsigned __int8 attack_reaction;
+  unsigned __int8 convert_terrain_flag;
+  unsigned __int8 damage_sprite_num;
+  RGE_Damage_Sprite_Info *damage_sprites;
+  unsigned __int8 occlusion_flag;
+  unsigned __int8 obstruction_type;
+  unsigned __int8 obstruction_class;
+  unsigned int object_flags;
+  int help_string_id;
+  int help_page_id;
+  int hotkey_id;
+  unsigned __int8 recyclable;
+  unsigned __int8 track_as_resource;
+  unsigned __int8 create_doppleganger_on_death;
+  unsigned __int8 resource_group;
+  unsigned __int8 draw_flag;
+  unsigned __int8 draw_color;
+  float outline_radius_x;
+  float outline_radius_y;
+  float outline_radius_z;
+  float speed;
+};
+#pragma pack(pop)
+
+/* 768 */
+#pragma pack(push, 8)
+struct RGE_Master_Moving_ObjectVtbl
+{
+  unsigned __int8 (__thiscall *gbg_needs_power)(RGE_Master_Moving_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_sprite_civ_override)(RGE_Master_Moving_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_sprite2_civ_override)(RGE_Master_Moving_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_death_sprite_civ_override)(RGE_Master_Moving_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_undead_sprite_civ_override)(RGE_Master_Moving_Object *, RGE_Static_Object *);
+  void *(__thiscall *__vecDelDtor)(RGE_Master_Moving_Object *, unsigned int);
+  void (__thiscall *copy_obj)(RGE_Master_Moving_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *modify)(RGE_Master_Moving_Object *, float, unsigned __int8);
+  void (__thiscall *modify_delta)(RGE_Master_Moving_Object *, float, unsigned __int8);
+  void (__thiscall *modify_percent)(RGE_Master_Moving_Object *, float, unsigned __int8);
+  void (__thiscall *small_save)(RGE_Master_Moving_Object *, int);
+  void (__thiscall *save)(RGE_Master_Moving_Object *, int);
+  RGE_Static_Object *(__thiscall *make_new_obj)(RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
+  RGE_Master_Static_Object *(__thiscall *make_new_master)(RGE_Master_Moving_Object *);
+  unsigned __int8 (__thiscall *check_placement)(RGE_Master_Moving_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
+  unsigned __int8 (__thiscall *alignment)(RGE_Master_Moving_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
+  int (__thiscall *calc_base_damage_ability)(RGE_Master_Moving_Object *, RGE_Master_Combat_Object *);
+  void (__thiscall *play_command_sound)(RGE_Master_Moving_Object *, RGE_Player *);
+  void (__thiscall *play_move_sound)(RGE_Master_Moving_Object *, RGE_Player *);
+  void (__thiscall *draw)(RGE_Master_Moving_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
+  float (__thiscall *maximumSpeed)(RGE_Master_Moving_Object *, int);
+  float (__thiscall *acceleration)(RGE_Master_Moving_Object *, int);
+  float (__thiscall *deceleration)(RGE_Master_Moving_Object *, int);
+  float (__thiscall *getTurnRadius)(RGE_Master_Moving_Object *);
+  float (__thiscall *getTurnRadiusSpeed)(RGE_Master_Moving_Object *);
+  int (__thiscall *setTurnRadiusOffTurnSpeed)(RGE_Master_Moving_Object *);
+  int (__thiscall *setTurnRadius)(RGE_Master_Moving_Object *, float, float);
+  float (__thiscall *getMaximumYawPerSecondMoving)(RGE_Master_Moving_Object *);
+  float (__thiscall *getMaximumYawPerSecondStationary)(RGE_Master_Moving_Object *);
+  void (__thiscall *setStationaryYawRevolutionTime)(RGE_Master_Moving_Object *, float);
+  RGE_Sprite *(__thiscall *gbg_get_move_sprite_civ_override)(RGE_Master_Moving_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_run_sprite_civ_override)(RGE_Master_Moving_Object *, RGE_Static_Object *);
+};
+#pragma pack(pop)
+
+/* 455 */
+#pragma pack(push, 8)
+struct VSpan_Node
+{
+  VSpan_Node *Next;
+  VSpan_Node *Prev;
+  int StartPx;
+  int EndPx;
+};
+#pragma pack(pop)
+
+/* 145 */
+#pragma pack(push, 8)
+struct RGE_Action
+{
+  RGE_ActionVtbl *vfptr;
+  __int16 action_type;
+  RGE_Action_Object *obj;
+  unsigned __int8 state;
+  RGE_Static_Object *target_obj;
+  RGE_Static_Object *target_obj2;
+  int targetID;
+  int target2ID;
+  float target_x;
+  float target_y;
+  float target_z;
+  float timer;
+  RGE_Task *task;
+  RGE_Action_List *sub_actions;
+  RGE_Sprite *sprite;
+  unsigned __int8 subActionValue;
+  unsigned __int8 mTargetMovedState;
+  unsigned __int8 RGE_Action_gap[2];
+};
+#pragma pack(pop)
+
+/* 754 */
+#pragma pack(push, 8)
+struct RGE_Action_ListVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Action_List *, unsigned int);
+  RGE_Action *(__thiscall *create_action)(RGE_Action_List *, int, __int16);
+  RGE_Action *(__thiscall *create_task_action)(RGE_Action_List *, RGE_Task *, RGE_Static_Object *, float, float, float);
+  unsigned __int8 (__thiscall *inside_obj_update)(RGE_Action_List *);
+  unsigned __int8 (__thiscall *update)(RGE_Action_List *);
+  void (__thiscall *get_action_name)(RGE_Action_List *, char *);
+  void (__thiscall *copy_obj)(RGE_Action_List *, RGE_Master_Action_Object *);
+  void (__thiscall *copy_obj_sprites)(RGE_Action_List *, RGE_Master_Action_Object *, RGE_Task *, RGE_Task *);
+};
+#pragma pack(pop)
+
+/* 755 */
+#pragma pack(push, 8)
+struct RGE_Action_Node
+{
+  RGE_Action *action;
+  RGE_Action_Node *next;
+};
+#pragma pack(pop)
+
+/* 855 */
+#pragma pack(push, 8)
+struct RGE_Active_SpriteVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Active_Sprite *, unsigned int);
+  void (__thiscall *set_offset)(RGE_Active_Sprite *, int, int);
+  void (__thiscall *save)(RGE_Active_Sprite *, int);
+  void (__thiscall *update)(RGE_Active_Sprite *, float, float);
+  void (__thiscall *draw)(RGE_Active_Sprite *, __int16, int, int, int, int, RGE_Color_Table *, TDrawArea *, RGE_Static_Object *);
+  void (__thiscall *normal_draw)(RGE_Active_Sprite *, __int16, int, int, RGE_Color_Table *, TDrawArea *, RGE_Static_Object *);
+  void (__thiscall *shadow_draw)(RGE_Active_Sprite *, __int16, int, int, RGE_Color_Table *, TDrawArea *, unsigned __int8);
+  __int16 (__thiscall *what_frame)(RGE_Active_Sprite *);
+  unsigned __int8 (__thiscall *is_animating)(RGE_Active_Sprite *);
+  void (__thiscall *set_frame)(RGE_Active_Sprite *, __int16);
+  void (__thiscall *set_facet)(RGE_Active_Sprite *, __int16, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *frame_passed)(RGE_Active_Sprite *, __int16);
+  unsigned __int8 (__thiscall *looped)(RGE_Active_Sprite *);
+  __int16 (__thiscall *get_facetindex)(RGE_Active_Sprite *, __int16);
+  unsigned __int8 (__thiscall *get_frame)(RGE_Active_Sprite *, __int16 *, __int16 *, __int16 *, __int16 *, int);
+  void (__thiscall *setToFirstFrame)(RGE_Active_Sprite *);
+};
+#pragma pack(pop)
+
 /* 878 */
 #pragma pack(push, 8)
 struct TInputPanelVtbl
@@ -12582,10 +12284,10 @@ struct TInputPanelVtbl
   int (__thiscall *pointing_at)(TInputPanel *, int, int, int *, int *, int *, int *, char *, int);
   void (__thiscall *set_text)(TInputPanel *, char **, __int16);
   void (__thiscall *set_text2)(TInputPanel *, int);
-  void (__thiscall *set_text3)(TInputPanel *, const char *, TTextPanel__FontChangeNode *);
+  void (__thiscall *set_text3)(TInputPanel *, char *, TTextPanel__FontChangeNode *);
   void (__thiscall *set_text_parsed)(TInputPanel *, char **, __int16, int, int);
   void (__thiscall *set_text_parsed2)(TInputPanel *, int, int, int);
-  void (__thiscall *set_text_parsed3)(TInputPanel *, const char *, int, int);
+  void (__thiscall *set_text_parsed3)(TInputPanel *, char *, int, int);
   void (__thiscall *set_bevel_info)(TInputPanel *, int, int, int, int, int, int, int);
   void (__thiscall *set_bevel_type)(TInputPanel *, int);
   void (__thiscall *draw_line)(TInputPanel *, HDC, __int16, __int16, unsigned __int8);
@@ -12667,10 +12369,10 @@ struct TListPanelVtbl
   int (__thiscall *pointing_at)(TListPanel *, int, int, int *, int *, int *, int *, char *, int);
   void (__thiscall *set_text)(TListPanel *, char **, __int16);
   void (__thiscall *set_text2)(TListPanel *, int);
-  void (__thiscall *set_text3)(TListPanel *, const char *, TTextPanel__FontChangeNode *);
+  void (__thiscall *set_text3)(TListPanel *, char *, TTextPanel__FontChangeNode *);
   void (__thiscall *set_text_parsed)(TListPanel *, char **, __int16, int, int);
   void (__thiscall *set_text_parsed2)(TListPanel *, int, int, int);
-  void (__thiscall *set_text_parsed3)(TListPanel *, const char *, int, int);
+  void (__thiscall *set_text_parsed3)(TListPanel *, char *, int, int);
   void (__thiscall *set_bevel_info)(TListPanel *, int, int, int, int, int, int, int);
   void (__thiscall *set_bevel_type)(TListPanel *, int);
   void (__thiscall *draw_line)(TListPanel *, HDC, __int16, __int16, unsigned __int8);
@@ -13321,6 +13023,75 @@ struct CMemoryBlock
 };
 #pragma pack(pop)
 
+/* 767 */
+#pragma pack(push, 8)
+struct RGE_Master_Animated_ObjectVtbl
+{
+  unsigned __int8 (__thiscall *gbg_needs_power)(RGE_Master_Animated_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_sprite_civ_override)(RGE_Master_Animated_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_sprite2_civ_override)(RGE_Master_Animated_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_death_sprite_civ_override)(RGE_Master_Animated_Object *, RGE_Static_Object *);
+  RGE_Sprite *(__thiscall *gbg_get_undead_sprite_civ_override)(RGE_Master_Animated_Object *, RGE_Static_Object *);
+  void *(__thiscall *__vecDelDtor)(RGE_Master_Animated_Object *, unsigned int);
+  void (__thiscall *copy_obj)(RGE_Master_Animated_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *modify)(RGE_Master_Animated_Object *, float, unsigned __int8);
+  void (__thiscall *modify_delta)(RGE_Master_Animated_Object *, float, unsigned __int8);
+  void (__thiscall *modify_percent)(RGE_Master_Animated_Object *, float, unsigned __int8);
+  void (__thiscall *small_save)(RGE_Master_Animated_Object *, int);
+  void (__thiscall *save)(RGE_Master_Animated_Object *, int);
+  RGE_Static_Object *(__thiscall *make_new_obj)(RGE_Master_Animated_Object *, RGE_Player *, float, float, float);
+  RGE_Master_Static_Object *(__thiscall *make_new_master)(RGE_Master_Animated_Object *);
+  unsigned __int8 (__thiscall *check_placement)(RGE_Master_Animated_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
+  unsigned __int8 (__thiscall *alignment)(RGE_Master_Animated_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
+  int (__thiscall *calc_base_damage_ability)(RGE_Master_Animated_Object *, RGE_Master_Combat_Object *);
+  void (__thiscall *play_command_sound)(RGE_Master_Animated_Object *, RGE_Player *);
+  void (__thiscall *play_move_sound)(RGE_Master_Animated_Object *, RGE_Player *);
+  void (__thiscall *draw)(RGE_Master_Animated_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
+  float (__thiscall *maximumSpeed)(RGE_Master_Animated_Object *, int);
+  float (__thiscall *acceleration)(RGE_Master_Animated_Object *, int);
+  float (__thiscall *deceleration)(RGE_Master_Animated_Object *, int);
+  float (__thiscall *getTurnRadius)(RGE_Master_Animated_Object *);
+  float (__thiscall *getTurnRadiusSpeed)(RGE_Master_Animated_Object *);
+  int (__thiscall *setTurnRadiusOffTurnSpeed)(RGE_Master_Animated_Object *);
+  int (__thiscall *setTurnRadius)(RGE_Master_Animated_Object *, float, float);
+  float (__thiscall *getMaximumYawPerSecondMoving)(RGE_Master_Animated_Object *);
+  float (__thiscall *getMaximumYawPerSecondStationary)(RGE_Master_Animated_Object *);
+  void (__thiscall *setStationaryYawRevolutionTime)(RGE_Master_Animated_Object *, float);
+};
+#pragma pack(pop)
+
+/* 721 */
+#pragma pack(push, 8)
+struct RGE_ActionVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Action *, unsigned int);
+  int (__thiscall *setup_2)(RGE_Action *, RGE_Action_Object *);
+  int (__thiscall *setup_1)(RGE_Action *, int, RGE_Action_Object *);
+  RGE_Action_List *(__thiscall *create_action_list)(RGE_Action *, RGE_Action_Object *);
+  void (__thiscall *rehook)(RGE_Action *);
+  void (__thiscall *save)(RGE_Action *, int);
+  __int16 (__thiscall *type)(RGE_Action *);
+  void (__thiscall *first_in_stack)(RGE_Action *, unsigned __int8);
+  unsigned __int8 (__thiscall *inside_obj_update)(RGE_Action *);
+  unsigned __int8 (__thiscall *idle_update)(RGE_Action *);
+  unsigned __int8 (__thiscall *update)(RGE_Action *);
+  int (__thiscall *stop)(RGE_Action *);
+  int (__thiscall *move_to)(RGE_Action *, RGE_Static_Object *, float, float, float);
+  int (__thiscall *work)(RGE_Action *, RGE_Static_Object *, float, float, float);
+  int (__thiscall *gbg_unknown1)(RGE_Action *, int, int);
+  unsigned __int8 (__thiscall *attack_response)(RGE_Action *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *relation_response)(RGE_Action *, int, unsigned __int8);
+  void (__thiscall *copy_obj)(RGE_Action *, RGE_Master_Action_Object *);
+  void (__thiscall *copy_obj_sprites)(RGE_Action *, RGE_Master_Action_Object *, RGE_Task *, RGE_Task *);
+  void (__thiscall *get_state_name)(RGE_Action *, char *);
+  RGE_Static_Object *(__thiscall *get_target_obj)(RGE_Action *);
+  RGE_Static_Object *(__thiscall *get_target_obj2)(RGE_Action *);
+  void (__thiscall *set_target_obj)(RGE_Action *, RGE_Static_Object *);
+  void (__thiscall *set_target_obj2)(RGE_Action *, RGE_Static_Object *);
+  void (__thiscall *set_state)(RGE_Action *, unsigned __int8);
+};
+#pragma pack(pop)
+
 /* 343 */
 #pragma pack(push, 8)
 struct Time_Slice_History_Event
@@ -13373,6 +13144,289 @@ struct TRIBE_Master_Combat_ObjectVtbl
   RGE_Sprite *(__thiscall *gbg_get_run_sprite_civ_override)(TRIBE_Master_Combat_Object *, RGE_Static_Object *);
   RGE_Task_List *(__thiscall *create_task_list)(TRIBE_Master_Combat_Object *);
   RGE_Sprite *(__thiscall *gbg_get_fight_sprite_civ_override)(TRIBE_Master_Combat_Object *, RGE_Static_Object *);
+};
+#pragma pack(pop)
+
+/* 56 */
+#pragma pack(push, 8)
+struct RGE_Animated_Object
+{
+  RGE_Animated_ObjectVtbl *vfptr;
+  int gbg_unknown_1;
+  float gbg_unknown_2;
+  int gbg_unknown_3;
+  int id;
+  RGE_Master_Animated_Object *master_obj;
+  TRIBE_Player *owner;
+  RGE_Sprite *sprite;
+  RGE_Sprite *old_sprite;
+  RGE_Active_Sprite_List *sprite_list;
+  RGE_Tile *tile;
+  RGE_Static_Object *inside_obj;
+  RGE_New_Object_List *objects;
+  __int16 screen_x_offset;
+  __int16 screen_y_offset;
+  __int16 shadow_x_offset;
+  __int16 shadow_y_offset;
+  float hp;
+  float sp;
+  unsigned __int8 curr_damage_percent;
+  unsigned __int8 facet;
+  unsigned __int8 selected;
+  float world_x;
+  float world_y;
+  float world_z;
+  float attribute_amount_held;
+  unsigned __int8 object_state;
+  unsigned __int8 sleep_flag;
+  unsigned __int8 dopple_flag;
+  unsigned __int8 goto_sleep_flag;
+  __int16 attribute_type_held;
+  unsigned __int8 type;
+  unsigned __int8 worker_num;
+  ObsRecord *CurrentObstructionData;
+  ObsRecord *ObstructionDataList;
+  RGE_Static_Object **player_object_node;
+  int *mPathingGroup;
+  int mPathingGroupSize;
+  int mMaximumPathingGroupSize;
+  int damaged_lately_timer;
+  UnitAIModule *unitAIValue;
+  int zoneMapIndex;
+  unsigned __int8 inObstructionMapValue;
+  unsigned __int8 lastInObstructionMapValue;
+  unsigned __int8 underAttackValue;
+  int mGroupID;
+  unsigned __int8 mROOAlreadyCalled;
+  LOS_ExploreInfo ei;
+  float speed;
+};
+#pragma pack(pop)
+
+/* 757 */
+#pragma pack(push, 8)
+struct RGE_Animated_ObjectVtbl
+{
+  void *(__thiscall *__vecDelDtor)(RGE_Animated_Object *, unsigned int);
+  int (__thiscall *gbg_unknown1)(RGE_Animated_Object *);
+  int (__thiscall *gbg_get_civ_override)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isSpaceport)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isGEAssaultMech)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isAircraft)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isAirCruiser)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isResourceBuilding)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isMilitaryUnit)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isCivilianUnit)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isPredatorUnit)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isStaticPredatorUnit)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isPadawan)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isMaster)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isAttackGroundButtonAvailable)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isShielded)(RGE_Animated_Object *);
+  void (__thiscall *gbg_unknown16)(RGE_Animated_Object *);
+  void (__thiscall *gbg_unknown17)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isStealth)(RGE_Animated_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isDetector)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isObjectSpriteDisplayed)(RGE_Animated_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isPowered)(RGE_Animated_Object *, int);
+  void (__thiscall *gbg_unknown22)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_unknown23)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isBiological)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_isDamaged)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_unknown26)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *gbg_canBeHealedByPlayer)(RGE_Animated_Object *, int);
+  unsigned __int8 (__thiscall *gbg_canBeRepairedByPlayer)(RGE_Animated_Object *, int);
+  void (__thiscall *recycle_in_to_game)(RGE_Animated_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
+  void (__thiscall *recycle_out_of_game)(RGE_Animated_Object *);
+  void (__thiscall *draw)(RGE_Animated_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *);
+  void (__thiscall *shadow_draw)(RGE_Animated_Object *, TDrawArea *, __int16, __int16, unsigned __int8);
+  void (__thiscall *normal_draw)(RGE_Animated_Object *, TDrawArea *, __int16, __int16);
+  void (__thiscall *draw_front_frame)(RGE_Animated_Object *, TDrawArea *, __int16, __int16);
+  void (__thiscall *draw_back_frame)(RGE_Animated_Object *, TDrawArea *, __int16, __int16);
+  void (__thiscall *draw_frame)(RGE_Animated_Object *, TDrawArea *, __int16, __int16);
+  unsigned __int8 (__thiscall *update)(RGE_Animated_Object *);
+  void (__thiscall *check_damage_sprites)(RGE_Animated_Object *);
+  void (__thiscall *rehook)(RGE_Animated_Object *);
+  void (__thiscall *save)(RGE_Animated_Object *, int);
+  void (__thiscall *teleport_off_map)(RGE_Animated_Object *);
+  float (__thiscall *teleport)(RGE_Animated_Object *, float, float, float);
+  float (__thiscall *handle_teleport_z_correction)(RGE_Animated_Object *, float);
+  void (__thiscall *new_sprite)(RGE_Animated_Object *, RGE_Sprite *);
+  void (__thiscall *add_overlay_sprite)(RGE_Animated_Object *, RGE_Sprite *, unsigned __int8);
+  void (__thiscall *remove_overlay_sprite)(RGE_Animated_Object *, RGE_Sprite *);
+  void (__thiscall *change_ownership)(RGE_Animated_Object *, RGE_Player *);
+  void (__thiscall *modify)(RGE_Animated_Object *, float, unsigned __int8);
+  void (__thiscall *modify_delta)(RGE_Animated_Object *, float, unsigned __int8);
+  void (__thiscall *modify_percent)(RGE_Animated_Object *, float, unsigned __int8);
+  void (__thiscall *transform)(RGE_Animated_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *copy_obj)(RGE_Animated_Object *, RGE_Master_Static_Object *);
+  void (__thiscall *set_object_state)(RGE_Animated_Object *, unsigned __int8);
+  void (__thiscall *remove_visible_resource)(RGE_Animated_Object *);
+  void (__thiscall *create_doppleganger_when_dying)(RGE_Animated_Object *);
+  void (__thiscall *destroy_obj)(RGE_Animated_Object *);
+  void (__thiscall *die_die_die)(RGE_Animated_Object *);
+  void (__thiscall *damage)(RGE_Animated_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *, int);
+  float (__thiscall *calculateDamage)(RGE_Animated_Object *, int, RGE_Armor_Weapon_Info *, float, RGE_Player *, RGE_Static_Object *);
+  void (__thiscall *rotate)(RGE_Animated_Object *, int);
+  unsigned __int8 (__thiscall *can_attack)(RGE_Animated_Object *);
+  void (__thiscall *set_attribute)(RGE_Animated_Object *, __int16, float);
+  void (__thiscall *set_attribute_amount)(RGE_Animated_Object *, float, unsigned __int8, unsigned __int8);
+  int (__thiscall *heal_2)(RGE_Animated_Object *, int, int);
+  unsigned __int8 (__thiscall *heal_1)(RGE_Animated_Object *, float);
+  int (__thiscall *canRepair)(RGE_Animated_Object *);
+  void (__thiscall *notify_of_relation)(RGE_Animated_Object *, int, unsigned __int8);
+  void (__thiscall *do_command)(RGE_Animated_Object *, RGE_Static_Object *, float, float, float);
+  int (__thiscall *actionTypeIfOrdered)(RGE_Animated_Object *, RGE_Static_Object *, float, float, float, float *);
+  unsigned __int8 (__thiscall *move_to)(RGE_Animated_Object *, RGE_Static_Object *, float, float, float);
+  void (__thiscall *work)(RGE_Animated_Object *, RGE_Static_Object *, float, float, float);
+  void (__thiscall *stop)(RGE_Animated_Object *);
+  void (__thiscall *set_attack)(RGE_Animated_Object *, RGE_Static_Object *);
+  void (__thiscall *play_command_sound)(RGE_Animated_Object *);
+  void (__thiscall *play_move_sound)(RGE_Animated_Object *);
+  void (__thiscall *new_angle)(RGE_Animated_Object *, float);
+  RGE_Static_Object *(__thiscall *spawn_death_obj)(RGE_Animated_Object *);
+  RGE_Master_Static_Object *(__thiscall *get_command_master)(RGE_Animated_Object *, RGE_Static_Object *, float, float, float);
+  void (__thiscall *set_being_worked_on)(RGE_Animated_Object *, RGE_Action_Object *, __int16, unsigned __int8);
+  void (__thiscall *release_being_worked_on)(RGE_Animated_Object *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *is_moving)(RGE_Animated_Object *);
+  RGE_Static_Object *(__thiscall *get_target_obj)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *more_room)(RGE_Animated_Object *, RGE_Static_Object *);
+  void (__thiscall *enter_obj)(RGE_Animated_Object *, RGE_Static_Object *, unsigned __int8);
+  void (__thiscall *exit_obj)(RGE_Animated_Object *);
+  void (__thiscall *add_obj)(RGE_Animated_Object *, RGE_Static_Object *);
+  void (__thiscall *remove_obj)(RGE_Animated_Object *, RGE_Static_Object *);
+  int (__thiscall *explore_terrain)(RGE_Animated_Object *, RGE_Player *, unsigned __int8, int, int);
+  void (__thiscall *unexplore_terrain)(RGE_Animated_Object *, RGE_Player *, unsigned __int8, int, int);
+  LOSTBL *(__thiscall *get_los_table)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *get_visibility)(RGE_Animated_Object *, RGE_Player *);
+  int (__thiscall *inAttackRange)(RGE_Animated_Object *, RGE_Static_Object *);
+  unsigned __int8 (__thiscall *underAttack)(RGE_Animated_Object *);
+  void (__thiscall *setUnderAttack)(RGE_Animated_Object *, unsigned __int8);
+  float (__thiscall *calc_attack_modifier)(RGE_Animated_Object *, RGE_Static_Object *);
+  float (__thiscall *getSpeed)(RGE_Animated_Object *);
+  float (__thiscall *getAngle)(RGE_Animated_Object *);
+  float (__thiscall *maximumSpeed)(RGE_Animated_Object *);
+  float (__thiscall *rateOfFire)(RGE_Animated_Object *);
+  float (__thiscall *damageCapability_2)(RGE_Animated_Object *, RGE_Static_Object *);
+  float (__thiscall *damageCapability_1)(RGE_Animated_Object *);
+  float (__thiscall *weaponRange)(RGE_Animated_Object *);
+  float (__thiscall *minimumWeaponRange)(RGE_Animated_Object *);
+  int (__thiscall *passableTile_2)(RGE_Animated_Object *, float, float, int *, int);
+  int (__thiscall *passableTile_1)(RGE_Animated_Object *, float, float);
+  int (__thiscall *currentTargetID)(RGE_Animated_Object *);
+  float (__thiscall *currentTargetX)(RGE_Animated_Object *);
+  float (__thiscall *currentTargetY)(RGE_Animated_Object *);
+  float (__thiscall *currentTargetZ)(RGE_Animated_Object *);
+  void (__thiscall *setWaitingToMove)(RGE_Animated_Object *, unsigned __int8);
+  unsigned __int8 (__thiscall *waitingToMove)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *actionState)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *keepGatheringWhenObjectIsOut)(RGE_Animated_Object *, int);
+  unsigned __int8 (__thiscall *produceWhenKilledBy)(RGE_Animated_Object *, int);
+  unsigned __int8 (__thiscall *useSameZoneDropsite)(RGE_Animated_Object *);
+  float (__thiscall *searchRadius)(RGE_Animated_Object *);
+  unsigned __int8 (__thiscall *is_idle)(RGE_Animated_Object *);
+  void (*logDebug)(RGE_Animated_Object *, char *, ...);
+  void (*debug)(RGE_Animated_Object *, char *, ...);
+  void (__thiscall *notify)(RGE_Animated_Object *, int, int, int, int, int, int);
+  int (__thiscall *attack_2)(RGE_Animated_Object *, float, float, float, int);
+  int (__thiscall *attack_1)(RGE_Animated_Object *, int, int);
+  int (__thiscall *moveTo_3)(RGE_Animated_Object *, float, float, float, float, int, int);
+  int (__thiscall *moveTo_2)(RGE_Animated_Object *, int, float, int);
+  int (__thiscall *moveTo_1)(RGE_Animated_Object *, int, int);
+  int (__thiscall *moveAwayFrom)(RGE_Animated_Object *, int, int);
+  int (__thiscall *hunt)(RGE_Animated_Object *, int, int);
+  int (__thiscall *gather)(RGE_Animated_Object *, int, int);
+  int (__thiscall *convert)(RGE_Animated_Object *, int, int);
+  int (__thiscall *repair)(RGE_Animated_Object *, int, int);
+  int (__thiscall *build)(RGE_Animated_Object *, int, int);
+  int (__thiscall *trade)(RGE_Animated_Object *, int, int);
+  int (__thiscall *explore)(RGE_Animated_Object *, int, int, int);
+  int (__thiscall *enter)(RGE_Animated_Object *, int, int);
+  int (__thiscall *unload)(RGE_Animated_Object *, int, float, float, float);
+  int (__thiscall *transport)(RGE_Animated_Object *, float, float, float, int);
+  int (__thiscall *stopAction)(RGE_Animated_Object *);
+  int (__thiscall *pause)(RGE_Animated_Object *);
+  int (__thiscall *canPath_2)(RGE_Animated_Object *, int, float, float *, int, int, bool);
+  int (__thiscall *canPath_1)(RGE_Animated_Object *, XYZPoint, float, int, float *, int, int, bool);
+  int (__thiscall *canQuickPath)(RGE_Animated_Object *, int, float, float *);
+  int (__thiscall *canPathWithObstructions)(RGE_Animated_Object *, int, float, float *, int, int, ManagedArray_int_ *);
+  int (__thiscall *canPathWithAdditionalPassability)(RGE_Animated_Object *, XYZPoint, float, int, float *, int, int, int, int, int, BPath *);
+  int (__thiscall *findFirstTerrainAlongExceptionPath)(RGE_Animated_Object *, int, float *, float *, BPath *);
+  int (__thiscall *canLinePath_2)(RGE_Animated_Object *, int, int, int, int, float, int);
+  int (__thiscall *canLinePath_1)(RGE_Animated_Object *, const XYPoint *, const XYPoint *, float, XYPoint *, int);
+  int (__thiscall *firstTileAlongLine)(RGE_Animated_Object *, const XYPoint *, const XYPoint *, XYPoint *, int, int, int);
+  unsigned __int8 (__thiscall *have_action)(RGE_Animated_Object *);
+  int (__thiscall *gameActionType)(RGE_Animated_Object *);
+  BVector *(__thiscall *userDefinedWaypoint)(RGE_Animated_Object *, int);
+  int (__thiscall *addUserDefinedWaypoint)(RGE_Animated_Object *, float, float, float);
+  void (__thiscall *zeroUserDefinedWaypoints)(RGE_Animated_Object *);
+  void (__thiscall *removeAllUserDefinedWaypoints)(RGE_Animated_Object *);
+  int (__thiscall *numberUserDefinedWaypoints)(RGE_Animated_Object *);
+  BPath *(__thiscall *getPatrolInformation)(RGE_Animated_Object *, int *);
+  float (__thiscall *distanceToHighestLevelPath_2)(RGE_Animated_Object *, BVector);
+  float (__thiscall *distanceToHighestLevelPath_1)(RGE_Animated_Object *);
+  BPath *(__thiscall *findAvoidancePath)(RGE_Animated_Object *, XYZPoint *, float, int);
+  int (__thiscall *get_action_checksum)(RGE_Animated_Object *);
+  int (__thiscall *get_waypoint_checksum)(RGE_Animated_Object *);
+  void (__thiscall *setPatrolMode)(RGE_Animated_Object *, unsigned __int8);
+  int (__thiscall *garrisoned_count)(RGE_Animated_Object *);
+  int (__thiscall *lock_down)(RGE_Animated_Object *);
+  int (__thiscall *unlock_down)(RGE_Animated_Object *);
+  int (__thiscall *get_locked_down_count)(RGE_Animated_Object *);
+  float (__thiscall *getTradeAmount)(RGE_Animated_Object *, float, float, float, float);
+  int (__thiscall *setup_2)(RGE_Animated_Object *, int, RGE_Game_World *);
+  int (__thiscall *setup_1)(RGE_Animated_Object *, RGE_Master_Static_Object *, RGE_Player *, float, float, float);
+  RGE_New_Object_List *(__thiscall *create_object_list)(RGE_Animated_Object *);
+  RGE_Active_Sprite_List *(__thiscall *create_sprite_list)(RGE_Animated_Object *);
+  BVector *(__thiscall *position)(RGE_Animated_Object *, BVector *);
+  BPathData *(__thiscall *getPathData)(RGE_Animated_Object *);
+  int (__thiscall *actionType)(RGE_Animated_Object *);
+  int (__thiscall *hasActionOfType)(RGE_Animated_Object *, int);
+  int (__thiscall *gbg_hasActionOfType2)(RGE_Animated_Object *, int);
+  int (__thiscall *addMove)(RGE_Animated_Object *, int, float, int, int, int);
+  int (__thiscall *addCurrentPath)(RGE_Animated_Object *, BPath *, int, float, int);
+  int (__thiscall *addFuturePath)(RGE_Animated_Object *, BPath *, int, float, int);
+  void (__thiscall *stopAllMovement)(RGE_Animated_Object *);
+  void (__thiscall *setOrientation)(RGE_Animated_Object *, BVector *, BVector *);
+  BVector *(__thiscall *velocity)(RGE_Animated_Object *, BVector *);
+  void (__thiscall *setVelocity)(RGE_Animated_Object *, BVector *);
+  BVector *(__thiscall *acceleration)(RGE_Animated_Object *, BVector *);
+  void (__thiscall *setAcceleration)(RGE_Animated_Object *, BVector *);
+  float (__thiscall *forwardVelocity)(RGE_Animated_Object *);
+  void (__thiscall *setForwardVelocity)(RGE_Animated_Object *, float);
+  float (__thiscall *forwardAcceleration)(RGE_Animated_Object *);
+  void (__thiscall *setForwardAcceleration)(RGE_Animated_Object *, float);
+  void (__thiscall *moveForward)(RGE_Animated_Object *, float);
+  void (__thiscall *setPosition)(RGE_Animated_Object *, BVector *);
+  void (__thiscall *yaw)(RGE_Animated_Object *, float);
+  int (__thiscall *isMoving)(RGE_Animated_Object *);
+  void (__thiscall *stopMoving)(RGE_Animated_Object *);
+  float (__thiscall *calculateFutureVelocity)(RGE_Animated_Object *, float, float, float, BVector *);
+  unsigned int (__thiscall *lastMoveTime)(RGE_Animated_Object *);
+  void (__thiscall *pauseMovement)(RGE_Animated_Object *, float);
+  int (__thiscall *movementPriority)(RGE_Animated_Object *);
+  int (__thiscall *intelligentMovementUpdate)(RGE_Animated_Object *);
+  float (__thiscall *calculateMaximumSpeed)(RGE_Animated_Object *, int);
+  int (__thiscall *calculateForward)(RGE_Animated_Object *, BVector *, BVector *, BVector *);
+  float (__thiscall *calculateYawAngle)(RGE_Animated_Object *, BVector *, BVector *, float, int *);
+  int (__thiscall *calculateReachedPoint)(RGE_Animated_Object *, BVector *, BVector *, BVector *);
+  float (__thiscall *calculateTurnRadius)(RGE_Animated_Object *);
+  int (__thiscall *checkAcceleration)(RGE_Animated_Object *, BVector *, int, int);
+  BVector *(__thiscall *straightProjectedPosition)(RGE_Animated_Object *, BVector *, BVector *, float);
+  int (__thiscall *onPatrol)(RGE_Animated_Object *);
+  BVector *(__thiscall *orientationForward)(RGE_Animated_Object *, BVector *);
+  int (__thiscall *setRunSprite)(RGE_Animated_Object *);
+  int (__thiscall *setMoveSprite)(RGE_Animated_Object *);
+  int (__thiscall *setFidgetSprite)(RGE_Animated_Object *);
+  int (__thiscall *getGateLocked)(RGE_Animated_Object *);
+  void (__thiscall *setGateLocked)(RGE_Animated_Object *, int);
+  int (__thiscall *isGateOpenable)(RGE_Animated_Object *, int);
+  int (__thiscall *getLinkedChild)(RGE_Animated_Object *, int);
+  int (__thiscall *get_next_selected_group)(RGE_Animated_Object *, int);
+  __int16 (__thiscall *get_Selected_Groups)(RGE_Animated_Object *);
+  void (__thiscall *set_Selected_Groups)(RGE_Animated_Object *, __int16);
+  int (__thiscall *get_num_Selected_groups)(RGE_Animated_Object *);
+  int (__thiscall *setup_3)(RGE_Animated_Object *, RGE_Master_Animated_Object *, RGE_Player *, float, float, float);
 };
 #pragma pack(pop)
 
@@ -13499,24 +13553,24 @@ struct TRIBE_Combat_ObjectVtbl
   void *(__thiscall *__vecDelDtor)(TRIBE_Combat_Object *, unsigned int);
   int (__thiscall *gbg_unknown1)(TRIBE_Combat_Object *);
   int (__thiscall *gbg_get_civ_override)(TRIBE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown3)(TRIBE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown4)(TRIBE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown5)(TRIBE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown6)(TRIBE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown7)(TRIBE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown8)(TRIBE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown9)(TRIBE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown10)(TRIBE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown11)(TRIBE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isSpaceport)(TRIBE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isGEAssaultMech)(TRIBE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isAircraft)(TRIBE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isAirCruiser)(TRIBE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isResourceBuilding)(TRIBE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isMilitaryUnit)(TRIBE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isCivilianUnit)(TRIBE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isPredatorUnit)(TRIBE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isStaticPredatorUnit)(TRIBE_Combat_Object *);
   unsigned __int8 (__thiscall *gbg_isPadawan)(TRIBE_Combat_Object *);
   unsigned __int8 (__thiscall *gbg_isMaster)(TRIBE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown14)(TRIBE_Combat_Object *);
+  unsigned __int8 (__thiscall *gbg_isAttackGroundButtonAvailable)(TRIBE_Combat_Object *);
   unsigned __int8 (__thiscall *gbg_isShielded)(TRIBE_Combat_Object *);
   void (__thiscall *gbg_unknown16)(TRIBE_Combat_Object *);
   void (__thiscall *gbg_unknown17)(TRIBE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown18)(TRIBE_Combat_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isStealth)(TRIBE_Combat_Object *, int);
   unsigned __int8 (__thiscall *gbg_isDetector)(TRIBE_Combat_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown20)(TRIBE_Combat_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isObjectSpriteDisplayed)(TRIBE_Combat_Object *, int);
   unsigned __int8 (__thiscall *gbg_isPowered)(TRIBE_Combat_Object *, int);
   void (__thiscall *gbg_unknown22)(TRIBE_Combat_Object *);
   unsigned __int8 (__thiscall *gbg_unknown23)(TRIBE_Combat_Object *);
@@ -18388,24 +18442,24 @@ struct RGE_Missile_ObjectVtbl
   void *(__thiscall *__vecDelDtor)(RGE_Missile_Object *, unsigned int);
   int (__thiscall *gbg_unknown1)(RGE_Missile_Object *);
   int (__thiscall *gbg_get_civ_override)(RGE_Missile_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown3)(RGE_Missile_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown4)(RGE_Missile_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown5)(RGE_Missile_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown6)(RGE_Missile_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown7)(RGE_Missile_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown8)(RGE_Missile_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown9)(RGE_Missile_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown10)(RGE_Missile_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown11)(RGE_Missile_Object *);
+  unsigned __int8 (__thiscall *gbg_isSpaceport)(RGE_Missile_Object *);
+  unsigned __int8 (__thiscall *gbg_isGEAssaultMech)(RGE_Missile_Object *);
+  unsigned __int8 (__thiscall *gbg_isAircraft)(RGE_Missile_Object *);
+  unsigned __int8 (__thiscall *gbg_isAirCruiser)(RGE_Missile_Object *);
+  unsigned __int8 (__thiscall *gbg_isResourceBuilding)(RGE_Missile_Object *);
+  unsigned __int8 (__thiscall *gbg_isMilitaryUnit)(RGE_Missile_Object *);
+  unsigned __int8 (__thiscall *gbg_isCivilianUnit)(RGE_Missile_Object *);
+  unsigned __int8 (__thiscall *gbg_isPredatorUnit)(RGE_Missile_Object *);
+  unsigned __int8 (__thiscall *gbg_isStaticPredatorUnit)(RGE_Missile_Object *);
   unsigned __int8 (__thiscall *gbg_isPadawan)(RGE_Missile_Object *);
   unsigned __int8 (__thiscall *gbg_isMaster)(RGE_Missile_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown14)(RGE_Missile_Object *);
+  unsigned __int8 (__thiscall *gbg_isAttackGroundButtonAvailable)(RGE_Missile_Object *);
   unsigned __int8 (__thiscall *gbg_isShielded)(RGE_Missile_Object *);
   void (__thiscall *gbg_unknown16)(RGE_Missile_Object *);
   void (__thiscall *gbg_unknown17)(RGE_Missile_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown18)(RGE_Missile_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isStealth)(RGE_Missile_Object *, int);
   unsigned __int8 (__thiscall *gbg_isDetector)(RGE_Missile_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown20)(RGE_Missile_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isObjectSpriteDisplayed)(RGE_Missile_Object *, int);
   unsigned __int8 (__thiscall *gbg_isPowered)(RGE_Missile_Object *, int);
   void (__thiscall *gbg_unknown22)(RGE_Missile_Object *);
   unsigned __int8 (__thiscall *gbg_unknown23)(RGE_Missile_Object *);
@@ -18890,25 +18944,25 @@ struct RGE_Doppleganger_ObjectVtbl
 {
   void *(__thiscall *__vecDelDtor)(RGE_Doppleganger_Object *, unsigned int);
   int (__thiscall *gbg_unknown1)(RGE_Doppleganger_Object *);
-  int (__thiscall *gbg_unknown2)(RGE_Doppleganger_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown3)(RGE_Doppleganger_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown4)(RGE_Doppleganger_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown5)(RGE_Doppleganger_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown6)(RGE_Doppleganger_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown7)(RGE_Doppleganger_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown8)(RGE_Doppleganger_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown9)(RGE_Doppleganger_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown10)(RGE_Doppleganger_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown11)(RGE_Doppleganger_Object *);
+  int (__thiscall *gbg_get_civ_override)(RGE_Doppleganger_Object *);
+  unsigned __int8 (__thiscall *gbg_isSpaceport)(RGE_Doppleganger_Object *);
+  unsigned __int8 (__thiscall *gbg_isGEAssaultMech)(RGE_Doppleganger_Object *);
+  unsigned __int8 (__thiscall *gbg_isAircraft)(RGE_Doppleganger_Object *);
+  unsigned __int8 (__thiscall *gbg_isAirCruiser)(RGE_Doppleganger_Object *);
+  unsigned __int8 (__thiscall *gbg_isResourceBuilding)(RGE_Doppleganger_Object *);
+  unsigned __int8 (__thiscall *gbg_isMilitaryUnit)(RGE_Doppleganger_Object *);
+  unsigned __int8 (__thiscall *gbg_isCivilianUnit)(RGE_Doppleganger_Object *);
+  unsigned __int8 (__thiscall *gbg_isPredatorUnit)(RGE_Doppleganger_Object *);
+  unsigned __int8 (__thiscall *gbg_isStaticPredatorUnit)(RGE_Doppleganger_Object *);
   unsigned __int8 (__thiscall *gbg_isPadawan)(RGE_Doppleganger_Object *);
   unsigned __int8 (__thiscall *gbg_isMaster)(RGE_Doppleganger_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown14)(RGE_Doppleganger_Object *);
+  unsigned __int8 (__thiscall *gbg_isAttackGroundButtonAvailable)(RGE_Doppleganger_Object *);
   unsigned __int8 (__thiscall *gbg_isShielded)(RGE_Doppleganger_Object *);
   void (__thiscall *gbg_unknown16)(RGE_Doppleganger_Object *);
   void (__thiscall *gbg_unknown17)(RGE_Doppleganger_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown18)(RGE_Doppleganger_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isStealth)(RGE_Doppleganger_Object *, int);
   unsigned __int8 (__thiscall *gbg_isDetector)(RGE_Doppleganger_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown20)(RGE_Doppleganger_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isObjectSpriteDisplayed)(RGE_Doppleganger_Object *, int);
   unsigned __int8 (__thiscall *gbg_isPowered)(RGE_Doppleganger_Object *, int);
   void (__thiscall *gbg_unknown22)(RGE_Doppleganger_Object *);
   unsigned __int8 (__thiscall *gbg_unknown23)(RGE_Doppleganger_Object *);
@@ -19299,24 +19353,24 @@ struct TRIBE_Tree_ObjectVtbl
   void *(__thiscall *__vecDelDtor)(TRIBE_Tree_Object *, unsigned int);
   int (__thiscall *gbg_unknown1)(TRIBE_Tree_Object *);
   int (__thiscall *gbg_get_civ_override)(TRIBE_Tree_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown3)(TRIBE_Tree_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown4)(TRIBE_Tree_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown5)(TRIBE_Tree_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown6)(TRIBE_Tree_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown7)(TRIBE_Tree_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown8)(TRIBE_Tree_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown9)(TRIBE_Tree_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown10)(TRIBE_Tree_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown11)(TRIBE_Tree_Object *);
+  unsigned __int8 (__thiscall *gbg_isSpaceport)(TRIBE_Tree_Object *);
+  unsigned __int8 (__thiscall *gbg_isGEAssaultMech)(TRIBE_Tree_Object *);
+  unsigned __int8 (__thiscall *gbg_isAircraft)(TRIBE_Tree_Object *);
+  unsigned __int8 (__thiscall *gbg_isAirCruiser)(TRIBE_Tree_Object *);
+  unsigned __int8 (__thiscall *gbg_isResourceBuilding)(TRIBE_Tree_Object *);
+  unsigned __int8 (__thiscall *gbg_isMilitaryUnit)(TRIBE_Tree_Object *);
+  unsigned __int8 (__thiscall *gbg_isCivilianUnit)(TRIBE_Tree_Object *);
+  unsigned __int8 (__thiscall *gbg_isPredatorUnit)(TRIBE_Tree_Object *);
+  unsigned __int8 (__thiscall *gbg_isStaticPredatorUnit)(TRIBE_Tree_Object *);
   unsigned __int8 (__thiscall *gbg_isPadawan)(TRIBE_Tree_Object *);
   unsigned __int8 (__thiscall *gbg_isMaster)(TRIBE_Tree_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown14)(TRIBE_Tree_Object *);
+  unsigned __int8 (__thiscall *gbg_isAttackGroundButtonAvailable)(TRIBE_Tree_Object *);
   unsigned __int8 (__thiscall *gbg_isShielded)(TRIBE_Tree_Object *);
   void (__thiscall *gbg_unknown16)(TRIBE_Tree_Object *);
   void (__thiscall *gbg_unknown17)(TRIBE_Tree_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown18)(TRIBE_Tree_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isStealth)(TRIBE_Tree_Object *, int);
   unsigned __int8 (__thiscall *gbg_isDetector)(TRIBE_Tree_Object *);
-  unsigned __int8 (__thiscall *gbg_unknown20)(TRIBE_Tree_Object *, int);
+  unsigned __int8 (__thiscall *gbg_isObjectSpriteDisplayed)(TRIBE_Tree_Object *, int);
   unsigned __int8 (__thiscall *gbg_isPowered)(TRIBE_Tree_Object *, int);
   void (__thiscall *gbg_unknown22)(TRIBE_Tree_Object *);
   unsigned __int8 (__thiscall *gbg_unknown23)(TRIBE_Tree_Object *);
@@ -24391,9 +24445,12 @@ struct TRIBE_Buildings
 #pragma pack(pop)
 
 /* 340 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Preregs
 {
+  unsigned __int8 number_preregs;
+  int id[20];
+  int type[20];
 };
 #pragma pack(pop)
 
@@ -26307,14 +26364,17 @@ struct TribeSelectScenarioScreenVtbl
 };
 #pragma pack(pop)
 
+/* 822 */
+typedef int Zone_Usage_Type;
+
 /* 370 */
-#pragma pack(push, 1)
-struct __declspec(align(4)) TRIBE_Prereg_Info
+#pragma pack(push, 8)
+struct TRIBE_Prereg_Info
 {
-  char number_preregs;
-  __declspec(align(4)) int id[5];
-  int type[5];
-  int draw_node[5];
+  unsigned __int8 number_preregs;
+  int id[5];
+  Zone_Usage_Type type[5];
+  Tech_Tree_Node *draw_node[5];
 };
 #pragma pack(pop)
 
@@ -26357,9 +26417,6 @@ struct __declspec(align(4)) Tech_Tree_Node
   int temp_fixed_y_loc;
 };
 #pragma pack(pop)
-
-/* 822 */
-typedef int Zone_Usage_Type;
 
 /* 823 */
 #pragma pack(push, 8)
@@ -27479,10 +27536,10 @@ struct TScrollTextPanelVtbl
   int (__thiscall *pointing_at)(TScrollTextPanel *, int, int, int *, int *, int *, int *, char *, int);
   void (__thiscall *set_text)(TScrollTextPanel *, char **, __int16);
   void (__thiscall *set_text2)(TScrollTextPanel *, int);
-  void (__thiscall *set_text3)(TScrollTextPanel *, const char *, TTextPanel__FontChangeNode *);
+  void (__thiscall *set_text3)(TScrollTextPanel *, char *, TTextPanel__FontChangeNode *);
   void (__thiscall *set_text_parsed)(TScrollTextPanel *, char **, __int16, int, int);
   void (__thiscall *set_text_parsed2)(TScrollTextPanel *, int, int, int);
-  void (__thiscall *set_text_parsed3)(TScrollTextPanel *, const char *, int, int);
+  void (__thiscall *set_text_parsed3)(TScrollTextPanel *, char *, int, int);
   void (__thiscall *set_bevel_info)(TScrollTextPanel *, int, int, int, int, int, int, int);
   void (__thiscall *set_bevel_type)(TScrollTextPanel *, int);
   void (__thiscall *draw_line)(TScrollTextPanel *, HDC, __int16, __int16, unsigned __int8);
@@ -28118,50 +28175,6 @@ struct RGE_Command_Form_Formation
   int formation_type;
 };
 #pragma pack(pop)
-
-/* 397 */
-typedef $65758D9D43B54B363A052B56EC34040F DPSESSIONDESC2;
-
-/* 399 */
-union $65758D9D43B54B363A052B56EC34040F__$4BC380B0414FD4D1A387B4548A8B198D
-{
-    LPWSTR lpszSessionName;
-    LPSTR lpszSessionNameA;
-};
-
-/* 401 */
-union $65758D9D43B54B363A052B56EC34040F__$9D1752F92D652BDA7BF3CD505478029C
-{
-    LPWSTR lpszPassword;
-    LPSTR lpszPasswordA;
-};
-
-/* 398 */
-struct $65758D9D43B54B363A052B56EC34040F
-{
-    DWORD dwSize;
-    DWORD dwFlags;
-    GUID guidInstance;
-    GUID guidApplication;
-    DWORD dwMaxPlayers;
-    DWORD dwCurrentPlayers;
-    union
-    {
-        LPWSTR lpszSessionName;
-        LPSTR lpszSessionNameA;
-    };
-    union
-    {
-        LPWSTR lpszPassword;
-        LPSTR lpszPasswordA;
-    };
-    DWORD dwReserved1;
-    DWORD dwReserved2;
-    DWORD dwUser1;
-    DWORD dwUser2;
-    DWORD dwUser3;
-    DWORD dwUser4;
-};
 
 /* 404 */
 #pragma pack(push, 1)
