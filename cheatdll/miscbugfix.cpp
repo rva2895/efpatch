@@ -165,7 +165,7 @@ void __stdcall do_handle_idle_button(TRIBE_Screen_Game* game_screen, unsigned in
         for (int i = 0; i < list->Number_of_objects; i++)
         {
             RGE_Static_Object* obj = list->List[i];
-            if (obj && obj->vfptr->gbg_unknown9(obj) && obj->vfptr->is_idle(obj))
+            if (obj && obj->vfptr->gbg_isCivilianUnit(obj) && obj->vfptr->is_idle(obj))
             {
                 idle_found = true;
                 break;
