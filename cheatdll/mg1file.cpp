@@ -192,14 +192,17 @@ MG1::MG1(const char* filename)
         case 4:
             version = "1.5.0";
             break;
-        case 5: //CURRENT_VERSION
+        case 5:
             version = "1.5.1";
             break;
-#if CURRENT_VERSION != 5
+        case 6: //CURRENT_VERSION
+            version = "1.5.2";
+            break;
+#if CURRENT_VERSION != 6
 #error Must update for new CURRENT_VERSION
 #endif
         default:
-            version = ">1.5.1";
+            version = ">1.5.2";
             break;
         }
         break;
