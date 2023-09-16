@@ -95,7 +95,6 @@ __declspec(naked) void ice_terrain_fix_1() //005CBCCE
 
         push    ebx
         call    isIce
-
         test    al, al
 
         pop     edx
@@ -122,7 +121,6 @@ __declspec(naked) void ice_terrain_fix_2() //0049A456
         push    edx
         push    eax
         call    isIceNoShore
-
         not     al
         test    al, al
 
@@ -142,7 +140,6 @@ __declspec(naked) void ice_terrain_fix_3() //0049A549
         push    edx
         push    eax
         call    isIceNoShore
-
         test    al, al
 
         pop     edx
@@ -208,7 +205,6 @@ __declspec(naked) void ice_terrain_fix_4() //004D77BE
         push    edx
         push    eax
         call    isCliffRestricted
-
         test    al, al
 
         pop     edx
@@ -237,7 +233,6 @@ __declspec(naked) void ice_terrain_fix_5() //004E43A3
         mov     edi, ebx
         and     edi, 0FFh
         call    isIce
-
         test    al, al
 
         pop     edx
@@ -266,7 +261,6 @@ __declspec(naked) void ice_terrain_fix_6() //004E6093
         mov     edi, ebx
         and     edi, 0FFh
         call    isIce
-
         test    al, al
 
         pop     edx
@@ -319,6 +313,7 @@ __declspec(naked) void snow_terrain_fix_1() //005CBE92
 
         push    edx
         call    isSnow
+        test    al, al
 
         pop     edx
         pop     ecx
@@ -345,6 +340,7 @@ __declspec(naked) void snow_terrain_fix_2() //005CBEAF
 
         push    edx
         call    isSnow
+        test    al, al
 
         pop     edx
         pop     ecx
@@ -371,6 +367,7 @@ __declspec(naked) void snow_terrain_fix_3() //005CBF42
 
         push    ebx
         call    isSnow
+        test    al, al
 
         pop     edx
         pop     ecx
@@ -397,6 +394,7 @@ __declspec(naked) void snow_terrain_fix_4() //005CBF5D
 
         push    edx
         call    isSnow
+        test    al, al
 
         pop     edx
         pop     ecx
@@ -423,6 +421,7 @@ __declspec(naked) void snow_terrain_fix_5() //005CBF7A
 
         push    edx
         call    isSnow
+        test    al, al
 
         pop     edx
         pop     ecx
@@ -449,6 +448,7 @@ __declspec(naked) void snow_terrain_fix_6() //005CC011
 
         push    ebx
         call    isSnow
+        test    al, al
 
         pop     edx
         pop     ecx
@@ -475,6 +475,7 @@ __declspec(naked) void snow_terrain_fix_7() //005CC02C
 
         push    edx
         call    isSnow
+        test    al, al
 
         pop     edx
         pop     ecx
@@ -501,6 +502,7 @@ __declspec(naked) void snow_terrain_fix_8() //005CC049
 
         push    eax
         call    isSnow
+        test    al, al
 
         pop     edx
         pop     ecx
@@ -527,6 +529,7 @@ __declspec(naked) void snow_terrain_fix_9() //005CC095
 
         push    edx
         call    isSnow
+        test    al, al
 
         pop     edx
         pop     ecx
@@ -553,6 +556,7 @@ __declspec(naked) void snow_terrain_fix_10() //004E4519
 
         push    ebx
         call    isSnow
+        test    al, al
 
         pop     edx
         pop     ecx
@@ -579,6 +583,7 @@ __declspec(naked) void snow_terrain_fix_11() //004E6209
 
         push    ebx
         call    isSnow
+        test    al, al
 
         pop     edx
         pop     ecx
@@ -605,6 +610,7 @@ __declspec(naked) void snow_terrain_fix_12() //00554995
 
         push    ecx
         call    isSnow
+        test    al, al
 
         pop     edx
         pop     ecx
@@ -653,6 +659,7 @@ __declspec(naked) void water_terrain_fix() //005876DA
 
         push    eax
         call    isWater
+        test    al, al
 
         pop     edx
         pop     ecx
