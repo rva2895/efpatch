@@ -674,10 +674,12 @@ __declspec(naked) void ctr1_unit_type_count_workers() //0057E52D
     }
 }
 
-#define UNIT_COUNT_FOR_COUNTERS 0x2000
+#define UNIT_COUNT_FOR_COUNTERS 0x3000
 
-void __stdcall setup_player_counters(void* player)
+void __stdcall setup_player_counters(RGE_Player* player)
 {
+    memset((uint8_t*)player + 0x2F0, 0, 1700 * 2 * sizeof(int16_t));
+
     uint8_t* builders_per_type = (uint8_t*)malloc(UNIT_COUNT_FOR_COUNTERS);
     memset(builders_per_type, 1, UNIT_COUNT_FOR_COUNTERS);
     *(uint8_t**)((uint8_t*)player + 0x103C) = builders_per_type;
@@ -706,7 +708,7 @@ int16_t* __stdcall get_player_counter_2F0(void* player)
     return *(int16_t**)((uint8_t*)player + 0x2F0);
 }
 
-void __stdcall read_player_counters(void* player, int infile)
+void __stdcall read_player_counters(RGE_Player* player, int infile)
 {
     int unit_count;
     rge_read(infile, &unit_count, sizeof(unit_count));
@@ -741,7 +743,7 @@ void __stdcall read_player_counters(void* player, int infile)
     }
 }
 
-void __stdcall write_player_counters(void* player, int outfile)
+void __stdcall write_player_counters(RGE_Player* player, int outfile)
 {
     int unit_count = UNIT_COUNT_FOR_COUNTERS;
     rge_write(outfile, &unit_count, sizeof(unit_count));
@@ -751,7 +753,7 @@ void __stdcall write_player_counters(void* player, int outfile)
     rge_write(outfile, get_player_counter_builders_per_type(player), UNIT_COUNT_FOR_COUNTERS);
 }
 
-void __stdcall delete_player_counters(void* player)
+void __stdcall delete_player_counters(RGE_Player* player)
 {
     uint8_t* builders_per_type = get_player_counter_builders_per_type(player);
     free(builders_per_type);
@@ -814,6 +816,181 @@ __declspec(naked) void ctrFree_v2() //004C0157
     }
 }
 
+__declspec(naked) void ctr1GroupFix1() //0057AED1
+{
+    __asm
+    {
+        //movsx   esi, word ptr [eax+1CC8h]
+        mov     esi, [eax + 1038h]
+        movsx   esi, word ptr [esi + 0C90h]    //group 8
+        mov     eax, 0057AED8h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void ctr1GroupFix2() //0057BD04
+{
+    __asm
+    {
+        //movsx   ecx, word ptr [edi+1D2Ch]
+        mov     ecx, [edi + 1038h]
+        movsx   ecx, word ptr [ecx + 0CF4h]    //group 58
+        mov     eax, 0057BD0Bh
+        jmp     eax
+    }
+}
+
+__declspec(naked) void ctr1GroupFix3() //0057D9E1
+{
+    __asm
+    {
+        //movsx   ecx, word ptr [ebp+1D2Ch]
+        mov     ecx, [ebp + 1038h]
+        movsx   ecx, word ptr [ecx + 0CF4h]    //group 58
+        mov     eax, 0057D9E8h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void ctr1GroupFix4() //00576E0F
+{
+    __asm
+    {
+        //cmp     word ptr [ecx+1D2Ch], 1
+        mov     ebx, [ecx + 1038h]
+        cmp     word ptr [ebx + 0CF4h], 1       //group 58
+        mov     ebx, 00576E17h
+        jmp     ebx
+    }
+}
+
+__declspec(naked) void ctr2GroupFix() //0057AFF1
+{
+    __asm
+    {
+        //movsx   esi, word ptr [eax+0F80h]
+        mov     esi, [eax + 2F0h]
+        movsx   esi, word ptr [esi + 0C90h]    //group 8
+        mov     eax, 0057AFF8h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void ctr1FortressFix1() //005772D6
+{
+    __asm
+    {
+        //cmp     word ptr [ecx+10DCh], 1
+        mov     edx, [ecx + 1038h]
+        cmp     word ptr [edx + 0A4h], 0
+        mov     edx, 005772DEh
+        jmp     edx
+    }
+}
+
+__declspec(naked) void ctr1FortressFix2() //0057B776
+{
+    __asm
+    {
+        //cmp     word ptr [ecx+10DCh], 1
+        mov     edx, [ecx + 1038h]
+        cmp     word ptr [edx + 0A4h], 0
+        mov     edx, 0057B77Eh
+        jmp     edx
+    }
+}
+
+__declspec(naked) void ctr1FortressFix3() //0057B7A6
+{
+    __asm
+    {
+        //cmp     word ptr [ecx+10DCh], 1
+        mov     edx, [ecx + 1038h]
+        cmp     word ptr [edx + 0A4h], 0
+        mov     edx, 0057B7AEh
+        jmp     edx
+    }
+}
+
+__declspec(naked) void ctr1SpaceportFix1() //004FF2DA
+{
+    __asm
+    {
+        //cmp     word ptr [eax+10E0h], 0
+        mov     ecx, [eax + 1038h]
+        mov     ax, word ptr [ecx + 0A8h]      //spaceport count
+        add     ax, word ptr [ecx + 424h]      //tatooine spaceport
+        cmp     ax, 0
+        mov     ecx, 004FF2E2h
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void ctr1SpaceportFix2() //00575F06
+{
+    __asm
+    {
+        mov     esi, [eax + 1038h]
+        mov     dx, word ptr [esi + 0A8h]      //spaceport count
+        add     dx, word ptr [esi + 424h]      //tatooine spaceport
+        movsx   edx, dx
+        mov     esi, 00575F16h
+        jmp     esi
+    }
+}
+
+__declspec(naked) void ctr1SpaceportFix3() //005770A6
+{
+    __asm
+    {
+        mov     esi, [eax + 1038h]
+        mov     dx, word ptr [esi + 0A8h]      //spaceport count
+        add     dx, word ptr [esi + 424h]      //tatooine spaceport
+        movsx   edx, dx
+        mov     esi, 005770B6h
+        jmp     esi
+    }
+}
+
+__declspec(naked) void ctr1SpaceportFix4() //00577517
+{
+    __asm
+    {
+        push    ebx
+        mov     ebx, [edx + 1038h]
+        mov     ax, word ptr [ebx + 0A8h]      //spaceport count
+        add     ax, word ptr [ebx + 424h]      //tatooine spaceport
+        mov     ebx, 00577528h
+        jmp     ebx
+    }
+}
+
+__declspec(naked) void ctr1SpaceportFix5() //0057B647
+{
+    __asm
+    {
+        mov     esi, [eax + 1038h]
+        mov     dx, word ptr [esi + 0A8h]      //spaceport count
+        add     dx, word ptr [esi + 424h]      //tatooine spaceport
+        movsx   edx, dx
+        mov     esi, 0057B657h
+        jmp     esi
+    }
+}
+
+__declspec(naked) void ctr1SpaceportFix6() //0057B746
+{
+    __asm
+    {
+        mov     esi, [eax + 1038h]
+        mov     dx, word ptr [esi + 0A8h]      //spaceport count
+        add     dx, word ptr [esi + 424h]      //tatooine spaceport
+        movsx   edx, dx
+        mov     esi, 0057B756h
+        jmp     esi
+    }
+}
+
 __declspec(naked) void ctr1PrefabFix() //0057AF3F
 {
     __asm
@@ -840,7 +1017,7 @@ __declspec(naked) void ctr2PrefabFix() //0057B05F
     }
 }
 
-__declspec(naked) void ctr2CCFix() //004C0745
+__declspec(naked) void ctr2CCFix1() //004C0745
 {
     __asm
     {
@@ -849,6 +1026,135 @@ __declspec(naked) void ctr2CCFix() //004C0745
         cmp     word ptr [ecx + 0DAh], 0
         mov     esi, 004C074Dh
         jmp     esi
+    }
+}
+
+__declspec(naked) void ctr2CCFix2() //005BA701
+{
+    __asm
+    {
+        mov     eax, [edi + 2F0h]
+        cmp     word ptr [eax + 4DAh], 0
+        jg      ctr2CCFix2_cc
+        cmp     word ptr [eax + 0DAh], 0
+        jg      ctr2CCFix2_cc
+
+        mov     ecx, 005BA761h
+        jmp     ecx
+
+ctr2CCFix2_cc:
+        mov     ecx, 005BA715h
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void ctr2TransportFix1() //00565F51
+{
+    __asm
+    {
+        mov     eax, [eax + 2F0h]
+        cmp     word ptr [eax + 1659 * 2], bp
+        jg      ctr2TransportFix1_transport
+        cmp     word ptr [eax + 1617 * 2], bp
+        jg      ctr2TransportFix1_transport
+
+        mov     eax, 00565FBDh
+        jmp     eax
+
+ctr2TransportFix1_transport:
+        mov     eax, 00565F63h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void ctr2TransportFix2() //0056A8DE
+{
+    __asm
+    {
+        mov     eax, [eax + 2F0h]
+        cmp     word ptr [eax + 1659 * 2], 0
+        jg      ctr2TransportFix2_transport
+        cmp     word ptr [eax + 1617 * 2], 0
+        jg      ctr2TransportFix2_transport
+
+        mov     eax, 0056A941h
+        jmp     eax
+
+ctr2TransportFix2_transport:
+        mov     eax, 0056A8F2h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void ctr2TransportFix3() //0056AEE3
+{
+    __asm
+    {
+        mov     eax, [eax + 2F0h]
+        cmp     word ptr [eax + 1659 * 2], 0
+        jg      ctr2TransportFix3_transport
+        cmp     word ptr [eax + 1617 * 2], 0
+        jg      ctr2TransportFix3_transport
+
+        mov     eax, 0056AF3Eh
+        jmp     eax
+
+ctr2TransportFix3_transport:
+        mov     eax, 0056AEF7h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void ctr2TransportFix4() //004047E0
+{
+    __asm
+    {
+        mov     eax, [eax + 2F0h]
+        cmp     word ptr [eax + 1659 * 2], 0
+        jg      ctr2TransportFix4_transport
+        cmp     word ptr [eax + 1617 * 2], 0
+        jg      ctr2TransportFix4_transport
+
+        mov     eax, 00404857h
+        jmp     eax
+
+ctr2TransportFix4_transport:
+        mov     eax, 004047F4h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void ctr2TransportFix5() //00404C06
+{
+    __asm
+    {
+        mov     eax, [eax + 2F0h]
+        cmp     word ptr [eax + 1659 * 2], 0
+        jg      ctr2TransportFix5_transport
+        cmp     word ptr [eax + 1617 * 2], 0
+        jg      ctr2TransportFix5_transport
+
+        mov     eax, 00404C61h
+        jmp     eax
+
+ctr2TransportFix5_transport:
+        mov     eax, 00404C1Ah
+        jmp     eax
+    }
+}
+
+__declspec(naked) void ctrFarmFix() //0057CA47
+{
+    __asm
+    {
+        mov     esi, [eax + 1038h]
+        mov     edi, [eax + 2F0h]
+        mov     si, [esi + 50 * 2]
+        sub     si, [edi + 259 * 2]
+        sub     si, [edi + 214 * 2]
+        movsx   esi, si
+        mov     eax, 0057CA60h
+        jmp     eax
     }
 }
 
@@ -1023,10 +1329,37 @@ void setAIUnitCountHooks()
     setHook((void*)0x004C1C55, ctrWriteSave_v2);
     setHook((void*)0x004C0157, ctrFree_v2);
 
+    setHook((void*)0x0057AED1, ctr1GroupFix1);
+    setHook((void*)0x0057BD04, ctr1GroupFix2);
+    setHook((void*)0x0057D9E1, ctr1GroupFix3);
+    setHook((void*)0x00576E0F, ctr1GroupFix4);
+
+    setHook((void*)0x0057AFF1, ctr2GroupFix);
+
+    setHook((void*)0x005772D6, ctr1FortressFix1);
+    setHook((void*)0x0057B776, ctr1FortressFix2);
+    setHook((void*)0x0057B7A6, ctr1FortressFix3);
+
+    setHook((void*)0x004FF2DA, ctr1SpaceportFix1);
+    setHook((void*)0x00575F06, ctr1SpaceportFix2);
+    setHook((void*)0x005770A6, ctr1SpaceportFix3);
+    setHook((void*)0x00577517, ctr1SpaceportFix4);
+    setHook((void*)0x0057B647, ctr1SpaceportFix5);
+    setHook((void*)0x0057B746, ctr1SpaceportFix6);
+
     setHook((void*)0x0057AF3F, ctr1PrefabFix);
     setHook((void*)0x0057B05F, ctr2PrefabFix);
 
-    setHook((void*)0x004C0745, ctr2CCFix);
+    setHook((void*)0x004C0745, ctr2CCFix1);
+    setHook((void*)0x005BA701, ctr2CCFix2);
+
+    setHook((void*)0x00565F51, ctr2TransportFix1);
+    setHook((void*)0x0056A8DE, ctr2TransportFix2);
+    setHook((void*)0x0056AEE3, ctr2TransportFix3);
+    setHook((void*)0x004047E0, ctr2TransportFix4);
+    setHook((void*)0x00404C06, ctr2TransportFix5);
+
+    setHook((void*)0x0057CA47, ctrFarmFix);
 
     setHook((void*)0x0058A87B, infoAiCntr_1);
     setHook((void*)0x0058AA0C, infoAiCntr_2);
