@@ -122,6 +122,8 @@
 #include "spectate.h"
 #include "maplist.h"
 #include "TCommunications_Handler2.h"
+#include "land.h"
+#include "script.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -471,6 +473,9 @@ void setHooksEF()
     setBuildingConvHooks();
 
     setMapListHooks();
+
+    //setLandRMSHooks();
+    //setScriptRMSHooks();
 
     log("setHooksEF() complete");
 }
