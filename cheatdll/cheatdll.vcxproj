@@ -280,6 +280,7 @@
     <ClInclude Include="itemcache.h" />
     <ClInclude Include="iuserpatch.h" />
     <ClInclude Include="jedimaster.h" />
+    <ClInclude Include="land.h" />
     <ClInclude Include="langdll.h" />
     <ClInclude Include="languagedlloverride.h" />
     <ClInclude Include="legacypatch.h" />
@@ -334,6 +335,7 @@
     <ClInclude Include="rundll.h" />
     <ClInclude Include="savegamever.h" />
     <ClInclude Include="sc1file.h" />
+    <ClInclude Include="script.h" />
     <ClInclude Include="scroll.h" />
     <ClInclude Include="slp.h" />
     <ClInclude Include="sngoal.h" />
@@ -449,6 +451,7 @@
     <ClCompile Include="iuserpatch.cpp" />
     <ClCompile Include="jedimaster.cpp" />
     <ClCompile Include="keyboard.cpp" />
+    <ClCompile Include="land.cpp" />
     <ClCompile Include="langdll.cpp" />
     <ClCompile Include="languagedlloverride.cpp" />
     <ClCompile Include="legacypatch.cpp" />
@@ -503,6 +506,7 @@
     <ClCompile Include="rundll.cpp" />
     <ClCompile Include="savegamever.cpp" />
     <ClCompile Include="sc1file.cpp" />
+    <ClCompile Include="script.cpp" />
     <ClCompile Include="scroll.cpp" />
     <ClCompile Include="slp.cpp" />
     <ClCompile Include="sngoal.cpp" />
