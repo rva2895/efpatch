@@ -706,6 +706,95 @@ __declspec(naked) void building_unit_size_5() //005C2EB4
     }
 }
 
+int __stdcall check_tech_ids(int16_t* tech_ids, int16_t tech_id)
+{
+    for (int i = 0; i < 300; i++)
+        if (tech_ids[i] == tech_id)
+            return 1;
+    return 0;
+}
+
+__declspec(naked) void check_tech_ids_new() //00468E10
+{
+    __asm
+    {
+        mov     eax, [esp + 4]
+        add     ecx, 0B64h
+        push    eax
+        push    ecx
+        call    check_tech_ids
+        ret     4
+    }
+}
+
+__declspec(naked) void tech_ids_1() //004696C6
+{
+    __asm
+    {
+tech_ids_1_loop:
+        cmp     [ecx], di
+        jz      tech_ids_1_end
+        inc     eax
+        add     ecx, 2
+        cmp     eax, 300
+        jl      tech_ids_1_loop
+        mov     eax, 004696D5h
+        jmp     eax
+
+tech_ids_1_end:
+        mov     eax, 0046969Ah
+        jmp     eax
+    }
+}
+
+__declspec(naked) void tech_ids_2() //0046978E
+{
+    __asm
+    {
+tech_ids_2_loop:
+        cmp     dword ptr [edx], 0
+        jle     tech_ids_2_end
+        inc     ecx
+        add     edx, 2
+        cmp     ecx, 300
+        jl      tech_ids_2_loop
+        jmp     tech_ids_2_complete
+
+tech_ids_2_end:
+        mov     edx, [esp + 40h]
+        mov     edx, [edx]
+        mov     [esi + ecx * 2 + 0B64h], dx
+
+tech_ids_2_complete:
+        mov     ecx, 004697AEh
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void tech_ids_3() //004698BC
+{
+    __asm
+    {
+tech_ids_3_loop:
+        cmp     dword ptr [ecx], 0
+        jle     tech_ids_3_end
+        inc     eax
+        add     ecx, 2
+        cmp     eax, 300
+        jl      tech_ids_3_loop
+        mov     dword ptr [esp + 10h], 1
+        jmp     tech_ids_3_complete
+
+tech_ids_3_end:
+        mov     [esi + eax * 2 + 0B64h], bp
+        mov     dword ptr [esp + 10h], 1
+        
+tech_ids_3_complete:
+        mov     eax, 00469828h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setTechTreeHooks()
 {
@@ -784,5 +873,12 @@ void setTechTreeHooks()
     setHook((void*)0x005C1974, building_unit_size_3);
     setHook((void*)0x005C199E, building_unit_size_4);
     setHook((void*)0x005C2EB4, building_unit_size_5);
+
+    //inserted tech ids
+    setHook((void*)0x00468E10, check_tech_ids_new);
+    setHook((void*)0x004696C6, tech_ids_1);
+    setHook((void*)0x0046978E, tech_ids_2);
+    setHook((void*)0x004698BC, tech_ids_3);
+
 }
 #pragma optimize( "", on )
