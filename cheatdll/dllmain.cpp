@@ -124,6 +124,7 @@
 #include "TCommunications_Handler2.h"
 #include "land.h"
 #include "script.h"
+#include "conversion.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -471,6 +472,7 @@ void setHooksEF()
     setBldgHealRateSaveHooks();
 
     setBuildingConvHooks();
+    setConversionHooks();
 
     setMapListHooks();
 

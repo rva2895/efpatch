@@ -246,6 +246,7 @@
     <ClInclude Include="conditions.h" />
     <ClInclude Include="configurator.h" />
     <ClInclude Include="consts.h" />
+    <ClInclude Include="conversion.h" />
     <ClInclude Include="convert.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="crashreporter.h" />
@@ -403,6 +404,7 @@
     <ClCompile Include="commandbuttons.cpp" />
     <ClCompile Include="conditions.cpp" />
     <ClCompile Include="configurator.cpp" />
+    <ClCompile Include="conversion.cpp" />
     <ClCompile Include="convert.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="crashreporter.cpp" />
