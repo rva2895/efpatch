@@ -5,6 +5,7 @@
 #include "resgenbldgs.h"
 #include "expldroid.h"
 #include "jedimaster.h"
+#include "airtoair.h"
 #include "terrain.h"
 
 extern int current_save_game_version;
@@ -121,6 +122,7 @@ void do_setup_dat_file(int use_logo_background, int show_loading_game)
     setJediMasterHooks(data_prefix, "master.txt", "padawan.txt");
     initBldgResProdList(data_prefix, "resgen.txt");
     setConvertHooks(data_prefix, "unconv.txt");
+    initAirToAir(data_prefix, "air-to-air.txt");
     loadTerrainTxt(data_prefix, "terrain.txt");
 
     char dll_name[0x100];
