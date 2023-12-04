@@ -225,8 +225,34 @@ __declspec(naked) void on_handle_idle_button() //004F8AEB
     }
 }
 
+extern int current_loaded_version;
+
+__declspec(naked) void on_shipyard_target_task() //005F7D1E
+{
+    __asm
+    {
+        push    eax
+        mov     eax, current_loaded_version
+        cmp     eax, 6
+        pop     eax
+        jge     on_shipyard_target_task_good
+
+        cmp     eax, 9
+        jz      on_shipyard_target_task_good
+        cmp     eax, 11h
+        jz      on_shipyard_target_task_good
+
+        mov     eax, 005F7E1Bh
+        jmp     eax
+
+on_shipyard_target_task_good:
+        mov     eax, 005F7D2Ch
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
-void setMiscBugfixHooks()
+void setMiscBugfixHooks(int ver)
 {
     //read-only fix for data\*.dat
     writeDword(0x004D5B62, GENERIC_READ);
@@ -320,5 +346,12 @@ void setMiscBugfixHooks()
 
     //#include
     writeNops(0x004E2773, 6);
+
+    //num resource lists
+    writeByte(0x005CDDDD, 16);
+
+    //trawler right click shipyard
+    if (ver == VER_EF)
+        setHook((void*)0x005F7D1E, on_shipyard_target_task);
 }
 #pragma optimize( "", on )

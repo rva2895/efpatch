@@ -176,7 +176,7 @@ void setHooksCC()
 {
     log("setHooksCC() started");
 
-    setMiscBugfixHooks();
+    setMiscBugfixHooks(cd.gameVersion);
 
     //faster screen fade in/out
     //writeDword(0x0042DEA6, (DWORD)&screen_fade);
