@@ -3,7 +3,7 @@
 
 uint8_t* tableR;
 
-#define RESEARCH_COUNT_FOR_CIVRESEARCH 1152
+#define RESEARCH_COUNT_FOR_CIVRESEARCH 0x600
 
 const ID_ASSIGNR idAssignR[] =
 {
