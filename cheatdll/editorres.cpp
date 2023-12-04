@@ -3,7 +3,7 @@
 
 const char* resourceNames[] =
 {
-    "Food",                  //0
+    "Food",                             //0
     "Carbon",
     "Ore",
     "Nova",
@@ -13,7 +13,7 @@ const char* resourceNames[] =
     "Holocrons Captured",
     "Unused (Trade Bonus)",
     "Trade Goods",
-    "Recharge Rate of Shields",        //10
+    "Recharge Rate of Shields",         //10
     "Current Population",
     "Corpse Decay Time",
     "Remarkable Discovery",
@@ -23,7 +23,7 @@ const char* resourceNames[] =
     "Fish Storage",
     "Power Core Range",
     "Total Units Owned",
-    "Units Killed",                 //20
+    "Units Killed",                     //20
     "Technology Count",
     "% Map Explored",
     "Submarine Detection",
@@ -33,7 +33,7 @@ const char* resourceNames[] =
     "Enable Jedi Conversion",
     "Enable Building Conversion",
     "Unknown 29",
-    "Unused (Building Limit)",                //30
+    "Unused (Building Limit)",          //30
     "Enable A-A Attack For AT-AT",
     "Bonus Population Cap",
     "Power Core Shielding",
@@ -83,7 +83,7 @@ const char* resourceNames[] =
     "Conversion Resistance",
     "Trade Vig Rate",
     "Ore Mining Productivity",
-    "Queued Units",                      //80
+    "Queued Units",                     //80
     "Training Count",
     "Start with Packed Town Center",
     "Boarding Recharge Rate",
@@ -93,7 +93,7 @@ const char* resourceNames[] =
     "Concentration",
     "Fish Trap Food Amount",
     "Medic Healing Rate",
-    "Healing Range",                     //90
+    "Healing Range",                    //90
     "Starting Food",
     "Starting Carbon",
     "Starting Ore",
@@ -103,7 +103,7 @@ const char* resourceNames[] =
     "Dominant Sheep Control",
     "Object Cost Sum",
     "Tech Cost Sum",
-    "Holocron Nova Sum",             //100
+    "Holocron Nova Sum",                //100
     "Trade Income Sum",
     "P1 Tribute",
     "P2 Tribute",
@@ -113,7 +113,7 @@ const char* resourceNames[] =
     "P6 Tribute",
     "P7 Tribute",
     "P8 Tribute",
-    "P1 Kill Value",                      //110
+    "P1 Kill Value",                    //110
     "P2 Kill Value",
     "P3 Kill Value",
     "P4 Kill Value",
@@ -123,7 +123,7 @@ const char* resourceNames[] =
     "P8 Kill Value",
     "P1 Razings",
     "P2 Razings",
-    "P3 Razings",                         //120
+    "P3 Razings",                       //120
     "P4 Razings",
     "P5 Razings",
     "P6 Razings",
@@ -133,7 +133,7 @@ const char* resourceNames[] =
     "P2 Razing Value",
     "P3 Razing Value",
     "P4 Razing Value",
-    "P5 Razing Value",                     //130
+    "P5 Razing Value",                  //130
     "P6 Razing Value",
     "P7 Razing Value",
     "P8 Razing Value",
@@ -143,7 +143,7 @@ const char* resourceNames[] =
     "Kills by P2",
     "Kills by P3",
     "Kills by P4",
-    "Kills by P5",                        //140
+    "Kills by P5",                      //140
     "Kills by P6",
     "Kills by P7",
     "Kills by P8",
@@ -153,7 +153,7 @@ const char* resourceNames[] =
     "Razings by P4",
     "Razings by P5",
     "Razings by P6",
-    "Razings by P7",                      //150
+    "Razings by P7",                    //150
     "Razings by P8",
     "Value Killed by Others",
     "Value Razed by Others",
@@ -163,7 +163,7 @@ const char* resourceNames[] =
     "Tribute from P2",
     "Tribute from P3",
     "Tribute from P4",
-    "Tribute from P5",                    //160
+    "Tribute from P5",                  //160
     "Tribute from P6",
     "Tribute from P7",
     "Tribute from P8",
@@ -173,7 +173,7 @@ const char* resourceNames[] =
     "Carbon Total",
     "Ore Total",
     "Nova Total",
-    "Total Value of Kills",               //170
+    "Total Value of Kills",             //170
     "Total Tribute Received",
     "Total Value of Razings",
     "Total Fortresses Built",
@@ -183,7 +183,7 @@ const char* resourceNames[] =
     "Convert Max Adjustment",
     "Convert Resist Min Adjustment",
     "Convert Resist Max Adjustment",
-    "Convert Building Min",               //180
+    "Convert Building Min",             //180
     "Convert Building Max",
     "Convert Building Chance",
     "Reveal Enemy",
@@ -193,7 +193,7 @@ const char* resourceNames[] =
     "Ore Score",
     "Nova Score",
     "Carbon Gathering Productivity",
-    "Food-gathering Productivity",        //190
+    "Food-gathering Productivity",      //190
     "Holocron Nova Production Rate",
     "Converted Units Die",
     "Meditation",
@@ -203,7 +203,7 @@ const char* resourceNames[] =
     "Spies Discount",
     "Unknown 198",
     "Unknown 199",
-    "Misc Counter 1",                     //200
+    "Misc Counter 1",                   //200
     "Misc Counter 2",
     "Misc Counter 3",
     "Misc Counter 4",
@@ -213,10 +213,10 @@ const char* resourceNames[] =
     "Unknown 207",
     "Unknown 208",
     "Unknown 209",
-    "CC: Unknown",                            //210
+    "Unknown 210",                      //210
     "Buildings are self powered",
-    "Aircraft regenerates HP",
-    "Reserved 213",
+    "Aircraft regenerates Hit Pts",
+    "Max Force After Conversion",
     "Reserved 214",
     "Nova generation rate (small)",
     "Nova generation rate (large)",
@@ -224,63 +224,19 @@ const char* resourceNames[] =
     "Food generation rate"
 };
 
-void __stdcall resLoadStr(int resID, char* ptr)
+void __stdcall init_scenario_editor_dropdown(TDropDownPanel* dropdown)
 {
-    strcpy(ptr, resourceNames[resID]);
+    for (int i = 0; i < _countof(resourceNames); i++)
+        TDropDownPanel__append_line(dropdown, resourceNames[i], i);
 }
 
-__declspec(naked) void resLoad() //004D392C
+__declspec(naked) void onLoadScenResources() //0052A6DC, 0052A7B2
 {
     __asm
     {
-        push    eax
-        push    ecx
-        call    resLoadStr
-        mov     eax, 004D393Ah
-        jmp     eax
-    }
-}
-
-void resLoadRestore()
-{
-    writeDword(0x004D392C, 0x10068);
-    writeDword(0x004D3930, 0x8B515000);
-}
-
-__declspec(naked) void resLoadF()
-{
-    __asm
-    {
-        mov     eax, 004C82D0h
-        jmp     eax
-    }
-}
-
-__declspec(naked) void resLoadHook() //0052A6DE
-{
-    __asm
-    {
-        push    ebp
-        push    esi
-        push    resLoad
-        push    004D392Ch
-        call    setHook
-        add     esp, 8
-        xor     ebp, ebp
-        mov     esi, 219
-cont:
-        cmp     ebp, esi
-        jge     end
-        push    ebp
-        push    ebp
         mov     ecx, [edi]
-        call    resLoadF
-        inc     ebp
-        jmp     cont
-end:
-        call    resLoadRestore
-        pop     esi
-        pop     ebp
+        push    ecx
+        call    init_scenario_editor_dropdown
         mov     ecx, 0052A83Fh
         jmp     ecx
     }
@@ -289,8 +245,7 @@ end:
 #pragma optimize( "s", on )
 void setResListHooks()
 {
-    //setHook ((void*)0x004D392C, resLoad);
-    setHook((void*)0x0052A6DE, resLoadHook);
-    setHook((void*)0x0052A7B4, resLoadHook);
+    setHook((void*)0x0052A6DC, onLoadScenResources);
+    setHook((void*)0x0052A7B2, onLoadScenResources);
 }
 #pragma optimize( "", on )

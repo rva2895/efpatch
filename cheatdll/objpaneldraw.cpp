@@ -173,9 +173,7 @@ void __cdecl objPanel(RGE_Static_Object* unit)
             TRIBE_Panel_Object__draw_item(objPanelPtr, cntr++, 24, 6, val, 0, 0, 0, 42042);
         }
 
-        if ((combat_obj->master_obj->speed_of_attack > 0.0f) &&
-            (combat_obj->master_obj->missile_id != -1) ||
-            (combat_obj->master_obj->object_group != 18))
+        if (combat_obj->master_obj->speed_of_attack > 0.0f && combat_obj->master_obj->weapon_num > 0)
         {
             val = combat_obj->master_obj->speed_of_attack * 100;
             is2ndCol[localItemCounter++] = 1;
