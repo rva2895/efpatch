@@ -37,7 +37,7 @@ void initCrashReporter()
 #ifdef _CHEATDLL_CC
     USHORT version[4] = { 2, 1, 0, 1 };
 #else
-    USHORT version[4] = { 1, 5, 1, 2 };
+    USHORT version[4] = { 1, 5, 1, 3 };
 #endif
     ai.V[0] = version[0]; ai.V[1] = version[1]; ai.V[2] = version[2]; ai.V[3] = version[3];
     ai.Hotfix = 0;

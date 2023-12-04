@@ -9,6 +9,8 @@ struct UNIT_EXTRA
     bool    hpDrainPercentEnabled;
     bool    countersUsed;
 
+    bool    hasBeenPurged;
+
     float   speedReductionModifier;
     float   speedReductionTime;
 

@@ -522,6 +522,9 @@
     <ClInclude Include="script.h">
       <Filter>Заголовочные файлы\rms</Filter>
     </ClInclude>
+    <ClInclude Include="conversion.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -985,6 +988,9 @@
     </ClCompile>
     <ClCompile Include="script.cpp">
       <Filter>Файлы исходного кода\rms</Filter>
+    </ClCompile>
+    <ClCompile Include="conversion.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

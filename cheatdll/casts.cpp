@@ -118,7 +118,7 @@ void __stdcall processUnitExtra(RGE_Static_Object* unit, int timerRes)
             }
         }
         
-        if (!anyEffectsActive(ud) && !nonZeroCounters(ud))
+        if (!anyEffectsActive(ud) && !nonZeroCounters(ud) && !ud->hasBeenPurged)
             removeUnitExtra(unit);
     }
 }
@@ -535,6 +535,8 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
             ud->miscCounter4 = ud_old.miscCounter4;
             ud->miscCounter5 = ud_old.miscCounter5;
 
+            ud->hasBeenPurged = false;
+
             addUnitExtra(unit, ud);
         }
         break;
@@ -577,6 +579,11 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
             rge_read(stream, &ud->miscCounter3, sizeof(ud->miscCounter3));
             rge_read(stream, &ud->miscCounter4, sizeof(ud->miscCounter4));
             rge_read(stream, &ud->miscCounter5, sizeof(ud->miscCounter5));
+
+            if (current_save_game_version >= 6)
+                rge_read(stream, &ud->hasBeenPurged, sizeof(ud->hasBeenPurged));
+            else
+                ud->hasBeenPurged = false;
 
             addUnitExtra(unit, ud);
         }
@@ -625,6 +632,8 @@ void __stdcall writeUnitExtra(RGE_Static_Object* unit, int stream)
         rge_write(stream, &ud->miscCounter3, sizeof(ud->miscCounter3));
         rge_write(stream, &ud->miscCounter4, sizeof(ud->miscCounter4));
         rge_write(stream, &ud->miscCounter5, sizeof(ud->miscCounter5));
+
+        rge_write(stream, &ud->hasBeenPurged, sizeof(ud->hasBeenPurged));
     }
     else
     {
