@@ -328,6 +328,106 @@ unit_ok:
     }
 }
 
+int __stdcall get_trawler_res_icon_id(RGE_Static_Object* unit)
+{
+    switch (unit->attribute_type_held)
+    {
+    case 0: //food
+    case 15:
+    case 16:
+    case 17:
+        return 2;
+    case 1: //carbon
+        return 0;
+    case 2: //ore
+        return 1;
+    case 3: //nova
+        return 3;
+    default:
+        return -1;
+    }
+}
+
+__declspec(naked) void onTrawlerUI() //005DADA3
+{
+    __asm
+    {
+        push    edi
+        call    get_trawler_res_icon_id
+        cmp     eax, -1
+        jz      trawler_unknown_res
+        mov     ecx, eax
+        mov     eax, 005DADB6h
+        jmp     eax
+
+trawler_unknown_res:
+        xor     eax, eax
+        mov     ecx, 2
+        mov     edx, 005DADC4h
+        jmp     edx
+    }
+}
+
+void __stdcall get_weapon_new(RGE_Combat_Object* obj, __int16* cur_weapon_in, __int16* orig_weapon_in)
+{
+    *cur_weapon_in = 0;
+    if (obj->master_obj->weapon)
+    {
+        bool is_aa_unit;
+        switch (obj->master_obj->object_group)
+        {
+        case 9:     //aa turret
+        case 16:    //aa destroyer 1
+        case 33:    //aa mobile
+        case 40:    //aa destroyer 2
+        case 55:    //aa trooper
+            is_aa_unit = true;
+            break;
+        default:
+            is_aa_unit = false;
+            break;
+        }
+        __int16 max_total = 0;
+        __int16 max_filtered = 0;
+        for (int i = 0; i < obj->master_obj->weapon_num; i++)
+        {
+            if (is_aa_unit)
+            {
+                if (obj->master_obj->weapon[i].type == 0)
+                    if (obj->master_obj->weapon[i].value > max_filtered)
+                        max_filtered = obj->master_obj->weapon[i].value;
+            }
+            else
+            {
+                if (obj->master_obj->weapon[i].type == 3 || obj->master_obj->weapon[i].type == 4)
+                    if (obj->master_obj->weapon[i].value > max_filtered)
+                        max_filtered = obj->master_obj->weapon[i].value;
+            }
+            if (obj->master_obj->weapon[i].value > max_total)
+                max_total = obj->master_obj->weapon[i].value;
+        }
+        if (max_filtered > 0)
+            *cur_weapon_in = max_filtered;
+        else
+            *cur_weapon_in = max_total;
+    }
+    *orig_weapon_in = obj->master_obj->orig_weapon;
+}
+
+__declspec(naked) void onGetWeapon() //00444BD0
+{
+    __asm
+    {
+        mov     eax, [esp + 4]
+        mov     edx, [esp + 8]
+        push    edx
+        push    eax
+        push    ecx
+        call    get_weapon_new
+        ret     8
+    }
+}
+
 #pragma optimize( "s", on )
 void fixObjPanelDrawFunction()
 {
@@ -357,6 +457,17 @@ void fixObjPanelDrawFunction()
     setHook((void*)0x005DBB13, langDllList);
     setHook((void*)0x005DF2D9, langDllRead1);
     setHook((void*)0x005DF2F3, langDllRead2);
+
+    //Trawler UI
+    writeWord(0x005DADDC, 0x9051);
+    setHook((void*)0x005DADA3, onTrawlerUI);
+
+    setHook((void*)0x00444BD0, onGetWeapon);
+
+    //scenario editor object panel
+    writeNops(0x005489A7, 4);
+    writeWord(0x005489B0, 0x9966);
+    writeWord(0x005489B2, 0x5050);
 }
 
 void setObjectPanelHooks(int version)
