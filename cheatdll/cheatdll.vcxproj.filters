@@ -522,6 +522,9 @@
     <ClInclude Include="script.h">
       <Filter>Заголовочные файлы\rms</Filter>
     </ClInclude>
+    <ClInclude Include="airtoair.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
     <ClInclude Include="conversion.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
@@ -988,6 +991,9 @@
     </ClCompile>
     <ClCompile Include="script.cpp">
       <Filter>Файлы исходного кода\rms</Filter>
+    </ClCompile>
+    <ClCompile Include="airtoair.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
     <ClCompile Include="conversion.cpp">
       <Filter>Файлы исходного кода\engine</Filter>

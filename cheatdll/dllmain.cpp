@@ -124,6 +124,7 @@
 #include "TCommunications_Handler2.h"
 #include "land.h"
 #include "script.h"
+#include "airtoair.h"
 #include "conversion.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
@@ -383,6 +384,7 @@ void setHooksEF()
     initExplDroid(DATA_FOLDER_PREFIX_FROM_ROOT, "expl.txt");
     setJediMasterHooks(DATA_FOLDER_PREFIX_FROM_ROOT, "master.txt", "padawan.txt");
     setConvertHooks(DATA_FOLDER_PREFIX_FROM_ROOT, "unconv.txt");
+    initAirToAir(DATA_FOLDER_PREFIX_FROM_ROOT, "air-to-air.txt");
 
     setResGenHooks();
 
