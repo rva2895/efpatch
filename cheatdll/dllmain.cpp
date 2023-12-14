@@ -126,6 +126,7 @@
 #include "script.h"
 #include "airtoair.h"
 #include "conversion.h"
+#include "rmslog.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -335,6 +336,8 @@ void setHooksCC()
         setEditControlHooks();
 
     setRevealMapHooks();
+
+    setRMSLogHooks();
 
     //setSpectateHooks();
 

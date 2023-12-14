@@ -180,3 +180,18 @@ int (__cdecl* const tell_internal)(int handle) =
 
 int (__cdecl* const lseek_internal)(int handle, int distance, int orig) =
     (int (__cdecl* const)(int, int, int))0x0063459E;
+
+__int32 (__cdecl* ftell_internal)(FILE* File) =
+    (__int32 (__cdecl*) (FILE*))0x006361B6;
+
+int (__cdecl* fseek_internal)(FILE* File, __int32 Offset, int Origin) =
+    (int (__cdecl*) (FILE*, __int32, int))0x00635E6D;
+
+size_t (__cdecl* fread_internal)(void* DstBuf, size_t ElementSize, size_t Count, FILE* File) =
+    (size_t (__cdecl*) (void*, size_t, size_t, FILE*))0x006360CE;
+
+int (__cdecl* fscanf_internal)(FILE* File, const char* Format, ...) =
+    (int (__cdecl*) (FILE*, const char*, ...))0x0063481F;
+
+char* (__cdecl* fgets_internal)(char* Buf, int MaxCount, FILE* File) =
+    (char* (__cdecl*) (char*, int, FILE*))0x0063303A;

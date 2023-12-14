@@ -528,6 +528,9 @@
     <ClInclude Include="conversion.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
+    <ClInclude Include="rmslog.h">
+      <Filter>Заголовочные файлы\rms</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -997,6 +1000,9 @@
     </ClCompile>
     <ClCompile Include="conversion.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="rmslog.cpp">
+      <Filter>Файлы исходного кода\rms</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

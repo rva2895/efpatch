@@ -60,3 +60,8 @@ extern int (__cdecl* const read_internal)(int handle, void* buffer, int size);
 extern int (__cdecl* const write_internal)(int handle, void* buffer, int size);
 extern int (__cdecl* const tell_internal)(int handle);
 extern int (__cdecl* const lseek_internal)(int handle, int distance, int orig);
+extern __int32 (__cdecl* ftell_internal)(FILE* File);
+extern int (__cdecl* fseek_internal)(FILE* File, __int32 Offset, int Origin);
+extern size_t (__cdecl* fread_internal)(void* DstBuf, size_t ElementSize, size_t Count, FILE* File);
+extern int (__cdecl* fscanf_internal)(FILE* File, const char* Format, ...);
+extern char* (__cdecl* fgets_internal)(char* Buf, int MaxCount, FILE* File);
