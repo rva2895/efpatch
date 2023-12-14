@@ -5,7 +5,6 @@
 
 //9B2 = 9AE
 //9EC = 9E8
-//10E0 = ???
 
 __declspec(naked) void recrestore1() //0062005D
 {
@@ -15,14 +14,14 @@ __declspec(naked) void recrestore1() //0062005D
         lea     edx, [ebx + 94h]
         mov     ecx, 006A3684h
         mov     ecx, [ecx]
-        cmp     byte ptr [ecx + 9B2h], 0
+        cmp     byte ptr [ecx + 9AEh], 0
         jz      loc_40D669
         mov     ecx, 006A35E0h
         mov     ecx, [ecx]
         mov     eax, [ecx + 10E0h]
         mov     ecx, 006A3684h
         mov     ecx, [ecx]
-        mov     eax, [ecx + eax * 4 + 9ECh]
+        mov     eax, [ecx + eax * 4 + 9E8h]
         mov     [edx], ax
 loc_40D669:
         mov     eax, 00620065h
@@ -43,7 +42,7 @@ __declspec(naked) void recrestore2() //005E904C
         mov     eax, [ecx]
         shr     eax, 4
         and     al, 1
-        mov     [ebx+9D4h], al            //MIGHT BE WRONG: 9D8 -> 9D4
+        mov     [ebx+9D4h], al
 loc_7CA850:
         push    006899A8h
         mov     eax, 005E9051h
