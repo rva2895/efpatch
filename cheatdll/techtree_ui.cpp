@@ -22,13 +22,13 @@ void tech_tree_verify_pos(TribeTechHelpScreen* tech_tree)
 
 void tech_tree_scroll_right(TribeTechHelpScreen* tech_tree)
 {
-    tech_tree->scroll_x_offset -= tech_tree->max_draw_x_size - 48;
+    tech_tree->scroll_x_offset -= tech_tree->max_draw_x_size - 68;
     tech_tree_verify_pos(tech_tree);
 }
 
 void tech_tree_scroll_left(TribeTechHelpScreen* tech_tree)
 {
-    tech_tree->scroll_x_offset += tech_tree->max_draw_x_size - 48;
+    tech_tree->scroll_x_offset += tech_tree->max_draw_x_size - 68;
     tech_tree_verify_pos(tech_tree);
 }
 
@@ -238,10 +238,155 @@ __declspec(naked) void set_vmiddle_start() //0046C7E8
     }
 }
 
+TScreenPanel* blank_background_panel = NULL;
+
+const char bk_panel_name[] = "Blank Background Screen";
+
+TPanel* __stdcall tech_tree_resolution_open_action(TPanel* parent)
+{
+    RGE_Base_Game__set_resolution_to_in_game_resolution(*base_game);
+
+    TPanelSystem__destroyPanel(panel_system, bk_panel_name);
+
+    blank_background_panel = (TScreenPanel*)calloc_internal(1, sizeof(TScreenPanel));
+    TScreenPanel__TScreenPanel(blank_background_panel, bk_panel_name);
+    TScreenPanel__setup(blank_background_panel, (*base_game)->draw_area, NULL, -1, 0);
+    blank_background_panel->parent_panel = parent;
+
+    TPanelSystem__setCurrentPanel(panel_system, bk_panel_name, 0);
+    
+    TPanel* p = TPanelSystem__getTop(panel_system);
+    RGE_Base_Game__enable_input(*base_game);
+    return p;
+}
+
+void __stdcall tech_tree_resolution_close_action()
+{
+    TPanel* p = TPanelSystem__getTop(panel_system);
+    if (p && !strcmp(p->panelNameValue, bk_panel_name))
+    {
+        RGE_Base_Game__set_resolution_to_out_of_game_resolution(*base_game);
+        TPanelSystem__setCurrentPanel(panel_system, p->parent_panel->panelNameValue, 0);
+    }
+    TPanelSystem__destroyPanel(panel_system, bk_panel_name);
+}
+
+__declspec(naked) void tech_tree_resolution_open() //0051838C
+{
+    __asm
+    {
+        push    eax
+        push    esi
+        call    tech_tree_resolution_open_action
+        pop     ecx
+        push    eax
+        call    TribeTechHelpScreen__TribeTechHelpScreen
+        mov     ecx, 00518398h
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void tech_tree_resolution_close_1() //0046440D
+{
+    __asm
+    {
+        call    TPanelSystem__destroyPanel
+        call    tech_tree_resolution_close_action
+        mov     eax, 00464412h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void tech_tree_resolution_close_2() //0046485F
+{
+    __asm
+    {
+        call    TPanelSystem__destroyPanel
+        call    tech_tree_resolution_close_action
+        mov     eax, 00464864h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void tech_tree_resolution_close_3() //004648B9
+{
+    __asm
+    {
+        call    TPanelSystem__destroyPanel
+        call    tech_tree_resolution_close_action
+        mov     eax, 004648BEh
+        jmp     eax
+    }
+}
+
+__declspec(naked) void tech_tree_resolution_close_4() //0046DF43
+{
+    __asm
+    {
+        call    TPanelSystem__destroyPanel
+        call    tech_tree_resolution_close_action
+        mov     eax, 0046DF48h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void tech_tree_resolution_close_5() //00507419
+{
+    __asm
+    {
+        call    TPanelSystem__destroyPanel
+        call    tech_tree_resolution_close_action
+        mov     eax, 0050741Eh
+        jmp     eax
+    }
+}
+
+__declspec(naked) void tech_tree_resolution_close_6() //00516F02
+{
+    __asm
+    {
+        call    TPanelSystem__destroyPanel
+        call    tech_tree_resolution_close_action
+        mov     eax, 00516F07h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void tech_tree_resolution_close_7() //005E4A27
+{
+    __asm
+    {
+        call    TPanelSystem__destroyPanel
+        call    tech_tree_resolution_close_action
+        mov     eax, 005E4A2Ch
+        jmp     eax
+    }
+}
+
+__declspec(naked) void tech_tree_resolution_close_8() //005ED758
+{
+    __asm
+    {
+        call    TPanelSystem__destroyPanel
+        call    tech_tree_resolution_close_action
+        mov     eax, 005ED75Dh
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setTechTreeUIHooks()
 {
     setHook((void*)0x004647E0, tech_tree_key_down);
     setHook((void*)0x0046C7E8, set_vmiddle_start);
+    setHook((void*)0x0051838C, tech_tree_resolution_open);
+    setHook((void*)0x0046440D, tech_tree_resolution_close_1);
+    setHook((void*)0x0046485F, tech_tree_resolution_close_2);
+    setHook((void*)0x004648B9, tech_tree_resolution_close_3);
+    setHook((void*)0x0046DF43, tech_tree_resolution_close_4);
+    setHook((void*)0x00507419, tech_tree_resolution_close_5);
+    setHook((void*)0x00516F02, tech_tree_resolution_close_6);
+    setHook((void*)0x005E4A27, tech_tree_resolution_close_7);
+    setHook((void*)0x005ED758, tech_tree_resolution_close_8);
 }
 #pragma optimize( "", on )
