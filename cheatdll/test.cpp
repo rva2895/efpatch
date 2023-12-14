@@ -8,6 +8,7 @@
 #include "functionlist.h"
 #include "advtriggereffect.h"
 #include "worlddump.h"
+#include "rmslog.h"
 
 #include <process.h>
 #include <MMSystem.h>
@@ -136,65 +137,13 @@ __declspec(naked) int readDatHook() //004D5550
 }
 */
 
-FILE* rms_f = NULL;
-
-__declspec(naked) void rms_fptr() //004E1801
-{
-    __asm
-    {
-        mov     rms_f, eax
-        mov     eax, [ebp + 45E28h]
-        mov     edi, 004E1807h
-        jmp     edi
-    }
-}
-
-__declspec(naked) void rms_fptr_close() //004E1951
-{
-    __asm
-    {
-        xor     eax, eax
-        mov     rms_f, eax
-        mov     eax, [ebp + 3F6FCh]
-        mov     ecx, 004E1957h
-        jmp     ecx
-    }
-}
-
-__int32 (__cdecl* ftell2)(FILE *File) =
-    (__int32 (__cdecl*) (FILE*))0x006361B6;
-
-int (__cdecl* fseek2)(FILE *File, __int32 Offset, int Origin) =
-    (int (__cdecl*) (FILE*, __int32, int))0x00635E6D;
-
-size_t (__cdecl* fread2)(void *DstBuf, size_t ElementSize, size_t Count, FILE *File) =
-    (size_t (__cdecl*) (void*, size_t, size_t, FILE*))0x006360CE;
-
-int (__cdecl* fscanf2)(FILE *File, const char *Format, ...) =
-    (int (__cdecl*) (FILE*, const char*, ...))0x0063481F;
-
-char* (__cdecl* fgets2)(char *Buf, int MaxCount, FILE *File) =
-    (char* (__cdecl*) (char*, int, FILE*))0x0063303A;
-
-extern std::string rms_error_1;
-extern std::string rms_error_2;
-
-extern bool isEditor;
-
-extern bool editorstatus_isValid;
-bool rms_first_error = false;
-
-#define LOG_INT_BUFFER_SIZE 0x200
-
 char* log_int_s = NULL;
 
 __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
 {
     UNREFERENCED_PARAMETER(unk1);
     va_list ap;
-    __int32 pos;
-    //void* d;
-    int lines;
+
     if (!log_int_s)
         return;
     
@@ -209,57 +158,12 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
     if (!strncmp("Act_Art", fmt, 7))
         return;
 
-    //
-    char b[0x100];
-    bool rms_flag = false;
-
-    if (!strcmp(fmt, "------Opening script (%s)."))
-    {
-        //rms_begin = true;
-        rms_error_1 = "RMS: No errors";
-        rms_error_2.clear();
-        if (isEditor)
-            update_editor_bk();
-        rms_first_error = true;
-    }
-
-    if (rms_f && (rms_f != (FILE*)-1))
-    {
-        pos = ftell2(rms_f);
-        if (pos > 0)
-        {
-            //d = malloc(pos);
-            fseek2(rms_f, 0, SEEK_SET);
-            lines = 0;
-            do
-            {
-                fgets2(log_int_s, LOG_INT_BUFFER_SIZE, rms_f);
-                lines++;
-            } while (ftell2(rms_f) < pos);
-
-            //free(d);
-            fseek2(rms_f, pos, SEEK_SET);
-            log("** RMS, line %d:\n\n%s", lines, log_int_s);
-            if (rms_first_error)
-            {
-                snprintf(b, _countof(b), "RMS: line %d: %s", lines, log_int_s);
-                rms_error_1 = b;
-                rms_flag = true;
-                rms_first_error = false;
-            }
-        }
-    }
-    //
-
     va_start(ap, fmt);
     vsnprintf(log_int_s, LOG_INT_BUFFER_SIZE, fmt, ap);
     log_internal("%s", log_int_s);
-    if (rms_flag)
-    {
-        snprintf(b, _countof(b), "%s", log_int_s);
-        rms_error_2 = b;
-        rms_flag = false;
-    }
+
+    do_rms_logging();
+
     va_end(ap);
 }
 
@@ -303,6 +207,7 @@ __declspec(naked) void nullsub_26_2()
     }
 }
 
+/*
 int check_file(char* file, int player)
 {
     char s[0x100];
@@ -350,6 +255,7 @@ void thread_proc(void* p)
     sprintf(s, "Integrity check complete, checksum = %d", sum);
     sendChat(s, player);
 }
+*/
 
 //extern int memory_temp;
 
@@ -369,6 +275,24 @@ struct
 
 extern unsigned int dump_objects(const char* filename);
 extern int max_worldtime;
+
+void __stdcall RGE_Action_List__add_action2(RGE_Action_List* list, RGE_Action* action)
+{
+    RGE_Action_Node* node;
+
+    if (list->obj->object_state <= 2)
+    {
+        node = (RGE_Action_Node*)calloc_internal(1, 8);
+        node->action = action;
+        node->next = list->list;
+        list->list = node;
+        //action->vfptr->first_in_stack(action, 1u);
+    }
+    else if (action)
+    {
+        action->vfptr->__vecDelDtor(action, 1u);
+    }
+}
 
 int __stdcall onChat_2(int player_id, char* targets, char* s)
 {
@@ -615,6 +539,48 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         unsigned char instr = 0x55;
         SIZE_T w;
         WriteProcessMemory(GetCurrentProcess(), (void*)0x00651BC0, &instr, 1, &w);
+        return 1;
+    }*/
+    /*else if (strstr(s, "/action"))
+    {
+        TRIBE_World* world = (*base_game)->world;
+        if (world)
+        {
+            RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+            if (player)
+            {
+                RGE_Action_Object* obj = (RGE_Action_Object*)player->selected_obj;
+                if (obj)
+                    //chat("Selected object %d, 0x%X", obj->id, (DWORD)obj);
+                {
+                    RGE_Master_Action_Object* master = obj->master_obj;
+                    RGE_Sprite* sprite = master->vfptr->gbg_get_run_sprite_civ_override(master, (RGE_Static_Object*)obj);
+                    
+                    if (!sprite)
+                        sprite = master->vfptr->gbg_get_move_sprite_civ_override(master, (RGE_Static_Object*)obj);
+
+                    RGE_Action_Move_To* act = (RGE_Action_Move_To*)calloc_internal(1, sizeof(RGE_Action_Move_To));
+                    RGE_Action_Move_To__RGE_Action_Move_To(act, (RGE_Action_Object*)obj, 2, 2, 0, 0, sprite);
+                    RGE_Action_List__add_action(obj->actions, (RGE_Action*)act);
+
+                    RGE_Action_Move_To* act2 = (RGE_Action_Move_To*)calloc_internal(1, sizeof(RGE_Action_Move_To));
+                    RGE_Action_Move_To__RGE_Action_Move_To(act2, (RGE_Action_Object*)obj, 4, 5, 0, 0, sprite);
+                    RGE_Action_List__add_action(obj->actions, (RGE_Action*)act2);
+                    //RGE_Action__setSubAction((RGE_Action*)act2, 1);
+                    char name[0x100];
+                    if (obj->actions->list)
+                    {
+                        obj->actions->list->action->vfptr->get_state_name(obj->actions->list->action, name);
+                        chat("Act = %d, state = %s", obj->actions->list->action->action_type, name);
+                    }
+                    else
+                        chat("No actions");
+                }
+                else
+                    chat("No objects selected");
+            }
+        }
+
         return 1;
     }*/
     else
@@ -1443,9 +1409,6 @@ void setTestHook()
 
     setHook((void*)0x0060F920, log_int_wr);
 
-    setHook((void*)0x004E1801, rms_fptr);
-    setHook((void*)0x004E1951, rms_fptr_close);
-
 #ifndef TARGET_VOOBLY
     setHook((void*)0x00438140, onChat);
 #endif
@@ -1456,5 +1419,8 @@ void setTestHook()
 #endif
 
     setHook((void*)0x00497192, report_dynamic_tile_cache_size);
+
+    //action list
+    //writeNops(0x004098FD, 5);
 }
 #pragma optimize( "", on )

@@ -12,7 +12,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "consts.h"
 #ifdef TARGET_VOOBLY
@@ -30,4 +29,4 @@
 
 //#define CHEATDLL_NOLOG
 
-#define EFPATCH_VERSION "EFPATCH for EF v1.5.2-rc3 (1.5.1.3) " __DATE__ " " __TIME__
+#define EFPATCH_VERSION "EFPATCH for EF v1.5.2-rc4 (1.5.1.4) " __DATE__ " " __TIME__

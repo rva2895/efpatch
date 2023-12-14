@@ -333,6 +333,7 @@
     <ClInclude Include="rge_communications_queue.h" />
     <ClInclude Include="rge_communications_speed.h" />
     <ClInclude Include="rms.h" />
+    <ClInclude Include="rmslog.h" />
     <ClInclude Include="rms_tokens.h" />
     <ClInclude Include="rundll.h" />
     <ClInclude Include="savegamever.h" />
@@ -506,6 +507,7 @@
     <ClCompile Include="rge_communications_queue.cpp" />
     <ClCompile Include="rge_communications_speed.cpp" />
     <ClCompile Include="rms.cpp" />
+    <ClCompile Include="rmslog.cpp" />
     <ClCompile Include="rms_tokens.cpp" />
     <ClCompile Include="rundll.cpp" />
     <ClCompile Include="savegamever.cpp" />

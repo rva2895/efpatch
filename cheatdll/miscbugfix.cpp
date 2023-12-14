@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "miscbugfix.h"
+#include "rmslog.h"
 
 __declspec(naked) void annex_unit_crash_mitigation() //00555640
 {
@@ -251,6 +252,66 @@ on_shipyard_target_task_good:
     }
 }
 
+bool random_map_def_included = false;
+
+__declspec(naked) void include_random_map_def_1() //004E27D4
+{
+    __asm
+    {
+        mov     edx, [ebp + 4667Ch]
+        add     esp, 10h
+        cmp     edx, 54000
+        jnz     include_random_map_def_1_cont
+        mov     al, random_map_def_included
+        test    al, al
+        mov     random_map_def_included, 1
+        jz      include_random_map_def_1_cont
+
+        mov     eax, 004E27FDh
+        jmp     eax
+
+include_random_map_def_1_cont:
+        mov     eax, 004E27DDh
+        jmp     eax
+    }
+}
+
+__declspec(naked) void include_random_map_def_2() //004E1664
+{
+    __asm
+    {
+        sub     esp, 108h
+        cmp     edx, 54000
+        jnz     include_random_map_def_2_cont
+        mov     al, random_map_def_included
+        test    al, al
+        mov     random_map_def_included, 1
+        jz      include_random_map_def_2_cont
+
+        mov     eax, 004E1693h
+        jmp     eax
+
+include_random_map_def_2_cont:
+        mov     eax, 004E166Ah
+        jmp     eax
+    }
+}
+
+__declspec(naked) void include_random_map_def_setup() //005CA812
+{
+    __asm
+    {
+        mov     random_map_def_included, 0
+        push    edx
+        call    setup_rms_log
+        pop     edx
+        mov     ecx, edi
+        call    dword ptr [edx + 4]
+        mov     eax, 005CA817h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks(int ver)
 {
@@ -346,6 +407,11 @@ void setMiscBugfixHooks(int ver)
 
     //#include
     writeNops(0x004E2773, 6);
+
+    //#include_drs random_map.def 54000
+    setHook((void*)0x004E27D4, include_random_map_def_1);
+    setHook((void*)0x004E1664, include_random_map_def_2);
+    setHook((void*)0x005CA812, include_random_map_def_setup);
 
     //num resource lists
     writeByte(0x005CDDDD, 16);

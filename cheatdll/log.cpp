@@ -1,9 +1,6 @@
 #include "stdafx.h"
-
-#include <time.h>
 #include "log.h"
-
-#include <string>
+#include <time.h>
 
 FILE* log_file = NULL;
 bool loggingEnabled;
