@@ -6,7 +6,7 @@
 #include "slp.h"
 #include "palfile.h"
 
-#define RESOLUTION_TOOL_VERSION 100009  //+1 for new ef civs release
+#define RESOLUTION_TOOL_VERSION 100010  //+1 Zann UI fix
 
 void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
 {
