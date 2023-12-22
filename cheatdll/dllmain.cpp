@@ -127,6 +127,7 @@
 #include "airtoair.h"
 #include "conversion.h"
 #include "rmslog.h"
+#include "hideineditor.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -203,6 +204,9 @@ void setHooksCC()
 
     if (cd.unlockResources)
         setResListHooks();
+
+    if (cd.unlockObjects)
+        setHideInEditorHooks();
 
     setTechUpColorHooks();
 
