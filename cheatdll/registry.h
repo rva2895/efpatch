@@ -42,6 +42,7 @@ struct CONFIG_DATA
     int keydown;
     int textRendering;
     int chatBox;
+    int unlockObjects;
     int modCount;
     char** mods;
 

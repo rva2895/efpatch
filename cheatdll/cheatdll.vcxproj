@@ -275,6 +275,7 @@
     <ClInclude Include="gamespeed.h" />
     <ClInclude Include="gdip.h" />
     <ClInclude Include="guardandfollow.h" />
+    <ClInclude Include="hideineditor.h" />
     <ClInclude Include="hotkey.h" />
     <ClInclude Include="hotkeyjump.h" />
     <ClInclude Include="hotkeys.h" />
@@ -449,6 +450,7 @@
     <ClCompile Include="gamespeed.cpp" />
     <ClCompile Include="gdip.cpp" />
     <ClCompile Include="guardandfollow.cpp" />
+    <ClCompile Include="hideineditor.cpp" />
     <ClCompile Include="hotkey.cpp" />
     <ClCompile Include="hotkeyjump.cpp" />
     <ClCompile Include="hotkeys.cpp" />

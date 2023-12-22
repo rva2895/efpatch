@@ -29,6 +29,7 @@ void processIDOK(HWND hWnd)
     cd.useDShook = IsDlgButtonChecked(hWnd, IDC_CHECK_DSH);
     cd.askAtStartup = !IsDlgButtonChecked(hWnd, IDC_CHECK_ALWAYSRUN);
     cd.unlockResources = IsDlgButtonChecked(hWnd, IDC_CHECK_UNLOCKRES);
+    cd.unlockObjects = IsDlgButtonChecked(hWnd, IDC_CHECK_UNLOCKOBJECTS);
 
     cd.crashReporting = IsDlgButtonChecked(hWnd, IDC_CHECK_CRASH);
 
@@ -100,6 +101,7 @@ void readSettingsToDialog(HWND hWnd)
 #endif
     CheckDlgButton(hWnd, IDC_CHECK_ALWAYSRUN, !cd.askAtStartup);
     CheckDlgButton(hWnd, IDC_CHECK_UNLOCKRES, cd.unlockResources);
+    CheckDlgButton(hWnd, IDC_CHECK_UNLOCKOBJECTS, cd.unlockObjects);
     CheckDlgButton(hWnd, IDC_CHECK_EDITORAUTO, cd.editorAutosave);
 
     CheckDlgButton(hWnd, IDC_CHECK_CRASH, cd.crashReporting);
