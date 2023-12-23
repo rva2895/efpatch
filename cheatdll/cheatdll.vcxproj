@@ -279,6 +279,7 @@
     <ClInclude Include="hotkey.h" />
     <ClInclude Include="hotkeyjump.h" />
     <ClInclude Include="hotkeys.h" />
+    <ClInclude Include="hunt.h" />
     <ClInclude Include="icons.h" />
     <ClInclude Include="itemcache.h" />
     <ClInclude Include="iuserpatch.h" />
@@ -454,6 +455,7 @@
     <ClCompile Include="hotkey.cpp" />
     <ClCompile Include="hotkeyjump.cpp" />
     <ClCompile Include="hotkeys.cpp" />
+    <ClCompile Include="hunt.cpp" />
     <ClCompile Include="icons.cpp" />
     <ClCompile Include="iuserpatch.cpp" />
     <ClCompile Include="jedimaster.cpp" />

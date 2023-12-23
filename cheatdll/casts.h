@@ -10,6 +10,9 @@ struct UNIT_EXTRA
     bool    countersUsed;
 
     bool    hasBeenPurged;
+    bool    keepUnitExtra;
+
+    unsigned int animalTimer;
 
     float   speedReductionModifier;
     float   speedReductionTime;
@@ -68,6 +71,7 @@ struct UNIT_EXTRA_OLD //old definition provided for compatibility
 void setCastHooks();
 
 UNIT_EXTRA* __fastcall getUnitExtra(RGE_Static_Object* unit);
+UNIT_EXTRA* __fastcall createUnitExtra(RGE_Static_Object* unit);
 void __fastcall addUnitExtra(RGE_Static_Object* unit, UNIT_EXTRA* ud);
 void __fastcall removeUnitExtra(RGE_Static_Object* unit);
 

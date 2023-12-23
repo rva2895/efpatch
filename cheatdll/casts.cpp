@@ -20,22 +20,6 @@
 
 int current_save_game_version;
 
-int anyEffectsActive(UNIT_EXTRA* ud)
-{
-    return (ud->speedReductionEnabled || ud->stealthOffEnabled ||
-        ud->hpDrainEnabled || ud->hpDrainPercentEnabled || ud->reloadTimeEnabled);
-}
-
-bool nonZeroCounters(UNIT_EXTRA* ud)
-{
-    //return ((ud->miscCounter1 > 0) ||
-    //    (ud->miscCounter2 > 0) ||
-    //    (ud->miscCounter3 > 0) ||
-    //    (ud->miscCounter4 > 0) ||
-    //    (ud->miscCounter5 > 0));
-    return ud->countersUsed;
-}
-
 void __stdcall processUnitExtra(RGE_Static_Object* unit, int timerRes)
 {
     UNIT_EXTRA* ud = getUnitExtra(unit);
@@ -118,7 +102,14 @@ void __stdcall processUnitExtra(RGE_Static_Object* unit, int timerRes)
             }
         }
         
-        if (!anyEffectsActive(ud) && !nonZeroCounters(ud) && !ud->hasBeenPurged)
+        if (!ud->keepUnitExtra &&
+            !ud->speedReductionEnabled &&
+            !ud->stealthOffEnabled &&
+            !ud->hpDrainEnabled &&
+            !ud->hpDrainPercentEnabled &&
+            !ud->reloadTimeEnabled &&
+            !ud->countersUsed &&
+            !ud->hasBeenPurged)
             removeUnitExtra(unit);
     }
 }
@@ -208,22 +199,7 @@ void __stdcall specialDamage(RGE_Static_Object* unit, short type, int damage, in
     log("---SPECIAL DAMAGE---: type %d, dmg %d, armor %d", ltype, damage, armor);
 #endif
 
-    UNIT_EXTRA* ud = getUnitExtra(unit);
-    if (!ud)
-    {
-        ud = new UNIT_EXTRA;
-        memset(ud, 0, sizeof(UNIT_EXTRA));
-        addUnitExtra(unit, ud);
-#ifdef _DEBUG
-        log("Created new UNIT_EXTRA for unit %d", unit);
-#endif
-    }
-#ifdef _DEBUG
-    else
-        log("Loaded existing UNIT_EXTRA for unit %d", unit);
-#endif
-
-    //int result_dmg;
+    UNIT_EXTRA* ud = createUnitExtra(unit);
 
     if (armor == 1000)
         armor = 0;
@@ -503,7 +479,7 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
         rge_read(stream, &flag, sizeof(flag));
         if (flag)
         {
-            ud = new UNIT_EXTRA;
+            ud = createUnitExtra(unit);
             UNIT_EXTRA_OLD ud_old;
             rge_read(stream, &ud_old, sizeof(UNIT_EXTRA_OLD));
 
@@ -536,8 +512,8 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
             ud->miscCounter5 = ud_old.miscCounter5;
 
             ud->hasBeenPurged = false;
-
-            addUnitExtra(unit, ud);
+            ud->keepUnitExtra = false;
+            ud->animalTimer = 0;
         }
         break;
     case 1:
@@ -549,8 +525,7 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
         rge_read(stream, &flag, sizeof(flag));
         if (flag)
         {
-            ud = new UNIT_EXTRA;
-            memset(ud, 0, sizeof(UNIT_EXTRA));
+            ud = createUnitExtra(unit);
 
             rge_read(stream, &ud->speedReductionEnabled, sizeof(ud->speedReductionEnabled));
             rge_read(stream, &ud->speedReductionModifier, sizeof(ud->speedReductionModifier));
@@ -581,11 +556,17 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
             rge_read(stream, &ud->miscCounter5, sizeof(ud->miscCounter5));
 
             if (current_save_game_version >= 6)
+            {
                 rge_read(stream, &ud->hasBeenPurged, sizeof(ud->hasBeenPurged));
+                rge_read(stream, &ud->keepUnitExtra, sizeof(ud->keepUnitExtra));
+                rge_read(stream, &ud->animalTimer, sizeof(ud->animalTimer));
+            }
             else
+            {
                 ud->hasBeenPurged = false;
-
-            addUnitExtra(unit, ud);
+                ud->keepUnitExtra = false;
+                ud->animalTimer = 0;
+            }
         }
         break;
 #if CURRENT_VERSION != 6
@@ -634,6 +615,8 @@ void __stdcall writeUnitExtra(RGE_Static_Object* unit, int stream)
         rge_write(stream, &ud->miscCounter5, sizeof(ud->miscCounter5));
 
         rge_write(stream, &ud->hasBeenPurged, sizeof(ud->hasBeenPurged));
+        rge_write(stream, &ud->keepUnitExtra, sizeof(ud->keepUnitExtra));
+        rge_write(stream, &ud->animalTimer, sizeof(ud->animalTimer));
     }
     else
     {
@@ -856,6 +839,18 @@ __declspec(naked) void __fastcall addUnitExtra(RGE_Static_Object* unit, UNIT_EXT
     }
 }
 #pragma warning(pop)
+
+UNIT_EXTRA* __fastcall createUnitExtra(RGE_Static_Object* unit)
+{
+    UNIT_EXTRA* ud = getUnitExtra(unit);
+    if (!ud)
+    {
+        ud = (UNIT_EXTRA*)malloc(sizeof(UNIT_EXTRA));
+        memset(ud, 0, sizeof(UNIT_EXTRA));
+        addUnitExtra(unit, ud);
+    }
+    return ud;
+}
 
 const char unit_constructor_asm_fix[] = "\x89\x46\x78\x89\x86\x84\x00\x00\x00\x90\x90\x90\x90\x90\x90\x90\x90\x90";
 
