@@ -531,6 +531,9 @@
     <ClInclude Include="rmslog.h">
       <Filter>Заголовочные файлы\rms</Filter>
     </ClInclude>
+    <ClInclude Include="hunt.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
     <ClInclude Include="hideineditor.h">
       <Filter>Заголовочные файлы\editor</Filter>
     </ClInclude>
@@ -1006,6 +1009,9 @@
     </ClCompile>
     <ClCompile Include="rmslog.cpp">
       <Filter>Файлы исходного кода\rms</Filter>
+    </ClCompile>
+    <ClCompile Include="hunt.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
     <ClCompile Include="hideineditor.cpp">
       <Filter>Файлы исходного кода\editor</Filter>

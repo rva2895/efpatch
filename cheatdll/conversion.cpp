@@ -46,13 +46,7 @@ void __stdcall onPurgeAction(RGE_Static_Object* obj)
     obj->vfptr->die_die_die(obj);
     if (current_loaded_version >= 6)
     {
-        UNIT_EXTRA* ud = getUnitExtra(obj);
-        if (!ud)
-        {
-            ud = new UNIT_EXTRA;
-            memset(ud, 0, sizeof(UNIT_EXTRA));
-            addUnitExtra(obj, ud);
-        }
+        UNIT_EXTRA* ud = createUnitExtra(obj);
         ud->hasBeenPurged = true;
     }
 }

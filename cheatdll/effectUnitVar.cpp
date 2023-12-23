@@ -83,13 +83,7 @@ void editHPRegenPercent(RGE_Static_Object* unit, float val, float val2)
 
 void editCounter(RGE_Static_Object* unit, float val, int action, int c)
 {
-    UNIT_EXTRA* ud = getUnitExtra(unit);
-    if (!ud)
-    {
-        ud = new UNIT_EXTRA;
-        memset(ud, 0, sizeof(UNIT_EXTRA));
-        addUnitExtra(unit, ud);
-    }
+    UNIT_EXTRA* ud = createUnitExtra(unit);
     ud->countersUsed = true;
     switch (c)
     {

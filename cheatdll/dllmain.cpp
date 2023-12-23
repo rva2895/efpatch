@@ -127,6 +127,7 @@
 #include "airtoair.h"
 #include "conversion.h"
 #include "rmslog.h"
+#include "hunt.h"
 #include "hideineditor.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
@@ -484,6 +485,8 @@ void setHooksEF()
     setConversionHooks();
 
     setMapListHooks();
+
+    setHuntHooks();
 
     //setLandRMSHooks();
     //setScriptRMSHooks();
