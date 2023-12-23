@@ -14,6 +14,8 @@ extern float* resources;
 
 extern TRIBE_Panel_Object* objPanelPtr;
 
+extern int current_loaded_version;
+
 void __cdecl objPanel(RGE_Static_Object* unit)
 {
     //50731 - SLP in interfac.drs
@@ -45,6 +47,13 @@ void __cdecl objPanel(RGE_Static_Object* unit)
                 res = resources[resProducersData[i].controlResID];
             else
                 res = ((float)resProducersData[i].constantResAmount);
+
+            if (current_loaded_version >= 6)
+            {
+                TRIBE_Building_Object* bld_obj = (TRIBE_Building_Object*)unit;
+                if (bld_obj->master_obj->master_type == 80)
+                    res *= bld_obj->master_obj->work_rate;
+            }
 
             if (resProducersData[i].resID == 0)       //food
             {

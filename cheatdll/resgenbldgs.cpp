@@ -6,6 +6,8 @@ resGen* resProducersData = NULL;
 
 bool resGenHooksInstalled = false;
 
+extern int current_loaded_version;
+
 void initBldgResProdList(const char* prefix, const char* filename)
 {
     char c;
@@ -69,16 +71,25 @@ void initBldgResProdList(const char* prefix, const char* filename)
         log("Warning: %s not found, resource generating buildings disabled", full_filename);
 }
 
-void __stdcall doResGen(int unitID, float* resources)
+void __stdcall doResGen(TRIBE_Building_Object* obj)
 {
     for (int i = 0; i < numberOfResProducers; i++)
     {
-        if (unitID == resProducersData[i].unitID)
+        if (obj->master_obj->id == resProducersData[i].unitID)
         {
+            float amount;
             if (resProducersData[i].useControlRes)
-                resources[resProducersData[i].resID] += (resources[resProducersData[i].controlResID] / 60);
+                amount = obj->owner->attributes[resProducersData[i].controlResID] / 60.0f;
             else
-                resources[resProducersData[i].resID] += ((float)resProducersData[i].constantResAmount / 60);
+                amount = resProducersData[i].constantResAmount / 60.0f;
+            
+            if (current_loaded_version >= 6)
+            {
+                amount *= obj->master_obj->work_rate;
+                TRIBE_Player__add_attribute_num(obj->owner, resProducersData[i].resID, amount, 1);
+            }
+            else
+                obj->owner->attributes[resProducersData[i].resID] += amount;
         }
     }
 }
@@ -87,19 +98,12 @@ __declspec(naked) int resGenHook()
 {
     __asm
     {
-        push    esi
         push    ecx
-        mov     eax, [ecx + 0ACh]
-        push    eax //resources
-        mov     eax, [esi + 14h]
-        xor     ecx, ecx
-        mov     cx, word ptr [eax + 18h]
-        push    ecx //unit id
+        push    esi
 
         call    doResGen
 
         pop     ecx
-        pop     esi
         mov     eax, [esi + 14h];
         cmp     word ptr [eax + 18h], 68h
         mov     eax, 005553CEh
@@ -107,7 +111,9 @@ __declspec(naked) int resGenHook()
     }
 }
 
+#pragma optimize( "s", on )
 void setResGenHooks()
 {
     initBldgResProdList(DATA_FOLDER_PREFIX_FROM_ROOT, "resgen.txt");
 }
+#pragma optimize( "", on )
