@@ -241,31 +241,6 @@ unsigned __stdcall spec_server(void* data)
     return 0;
 }
 
-void __stdcall do_rec_header_pos_fix(TCommCommandLog* log)
-{
-    if (log->mFileHandle)
-    {
-        int pos = tell_internal(log->mFileHandle);
-        lseek_internal(log->mFileHandle, 0, 0);
-        write_internal(log->mFileHandle, &log->mHeaderPosition, sizeof(log->mHeaderPosition));
-        lseek_internal(log->mFileHandle, pos, 0);
-    }
-}
-
-__declspec(naked) void rec_header_pos_fix() //0042F0B6
-{
-    __asm
-    {
-        push    ebx
-        call    do_rec_header_pos_fix
-        mov     ecx, esi
-        xor     eax, eax
-        repne scasb
-        mov     edx, 0042F0BCh
-        jmp     edx
-    }
-}
-
 #pragma optimize( "s", on )
 void setSpectateHooks()
 {
@@ -310,8 +285,6 @@ void setSpectateHooks()
     set_up_read_call(0x0042FF6B);
     set_up_read_call(0x00430329);
     set_up_read_call(0x004303A1);
-
-    setHook((void*)0x0042F0B6, rec_header_pos_fix);
 
     unsigned threadID;
     HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, &spec_server, NULL, 0, &threadID);
