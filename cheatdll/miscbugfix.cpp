@@ -312,6 +312,39 @@ __declspec(naked) void include_random_map_def_setup() //005CA812
     }
 }
 
+unsigned __int8 __fastcall useSameZoneDropsite_new(TRIBE_Combat_Object* obj)
+{
+    if (current_loaded_version >= 6)
+        return 1;
+    else
+        return obj->master_obj->object_group != 12 && obj->master_obj->object_group != 14;
+}
+
+void __stdcall do_rec_header_pos_fix(TCommCommandLog* log)
+{
+    if (log->mFileHandle)
+    {
+        int pos = tell_internal(log->mFileHandle);
+        lseek_internal(log->mFileHandle, 0, 0);
+        write_internal(log->mFileHandle, &log->mHeaderPosition, sizeof(log->mHeaderPosition));
+        lseek_internal(log->mFileHandle, pos, 0);
+    }
+}
+
+__declspec(naked) void rec_header_pos_fix() //0042F0B6
+{
+    __asm
+    {
+        push    ebx
+        call    do_rec_header_pos_fix
+        mov     ecx, esi
+        xor eax, eax
+        repne scasb
+        mov     edx, 0042F0BCh
+        jmp     edx
+    }
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks(int ver)
 {
@@ -419,5 +452,12 @@ void setMiscBugfixHooks(int ver)
     //trawler right click shipyard
     if (ver == VER_EF)
         setHook((void*)0x005F7D1E, on_shipyard_target_task);
+
+    //trawler dropsite zone
+    if (ver == VER_EF)
+        setHook((void*)0x0055D410, useSameZoneDropsite_new);
+
+    //rec header fix
+    setHook((void*)0x0042F0B6, rec_header_pos_fix);
 }
 #pragma optimize( "", on )

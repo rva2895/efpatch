@@ -162,7 +162,7 @@ __declspec(noinline) void __cdecl log_int(int unk1, char* fmt, ...)
     vsnprintf(log_int_s, LOG_INT_BUFFER_SIZE, fmt, ap);
     log_internal("%s", log_int_s);
 
-    do_rms_logging();
+    do_rms_logging(log_int_s);
 
     va_end(ap);
 }

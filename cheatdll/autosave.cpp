@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "autosave.h"
 #include "editorstatus.h"
+#include "rmslog.h"
 
 bool isEditor = false;
 extern HWND hWnd_main;
@@ -11,6 +12,7 @@ void __stdcall editor_enter()
 {
     log("Editor opened");
     isEditor = true;
+    clear_rms_error();
     if (autosave)
         SetTimer(hWnd_main, AUTOSAVE_TIMER, autosave_interval, 0);
 }

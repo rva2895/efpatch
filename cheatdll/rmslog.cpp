@@ -11,8 +11,6 @@ extern bool isEditor;
 
 bool rms_first_error;
 
-extern char* log_int_s;
-
 std::stack<FILE*> open_rms_files;
 
 FILE* __stdcall open_rms_files_push(FILE* f)
@@ -50,13 +48,13 @@ __declspec(naked) void rms_fptr_close() //004E1951
     }
 }
 
-void do_rms_logging()
+void do_rms_logging(const char* s)
 {
     FILE* rms_f = NULL;
     if (!open_rms_files.empty())
         rms_f = open_rms_files.top();
 
-    if (rms_f && (rms_f != (FILE*)-1) && !strncmp(log_int_s, "ERROR", 5))
+    if (rms_f && (rms_f != (FILE*)-1) && !strncmp(s, "ERROR", 5))
     {
         __int32 pos = ftell_internal(rms_f);
         if (pos > 0)
@@ -80,20 +78,49 @@ void do_rms_logging()
                 snprintf(b, _countof(b), "RMS: line %d: %s", lines, temp_2.c_str());
                 rms_error_1 = b;
                 rms_first_error = false;
-                snprintf(b, _countof(b), "%s", log_int_s);
+                snprintf(b, _countof(b), "%s", s);
                 rms_error_2 = b;
             }
         }
     }
 }
 
+void clear_rms_error()
+{
+    rms_error_1.clear();
+    rms_error_2.clear();
+}
+
 void __stdcall setup_rms_log()
 {
+    clear_rms_error();
     rms_error_1 = "RMS: No errors";
-    rms_error_2.clear();
     if (isEditor)
         update_editor_bk();
     rms_first_error = true;
+}
+
+const char generic_rms_error_txt[] = "ERROR: Syntax error";
+
+void __stdcall on_command_parse_check(RGE_RMM_Script_Controller* script, FILE* infile, RGE_RMM_Token* command)
+{
+    unsigned __int8 result = RGE_RMM_Script_Controller__do_command(script, infile, command);
+    if (!result)
+    {
+        log("%s", generic_rms_error_txt);
+        do_rms_logging(generic_rms_error_txt);
+    }
+}
+
+__declspec(naked) void on_command_parse() //004E1941
+{
+    __asm
+    {
+        push    ebp
+        call    on_command_parse_check
+        mov     eax, 004E1885h
+        jmp     eax
+    }
 }
 
 #pragma optimize( "s", on )
@@ -101,5 +128,7 @@ void setRMSLogHooks()
 {
     setHook((void*)0x004E17FF, rms_fptr);
     setHook((void*)0x004E1951, rms_fptr_close);
+
+    setHook((void*)0x004E1941, on_command_parse);
 }
 #pragma optimize( "", on )
