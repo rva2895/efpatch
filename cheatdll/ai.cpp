@@ -8,8 +8,9 @@
 #include "aigoals.h"
 #include "sngoal.h"
 #include "ailog.h"
+#include "aishipyard.h"
 
-#include <process.h>
+//#include <process.h>
 
 void __fastcall print_token(char* s, short id)
 {
@@ -124,6 +125,9 @@ void setAIHooks(int version)
 
     //fix crash if order too many units
     setAICommandUnitsHooks();
+
+    //shipyard on shore ice
+    setAIShipyardHooks();
 
     if (version == VER_EF)
     {
