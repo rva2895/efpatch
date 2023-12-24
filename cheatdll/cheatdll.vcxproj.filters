@@ -537,6 +537,9 @@
     <ClInclude Include="hideineditor.h">
       <Filter>Заголовочные файлы\editor</Filter>
     </ClInclude>
+    <ClInclude Include="aishipyard.h">
+      <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -1015,6 +1018,9 @@
     </ClCompile>
     <ClCompile Include="hideineditor.cpp">
       <Filter>Файлы исходного кода\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="aishipyard.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

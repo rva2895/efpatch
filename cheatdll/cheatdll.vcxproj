@@ -227,6 +227,7 @@
     <ClInclude Include="aigoals.h" />
     <ClInclude Include="ailog.h" />
     <ClInclude Include="airtoair.h" />
+    <ClInclude Include="aishipyard.h" />
     <ClInclude Include="aisnx.h" />
     <ClInclude Include="aiunitcount.h" />
     <ClInclude Include="animatedterrain.h" />
@@ -389,6 +390,7 @@
     <ClCompile Include="ailog.cpp" />
     <ClCompile Include="aipower.cpp" />
     <ClCompile Include="airtoair.cpp" />
+    <ClCompile Include="aishipyard.cpp" />
     <ClCompile Include="aisnx.cpp" />
     <ClCompile Include="aiunitcount.cpp" />
     <ClCompile Include="animatedterrain.cpp" />
