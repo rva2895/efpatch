@@ -3,6 +3,8 @@
 
 uint8_t* terrain_array = NULL;
 
+extern int current_loaded_version;
+
 /*BYTE terrain_array[] =
 {
     4, 1, 2, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1,    //0
@@ -61,7 +63,7 @@ const uint8_t indirect_table_water[] =    //starts from 1 (TERR-WATER1)
     /* 250 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
-#define TERR_MAX_CONST 250 //used for indirect table water
+#define TERR_MAX_CONST 252 //used for indirect table water
 
 bool __stdcall isIce(uint8_t terrain)
 {
@@ -289,6 +291,9 @@ bool __stdcall isSnow(uint8_t terrain)
     case 47:    //SNOW-DIRT
     case 55:    //SNOW-GRASS2
     case 63:    //SNOW2-NEW
+    case 84:    //TREE-SNOWFIR
+    case 87:    //CARBON-FROST
+    case 90:    //CARBON-SNOW
     case 134:   //SNOW-ROCK2
     case 135:   //SNOW-ROCK3
     case 195:   //SNOW-GRASSN
@@ -973,6 +978,7 @@ int __fastcall isCarbon(uint8_t terrain)
     case 243:
     case 244:
     case 245:
+    case 247:
         return true;
         break;
     default:
@@ -999,8 +1005,11 @@ found_carbon:
 
 bool __stdcall check_center_tile(short check_center_tile_1, short check_center_tile_2, short this_tile)
 {
-    if ((check_center_tile_1 == 1 && check_center_tile_2 == 4)
-        || (check_center_tile_1 == 4 && check_center_tile_2 == 1))
+    if (current_loaded_version == 5)    //bug in 1.5.1
+        return true;
+    else if (current_loaded_version >= 6
+        && ((check_center_tile_1 == 1 && check_center_tile_2 == 4)
+        || (check_center_tile_1 == 4 && check_center_tile_2 == 1)))
     {
         switch (this_tile)
         {
@@ -1032,9 +1041,8 @@ __declspec(naked) void shipyard_center_tile_req() //0048E2F5
         push    esi
         call    check_center_tile
 
-        mov     cl, al
-        pop     eax
         test    al, al
+        pop     eax
         jz      bad_center_tile
 
         mov     ecx, 0048E30Ch
