@@ -2,11 +2,14 @@
 #include "recbrowse.h"
 #include "itemcache.h"
 #include "mg1file.h"
+#include "registry.h"
 #include <ddraw.h>
 #include <process.h>
 #include <string>
 #include <vector>
 #include <time.h>
+
+extern CONFIG_DATA cd;
 
 ITEM_CACHE<REC_DATA>* rec_cache = NULL;
 ITEM_CACHE<SCEN_DATA>* scen_cache = NULL;
@@ -60,11 +63,11 @@ COLORREF get_color(unsigned char c)
     case 2:
         return BGR(248, 201, 138);
     case 3:
-        return BGR(191, 169, 115);
+        return cd.gameVersion == VER_EF ? BGR(185, 185, 185) : BGR(191, 169, 115);
     case 4:
         return BGR(116, 115, 75);
     case 5:
-        return BGR(0, 169, 0);
+        return cd.gameVersion == VER_EF ? BGR(0, 169, 0) : BGR(0, 169, 0);
     case 6:
         return BGR(243, 170, 92);
     case 7:
@@ -100,7 +103,7 @@ COLORREF get_color(unsigned char c)
     case 25:
         return BGR(243, 170, 92);
     case 26:
-        return BGR(84, 115, 125);
+        return cd.gameVersion == VER_EF ? BGR(232, 180, 120) : BGR(84, 115, 125);
     case 27:
         return BGR(191, 169, 115);
     case 28:
@@ -111,42 +114,43 @@ COLORREF get_color(unsigned char c)
         return BGR(138, 139, 87);
     case 32:
     case 33:
+        return BGR(0, 169, 0);
     case 34:
-        return BGR(0, 169, 0);
+        return cd.gameVersion == VER_EF ? BGR(185, 185, 185) : BGR(0, 169, 0);
     case 35:
-        return BGR(248, 201, 138);
+        return cd.gameVersion == VER_EF ? BGR(216, 223, 255) : BGR(248, 201, 138);
     case 36:
-        return BGR(0, 169, 0);
+        return cd.gameVersion == VER_EF ? BGR(191, 169, 115) : BGR(0, 169, 0);
     case 37:
         return BGR(152, 192, 240);
     case 38:
-        return BGR(243, 170, 92);
+        return cd.gameVersion == VER_EF ? BGR(185, 185, 185) : BGR(243, 170, 92);
     case 39:
-        return BGR(191, 169, 115);
+        return cd.gameVersion == VER_EF ? BGR(185, 185, 185) : BGR(191, 169, 115);
     case 40:
-        return BGR(243, 170, 92);
+        return cd.gameVersion == VER_EF ? BGR(134, 126, 118) : BGR(243, 170, 92);
     case 41:
-        return BGR(0, 169, 0);
+        return cd.gameVersion == VER_EF ? BGR(0, 169, 0) : BGR(0, 169, 0);
     case 42:
-        return BGR(84, 115, 125);
+        return cd.gameVersion == VER_EF ? BGR(84, 115, 125) : BGR(84, 115, 125);
     case 43:
-        return BGR(191, 169, 115);
+        return cd.gameVersion == VER_EF ? BGR(185, 185, 185) : BGR(191, 169, 115);
     case 44:
-        return BGR(84, 115, 125);
+        return cd.gameVersion == VER_EF ? BGR(84, 115, 125) : BGR(84, 115, 125);
     case 45:
     case 46:
         return BGR(248, 201, 138);
     case 47:
-        return BGR(0, 169, 0);
+        return cd.gameVersion == VER_EF ? BGR(243, 170, 92) : BGR(0, 169, 0);
     case 48:
         return BGR(138, 139, 87);
     case 49:
     case 50:
         return BGR(151, 206, 255);
     case 51:
-        return BGR(150, 36, 0);
+        return cd.gameVersion == VER_EF ? BGR(181, 16, 14) : BGR(150, 36, 0);
     case 52:
-        return BGR(84, 115, 125);
+        return cd.gameVersion == VER_EF ? BGR(84, 115, 125) : BGR(84, 115, 125);
     case 53:
         return BGR(116, 115, 75);
     //EF
@@ -162,16 +166,16 @@ COLORREF get_color(unsigned char c)
     case 59:
         return BGR(116, 115, 75);
     case 60:
-        return BGR(84, 115, 125);
+        return BGR(0, 169, 0);
     case 61:
     case 62:
         return BGR(248, 201, 138);
     case 63:
         return BGR(0, 169, 0);
     case 64:
-        return BGR(191, 169, 115);
+        return BGR(243, 170, 92);
     case 65:
-        return BGR(84, 115, 125);
+        return BGR(158, 56, 48);
     case 66:
         return BGR(0, 169, 0);
     case 67:
@@ -196,6 +200,7 @@ COLORREF get_color(unsigned char c)
     case 82:
     case 83:
     case 84:
+    case 85:
     case 86:
         return BGR(37, 116, 57);
     case 87:
@@ -210,21 +215,23 @@ COLORREF get_color(unsigned char c)
     case 93:
     case 94:
     case 95:
+        return BGR(191, 169, 115);
     case 96:
     case 97:
     case 98:
     case 99:
-        return BGR(191, 169, 115);
+        return BGR(185, 185, 185);
     case 100:
         return BGR(84, 115, 125);
     case 101:
+        return BGR(156, 197, 217);
     case 102:
     case 103:
-    //FORBIDDEN
         return BGR(248, 201, 138);
+    //104-128: FORBIDDEN
     case 129:
     case 130:
-        return BGR(84, 115, 125);
+        return BGR(232, 180, 120);
     case 131:
         return BGR(243, 170, 92);
     case 132:
@@ -232,10 +239,10 @@ COLORREF get_color(unsigned char c)
     case 133:
         return BGR(248, 201, 138);
     case 134:
-        return BGR(0, 169, 0);
     case 135:
         return BGR(84, 115, 125);
     case 136:
+        return BGR(185, 185, 185);
     case 137:
     case 138:
         return BGR(191, 169, 115);
@@ -248,12 +255,16 @@ COLORREF get_color(unsigned char c)
     case 142:
         return BGR(116, 115, 75);
     case 143:
+        return BGR(0, 169, 0);
     case 144:
     case 145:
     case 146:
+        return BGR(84, 115, 125);
     case 147:
+        return BGR(232, 180, 120);
     case 148:
     case 149:
+    case 150:
     case 151:
         return BGR(84, 115, 125);
     case 152:
@@ -262,21 +273,22 @@ COLORREF get_color(unsigned char c)
     case 155:
         return BGR(0, 169, 0);
     case 156:
-        return BGR(84, 115, 125);
+        return BGR(156, 197, 217);
     case 157:
     case 158:
     case 159:
     case 160:
-        return BGR(248, 201, 138);
+        return BGR(216, 223, 255);
     case 161:
     case 162:
+        return BGR(0, 169, 0);
     case 163:
     case 164:
         return BGR(84, 115, 125);
     case 165:
         return BGR(191, 169, 115);
     case 166:
-        return BGR(84, 115, 125);
+        return BGR(232, 180, 120);
     case 167:
     case 168:
         return BGR(243, 170, 92);
@@ -284,7 +296,7 @@ COLORREF get_color(unsigned char c)
     case 170:
         return BGR(248, 201, 138);
     case 171:
-        return BGR(204, 217, 77);
+        return BGR(196, 226, 116);
     case 172:
         return BGR(243, 170, 92);
     case 173:
@@ -292,7 +304,7 @@ COLORREF get_color(unsigned char c)
     case 174:
         return BGR(0, 169, 0);
     case 175:
-        return BGR(191, 169, 115);
+        return BGR(185, 185, 185);
     case 176:
         return BGR(151, 206, 255);
     case 177:
@@ -303,19 +315,21 @@ COLORREF get_color(unsigned char c)
         return BGR(243, 170, 92);
     case 181:
     case 182:
+        return BGR(84, 115, 125);
     case 183:
     case 184:
-        return BGR(84, 115, 125);
+        return BGR(134, 126, 118);
     case 185:
         return BGR(243, 170, 92);
     case 186:
+        return BGR(84, 115, 125);
     case 187:
     case 188:
     case 189:
+        return BGR(232, 180, 120);
     case 190:
-        return BGR(84, 115, 125);
     case 191:
-        return BGR(248, 201, 138);
+        return BGR(84, 115, 125);
     case 192:
     case 193:
     case 194:
@@ -329,7 +343,7 @@ COLORREF get_color(unsigned char c)
         return BGR(84, 115, 125);
     case 199:
     case 200:
-        return BGR(37, 116, 57);
+        return BGR(0, 169, 0);
     case 201:
         return BGR(255, 210, 255);
     case 202:
@@ -342,8 +356,9 @@ COLORREF get_color(unsigned char c)
     case 207:
         return BGR(37, 116, 57);
     case 208:
+        return BGR(216, 223, 255);
     case 209:
-        return BGR(248, 201, 138);
+        return BGR(134, 126, 118);
     case 210:
     case 211:
         return BGR(255, 210, 255);
@@ -351,22 +366,26 @@ COLORREF get_color(unsigned char c)
     case 213:
         return BGR(243, 170, 92);
     case 214:
+        return BGR(84, 115, 125);
     case 215:
         return BGR(84, 115, 125);
     case 216:
     case 217:
         return BGR(0, 169, 0);
     case 218:
+        return BGR(113, 153, 36);
     case 219:
-    case 220:
-    case 221:
-    case 222:
         return BGR(84, 115, 125);
+    case 220:
+        return BGR(232, 180, 120);
+    case 221:
+        return BGR(156, 197, 217);
+    case 222:
     case 223:
-        return BGR(248, 201, 138);
+        return BGR(84, 115, 125);
     case 224:
     case 225:
-        return BGR(191, 169, 115);
+        return BGR(185, 185, 185);
     case 226:
     case 227:
     case 228:
@@ -385,11 +404,28 @@ COLORREF get_color(unsigned char c)
     case 235:
         return BGR(37, 116, 57);
     case 236:
+        return BGR(158, 56, 48);
     case 237:
         return BGR(84, 115, 125);
     case 238:
+        return BGR(216, 223, 255);
     case 239:
         return BGR(248, 201, 138);
+    case 240:
+    case 241:
+    case 242:
+    case 243:
+    case 244:
+        return BGR(37, 116, 57);
+    case 245:
+        return BGR(151, 206, 255);
+    case 246:
+        return BGR(116, 115, 75);
+    case 247:
+        return BGR(151, 206, 255);
+    case 248:
+    case 249:
+        return BGR(134, 126, 118);
     default:
         return BGR(255, 255, 255);
     }
