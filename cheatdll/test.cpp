@@ -304,6 +304,100 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         sendChat(EFPATCH_VERSION, -1);
         return 1;
     }
+    /*
+    else if (!strcmp(s, "/save"))
+    {
+        int* const enable_compression = (int* const)0x006903D8;
+        writeDword(0x004D5790, 0x900004C2);
+        //*enable_compression = 0;
+        unsigned int t1 = timeGetTime();
+        (*base_game)->world->vfptr->save_game((*base_game)->world, "save.ga2", 0, 0);
+        unsigned int t2 = timeGetTime();
+        chat("Save time: %u ms", t2 - t1);
+        writeDword(0x004D5790, 0x6903D8A1);
+        //*enable_compression = 1;
+        return 1;
+    }
+    else if (strstr(s, "/update"))
+    {
+        char d[0x100];
+        int t;
+        sscanf(s, "%s %d", d, &t);
+
+        int* const do_fixed_update = (int* const)0x006A35E8;
+        int do_fixed_update_old = *do_fixed_update;
+        *do_fixed_update = 1;
+        unsigned int start_wt = (*base_game)->world->world_time;
+        unsigned int current_wt = start_wt;
+
+        TCommCommandLog* log = (*base_game)->world->com_handler->mCommandLog;
+
+        int old_speed = log->mReplaySpeed;
+        log->mReplaySpeed = 12;
+
+        unsigned int last_update_time = timeGetTime();
+
+        unsigned __int8 game_state = (*base_game)->world->game_state;
+        while (game_state == 0 && current_wt - start_wt < t * 1000)
+        {
+            game_state = (*base_game)->world->vfptr->update((*base_game)->world);
+            current_wt = (*base_game)->world->world_time;
+
+            TMessagePanel* message_panel; // [esp+0h] [ebp-20h]
+            struct tagMSG Msg; // [esp+4h] [ebp-1Ch] BYREF
+
+            unsigned int current_update_time = timeGetTime();
+
+            if (current_update_time - last_update_time > 1000)
+            {
+                last_update_time = current_update_time;
+                while (PeekMessageA(&Msg, 0, 0, 0, 1u))
+                {
+                    TranslateMessage(&Msg);
+                    DispatchMessageA(&Msg);
+                }
+                TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
+                message_panel = NULL;
+                if (game_screen)
+                {
+                    TPanel* main_view = (TPanel*)game_screen->main_view;
+                    //if (main_view->have_focus)
+                    {
+                        message_panel = game_screen->message_panel;
+                        TPanel__set_redraw(main_view, 1);
+
+                        std::string message = "Seeking...";
+
+                        TMessagePanel__show_message(message_panel, 1, message.c_str(), 0xF3u, 0, 0, 0, 0, -1, 0, -1);
+                    }
+                }
+            }
+
+            TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
+            message_panel = NULL;
+            if (game_screen)
+            {
+                TPanel* main_view = (TPanel*)game_screen->main_view;
+                if (main_view->have_focus)
+                {
+                    message_panel = game_screen->message_panel;
+                    TPanel__set_redraw(main_view, 1);
+                }
+            }
+        }
+
+        //for (int i = 0; i < 10000; i++)
+        //    game_state = (*base_game)->world->vfptr->update((*base_game)->world);
+
+        log->mReplaySpeed = old_speed;
+
+        //for (int i = 0; i < 1000; i++)
+        //    game_state = (*base_game)->world->vfptr->update((*base_game)->world);
+
+        *do_fixed_update = do_fixed_update_old;
+        //chat("t = %d", t);
+        return 1;
+    }*/
     /*else if (strstr(s, "/control"))
     {
         char d[0x100];

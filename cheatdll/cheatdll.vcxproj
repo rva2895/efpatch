@@ -324,6 +324,7 @@
     <ClInclude Include="rec.h" />
     <ClInclude Include="recbrowse.h" />
     <ClInclude Include="recordrestore.h" />
+    <ClInclude Include="recseek.h" />
     <ClInclude Include="registry.h" />
     <ClInclude Include="rescheat.h" />
     <ClInclude Include="researchrepeat.h" />
@@ -503,6 +504,7 @@
     <ClCompile Include="rec.cpp" />
     <ClCompile Include="recbrowse.cpp" />
     <ClCompile Include="recordrestore.cpp" />
+    <ClCompile Include="recseek.cpp" />
     <ClCompile Include="registry.cpp" />
     <ClCompile Include="rescheat.cpp" />
     <ClCompile Include="researchrepeat.cpp" />
