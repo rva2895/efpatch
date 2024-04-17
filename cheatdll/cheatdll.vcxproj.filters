@@ -543,6 +543,9 @@
     <ClInclude Include="hotfix.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
+    <ClInclude Include="recseek.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -1027,6 +1030,9 @@
     </ClCompile>
     <ClCompile Include="hotfix.cpp">
       <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="recseek.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

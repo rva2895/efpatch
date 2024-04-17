@@ -54,6 +54,7 @@ extern TChat** const tchat;
 extern HINSTANCE* const hInstance_dll;
 
 extern void* (__cdecl* const calloc_internal)(size_t number, size_t size);
+extern void* (__cdecl* const operator_new_internal)(size_t size);
 extern void (__cdecl* const free_internal)(void* memory);
 extern int (__cdecl* const rand_internal)();
 extern int (__cdecl* const read_internal)(int handle, void* buffer, int size);
