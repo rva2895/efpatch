@@ -195,6 +195,12 @@ void setAIHooks(int version)
         writeNops(0x0057E5A5, 5);
         //unit-type-count-total
         writeNops(0x0057E715, 5);
+        //unit-available
+        writeNops(0x0057E404, 5);
+        //building-available
+        writeByte(0x0057ADA6, 10);
+        writeByte(0x0057ADAB, 0);
+        writeByte(0x0057ADAC, 0x7C);    //jle -> jl
 
         //actions
         //build
