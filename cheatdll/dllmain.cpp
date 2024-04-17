@@ -129,6 +129,7 @@
 #include "rmslog.h"
 #include "hunt.h"
 #include "hideineditor.h"
+#include "hotfix.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -487,6 +488,12 @@ void setHooksEF()
     setMapListHooks();
 
     setHuntHooks();
+
+#ifdef TARGET_VOOBLY
+#ifdef VOOBLY_EF
+    setHotfixHooks();
+#endif
+#endif
 
     //setLandRMSHooks();
     //setScriptRMSHooks();

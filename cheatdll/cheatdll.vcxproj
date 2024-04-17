@@ -277,6 +277,7 @@
     <ClInclude Include="gdip.h" />
     <ClInclude Include="guardandfollow.h" />
     <ClInclude Include="hideineditor.h" />
+    <ClInclude Include="hotfix.h" />
     <ClInclude Include="hotkey.h" />
     <ClInclude Include="hotkeyjump.h" />
     <ClInclude Include="hotkeys.h" />
@@ -454,6 +455,7 @@
     <ClCompile Include="gdip.cpp" />
     <ClCompile Include="guardandfollow.cpp" />
     <ClCompile Include="hideineditor.cpp" />
+    <ClCompile Include="hotfix.cpp" />
     <ClCompile Include="hotkey.cpp" />
     <ClCompile Include="hotkeyjump.cpp" />
     <ClCompile Include="hotkeys.cpp" />
