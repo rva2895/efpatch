@@ -129,6 +129,7 @@
 #include "rmslog.h"
 #include "hunt.h"
 #include "hideineditor.h"
+#include "jediholo.h"
 #include "hotfix.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
@@ -394,6 +395,7 @@ void setHooksEF()
     setJediMasterHooks(DATA_FOLDER_PREFIX_FROM_ROOT, "master.txt", "padawan.txt");
     setConvertHooks(DATA_FOLDER_PREFIX_FROM_ROOT, "unconv.txt");
     initAirToAir(DATA_FOLDER_PREFIX_FROM_ROOT, "air-to-air.txt");
+    setJediHoloHooks(DATA_FOLDER_PREFIX_FROM_ROOT, "jedi-holo.txt");
 
     setResGenHooks();
 
