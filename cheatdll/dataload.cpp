@@ -6,6 +6,7 @@
 #include "expldroid.h"
 #include "jedimaster.h"
 #include "airtoair.h"
+#include "jediholo.h"
 #include "terrain.h"
 
 extern int current_save_game_version;
@@ -123,6 +124,7 @@ void do_setup_dat_file(int use_logo_background, int show_loading_game)
     initBldgResProdList(data_prefix, "resgen.txt");
     setConvertHooks(data_prefix, "unconv.txt");
     initAirToAir(data_prefix, "air-to-air.txt");
+    setJediHoloHooks(data_prefix, "jedi-holo.txt");
     loadTerrainTxt(data_prefix, "terrain.txt");
 
     char dll_name[0x100];

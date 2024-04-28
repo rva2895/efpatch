@@ -285,6 +285,7 @@
     <ClInclude Include="icons.h" />
     <ClInclude Include="itemcache.h" />
     <ClInclude Include="iuserpatch.h" />
+    <ClInclude Include="jediholo.h" />
     <ClInclude Include="jedimaster.h" />
     <ClInclude Include="land.h" />
     <ClInclude Include="langdll.h" />
@@ -463,6 +464,7 @@
     <ClCompile Include="hunt.cpp" />
     <ClCompile Include="icons.cpp" />
     <ClCompile Include="iuserpatch.cpp" />
+    <ClCompile Include="jediholo.cpp" />
     <ClCompile Include="jedimaster.cpp" />
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="land.cpp" />
