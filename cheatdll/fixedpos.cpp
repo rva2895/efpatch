@@ -120,6 +120,7 @@ _gtt_p_end:
 
 int get_free_color(int* p, bool* colors_used)
 {
+    UNREFERENCED_PARAMETER(p);
     for (int i = 1; i < 9; i++)
         if (!colors_used[i])
         {

@@ -269,43 +269,23 @@ __declspec(naked) void triggerDisplayHook()
     }
 }//2B02FC
 
-extern int* mapptr;
+void __stdcall do_effect_explore_area(effect* e, RGE_Player* player)
+{
+    if (player)
+    {
+        bool update_map = player->id == (*base_game)->world->curr_player;
+        RGE_Visible_Map__reveal_terrain_sq(player->visible, e->area_x1, e->area_y1, e->area_x2, e->area_y2, update_map, 0);
+    }
+}
 
 __declspec(naked) void effectExploreArea()
 {
     __asm
     {
-        mov     ebp, mapptr
-        mov     edx, [edi + 50h]    //y1
-        mov     esi, [edi + 58h]    //y2
-        //sub     ebx, edx          //rect x size - 1
-
-        shl     edx, 2
-        shl     esi, 2
-        add     edx, ebp          //y1 coloumn, x1 to x2
-        add     esi, ebp          //y2 coloumn, x1 to x2
-        //mov     esi, edx
-
-        x_cont :
-        //edx: current coloumn
-        mov     ebp, [edx]
-
-        mov     eax, [edi + 4Ch]
-        //mov     eax, [esi+ecx]
-y_cont:
-        mov     ecx, [edi + 28h]
-        mov     ebx, 10000h
-        shl     ebx, cl
-        or      [ebp + eax * 4], ebx
-        inc     eax
-        cmp     eax, [edi + 54h]
-        jle     y_cont
-
-        cmp     edx, esi
-        jge     x_end
-        add     edx, 4
-        jmp     x_cont
-x_end:
+        mov     eax, [esp + 14h]
+        push    eax
+        push    edi
+        call    do_effect_explore_area
         mov     ebx, 005F3DB1h
         jmp     ebx
     }
@@ -375,28 +355,30 @@ endLoc_command:
 }
 */
 
+void __stdcall do_effect_terrain(effect* e)
+{
+    RGE_Map__set_terrain((*base_game)->world->map, NULL, NULL, e->area_x1, e->area_y1, e->area_x2, e->area_y2, e->ai_trigger_number, 1, 0);
+    TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
+    if (game_screen)
+        game_screen->map_view->vfptr->set_redraw(game_screen->map_view, 2);
+}
+
 __declspec(naked) void effectTerrain()
 {
     __asm
     {
-        mov     eax, 006A3684h
-        mov     eax, [eax]
-        mov     ecx, [eax + 420h]
-        mov     ecx, [ecx + 34h]
-        push    0
-        push    1
-        push    [edi + 0Ch]
-        push    [edi + 58h]
-        push    [edi + 54h]
-        push    [edi + 50h]
-        push    [edi + 4Ch]
-        push    0
-        push    0
-        call    RGE_Map__set_terrain
-        
+        push    edi
+        call    do_effect_terrain
+
         mov     ebx, 005F3DB1h
         jmp     ebx
     }
+}
+
+void __stdcall do_effect_defeat(RGE_Player* player)
+{
+    if (player)
+        player->vfptr->set_game_status(player, 2);
 }
 
 __declspec(naked) void effectDefeat()
@@ -404,14 +386,11 @@ __declspec(naked) void effectDefeat()
     __asm
     {
         mov     ecx, [esp + 14h] //player
-        test    ecx, ecx
-        jz      defeat_end
-        mov     edx, [ecx]
-        push    2
-        call    dword ptr [edx + 8]
-defeat_end:
-        mov     ecx, 005F3DB1h
-        jmp     ecx
+        push    ecx
+        call    do_effect_defeat
+
+        mov     ebx, 005F3DB1h
+        jmp     ebx
     }
 }
 
