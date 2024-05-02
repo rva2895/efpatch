@@ -9,20 +9,57 @@ extern char* is2ndCol;
 extern int numberOfResProducers;
 extern resGen* resProducersData;
 
-extern int currentPlayer;
-extern float* resources;
-
-extern TRIBE_Panel_Object* objPanelPtr;
-
 extern int current_loaded_version;
 
-void __cdecl objPanel(RGE_Static_Object* unit)
+void TRIBE_Panel_Object__draw_kills(TRIBE_Panel_Object* this_, unsigned int kills)
+{
+    int x_off = 0;
+    int y_off = 0;
+    switch (this_->gbg_unknown_param)
+    {
+    case 2:
+        x_off = 300;
+        y_off = 134;
+        break;
+    case 1:
+        x_off = 290;
+        y_off = 114;
+        break;
+    default:
+        return;
+    }
+
+    HGDIOBJ hfont;
+    char dest[0x100];
+
+    snprintf(dest, _countof(dest), "Kills: %u", kills);
+    if (TDrawArea__GetDc(this_->render_area, ""))
+    {
+        SetBkMode(this_->render_area->DrawDc, 1);
+        SetTextColor(this_->render_area->DrawDc, 0xFFFFFFu);
+        hfont = SelectObject(this_->render_area->DrawDc, this_->font);
+        TextOutA(
+            this_->render_area->DrawDc,
+            this_->pnl_x + x_off,
+            this_->pnl_y + y_off,
+            dest,
+            strlen(dest));
+        SelectObject(this_->render_area->DrawDc, hfont);
+        TDrawArea__ReleaseDc(this_->render_area, "");
+    }
+}
+
+void __stdcall objPanel(TRIBE_Panel_Object* obj_panel)
 {
     //50731 - SLP in interfac.drs
-    //if (unit)
-    //    objPanelDrawItem (5, 2, 0, 1, 1, 1, 1, 42013);
 
-    if (!currentPlayer)
+    if (!obj_panel->player)
+        return;
+
+    if (!obj_panel->game_obj)
+        return;
+
+    if (obj_panel->game_obj->owner != (TRIBE_Player*)RGE_Base_Game__get_player(*base_game))
         return;
 
     memset(is2ndCol, 0, 0x10);
@@ -41,16 +78,16 @@ void __cdecl objPanel(RGE_Static_Object* unit)
 
     for (int i = 0; i < numberOfResProducers; i++)
     {
-        if (unit->master_obj->id == resProducersData[i].unitID)
+        if (obj_panel->game_obj->master_obj->id == resProducersData[i].unitID)
         {
             if (resProducersData[i].useControlRes)
-                res = resources[resProducersData[i].controlResID];
+                res = obj_panel->player->attributes[resProducersData[i].controlResID];
             else
                 res = ((float)resProducersData[i].constantResAmount);
 
             if (current_loaded_version >= 6)
             {
-                TRIBE_Building_Object* bld_obj = (TRIBE_Building_Object*)unit;
+                TRIBE_Building_Object* bld_obj = (TRIBE_Building_Object*)obj_panel->game_obj;
                 if (bld_obj->master_obj->master_type == 80)
                     res *= bld_obj->master_obj->work_rate;
             }
@@ -82,7 +119,7 @@ void __cdecl objPanel(RGE_Static_Object* unit)
             }
 
             val = res * 100;
-            TRIBE_Panel_Object__draw_item(objPanelPtr, localItemCounter++, frame, 6, val, 0, 0, 0, langID);
+            TRIBE_Panel_Object__draw_item(obj_panel, localItemCounter++, frame, 6, val, 0, 0, 0, langID);
         }
     }
 
@@ -138,16 +175,16 @@ void __cdecl objPanel(RGE_Static_Object* unit)
     }*/
 
     //exit if incomplete unit
-    if (unit->object_state == 0)
+    if (obj_panel->game_obj->object_state == 0)
         return;
 
     //exit if has garrison
-    if (unit->vfptr->garrisoned_count(unit) > 0)
+    if (obj_panel->game_obj->vfptr->garrisoned_count(obj_panel->game_obj) > 0)
         return;
 
-    if (unit->master_obj->master_type == 80)
+    if (obj_panel->game_obj->master_obj->master_type == 80)
     {
-        TRIBE_Building_Object* building_obj = (TRIBE_Building_Object*)unit;
+        TRIBE_Building_Object* building_obj = (TRIBE_Building_Object*)obj_panel->game_obj;
 
         __int16 work_type;
         __int16 work_target;
@@ -172,39 +209,42 @@ void __cdecl objPanel(RGE_Static_Object* unit)
             return;
     }
 
-    if (unit->master_obj->master_type >= 70)
+    if (obj_panel->game_obj->master_obj->master_type >= 70)
     {
-        RGE_Combat_Object* combat_obj = (RGE_Combat_Object*)unit;
+        RGE_Combat_Object* combat_obj = (RGE_Combat_Object*)obj_panel->game_obj;
         if (combat_obj->master_obj->speed > 0.0f)
         {
             val = combat_obj->master_obj->speed * 100;
             is2ndCol[localItemCounter++] = 1;
-            TRIBE_Panel_Object__draw_item(objPanelPtr, cntr++, 24, 6, val, 0, 0, 0, 42042);
+            TRIBE_Panel_Object__draw_item(obj_panel, cntr++, 24, 6, val, 0, 0, 0, 42042);
         }
 
         if (combat_obj->master_obj->speed_of_attack > 0.0f && combat_obj->master_obj->weapon_num > 0)
         {
             val = combat_obj->master_obj->speed_of_attack * 100;
             is2ndCol[localItemCounter++] = 1;
-            TRIBE_Panel_Object__draw_item(objPanelPtr, cntr++, 30, 6, val, 0, 0, 0, 42043);
+            TRIBE_Panel_Object__draw_item(obj_panel, cntr++, 30, 6, val, 0, 0, 0, 42043);
         }
 
         if (combat_obj->master_obj->area_effect_range > 0.0f)
         {
             val = combat_obj->master_obj->area_effect_range * 100;
             is2ndCol[localItemCounter++] = 1;
-            TRIBE_Panel_Object__draw_item(objPanelPtr, cntr++, 28, 6, val, 0, 0, 0, 42044);
+            TRIBE_Panel_Object__draw_item(obj_panel, cntr++, 28, 6, val, 0, 0, 0, 42044);
         }
 
-        UNIT_EXTRA* ud = getUnitExtra(unit);
+        UNIT_EXTRA* ud = getUnitExtra(obj_panel->game_obj);
         if (ud && ud->countersUsed)
         {
             if (ud->miscCounter1 > 0.0f)
             {
                 val = ud->miscCounter1 * 100;
                 is2ndCol[localItemCounter++] = 1;
-                TRIBE_Panel_Object__draw_item(objPanelPtr, cntr++, 29, 6, val, 0, 0, 0, 42050);
+                TRIBE_Panel_Object__draw_item(obj_panel, cntr++, 29, 6, val, 0, 0, 0, 42050);
             }
         }
+
+        if (ud && ud->kills > 0)
+            TRIBE_Panel_Object__draw_kills(obj_panel, ud->kills);
     }
 }

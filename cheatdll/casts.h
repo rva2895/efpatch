@@ -14,6 +14,8 @@ struct UNIT_EXTRA
 
     unsigned int animalTimer;
 
+    unsigned int kills;
+
     float   speedReductionModifier;
     float   speedReductionTime;
 

@@ -2,31 +2,10 @@
 #include "objpanel.h"
 #include "resgenbldgs.h"
 
-TRIBE_Panel_Object* objPanelPtr = NULL;
-
 int itemCounter;
 
 void* langDllPopup;
 char* is2ndCol;
-
-int currentPlayer;
-
-float* resources;
-
-__declspec(naked) void __stdcall objPanel_invalidate()
-{
-    __asm
-    {
-        mov     ecx, objPanelPtr
-        test    ecx, ecx
-        jz      _bad_objpanel_ptr
-        push    2
-        mov     eax, 004B5F90h
-        call    eax
-_bad_objpanel_ptr:
-        ret
-    }
-}
 
 __declspec(naked) void secondCol1() //005DB8B4
 {
@@ -97,45 +76,13 @@ __declspec(naked) void objPanelHook() //005DB3CE
 {
     __asm
     {
-        mov     ecx, [ebp + 858h]
-        push    ecx
+        push    ebp
         call    objPanel
-        add     esp, 4
         mov     eax, 6A3684h
         mov     eax, [eax]
         mov     ecx, [eax + 17B4h]
         mov     edx, 005DB3D9h
         jmp     edx
-    }
-}
-
-__declspec(naked) void obtainPtr() //005D98AE
-{
-    __asm
-    {
-        mov     objPanelPtr, ecx
-        mov     ebp, ecx
-        mov     eax, [ebp + 858h]
-        test    eax, eax
-        jz      curPend
-        mov     eax, [eax + 18h]    //selected player
-        mov     ecx, [ebp + 854h]   //current player
-        cmp     eax, ecx
-        jz      curP
-        xor     eax, eax
-        jmp     curPend
-curP:
-        xor     eax, eax
-        inc     eax
-        mov     ecx, [ecx + 0ACh]   //resources
-        mov     resources, ecx
-curPend:
-        mov     currentPlayer, eax
-        push    esi
-        push    edi
-        xor     edi, edi
-        mov     eax, 005D98B4h
-        jmp     eax
     }
 }
 
@@ -439,7 +386,6 @@ void fixObjPanelDrawFunction()
 
     setHook((void*)0x005DB3CE, objPanelHook);
 
-    setHook((void*)0x005D98AE, obtainPtr);
     writeByte(0x005DB860, 7);
 
     setHook((void*)0x005D98A0, setItemCounter);

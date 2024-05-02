@@ -556,17 +556,21 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
             rge_read(stream, &ud->miscCounter4, sizeof(ud->miscCounter4));
             rge_read(stream, &ud->miscCounter5, sizeof(ud->miscCounter5));
 
+            ud->hasBeenPurged = false;
+            ud->keepUnitExtra = false;
+            ud->animalTimer = 0;
+            ud->kills = 0;
+
             if (current_save_game_version >= 6)
             {
                 rge_read(stream, &ud->hasBeenPurged, sizeof(ud->hasBeenPurged));
                 rge_read(stream, &ud->keepUnitExtra, sizeof(ud->keepUnitExtra));
                 rge_read(stream, &ud->animalTimer, sizeof(ud->animalTimer));
             }
-            else
+
+            if (current_save_game_version >= 7)
             {
-                ud->hasBeenPurged = false;
-                ud->keepUnitExtra = false;
-                ud->animalTimer = 0;
+                rge_read(stream, &ud->kills, sizeof(ud->kills));
             }
         }
         break;
@@ -618,6 +622,7 @@ void __stdcall writeUnitExtra(RGE_Static_Object* unit, int stream)
         rge_write(stream, &ud->hasBeenPurged, sizeof(ud->hasBeenPurged));
         rge_write(stream, &ud->keepUnitExtra, sizeof(ud->keepUnitExtra));
         rge_write(stream, &ud->animalTimer, sizeof(ud->animalTimer));
+        rge_write(stream, &ud->kills, sizeof(ud->kills));
     }
     else
     {
@@ -855,6 +860,26 @@ UNIT_EXTRA* __fastcall createUnitExtra(RGE_Static_Object* unit)
 
 const char unit_constructor_asm_fix[] = "\x89\x46\x78\x89\x86\x84\x00\x00\x00\x90\x90\x90\x90\x90\x90\x90\x90\x90";
 
+void __stdcall increment_units_killed(RGE_Static_Object* obj)
+{
+    UNIT_EXTRA* ud = createUnitExtra(obj);
+    ud->kills++;
+    ud->keepUnitExtra = true;
+}
+
+__declspec(naked) void on_unit_killed() //0055B4F0
+{
+    __asm
+    {
+        call    dword ptr [edx + 80h]
+        mov     eax, [esp + 28h]
+        push    eax
+        call    increment_units_killed
+        mov     eax, 0055B4F6h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setCastHooks()
 {
@@ -883,5 +908,7 @@ void setCastHooks()
     writeData(0x0054B638, unit_constructor_asm_fix, 18);
 
     setHook((void*)0x0054EF00, processUnitHook);
+
+    setHook((void*)0x0055B4F0, on_unit_killed);
 }
 #pragma optimize( "", on )
