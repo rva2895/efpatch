@@ -675,6 +675,7 @@ void (__thiscall* const RGE_Base_Game__request_pause)(RGE_Base_Game *this_) = (v
 void (__thiscall* const RGE_Base_Game__set_paused)(RGE_Base_Game *this_, int paused_in, int non_user_pause_in) = (void (__thiscall* const)(RGE_Base_Game *this_, int paused_in, int non_user_pause_in))0x004286A0;
 void (__thiscall* const RGE_Base_Game__get_mouse_pos)(RGE_Base_Game *this_, tagPOINT *point) = (void (__thiscall* const)(RGE_Base_Game *this_, tagPOINT *point))0x00428700;
 RGE_Player* (__thiscall* const RGE_Base_Game__get_player)(RGE_Base_Game *this_) = (RGE_Player* (__thiscall* const)(RGE_Base_Game *this_))0x00428750;
+RGE_Player* (__thiscall* const RGE_Base_Game__gbg_get_player)(RGE_Base_Game *this_, int id) = (RGE_Player* (__thiscall* const)(RGE_Base_Game *this_, int id))0x00428790;
 int (__thiscall* const RGE_Base_Game__get_player_comm_id)(RGE_Base_Game *this_, int player_id) = (int (__thiscall* const)(RGE_Base_Game *this_, int player_id))0x004287C0;
 void (__thiscall* const RGE_Base_Game__draw_window)(RGE_Base_Game *this_) = (void (__thiscall* const)(RGE_Base_Game *this_))0x004287E0;
 void (__thiscall* const RGE_Base_Game__mouse_on)(RGE_Base_Game *this_) = (void (__thiscall* const)(RGE_Base_Game *this_))0x004287F0;
@@ -1872,6 +1873,7 @@ RGE_Sprite* (__thiscall* const RGE_Master_Static_Object__gbg_get_sprite_civ_over
 RGE_Sprite* (__thiscall* const RGE_Master_Static_Object__gbg_get_sprite2_civ_override)(RGE_Master_Static_Object *this_, RGE_Static_Object *obj) = (RGE_Sprite* (__thiscall* const)(RGE_Master_Static_Object *this_, RGE_Static_Object *obj))0x0048B920;
 RGE_Sprite* (__thiscall* const RGE_Master_Static_Object__gbg_get_death_sprite_civ_override)(RGE_Master_Static_Object *this_, RGE_Static_Object *obj) = (RGE_Sprite* (__thiscall* const)(RGE_Master_Static_Object *this_, RGE_Static_Object *obj))0x0048B990;
 RGE_Sprite* (__thiscall* const RGE_Master_Static_Object__gbg_get_undead_sprite_civ_override)(RGE_Master_Static_Object *this_, RGE_Static_Object *obj) = (RGE_Sprite* (__thiscall* const)(RGE_Master_Static_Object *this_, RGE_Static_Object *obj))0x0048BA00;
+unsigned __int8 (__thiscall* const RGE_Master_Static_Object__gbg_isCivUnit)(RGE_Master_Static_Object *this_, int civ) = (unsigned __int8 (__thiscall* const)(RGE_Master_Static_Object *this_, int civ))0x0048BAA0;
 int (__thiscall* const RGE_Master_Static_Object__gbg_get_civ)(RGE_Master_Static_Object *this_) = (int (__thiscall* const)(RGE_Master_Static_Object *this_))0x0048BAD0;
 unsigned __int8 (__thiscall* const RGE_Master_Static_Object__gbg_needs_power)(RGE_Master_Static_Object *this_) = (unsigned __int8 (__thiscall* const)(RGE_Master_Static_Object *this_))0x0048BCE0;
 RGE_Master_Static_Object* (__thiscall* const RGE_Master_Static_Object__RGE_Master_Static_Object)(RGE_Master_Static_Object *this_, RGE_Master_Static_Object *other_object, int do_setup) = (RGE_Master_Static_Object* (__thiscall* const)(RGE_Master_Static_Object *this_, RGE_Master_Static_Object *other_object, int do_setup))0x0048BD80;
@@ -1903,7 +1905,7 @@ int (__thiscall* const RGE_Master_Static_Object__get_help_page)(RGE_Master_Stati
 int (__thiscall* const RGE_Master_Static_Object__calc_base_damage_ability)(RGE_Master_Static_Object *this_, RGE_Master_Combat_Object *attacker) = (int (__thiscall* const)(RGE_Master_Static_Object *this_, RGE_Master_Combat_Object *attacker))0x0048EF50;
 int (__stdcall* const WinMain_exe)(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) = (int (__stdcall* const)(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd))0x0048EFC0;
 unsigned __int8 (__thiscall* const analyze_power)(RGE_Tile *, int, char) = (unsigned __int8 (__thiscall* const)(RGE_Tile *, int, char))0x0048F970;
-int (__thiscall* const sub_48FA40)(RGE_Tile *, int) = (int (__thiscall* const)(RGE_Tile *, int))0x0048FA40;
+unsigned __int8 (__thiscall* const RGE_Tile__gbg_get_shield_info)(RGE_Tile *this_, unsigned __int8 player_id) = (unsigned __int8 (__thiscall* const)(RGE_Tile *this_, unsigned __int8 player_id))0x0048FA40;
 RGE_Map* (__thiscall* const RGE_Map__RGE_Map)(RGE_Map *this_, int infile, RGE_Sound **sounds, unsigned __int8 setup) = (RGE_Map* (__thiscall* const)(RGE_Map *this_, int infile, RGE_Sound **sounds, unsigned __int8 setup))0x0048FAF0;
 void* (__thiscall* const RGE_Map__vector_deleting_destructor)(RGE_Map *this_, unsigned int flags) = (void* (__thiscall* const)(RGE_Map *this_, unsigned int flags))0x0048FBF0;
 RGE_Map* (__thiscall* const RGE_Map__RGE_Map2)(RGE_Map *this_, char *border_tbl, char *terrain_tbl, char *map_tbl, __int16 TileWid, __int16 TileHgt, __int16 ElevHgt, RGE_Sound **sounds) = (RGE_Map* (__thiscall* const)(RGE_Map *this_, char *border_tbl, char *terrain_tbl, char *map_tbl, __int16 TileWid, __int16 TileHgt, __int16 ElevHgt, RGE_Sound **sounds))0x0048FC10;
@@ -3876,6 +3878,8 @@ unsigned __int8 (__thiscall* const TRIBE_Building_Object__heal2)(TRIBE_Building_
 unsigned __int8 (__thiscall* const TRIBE_Building_Object__heal_other)(TRIBE_Building_Object *this_, float healing, RGE_Player *payor, int first_call) = (unsigned __int8 (__thiscall* const)(TRIBE_Building_Object *this_, float healing, RGE_Player *payor, int first_call))0x005545F0;
 void (__thiscall* const TRIBE_Building_Object__set_object_state)(TRIBE_Building_Object *this_, unsigned __int8 new_object_state) = (void (__thiscall* const)(TRIBE_Building_Object *this_, unsigned __int8 new_object_state))0x00554710;
 void (__thiscall* const TRIBE_Building_Object__rehook)(TRIBE_Building_Object *this_) = (void (__thiscall* const)(TRIBE_Building_Object *this_))0x00554ED0;
+unsigned __int8 (__thiscall* const TRIBE_Building_Object__gbg_is_regenerating_bldg)(TRIBE_Building_Object *this_) = (unsigned __int8 (__thiscall* const)(TRIBE_Building_Object *this_))0x00554F70;
+void (__thiscall* const TRIBE_Building_Object__gbg_do_regenerate)(TRIBE_Building_Object *this_) = (void (__thiscall* const)(TRIBE_Building_Object *this_))0x00555030;
 unsigned __int8 (__thiscall* const TRIBE_Building_Object__update)(TRIBE_Building_Object *this_) = (unsigned __int8 (__thiscall* const)(TRIBE_Building_Object *this_))0x00555130;
 int (__thiscall* const TRIBE_Building_Object__explore_terrain)(TRIBE_Building_Object *this_, RGE_Player *whos, unsigned __int8 explore_type, int Override_LOS, int Square) = (int (__thiscall* const)(TRIBE_Building_Object *this_, RGE_Player *whos, unsigned __int8 explore_type, int Override_LOS, int Square))0x00555910;
 void (__thiscall* const TRIBE_Building_Object__unexplore_terrain)(TRIBE_Building_Object *this_, RGE_Player *whos, unsigned __int8 explore_type, int Override_LOS, int Square) = (void (__thiscall* const)(TRIBE_Building_Object *this_, RGE_Player *whos, unsigned __int8 explore_type, int Override_LOS, int Square))0x00555980;
@@ -6024,7 +6028,7 @@ RGE_Zone_Map* (__thiscall* const RGE_Zone_Map_List__get_zone_map)(RGE_Zone_Map_L
 RGE_Zone_Map* (__thiscall* const RGE_Zone_Map_List__get_zone_map2)(RGE_Zone_Map_List *this_, int id) = (RGE_Zone_Map* (__thiscall* const)(RGE_Zone_Map_List *this_, int id))0x00625FD0;
 
 /*
-BOOL(__stdcall* const ICInfo)(DWORD fccType, DWORD fccHandler, ICINFO* lpicinfo) = (BOOL(__stdcall* const)(DWORD fccType, DWORD fccHandler, ICINFO * lpicinfo))0x006266C8;
+BOOL (__stdcall* const ICInfo)(DWORD fccType, DWORD fccHandler, ICINFO *lpicinfo) = (BOOL (__stdcall* const)(DWORD fccType, DWORD fccHandler, ICINFO *lpicinfo))0x006266C8;
 HRESULT (__stdcall* const DirectSoundCreate)(LPGUID, LPDIRECTSOUND *, LPUNKNOWN) = (HRESULT (__stdcall* const)(LPGUID, LPDIRECTSOUND *, LPUNKNOWN))0x006266E6;
 HRESULT (__stdcall* const DirectDrawCreate)(GUID *lpGUID, LPDIRECTDRAW *lplpDD, IUnknown *pUnkOuter) = (HRESULT (__stdcall* const)(GUID *lpGUID, LPDIRECTDRAW *lplpDD, IUnknown *pUnkOuter))0x006266EC;
 int (__stdcall* const decoder_input_new)(int, char *Src, int) = (int (__stdcall* const)(int, char *Src, int))0x00627A90;
@@ -6036,6 +6040,7 @@ int (__cdecl* const sub_629590)(int, LPVOID lpMem) = (int (__cdecl* const)(int, 
 int (__stdcall* const sub_6298F0)(int, char *Src, int, int, int) = (int (__stdcall* const)(int, char *Src, int, int, int))0x006298F0;
 int (__stdcall* const decoder_delete)(LPVOID lpMem) = (int (__stdcall* const)(LPVOID lpMem))0x00629A20;
 int (__cdecl* const sub_62A680)(LPVOID lpMem) = (int (__cdecl* const)(LPVOID lpMem))0x0062A680;
+void* (__cdecl* const operator_new)(size_t size) = (void* (__cdecl* const)(size_t size))0x00632B9D;
 int (__cdecl* const sub_638CCA)(LPVOID lpMem) = (int (__cdecl* const)(LPVOID lpMem))0x00638CCA;
 int (__cdecl* const sub_63B56C)(LPVOID lpMem, SIZE_T Size) = (int (__cdecl* const)(LPVOID lpMem, SIZE_T Size))0x0063B56C;
 int (__cdecl* const sub_63B90E)(LPCVOID lpMem) = (int (__cdecl* const)(LPCVOID lpMem))0x0063B90E;
@@ -6306,9 +6311,7 @@ HRESULT (__stdcall* const CoCreateGuid)(GUID *pguid) = (HRESULT (__stdcall* cons
 HRESULT (__stdcall* const CoCreateInstance)(const IID *const rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsContext, const IID *const riid, LPVOID *ppv) = (HRESULT (__stdcall* const)(const IID *const rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsContext, const IID *const riid, LPVOID *ppv))0x00654434;
 HRESULT (__stdcall* const CoInitialize)(LPVOID pvReserved) = (HRESULT (__stdcall* const)(LPVOID pvReserved))0x00654438;
 float (__thiscall* const const_f_one)(RGE_Static_Object *this_, RGE_Static_Object *formal) = (float (__thiscall* const)(RGE_Static_Object *this_, RGE_Static_Object *formal))0x006545B8;
-int ((__stdcall* const *offset_RGE_Action__create_action_list))(_DWORD) = (int ((__stdcall* const)(_DWORD))0x00655384;
-int ((__thiscall* const *off_6647BC))(_DWORD, _DWORD) = (int ((__thiscall* const)(_DWORD, _DWORD))0x006647BC;
-unsigned __int8 (__thiscall* const World__vftable)(TRIBE_World *this_, _iobuf *infile) = (unsigned __int8 (__thiscall* const)(TRIBE_World *this_, _iobuf *infile))0x006693B8;
+unsigned __int8 (__thiscall* const TRIBE_World__vftable)(TRIBE_World *this_, _iobuf *infile) = (unsigned __int8 (__thiscall* const)(TRIBE_World *this_, _iobuf *infile))0x006693B8;
 Section (4.* const )(virtual address 00289000) = (Section (4.* const)(virtual address 00289000))0x00689000;
 int ((__cdecl* const *off_69ED24))(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD) = (int ((__cdecl* const)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD))0x0069ED24;
 void (__thiscall* const driveInfo)(RGE_Master_Moving_Object *this_, float amount, unsigned __int8 flag) = (void (__thiscall* const)(RGE_Master_Moving_Object *this_, float amount, unsigned __int8 flag))0x006A33AC;
