@@ -1,5 +1,5 @@
-#include "stdafx.h";
-#include "rmslog.h";
+#include "stdafx.h"
+#include "rmslog.h"
 #include "rundll.h"
 #include <stack>
 #include <algorithm>

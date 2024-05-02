@@ -248,7 +248,7 @@ void* __stdcall getConditionParams_hook(TRIBE_Screen_Sed* scr_sed, condition* c)
     TDropDownPanel* obj_list_type_dropdown = *(TDropDownPanel**)((DWORD)scr_sed + 0xE5C);
 
     TTextPanel* quantity_text = *(TTextPanel**)((DWORD)scr_sed + 0xE68);
-    TEditPanel* quantity_edit = *(TEditPanel**)((DWORD)scr_sed + 0xE6C);
+    //TEditPanel* quantity_edit = *(TEditPanel**)((DWORD)scr_sed + 0xE6C);
 
     switch (c->id)
     {

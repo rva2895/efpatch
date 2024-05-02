@@ -198,7 +198,7 @@ private:
     unsigned int last_turn_time = 0;
     int current_turn = 0;
     int current_cycle = 0;
-    int cycles_in_turn = 1;
+    int cycles_in_turn = 50;
     int cycles_in_current_turn = 0;
 
     TCommCommandLog* comm_log;
@@ -269,7 +269,7 @@ public:
     void new_command(void* command, int size, int issuer)
     {
         if (comm_log->mReplaying <= 0)
-            command_queue.insert_command(command, size, issuer, current_turn+1);
+            command_queue.insert_command(command, size, issuer, current_turn+3);
     }
 
     void* get_command()
@@ -546,8 +546,8 @@ public:
 
     int __thiscall TXChat(unsigned int GamerID, unsigned __int8* DestMap, char* Text)
     {
-        show_not_impl_msg(true, "TXChat(%d, %s, %s)",
-            GamerID, DestMap ? DestMap : (unsigned __int8*)"NULL", Text ? Text : "NULL");
+        //show_not_impl_msg(true, "TXChat(%d, %s, %s)",
+        //    GamerID, DestMap ? DestMap : (unsigned __int8*)"NULL", Text ? Text : "NULL");
         return 0;
     }
 
@@ -617,7 +617,7 @@ public:
 
     unsigned int __thiscall GetRandomSeed()
     {
-        show_not_impl_msg(true, "GetRandomSeed()");
+        //show_not_impl_msg(true, "GetRandomSeed()");
         return 0;
     }
 
@@ -635,7 +635,7 @@ public:
 
     unsigned int __thiscall GetPlayerLatency(unsigned int pnum)
     {
-        show_not_impl_msg(true, "GetPlayerLatency(%d)", pnum);
+        //show_not_impl_msg(true, "GetPlayerLatency(%d)", pnum);
         return 0;
     }
 
@@ -1556,6 +1556,11 @@ TCommunications_Handler2* __stdcall TCommunications_Handler2_init2(TCommunicatio
     old_comm->mCommandLog = TCommCommandLog__TCommCommandLog((TCommCommandLog*)cl);
     comm2->set_command_log(old_comm->mCommandLog);
     comm2->set_window_handle(WinHandle);
+
+    void* sp = malloc(0x1168);
+    memset(sp, 0, 0x1168);
+    old_comm->Speed = (RGE_Communications_Speed*)sp;
+
     return comm2;
 }
 
@@ -1653,15 +1658,26 @@ int __stdcall mp_start_game_check(TRIBE_Game* game)
     TRIBE_Game__setMapType(game, 0xE);
     RGE_Base_Game__setMultiplayerGame((RGE_Base_Game*)game, 1);
 
+    TCommunications_Handler__SetPlayerName(*comm, 1, "New Comm Player");
     TCommunications_Handler__SetPlayerName(*comm, 2, "New Comm Computer Player");
+
+    TRIBE_Game__setPlayerColor(game, 0, 3);
+    TRIBE_Game__setPlayerColor(game, 1, 4);
 
     TCommunications_Handler__SetPlayerHumanity(*comm, 1, 2);
     TCommunications_Handler__SetPlayerHumanity(*comm, 2, 4);
+
+    RGE_Game_Info__set_multi_player_game_options((*base_game)->player_game_info);
+
+    //game->tribe_game_options.playerColorValue[2] = 2;
 
     TRIBE_Game__start_game(game, 0);
     //TRIBE_Game__close_game_screens(game, 0);
     //TRIBE_Game__create_game_screen(game);
     //TCommunications_Handler__NotifyWindow(game->comm_handler, 0x17CB);
+
+
+
     return 1;
 }
 
