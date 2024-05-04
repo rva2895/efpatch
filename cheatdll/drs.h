@@ -1,3 +1,3 @@
 #pragma once
 
-void setDRSLoadHooks (int, bool);
+void setDRSLoadHooks(int, bool);

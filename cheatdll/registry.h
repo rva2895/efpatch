@@ -4,11 +4,7 @@
 
 #ifndef _CHEATDLL_CC
 #ifdef TARGET_VOOBLY
-#ifdef VOOBLY_EF
-#define REGPATH "Software\\Voobly\\Voobly\\game\\16\\EF EXE Patch"
-#else
-#define REGPATH "Software\\Voobly\\Voobly\\game\\16\\EXE Patch"
-#endif
+#define REGPATH "Software\\Voobly\\Voobly\\game\\16\\" VOOBLY_EXE_MOD_NAME
 #else
 #define REGPATH "Software\\LucasArts Entertainment Company LLC\\Star Wars Galactic Battlegrounds: Expanding Fronts\\Configurator"
 #endif

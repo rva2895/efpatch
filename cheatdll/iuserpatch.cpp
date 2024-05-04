@@ -252,7 +252,8 @@ void __stdcall delayed_start_process()
     if (h_sounds_x2 == INVALID_HANDLE_VALUE)
     {
         log("%s not found in the mod directory, copying", "sounds_x2.drs");
-        HANDLE h_sounds_x2_assets = CreateFile(".\\Voobly Mods\\SWBGCC\\Local Mods\\EF Assets\\Data\\sounds_x2.drs", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        HANDLE h_sounds_x2_assets =
+            CreateFile(".\\Voobly Mods\\SWBGCC\\Local Mods\\" VOOBLY_ASSETS_MOD_NAME "\\Data\\sounds_x2.drs", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (h_sounds_x2_assets == INVALID_HANDLE_VALUE)
         {
             log("Error: cannot load %s", "sounds_x2.drs");
@@ -263,7 +264,7 @@ void __stdcall delayed_start_process()
         else
         {
             CloseHandle(h_sounds_x2_assets);
-            CopyFile("Voobly Mods\\SWBGCC\\Local Mods\\EF Assets\\Data\\sounds_x2.drs", DATA_FOLDER_PREFIX_FROM_ROOT"sounds_x2.drs", FALSE);
+            CopyFile("Voobly Mods\\SWBGCC\\Local Mods\\" VOOBLY_ASSETS_MOD_NAME "\\Data\\sounds_x2.drs", DATA_FOLDER_PREFIX_FROM_ROOT"sounds_x2.drs", FALSE);
             log("Copied %s to the mod folder", "sounds_x2.drs");
         }
     }
@@ -324,7 +325,7 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
 
         writeByte(0x00557DD6, 53);   //gungan foundation: 53
     }
-    else if (strstr(config.VooblyModDirPath, "Expanding Fronts Data"))
+    else if (strstr(config.VooblyModDirPath, VOOBLY_DATA_MOD_NAME))
     {
         expanding_fronts = true;
         setSaveGameVerHooks(false);

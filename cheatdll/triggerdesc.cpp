@@ -216,7 +216,11 @@ void(__stdcall* condPrint[]) (condition*, int) =
 void __stdcall e_send_chat(effect* p, int)
 {
     sprintf(s + strlen(s), " (P%d: ", p->source_player);
-    if (strlen(p->str) > 20)
+    if (!p->str)
+    {
+        sprintf(s + strlen(s), ")");
+    }
+    else if (strlen(p->str) > 20)
     {
         char* ptr = s + strlen(s) + 20;
         strncpy(s + strlen(s), p->str, 20);
@@ -243,7 +247,7 @@ void __stdcall e_ownership(effect* p, int)
 
 void __stdcall e_str(effect* p, int)
 {
-    sprintf(s + strlen(s), " (%s)", p->str);
+    sprintf(s + strlen(s), " (%s)", p->str ? p->str : "");
 }
 
 void __stdcall e_quantity(effect* p, int)
