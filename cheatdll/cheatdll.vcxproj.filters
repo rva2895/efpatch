@@ -546,6 +546,9 @@
     <ClInclude Include="recseek.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
+    <ClInclude Include="shield.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
     <ClInclude Include="jediholo.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
@@ -1036,6 +1039,9 @@
     </ClCompile>
     <ClCompile Include="recseek.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="shield.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
     <ClCompile Include="jediholo.cpp">
       <Filter>Файлы исходного кода\engine</Filter>

@@ -131,6 +131,7 @@
 #include "hideineditor.h"
 #include "jediholo.h"
 #include "hotfix.h"
+#include "shield.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -491,11 +492,15 @@ void setHooksEF()
 
     setHuntHooks();
 
+    setShieldHooks();
+
+    /*
 #ifdef TARGET_VOOBLY
 #ifdef VOOBLY_EF
     setHotfixHooks();
 #endif
 #endif
+    */
 
     //setLandRMSHooks();
     //setScriptRMSHooks();
