@@ -229,8 +229,8 @@ const char* var_names[] =
     "MiscCounter2",
     "MiscCounter3",
     "MiscCounter4",
-    "MiscCounter5"
-    //"Action"
+    "MiscCounter5",
+    "Kills"
 };
 
 void* __stdcall getConditionParams_hook(TRIBE_Screen_Sed* scr_sed, condition* c)

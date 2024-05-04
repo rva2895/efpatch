@@ -5,7 +5,8 @@
 #include "structs.h"
 #include "objpanel.h"
 
-void editVal(float* valPtr, float val, bool useMax, float max, int action)
+template <class T>
+void editVal(T* valPtr, float val, bool useMax, float max, int action)
 {
     switch (action)
     {
@@ -106,6 +107,13 @@ void editCounter(RGE_Static_Object* unit, float val, int action, int c)
         break;
     }
     //objPanel_invalidate();
+}
+
+void editKills(RGE_Static_Object* unit, float val, int action)
+{
+    UNIT_EXTRA* ud = createUnitExtra(unit);
+    ud->keepUnitExtra = true;
+    editVal(&ud->kills, val, false, 0, action);
 }
 
 void __stdcall effectUnitVarActual_sub(RGE_Static_Object* unit, char* str)
@@ -242,6 +250,10 @@ void __stdcall effectUnitVarActual_sub(RGE_Static_Object* unit, char* str)
             free(s_heap);
             return;
         }
+    }
+    else if (!strcmp(var, "Kills"))
+    {
+        editKills(unit, val, action);
     }
 
     free(s_heap);
