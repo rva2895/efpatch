@@ -346,6 +346,7 @@
     <ClInclude Include="sc1file.h" />
     <ClInclude Include="script.h" />
     <ClInclude Include="scroll.h" />
+    <ClInclude Include="shield.h" />
     <ClInclude Include="slp.h" />
     <ClInclude Include="sngoal.h" />
     <ClInclude Include="spectate.h" />
@@ -526,6 +527,7 @@
     <ClCompile Include="sc1file.cpp" />
     <ClCompile Include="script.cpp" />
     <ClCompile Include="scroll.cpp" />
+    <ClCompile Include="shield.cpp" />
     <ClCompile Include="slp.cpp" />
     <ClCompile Include="sngoal.cpp" />
     <ClCompile Include="spectate.cpp" />
