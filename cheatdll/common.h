@@ -2,9 +2,17 @@
 #include "stdafx.h"
 #include "structs.h"
 
+#define VOOBLY_DATA_MOD_NAME "Expanding Fronts Data"
+#define VOOBLY_ASSETS_MOD_NAME "EF Assets"
 #ifdef VOOBLY_EF
-#define DATA_FOLDER_PREFIX_FROM_ROOT "Voobly Mods\\SWBGCC\\Data Mods\\Expanding Fronts Data\\Data\\"
-#define DATA_FOLDER_PREFIX_FROM_DATA "..\\Voobly Mods\\SWBGCC\\Data Mods\\Expanding Fronts Data\\Data\\"
+#define VOOBLY_EXE_MOD_NAME "EF EXE Patch"
+#else
+#define VOOBLY_EXE_MOD_NAME "EXE Patch"
+#endif
+
+#ifdef VOOBLY_EF
+#define DATA_FOLDER_PREFIX_FROM_ROOT "Voobly Mods\\SWBGCC\\Data Mods\\" VOOBLY_DATA_MOD_NAME "\\Data\\" 
+#define DATA_FOLDER_PREFIX_FROM_DATA "..\\Voobly Mods\\SWBGCC\\Data Mods\\" VOOBLY_DATA_MOD_NAME "\\Data\\"
 #else
 #define DATA_FOLDER_PREFIX_FROM_ROOT "data\\"
 #define DATA_FOLDER_PREFIX_FROM_DATA ""

@@ -497,8 +497,7 @@ void setEffectHooks()
     setHook((void*)0x005F557B, (void*)0x007B2A00);
     writeDword(0x005F2B56, 0x007B2240);
 
-    log("Building lookup table ...");
+    log("Building effect lookup table...");
     build_unit_master_variable_lookup_table();
-    log("Done");
 }
 #pragma optimize( "", on )
