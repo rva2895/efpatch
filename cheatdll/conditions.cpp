@@ -550,6 +550,12 @@ float __fastcall getval_resources(RGE_Static_Object* unit, int) { return unit->a
 float __fastcall getval_reload(RGE_Static_Object* unit, int) { return unit->master_obj->master_type >= 50 ? ((RGE_Combat_Object*)unit)->attack_timer : 0.0f; }
 //float __stdcall getval_constr(UNIT* unit) { return *(float*)((int)unit + 0x230); }
 
+float __fastcall getval_kills(RGE_Static_Object* unit, int)
+{
+    UNIT_EXTRA* ud = getUnitExtra(unit);
+    return ud ? ud->kills : 0;
+}
+
 float __fastcall getval_hp_percent(RGE_Static_Object* unit, int)
 {
     return unit->hp / (float)unit->master_obj->hp * 100;
@@ -719,9 +725,8 @@ bool __stdcall conditionVariable_actual(condition* c, RGE_Player* player, RGE_St
         getval = getval_counter;
         sub_value = 5;
         break;
-    /*case 13:
-        getval = getval_action;
-        sub_value = c->timer;*/
+    case 13:
+        getval = getval_kills;
     default:
         break;
     }
