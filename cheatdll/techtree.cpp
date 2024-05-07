@@ -880,5 +880,7 @@ void setTechTreeHooks()
     setHook((void*)0x0046978E, tech_ids_2);
     setHook((void*)0x004698BC, tech_ids_3);
 
+    //tech level skip extra lines
+    writeByte(0x005C5332, 0xEB);
 }
 #pragma optimize( "", on )
