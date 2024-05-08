@@ -795,6 +795,107 @@ tech_ids_3_complete:
     }
 }
 
+Bld_Zone_Constructer* tech_tree_insert_bldg(TribeTechHelpScreen* tech_tree, Bld_Zone_Constructer* insert_point, int id, int* bldg_zone_cntr)
+{
+    TRIBE_Buildings* buildings = TRIBE_Tech_Tree__get_building_info(tech_tree->player_tech_tree_help, id);
+    if (buildings)
+    {
+        switch (id)
+        {
+        case 598:
+        case 79:
+        case 234:
+        case 235:
+        case 236:
+        case 196:
+        case 72:
+        case 487:
+        case 117:
+        case 155:
+        case 195:
+        case 5080:
+        case 1869:
+            buildings->node_type = 6;
+            break;
+        default:
+            break;
+        }
+        TribeTechHelpScreen__calculate_num_bld_zones_by_bld(tech_tree, buildings->building_id);
+        int prereg = TRIBE_Tech_Tree__get_age_prereg2(tech_tree->player_tech_tree_help, buildings);
+        TRIBE_Ages* ages = TRIBE_Tech_Tree__get_age_info(tech_tree->player_tech_tree_help, prereg);
+        if (ages)
+        {
+            insert_point = TribeTechHelpScreen__insert_building_zone_constructs(tech_tree, buildings->building_id, bldg_zone_cntr, insert_point, buildings, ages);
+            TribeTechHelpScreen__insert_building_id(tech_tree, id);
+        }
+    }
+    return insert_point;
+}
+
+int __fastcall TribeTechHelpScreen__make_bld_zone_constructor_list_new(TribeTechHelpScreen* tech_tree)
+{
+    TRIBE_Ages* ages = TRIBE_Tech_Tree__get_age_info(tech_tree->player_tech_tree_help, 1);
+    if (!ages)
+        return -1;
+
+    TribeTechHelpScreen__calculate_num_bld_zones_by_age(tech_tree, ages);
+    TRIBE_Buildings* buildings = TRIBE_Tech_Tree__get_building_info(tech_tree->player_tech_tree_help, 109);
+    if (!buildings)
+        return -1;
+
+    int bld_zone_cntr = 0;
+
+    Bld_Zone_Constructer* insert_point = TribeTechHelpScreen__insert_building_zone_constructs(tech_tree, buildings->building_id, &bld_zone_cntr, 0, buildings, ages);
+    TribeTechHelpScreen__insert_building_id(tech_tree, 109);
+    TribeTechHelpScreen__calculate_num_bld_zones_by_bld(tech_tree, buildings->building_id);
+
+    int n = tech_tree->player_tech_tree_help->number_buildings;
+    for (int i = 0; i < n; i++)
+    {
+        int id = tech_tree->player_tech_tree_help->tech_tree_buildings[i].building_id;
+        if (id != 109)
+            insert_point = tech_tree_insert_bldg(tech_tree, id == 87 ? 0 : insert_point, id, &bld_zone_cntr);
+    }
+
+    /*
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 621, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 49, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 317, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 103, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 209, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 584, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 323, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 562, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 84, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 319, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 68, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 50, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, 0, 87, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 12, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 101, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 276, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 45, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 199, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 1576, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 598, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 79, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 234, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 235, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 236, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 196, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 72, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 487, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 117, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 155, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 195, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 335, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 104, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 82, &bld_zone_cntr);
+    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 70, &bld_zone_cntr);*/
+
+    return bld_zone_cntr;
+}
+
 #pragma optimize( "s", on )
 void setTechTreeHooks()
 {
@@ -882,5 +983,7 @@ void setTechTreeHooks()
 
     //tech level skip extra lines
     writeByte(0x005C5332, 0xEB);
+
+    setHook((void*)0x00464F10, TribeTechHelpScreen__make_bld_zone_constructor_list_new);
 }
 #pragma optimize( "", on )
