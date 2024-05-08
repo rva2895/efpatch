@@ -132,6 +132,7 @@
 #include "jediholo.h"
 #include "hotfix.h"
 #include "shield.h"
+#include "harbor.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -493,6 +494,8 @@ void setHooksEF()
     setHuntHooks();
 
     setShieldHooks();
+
+    setHarborHooks();
 
     /*
 #ifdef TARGET_VOOBLY
