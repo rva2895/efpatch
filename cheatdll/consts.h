@@ -34,5 +34,6 @@
 //5 1.5.1
 //6 1.5.2
 //7 1.5.3
+//8 1.5.4
 
-#define CURRENT_VERSION 7
+#define CURRENT_VERSION 8
