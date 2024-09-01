@@ -123,6 +123,11 @@ void setAIHooks(int version)
     writeDword(0x006055E2, 10000);
     writeDword(0x00599462, 20000);
 
+    //string table limit: 2500 -> 25000
+    writeDword(0x005FF242, 25000);
+    writeDword(0x005FF3AD, 25000);
+    writeDword(0x006054F0, 25000);
+
     //fix crash if order too many units
     setAICommandUnitsHooks();
 
