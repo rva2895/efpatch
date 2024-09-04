@@ -11,6 +11,8 @@ struct drs_file_info
     bool no_mapping;
 };
 
+//for legacy drs load
+/*
 drs_file_info drs_files[] =   //cc      ef     non-wide prefix  no mapping
 {
     {"sounds.drs",              true,   true,   true,   false,  true },
@@ -34,6 +36,34 @@ drs_file_info drs_files[] =   //cc      ef     non-wide prefix  no mapping
     {"interfac_x1.drs",         true,   false,  true,   true,   false },
     {"interfac_x1_p1.drs",      false,  true,   true,   true,   false },
     //{"interfac_x2.drs",         false,  true,   true,   true,   false },
+    {"gamedata_x1.drs",         true,   false,  true,   true,   false },
+    {"gamedata_x2.drs",         false,  true,   true,   true,   false }
+};
+*/
+
+//for new drs load
+drs_file_info drs_files[] =   //cc      ef     non-wide prefix  no mapping
+{
+    {"sounds.drs",              true,   true,   true,   false,  true },
+    {"sounds_x1.drs",           true,   true,   true,   false,  true },
+    {"sounds_x2.drs",           false,  true,   true,   true,   true },
+    {"graphics.drs",            true,   false,  true,   true,   false },
+    {"graphics_p1.drs",         false,  true,   true,   true,   false },
+    {"graphics_x1.drs",         true,   false,  true,   true,   false },
+    {"graphics_x1_p1.drs",      false,  true,   true,   true,   false },
+    {"graphics_x2.drs",         false,  true,   true,   true,   false },
+    {"terrain.drs",             true,   false,  true,   true,   false },
+    {"terrain_p1.drs",          false,  true,   true,   true,   false },
+    {"terrain_x1.drs",          true,   false,  true,   true,   false },
+    {"terrain_x1_p1.drs",       false,  true,   true,   true,   false },
+    {"terrain_x2.drs",          false,  true,   true,   true,   false },
+    {"interfac.drs",            true,   false,  true,   true,   false },
+    {"interfac_p1.drs",         false,  true,   true,   true,   false },
+    {"interfac_x1.drs",         true,   false,  true,   true,   false },
+    {"interfac_x1_p1.drs",      false,  true,   true,   true,   false },
+    {"interfac_x2.drs",         false,  true,   true,   true,   false },
+    {"wide.drs",                true,   false,  false,  true,   false },
+    {"wide_p1.drs",             false,  true,   false,  true,   false },
     {"gamedata_x1.drs",         true,   false,  true,   true,   false },
     {"gamedata_x2.drs",         false,  true,   true,   true,   false }
 };

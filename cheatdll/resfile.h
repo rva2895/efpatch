@@ -26,6 +26,10 @@ private:
 public:
     void add_resource_file(char* filename);
     void* get_resource(unsigned int ext, int id, int* size);
+    void close_resource(unsigned int ext, int id);
+
+    void calc();
+    void collect_garbage();
 };
 
 void setResFileHooks();

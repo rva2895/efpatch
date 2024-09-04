@@ -335,7 +335,7 @@ void setHooksCC()
     //setTradeHooks();
     //setPathingHooks();
 
-    //setResFileHooks();
+    setResFileHooks();
 
     setAttributeHeldHooks();
 
