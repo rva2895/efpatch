@@ -9,6 +9,7 @@
 #include "advtriggereffect.h"
 #include "worlddump.h"
 #include "rmslog.h"
+#include "resfile.h"
 
 #include <process.h>
 #include <MMSystem.h>
@@ -302,6 +303,16 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
     if (!strcmp(s, "/version"))
     {
         sendChat(EFPATCH_VERSION, -1);
+        return 1;
+    }
+    else if (!strcmp(s, "/resfile"))
+    {
+        resfile.calc();
+        return 1;
+    }
+    else if (!strcmp(s, "/resfile-gc"))
+    {
+        resfile.collect_garbage();
         return 1;
     }
     /*
