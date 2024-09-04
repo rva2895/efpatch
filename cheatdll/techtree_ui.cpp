@@ -242,9 +242,13 @@ TScreenPanel* blank_background_panel = NULL;
 
 const char bk_panel_name[] = "Blank Background Screen";
 
-TPanel* __stdcall tech_tree_resolution_open_action(TPanel* parent)
+bool tech_tree_called_from_game = false;
+
+TPanel* __stdcall tech_tree_resolution_open_action(TPanel* parent, bool from_game)
 {
-    RGE_Base_Game__set_resolution_to_in_game_resolution(*base_game);
+    tech_tree_called_from_game = from_game;
+    if (!from_game)
+        RGE_Base_Game__set_resolution_to_in_game_resolution(*base_game);
 
     TPanelSystem__destroyPanel(panel_system, bk_panel_name);
 
@@ -265,7 +269,8 @@ void __stdcall tech_tree_resolution_close_action()
     TPanel* p = TPanelSystem__getTop(panel_system);
     if (p && !strcmp(p->panelNameValue, bk_panel_name))
     {
-        RGE_Base_Game__set_resolution_to_out_of_game_resolution(*base_game);
+        if (!tech_tree_called_from_game)
+            RGE_Base_Game__set_resolution_to_out_of_game_resolution(*base_game);
         TPanelSystem__setCurrentPanel(panel_system, p->parent_panel->panelNameValue, 0);
     }
     TPanelSystem__destroyPanel(panel_system, bk_panel_name);
@@ -276,12 +281,28 @@ __declspec(naked) void tech_tree_resolution_open() //0051838C
     __asm
     {
         push    eax
+        push    0
         push    esi
         call    tech_tree_resolution_open_action
         pop     ecx
         push    eax
         call    TribeTechHelpScreen__TribeTechHelpScreen
         mov     ecx, 00518398h
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void tech_tree_resolution_open_2() //00506924
+{
+    __asm
+    {
+        push    1
+        push    edi
+        call    tech_tree_resolution_open_action
+        mov     ecx, esi
+        push    eax
+        call    TribeTechHelpScreen__TribeTechHelpScreen
+        mov     ecx, 0050692Ch
         jmp     ecx
     }
 }
@@ -374,12 +395,57 @@ __declspec(naked) void tech_tree_resolution_close_8() //005ED758
     }
 }
 
+bool __stdcall tech_tree_mouse_scroll_set_amount(TribeTechHelpScreen* tech_tree, int delta, short direction)
+{
+    if (tech_tree->scroll_horizontal_direction != 0)
+        return false;
+    else if (direction == -1)
+    {
+        tech_tree->actual_horizontal_scroll_amount = TribeTechHelpScreen__calculate_X_scroll(tech_tree, delta);
+        tech_tree->scroll_horizontal_direction = tech_tree->actual_horizontal_scroll_amount != 0 ? 1 : 0;
+        return true;
+    }
+    else if (direction == 1)
+    {
+        tech_tree->actual_horizontal_scroll_amount = TribeTechHelpScreen__calculate_X_scroll(tech_tree, -delta);
+        tech_tree->scroll_horizontal_direction = tech_tree->actual_horizontal_scroll_amount != 0 ? 2 : 0;
+        return true;
+    }
+    else
+    {
+        tech_tree->actual_horizontal_scroll_amount = 0;
+        return false;
+    }
+}
+
+__declspec(naked) void tech_tree_mouse_scroll() //0046BE3E
+{
+    __asm
+    {
+        push    ebp
+        push    edx
+        push    esi
+        call    tech_tree_mouse_scroll_set_amount
+
+        test    al, al
+        jz      tech_tree_mouse_no_scroll
+
+        mov     eax, 0046BF08h
+        jmp     eax
+
+tech_tree_mouse_no_scroll:
+        mov     eax, 0046BF0Ch
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setTechTreeUIHooks()
 {
     setHook((void*)0x004647E0, tech_tree_key_down);
     setHook((void*)0x0046C7E8, set_vmiddle_start);
     setHook((void*)0x0051838C, tech_tree_resolution_open);
+    setHook((void*)0x00506924, tech_tree_resolution_open_2);
     setHook((void*)0x0046440D, tech_tree_resolution_close_1);
     setHook((void*)0x0046485F, tech_tree_resolution_close_2);
     setHook((void*)0x004648B9, tech_tree_resolution_close_3);
@@ -388,5 +454,6 @@ void setTechTreeUIHooks()
     setHook((void*)0x00516F02, tech_tree_resolution_close_6);
     setHook((void*)0x005E4A27, tech_tree_resolution_close_7);
     setHook((void*)0x005ED758, tech_tree_resolution_close_8);
+    setHook((void*)0x0046BE3E, tech_tree_mouse_scroll);
 }
 #pragma optimize( "", on )
