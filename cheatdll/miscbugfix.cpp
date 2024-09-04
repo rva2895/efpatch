@@ -345,6 +345,40 @@ __declspec(naked) void rec_header_pos_fix() //0042F0B6
     }
 }
 
+void __stdcall append_hotkey_text(char* dest, const char* hotkey_str, const char* hotkey, const char* tooltip_text)
+{
+    std::string s(tooltip_text);
+    size_t pos = s.find('\n');
+    if (pos == std::string::npos)
+        pos = s.length();
+
+    char b[0x100];
+    snprintf(b, _countof(b), hotkey_str, hotkey);
+
+    s.insert(pos, " ");
+    s.insert(pos + 1, b);
+
+    strcpy_safe(dest, 0x400, s.c_str());
+}
+
+__declspec(naked) void on_hotkey_text() //00501132
+{
+    __asm
+    {
+        lea     eax, [esp + 20h]    //hotkey
+        lea     ecx, [esp + 120h]   //hotkey_str
+        mov     edx, [esp + 10h]    //dest
+        push    edi
+        push    eax
+        push    ecx
+        push    edx
+        call    append_hotkey_text
+
+        mov     ecx, 0050116Ah
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks(int ver)
 {
@@ -459,5 +493,8 @@ void setMiscBugfixHooks(int ver)
 
     //rec header fix
     setHook((void*)0x0042F0B6, rec_header_pos_fix);
+
+    //tooltip hotkey text position
+    setHook((void*)0x00501132, on_hotkey_text);
 }
 #pragma optimize( "", on )
