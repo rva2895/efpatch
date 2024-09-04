@@ -462,7 +462,7 @@
     <ClInclude Include="los.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
-    <ClInclude Include="gdip.h">
+    <ClInclude Include="textrender.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
     <ClInclude Include="techtree_ui.h">
@@ -554,6 +554,9 @@
     </ClInclude>
     <ClInclude Include="harbor.h">
       <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="textsize.h">
+      <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -968,7 +971,7 @@
     <ClCompile Include="los.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
-    <ClCompile Include="gdip.cpp">
+    <ClCompile Include="textrender.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
     <ClCompile Include="techtree_ui.cpp">
@@ -1051,6 +1054,9 @@
     </ClCompile>
     <ClCompile Include="harbor.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="textsize.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

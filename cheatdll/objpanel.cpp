@@ -7,6 +7,8 @@ int itemCounter;
 void* langDllPopup;
 char* is2ndCol;
 
+int second_col_offset = 108;
+
 __declspec(naked) void secondCol1() //005DB8B4
 {
     __asm
@@ -16,7 +18,7 @@ __declspec(naked) void secondCol1() //005DB8B4
         push    ecx
         cmp     edi, 3
         jng     end1
-        add     edx, 6Ch    //x offset for 2nd col
+        add     edx, second_col_offset    //x offset for 2nd col
 end1:
         mov     ecx, 005DB8BAh
         jmp     ecx
@@ -62,7 +64,7 @@ __declspec(naked) void secondColtxtx() //005DBAE3
         mov     edx, [esp + 70h]   //level
         cmp     edx, 3
         jng     endx
-        add     ecx, 6Ch
+        add     ecx, second_col_offset
 endx:
         mov     edx, [esi + 20h]
         push    ecx
@@ -166,7 +168,7 @@ __declspec(naked) void popup2() //005DF279
 alreadySet:
         //sub     ebp, edx
 //popupCont:
-        add     ecx, 6Ch
+        add     ecx, second_col_offset
 noflag2:
         add     eax, ebp
         mov     edx, [esi + 10h]

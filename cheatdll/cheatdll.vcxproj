@@ -98,7 +98,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;zlibstat.lib;ComCtl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;zlibstat.lib;ComCtl32.lib;dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ManifestFile>cheatdll.manifest</ManifestFile>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>C:\Users\Vasya\source\libs\zlib\contrib\vstudio\vc14\x86\ZlibStatDebug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -133,7 +133,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>winmm.lib;zlibstat.lib;ComCtl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;zlibstat.lib;ComCtl32.lib;dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalManifestDependencies>"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'";%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <SetChecksum>true</SetChecksum>
@@ -169,7 +169,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>winmm.lib;zlibstat.lib;ComCtl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;zlibstat.lib;ComCtl32.lib;dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalManifestDependencies>"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'";%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <SetChecksum>true</SetChecksum>
@@ -205,7 +205,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>winmm.lib;zlibstat.lib;ComCtl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;zlibstat.lib;ComCtl32.lib;dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalManifestDependencies>"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'";%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <SetChecksum>true</SetChecksum>
@@ -274,7 +274,7 @@
     <ClInclude Include="gaiatechtree.h" />
     <ClInclude Include="gamemode.h" />
     <ClInclude Include="gamespeed.h" />
-    <ClInclude Include="gdip.h" />
+    <ClInclude Include="textrender.h" />
     <ClInclude Include="guardandfollow.h" />
     <ClInclude Include="harbor.h" />
     <ClInclude Include="hideineditor.h" />
@@ -369,6 +369,7 @@
     <ClInclude Include="terrain_gen.h" />
     <ClInclude Include="test.h" />
     <ClInclude Include="textcolor.h" />
+    <ClInclude Include="textsize.h" />
     <ClInclude Include="timeline.h" />
     <ClInclude Include="tooltip.h" />
     <ClInclude Include="trade.h" />
@@ -456,7 +457,7 @@
     <ClCompile Include="gaiatechtree.cpp" />
     <ClCompile Include="gamemode.cpp" />
     <ClCompile Include="gamespeed.cpp" />
-    <ClCompile Include="gdip.cpp" />
+    <ClCompile Include="textrender.cpp" />
     <ClCompile Include="guardandfollow.cpp" />
     <ClCompile Include="harbor.cpp" />
     <ClCompile Include="hideineditor.cpp" />
@@ -554,6 +555,7 @@
     <ClCompile Include="terrain_load.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="textcolor.cpp" />
+    <ClCompile Include="textsize.cpp" />
     <ClCompile Include="timeline.cpp" />
     <ClCompile Include="tooltip.cpp" />
     <ClCompile Include="trade.cpp" />

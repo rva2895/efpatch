@@ -113,7 +113,7 @@
 #include "los.h"
 #include "techtree_ui.h"
 #include "tooltip.h"
-#include "gdip.h"
+#include "textrender.h"
 #include "miscbugfix.h"
 #include "editcontrol.h"
 #include "attribute_held.h"
@@ -133,6 +133,7 @@
 #include "hotfix.h"
 #include "shield.h"
 #include "harbor.h"
+#include "textsize.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -269,7 +270,7 @@ void setHooksCC()
         setMinimapHooks();
 
     if (cd.largeText)
-        writeDword(0x004276F6, 116);
+        setTextSizeHooks(cd.textRendering);
 
     setRecHooks();
     setHotkeyJumpHooks();
@@ -339,7 +340,7 @@ void setHooksCC()
     setAttributeHeldHooks();
 
     if (cd.textRendering)
-        setGDIPlusHooks();
+        setTextRenderHooks();
 
     if (cd.chatBox)
         setEditControlHooks();
@@ -630,14 +631,16 @@ void initialSetup()
     cd.gameVersion = expanding_fronts;
 #endif
 
-    log("Settings (1/4): fps = %d, ds = %d, b = %d, to = %d, v = %d, a = %d",
+    log("Settings (1/5): fps = %d, ds = %d, b = %d, to = %d, v = %d, a = %d",
         cd.useFPS, cd.useDShook, cd.nBufs, cd.timeout, cd.gameVersion, cd.askAtStartup);
-    log("Settings (2/4): civl = %d, res = %d, auto = %d, autoint = %d",
+    log("Settings (2/5): civl = %d, res = %d, auto = %d, autoint = %d",
         cd.useAltCivLetter, cd.unlockResources, cd.editorAutosave, cd.editorAutosaveInterval);
-    log("Settings (3/4): wide = %d, wx = %d, wy = %d, wnd = %d, grey = %d",
-        cd.widescrnEnabled, cd.xres, cd.yres, cd.windowMode, cd.minimap7);
-    log("Settings (4/4): large = %d, crash = %d, keydown = %d, delink = %d, gdip = %d",
-        cd.largeMaps, cd.crashReporting, cd.keydown, cd.delinkVolume, cd.textRendering);
+    log("Settings (3/5): wide = %d, wx = %d, wy = %d, wnd = %d, large = %d, crash = %d",
+        cd.widescrnEnabled, cd.xres, cd.yres, cd.windowMode, cd.largeMaps, cd.crashReporting);
+    log("Settings (4/5): grey = %d, largetext = %d, delink = %d, keydown = %d",
+        cd.minimap7, cd.largeText, cd.delinkVolume, cd.keydown);
+    log("Settings (5/5): textrender = %d, chatbox = %d, obj = %d",
+        cd.textRendering, cd.chatBox, cd.unlockObjects);
 
     setTestHook();
 
