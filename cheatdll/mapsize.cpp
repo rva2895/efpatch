@@ -1495,7 +1495,7 @@ __declspec(naked) void wall_do_1() //005BA911
     }
 }
 
-__declspec(naked) void wall_do_2() //005BA9FA
+__declspec(naked) void wall_do_2() //005BA9FD
 {
     __asm
     {
@@ -1505,7 +1505,8 @@ __declspec(naked) void wall_do_2() //005BA9FA
         mov     cl, [esi + 0Ah]
         shl     ecx, 4
         mov     cl, [esi + 4]
-        mov     edi, 005BAA00h
+        sub     eax, ecx
+        mov     edi, 005BAA02h
         jmp     edi
     }
 }
@@ -1970,7 +1971,7 @@ void setMapSizeHooks(int ver)
     setHook((void*)0x005BD45E, wall_prepare_1);
     setHook((void*)0x005BD563, wall_prepare_2);
     setHook((void*)0x005BA911, wall_do_1);
-    setHook((void*)0x005BA9FA, wall_do_2);
+    setHook((void*)0x005BA9FD, wall_do_2);
     setHook((void*)0x005BAA0B, wall_do_3);
     setHook((void*)0x005BAA70, wall_do_4);
     setHook((void*)0x005BAA94, wall_do_5);

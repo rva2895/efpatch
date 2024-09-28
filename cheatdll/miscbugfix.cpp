@@ -496,5 +496,8 @@ void setMiscBugfixHooks(int ver)
 
     //tooltip hotkey text position
     setHook((void*)0x00501132, on_hotkey_text);
+
+    //wall double click
+    writeNops(0x005FBCF1, 6);
 }
 #pragma optimize( "", on )

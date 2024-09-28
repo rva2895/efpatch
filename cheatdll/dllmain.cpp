@@ -134,6 +134,7 @@
 #include "shield.h"
 #include "harbor.h"
 #include "textsize.h"
+#include "wallbuild.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -355,6 +356,8 @@ void setHooksCC()
     //setFunctionListHooks();
 
     //setTCommunications_Handler2hooks();
+
+    setWallBuildHooks();
 
     log("setHooksCC() complete");
 }
