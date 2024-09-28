@@ -558,6 +558,9 @@
     <ClInclude Include="textsize.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
+    <ClInclude Include="wallbuild.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -1056,6 +1059,9 @@
       <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
     <ClCompile Include="textsize.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="wallbuild.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>

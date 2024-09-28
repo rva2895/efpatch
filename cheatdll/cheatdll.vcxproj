@@ -381,6 +381,7 @@
     <ClInclude Include="versionselect.h" />
     <ClInclude Include="video.h" />
     <ClInclude Include="votepanel.h" />
+    <ClInclude Include="wallbuild.h" />
     <ClInclude Include="wndmode.h" />
     <ClInclude Include="wndproc.h" />
     <ClInclude Include="worlddump.h" />
@@ -567,6 +568,7 @@
     <ClCompile Include="versionselect.cpp" />
     <ClCompile Include="video.cpp" />
     <ClCompile Include="votepanel.cpp" />
+    <ClCompile Include="wallbuild.cpp" />
     <ClCompile Include="wndmode.cpp" />
     <ClCompile Include="wndproc.cpp" />
     <ClCompile Include="worlddump.cpp" />
