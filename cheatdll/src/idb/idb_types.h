@@ -18796,9 +18796,18 @@ struct TRIBE_Command_Build
 #pragma pack(pop)
 
 /* 149 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Build_Wall
 {
+    unsigned __int8 command;
+    unsigned __int8 unit_num;
+    unsigned __int8 unit_player_id;
+    unsigned __int8 x1;
+    unsigned __int8 y1;
+    unsigned __int8 x2;
+    unsigned __int8 y2;
+    __int16 obj_id;
+    int unique_id;
 };
 #pragma pack(pop)
 
@@ -23983,9 +23992,15 @@ struct RGE_Hotkey_HandlerVtbl
 #pragma pack(pop)
 
 /* 261 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct RGE_Pick_Info
 {
+    float x;
+    float y;
+    __int16 scr_x;
+    __int16 scr_y;
+    RGE_Static_Object* object;
+    RGE_Tile* tile;
 };
 #pragma pack(pop)
 
