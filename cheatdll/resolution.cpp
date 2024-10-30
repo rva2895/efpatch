@@ -6,7 +6,7 @@
 #include "slp.h"
 #include "palfile.h"
 
-#define RESOLUTION_TOOL_VERSION 100010  //+1 Zann UI fix
+#define RESOLUTION_TOOL_VERSION 100011  //+1 SLP Writer 2.0
 
 void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
 {
@@ -30,15 +30,15 @@ void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
         }
     }
     SLP slp;
-    slp.load((unsigned char*)data, size);
+    slp.load((uint8_t*)data);
     free(data);
     if (id == 50341)
         slp.stretch_techtree(x, y);
     else
         slp.stretch(x, y, id);
-    unsigned char* new_slp;
-    int new_size = size;
-    new_slp = slp.optimize(&new_size, true);
+
+    int new_size;
+    uint8_t* new_slp = slp.write(&new_size, true);
     target->addFile(new_slp, new_size, id, DRS_SLP);
     free(new_slp);
 }
@@ -456,9 +456,9 @@ void placeScaledSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id
         }
     }
     SLP slp;
-    slp.load((unsigned char*)data, size);
+    slp.load((uint8_t*)data);
     slp.resize(new_x, new_y, pal);
-    void* new_data = slp.optimize(&size, true);
+    uint8_t* new_data = slp.write(&size, true);
     target->addFile(new_data, size, id, DRS_SLP);
     free(new_data);
     free(data);

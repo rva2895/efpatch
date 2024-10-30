@@ -25,7 +25,7 @@ _box_end:
     }
 }
 
-unsigned char colors_to_replace[] =
+const uint8_t colors_to_replace[] =
 {
     1, 131,
     2, 132,
@@ -195,7 +195,6 @@ unsigned int __stdcall slp_optimize_thread(void* p)
         if (slp_interfac(id))
         {
             SLP slp;
-            //log("Processing %s...", (*slp_parallel)[i].c_str());
             FILE* g = fopen((*slp_parallel)[i].c_str(), "rb");
             fseek(g, 0, SEEK_END);
             int size = ftell(g);
@@ -203,15 +202,11 @@ unsigned int __stdcall slp_optimize_thread(void* p)
             void* data = malloc(size);
             fread(data, size, 1, g);
             fclose(g);
-            slp.load((unsigned char*)data, size);
+            slp.load((uint8_t*)data);
             free(data);
-            if (id == 51000)
-                colors_to_replace[15] = 0x30;
             slp.color_replace(colors_to_replace, sizeof(colors_to_replace) / sizeof(colors_to_replace[0]) / 2);
-            if (id == 51000)
-                colors_to_replace[15] = 0;
             PostMessage(hWndPaletteDlg, WM_USER + 2, (WPARAM)id, NULL);
-            data = slp.optimize(&size, (id < 15000) || (id > 16000));
+            data = slp.write(&size, (id < 15000) || (id > 16000));
             g = fopen((*slp_parallel)[i].c_str(), "wb");
             fwrite(data, size, 1, g);
             fclose(g);
@@ -410,7 +405,6 @@ int slp_counter;
 
 BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    UNREFERENCED_PARAMETER(lParam);
     char s[0x100];
     char* st;
     unsigned int palette_tid;
@@ -464,7 +458,7 @@ void installPalette()
     {
         fread(&ver, sizeof(char), 1, f);
         fclose(f);
-        if (ver == '4')
+        if (ver == '5')
         {
             log("Palette already created");
             return;
@@ -476,7 +470,7 @@ void installPalette()
         log("Palette not found%s", creating_new_p1_drs);
     DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_PALETTE), NULL, PaletteDlgProc);
     f = fopen(DATA_FOLDER_PREFIX_FROM_ROOT"palette", "wb");
-    ver = '4';
+    ver = '5';
     fwrite(&ver, sizeof(char), 1, f);
     fclose(f);
 }
@@ -493,7 +487,7 @@ __declspec(naked) void tech_tree_bkg_fix() //00462680
 }
 
 #pragma optimize( "s", on )
-void fix_selection_box_color()
+void setPaletteHooks()
 {
     setHook((void*)0x00473C90, onSelectionBox);
     writeByte(0x004F3833, 48); //new black? don't know
@@ -582,10 +576,11 @@ void fix_selection_box_color()
     writeDword(0x004F3B48, 4);
     writeDword(0x004F3B4D, 6);
     writeByte(0x004F3B52, 133);
-}
 
-void setPaletteHooks()
-{
-    fix_selection_box_color();
+    //mouse cursor
+    writeByte(0x0049F08F, 252);
+    writeByte(0x0049F824, 252);
+    writeByte(0x0049FE02, 252);
+    writeByte(0x0049F0C0, 252);
 }
 #pragma optimize( "", on )

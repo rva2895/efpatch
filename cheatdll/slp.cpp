@@ -9,273 +9,20 @@
 
 SLP::SLP()
 {
-    memset(&hdr, 0, sizeof(hdr));
-    frame_i = NULL;
-    edge = NULL;
-    rowoffset = NULL;
-    pixels_total = 0;
+    memset(&meta, 0, sizeof(meta));
+    frames = NULL;
     loaded = false;
 }
 
 SLP::~SLP()
 {
-    for (int i = 0; i < hdr.num_frames; i++)
+    for (int i = 0; i < meta.num_frames; i++)
     {
-        for (int j = 0; j < frame_i[i].height; j++)
-            delete[] frame_i[i].data[j];
-        delete[] frame_i[i].data;
-        delete[] rowoffset[i];
-        delete[] edge[i];
+        for (int j = 0; j < frames[i].height; j++)
+            delete[] frames[i].scanlines[j].pixels;
+        delete[] frames[i].scanlines;
     }
-    delete[] edge;
-    delete[] rowoffset;
-    delete[] frame_i;
-}
-
-#pragma message("***slp.cpp: SLP::load(), parameter size - check!")
-#pragma message("***slp.cpp: 50230 slp crashes!")
-
-bool SLP::load(unsigned char* fbase, int size)
-{
-    UNREFERENCED_PARAMETER(size);
-    unsigned char* fptr = fbase;
-
-    //file_header hdr;
-    memcpy(&hdr, fptr, sizeof(file_header));
-    fptr += sizeof(file_header);
-
-    frame_i = new frame_info[hdr.num_frames];
-    for (int i = 0; i < hdr.num_frames; i++)
-    {
-        frame_i[i].cmd_table_offset = *(unsigned long*)fptr;        fptr += 4;
-        frame_i[i].outline_table_offset = *(unsigned long*)fptr;    fptr += 4;
-        frame_i[i].palette_offset = *(unsigned long*)fptr;            fptr += 4;
-        frame_i[i].properties = *(unsigned long*)fptr;                fptr += 4;
-        frame_i[i].width = *(long*)fptr;                            fptr += 4;
-        frame_i[i].height = *(long*)fptr;                            fptr += 4;
-        frame_i[i].hotspot_x = *(long*)fptr;                        fptr += 4;
-        frame_i[i].hotspot_y = *(long*)fptr;                        fptr += 4;
-        frame_i[i].data = NULL;
-    }
-
-    edge = new rowedge*[hdr.num_frames];
-    rowoffset = new long*[hdr.num_frames];
-    for (int i = 0; i < hdr.num_frames; i++)
-    {
-        fptr = fbase + frame_i[i].outline_table_offset;
-
-        edge[i] = new rowedge[frame_i[i].height];
-        memcpy(edge[i], fptr, sizeof(rowedge) * frame_i[i].height);
-        fptr += sizeof(rowedge) * frame_i[i].height;
-
-        rowoffset[i] = new long[frame_i[i].height];
-        memcpy(rowoffset[i], fptr, sizeof(long) * frame_i[i].height);
-
-        frame_i[i].data = new pixel*[frame_i[i].height];
-        for (int j = 0; j < frame_i[i].height; j++)
-        {
-            pixel px;
-            px.type = T_TRANSPARENT;
-            px.data = 0;
-            frame_i[i].data[j] = new pixel[frame_i[i].width];
-            //parse line
-            if ((edge[i][j].left == -32768) && (edge[i][j].right == -32768))    //entire line is blank
-            {
-                for (int k = 0; k < frame_i[i].width; k++)
-                    frame_i[i].data[j][k] = px;
-                ((int*)(fbase + frame_i[i].cmd_table_offset))[j] = 0;
-                continue;
-            }
-            //left edge
-            int k = 0;    //current position in line
-            for (; k < edge[i][j].left; k++)
-                frame_i[i].data[j][k] = px;
-            //parse actual data
-            unsigned char cmd;
-            int count;
-            unsigned char* ptr = fbase + ((int*)(fbase + frame_i[i].cmd_table_offset))[j];
-            while (1)
-            {
-                cmd = *ptr;
-                ptr++;
-
-                if ((cmd & 0x03) == 0x00)   //check 2 right bits (color list)
-                {
-                    px.type = T_PIXEL;
-                    count = cmd >> 2;
-                    for (int t = 0; t < count; t++)
-                    {
-                        px.data = *ptr;
-                        frame_i[i].data[j][k] = px;
-                        k++;
-                        ptr++;
-                    }
-                }
-                else if ((cmd & 0x03) == 0x01)        //skip
-                {
-                    px.type = T_TRANSPARENT;
-                    count = cmd >> 2;
-                    if (!count)
-                    {
-                        count = *ptr;
-                        ptr++;
-                    }
-                    for (int t = 0; t < count; t++)
-                    {
-                        frame_i[i].data[j][k] = px;
-                        k++;
-                    }
-                }
-                else if ((cmd & 0x0F) == 0x02)        //big color list
-                {
-                    px.type = T_PIXEL;
-                    count = cmd >> 4;
-                    count = count * 0x100 + *ptr;
-                    ptr++;
-                    for (int t = 0; t < count; t++)
-                    {
-                        px.data = *ptr;
-                        frame_i[i].data[j][k] = px;
-                        k++;
-                        ptr++;
-                    }
-                }
-                else if ((cmd & 0x0F) == 0x03)        //big skip
-                {
-                    px.type = T_TRANSPARENT;
-                    count = cmd >> 4;
-                    count = count * 0x100 + *ptr;
-                    ptr++;
-                    for (int t = 0; t < count; t++)
-                    {
-                        frame_i[i].data[j][k] = px;
-                        k++;
-                    }
-                }
-                else if ((cmd & 0x0F) == 0x06)        //player color list
-                {
-                    px.type = T_PLAYER_COLOR;
-                    count = cmd >> 4;
-                    if (!count)
-                    {
-                        count = *ptr;
-                        ptr++;
-                    }
-                    for (int t = 0; t < count; t++)
-                    {
-                        px.data = *ptr;
-                        frame_i[i].data[j][k] = px;
-                        k++;
-                        ptr++;
-                    }
-                }
-                else if ((cmd & 0x0F) == 0x07)        //color fill
-                {
-                    px.type = T_PIXEL;
-                    count = cmd >> 4;
-                    if (!count)
-                    {
-                        count = *ptr;
-                        ptr++;
-                    }
-                    px.data = *ptr;
-                    for (int t = 0; t < count; t++)
-                    {
-                        frame_i[i].data[j][k] = px;
-                        k++;
-                    }
-                    ptr++;
-                }
-                else if ((cmd & 0x0F) == 0x0A)        //player color fill
-                {
-                    px.type = T_PLAYER_COLOR;
-                    count = cmd >> 4;
-                    if (!count)
-                    {
-                        count = *ptr;
-                        ptr++;
-                    }
-                    px.data = *ptr;
-                    for (int t = 0; t < count; t++)
-                    {
-                        frame_i[i].data[j][k] = px;
-                        k++;
-                    }
-                    ptr++;
-                }
-                else if ((cmd & 0x0F) == 0x0B)        //shadow
-                {
-                    px.type = T_SHADOW;
-                    count = cmd >> 4;
-                    if (!count)
-                    {
-                        count = *ptr;
-                        ptr++;
-                    }
-                    for (int t = 0; t < count; t++)
-                    {
-                        frame_i[i].data[j][k] = px;
-                        k++;
-                    }
-                }
-                else if (cmd == 0x7E)        //outline shield, run
-                {
-                    px.type = T_OUTLINE_SHIELD;
-                    count = *ptr;
-                    ptr++;
-                    for (int t = 0; t < count; t++)
-                    {
-                        frame_i[i].data[j][k] = px;
-                        k++;
-                    }
-                }
-                else if (cmd == 0x5E)        //outline color, run
-                {
-                    px.type = T_OUTLINE_COLOR;
-                    count = *ptr;
-                    ptr++;
-                    for (int t = 0; t < count; t++)
-                    {
-                        frame_i[i].data[j][k] = px;
-                        k++;
-                    }
-                }
-                else if (cmd == 0x6E)        //outline shield, single
-                {
-                    px.type = T_OUTLINE_SHIELD;
-                    frame_i[i].data[j][k] = px;
-                    k++;
-                }
-                else if (cmd == 0x4E)        //outline color, single
-                {
-                    px.type = T_OUTLINE_COLOR;
-                    frame_i[i].data[j][k] = px;
-                    k++;
-                }
-
-                else if (cmd == 0x0F)        //end of line
-                {
-                    break;
-                }
-                else
-                {
-                    __debugbreak();
-                }
-            }
-            //fill the rest with blank pixels;
-            px.type = T_TRANSPARENT;
-            for (; k < frame_i[i].width; k++)
-                frame_i[i].data[j][k] = px;
-
-            /*for (int k = 0; k < frame_i[i].width; k++)
-            if (frame_i[i].data[j][k].type != TRANSPARENT)
-            continue;
-            ((int*)(fbase + frame_i[i].cmd_table_offset))[j] = 0;*/
-        }
-    }
-
-    loaded = true;
-    return true;
+    delete[] frames;
 }
 
 int get_st(int id)
@@ -344,78 +91,6 @@ int get_st(int id)
     }
 }
 
-void SLP::stretch(int x, int y, int id)
-{
-    int stretch_at = get_st(id);
-
-    for (int j = 0; j < frame_i[0].height; j++)
-    {
-        pixel* new_px = new pixel[x];
-        memcpy(new_px, frame_i[0].data[j], frame_i[0].width*sizeof(pixel));
-        //free(frame_i[0].data[j]);
-        delete[] frame_i[0].data[j];  //!!!
-        frame_i[0].data[j] = new_px;
-        //zann large fix
-        if ((id == 51149) && (j > 50))
-            stretch_at = 520;
-        for (int k = x - 1; k >= (x - (frame_i[0].width - stretch_at)); k--)
-            frame_i[0].data[j][k] = frame_i[0].data[j][k - (x - frame_i[0].width)];
-        for (int k = stretch_at; k < stretch_at + (x - frame_i[0].width); k++)
-            frame_i[0].data[j][k] = frame_i[0].data[j][stretch_at];
-    }
-    frame_i[0].width = x;
-    frame_i[0].hotspot_y = -y + frame_i[0].height;
-}
-
-void SLP::stretch_techtree(int x, int y)
-{
-    UNREFERENCED_PARAMETER(x);
-    int i;
-    int y_offset;
-    if (y >= 1024) //stretch 1280 (frame 1)
-    {
-        i = 1;
-        y_offset = (y - 1024) / 2;
-    }
-    else //stretch 1024 (frame 0)
-    {
-        i = 0;
-        y_offset = (y - 768) / 2;
-    }
-
-    rowedge* re = new rowedge[y];
-    memcpy(re + y_offset, edge[i], frame_i[i].height * sizeof(rowedge));
-    delete[] edge[i];
-    edge[i] = re;
-    for (int j = 0; j < y; j++)
-    {
-        if (j < y_offset || j >= (y_offset + frame_i[i].height))
-        {
-            edge[i][j].left = 0;
-            edge[i][j].right = 0;
-        }
-    }
-
-    pixel** new_px = new pixel*[y];
-    memcpy(new_px + y_offset, frame_i[i].data, frame_i[i].height * sizeof(pixel*));
-    delete[] frame_i[i].data;
-    frame_i[i].data = new_px;
-    for (int j = 0; j < y; j++)
-    {
-        if (j < y_offset || j >= (y_offset + frame_i[i].height))
-        {
-            frame_i[i].data[j] = new pixel[frame_i[i].width];
-            for (int k = 0; k < frame_i[i].width; k++)
-            {
-                frame_i[i].data[j][k].type = T_PIXEL;
-                frame_i[i].data[j][k].data = 0;
-            }
-        }
-    }
-    frame_i[i].height = y;
-    frame_i[i].hotspot_y += y_offset;
-}
-
 //parser state machine states
 enum states
 {
@@ -424,28 +99,11 @@ enum states
     SET
 };
 
-////////////------------------------
-int print_TEST(unsigned char** ptr, int type, int len, pixel* row, int start)
+int print_FILL(uint8_t*& ptr, uint8_t px_type, int len, SLP_scanline& scanline, int start)
 {
-    UNREFERENCED_PARAMETER(row);
-    UNREFERENCED_PARAMETER(type);
-    unsigned char* p = *ptr;
+    unsigned char* p = ptr;
     unsigned char cmd = 0;
-    cmd = 0x0E;
-    *p++ = cmd;
-    *ptr = p;
-    return start + len;
-}
-////////////------------------------
-
-int print_FILL(unsigned char** ptr, int type, int len, pixel* row, int start)
-{
-    //////
-    //start = print_TEST(ptr, type, len, row, start);
-    //////
-    unsigned char* p = *ptr;
-    unsigned char cmd = 0;
-    switch (type)
+    switch (px_type)
     {
     case T_PIXEL:
         if (len < 16)
@@ -462,7 +120,7 @@ int print_FILL(unsigned char** ptr, int type, int len, pixel* row, int start)
         }
         else
         {
-            print_FILL(&p, type, len - 0xFF, row, start);
+            print_FILL(p, px_type, len - 0xFF, scanline, start);
             cmd = 0x07;
             *p++ = cmd;
             *p++ = 0xFF;
@@ -488,28 +146,16 @@ int print_FILL(unsigned char** ptr, int type, int len, pixel* row, int start)
         __debugbreak();
         break;
     }
-    *p++ = row[start].data;
-    *ptr = p;
+    *p++ = scanline.pixels[start].data;
+    ptr = p;
     return start + len;
 }
 
-int print_COPY(unsigned char** ptr, int type, int len, pixel* row, int start)
+int print_COPY(uint8_t*& ptr, uint8_t px_type, int len, SLP_scanline& scanline, int start)
 {
-    //////
-    //start = print_TEST(ptr, type, len, row, start);
-    //////
-    unsigned char* p = *ptr;
-    /*bool fill_flag = false;
-    if (len >= 3)    //check run end
-    {
-    if ((row[start + len - 1] == row[start + len - 2]) && (row[start + len - 1] == row[start + len - 3]))
-    {
-    len -= 3;
-    fill_flag = true;
-    }
-    }*/
+    unsigned char* p = ptr;
     unsigned char cmd = 0;
-    switch (type)
+    switch (px_type)
     {
     case T_PIXEL:
         if (len < 64)
@@ -550,25 +196,19 @@ int print_COPY(unsigned char** ptr, int type, int len, pixel* row, int start)
     }
     for (int i = 0; i < len; i++)
     {
-        *p = row[start++].data;
+        *p = scanline.pixels[start++].data;
         p++;
     }
 
-    //if (fill_flag)
-    //    start = print_FILL(&p, type, 3, row, start);
-
-    *ptr = p;
+    ptr = p;
     return start;
 }
 
-int print_SET(unsigned char** ptr, int type, int len, pixel* row, int start)
+int print_SET(uint8_t*& ptr, uint8_t px_type, int len, SLP_scanline& scanline, int start)
 {
-    //////
-    //start = print_TEST(ptr, type, len, row, start);
-    //////
-    unsigned char* p = *ptr;
+    unsigned char* p = ptr;
     unsigned char cmd = 0;
-    switch (type)
+    switch (px_type)
     {
     case T_SHADOW:
         if (len < 16)
@@ -588,8 +228,7 @@ int print_SET(unsigned char** ptr, int type, int len, pixel* row, int start)
             cmd = 0x0B;
             *p++ = cmd;
             *p++ = 0xFF;
-            //start = print_SET(&p, type, len - 0xFF, row, start += 0xFF);
-            print_SET(&p, type, len - 0xFF, row, start);
+            print_SET(p, px_type, len - 0xFF, scanline, start);
         }
         break;
     case T_TRANSPARENT:
@@ -637,405 +276,570 @@ int print_SET(unsigned char** ptr, int type, int len, pixel* row, int start)
         }
         break;
     }
-    *ptr = p;
+    ptr = p;
     return start + len;
 }
 
-bool compare_edges(rowedge** edge, int height, int frame)
+template<class T>
+T read(uint8_t*& p)
 {
-    for (int i = 0; i < height; i++)
-        if ((edge[frame][i].left != edge[frame - 1][i].left) || (edge[frame][i].right != edge[frame - 1][i].right))
-            return false;
+    T r = *(T*)p;
+    p += sizeof(T);
+    return r;
+}
+
+bool SLP::load(uint8_t* data)
+{
+    uint8_t* p = data;
+
+    memcpy(&meta, p, sizeof(meta));
+    p += sizeof(meta);
+
+    frames = new SLP_frame[meta.num_frames];
+    for (int i = 0; i < meta.num_frames; i++)
+    {
+        uint32_t* cmd_table = (uint32_t*)(data + read<uint32_t>(p)); //cmd table offset
+        SLP_outline* outline = (SLP_outline*)(data + read<uint32_t>(p)); //outline table offset
+        read<uint32_t>(p);                                  //palette offset
+        frames[i].properties = read<uint32_t>(p);           //properties
+        frames[i].width = read<int32_t>(p);                 //width
+        frames[i].height = read<int32_t>(p);                //height
+        frames[i].hotspot_x = read<int32_t>(p);             //hotspot_x
+        frames[i].hotspot_y = read<int32_t>(p);             //hotspot_y
+
+        frames[i].scanlines = new SLP_scanline[frames[i].height];
+
+        for (int j = 0; j < frames[i].height; j++)
+        {
+            SLP_pixel px;
+            px.type = T_TRANSPARENT;
+            px.data = 0;
+            frames[i].scanlines[j].pixels = new SLP_pixel[frames[i].width];
+
+            if (outline[j].left == 0x8000 || outline[j].right == 0x8000)
+                for (int k = 0; k < frames[i].width; k++)
+                    frames[i].scanlines[j].pixels[k] = px;
+            else
+            {
+                int k = 0;
+                for (; k < outline[j].left; k++)
+                    frames[i].scanlines[j].pixels[k] = px;
+
+                uint8_t* ptr = data + cmd_table[j];
+                uint8_t cmd;
+                int count;
+                while (k < frames[i].width)
+                {
+                    cmd = *ptr;
+                    ptr++;
+
+                    if ((cmd & 0x03) == 0x00)   //check 2 right bits (color list)
+                    {
+                        px.type = T_PIXEL;
+                        count = cmd >> 2;
+                        for (int t = 0; t < count; t++)
+                        {
+                            px.data = *ptr;
+                            frames[i].scanlines[j].pixels[k] = px;
+                            k++;
+                            ptr++;
+                        }
+                    }
+                    else if ((cmd & 0x03) == 0x01)        //skip
+                    {
+                        px.type = T_TRANSPARENT;
+                        count = cmd >> 2;
+                        if (!count)
+                        {
+                            count = *ptr;
+                            ptr++;
+                        }
+                        for (int t = 0; t < count; t++)
+                        {
+                            frames[i].scanlines[j].pixels[k] = px;
+                            k++;
+                        }
+                    }
+                    else if ((cmd & 0x0F) == 0x02)        //big color list
+                    {
+                        px.type = T_PIXEL;
+                        count = cmd >> 4;
+                        count = count * 0x100 + *ptr;
+                        ptr++;
+                        for (int t = 0; t < count; t++)
+                        {
+                            px.data = *ptr;
+                            frames[i].scanlines[j].pixels[k] = px;
+                            k++;
+                            ptr++;
+                        }
+                    }
+                    else if ((cmd & 0x0F) == 0x03)        //big skip
+                    {
+                        px.type = T_TRANSPARENT;
+                        count = cmd >> 4;
+                        count = count * 0x100 + *ptr;
+                        ptr++;
+                        for (int t = 0; t < count; t++)
+                        {
+                            frames[i].scanlines[j].pixels[k] = px;
+                            k++;
+                        }
+                    }
+                    else if ((cmd & 0x0F) == 0x06)        //player color list
+                    {
+                        px.type = T_PLAYER_COLOR;
+                        count = cmd >> 4;
+                        if (!count)
+                        {
+                            count = *ptr;
+                            ptr++;
+                        }
+                        for (int t = 0; t < count; t++)
+                        {
+                            px.data = *ptr;
+                            frames[i].scanlines[j].pixels[k] = px;
+                            k++;
+                            ptr++;
+                        }
+                    }
+                    else if ((cmd & 0x0F) == 0x07)        //color fill
+                    {
+                        px.type = T_PIXEL;
+                        count = cmd >> 4;
+                        if (!count)
+                        {
+                            count = *ptr;
+                            ptr++;
+                        }
+                        px.data = *ptr;
+                        for (int t = 0; t < count; t++)
+                        {
+                            frames[i].scanlines[j].pixels[k] = px;
+                            k++;
+                        }
+                        ptr++;
+                    }
+                    else if ((cmd & 0x0F) == 0x0A)        //player color fill
+                    {
+                        px.type = T_PLAYER_COLOR;
+                        count = cmd >> 4;
+                        if (!count)
+                        {
+                            count = *ptr;
+                            ptr++;
+                        }
+                        px.data = *ptr;
+                        for (int t = 0; t < count; t++)
+                        {
+                            frames[i].scanlines[j].pixels[k] = px;
+                            k++;
+                        }
+                        ptr++;
+                    }
+                    else if ((cmd & 0x0F) == 0x0B)        //shadow
+                    {
+                        px.type = T_SHADOW;
+                        count = cmd >> 4;
+                        if (!count)
+                        {
+                            count = *ptr;
+                            ptr++;
+                        }
+                        for (int t = 0; t < count; t++)
+                        {
+                            frames[i].scanlines[j].pixels[k] = px;
+                            k++;
+                        }
+                    }
+                    else if (cmd == 0x7E)        //outline shield, run
+                    {
+                        px.type = T_OUTLINE_SHIELD;
+                        count = *ptr;
+                        ptr++;
+                        for (int t = 0; t < count; t++)
+                        {
+                            frames[i].scanlines[j].pixels[k] = px;
+                            k++;
+                        }
+                    }
+                    else if (cmd == 0x5E)        //outline color, run
+                    {
+                        px.type = T_OUTLINE_COLOR;
+                        count = *ptr;
+                        ptr++;
+                        for (int t = 0; t < count; t++)
+                        {
+                            frames[i].scanlines[j].pixels[k] = px;
+                            k++;
+                        }
+                    }
+                    else if (cmd == 0x6E)        //outline shield, single
+                    {
+                        px.type = T_OUTLINE_SHIELD;
+                        frames[i].scanlines[j].pixels[k] = px;
+                        k++;
+                    }
+                    else if (cmd == 0x4E)        //outline color, single
+                    {
+                        px.type = T_OUTLINE_COLOR;
+                        frames[i].scanlines[j].pixels[k] = px;
+                        k++;
+                    }
+
+                    else if (cmd == 0x0F)        //end of line
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        __debugbreak();
+                    }
+                }
+                //fill the rest with blank pixels;
+                px.type = T_TRANSPARENT;
+                px.data = 0;
+                for (; k < frames[i].width; k++)
+                    frames[i].scanlines[j].pixels[k] = px;
+            }
+        }
+    }
+
+    loaded = true;
     return true;
 }
 
-unsigned char* SLP::optimize(int* size, bool allow_fill)
+void SLP::stretch(int x, int y, int id)
 {
-    void* new_slp = malloc(*size * 16);
-    memset(new_slp, 0, *size * 16);
-
-    unsigned char* ptr = (unsigned char*)new_slp;
-
-    memcpy(ptr, &hdr, sizeof(file_header));
-    ptr += sizeof(file_header);
-
-    //print header later, now skip
-    ptr += hdr.num_frames * 8 * sizeof(long);
-
-    for (int i = 0; i < hdr.num_frames; i++)
+    int stretch_at = get_st(id);
+    //we only stretch frame 0;
+    for (int j = 0; j < frames[0].height; j++)
     {
-        //dirty hack: store array here temporarly
-        if (frame_i[i].height > 0)
-            frame_i[i].cmd_table_offset = (unsigned long)malloc(sizeof(unsigned long)*frame_i[i].height);
-        else
-            frame_i[i].cmd_table_offset = 0;
+        SLP_pixel* new_px = new SLP_pixel[x];
+        memcpy(new_px, frames[0].scanlines[j].pixels, frames[0].width * sizeof(SLP_pixel));
+        delete[] frames[0].scanlines[j].pixels;
+        frames[0].scanlines[j].pixels = new_px;
+        //zann large fix
+        if ((id == 51149) && (j > 50))
+            stretch_at = 520;
 
-        for (int j = 0; j < frame_i[i].height; j++)
+        int delta = x - frames[0].width;
+        memmove(frames[0].scanlines[j].pixels + stretch_at + delta, frames[0].scanlines[j].pixels + stretch_at, (frames[0].width - stretch_at) * sizeof(SLP_pixel));
+        for (int k = stretch_at; k < stretch_at + delta; k++)
+            frames[0].scanlines[j].pixels[k] = frames[0].scanlines[j].pixels[stretch_at];
+    }
+    frames[0].width = x;
+    frames[0].hotspot_y = -y + frames[0].height;
+}
+
+void SLP::stretch_techtree(int x, int y)
+{
+    UNREFERENCED_PARAMETER(x);
+    int i;
+    int y_offset;
+    if (y >= 1024) //stretch 1280 (frame 1)
+    {
+        i = 1;
+        y_offset = (y - 1024) / 2;
+    }
+    else //stretch 1024 (frame 0)
+    {
+        i = 0;
+        y_offset = (y - 768) / 2;
+    }
+
+    SLP_scanline* new_scanline = new SLP_scanline[y];
+    memcpy(new_scanline + y_offset, frames[i].scanlines, frames[i].height * sizeof(SLP_scanline));
+    delete[] frames[i].scanlines;
+    frames[i].scanlines = new_scanline;
+    for (int j = 0; j < y; j++)
+        if (j < y_offset || j >= y_offset + frames[i].height)
         {
-            ((unsigned long*)frame_i[i].cmd_table_offset)[j] = ptr - (unsigned char*)new_slp;
-            int k = 0;
-            while ((frame_i[i].data[j][k].type == T_TRANSPARENT) && (k < (frame_i[i].width - edge[i][j].right)))
-                k++;
-            if (k >= frame_i[i].width)
+            frames[i].scanlines[j].pixels = new SLP_pixel[frames[i].width];
+            for (int k = 0; k < frames[i].width; k++)
             {
-                edge[i][j].left = -32768; edge[i][j].right = -32768;
-                continue;
+                frames[i].scanlines[j].pixels[k].type = T_PIXEL;
+                frames[i].scanlines[j].pixels[k].data = 0;
+            }
+        }
+    frames[i].height = y;
+    frames[i].hotspot_y += y_offset;
+}
+
+uint8_t* SLP::write(int* size, bool allow_fill)
+{
+    size_t data_len_max = 0x1000;
+    for (int i = 0; i < meta.num_frames; i++)
+        data_len_max += (frames[i].width + 0x10) * (frames[i].height + 0x10) + 0x20;
+    data_len_max *= 2;
+    uint8_t* data = (uint8_t*)malloc(data_len_max);
+
+    strncpy(meta.comment, "EFPATCH SLP Writer 2.0\0", 24);
+
+    uint8_t* ptr = data;
+    //skip headers
+    memcpy(ptr, &meta, sizeof(meta));
+    ptr += sizeof(SLP_meta);
+    
+    SLP_file_frame* ptr_frame = (SLP_file_frame*)ptr;
+    
+    ptr += meta.num_frames * sizeof(SLP_file_frame);
+
+    for (int i = 0; i < meta.num_frames; i++)
+    {
+        SLP_outline* ptr_outline = (SLP_outline*)ptr;
+        ptr += frames[i].height * sizeof(SLP_outline);
+        uint32_t* ptr_commands = (uint32_t*)ptr;
+        ptr += frames[i].height * sizeof(uint32_t);
+
+        ptr_frame[i].cmd_table_offset = (uint8_t*)ptr_commands - data;
+        ptr_frame[i].outline_table_offset = (uint8_t*)ptr_outline - data;
+        ptr_frame[i].palette_offset = 0;
+        ptr_frame[i].properties = frames[i].properties;
+        ptr_frame[i].width = frames[i].width;
+        ptr_frame[i].height = frames[i].height;
+        ptr_frame[i].hotspot_x = frames[i].hotspot_x;
+        ptr_frame[i].hotspot_y = frames[i].hotspot_y;
+
+        for (int j = 0; j < frames[i].height; j++)
+        {
+            ptr_commands[j] = ptr - data;
+
+            uint16_t left;
+            uint16_t right;
+            int k = 0;
+            while (frames[i].scanlines[j].pixels[k].type == T_TRANSPARENT && k < frames[i].width)
+                k++;
+            if (k >= frames[i].width)   //line is blank
+            {
+                left = 0x8000;
+                right = 0x8000;
             }
             else
             {
-                edge[i][j].left = k;
-                if (edge[i][j].right == -32768)
-                    edge[i][j].right = 0;
-            }
-
-            int start = k;
-            //main scan loop
-            int state;
-            int repeat = 1;
-            int len = 1;
-            int type = frame_i[i].data[j][k].type;
-            int data = frame_i[i].data[j][k].data;
-            switch (frame_i[i].data[j][k].type)
-            {
-            case T_PIXEL:
-            case T_PLAYER_COLOR:
-                state = COPY;
-                break;
-            case T_SHADOW:
-            case T_TRANSPARENT:
-            case T_OUTLINE_COLOR:
-            case T_OUTLINE_SHIELD:
-                state = SET;
-                break;
-            default:
-                __debugbreak();
-                break;
-            }
-            k++;
-
-            //below is an implementation of a state machine, refer to the graph
-            while (k < (frame_i[i].width - edge[i][j].right))
-            {
-                switch (state)
+                left = k;
+                right = 0;
+                k = frames[i].width - 1;
+                while (frames[i].scanlines[j].pixels[k].type == T_TRANSPARENT && k > 0)
                 {
-                case COPY:
-                    if (frame_i[i].data[j][k].type == type)
-                    {
-                        if ((repeat < 3) || !allow_fill)
-                        {
-                            len++;
-                            if (data == frame_i[i].data[j][k].data)
-                                repeat++;
-                            else
-                                repeat = 1;
-                        }
-                        else
-                        {
-                            len -= 3;
-                            if (len != 0)
-                                start = print_COPY(&ptr, type, len, frame_i[i].data[j], start);
-                            state = FILL;
-                            len = 3;
-                            k--;
-                        }
-                    }
-                    else
-                    {
-                        start = print_COPY(&ptr, type, len, frame_i[i].data[j], start);
-                        len = 1;
-                        repeat = 1;
-                        switch (frame_i[i].data[j][k].type)
-                        {
-                        case T_PIXEL:
-                        case T_PLAYER_COLOR:
-                            break;
-                        case T_SHADOW:
-                        case T_TRANSPARENT:
-                        case T_OUTLINE_COLOR:
-                        case T_OUTLINE_SHIELD:
-                            state = SET;
-                            break;
-                        default:
-                            __debugbreak();
-                            break;
-                        }
-                    }
+                    k--;
+                    right++;
+                }
+
+                k = left;
+                int end = frames[i].width - right;
+
+                int start = k;
+                int state;
+                int repeat = 1;
+                int len = 1;
+                SLP_pixel px = frames[i].scanlines[j].pixels[k];
+                switch (px.type)
+                {
+                case T_PIXEL:
+                case T_PLAYER_COLOR:
+                    state = COPY;
                     break;
-                case FILL:
-                    if ((frame_i[i].data[j][k].type == type) && (frame_i[i].data[j][k].data == data))
-                        len++;
-                    else
-                    {
-                        start = print_FILL(&ptr, type, len, frame_i[i].data[j], start);
-                        len = 1;
-                        repeat = 1;
-                        switch (frame_i[i].data[j][k].type)
-                        {
-                        case T_PIXEL:
-                        case T_PLAYER_COLOR:
-                            state = COPY;
-                            break;
-                        case T_SHADOW:
-                        case T_TRANSPARENT:
-                        case T_OUTLINE_COLOR:
-                        case T_OUTLINE_SHIELD:
-                            state = SET;
-                            break;
-                        default:
-                            __debugbreak();
-                            break;
-                        }
-                    }
-                    break;
-                case SET:
-                    if (frame_i[i].data[j][k].type == type)
-                        len++;
-                    else
-                    {
-                        start = print_SET(&ptr, type, len, frame_i[i].data[j], start);
-                        len = 1;
-                        repeat = 1;
-                        switch (frame_i[i].data[j][k].type)
-                        {
-                        case T_PIXEL:
-                        case T_PLAYER_COLOR:
-                            state = COPY;
-                            break;
-                        case T_SHADOW:
-                        case T_TRANSPARENT:
-                        case T_OUTLINE_COLOR:
-                        case T_OUTLINE_SHIELD:
-                            break;
-                        default:
-                            __debugbreak();
-                            break;
-                        }
-                    }
+                case T_SHADOW:
+                case T_TRANSPARENT:
+                case T_OUTLINE_COLOR:
+                case T_OUTLINE_SHIELD:
+                    state = SET;
                     break;
                 default:
                     __debugbreak();
                     break;
                 }
-                type = frame_i[i].data[j][k].type;
-                data = frame_i[i].data[j][k].data;
                 k++;
+
+                //parse scanline data
+                while (k < end)
+                {
+                    switch (state)
+                    {
+                    case COPY:
+                        if (frames[i].scanlines[j].pixels[k].type == px.type)
+                        {
+                            if ((repeat < 3) || !allow_fill)
+                            {
+                                len++;
+                                if (px.data == frames[i].scanlines[j].pixels[k].data)
+                                    repeat++;
+                                else
+                                    repeat = 1;
+                            }
+                            else
+                            {
+                                len -= 3;
+                                if (len != 0)
+                                    start = print_COPY(ptr, px.type, len, frames[i].scanlines[j], start);
+                                state = FILL;
+                                len = 3;
+                                k--;
+                            }
+                        }
+                        else
+                        {
+                            start = print_COPY(ptr, px.type, len, frames[i].scanlines[j], start);
+                            len = 1;
+                            repeat = 1;
+                            switch (frames[i].scanlines[j].pixels[k].type)
+                            {
+                            case T_PIXEL:
+                            case T_PLAYER_COLOR:
+                                break;
+                            case T_SHADOW:
+                            case T_TRANSPARENT:
+                            case T_OUTLINE_COLOR:
+                            case T_OUTLINE_SHIELD:
+                                state = SET;
+                                break;
+                            default:
+                                __debugbreak();
+                                break;
+                            }
+                        }
+                        break;
+                    case FILL:
+                        if (frames[i].scanlines[j].pixels[k] == px)
+                            len++;
+                        else
+                        {
+                            start = print_FILL(ptr, px.type, len, frames[i].scanlines[j], start);
+                            len = 1;
+                            repeat = 1;
+                            switch (frames[i].scanlines[j].pixels[k].type)
+                            {
+                            case T_PIXEL:
+                            case T_PLAYER_COLOR:
+                                state = COPY;
+                                break;
+                            case T_SHADOW:
+                            case T_TRANSPARENT:
+                            case T_OUTLINE_COLOR:
+                            case T_OUTLINE_SHIELD:
+                                state = SET;
+                                break;
+                            default:
+                                __debugbreak();
+                                break;
+                            }
+                        }
+                        break;
+                    case SET:
+                        if (frames[i].scanlines[j].pixels[k].type == px.type)
+                            len++;
+                        else
+                        {
+                            start = print_SET(ptr, px.type, len, frames[i].scanlines[j], start);
+                            len = 1;
+                            repeat = 1;
+                            switch (frames[i].scanlines[j].pixels[k].type)
+                            {
+                            case T_PIXEL:
+                            case T_PLAYER_COLOR:
+                                state = COPY;
+                                break;
+                            case T_SHADOW:
+                            case T_TRANSPARENT:
+                            case T_OUTLINE_COLOR:
+                            case T_OUTLINE_SHIELD:
+                                break;
+                            default:
+                                __debugbreak();
+                                break;
+                            }
+                        }
+                        break;
+                    default:
+                        __debugbreak();
+                        break;
+                    }
+                    px = frames[i].scanlines[j].pixels[k];
+                    k++;
+                }
+                //print what's left
+                switch (state)
+                {
+                case COPY:
+                    start = print_COPY(ptr, px.type, len, frames[i].scanlines[j], start);
+                    break;
+                case FILL:
+                    start = print_FILL(ptr, px.type, len, frames[i].scanlines[j], start);
+                    break;
+                case SET:
+                    if (px.type != T_TRANSPARENT)
+                        start = print_SET(ptr, px.type, len, frames[i].scanlines[j], start);
+                    else
+                        __debugbreak();        //!!!!!!
+                    break;
+                default:
+                    __debugbreak();
+                    break;
+                }
             }
-            //print what's left
-            switch (state)
-            {
-            case COPY:
-                start = print_COPY(&ptr, type, len, frame_i[i].data[j], start);
-                break;
-            case FILL:
-                start = print_FILL(&ptr, type, len, frame_i[i].data[j], start);
-                break;
-            case SET:
-                if (type != T_TRANSPARENT)
-                    start = print_SET(&ptr, type, len, frame_i[i].data[j], start);
-                else
-                    edge[i][j].right = len;        //might be off by one, check!!!!!!
-                break;
-            default:
-                __debugbreak();
-                break;
-            }
-            *ptr = 0x0F;    ptr++;
+            *ptr = 0x0F;
+            ptr++;
+            ptr_outline[j].left = left;
+            ptr_outline[j].right = right;
         }
     }
-    //align
-    if ((unsigned long)ptr % 4)
-        ptr += 4 - (unsigned long)ptr % 4;
 
-    unsigned char* prev_frame_start_ptr = 0;
-    unsigned char* frame_start_ptr = 0;
-    //print outline offsets
-    for (int i = 0; i < hdr.num_frames; i++)
-    {
-        prev_frame_start_ptr = frame_start_ptr;
-        if (frame_i[i].cmd_table_offset)
-            frame_start_ptr = (unsigned char*)new_slp + ((unsigned long*)frame_i[i].cmd_table_offset)[0];
-        else
-        {
-            frame_i[i].width = 0;
-            frame_start_ptr = 0;
-            continue;
-        }
-
-        frame_i[i].outline_table_offset = ptr - (unsigned char*)new_slp;
-
-        //trim outline rows
-        short min = 0x7FFF;
-        for (int j = 0; j < frame_i[i].height; j++)
-            if ((edge[i][j].left < min) && (edge[i][j].left != -32768))
-                min = edge[i][j].left;
-        if (min == 0x7FFF)    //frame is blank
-        {
-            frame_i[i].height = 0;
-            frame_i[i].width = 0;
-            frame_i[i].cmd_table_offset = 0;
-            frame_i[i].outline_table_offset = 0;
-            continue;
-        }
-        for (int j = 0; j < frame_i[i].height; j++)
-        {
-            if (edge[i][j].left != -32768)
-                edge[i][j].left -= min;
-            if (edge[i][j].right != -32768)
-                edge[i][j].right += min;
-        }
-        if (min != 0x7FFF)
-            frame_i[i].hotspot_x -= min;
-
-        //now, remove redudant rows
-        int first = 0;
-        int last = frame_i[i].height;
-        while ((edge[i][first].left == -32768) && (edge[i][first].right == -32768))
-        {
-            first++;
-            frame_i[i].hotspot_y--;
-            frame_i[i].height--;
-        }
-        do
-        {
-            last--;
-            frame_i[i].height--;
-        } while ((edge[i][last].left == -32768) && (edge[i][last].right == -32768));
-
-        frame_i[i].height++;
-
-        //compare with previous frame
-        if (!prev_frame_start_ptr || (frame_start_ptr == prev_frame_start_ptr) ||
-            memcmp(prev_frame_start_ptr, frame_start_ptr, frame_start_ptr - prev_frame_start_ptr) ||
-            !((frame_i[i].height == frame_i[i - 1].height) && compare_edges(edge, frame_i[i].height, i)))
-        {
-            short* p = (short*)ptr;
-            for (int j = first; j <= last; j++)
-            {
-                *p = edge[i][j].left; p++;
-                *p = edge[i][j].right; p++;
-            }
-            ptr = (unsigned char*)p;
-
-            //print cmd table offsets
-            unsigned long cmd_table_offset_tmp = (unsigned long)(ptr - (unsigned char*)new_slp);
-            unsigned long* q = (unsigned long*)ptr;
-            for (int j = first; j <= last; j++)
-            {
-                *q = ((unsigned long*)frame_i[i].cmd_table_offset)[j];    q++;
-            }
-            ptr = (unsigned char*)q;
-            free((void*)frame_i[i].cmd_table_offset);
-            frame_i[i].cmd_table_offset = cmd_table_offset_tmp;
-        }
-        else    //frames are equal
-        {
-            memmove(frame_start_ptr, frame_start_ptr + (frame_start_ptr - prev_frame_start_ptr),
-                ptr - (frame_start_ptr + (frame_start_ptr - prev_frame_start_ptr)));
-            ptr -= frame_start_ptr - prev_frame_start_ptr;
-            free((void*)frame_i[i].cmd_table_offset);
-
-            for (int k = 0; k < i; k++)
-                frame_i[k].cmd_table_offset -= frame_start_ptr - prev_frame_start_ptr;
-            frame_i[i].cmd_table_offset = frame_i[i - 1].cmd_table_offset;
-            frame_i[i].outline_table_offset = frame_i[i - 1].outline_table_offset;
-
-            for (int k = 0; k < hdr.num_frames; k++)
-            {
-                if (k > i)
-                    for (int s = 0; s < frame_i[k].height; s++)
-                        ((unsigned long*)frame_i[k].cmd_table_offset)[s] -= frame_start_ptr - prev_frame_start_ptr;
-                frame_i[k].outline_table_offset -= frame_start_ptr - prev_frame_start_ptr;
-            }
-
-            frame_start_ptr = prev_frame_start_ptr;
-        }
-    }
-    *size = ptr - (unsigned char*)new_slp;
-    ptr = (unsigned char*)new_slp + sizeof(file_header);
-    for (int i = 0; i < hdr.num_frames; i++)
-    {
-        *(unsigned long*)ptr = frame_i[i].cmd_table_offset;        ptr += 4;
-        *(unsigned long*)ptr = frame_i[i].outline_table_offset;    ptr += 4;
-        *(unsigned long*)ptr = frame_i[i].palette_offset;        ptr += 4;
-        *(unsigned long*)ptr = frame_i[i].properties;            ptr += 4;
-        *(long*)ptr = frame_i[i].width;                            ptr += 4;
-        *(long*)ptr = frame_i[i].height;                        ptr += 4;
-        *(long*)ptr = frame_i[i].hotspot_x;                        ptr += 4;
-        *(long*)ptr = frame_i[i].hotspot_y;                        ptr += 4;
-    }
-
-    return (unsigned char*)new_slp;
+    *size = ptr - data;
+    return data;
 }
 
-void SLP::color_replace(unsigned char* c, int count)
+void SLP::resize(int x, int y, T_PALETTE& pal)
 {
-    for (int i = 0; i < hdr.num_frames; i++)
-        for (int j = 0; j < frame_i[i].height; j++)
-            for (int k = 0; k < frame_i[i].width; k++)
-                if (frame_i[i].data[j][k].type == T_PIXEL)
+    for (int i = 0; i < meta.num_frames; i++)
+        if (x != frames[i].width || y != frames[i].height)
+        {
+            uint8_t* pixels = (uint8_t*)malloc(frames[i].width * frames[i].height * 3);
+            for (int j = 0; j < frames[i].height; j++)
+                for (int k = 0; k < frames[i].width; k++)
+                {
+                    COLORREF c = pal.get_entry(frames[i].scanlines[j].pixels[k].data);
+                    pixels[(j * frames[i].width + k)] = GetRValue(c);
+                    pixels[(j * frames[i].width + k) + frames[i].width * frames[i].height] = GetGValue(c);
+                    pixels[(j * frames[i].width + k) + frames[i].width * frames[i].height * 2] = GetBValue(c);
+                }
+
+            cimg_library::CImg<uint8_t> image(pixels, frames[i].width, frames[i].height, 1, 3);
+            image.resize(x, y, 1, 3, 5);
+
+            for (int j = 0; j < frames[i].height; j++)
+                delete[] frames[i].scanlines[j].pixels;
+            delete[] frames[i].scanlines;
+
+            frames[i].width = x;
+            frames[i].height = y;
+            frames[i].scanlines = new SLP_scanline[frames[i].height];
+            for (int j = 0; j < frames[i].height; j++)
+            {
+                frames[i].scanlines[j].pixels = new SLP_pixel[frames[i].width];
+                for (int k = 0; k < frames[i].width; k++)
+                {
+                    frames[i].scanlines[j].pixels[k].type = T_PIXEL;
+                    uint8_t r = image(k, j, 0, 0);
+                    uint8_t g = image(k, j, 0, 1);
+                    uint8_t b = image(k, j, 0, 2);
+                    frames[i].scanlines[j].pixels[k].data = pal.get_index(RGB(r, g, b));
+                }
+            }
+            free(pixels);
+        }
+}
+
+void SLP::color_replace(const uint8_t* c, int count)
+{
+    for (int i = 0; i < meta.num_frames; i++)
+        for (int j = 0; j < frames[i].height; j++)
+            for (int k = 0; k < frames[i].width; k++)
+                if (frames[i].scanlines[j].pixels[k].type == T_PIXEL)
                     for (int t = 0; t < count; t++)
-                        if (frame_i[i].data[j][k].data == c[t * 2])
+                        if (frames[i].scanlines[j].pixels[k].data == c[t * 2])
                         {
-                            frame_i[i].data[j][k].data = c[t * 2 + 1];
+                            frames[i].scanlines[j].pixels[k].data = c[t * 2 + 1];
                             break;
                         }
 }
-
-void SLP::resize(int new_x, int new_y, T_PALETTE& pal)
-{
-    if (new_x == frame_i[0].width && new_y == frame_i[0].height)
-        return;
-
-    unsigned char* pixels = (unsigned char*) malloc(frame_i[0].width * frame_i[0].height * 3);
-    //T_PALETTE pal(NULL);
-    for (int j = 0; j < frame_i[0].height; j++)
-        for (int i = 0; i < frame_i[0].width; i++)
-        {
-            COLORREF c = pal.get_entry(frame_i[0].data[j][i].data);
-            //COLORREF c = RGB(i/8, 0, 0);
-            pixels[(j * frame_i[0].width + i)] = GetRValue(c);
-            pixels[(j * frame_i[0].width + i) + frame_i[0].width * frame_i[0].height] = GetGValue(c);
-            pixels[(j * frame_i[0].width + i) + frame_i[0].width * frame_i[0].height * 2] = GetBValue(c);
-        }
-
-    cimg_library::CImg<unsigned char> image(pixels, frame_i[0].width, frame_i[0].height, 1, 3);
-
-    image.resize(new_x, new_y, 1, 3, 5);
-
-    rowedge* re = new rowedge[new_y];
-    delete[] edge[0];
-    edge[0] = re;
-    for (int j = 0; j < new_y; j++)
-    {
-        edge[0][j].left = 0;
-        edge[0][j].right = 0;
-    }
-
-    pixel** new_px = new pixel * [new_y];
-    for (int j = 0; j < frame_i[0].height; j++)
-        delete[] frame_i[0].data[j];
-    delete[] frame_i[0].data;
-    frame_i[0].data = new_px;
-    for (int j = 0; j < new_y; j++)
-    {
-        frame_i[0].data[j] = new pixel[new_x];
-        for (int k = 0; k < new_x; k++)
-        {
-            frame_i[0].data[j][k].type = T_PIXEL;
-            unsigned char r = image(k, j, 0, 0);
-            unsigned char g = image(k, j, 0, 1);
-            unsigned char b = image(k, j, 0, 2);
-            frame_i[0].data[j][k].data = pal.get_index(RGB(r, g, b));
-        }
-    }
-    frame_i[0].width = new_x;
-    frame_i[0].height = new_y;
-
-    free(pixels);
-}
-
-//TODO:
-//INVESTIGATE SLPS IN RELEASE FOLDER
-//FIX CLIFFS
-//INTERFACE SLPS
-//WORK ON REPEAT COMMAND
