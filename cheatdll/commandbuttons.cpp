@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "commandbuttons.h"
+#include "harbor.h"
 
 bool allow_incomplete_foundation = false;
 
@@ -96,6 +97,8 @@ __declspec(naked) void on_display_back_to_work() //00505B98
         cmp     ax, 52h
         jz      display_back_to_work_button
         cmp     ax, 4Fh
+        jz      display_back_to_work_button
+        cmp     ax, HARBOR_ID_COMPLETE
         jz      display_back_to_work_button
         mov     eax, 00505BCDh
         jmp     eax
