@@ -145,9 +145,13 @@ void* RESFILE::get_resource(unsigned int ext, int id, int* size)
                 if (!entry.data)
                 {
                     FILE* f = res_files[entry.resfile_id];
-                    entry.data = malloc(entry.size);
+                    size_t size_adjusted = entry.size + 1;
+                    entry.data = malloc(size_adjusted);
                     fseek(f, entry.offset, SEEK_SET);
                     fread(entry.data, entry.size, 1, f);
+
+                    //part of the engine assumes loaded file is a null-terminated string...
+                    ((uint8_t*)entry.data)[entry.size] = 0;
                 }
                 entry.reference_count++;
                 data = entry.data;

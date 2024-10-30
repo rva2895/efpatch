@@ -46,7 +46,7 @@ drs_file_info drs_files[] =   //cc      ef     non-wide prefix  no mapping
 {
     {"sounds.drs",              true,   true,   true,   false,  true },
     {"sounds_x1.drs",           true,   true,   true,   false,  true },
-    {"sounds_x2.drs",           false,  true,   true,   true,   true },
+    {"sounds_x2.drs",           false,  true,   true,   true,   false },
     {"graphics.drs",            true,   false,  true,   true,   false },
     {"graphics_p1.drs",         false,  true,   true,   true,   false },
     {"graphics_x1.drs",         true,   false,  true,   true,   false },
