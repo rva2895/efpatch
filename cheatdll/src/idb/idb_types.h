@@ -428,6 +428,7 @@ struct FullMapPrintDialogVtbl;
 struct RGE_TimelineVtbl;
 struct RGE_Time_Entry;
 struct Time_Line_PanelVtbl;
+struct Time_Slice_Draw_Data;
 struct VictoryConditionRuleSystemVtbl;
 struct AIModuleIDVtbl;
 struct AIModuleMessage;
@@ -845,7 +846,17 @@ struct TRIBE_Player
   float trade_vig_rate;
   int trade_refresh_timer;
   int trade_refresh_rate;
-  int farm_queue_count;
+  union
+  {
+    int farm_queue_count;
+    struct
+    {
+      __int8 farm_queue_count_new;
+      __int8 aqua_harvester_queue_count_new;
+      __int8 farm_auto_reseed;
+      __int8 aqua_harvester_auto_reseed;
+    };
+  };
 };
 #pragma pack(pop)
 
@@ -4947,9 +4958,12 @@ struct RGE_Zone_Map_List
 #pragma pack(pop)
 
 /* 278 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct RGE_Unified_Visible_Map
 {
+  int mapWidth;
+  int mapHeight;
+  unsigned int *UnifiedVisibleMap;
 };
 #pragma pack(pop)
 
@@ -9360,9 +9374,15 @@ struct RGE_Command_Give_Attribute
 #pragma pack(pop)
 
 /* 153 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Give_Attribute
 {
+  unsigned __int8 command;
+  unsigned __int8 player_id;
+  unsigned __int8 to_player_id;
+  unsigned __int8 attr_id;
+  float attr_amount;
+  float attr_cost;
 };
 #pragma pack(pop)
 
@@ -14176,9 +14196,21 @@ struct Time_Line_PanelVtbl
 #pragma pack(pop)
 
 /* 324 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct Player_Time_Slice_Data
 {
+  int world_time_slice;
+  int local_time_slice;
+  int total_world_pop;
+  int time_slice_age;
+  int player_id;
+  int total_player_pop;
+  int civilian_pop;
+  int military_pop;
+  Time_Slice_Draw_Data *draw_data;
+  int max_number_time_slice_events;
+  int number_time_slice_events;
+  Time_Slice_History_Event **time_slice_events;
 };
 #pragma pack(pop)
 
@@ -14665,6 +14697,18 @@ struct RGE_ActionVtbl
   void (__thiscall *set_target_obj)(RGE_Action *, RGE_Static_Object *);
   void (__thiscall *set_target_obj2)(RGE_Action *, RGE_Static_Object *);
   void (__thiscall *set_state)(RGE_Action *, unsigned __int8);
+};
+#pragma pack(pop)
+
+/* 929 */
+#pragma pack(push, 8)
+struct Time_Slice_Draw_Data
+{
+  int x_line_pos;
+  int y_line_pos;
+  int intermediate_y_line_segment;
+  int intermediate_civ_pop_y_line_segment;
+  int intermediate_mil_pop_y_line_segment;
 };
 #pragma pack(pop)
 
@@ -18714,16 +18758,26 @@ struct TRIBE_Screen_Status_MessageVtbl
 #pragma pack(pop)
 
 /* 139 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Make
 {
+  unsigned __int8 command;
+  int unit_id;
+  unsigned __int8 unit_player_id;
+  __int16 obj_id;
+  int unique_id;
 };
 #pragma pack(pop)
 
 /* 141 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Research
 {
+  unsigned __int8 command;
+  int unit_id;
+  unsigned __int8 unit_player_id;
+  __int16 tech_id;
+  int unique_id;
 };
 #pragma pack(pop)
 
@@ -18789,9 +18843,17 @@ struct TRIBE_Action_Make_TechVtbl
 #pragma pack(pop)
 
 /* 147 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Build
 {
+  unsigned __int8 command;
+  unsigned __int8 unit_num;
+  unsigned __int8 unit_player_id;
+  float location_x;
+  float location_y;
+  __int16 obj_id;
+  int unique_id;
+  unsigned __int8 frame;
 };
 #pragma pack(pop)
 
@@ -18799,43 +18861,64 @@ struct TRIBE_Command_Build
 #pragma pack(push, 8)
 struct TRIBE_Command_Build_Wall
 {
-    unsigned __int8 command;
-    unsigned __int8 unit_num;
-    unsigned __int8 unit_player_id;
-    unsigned __int8 x1;
-    unsigned __int8 y1;
-    unsigned __int8 x2;
-    unsigned __int8 y2;
-    __int16 obj_id;
-    int unique_id;
+  unsigned __int8 command;
+  unsigned __int8 unit_num;
+  unsigned __int8 unit_player_id;
+  unsigned __int8 x1;
+  unsigned __int8 y1;
+  unsigned __int8 x2;
+  unsigned __int8 y2;
+  __int16 obj_id;
+  int unique_id;
 };
 #pragma pack(pop)
 
 /* 150 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Game
 {
+  unsigned __int8 command;
+  unsigned __int8 game_command;
+  __int16 var1;
+  __int16 var2;
+  float var3;
+  unsigned int var4;
 };
 #pragma pack(pop)
 
 /* 152 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Attack_Ground
 {
+  unsigned __int8 command;
+  unsigned __int8 unit_num;
+  float location_x;
+  float location_y;
 };
 #pragma pack(pop)
 
 /* 154 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Repair
 {
+  unsigned __int8 command;
+  unsigned __int8 unit_num;
+  RGE_Obj_Info target;
 };
 #pragma pack(pop)
 
 /* 155 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Unit_Order
 {
+  unsigned __int8 command;
+  unsigned __int8 unit_num;
+  RGE_Obj_Info target;
+  unsigned __int8 action;
+  unsigned __int8 param;
+  float x;
+  float y;
+  int unique_id;
 };
 #pragma pack(pop)
 
@@ -19119,44 +19202,71 @@ struct TRIBE_Command_Diplomacy
 #pragma pack(pop)
 
 /* 177 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Queue
 {
+  unsigned __int8 command;
+  int bldg_id;
+  __int16 train_id;
+  __int16 train_count;
 };
 #pragma pack(pop)
 
 /* 178 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Unload
 {
+  unsigned __int8 command;
+  unsigned __int8 unit_num;
+  float location_x;
+  float location_y;
+  unsigned __int8 unload_flag;
+  int unload_unit_type;
 };
 #pragma pack(pop)
 
 /* 179 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Gate
 {
+  unsigned __int8 command;
+  int unit_id;
 };
 #pragma pack(pop)
 
 /* 180 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Flare
 {
+  unsigned __int8 command;
+  int unit_id;
+  unsigned __int8 player_flare_flags[9];
+  float location_x;
+  float location_y;
+  unsigned __int8 player_id;
+  unsigned __int8 comm_player_id;
 };
 #pragma pack(pop)
 
 /* 182 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Set_Gather_Point
 {
+  unsigned __int8 command;
+  unsigned __int8 unit_num;
+  int target_id;
+  __int16 target_master_id;
+  float location_x;
+  float location_y;
 };
 #pragma pack(pop)
 
 /* 183 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Set_Retreat_Point
 {
+  unsigned __int8 command;
+  int unit_id;
 };
 #pragma pack(pop)
 
@@ -19226,16 +19336,21 @@ struct TRIBE_Action_Unit_TransformVtbl
 #pragma pack(pop)
 
 /* 186 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Drop_Relic
 {
+  unsigned __int8 command;
+  RGE_Obj_Info unit;
 };
 #pragma pack(pop)
 
 /* 187 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Command_Alarm
 {
+  unsigned __int8 command;
+  RGE_Obj_Info unit;
+  unsigned __int8 activate_flag;
 };
 #pragma pack(pop)
 
@@ -23995,12 +24110,12 @@ struct RGE_Hotkey_HandlerVtbl
 #pragma pack(push, 8)
 struct RGE_Pick_Info
 {
-    float x;
-    float y;
-    __int16 scr_x;
-    __int16 scr_y;
-    RGE_Static_Object* object;
-    RGE_Tile* tile;
+  float x;
+  float y;
+  __int16 scr_x;
+  __int16 scr_y;
+  RGE_Static_Object *object;
+  RGE_Tile *tile;
 };
 #pragma pack(pop)
 
@@ -25351,9 +25466,16 @@ struct RGE_Check_Node
 #pragma pack(pop)
 
 /* 326 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct SLP_Template
 {
+  int Width;
+  int Height;
+  int HotX;
+  int HotY;
+  int Shape_Data_Size;
+  unsigned int *Outline_Value_Table;
+  unsigned int *Offsets_Table;
 };
 #pragma pack(pop)
 
@@ -35838,18 +35960,6 @@ typedef int TScrollBarPanel__ActionType;
 /* 895 */
 typedef int TRIBE_Panel_Button__GarrisonDiplayType;
 
-/* 929 */
-#pragma pack(push, 8)
-struct Time_Slice_Draw_Data
-{
-  int x_line_pos;
-  int y_line_pos;
-  int intermediate_y_line_segment;
-  int intermediate_civ_pop_y_line_segment;
-  int intermediate_mil_pop_y_line_segment;
-};
-#pragma pack(pop)
-
 /* 951 */
 #pragma pack(push, 8)
 struct TribeInformationAIModuleVtbl
@@ -36330,6 +36440,47 @@ struct RGE_ViewVtbl
   void (__thiscall *draw_object_outline)(RGE_View *);
   int (__thiscall *pick_objects)(RGE_View *, int, int, int, int, int, int, int);
   int (__thiscall *pick_multi_objects)(RGE_View *, int, int, int, int, int, int, int, unsigned __int8, int);
+};
+#pragma pack(pop)
+
+/* 1080 */
+#pragma pack(push, 8)
+struct TRIBE_Command_Buy_Sell_Attribute
+{
+  unsigned __int8 command;
+  unsigned __int8 player_id;
+  unsigned __int8 attr_id;
+  unsigned __int8 lot_count;
+  int unit_id;
+};
+#pragma pack(pop)
+
+/* 1081 */
+#pragma pack(push, 8)
+struct TRIBE_Command_Cancel_Build
+{
+  unsigned __int8 command;
+  int unit_id;
+  int unit_player_id;
+};
+#pragma pack(pop)
+
+/* 1082 */
+#pragma pack(push, 8)
+struct TRIBE_Command_Go_Back_To_Work
+{
+  unsigned __int8 command;
+  RGE_Obj_Info unit;
+};
+#pragma pack(pop)
+
+/* 1083 */
+#pragma pack(push, 8)
+struct TRIBE_Command_Trade_Attribute
+{
+  unsigned __int8 command;
+  unsigned __int8 unit_num;
+  int attribute;
 };
 #pragma pack(pop)
 
