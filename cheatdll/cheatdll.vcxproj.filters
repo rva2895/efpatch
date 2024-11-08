@@ -561,6 +561,9 @@
     <ClInclude Include="wallbuild.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
+    <ClInclude Include="farm.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -1063,6 +1066,9 @@
     </ClCompile>
     <ClCompile Include="wallbuild.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="farm.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

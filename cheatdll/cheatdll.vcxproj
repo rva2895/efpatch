@@ -267,6 +267,7 @@
     <ClInclude Include="effect_command.h" />
     <ClInclude Include="elevation.h" />
     <ClInclude Include="expldroid.h" />
+    <ClInclude Include="farm.h" />
     <ClInclude Include="filenames.h" />
     <ClInclude Include="fixedpos.h" />
     <ClInclude Include="flare.h" />
@@ -451,6 +452,7 @@
     <ClCompile Include="effect_command.cpp" />
     <ClCompile Include="elevation.cpp" />
     <ClCompile Include="expldroid.cpp" />
+    <ClCompile Include="farm.cpp" />
     <ClCompile Include="filenames.cpp" />
     <ClCompile Include="fixedpos.cpp" />
     <ClCompile Include="flare.cpp" />
