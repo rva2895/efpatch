@@ -12,17 +12,17 @@ struct drs_file_info
 };
 
 //for legacy drs load
-/*
+
 drs_file_info drs_files[] =   //cc      ef     non-wide prefix  no mapping
 {
     {"sounds.drs",              true,   true,   true,   false,  true },
     {"sounds_x1.drs",           true,   true,   true,   false,  true },
     {"sounds_x2.drs",           false,  true,   true,   true,   true },
-    {"graphics.drs",            true,   false,  true,   true,   false },
-    {"graphics_p1.drs",         false,  true,   true,   true,   false },
-    {"graphics_x1.drs",         true,   false,  true,   true,   false },
-    {"graphics_x1_p1.drs",      false,  true,   true,   true,   false },
-    {"graphics_x2.drs",         false,  true,   true,   true,   false },
+    {"graphics.drs",            true,   false,  true,   true,   true },
+    {"graphics_p1.drs",         false,  true,   true,   true,   true },
+    {"graphics_x1.drs",         true,   false,  true,   true,   true },
+    {"graphics_x1_p1.drs",      false,  true,   true,   true,   true },
+    {"graphics_x2.drs",         false,  true,   true,   true,   true },
     {"terrain.drs",             true,   false,  true,   true,   false },
     {"terrain_p1.drs",          false,  true,   true,   true,   false },
     {"terrain_x1.drs",          true,   false,  true,   true,   false },
@@ -39,14 +39,15 @@ drs_file_info drs_files[] =   //cc      ef     non-wide prefix  no mapping
     {"gamedata_x1.drs",         true,   false,  true,   true,   false },
     {"gamedata_x2.drs",         false,  true,   true,   true,   false }
 };
-*/
+
 
 //for new drs load
+/*
 drs_file_info drs_files[] =   //cc      ef     non-wide prefix  no mapping
 {
     {"sounds.drs",              true,   true,   true,   false,  true },
     {"sounds_x1.drs",           true,   true,   true,   false,  true },
-    {"sounds_x2.drs",           false,  true,   true,   true,   false },
+    {"sounds_x2.drs",           false,  true,   true,   true,   true },
     {"graphics.drs",            true,   false,  true,   true,   false },
     {"graphics_p1.drs",         false,  true,   true,   true,   false },
     {"graphics_x1.drs",         true,   false,  true,   true,   false },
@@ -67,6 +68,7 @@ drs_file_info drs_files[] =   //cc      ef     non-wide prefix  no mapping
     {"gamedata_x1.drs",         true,   false,  true,   true,   false },
     {"gamedata_x2.drs",         false,  true,   true,   true,   false }
 };
+*/
 
 __declspec(naked) void drsHeaderEnd() //004D4FE8
 {
@@ -98,7 +100,7 @@ bool is_loaded_in_current_mode(drs_file_info& drs_file)
 
 std::string get_adjusted_name(drs_file_info& drs_file)
 {
-    if (drs_mode_ef && !drs_file.no_mapping)
+    if (drs_mode_ef && drs_file.prefix_required)
         return DATA_FOLDER_PREFIX_FROM_DATA + drs_file.filename;
     else
         return drs_file.filename;
