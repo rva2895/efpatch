@@ -93,3 +93,5 @@ template <class T> inline void SafeRelease(T** ppT)
         *ppT = NULL;
     }
 }
+
+bool check_dwrite_available();

@@ -608,7 +608,7 @@ uint8_t* SLP::write(int* size, bool allow_fill)
             uint16_t left;
             uint16_t right;
             int k = 0;
-            while (frames[i].scanlines[j].pixels[k].type == T_TRANSPARENT && k < frames[i].width)
+            while (k < frames[i].width && frames[i].scanlines[j].pixels[k].type == T_TRANSPARENT)
                 k++;
             if (k >= frames[i].width)   //line is blank
             {

@@ -271,6 +271,9 @@ void setHooksCC()
     if (cd.minimap7)
         setMinimapHooks();
 
+    if (!check_dwrite_available())
+        cd.textRendering = 0;
+
     if (cd.largeText)
         setTextSizeHooks(cd.textRendering);
 
