@@ -103,6 +103,18 @@ void __cdecl setHook(void* addr, void* newAddr)
 #endif
 }
 
+void __cdecl setHookCall(void* addr, void* newAddr)
+{
+#ifndef TARGET_VOOBLY
+    BYTE data[8];
+    data[3] = 0xE8;
+    *((DWORD*)data + 1) = (DWORD)newAddr - (DWORD)addr - 5;
+    WriteProcessMemory(GetCurrentProcess(), addr, data + 3, 5, NULL);
+#else
+    g_pVoobly->WriteJump((DWORD)addr, newAddr);
+#endif
+}
+
 errno_t __cdecl strcpy_safe(char* dest, size_t size, const char* source)
 {
     if (size > 0)
