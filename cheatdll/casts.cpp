@@ -662,38 +662,26 @@ __declspec(naked) void readSaveHook() //004AEEEE
     }
 }
 
-bool __stdcall test_save_game_version(char* version, int stream, bool from_chapter)
+bool __stdcall test_save_game_version(char* ver_str, int file_handle, bool from_chapter)
 {
-    bool setup_dat_file_ret = false;
-    if (!strncmp(version, "VER 9.4", 8))
-    {
-        if (!from_chapter) //workaround for a bug in previous version
-            current_save_game_version = -1;
-        return true;
-    }
-    else if (!strncmp(version, "VER 9.8", 8))
+    current_save_game_version = -1;
+    if (!strncmp(ver_str, "VER 9.4", 8) && from_chapter)    //VER 9.8 chapter save bug
     {
         current_save_game_version = 0;
-        if (!from_chapter)
-            setup_dat_file_ret = setup_dat_file();
-        return !setup_dat_file_ret;
     }
-    else if (!strncmp(version, "VER 9.9", 8))
+    if (!strncmp(ver_str, "VER 9.8", 8))
+    {
+        current_save_game_version = 0;
+    }
+    else if (!strncmp(ver_str, "VER 9.9", 8))
     {
         int sub_version;
-        rge_read(stream, &sub_version, sizeof(sub_version));
+        rge_read(file_handle, &sub_version, sizeof(sub_version));
         if (sub_version >= 1)
-        {
             current_save_game_version = sub_version;
-            if (!from_chapter)
-                setup_dat_file_ret = setup_dat_file();
-            return !setup_dat_file_ret;
-        }
-        else
-            return false;
     }
-    else
-        return false;
+
+    return current_save_game_version != -1;
 }
 
 __declspec(naked) void verLoadHook1() //0061D9A5

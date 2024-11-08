@@ -31,6 +31,7 @@ void __cdecl writeNops(DWORD addr, size_t len);
 void __cdecl writeByteF(DWORD addr, BYTE val);
 void __cdecl writeDwordF(DWORD addr, DWORD val);
 void __cdecl setHook(void* addr, void* newAddr);
+void __cdecl setHookCall(void* addr, void* newAddr);
 void __cdecl writeData(DWORD addr, const void* data, size_t len);
 //void __cdecl setHookRestorable (void* addr, void* newAddr, void* oldData);
 //void __cdecl restoreHook (void* addr, void* oldData);
