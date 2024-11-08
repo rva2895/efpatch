@@ -275,6 +275,7 @@
     <ClInclude Include="gaiatechtree.h" />
     <ClInclude Include="gamemode.h" />
     <ClInclude Include="gamespeed.h" />
+    <ClInclude Include="memory.h" />
     <ClInclude Include="textrender.h" />
     <ClInclude Include="guardandfollow.h" />
     <ClInclude Include="harbor.h" />
@@ -460,6 +461,7 @@
     <ClCompile Include="gaiatechtree.cpp" />
     <ClCompile Include="gamemode.cpp" />
     <ClCompile Include="gamespeed.cpp" />
+    <ClCompile Include="memory.cpp" />
     <ClCompile Include="textrender.cpp" />
     <ClCompile Include="guardandfollow.cpp" />
     <ClCompile Include="harbor.cpp" />
