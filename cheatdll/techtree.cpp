@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "techtree.h"
 
+extern int current_loaded_version;
+
 __declspec(naked) void tech_size_1() //005C2B20
 {
     __asm
@@ -583,8 +585,6 @@ __declspec(naked) void age_unit_size_9() //005C2D77
     }
 }
 
-extern int current_loaded_version;
-
 __declspec(naked) void tech_size_1_load() //005C269D
 {
     __asm
@@ -848,52 +848,100 @@ int __fastcall TribeTechHelpScreen__make_bld_zone_constructor_list_new(TribeTech
     Bld_Zone_Constructer* insert_point = TribeTechHelpScreen__insert_building_zone_constructs(tech_tree, buildings->building_id, &bld_zone_cntr, 0, buildings, ages);
     TribeTechHelpScreen__insert_building_id(tech_tree, 109);
     TribeTechHelpScreen__calculate_num_bld_zones_by_bld(tech_tree, buildings->building_id);
-
-    int n = tech_tree->player_tech_tree_help->number_buildings;
-    for (int i = 0; i < n; i++)
+    
+    if (current_loaded_version >= 8)
     {
-        int id = tech_tree->player_tech_tree_help->tech_tree_buildings[i].building_id;
-        if (id != 109)
-            insert_point = tech_tree_insert_bldg(tech_tree, id == 87 ? 0 : insert_point, id, &bld_zone_cntr);
+        int n = tech_tree->player_tech_tree_help->number_buildings;
+        for (int i = 0; i < n; i++)
+        {
+            int id = tech_tree->player_tech_tree_help->tech_tree_buildings[i].building_id;
+            if (id != 109)
+                insert_point = tech_tree_insert_bldg(tech_tree, id == 87 ? 0 : insert_point, id, &bld_zone_cntr);
+        }
     }
+    else
+    {
+        //insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 621, &bld_zone_cntr);
 
-    /*
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 621, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 49, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 317, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 103, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 209, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 584, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 323, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 562, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 84, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 319, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 68, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 50, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, 0, 87, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 12, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 101, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 276, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 45, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 199, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 1576, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 598, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 79, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 234, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 235, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 236, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 196, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 72, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 487, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 117, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 155, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 195, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 335, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 104, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 82, &bld_zone_cntr);
-    insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 70, &bld_zone_cntr);*/
-
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 49, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 317, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 103, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 209, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 584, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 323, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 562, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 84, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 319, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 68, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 50, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, 0, 87, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 12, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 101, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 276, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 45, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 199, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 1576, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 598, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 79, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 234, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 235, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 236, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 196, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 72, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 487, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 117, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 155, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 195, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 335, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 104, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 82, &bld_zone_cntr);
+        insert_point = tech_tree_insert_bldg(tech_tree, insert_point, 70, &bld_zone_cntr);
+    }
     return bld_zone_cntr;
+}
+
+extern void* techTreeBldg;
+extern void* techTreeUnit;
+extern void* techTreeTech;
+
+void __stdcall techtree_set_button_pics(TribeTechHelpScreen* tech_tree)
+{
+    TribePopUpHelp* popup_help = tech_tree->popUpHelp1;
+    if (!popup_help)
+        return;
+
+    TShape** tech_tree_tech_pics = (TShape**)techTreeTech;
+    TShape** tech_tree_bldg_pics = (TShape**)techTreeBldg;
+    TShape** tech_tree_unit_pics = (TShape**)techTreeUnit;
+
+    int master_player_id = tech_tree->current_tech_tree_master_player_id > 0 ? tech_tree->current_tech_tree_master_player_id : 1;
+
+    popup_help->button_pics_bld = tech_tree_bldg_pics[master_player_id];
+    popup_help->button_pics_tech = tech_tree_tech_pics[master_player_id];
+    popup_help->button_pics_unit = tech_tree_unit_pics[master_player_id];
+    popup_help->node_zone_height = 64;
+    popup_help->node_zone_width = 64;
+    popup_help->technode_popup_pics = tech_tree->tech_node_pic;
+    popup_help->button_pic_height = 36;
+    popup_help->button_pic_width = 36;
+    popup_help->button_node_offset_x = 14;
+    popup_help->button_node_offset_y = 3;
+}
+
+__declspec(naked) void on_set_techtree_button_pic() //00463E38
+{
+    __asm
+    {
+        mov     dword ptr [esi + 0E68h], 3
+        push    eax
+        push    ecx
+        push    esi
+        call    techtree_set_button_pics
+        pop     ecx
+        pop     eax
+        mov     edx, 00463E42h
+        jmp     edx
+    }
 }
 
 #pragma optimize( "s", on )
@@ -983,6 +1031,9 @@ void setTechTreeHooks()
 
     //tech level skip extra lines
     writeByte(0x005C5332, 0xEB);
+
+    //popup help requirements
+    setHook((void*)0x00463E38, on_set_techtree_button_pic);
 
     setHook((void*)0x00464F10, TribeTechHelpScreen__make_bld_zone_constructor_list_new);
 }
