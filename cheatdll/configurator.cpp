@@ -6,6 +6,7 @@
 #include "resolution.h"
 #include "palette.h"
 #include "localisation.h"
+#include "textrender.h"
 
 #include <CommCtrl.h>
 
@@ -166,6 +167,12 @@ void readSettingsToDialog(HWND hWnd)
     EnableWindow(GetDlgItem(hWnd, IDC_CHECK_DSH), FALSE);
     EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_NBUFS), FALSE);
     EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_DELAY), FALSE);
+
+    if (!check_dwrite_available())
+    {
+        cd.textRendering = 0;
+        EnableWindow(GetDlgItem(hWnd, IDC_CHECK_TEXT_RENDERING), FALSE);
+    }
 
     CheckDlgButton(hWnd, IDC_CHECK_TEXT_RENDERING, cd.textRendering);
     CheckDlgButton(hWnd, IDC_CHECK_CHATBOX, cd.chatBox);

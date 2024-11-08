@@ -6,6 +6,12 @@
 
 extern CONFIG_DATA cd;
 
+HRESULT (__stdcall* DWriteCreateFactory_ptr)(
+    __in DWRITE_FACTORY_TYPE factoryType,
+    __in REFIID iid,
+    __out IUnknown** factory
+);
+
 HRESULT DWriteDrawText(int x, int y, bool right_align, COLORREF color);
 HRESULT DWritePrepareText(HDC hdc, const wchar_t* text, HFONT hfont, int x, int y, int cx, int cy, UINT format);
 
@@ -416,7 +422,7 @@ HRESULT DWriteInit()
     if (!g_pDWriteFactory)
     {
         // Create the DirectWrite factory.
-        hr = DWriteCreateFactory(
+        hr = DWriteCreateFactory_ptr(
             DWRITE_FACTORY_TYPE_SHARED,
             __uuidof(IDWriteFactory),
             reinterpret_cast<IUnknown**>(&g_pDWriteFactory)
@@ -714,6 +720,19 @@ UINT __stdcall SetTextAlign_new(HDC hdc, UINT align)
     UINT prev = text_align;
     text_align = align;
     return prev;
+}
+
+bool check_dwrite_available()
+{
+    HMODULE h = LoadLibrary("dwrite.dll");
+    if (!h)
+        return false;
+
+    DWriteCreateFactory_ptr = (HRESULT(__stdcall*)(DWRITE_FACTORY_TYPE, const IID&, IUnknown**))GetProcAddress(h, "DWriteCreateFactory");
+    if (!DWriteCreateFactory_ptr)
+        return false;
+
+    return true;
 }
 
 #pragma optimize( "s", on )
