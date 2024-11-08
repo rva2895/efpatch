@@ -135,6 +135,7 @@
 #include "harbor.h"
 #include "textsize.h"
 #include "wallbuild.h"
+#include "farm.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -496,10 +497,9 @@ void setHooksEF()
     setMapListHooks();
 
     setHuntHooks();
-
     setShieldHooks();
-
     setHarborHooks();
+    setFarmHooks();
 
     /*
 #ifdef TARGET_VOOBLY
