@@ -9,6 +9,7 @@
 #include "palette.h"
 #include "rec.h"
 #include "overlay.h"
+#include "memory.h"
 
 extern int placementSettings;
 extern int cliff_type;
@@ -63,6 +64,8 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
     cd.crashReporting = 0;
 #endif
 
+    new_allocator_install();
+
     if (cd.largeMaps)
     {
         log("Large maps enabled, crash reporting forced OFF");
@@ -94,6 +97,8 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
         log("Calling WinMain_exe");
         retval = WinMain_exe(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
     }
+
+    new_allocator_uninstall();
 
     log("WinMain_exe returned %d, exiting", retval);
 

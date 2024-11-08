@@ -22,6 +22,7 @@
 #include "rundll.h"
 #include "resolution.h"
 #include "registry.h"
+#include "memory.h"
 #ifdef VOOBLY_EF
 #include "palette.h"
 #endif
@@ -284,9 +285,16 @@ void __stdcall delayed_start_process()
     if (cd.widescrnEnabled)
         resolutionTool(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), false, true);
 #endif
+
+    new_allocator_install();
 }
 
-__declspec(naked) void delayed_start_hook()
+void __stdcall delayed_end_process()
+{
+    new_allocator_uninstall();
+}
+
+__declspec(naked) void delayed_start_hook() //0048EFD3
 {
     __asm
     {
@@ -295,6 +303,18 @@ __declspec(naked) void delayed_start_hook()
         xor     eax, eax
         mov     ebx, 0048EFD8h
         jmp     ebx
+    }
+}
+
+__declspec(naked) void delayed_end_hook() //0048F7FC
+{
+    __asm
+    {
+        push    eax
+        call    delayed_end_process
+        pop     eax
+        add     esp, 1B88h
+        retn    10h
     }
 }
 
@@ -315,6 +335,7 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
 #endif
 
     g_pVoobly->WriteJump(0x0048EFD3, delayed_start_hook);
+    g_pVoobly->WriteJump(0x0048F7FC, delayed_end_hook);
 
     if (strstr(config.VooblyModDirPath, "Data Patch"))
     {

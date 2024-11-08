@@ -564,6 +564,9 @@
     <ClInclude Include="farm.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
+    <ClInclude Include="memory.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -1069,6 +1072,9 @@
     </ClCompile>
     <ClCompile Include="farm.cpp">
       <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="memory.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
