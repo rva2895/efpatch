@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "harbor.h"
 
+extern int current_loaded_version;
+
 __declspec(naked) void on_command_make_bldg() //005D022C
 {
     __asm
@@ -311,6 +313,28 @@ loc_55F19E:
     }
 }
 
+__declspec(naked) void harbor_drop_off_on_enter() //0040375F
+{
+    __asm
+    {
+        cmp     word ptr [eax + 1Eh], 58
+        jz      enter_drop_resources
+        cmp     word ptr [eax + 1Eh], 14
+        jnz     enter_no_drop_resources
+        mov     edx, current_loaded_version
+        cmp     edx, 8
+        jge     enter_drop_resources
+
+enter_no_drop_resources:
+        mov     edx, 00403843h
+        jmp     edx
+
+enter_drop_resources:
+        mov     edx, 0040376Ah
+        jmp     edx
+    }
+}
+
 #pragma optimize( "s", on )
 void setHarborHooks()
 {
@@ -348,5 +372,7 @@ void setHarborHooks()
     setHook((void*)0x005D56E8, harbor_back_to_work_2);
     setHook((void*)0x0055F15E, harbor_back_to_work_3);
     setHook((void*)0x0055F198, harbor_back_to_work_4);
+
+    setHook((void*)0x0040375F, harbor_drop_off_on_enter);
 }
 #pragma optimize( "", on )
