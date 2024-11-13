@@ -104,6 +104,7 @@ __declspec(naked) void on_create_font() //00427EE6
 const int text_size_shift_offset = 15;
 const int text_size_shift_offset_small = 10;
 
+#pragma optimize( "s", on )
 void setTextSizeHooks(bool text_rendering)
 {
     writeByte(0x005D85C5, 3);   //resource y offset
@@ -178,3 +179,4 @@ void setTextSizeHooks(bool text_rendering)
     writeByte(0x004EB7BC, 97);
     writeDword(0x004EB7A3, 85);
 }
+#pragma optimize( "", on )

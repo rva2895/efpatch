@@ -56,7 +56,6 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
     initialSetup();
 
     writeDword(0x00426509, (DWORD)WndProc_dll);
-    FlushInstructionCache(GetCurrentProcess(), NULL, 0);
 
     int retval;
 
@@ -65,6 +64,8 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
 #endif
 
     new_allocator_install();
+
+    FlushInstructionCache(GetCurrentProcess(), NULL, 0);
 
     if (cd.largeMaps)
     {

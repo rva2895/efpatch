@@ -21,7 +21,7 @@
 
 #include "resfile.h"
 
-extern RESFILE resfile;
+//extern RESFILE resfile;
 
 #ifdef _DEBUG
 
@@ -262,7 +262,7 @@ void thread_proc(void* p)
 
 //DWORD performance_time = 0;
 
-extern void __stdcall make_oos_dump();
+//extern void __stdcall make_oos_dump();
 
 //extern std::vector<FUNCTION_HOOK*> function_hooks;
 
@@ -305,6 +305,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         sendChat(EFPATCH_VERSION, -1);
         return 1;
     }
+    /*
     else if (!strcmp(s, "/resfile"))
     {
         resfile.calc();
@@ -315,6 +316,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         resfile.collect_garbage();
         return 1;
     }
+    */
     /*
     else if (!strcmp(s, "/save"))
     {
@@ -433,8 +435,8 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         memory_temp = 0x100000;
         return 1;
     }*/
-    
-    /*else if (!strcmp(s, "/dump-world"))
+    /*
+    else if (!strcmp(s, "/dump-world"))
     {
         srand(timeGetTime());
         unsigned int r = rand();
@@ -445,15 +447,11 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         chat("Dump complete");
         return 1;
     }
-    */
-    /*
     else if (!strcmp(s, "/worldtime"))
     {
         chat("Worldtime = %u", get_worldtime());
         return 1;
     }
-    */
-    /*
     else if (strstr(s, "/set-max"))
     {
         char d[0x100];
@@ -522,7 +520,6 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
 
         return true;
     }
-    
     else if (strstr(s, "/sel-id"))
     {
         TRIBE_World* world = (*base_game)->world;
@@ -541,7 +538,6 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
 
         return true;
     }
-    
     else if (strstr(s, "/goto"))
     {
         char d[0x100];
@@ -1405,9 +1401,86 @@ __declspec(naked) void on_action_object_update() //00409874
     }
 }
 
+bool __stdcall building_get_change_terrain_unconditional(TRIBE_Building_Object* obj)
+{
+    return true;
+    if (obj->master_obj->id == 50)  //farm
+    {
+        return true;
+        switch (obj->owner->world->map->map_row_offset[(int)obj->world_y][(int)obj->world_x].terrain_type)
+        {
+        case 4:
+        case 59:
+        case 142:
+        case 235:
+            return true;
+        default:
+            return false;
+        }
+    }
+    else
+        return false;
+}
+
+__declspec(naked) void on_building_change_terrain() //00557C31
+{
+    __asm
+    {
+        push    edi
+        call    building_get_change_terrain_unconditional
+
+        mov     ecx, [edi + 18h]
+        test    al, al
+        jnz     building_change_terrain_unconditional
+
+        mov     bl, [esp + 10h]
+        mov     eax, 00557C38h
+        jmp     eax
+
+building_change_terrain_unconditional:
+        mov     eax, 00557CC9h
+        jmp     eax
+    }
+}
+
+void __stdcall state_log(RGE_Action_Gather* action, int state)
+{
+    chat("State: %d", state);
+    //action->farm_x = -1;
+    //action->farm_y = -1;
+    //if (state == 243)
+       // __debugbreak();
+}
+
+__declspec(naked) void on_state() //00404490
+{
+    __asm
+    {
+        mov    eax, [esp + 4]
+        push   ecx
+        push   eax
+        push   ecx
+        call   state_log
+        pop    ecx
+        _emit  0x64
+        _emit  0xA1
+        _emit  0x00
+        _emit  0x00
+        _emit  0x00
+        _emit  0x00
+        mov    edx, 00404496h
+        jmp    edx
+    }
+}
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    //writeNops(0x00404F59, 2);
+
+    //setHook((void*)0x00404490, on_state);
+    //setHook((void*)0x00557C31, on_building_change_terrain);
+
     /*
     unsigned __int8* color_black = (unsigned __int8*)0x007A1C60;
     //*color_black = 1;
@@ -1527,5 +1600,8 @@ void setTestHook()
 
     //action list
     //writeNops(0x004098FD, 5);
+
+    //writeByte(0x00557E88, 1);
+    //writeByte(0x00557E7B, 0xEB);
 }
 #pragma optimize( "", on )

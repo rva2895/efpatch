@@ -795,7 +795,7 @@ tech_ids_3_complete:
     }
 }
 
-Bld_Zone_Constructer* tech_tree_insert_bldg(TribeTechHelpScreen* tech_tree, Bld_Zone_Constructer* insert_point, int id, int* bldg_zone_cntr)
+__declspec(noinline) Bld_Zone_Constructer* tech_tree_insert_bldg(TribeTechHelpScreen* tech_tree, Bld_Zone_Constructer* insert_point, int id, int* bldg_zone_cntr)
 {
     TRIBE_Buildings* buildings = TRIBE_Tech_Tree__get_building_info(tech_tree->player_tech_tree_help, id);
     if (buildings)
