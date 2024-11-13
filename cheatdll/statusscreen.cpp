@@ -409,6 +409,7 @@ __declspec(naked) void onStatus_generate_shore() //004E5F76
     }
 }
 
+#pragma optimize( "s", on )
 void setStatusScreenHooks()
 {
     status_buffer = (char*)malloc(0x2000);
@@ -432,5 +433,4 @@ void setStatusScreenHooks()
     setHook((void*)0x004DA380, onStatus_generate_land);
     setHook((void*)0x004E5F76, onStatus_generate_shore);
 }
-
-//005ED2AE: world::new_game
+#pragma optimize( "", on )

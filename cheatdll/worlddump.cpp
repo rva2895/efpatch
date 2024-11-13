@@ -140,7 +140,7 @@ unsigned int dump_objects(const char* filename)
                             printf_if_exists(dump_file, "      wp_cs=%d\n", waypoint_checksum);
                             unit_checksum += waypoint_checksum;
                         }
-                        //printf_if_exists(dump_file, "    Object cs=%d\n\n", p, player_checksum);
+                        printf_if_exists(dump_file, "    Object cs=%d\n\n", unit_checksum);
                         player_checksum += unit_checksum;
                     }
                     delete[] units;
@@ -267,6 +267,7 @@ __declspec(naked) void onChecksumDump() //0042FA49
     }
 }
 
+/*
 WORLD_DUMP_QUEUE wd_queue;
 
 void __stdcall make_oos_dump()
@@ -504,7 +505,7 @@ void __stdcall check_action(RGE_Action* action)
 
 void __stdcall check_create_action(RGE_Action_Object* unit, RGE_Action* action, unsigned int* stack)
 {
-    if (unit && unit->id == 4325 /*&& get_gametime2() == 527900*/)
+    if (unit && unit->id == 4325 && get_gametime2() == 527900)
     {
         FILE* f = fopen("act_log.txt", "at");
         if (f)
@@ -556,6 +557,7 @@ __declspec(naked) void on_move_to_update() //004084B0
         jmp     ecx
     }
 }
+*/
 
 void setWorldDumpHooks()
 {

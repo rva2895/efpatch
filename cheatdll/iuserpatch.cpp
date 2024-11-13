@@ -395,8 +395,6 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
 extern int max_worldtime;
 extern unsigned int dump_objects(const char* filename);
 
-extern int __fastcall get_gametime2();
-
 bool CUserPatch::OnChatMessage(const char *text)
 {
     if (!strcmp(text, "/version"))

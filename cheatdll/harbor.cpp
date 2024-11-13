@@ -112,7 +112,7 @@ loc_5F7BD6:
     }
 }
 
-DWORD garrison_type_offsets[] =
+const DWORD garrison_type_offsets[] =
 {
     0x005F7BBB,
     0x005F7BB5,
