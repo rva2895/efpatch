@@ -4,26 +4,6 @@
 
 extern int current_loaded_version;
 
-#define AQUA_HARVESTER_ID 199
-
-#define GAME_COMMAND_AQUA_HARVESTER_QUEUE_ADD 15
-#define GAME_COMMAND_AQUA_HARVESTER_QUEUE_REMOVE 16
-#define GAME_COMMAND_SET_FARM_AUTO_QUEUE 17
-#define GAME_COMMAND_SET_AQUA_HARVESTER_AUTO_QUEUE 18
-
-#define BUTTON_PIC_FARM_AUTO_QUEUE_ENABLE 22
-#define BUTTON_PIC_FARM_AUTO_QUEUE_DISABLE 23
-#define BUTTON_PIC_AQUA_HARVESTER_AUTO_QUEUE_ENABLE 24
-#define BUTTON_PIC_AQUA_HARVESTER_AUTO_QUEUE_DISABLE 25
-
-#define AUTO_FARM_QUEUE_ENABLE_BUTTON 1001
-#define AUTO_FARM_QUEUE_DISABLE_BUTTON 1002
-#define AUTO_AQUA_HARVESTER_QUEUE_ENABLE_BUTTON 1003
-#define AUTO_AQUA_HARVESTER_QUEUE_DISABLE_BUTTON 1004
-#define ADD_AQUA_HARVESTER_QUEUE_BUTTON 1005
-#define ADD_AQUA_HARVESTER_QUEUE_SHIFT_BUTTON 1006
-#define REMOVE_AQUA_HARVESTER_QUEUE_BUTTON 1007
-
 int __stdcall process_fishing_ship_notify(TribeFishingShipUnitAIModule* unit_ai, NotifyEvent* nEvent)
 {
     if (current_loaded_version >= 8)
@@ -895,14 +875,19 @@ __declspec(naked) void action_gather_work() //00405F38
 {
     __asm
     {
-        cmp     word ptr[ecx + 18h], 32h
-        jz      action_gather_work_jmp
-        cmp     word ptr[ecx + 18h], AQUA_HARVESTER_ID
-        jz      action_gather_work_jmp
+        cmp     word ptr [ecx + 18h], 32h
+        jz      action_gather_work_jmp_farm
+        cmp     word ptr [ecx + 18h], AQUA_HARVESTER_ID
+        jnz     action_gather_work_jmp_not_farm
+        mov     edx, current_loaded_version
+        cmp     edx, 8
+        jge     action_gather_work_jmp_farm
+
+action_gather_work_jmp_not_farm:
         mov     eax, 00405F3Fh
         jmp     eax
 
-action_gather_work_jmp:
+action_gather_work_jmp_farm:
         mov     edx, 00405F48h
         jmp     edx
     }
@@ -949,6 +934,43 @@ fishing_ship_important_objects_skip:
     }
 }
 
+void* __stdcall new_farm_walk(RGE_Action_Gather* action_gather, RGE_Action_Move_To* action_move, int x, int y)
+{
+    RGE_Master_Static_Object* master = action_gather->target_obj->master_obj;
+
+    float offset;
+    if (current_loaded_version < 8 || master->radius_x <= 0.5f || master->radius_y <= 0.5f)
+        offset = 0.0f;
+    else
+        offset = 0.5f;
+
+    return RGE_Action_Move_To__RGE_Action_Move_To(
+        action_move,
+        action_gather->obj,
+        x + offset,
+        y + offset,
+        action_gather->target_z,
+        action_gather->task->work_range,
+        RGE_Action_Gather__get_move_sprite(action_gather, 1));
+}
+
+__declspec(naked) void farm_walk() //00404928
+{
+    __asm
+    {
+        mov     eax, [esp + 0Ch]
+        mov     ecx, [esp + 2Ch]
+        push    ecx
+        push    eax
+        push    edi
+        push    esi
+        call    new_farm_walk
+
+        mov     ecx, 0040499Ah
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void setFarmHooks()
 {
@@ -959,7 +981,7 @@ void setFarmHooks()
     setHook((void*)0x00405F38, action_gather_work);
 
     setHook((void*)0x0041BDB7, closest_object_workers);
-
+    
     setHook((void*)0x005BB74A, on_do_command_game);
     setHook((void*)0x005D7420, TRIBE_Player__get_farm_queue_count_new);
     setHook((void*)0x005D7509, on_add_to_farm_queue);
@@ -967,7 +989,7 @@ void setFarmHooks()
     setHook((void*)0x005D754E, on_remove_from_farm_queue_2);
 
     setHook((void*)0x004060B0, RGE_Action_Gather__auto_rebuild_farm_new);
-
+    
     setHook((void*)0x00504FCE, on_food_proc_auto_queue_icon);
     setHook((void*)0x00505103, on_harbor_aqua_harvester_icons);
     setHook((void*)0x004FD1A9, on_game_screen_button_action);
@@ -980,5 +1002,7 @@ void setFarmHooks()
 
     setHook((void*)0x005B5FCE, fishing_ship_important_objects_size);
     setHook((void*)0x005B6230, fishing_ship_important_objects);
+
+    setHook((void*)0x00404928, farm_walk);
 }
 #pragma optimize( "", on )
