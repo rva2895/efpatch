@@ -563,6 +563,7 @@ __int16 (__thiscall* const RGE_Active_Sprite_List__get_facetindex)(RGE_Active_Sp
 unsigned __int8 (__thiscall* const RGE_Active_Sprite_List__get_frame)(RGE_Active_Sprite_List *this_, __int16 *min_x, __int16 *min_y, __int16 *max_x, __int16 *max_y, RGE_Sprite *sprite, int facet) = (unsigned __int8 (__thiscall* const)(RGE_Active_Sprite_List *this_, __int16 *min_x, __int16 *min_y, __int16 *max_x, __int16 *max_y, RGE_Sprite *sprite, int facet))0x00423600;
 char (__thiscall* const RGE_Active_Sprite_List__get_lowest_draw_level)(RGE_Active_Sprite_List *this_) = (char (__thiscall* const)(RGE_Active_Sprite_List *this_))0x00423650;
 void (__thiscall* const RGE_Active_Sprite_List__set_sprite_flag)(RGE_Active_Sprite_List *this_, RGE_Sprite *sprite, unsigned __int8 flag) = (void (__thiscall* const)(RGE_Active_Sprite_List *this_, RGE_Sprite *sprite, unsigned __int8 flag))0x00423680;
+unsigned __int8 (__thiscall* const RGE_Active_Sprite_List__is_sprite_active)(RGE_Active_Sprite_List *this_, RGE_Sprite *sprite) = (unsigned __int8 (__thiscall* const)(RGE_Active_Sprite_List *this_, RGE_Sprite *sprite))0x004236B0;
 unsigned __int8 (__thiscall* const RGE_Active_Sprite_List__reset_sprite_animation)(RGE_Active_Sprite_List *this_, RGE_Sprite *sprite) = (unsigned __int8 (__thiscall* const)(RGE_Active_Sprite_List *this_, RGE_Sprite *sprite))0x004236E0;
 RGE_Active_Sprite* (__thiscall* const RGE_Active_Sprite__RGE_Active_Sprite)(RGE_Active_Sprite *this_, RGE_Sprite *new_sprite, __int16 facet, RGE_Static_Object *obj, unsigned __int8 play_start_sound) = (RGE_Active_Sprite* (__thiscall* const)(RGE_Active_Sprite *this_, RGE_Sprite *new_sprite, __int16 facet, RGE_Static_Object *obj, unsigned __int8 play_start_sound))0x00423710;
 void* (__thiscall* const RGE_Active_Sprite__vector_deleting_destructor)(RGE_Active_Sprite *this_, unsigned int flags) = (void* (__thiscall* const)(RGE_Active_Sprite *this_, unsigned int flags))0x004237B0;
@@ -3839,7 +3840,7 @@ unsigned __int8 (__thiscall* const RGE_Static_Object__underAttack)(RGE_Static_Ob
 void (__thiscall* const RGE_Static_Object__setUnderAttack)(RGE_Static_Object *this_, unsigned __int8 v) = (void (__thiscall* const)(RGE_Static_Object *this_, unsigned __int8 v))0x00552500;
 unsigned __int8 (__thiscall* const RGE_Static_Object__lookupZone)(RGE_Static_Object *this_, int x, int y) = (unsigned __int8 (__thiscall* const)(RGE_Static_Object *this_, int x, int y))0x00552610;
 unsigned __int8 (__thiscall* const RGE_Static_Object__currentZone)(RGE_Static_Object *this_) = (unsigned __int8 (__thiscall* const)(RGE_Static_Object *this_))0x005526A0;
-int (__thiscall* const RGE_Static_Object__withinRangeOfZone)(RGE_Static_Object *this_, unsigned __int8 zone, float range) = (int (__thiscall* const)(RGE_Static_Object *this_, unsigned __int8 zone, float range))0x00552730;
+int (__thiscall* const RGE_Static_Object__withinRangeOfZone)(RGE_Static_Object *this_, unsigned __int8 zone, float range, XYPoint *goal) = (int (__thiscall* const)(RGE_Static_Object *this_, unsigned __int8 zone, float range, XYPoint *goal))0x00552730;
 int (__thiscall* const RGE_Static_Object__findClosestPointInTerrainType)(RGE_Static_Object *this_, XYPoint p, XYPoint *rVal, int type1, int type2, int range) = (int (__thiscall* const)(RGE_Static_Object *this_, XYPoint p, XYPoint *rVal, int type1, int type2, int range))0x005527C0;
 int (__thiscall* const RGE_Static_Object__inLockedFormation)(RGE_Static_Object *this_) = (int (__thiscall* const)(RGE_Static_Object *this_))0x00552850;
 void (__thiscall* const RGE_Static_Object__addToPathingGroup)(RGE_Static_Object *this_, int uID) = (void (__thiscall* const)(RGE_Static_Object *this_, int uID))0x00552890;
@@ -4577,6 +4578,7 @@ void* (__thiscall* const TribeMainDecisionAIModule__scalar_deleting_destructor)(
 TribeMainDecisionAIModule* (__thiscall* const TribeMainDecisionAIModule__TribeMainDecisionAIModule2)(TribeMainDecisionAIModule *this_, int playerID, char *playerName, TRIBE_Player *aiP, int infile) = (TribeMainDecisionAIModule* (__thiscall* const)(TribeMainDecisionAIModule *this_, int playerID, char *playerName, TRIBE_Player *aiP, int infile))0x00595460;
 void (__thiscall* const TribeMainDecisionAIModule__destructor)(TribeMainDecisionAIModule *this_) = (void (__thiscall* const)(TribeMainDecisionAIModule *this_))0x00595770;
 void (__thiscall* const TribeMainDecisionAIModule__setLogHistory)(TribeMainDecisionAIModule *this_, int v) = (void (__thiscall* const)(TribeMainDecisionAIModule *this_, int v))0x00595850;
+void (__thiscall* const TribeMainDecisionAIModule__gbg_unknown_1)(TribeMainDecisionAIModule *this_) = (void (__thiscall* const)(TribeMainDecisionAIModule *this_))0x00595900;
 int (__thiscall* const TribeMainDecisionAIModule__update)(TribeMainDecisionAIModule *this_, int timeLimit) = (int (__thiscall* const)(TribeMainDecisionAIModule *this_, int timeLimit))0x00595D90;
 int (__thiscall* const TribeMainDecisionAIModule__save)(TribeMainDecisionAIModule *this_, int outfile) = (int (__thiscall* const)(TribeMainDecisionAIModule *this_, int outfile))0x00595F50;
 int (__thiscall* const TribeMainDecisionAIModule__addObject)(TribeMainDecisionAIModule *this_, RGE_Static_Object *bo) = (int (__thiscall* const)(TribeMainDecisionAIModule *this_, RGE_Static_Object *bo))0x005960D0;
@@ -4589,6 +4591,7 @@ void (__thiscall* const TribeMainDecisionAIModule__updateBuildAIWithObjects)(Tri
 void (__thiscall* const TribeMainDecisionAIModule__tributeNotify)(TribeMainDecisionAIModule *this_, int playerID, int resourceID, int amount) = (void (__thiscall* const)(TribeMainDecisionAIModule *this_, int playerID, int resourceID, int amount))0x005963B0;
 int (__thiscall* const TribeMainDecisionAIModule__processAICommand)(TribeMainDecisionAIModule *this_, int caller, int mType, int p1, int p2, int p3) = (int (__thiscall* const)(TribeMainDecisionAIModule *this_, int caller, int mType, int p1, int p2, int p3))0x005963F0;
 RGE_Static_Object* (__thiscall* const TribeMainDecisionAIModule__getIdleBuilding)(TribeMainDecisionAIModule *this_, int buildingId) = (RGE_Static_Object* (__thiscall* const)(TribeMainDecisionAIModule *this_, int buildingId))0x00596680;
+int (__thiscall* const TribeMainDecisionAIModule__gbg_unknown_2)(TribeMainDecisionAIModule *this_, RGE_Static_Object *obj) = (int (__thiscall* const)(TribeMainDecisionAIModule *this_, RGE_Static_Object *obj))0x00596980;
 TribeResourceAIModule* (__thiscall* const TribeResourceAIModule__TribeResourceAIModule)(TribeResourceAIModule *this_, HWND__ *pW, int playerID, int n, int iV, int minV, int maxV) = (TribeResourceAIModule* (__thiscall* const)(TribeResourceAIModule *this_, HWND__ *pW, int playerID, int n, int iV, int minV, int maxV))0x00596AF0;
 void* (__thiscall* const TribeResourceAIModule__vector_deleting_destructor)(TribeResourceAIModule *this_, unsigned int flags) = (void* (__thiscall* const)(TribeResourceAIModule *this_, unsigned int flags))0x00596B30;
 TribeResourceAIModule* (__thiscall* const TribeResourceAIModule__TribeResourceAIModule2)(TribeResourceAIModule *this_, int playerID, int infile) = (TribeResourceAIModule* (__thiscall* const)(TribeResourceAIModule *this_, int playerID, int infile))0x00596B50;
@@ -4607,6 +4610,7 @@ TribeStrategyAIModule* (__thiscall* const TribeStrategyAIModule__TribeStrategyAI
 void* (__thiscall* const TribeStrategyAIModule__vector_deleting_destructor)(TribeStrategyAIModule *this_, unsigned int flags) = (void* (__thiscall* const)(TribeStrategyAIModule *this_, unsigned int flags))0x00598860;
 TribeStrategyAIModule* (__thiscall* const TribeStrategyAIModule__TribeStrategyAIModule2)(TribeStrategyAIModule *this_, int playerID, int infile) = (TribeStrategyAIModule* (__thiscall* const)(TribeStrategyAIModule *this_, int playerID, int infile))0x00598880;
 void (__thiscall* const TribeStrategyAIModule__destructor)(TribeStrategyAIModule *this_) = (void (__thiscall* const)(TribeStrategyAIModule *this_))0x00598D10;
+void (__thiscall* const TribeStrategyAIModule__reportError)(TribeStrategyAIModule *this_) = (void (__thiscall* const)(TribeStrategyAIModule *this_))0x00598DC0;
 int (__thiscall* const TribeStrategyAIModule__update)(TribeStrategyAIModule *this_, int timeLimit) = (int (__thiscall* const)(TribeStrategyAIModule *this_, int timeLimit))0x00599290;
 void (__thiscall* const TribeStrategyAIModule__setMainDecisionAI)(TribeStrategyAIModule *this_, TribeMainDecisionAIModule *m, int loadingGame) = (void (__thiscall* const)(TribeStrategyAIModule *this_, TribeMainDecisionAIModule *m, int loadingGame))0x00599430;
 int (__thiscall* const TribeStrategyAIModule__save)(TribeStrategyAIModule *this_, int outfile) = (int (__thiscall* const)(TribeStrategyAIModule *this_, int outfile))0x00599480;
@@ -6040,7 +6044,6 @@ int (__cdecl* const sub_629590)(int, LPVOID lpMem) = (int (__cdecl* const)(int, 
 int (__stdcall* const sub_6298F0)(int, char *Src, int, int, int) = (int (__stdcall* const)(int, char *Src, int, int, int))0x006298F0;
 int (__stdcall* const decoder_delete)(LPVOID lpMem) = (int (__stdcall* const)(LPVOID lpMem))0x00629A20;
 int (__cdecl* const sub_62A680)(LPVOID lpMem) = (int (__cdecl* const)(LPVOID lpMem))0x0062A680;
-void* (__cdecl* const operator_new)(size_t size) = (void* (__cdecl* const)(size_t size))0x00632B9D;
 int (__cdecl* const sub_638CCA)(LPVOID lpMem) = (int (__cdecl* const)(LPVOID lpMem))0x00638CCA;
 int (__cdecl* const sub_63B56C)(LPVOID lpMem, SIZE_T Size) = (int (__cdecl* const)(LPVOID lpMem, SIZE_T Size))0x0063B56C;
 int (__cdecl* const sub_63B90E)(LPCVOID lpMem) = (int (__cdecl* const)(LPCVOID lpMem))0x0063B90E;

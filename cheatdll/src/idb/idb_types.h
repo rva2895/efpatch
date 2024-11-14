@@ -100,7 +100,6 @@ struct RGE_Doppleganger_Creator;
 struct RGE_Armor_Weapon_Info;
 struct LOSTBL;
 struct MShortPather;
-struct XYPoint;
 struct RGE_New_Object_List;
 struct BMovementData;
 struct RGE_Task;
@@ -157,7 +156,7 @@ struct AIAction;
 struct TRIBE_Trigger_Condition;
 struct XYZBYTEPoint;
 struct RGE_Victory_Point_Entry;
-struct TribeMainDecisionAIModule;
+struct TacticalAIGroup;
 struct MainDecisionAIModule;
 struct RGE_Object_Node;
 struct TRIBE_Panel_Object;
@@ -191,8 +190,8 @@ struct Unit_Tech_Zone;
 struct TScrollTextPanel;
 struct TCommLog;
 struct MsgQueue;
-struct $65758D9D43B54B363A052B56EC34040F;
-struct ManagedArray_int_;
+struct ObjectMemory;
+struct WallLine;
 struct Wall_Info;
 struct RGE_Campaign_Info;
 struct BFormation;
@@ -435,7 +434,6 @@ struct AIModuleMessage;
 struct AIModuleVtbl;
 struct StrategyAIModuleVtbl;
 struct TribeStrategyAIModuleVtbl;
-struct AIExpert__ErrorInfo;
 struct TribeResourceAIModuleVtbl;
 struct EmotionalAIModuleVtbl;
 struct DiplomacyAIModuleVtbl;
@@ -446,6 +444,10 @@ struct TribeBuildAIModuleVtbl;
 struct BuildItemVtbl;
 struct BaseItemVtbl;
 struct BuildAIModuleVtbl;
+struct TribeInformationAIModuleVtbl;
+struct BuildingLot;
+struct AttackMemory;
+struct ResourceMemory;
 struct UnitAIModule__UnitAIRetargetEntry;
 struct UnitAIModuleVtbl;
 struct SoftOb_ArrayList;
@@ -494,6 +496,14 @@ struct Blit_Queue_Entry;
 struct RGE_SPick_Info;
 struct Ov_Sprite_Draw_Rec;
 struct DisplaySelectedObjRec;
+struct InformationAIModuleVtbl;
+struct TradeAIModuleVtbl;
+struct TacticalAIModuleVtbl;
+struct TribeTacticalAIModuleVtbl;
+struct TacticalAIGroupVtbl;
+struct MainDecisionAIModuleVtbl;
+struct TribeMainDecisionAIModuleVtbl;
+struct TribeMainDecisionAIModule;
 
 /* 54 */
 #pragma pack(push, 8)
@@ -1484,10 +1494,766 @@ struct Combat_Notifications
 };
 #pragma pack(pop)
 
-/* 297 */
+/* 498 */
+#pragma pack(push, 8)
+struct AIModuleID
+{
+  AIModuleIDVtbl *vfptr;
+  int id;
+  char name[64];
+};
+#pragma pack(pop)
+
+/* 402 */
 #pragma pack(push, 1)
+struct __declspec(align(4)) ManagedArray_int_
+{
+  int value;
+  int numberValue;
+  int desiredNumberValue;
+  int maximumSizeValue;
+};
+#pragma pack(pop)
+
+/* 316 */
+#pragma pack(push, 8)
+struct BuildItem
+{
+  BuildItemVtbl *vfptr;
+  int typeIDValue;
+  int gameIDValue;
+  int uniqueIDValue;
+  char nameValue[64];
+  float xValue;
+  float yValue;
+  float zValue;
+  float xSizeValue;
+  float ySizeValue;
+  float zSizeValue;
+  int skipValue;
+  BuildItem *next;
+  BuildItem *prev;
+  int buildCategoryValue;
+  int numberValue;
+  int priorityValue;
+  int progressValue;
+  int builtValue;
+  int buildAttemptsValue;
+  int buildFromValue;
+  int terrainSetValue;
+  int terrainAdjacencyValue[2];
+  int placeOnElevationValue;
+  int numberBuildsValue;
+  int buildCapValue;
+  int skipCyclesValue;
+  unsigned __int8 permanentSkipValue;
+  int mForward;
+};
+#pragma pack(pop)
+
+/* 299 */
+#pragma pack(push, 8)
+struct TribeBuildAIModule
+{
+  TribeBuildAIModuleVtbl *vfptr;
+  AIModuleID idValue;
+  int playerNumberValue;
+  char playerNameValue[64];
+  int runningValue;
+  int pausedValue;
+  int logHistoryValue;
+  int logCommonHistoryValue;
+  FILE *historyLogFile;
+  char historyLogFilename[64];
+  int intelligenceLevelValue;
+  int priorityValue;
+  int processFrameValue;
+  BuildItem buildList;
+  int uniqueIDValue;
+  char buildListNameValue[257];
+  char lastBuildItemRequestedValue[257];
+  char currentBuildItemRequestedValue[257];
+  char nextBuildItemRequestedValue[257];
+  int numberItemsIntoBuildListValue;
+  ManagedArray_int_ typesToIgnore;
+  TribeMainDecisionAIModule *md;
+  int queuedObjectCount[600];
+  int queuedBuildingCount;
+  int queuedUnitCount;
+};
+#pragma pack(pop)
+
+/* 304 */
+#pragma pack(push, 8)
+struct ConstructionItem
+{
+  ConstructionItemVtbl *vfptr;
+  int typeIDValue;
+  int gameIDValue;
+  int uniqueIDValue;
+  char nameValue[64];
+  float xValue;
+  float yValue;
+  float zValue;
+  float xSizeValue;
+  float ySizeValue;
+  float zSizeValue;
+  int skipValue;
+  ConstructionItem *next;
+  ConstructionItem *prev;
+  int inProgressValue;
+  int builtValue;
+  int buildAttemptsValue;
+};
+#pragma pack(pop)
+
+/* 944 */
+typedef int ConstructionAIModule__PlacementResult;
+
+/* 302 */
+#pragma pack(push, 8)
+struct TribeConstructionAIModule
+{
+  TribeConstructionAIModuleVtbl *vfptr;
+  AIModuleID idValue;
+  int playerNumberValue;
+  char playerNameValue[64];
+  int runningValue;
+  int pausedValue;
+  int logHistoryValue;
+  int logCommonHistoryValue;
+  FILE *historyLogFile;
+  char historyLogFilename[64];
+  int intelligenceLevelValue;
+  int priorityValue;
+  int processFrameValue;
+  int numberConstructionLotsValue;
+  ConstructionItem constructionLots;
+  int numberRandomConstructionLotsValue;
+  ConstructionItem randomConstructionLots;
+  char constructionPlanNameValue[257];
+  float xReferencePointValue;
+  float yReferencePointValue;
+  float zReferencePointValue;
+  int mapXSizeValue;
+  int mapYSizeValue;
+  ConstructionAIModule__PlacementResult lastPlacementReturnCodeValue;
+  TribeMainDecisionAIModule *md;
+};
+#pragma pack(pop)
+
+/* 306 */
+#pragma pack(push, 8)
+struct DiplomacyAIModule
+{
+  DiplomacyAIModuleVtbl *vfptr;
+  AIModuleID idValue;
+  int playerNumberValue;
+  char playerNameValue[64];
+  int runningValue;
+  int pausedValue;
+  int logHistoryValue;
+  int logCommonHistoryValue;
+  FILE *historyLogFile;
+  char historyLogFilename[64];
+  int intelligenceLevelValue;
+  int priorityValue;
+  int processFrameValue;
+  MainDecisionAIModule *md;
+  int dislikeTable[10];
+  int likeTable[10];
+  unsigned __int8 changeableTable[10];
+  int currentMostHatedEnemy;
+};
+#pragma pack(pop)
+
+/* 307 */
+#pragma pack(push, 8)
+struct EmotionalAIModule
+{
+  EmotionalAIModuleVtbl *vfptr;
+  AIModuleID idValue;
+  int playerNumberValue;
+  char playerNameValue[64];
+  int runningValue;
+  int pausedValue;
+  int logHistoryValue;
+  int logCommonHistoryValue;
+  FILE *historyLogFile;
+  char historyLogFilename[64];
+  int intelligenceLevelValue;
+  int priorityValue;
+  int processFrameValue;
+  MainDecisionAIModule *md;
+  int stateValue[6];
+  char stateNameValue[6][30];
+};
+#pragma pack(pop)
+
+/* 84 */
+#pragma pack(push, 8)
+struct InfluenceMap
+{
+  InfluenceMapVtbl *vfptr;
+  int xSizeValue;
+  int ySizeValue;
+  int xReferencePointValue;
+  int yReferencePointValue;
+  unsigned __int8 *valueValue;
+  unsigned __int8 **rowValue;
+  int coverageCountValue;
+  int connectionCountValue;
+  unsigned __int8 unchangeableLimitValue;
+};
+#pragma pack(pop)
+
+/* 204 */
+#pragma pack(push, 8)
+struct XYPoint
+{
+  int x;
+  int y;
+};
+#pragma pack(pop)
+
+/* 953 */
+#pragma pack(push, 8)
+struct PerimeterWall
+{
+  int enabledFlag;
+  int lineCount;
+  int gateCount;
+  int gateFittingLineCount;
+  int percentageComplete;
+  int segmentCount;
+  int invisibleSegmentCount;
+  int unfinishedSegmentCount;
+  int nextLineToRefresh;
+  int nextSegmentToRefresh;
+  WallLine *wallLine;
+};
+#pragma pack(pop)
+
+/* 955 */
+#pragma pack(push, 8)
+struct QuadrantLog
+{
+  int numberExploredTiles;
+  int numberAttacksOnUs;
+  int numberAttacksByUs;
+};
+#pragma pack(pop)
+
+/* 159 */
+#pragma pack(push, 8)
+struct BVector
+{
+  float x;
+  float y;
+  float z;
+};
+#pragma pack(pop)
+
+/* 957 */
+#pragma pack(push, 8)
+struct UnitDeathMemory
+{
+  int mUnitID;
+  BVector mUnitPosition;
+  int mAttackingUnitID;
+  int mAttackingPlayerID;
+  int mAttackingUnitRange;
+  BVector mAttackingUnitPosition;
+  unsigned int mTime;
+  UnitDeathMemory *mNext;
+  UnitDeathMemory *mPrev;
+};
+#pragma pack(pop)
+
+/* 298 */
+#pragma pack(push, 8)
+struct TribeInformationAIModule
+{
+  TribeInformationAIModuleVtbl *vfptr;
+  AIModuleID idValue;
+  int playerNumberValue;
+  char playerNameValue[64];
+  int runningValue;
+  int pausedValue;
+  int logHistoryValue;
+  int logCommonHistoryValue;
+  FILE *historyLogFile;
+  char historyLogFilename[64];
+  int intelligenceLevelValue;
+  int priorityValue;
+  int processFrameValue;
+  ManagedArray_int_ farmsTaskedThisUpdate;
+  TribeMainDecisionAIModule *md;
+  int mDoctrine;
+  int mGoal[75];
+  int mRandomNumber;
+  int gbg_unknown_1;
+  int mTributeGiven[8][4];
+  int mTributeMemory[8][4];
+  int mapXSizeValue;
+  int mapYSizeValue;
+  int lastUpdateRowValue;
+  int maxImportantObjectMemory;
+  ObjectMemory *importantObjectMemory;
+  ManagedArray_int_ importantObjects;
+  ManagedArray_int_ importantUnits;
+  ManagedArray_int_ importantMiscs;
+  ManagedArray_int_ itemsToDefend;
+  InfluenceMap pathMap;
+  ManagedArray_int_ playerObjects;
+  ManagedArray_int_ playerBuildings;
+  int objectCount[1600];
+  int buildingCount;
+  XYPoint lastWallPosition;
+  XYPoint lastWallPosition2;
+  int maxBuildingLots;
+  BuildingLot *buildingLots;
+  int mNextPerimeterWallToRefresh;
+  PerimeterWall mPerimeterWall[2];
+  int maxAttackMemories;
+  AttackMemory *attackMemories;
+  int saveLearnInformationValue;
+  char learnFileName[256];
+  QuadrantLog quadrantLog[4][4];
+  int **resourceTypesValue;
+  int *numberResourceTypesValue;
+  ResourceMemory *resources[4];
+  int numResources[4];
+  int maxResources[4];
+  int dropsitesByAge[4][4];
+  int closestDropsiteValue[4];
+  int closestDropsiteResourceID[4];
+  int numberFoundForestTilesValue;
+  int unitHistory[11];
+  char unitHistoryFilename[256];
+  unsigned __int8 mRelicsVictory[9];
+  unsigned __int8 mWonderVictory[9];
+  int mShouldFarm;
+  int mHaveSeenForage;
+  int mHaveSeenGold;
+  int mHaveSeenStone;
+  int mHaveSeenForest;
+  int gbg_unknown_2;
+  int gbg_unknown_3;
+  unsigned int mLastPlayerCountRefreshTime;
+  int mPlayerUnitCounts[8][87];
+  int mPlayerTotalBuildingCount[8];
+  int mPlayerRealTotalBuildingCount[8];
+  int mPlayerTotalUnitCount[8];
+  unsigned int mLastExploredCheckTime;
+  unsigned int mLastSheepUpdateTime;
+  ManagedArray_int_ mEnemyStructuresInTown;
+  ManagedArray_int_ mEnemyVillagersInTown;
+  ManagedArray_int_ mEnemySoldiersInTown;
+  unsigned int mLastEnemyStuffInTownUpdate;
+  UnitDeathMemory mUnitDeaths;
+};
+#pragma pack(pop)
+
+/* 309 */
+#pragma pack(push, 8)
+struct TribeResourceAIModule
+{
+  TribeResourceAIModuleVtbl *vfptr;
+  AIModuleID idValue;
+  int playerNumberValue;
+  char playerNameValue[64];
+  int runningValue;
+  int pausedValue;
+  int logHistoryValue;
+  int logCommonHistoryValue;
+  FILE *historyLogFile;
+  char historyLogFilename[64];
+  int intelligenceLevelValue;
+  int priorityValue;
+  int processFrameValue;
+  TribeMainDecisionAIModule *md;
+  int numberResourcesValue;
+};
+#pragma pack(pop)
+
+/* 938 */
+#pragma pack(push, 8)
+struct Waypoint
+{
+  float x;
+  float y;
+  float z;
+  unsigned __int8 facetToNextWaypoint;
+};
+#pragma pack(pop)
+
+/* 311 */
+#pragma pack(push, 8)
+struct VictoryConditionRuleSystem
+{
+  VictoryConditionRuleSystemVtbl *vfptr;
+  int sn[242];
+};
+#pragma pack(pop)
+
+/* 939 */
+#pragma pack(push, 8)
+struct AIExpertEngine__AIListStats
+{
+  __int16 rulesEvaluated;
+  __int16 rulesFired;
+};
+#pragma pack(pop)
+
+/* 936 */
+typedef int AIExpert__ErrorCode;
+
+/* 937 */
+#pragma pack(push, 8)
+struct AIExpert__ErrorInfo
+{
+  char fileBaseName[257];
+  int lineNumber;
+  char description[128];
+  AIExpert__ErrorCode errorCode;
+};
+#pragma pack(pop)
+
+/* 132 */
+#pragma pack(push, 8)
+struct TribeStrategyAIModule
+{
+  TribeStrategyAIModuleVtbl *vfptr;
+  AIModuleID idValue;
+  int playerNumberValue;
+  char playerNameValue[64];
+  int runningValue;
+  int pausedValue;
+  int logHistoryValue;
+  int logCommonHistoryValue;
+  FILE *historyLogFile;
+  char historyLogFilename[64];
+  int intelligenceLevelValue;
+  int priorityValue;
+  int processFrameValue;
+  TribeMainDecisionAIModule *md;
+  int currentVictoryConditionValue;
+  char ruleSetNameValue[257];
+  char aiFileBaseName[257];
+  int targetIDValue;
+  int targetTypeValue;
+  int secondTargetIDValue;
+  int secondTargetTypeValue;
+  Waypoint targetPoint1Value;
+  Waypoint targetPoint2Value;
+  int targetAttributeValue;
+  int targetNumberValue;
+  int victoryConditionChangeTimeout;
+  ManagedArray_int_ vcRuleSet;
+  ManagedArray_int_ executingRules;
+  ManagedArray_int_ idleRules;
+  VictoryConditionRuleSystem vcRules;
+  int difficultyLevel;
+  AIExpert *expert;
+  int ruleListId;
+  AIExpertEngine__AIListStats expertStatistics;
+  unsigned int expertTiming;
+  int parserError;
+  AIExpert__ErrorInfo errorInfo;
+};
+#pragma pack(pop)
+
+/* 407 */
+#pragma pack(push, 8)
+struct UnitData
+{
+  int id;
+  int data1;
+  int data2;
+  int data3;
+  int target;
+  unsigned int lastTaskTime;
+};
+#pragma pack(pop)
+
+/* 313 */
+#pragma pack(push, 8)
+struct TacticalAIGroup
+{
+  TacticalAIGroupVtbl *vfptr;
+  BPath mWaypoints;
+  TacticalAIGroup *next;
+  TacticalAIGroup *prev;
+  int idValue;
+  int inUseValue;
+  int typeValue;
+  int subTypeValue;
+  int unitsValue[40];
+  int numberUnitsValue;
+  int desiredNumberUnitsValue;
+  int actionValue;
+  int targetValue;
+  int targetTypeValue;
+  Waypoint targetLocationValue;
+  Waypoint gatherLocationValue;
+  int priorityValue;
+  int assistGroupIDValue;
+  int assistGroupTypeValue;
+  unsigned int mIdleTimer;
+  unsigned __int8 consecutiveGatherAttemptsValue;
+  int numberObjectsToDestroyValue;
+  int objectsToDestroyValue[20];
+  int objectsToDestroyOwnerValue;
+  unsigned int lastAddedUnitTimeValue;
+  BVector mCentroid;
+  BBitVector mFlags;
+  unsigned int mUnitsLastBusyTime[40];
+  BVector mRandomMovePoint;
+  unsigned int mRandomMoveTime;
+  int mTargetIndex;
+  int mRetreatUnitNumber;
+};
+#pragma pack(pop)
+
+/* 588 */
+#pragma pack(push, 8)
+struct InfluenceMapState
+{
+  int state;
+  int substate;
+  int substate2;
+  int substate3;
+};
+#pragma pack(pop)
+
+/* 411 */
+#pragma pack(push, 8)
+struct PlacementState
+{
+  int buildingTypeID;
+  float buildingSize;
+  char buildingName[256];
+  int builderID;
+  int active;
+  XYPoint bestPoint;
+  int bestPointValue;
+  int iterationX;
+  int randomInfluence;
+  BuildItem *buildItem;
+  int enemyID;
+  int requiredZone;
+  XYPoint centerPoint;
+  XYPoint min;
+  XYPoint max;
+  XYPoint minExclude;
+  XYPoint maxExclude;
+  InfluenceMapState influenceMapState;
+};
+#pragma pack(pop)
+
+/* 1088 */
+#pragma pack(push, 8)
+struct AttackState
+{
+  int bestTargetID;
+  float bestTargetValue;
+  int bestTargetMemoryIndex;
+  int iterationIndex;
+  int attackGroupID;
+  int playID;
+  unsigned __int8 phase;
+  int bestNonWallTargetID;
+  float bestNonWallTargetValue;
+  int bestNonWallTargetMemoryIndex;
+  int active;
+};
+#pragma pack(pop)
+
+/* 1089 */
+#pragma pack(push, 8)
+struct TacticalAIAttackNowEntry
+{
+  unsigned int mCommandTime;
+  int mGroupID;
+  int mNumberUngroupedUnits;
+  int mDesiredNumberUnits;
+  unsigned int mFirstAttackTime;
+  int mTargetID;
+  char mTargetName[256];
+  BBitVector mFlags;
+  TacticalAIAttackNowEntry *next;
+  TacticalAIAttackNowEntry *prev;
+};
+#pragma pack(pop)
+
+/* 296 */
+#pragma pack(push, 8)
+struct TribeTacticalAIModule
+{
+  TribeTacticalAIModuleVtbl *vfptr;
+  AIModuleID idValue;
+  int playerNumberValue;
+  char playerNameValue[64];
+  int runningValue;
+  int pausedValue;
+  int logHistoryValue;
+  int logCommonHistoryValue;
+  FILE *historyLogFile;
+  char historyLogFilename[64];
+  int intelligenceLevelValue;
+  int priorityValue;
+  int processFrameValue;
+  TacticalAIGroup *mSelectedGroup;
+  TribeMainDecisionAIModule *md;
+  ManagedArray_int_ civilians;
+  ManagedArray_int_ civilianExplorers;
+  ManagedArray_int_ soldiers;
+  ManagedArray_int_ ungroupedSoldiers;
+  ManagedArray_int_ boats;
+  ManagedArray_int_ warBoats;
+  ManagedArray_int_ fishingBoats;
+  ManagedArray_int_ tradeBoats;
+  ManagedArray_int_ transportBoats;
+  ManagedArray_int_ artifacts;
+  ManagedArray_int_ tradeCarts;
+  ManagedArray_int_ gbg_unknown_1;
+  ManagedArray_int_ gbg_unknown_2;
+  ManagedArray_int_ gbg_unknown_3;
+  ManagedArray_int_ gbg_unknown_4;
+  ManagedArray_int_ gbg_unknown_5;
+  int sn[242];
+  UnitData gatherers[125];
+  int numberGatherersValue;
+  int desiredNumberGatherersValue;
+  TacticalAIGroup groups;
+  int groupIDValue;
+  int numberGroupsValue;
+  unsigned int lastGroupAttackTime;
+  unsigned int lastGroupRebalanceTime;
+  unsigned int lastAttackResponseTime;
+  unsigned int lastBoatAttackResponseTime;
+  unsigned int lastScalingUpdateValue;
+  int numberBuildUpdatesSkipped;
+  int randomizedAttackSeparationTime;
+  ManagedArray_int_ playersToAttack;
+  ManagedArray_int_ playersToDefend;
+  ManagedArray_int_ workingArea;
+  ManagedArray_int_ unitsTaskedThisUpdate;
+  unsigned __int8 gbg_unknown_6;
+  int gbg_unknown_7;
+  int gbg_unknown_8;
+  int gbg_unknown_9;
+  int neededResourceValue[4];
+  int actualGathererDistribution[4];
+  int desiredGathererDistribution[4];
+  int attackEnabledValue;
+  int updateArea;
+  int numberStoragePitsBuilt[4];
+  int numberGranariesBuilt[4];
+  int wonderInProgressValue;
+  int wonderBuiltValue;
+  PlacementState placementStateValue;
+  int nextCivilianToTaskValue;
+  int nextIdleSoldierGroupToTaskValue;
+  int nextActiveSoldierGroupToTaskValue;
+  int gbg_unknown_10;
+  int gbg_unknown_11;
+  int builtFirstStoragePit;
+  int builtFirstGranary;
+  unsigned int lastBuildTime;
+  unsigned int lastAttackResponseBuildInsertionTime;
+  unsigned int lastCoopTributeDemandTime;
+  unsigned int lastCoopTributeGiftTime;
+  unsigned int lastCoopAttackDemandTime;
+  int zoomingToNextAge;
+  unsigned int lastUngroupedSoldierTaskTime;
+  AttackState attackStateValue;
+  int hitsByPlayer[9];
+  int lastUpdateAreaTimeValue;
+  int averageUpdateAreaTimeValue;
+  int updateAreaAverageCount;
+  int updateAreaAverageTotal;
+  TacticalAIAttackNowEntry mAttackNowEntries;
+  ManagedArray_int_ mUnderAttackUnits;
+  ManagedArray_int_ mUnderAttackProcessedUnits;
+  int mTownUnderAttack;
+  BVector mTownDefenseGatherPoint;
+  int mKillInTownMode;
+  int mKillInTownIndex;
+  int mKillInTownTasked;
+  unsigned int mLastGatherDefenseUnitsTime;
+  unsigned int mLastTownUnderAttackUpdateTime;
+  unsigned int mLastUnloadTime;
+  unsigned int mLastPlaceFixTime;
+};
+#pragma pack(pop)
+
+/* 314 */
+#pragma pack(push, 8)
+struct TradeAIModule
+{
+  TradeAIModuleVtbl *vfptr;
+  AIModuleID idValue;
+  int playerNumberValue;
+  char playerNameValue[64];
+  int runningValue;
+  int pausedValue;
+  int logHistoryValue;
+  int logCommonHistoryValue;
+  FILE *historyLogFile;
+  char historyLogFilename[64];
+  int intelligenceLevelValue;
+  int priorityValue;
+  int processFrameValue;
+  MainDecisionAIModule *md;
+};
+#pragma pack(pop)
+
+/* 1095 */
+#pragma pack(push, 8)
 struct TribeMainDecisionAIModule
 {
+  TribeMainDecisionAIModuleVtbl *vfptr;
+  AIModuleID idValue;
+  int playerNumberValue;
+  char playerNameValue[64];
+  int runningValue;
+  int pausedValue;
+  int logHistoryValue;
+  int logCommonHistoryValue;
+  FILE *historyLogFile;
+  char historyLogFilename[64];
+  int intelligenceLevelValue;
+  int priorityValue;
+  int processFrameValue;
+  TRIBE_Player *player;
+  ManagedArray_int_ objects;
+  TribeBuildAIModule buildAI;
+  TribeConstructionAIModule constructionAI;
+  DiplomacyAIModule diplomacyAI;
+  EmotionalAIModule emotionalAI;
+  TribeInformationAIModule informationAI;
+  TribeResourceAIModule resourceAI;
+  TribeStrategyAIModule strategyAI;
+  TribeTacticalAIModule tacticalAI;
+  TradeAIModule tradeAI;
+  TRIBE_Player *aiPlayer;
+  int firstUpdate;
+  int veryFirstUpdate;
+  int updateDelay;
+  unsigned int lastDiplomacyUpdateTime;
+  unsigned int lastTacticalUpdateTime;
+  unsigned int lastTributeChatTime;
+  unsigned int tributeChatTimeout;
+  int waitingOnTribute;
+  int tributeExpirationTimeout;
+  int tributeAddressed;
+  int tributeAmount;
+  int decidedInitialDiplomacy;
+  int requiredDiplomacyTributeAmount;
+  int tributeGiven[9];
+  int lastTrainBuilding[10];
 };
 #pragma pack(pop)
 
@@ -2450,16 +3216,6 @@ struct RGE_Task_List
   RGE_Task **list;
   __int16 list_num;
   unsigned __int8 RGE_Task_List_gap[2];
-};
-#pragma pack(pop)
-
-/* 159 */
-#pragma pack(push, 8)
-struct BVector
-{
-  float x;
-  float y;
-  float z;
 };
 #pragma pack(pop)
 
@@ -3605,28 +4361,6 @@ struct UnitAIOrderHistory
 };
 #pragma pack(pop)
 
-/* 402 */
-#pragma pack(push, 1)
-struct __declspec(align(4)) ManagedArray_int_
-{
-  int value;
-  int numberValue;
-  int desiredNumberValue;
-  int maximumSizeValue;
-};
-#pragma pack(pop)
-
-/* 938 */
-#pragma pack(push, 8)
-struct Waypoint
-{
-  float x;
-  float y;
-  float z;
-  unsigned __int8 facetToNextWaypoint;
-};
-#pragma pack(pop)
-
 /* 140 */
 #pragma pack(push, 8)
 struct UnitAIModule
@@ -3688,6 +4422,391 @@ struct UnitAIModule
   int mNumberRetargetEntries;
   int mMaximumNumberRetargetEntries;
   UnitAIModule__UnitAIRetargetEntry *mRetargetEntries;
+};
+#pragma pack(pop)
+
+/* 1092 */
+#pragma pack(push, 8)
+struct TribeMainDecisionAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeMainDecisionAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(TribeMainDecisionAIModule *);
+  void (__thiscall *setLogHistory)(TribeMainDecisionAIModule *, int);
+  void (__thiscall *toggleLogHistory)(TribeMainDecisionAIModule *);
+  void (__thiscall *setHistoryFilename)(TribeMainDecisionAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(TribeMainDecisionAIModule *);
+  void (__thiscall *setLogCommonHistory)(TribeMainDecisionAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(TribeMainDecisionAIModule *);
+  int (__thiscall *loadState)(TribeMainDecisionAIModule *, char *);
+  int (__thiscall *saveState)(TribeMainDecisionAIModule *, char *);
+  int (__thiscall *gleanState)(TribeMainDecisionAIModule *, int);
+  int (__thiscall *processMessage)(TribeMainDecisionAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(TribeMainDecisionAIModule *, int);
+  void (__thiscall *setCallbackMessage)(TribeMainDecisionAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(TribeMainDecisionAIModule *, AIModuleMessage *);
+  int (__thiscall *save)(TribeMainDecisionAIModule *, int);
+  int (__thiscall *addObject)(TribeMainDecisionAIModule *, RGE_Static_Object *);
+  int (__thiscall *removeObject)(TribeMainDecisionAIModule *, int);
+  int (__thiscall *objectGroupThatCanPerformAction)(TribeMainDecisionAIModule *, int);
+  int (__thiscall *canPerformAction)(TribeMainDecisionAIModule *, int, int);
+  int (__thiscall *getPlayerTotalBuildingCount)(TribeMainDecisionAIModule *, int);
+  int (__thiscall *getPlayerRealTotalBuildingCount)(TribeMainDecisionAIModule *, int);
+};
+#pragma pack(pop)
+
+/* 931 */
+#pragma pack(push, 8)
+struct AIModuleIDVtbl
+{
+  void *(__thiscall *__vecDelDtor)(AIModuleID *, unsigned int);
+};
+#pragma pack(pop)
+
+/* 947 */
+#pragma pack(push, 8)
+struct TribeBuildAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeBuildAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(TribeBuildAIModule *);
+  void (__thiscall *setLogHistory)(TribeBuildAIModule *, int);
+  void (__thiscall *toggleLogHistory)(TribeBuildAIModule *);
+  void (__thiscall *setHistoryFilename)(TribeBuildAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(TribeBuildAIModule *);
+  void (__thiscall *setLogCommonHistory)(TribeBuildAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(TribeBuildAIModule *);
+  int (__thiscall *loadState)(TribeBuildAIModule *, char *);
+  int (__thiscall *saveState)(TribeBuildAIModule *, char *);
+  int (__thiscall *gleanState)(TribeBuildAIModule *, int);
+  int (__thiscall *processMessage)(TribeBuildAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(TribeBuildAIModule *, int);
+  void (__thiscall *setCallbackMessage)(TribeBuildAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(TribeBuildAIModule *, AIModuleMessage *);
+  int (__thiscall *save)(TribeBuildAIModule *, int);
+  void (__thiscall *displayBuildList)(TribeBuildAIModule *);
+  int (__thiscall *numberBuiltOrInProgressItemsOfType)(TribeBuildAIModule *, int, int);
+};
+#pragma pack(pop)
+
+/* 948 */
+#pragma pack(push, 8)
+struct BuildItemVtbl
+{
+  void *(__thiscall *__vecDelDtor)(BuildItem *, unsigned int);
+};
+#pragma pack(pop)
+
+/* 943 */
+#pragma pack(push, 8)
+struct TribeConstructionAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeConstructionAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(TribeConstructionAIModule *);
+  void (__thiscall *setLogHistory)(TribeConstructionAIModule *, int);
+  void (__thiscall *toggleLogHistory)(TribeConstructionAIModule *);
+  void (__thiscall *setHistoryFilename)(TribeConstructionAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(TribeConstructionAIModule *);
+  void (__thiscall *setLogCommonHistory)(TribeConstructionAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(TribeConstructionAIModule *);
+  int (__thiscall *loadState)(TribeConstructionAIModule *, char *);
+  int (__thiscall *saveState)(TribeConstructionAIModule *, char *);
+  int (__thiscall *gleanState)(TribeConstructionAIModule *, int);
+  int (__thiscall *processMessage)(TribeConstructionAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(TribeConstructionAIModule *, int);
+  void (__thiscall *setCallbackMessage)(TribeConstructionAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(TribeConstructionAIModule *, AIModuleMessage *);
+  int (__thiscall *save)(TribeConstructionAIModule *, int);
+  int (__thiscall *loadConstructionPlan)(TribeConstructionAIModule *, char *, int, int, float, float, float);
+  ConstructionItem *(__thiscall *placeStructure)(TribeConstructionAIModule *, BuildItem *);
+  void (__thiscall *setBuilt)(TribeConstructionAIModule *, ConstructionItem *, int);
+  int (__thiscall *unplaceStructure_2)(TribeConstructionAIModule *, float, float, int);
+  int (__thiscall *unplaceStructure_1)(TribeConstructionAIModule *, ConstructionItem *, int);
+  void (__thiscall *decrementBuildAttempts)(TribeConstructionAIModule *, float, float, int);
+  void (__thiscall *incrementBuildAttempts)(TribeConstructionAIModule *, float, float, int);
+};
+#pragma pack(pop)
+
+/* 946 */
+#pragma pack(push, 8)
+struct ConstructionItemVtbl
+{
+  void *(__thiscall *__vecDelDtor)(ConstructionItem *, unsigned int);
+};
+#pragma pack(pop)
+
+/* 942 */
+#pragma pack(push, 8)
+struct DiplomacyAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(DiplomacyAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(DiplomacyAIModule *);
+  void (__thiscall *setLogHistory)(DiplomacyAIModule *, int);
+  void (__thiscall *toggleLogHistory)(DiplomacyAIModule *);
+  void (__thiscall *setHistoryFilename)(DiplomacyAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(DiplomacyAIModule *);
+  void (__thiscall *setLogCommonHistory)(DiplomacyAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(DiplomacyAIModule *);
+  int (__thiscall *loadState)(DiplomacyAIModule *, char *);
+  int (__thiscall *saveState)(DiplomacyAIModule *, char *);
+  int (__thiscall *gleanState)(DiplomacyAIModule *, int);
+  int (__thiscall *processMessage)(DiplomacyAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(DiplomacyAIModule *, int);
+  void (__thiscall *setCallbackMessage)(DiplomacyAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(DiplomacyAIModule *, AIModuleMessage *);
+  int (__thiscall *save)(DiplomacyAIModule *, int);
+};
+#pragma pack(pop)
+
+/* 315 */
+#pragma pack(push, 8)
+struct MainDecisionAIModule
+{
+  MainDecisionAIModuleVtbl *vfptr;
+  AIModuleID idValue;
+  int playerNumberValue;
+  char playerNameValue[64];
+  int runningValue;
+  int pausedValue;
+  int logHistoryValue;
+  int logCommonHistoryValue;
+  FILE *historyLogFile;
+  char historyLogFilename[64];
+  int intelligenceLevelValue;
+  int priorityValue;
+  int processFrameValue;
+  RGE_Player *player;
+  ManagedArray_int_ objects;
+};
+#pragma pack(pop)
+
+/* 941 */
+#pragma pack(push, 8)
+struct EmotionalAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(EmotionalAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(EmotionalAIModule *);
+  void (__thiscall *setLogHistory)(EmotionalAIModule *, int);
+  void (__thiscall *toggleLogHistory)(EmotionalAIModule *);
+  void (__thiscall *setHistoryFilename)(EmotionalAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(EmotionalAIModule *);
+  void (__thiscall *setLogCommonHistory)(EmotionalAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(EmotionalAIModule *);
+  int (__thiscall *loadState)(EmotionalAIModule *, char *);
+  int (__thiscall *saveState)(EmotionalAIModule *, char *);
+  int (__thiscall *gleanState)(EmotionalAIModule *, int);
+  int (__thiscall *processMessage)(EmotionalAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(EmotionalAIModule *, int);
+  void (__thiscall *setCallbackMessage)(EmotionalAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(EmotionalAIModule *, AIModuleMessage *);
+  int (__thiscall *save)(EmotionalAIModule *, int);
+};
+#pragma pack(pop)
+
+/* 951 */
+#pragma pack(push, 8)
+struct TribeInformationAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeInformationAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(TribeInformationAIModule *);
+  void (__thiscall *setLogHistory)(TribeInformationAIModule *, int);
+  void (__thiscall *toggleLogHistory)(TribeInformationAIModule *);
+  void (__thiscall *setHistoryFilename)(TribeInformationAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(TribeInformationAIModule *);
+  void (__thiscall *setLogCommonHistory)(TribeInformationAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(TribeInformationAIModule *);
+  int (__thiscall *loadState)(TribeInformationAIModule *, char *);
+  int (__thiscall *saveState)(TribeInformationAIModule *, char *);
+  int (__thiscall *gleanState)(TribeInformationAIModule *, int);
+  int (__thiscall *processMessage)(TribeInformationAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(TribeInformationAIModule *, int);
+  void (__thiscall *setCallbackMessage)(TribeInformationAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(TribeInformationAIModule *, AIModuleMessage *);
+};
+#pragma pack(pop)
+
+/* 404 */
+#pragma pack(push, 1)
+struct ObjectMemory
+{
+};
+#pragma pack(pop)
+
+/* 587 */
+#pragma pack(push, 8)
+struct InfluenceMapVtbl
+{
+  void *(__thiscall *__vecDelDtor)(InfluenceMap *, unsigned int);
+};
+#pragma pack(pop)
+
+/* 952 */
+#pragma pack(push, 8)
+struct BuildingLot
+{
+  int typeID;
+  unsigned __int8 status;
+  unsigned __int8 x;
+  unsigned __int8 y;
+};
+#pragma pack(pop)
+
+/* 408 */
+#pragma pack(push, 8)
+struct WallLine
+{
+  int lineType;
+  int wallType;
+  int gateCount;
+  int segmentCount;
+  int invisibleSegmentCount;
+  int unfinishedSegmentCount;
+  XYPoint lineStart;
+  XYPoint lineEnd;
+};
+#pragma pack(pop)
+
+/* 954 */
+#pragma pack(push, 8)
+struct AttackMemory
+{
+  int id;
+  unsigned __int8 type;
+  unsigned __int8 minX;
+  unsigned __int8 minY;
+  unsigned __int8 maxX;
+  unsigned __int8 maxY;
+  unsigned __int8 attackingOwner;
+  unsigned __int8 targetOwner;
+  __int16 kills;
+  unsigned __int8 success;
+  unsigned int timeStamp;
+  int play;
+};
+#pragma pack(pop)
+
+/* 956 */
+#pragma pack(push, 8)
+struct ResourceMemory
+{
+  int id;
+  unsigned __int8 x;
+  unsigned __int8 y;
+  unsigned __int8 gatherAttempts;
+  int gatherValue;
+  unsigned __int8 valid;
+  unsigned __int8 gone;
+  unsigned __int8 dropDistance;
+  unsigned __int8 resourceType;
+  int dropsiteID;
+  unsigned int attackedTime;
+};
+#pragma pack(pop)
+
+/* 940 */
+#pragma pack(push, 8)
+struct TribeResourceAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeResourceAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(TribeResourceAIModule *);
+  void (__thiscall *setLogHistory)(TribeResourceAIModule *, int);
+  void (__thiscall *toggleLogHistory)(TribeResourceAIModule *);
+  void (__thiscall *setHistoryFilename)(TribeResourceAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(TribeResourceAIModule *);
+  void (__thiscall *setLogCommonHistory)(TribeResourceAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(TribeResourceAIModule *);
+  int (__thiscall *loadState)(TribeResourceAIModule *, char *);
+  int (__thiscall *saveState)(TribeResourceAIModule *, char *);
+  int (__thiscall *gleanState)(TribeResourceAIModule *, int);
+  int (__thiscall *processMessage)(TribeResourceAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(TribeResourceAIModule *, int);
+  void (__thiscall *setCallbackMessage)(TribeResourceAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(TribeResourceAIModule *, AIModuleMessage *);
+  int (__thiscall *save)(TribeResourceAIModule *, int);
+};
+#pragma pack(pop)
+
+/* 935 */
+#pragma pack(push, 8)
+struct TribeStrategyAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeStrategyAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(TribeStrategyAIModule *);
+  void (__thiscall *setLogHistory)(TribeStrategyAIModule *, int);
+  void (__thiscall *toggleLogHistory)(TribeStrategyAIModule *);
+  void (__thiscall *setHistoryFilename)(TribeStrategyAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(TribeStrategyAIModule *);
+  void (__thiscall *setLogCommonHistory)(TribeStrategyAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(TribeStrategyAIModule *);
+  int (__thiscall *loadState)(TribeStrategyAIModule *, char *);
+  int (__thiscall *saveState)(TribeStrategyAIModule *, char *);
+  int (__thiscall *gleanState)(TribeStrategyAIModule *, int);
+  int (__thiscall *processMessage)(TribeStrategyAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(TribeStrategyAIModule *, int);
+  void (__thiscall *setCallbackMessage)(TribeStrategyAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(TribeStrategyAIModule *, AIModuleMessage *);
+  int (__thiscall *save)(TribeStrategyAIModule *, int);
+};
+#pragma pack(pop)
+
+/* 930 */
+#pragma pack(push, 8)
+struct VictoryConditionRuleSystemVtbl
+{
+  void *(__thiscall *__vecDelDtor)(VictoryConditionRuleSystem *, unsigned int);
+};
+#pragma pack(pop)
+
+/* 1087 */
+#pragma pack(push, 8)
+struct TribeTacticalAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeTacticalAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(TribeTacticalAIModule *);
+  void (__thiscall *setLogHistory)(TribeTacticalAIModule *, int);
+  void (__thiscall *toggleLogHistory)(TribeTacticalAIModule *);
+  void (__thiscall *setHistoryFilename)(TribeTacticalAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(TribeTacticalAIModule *);
+  void (__thiscall *setLogCommonHistory)(TribeTacticalAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(TribeTacticalAIModule *);
+  int (__thiscall *loadState)(TribeTacticalAIModule *, char *);
+  int (__thiscall *saveState)(TribeTacticalAIModule *, char *);
+  int (__thiscall *gleanState)(TribeTacticalAIModule *, int);
+  int (__thiscall *processMessage)(TribeTacticalAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(TribeTacticalAIModule *, int);
+  void (__thiscall *setCallbackMessage)(TribeTacticalAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(TribeTacticalAIModule *, AIModuleMessage *);
+  int (__thiscall *save)(TribeTacticalAIModule *, int);
+  void (__thiscall *notify)(TribeTacticalAIModule *, int, int, int, int, int, int);
+};
+#pragma pack(pop)
+
+/* 1090 */
+#pragma pack(push, 8)
+struct TacticalAIGroupVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TacticalAIGroup *, unsigned int);
+};
+#pragma pack(pop)
+
+/* 1085 */
+#pragma pack(push, 8)
+struct TradeAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TradeAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(TradeAIModule *);
+  void (__thiscall *setLogHistory)(TradeAIModule *, int);
+  void (__thiscall *toggleLogHistory)(TradeAIModule *);
+  void (__thiscall *setHistoryFilename)(TradeAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(TradeAIModule *);
+  void (__thiscall *setLogCommonHistory)(TradeAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(TradeAIModule *);
+  int (__thiscall *loadState)(TradeAIModule *, char *);
+  int (__thiscall *saveState)(TradeAIModule *, char *);
+  int (__thiscall *gleanState)(TradeAIModule *, int);
+  int (__thiscall *processMessage)(TradeAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(TradeAIModule *, int);
+  void (__thiscall *setCallbackMessage)(TradeAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(TradeAIModule *, AIModuleMessage *);
+  int (__thiscall *save)(TradeAIModule *, int);
 };
 #pragma pack(pop)
 
@@ -5748,20 +6867,6 @@ struct TFile
 };
 #pragma pack(pop)
 
-/* 936 */
-typedef int AIExpert__ErrorCode;
-
-/* 937 */
-#pragma pack(push, 8)
-struct AIExpert__ErrorInfo
-{
-  char fileBaseName[257];
-  int lineNumber;
-  char description[128];
-  AIExpert__ErrorCode errorCode;
-};
-#pragma pack(pop)
-
 /* 850 */
 typedef int TRIBE_Trigger__Trigger_State;
 
@@ -6367,15 +7472,6 @@ struct LOSTBL
 };
 #pragma pack(pop)
 
-/* 204 */
-#pragma pack(push, 8)
-struct XYPoint
-{
-  int x;
-  int y;
-};
-#pragma pack(pop)
-
 /* 856 */
 #pragma pack(push, 8)
 struct RGE_Active_Sprite_ListVtbl
@@ -6509,6 +7605,42 @@ struct UnitAIModule__UnitAIRetargetEntry
 {
   int mTargetID;
   unsigned int mRetargetTimeout;
+};
+#pragma pack(pop)
+
+/* 932 */
+#pragma pack(push, 1)
+struct AIModuleMessage
+{
+};
+#pragma pack(pop)
+
+/* 1091 */
+#pragma pack(push, 8)
+struct MainDecisionAIModuleVtbl
+{
+  void *(__thiscall *__vecDelDtor)(MainDecisionAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(MainDecisionAIModule *);
+  void (__thiscall *setLogHistory)(MainDecisionAIModule *, int);
+  void (__thiscall *toggleLogHistory)(MainDecisionAIModule *);
+  void (__thiscall *setHistoryFilename)(MainDecisionAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(MainDecisionAIModule *);
+  void (__thiscall *setLogCommonHistory)(MainDecisionAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(MainDecisionAIModule *);
+  int (__thiscall *loadState)(MainDecisionAIModule *, char *);
+  int (__thiscall *saveState)(MainDecisionAIModule *, char *);
+  int (__thiscall *gleanState)(MainDecisionAIModule *, int);
+  int (__thiscall *processMessage)(MainDecisionAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(MainDecisionAIModule *, int);
+  void (__thiscall *setCallbackMessage)(MainDecisionAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(MainDecisionAIModule *, AIModuleMessage *);
+  int (__thiscall *save)(MainDecisionAIModule *, int);
+  int (__thiscall *addObject)(MainDecisionAIModule *, RGE_Static_Object *);
+  int (__thiscall *removeObject)(MainDecisionAIModule *, int);
+  int (__thiscall *objectGroupThatCanPerformAction)(MainDecisionAIModule *, int);
+  int (__thiscall *canPerformAction)(MainDecisionAIModule *, int, int);
+  int (__thiscall *getPlayerTotalBuildingCount)(MainDecisionAIModule *, int);
+  int (__thiscall *getPlayerRealTotalBuildingCount)(MainDecisionAIModule *, int);
 };
 #pragma pack(pop)
 
@@ -16554,31 +17686,6 @@ struct RGE_Active_Animated_SpriteVtbl
 };
 #pragma pack(pop)
 
-/* 84 */
-#pragma pack(push, 8)
-struct InfluenceMap
-{
-  InfluenceMapVtbl *vfptr;
-  int xSizeValue;
-  int ySizeValue;
-  int xReferencePointValue;
-  int yReferencePointValue;
-  unsigned __int8 *valueValue;
-  unsigned __int8 **rowValue;
-  int coverageCountValue;
-  int connectionCountValue;
-  unsigned __int8 unchangeableLimitValue;
-};
-#pragma pack(pop)
-
-/* 587 */
-#pragma pack(push, 8)
-struct InfluenceMapVtbl
-{
-  void *(__thiscall *__vecDelDtor)(InfluenceMap *, unsigned int);
-};
-#pragma pack(pop)
-
 /* 92 */
 #pragma pack(push, 8)
 struct TCommSave
@@ -18417,124 +19524,6 @@ struct TDialogPanelVtbl
   void (__thiscall *position_panel)(TDialogPanel *, TPanel *, int, int, int, int);
   int (__thiscall *setup_3)(TDialogPanel *, TDrawArea *, TPanel *, int, int, unsigned __int8, int);
   int (__thiscall *setup_2)(TDialogPanel *, TDrawArea *, TPanel *, int, int, char *, int, int);
-};
-#pragma pack(pop)
-
-/* 498 */
-#pragma pack(push, 8)
-struct AIModuleID
-{
-  AIModuleIDVtbl *vfptr;
-  int id;
-  char name[64];
-};
-#pragma pack(pop)
-
-/* 311 */
-#pragma pack(push, 8)
-struct VictoryConditionRuleSystem
-{
-  VictoryConditionRuleSystemVtbl *vfptr;
-  int sn[242];
-};
-#pragma pack(pop)
-
-/* 939 */
-#pragma pack(push, 8)
-struct AIExpertEngine__AIListStats
-{
-  __int16 rulesEvaluated;
-  __int16 rulesFired;
-};
-#pragma pack(pop)
-
-/* 132 */
-#pragma pack(push, 8)
-struct TribeStrategyAIModule
-{
-  TribeStrategyAIModuleVtbl *vfptr;
-  AIModuleID idValue;
-  int playerNumberValue;
-  char playerNameValue[64];
-  int runningValue;
-  int pausedValue;
-  int logHistoryValue;
-  int logCommonHistoryValue;
-  FILE *historyLogFile;
-  char historyLogFilename[64];
-  int intelligenceLevelValue;
-  int priorityValue;
-  int processFrameValue;
-  TribeMainDecisionAIModule *md;
-  int currentVictoryConditionValue;
-  char ruleSetNameValue[257];
-  char aiFileBaseName[257];
-  int targetIDValue;
-  int targetTypeValue;
-  int secondTargetIDValue;
-  int secondTargetTypeValue;
-  Waypoint targetPoint1Value;
-  Waypoint targetPoint2Value;
-  int targetAttributeValue;
-  int targetNumberValue;
-  int victoryConditionChangeTimeout;
-  ManagedArray_int_ vcRuleSet;
-  ManagedArray_int_ executingRules;
-  ManagedArray_int_ idleRules;
-  VictoryConditionRuleSystem vcRules;
-  int difficultyLevel;
-  AIExpert *expert;
-  int ruleListId;
-  AIExpertEngine__AIListStats expertStatistics;
-  unsigned int expertTiming;
-  int parserError;
-  AIExpert__ErrorInfo errorInfo;
-};
-#pragma pack(pop)
-
-/* 935 */
-#pragma pack(push, 8)
-struct TribeStrategyAIModuleVtbl
-{
-  void *(__thiscall *__vecDelDtor)(TribeStrategyAIModule *, unsigned int);
-  int (__thiscall *loggingHistory)(TribeStrategyAIModule *);
-  void (__thiscall *setLogHistory)(TribeStrategyAIModule *, int);
-  void (__thiscall *toggleLogHistory)(TribeStrategyAIModule *);
-  void (__thiscall *setHistoryFilename)(TribeStrategyAIModule *, char *);
-  int (__thiscall *loggingCommonHistory)(TribeStrategyAIModule *);
-  void (__thiscall *setLogCommonHistory)(TribeStrategyAIModule *, int);
-  void (__thiscall *toggleLogCommonHistory)(TribeStrategyAIModule *);
-  int (__thiscall *loadState)(TribeStrategyAIModule *, char *);
-  int (__thiscall *saveState)(TribeStrategyAIModule *, char *);
-  int (__thiscall *gleanState)(TribeStrategyAIModule *, int);
-  int (__thiscall *processMessage)(TribeStrategyAIModule *, AIModuleMessage *);
-  int (__thiscall *update)(TribeStrategyAIModule *, int);
-  void (__thiscall *setCallbackMessage)(TribeStrategyAIModule *, AIModuleMessage *);
-  int (__thiscall *filterOutMessage)(TribeStrategyAIModule *, AIModuleMessage *);
-  int (__thiscall *save)(TribeStrategyAIModule *, int);
-};
-#pragma pack(pop)
-
-/* 931 */
-#pragma pack(push, 8)
-struct AIModuleIDVtbl
-{
-  void *(__thiscall *__vecDelDtor)(AIModuleID *, unsigned int);
-};
-#pragma pack(pop)
-
-/* 930 */
-#pragma pack(push, 8)
-struct VictoryConditionRuleSystemVtbl
-{
-  void *(__thiscall *__vecDelDtor)(VictoryConditionRuleSystem *, unsigned int);
-};
-#pragma pack(pop)
-
-/* 932 */
-#pragma pack(push, 1)
-struct AIModuleMessage
-{
 };
 #pragma pack(pop)
 
@@ -24708,121 +25697,6 @@ struct TRIBE_Gaia
 };
 #pragma pack(pop)
 
-/* 296 */
-#pragma pack(push, 1)
-struct TribeTacticalAIModule
-{
-};
-#pragma pack(pop)
-
-/* 298 */
-#pragma pack(push, 1)
-struct TribeInformationAIModule
-{
-};
-#pragma pack(pop)
-
-/* 316 */
-#pragma pack(push, 8)
-struct BuildItem
-{
-  BuildItemVtbl *vfptr;
-  int typeIDValue;
-  int gameIDValue;
-  int uniqueIDValue;
-  char nameValue[64];
-  float xValue;
-  float yValue;
-  float zValue;
-  float xSizeValue;
-  float ySizeValue;
-  float zSizeValue;
-  int skipValue;
-  BuildItem *next;
-  BuildItem *prev;
-  int buildCategoryValue;
-  int numberValue;
-  int priorityValue;
-  int progressValue;
-  int builtValue;
-  int buildAttemptsValue;
-  int buildFromValue;
-  int terrainSetValue;
-  int terrainAdjacencyValue[2];
-  int placeOnElevationValue;
-  int numberBuildsValue;
-  int buildCapValue;
-  int skipCyclesValue;
-  unsigned __int8 permanentSkipValue;
-  int mForward;
-};
-#pragma pack(pop)
-
-/* 299 */
-#pragma pack(push, 8)
-struct TribeBuildAIModule
-{
-  TribeBuildAIModuleVtbl *vfptr;
-  AIModuleID idValue;
-  int playerNumberValue;
-  char playerNameValue[64];
-  int runningValue;
-  int pausedValue;
-  int logHistoryValue;
-  int logCommonHistoryValue;
-  FILE *historyLogFile;
-  char historyLogFilename[64];
-  int intelligenceLevelValue;
-  int priorityValue;
-  int processFrameValue;
-  BuildItem buildList;
-  int uniqueIDValue;
-  char buildListNameValue[257];
-  char lastBuildItemRequestedValue[257];
-  char currentBuildItemRequestedValue[257];
-  char nextBuildItemRequestedValue[257];
-  int numberItemsIntoBuildListValue;
-  ManagedArray_int_ typesToIgnore;
-  TribeMainDecisionAIModule *md;
-  int queuedObjectCount[600];
-  int queuedBuildingCount;
-  int queuedUnitCount;
-};
-#pragma pack(pop)
-
-/* 947 */
-#pragma pack(push, 8)
-struct TribeBuildAIModuleVtbl
-{
-  void *(__thiscall *__vecDelDtor)(TribeBuildAIModule *, unsigned int);
-  int (__thiscall *loggingHistory)(TribeBuildAIModule *);
-  void (__thiscall *setLogHistory)(TribeBuildAIModule *, int);
-  void (__thiscall *toggleLogHistory)(TribeBuildAIModule *);
-  void (__thiscall *setHistoryFilename)(TribeBuildAIModule *, char *);
-  int (__thiscall *loggingCommonHistory)(TribeBuildAIModule *);
-  void (__thiscall *setLogCommonHistory)(TribeBuildAIModule *, int);
-  void (__thiscall *toggleLogCommonHistory)(TribeBuildAIModule *);
-  int (__thiscall *loadState)(TribeBuildAIModule *, char *);
-  int (__thiscall *saveState)(TribeBuildAIModule *, char *);
-  int (__thiscall *gleanState)(TribeBuildAIModule *, int);
-  int (__thiscall *processMessage)(TribeBuildAIModule *, AIModuleMessage *);
-  int (__thiscall *update)(TribeBuildAIModule *, int);
-  void (__thiscall *setCallbackMessage)(TribeBuildAIModule *, AIModuleMessage *);
-  int (__thiscall *filterOutMessage)(TribeBuildAIModule *, AIModuleMessage *);
-  int (__thiscall *save)(TribeBuildAIModule *, int);
-  void (__thiscall *displayBuildList)(TribeBuildAIModule *);
-  int (__thiscall *numberBuiltOrInProgressItemsOfType)(TribeBuildAIModule *, int, int);
-};
-#pragma pack(pop)
-
-/* 948 */
-#pragma pack(push, 8)
-struct BuildItemVtbl
-{
-  void *(__thiscall *__vecDelDtor)(BuildItem *, unsigned int);
-};
-#pragma pack(pop)
-
 /* 300 */
 #pragma pack(push, 8)
 struct BuildAIModule
@@ -24918,103 +25792,6 @@ struct AIModuleVtbl
 };
 #pragma pack(pop)
 
-/* 304 */
-#pragma pack(push, 8)
-struct ConstructionItem
-{
-  ConstructionItemVtbl *vfptr;
-  int typeIDValue;
-  int gameIDValue;
-  int uniqueIDValue;
-  char nameValue[64];
-  float xValue;
-  float yValue;
-  float zValue;
-  float xSizeValue;
-  float ySizeValue;
-  float zSizeValue;
-  int skipValue;
-  ConstructionItem *next;
-  ConstructionItem *prev;
-  int inProgressValue;
-  int builtValue;
-  int buildAttemptsValue;
-};
-#pragma pack(pop)
-
-/* 944 */
-typedef int ConstructionAIModule__PlacementResult;
-
-/* 302 */
-#pragma pack(push, 8)
-struct TribeConstructionAIModule
-{
-  TribeConstructionAIModuleVtbl *vfptr;
-  AIModuleID idValue;
-  int playerNumberValue;
-  char playerNameValue[64];
-  int runningValue;
-  int pausedValue;
-  int logHistoryValue;
-  int logCommonHistoryValue;
-  FILE *historyLogFile;
-  char historyLogFilename[64];
-  int intelligenceLevelValue;
-  int priorityValue;
-  int processFrameValue;
-  int numberConstructionLotsValue;
-  ConstructionItem constructionLots;
-  int numberRandomConstructionLotsValue;
-  ConstructionItem randomConstructionLots;
-  char constructionPlanNameValue[257];
-  float xReferencePointValue;
-  float yReferencePointValue;
-  float zReferencePointValue;
-  int mapXSizeValue;
-  int mapYSizeValue;
-  ConstructionAIModule__PlacementResult lastPlacementReturnCodeValue;
-  TribeMainDecisionAIModule *md;
-};
-#pragma pack(pop)
-
-/* 943 */
-#pragma pack(push, 8)
-struct TribeConstructionAIModuleVtbl
-{
-  void *(__thiscall *__vecDelDtor)(TribeConstructionAIModule *, unsigned int);
-  int (__thiscall *loggingHistory)(TribeConstructionAIModule *);
-  void (__thiscall *setLogHistory)(TribeConstructionAIModule *, int);
-  void (__thiscall *toggleLogHistory)(TribeConstructionAIModule *);
-  void (__thiscall *setHistoryFilename)(TribeConstructionAIModule *, char *);
-  int (__thiscall *loggingCommonHistory)(TribeConstructionAIModule *);
-  void (__thiscall *setLogCommonHistory)(TribeConstructionAIModule *, int);
-  void (__thiscall *toggleLogCommonHistory)(TribeConstructionAIModule *);
-  int (__thiscall *loadState)(TribeConstructionAIModule *, char *);
-  int (__thiscall *saveState)(TribeConstructionAIModule *, char *);
-  int (__thiscall *gleanState)(TribeConstructionAIModule *, int);
-  int (__thiscall *processMessage)(TribeConstructionAIModule *, AIModuleMessage *);
-  int (__thiscall *update)(TribeConstructionAIModule *, int);
-  void (__thiscall *setCallbackMessage)(TribeConstructionAIModule *, AIModuleMessage *);
-  int (__thiscall *filterOutMessage)(TribeConstructionAIModule *, AIModuleMessage *);
-  int (__thiscall *save)(TribeConstructionAIModule *, int);
-  int (__thiscall *loadConstructionPlan)(TribeConstructionAIModule *, char *, int, int, float, float, float);
-  ConstructionItem *(__thiscall *placeStructure)(TribeConstructionAIModule *, BuildItem *);
-  void (__thiscall *setBuilt)(TribeConstructionAIModule *, ConstructionItem *, int);
-  int (__thiscall *unplaceStructure_2)(TribeConstructionAIModule *, float, float, int);
-  int (__thiscall *unplaceStructure_1)(TribeConstructionAIModule *, ConstructionItem *, int);
-  void (__thiscall *decrementBuildAttempts)(TribeConstructionAIModule *, float, float, int);
-  void (__thiscall *incrementBuildAttempts)(TribeConstructionAIModule *, float, float, int);
-};
-#pragma pack(pop)
-
-/* 946 */
-#pragma pack(push, 8)
-struct ConstructionItemVtbl
-{
-  void *(__thiscall *__vecDelDtor)(ConstructionItem *, unsigned int);
-};
-#pragma pack(pop)
-
 /* 303 */
 #pragma pack(push, 8)
 struct ConstructionAIModule
@@ -25103,119 +25880,11 @@ struct BaseItemVtbl
 };
 #pragma pack(pop)
 
-/* 306 */
-#pragma pack(push, 8)
-struct DiplomacyAIModule
-{
-  DiplomacyAIModuleVtbl *vfptr;
-  AIModuleID idValue;
-  int playerNumberValue;
-  char playerNameValue[64];
-  int runningValue;
-  int pausedValue;
-  int logHistoryValue;
-  int logCommonHistoryValue;
-  FILE *historyLogFile;
-  char historyLogFilename[64];
-  int intelligenceLevelValue;
-  int priorityValue;
-  int processFrameValue;
-  MainDecisionAIModule *md;
-  int dislikeTable[10];
-  int likeTable[10];
-  unsigned __int8 changeableTable[10];
-  int currentMostHatedEnemy;
-};
-#pragma pack(pop)
-
-/* 942 */
-#pragma pack(push, 8)
-struct DiplomacyAIModuleVtbl
-{
-  void *(__thiscall *__vecDelDtor)(DiplomacyAIModule *, unsigned int);
-  int (__thiscall *loggingHistory)(DiplomacyAIModule *);
-  void (__thiscall *setLogHistory)(DiplomacyAIModule *, int);
-  void (__thiscall *toggleLogHistory)(DiplomacyAIModule *);
-  void (__thiscall *setHistoryFilename)(DiplomacyAIModule *, char *);
-  int (__thiscall *loggingCommonHistory)(DiplomacyAIModule *);
-  void (__thiscall *setLogCommonHistory)(DiplomacyAIModule *, int);
-  void (__thiscall *toggleLogCommonHistory)(DiplomacyAIModule *);
-  int (__thiscall *loadState)(DiplomacyAIModule *, char *);
-  int (__thiscall *saveState)(DiplomacyAIModule *, char *);
-  int (__thiscall *gleanState)(DiplomacyAIModule *, int);
-  int (__thiscall *processMessage)(DiplomacyAIModule *, AIModuleMessage *);
-  int (__thiscall *update)(DiplomacyAIModule *, int);
-  void (__thiscall *setCallbackMessage)(DiplomacyAIModule *, AIModuleMessage *);
-  int (__thiscall *filterOutMessage)(DiplomacyAIModule *, AIModuleMessage *);
-  int (__thiscall *save)(DiplomacyAIModule *, int);
-};
-#pragma pack(pop)
-
-/* 315 */
-#pragma pack(push, 1)
-struct MainDecisionAIModule
-{
-};
-#pragma pack(pop)
-
-/* 307 */
-#pragma pack(push, 8)
-struct EmotionalAIModule
-{
-  EmotionalAIModuleVtbl *vfptr;
-  AIModuleID idValue;
-  int playerNumberValue;
-  char playerNameValue[64];
-  int runningValue;
-  int pausedValue;
-  int logHistoryValue;
-  int logCommonHistoryValue;
-  FILE *historyLogFile;
-  char historyLogFilename[64];
-  int intelligenceLevelValue;
-  int priorityValue;
-  int processFrameValue;
-  MainDecisionAIModule *md;
-  int stateValue[6];
-  char stateNameValue[6][30];
-};
-#pragma pack(pop)
-
-/* 941 */
-#pragma pack(push, 8)
-struct EmotionalAIModuleVtbl
-{
-  void *(__thiscall *__vecDelDtor)(EmotionalAIModule *, unsigned int);
-  int (__thiscall *loggingHistory)(EmotionalAIModule *);
-  void (__thiscall *setLogHistory)(EmotionalAIModule *, int);
-  void (__thiscall *toggleLogHistory)(EmotionalAIModule *);
-  void (__thiscall *setHistoryFilename)(EmotionalAIModule *, char *);
-  int (__thiscall *loggingCommonHistory)(EmotionalAIModule *);
-  void (__thiscall *setLogCommonHistory)(EmotionalAIModule *, int);
-  void (__thiscall *toggleLogCommonHistory)(EmotionalAIModule *);
-  int (__thiscall *loadState)(EmotionalAIModule *, char *);
-  int (__thiscall *saveState)(EmotionalAIModule *, char *);
-  int (__thiscall *gleanState)(EmotionalAIModule *, int);
-  int (__thiscall *processMessage)(EmotionalAIModule *, AIModuleMessage *);
-  int (__thiscall *update)(EmotionalAIModule *, int);
-  void (__thiscall *setCallbackMessage)(EmotionalAIModule *, AIModuleMessage *);
-  int (__thiscall *filterOutMessage)(EmotionalAIModule *, AIModuleMessage *);
-  int (__thiscall *save)(EmotionalAIModule *, int);
-};
-#pragma pack(pop)
-
 /* 308 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct InformationAIModule
 {
-};
-#pragma pack(pop)
-
-/* 309 */
-#pragma pack(push, 8)
-struct TribeResourceAIModule
-{
-  TribeResourceAIModuleVtbl *vfptr;
+  InformationAIModuleVtbl *vfptr;
   AIModuleID idValue;
   int playerNumberValue;
   char playerNameValue[64];
@@ -25228,31 +25897,28 @@ struct TribeResourceAIModule
   int intelligenceLevelValue;
   int priorityValue;
   int processFrameValue;
-  TribeMainDecisionAIModule *md;
-  int numberResourcesValue;
 };
 #pragma pack(pop)
 
-/* 940 */
+/* 1084 */
 #pragma pack(push, 8)
-struct TribeResourceAIModuleVtbl
+struct InformationAIModuleVtbl
 {
-  void *(__thiscall *__vecDelDtor)(TribeResourceAIModule *, unsigned int);
-  int (__thiscall *loggingHistory)(TribeResourceAIModule *);
-  void (__thiscall *setLogHistory)(TribeResourceAIModule *, int);
-  void (__thiscall *toggleLogHistory)(TribeResourceAIModule *);
-  void (__thiscall *setHistoryFilename)(TribeResourceAIModule *, char *);
-  int (__thiscall *loggingCommonHistory)(TribeResourceAIModule *);
-  void (__thiscall *setLogCommonHistory)(TribeResourceAIModule *, int);
-  void (__thiscall *toggleLogCommonHistory)(TribeResourceAIModule *);
-  int (__thiscall *loadState)(TribeResourceAIModule *, char *);
-  int (__thiscall *saveState)(TribeResourceAIModule *, char *);
-  int (__thiscall *gleanState)(TribeResourceAIModule *, int);
-  int (__thiscall *processMessage)(TribeResourceAIModule *, AIModuleMessage *);
-  int (__thiscall *update)(TribeResourceAIModule *, int);
-  void (__thiscall *setCallbackMessage)(TribeResourceAIModule *, AIModuleMessage *);
-  int (__thiscall *filterOutMessage)(TribeResourceAIModule *, AIModuleMessage *);
-  int (__thiscall *save)(TribeResourceAIModule *, int);
+  void *(__thiscall *__vecDelDtor)(InformationAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(InformationAIModule *);
+  void (__thiscall *setLogHistory)(InformationAIModule *, int);
+  void (__thiscall *toggleLogHistory)(InformationAIModule *);
+  void (__thiscall *setHistoryFilename)(InformationAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(InformationAIModule *);
+  void (__thiscall *setLogCommonHistory)(InformationAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(InformationAIModule *);
+  int (__thiscall *loadState)(InformationAIModule *, char *);
+  int (__thiscall *saveState)(InformationAIModule *, char *);
+  int (__thiscall *gleanState)(InformationAIModule *, int);
+  int (__thiscall *processMessage)(InformationAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(InformationAIModule *, int);
+  void (__thiscall *setCallbackMessage)(InformationAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(InformationAIModule *, AIModuleMessage *);
 };
 #pragma pack(pop)
 
@@ -25299,23 +25965,44 @@ struct StrategyAIModuleVtbl
 #pragma pack(pop)
 
 /* 312 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TacticalAIModule
 {
+  TacticalAIModuleVtbl *vfptr;
+  AIModuleID idValue;
+  int playerNumberValue;
+  char playerNameValue[64];
+  int runningValue;
+  int pausedValue;
+  int logHistoryValue;
+  int logCommonHistoryValue;
+  FILE *historyLogFile;
+  char historyLogFilename[64];
+  int intelligenceLevelValue;
+  int priorityValue;
+  int processFrameValue;
 };
 #pragma pack(pop)
 
-/* 313 */
-#pragma pack(push, 1)
-struct TacticalAIGroup
+/* 1086 */
+#pragma pack(push, 8)
+struct TacticalAIModuleVtbl
 {
-};
-#pragma pack(pop)
-
-/* 314 */
-#pragma pack(push, 1)
-struct TradeAIModule
-{
+  void *(__thiscall *__vecDelDtor)(TacticalAIModule *, unsigned int);
+  int (__thiscall *loggingHistory)(TacticalAIModule *);
+  void (__thiscall *setLogHistory)(TacticalAIModule *, int);
+  void (__thiscall *toggleLogHistory)(TacticalAIModule *);
+  void (__thiscall *setHistoryFilename)(TacticalAIModule *, char *);
+  int (__thiscall *loggingCommonHistory)(TacticalAIModule *);
+  void (__thiscall *setLogCommonHistory)(TacticalAIModule *, int);
+  void (__thiscall *toggleLogCommonHistory)(TacticalAIModule *);
+  int (__thiscall *loadState)(TacticalAIModule *, char *);
+  int (__thiscall *saveState)(TacticalAIModule *, char *);
+  int (__thiscall *gleanState)(TacticalAIModule *, int);
+  int (__thiscall *processMessage)(TacticalAIModule *, AIModuleMessage *);
+  int (__thiscall *update)(TacticalAIModule *, int);
+  void (__thiscall *setCallbackMessage)(TacticalAIModule *, AIModuleMessage *);
+  int (__thiscall *filterOutMessage)(TacticalAIModule *, AIModuleMessage *);
 };
 #pragma pack(pop)
 
@@ -30124,13 +30811,6 @@ struct RGE_Command_Form_Formation
 };
 #pragma pack(pop)
 
-/* 404 */
-#pragma pack(push, 1)
-struct ObjectMemory
-{
-};
-#pragma pack(pop)
-
 /* 406 */
 #pragma pack(push, 8)
 struct AIBestUnitToAttackEntry
@@ -30170,41 +30850,12 @@ struct AIBestUnitToAttackStatistics
 };
 #pragma pack(pop)
 
-/* 407 */
-#pragma pack(push, 1)
-struct UnitData
-{
-};
-#pragma pack(pop)
-
-/* 408 */
-#pragma pack(push, 8)
-struct WallLine
-{
-  int lineType;
-  int wallType;
-  int gateCount;
-  int segmentCount;
-  int invisibleSegmentCount;
-  int unfinishedSegmentCount;
-  XYPoint lineStart;
-  XYPoint lineEnd;
-};
-#pragma pack(pop)
-
 /* 409 */
 #pragma pack(push, 8)
 struct WallLineData
 {
   int invisibleSegmentCount;
   int unfinishedSegmentCount;
-};
-#pragma pack(pop)
-
-/* 411 */
-#pragma pack(push, 1)
-struct PlacementState
-{
 };
 #pragma pack(pop)
 
@@ -35819,17 +36470,6 @@ struct PathingSystem__BYTEPoint
 };
 #pragma pack(pop)
 
-/* 588 */
-#pragma pack(push, 8)
-struct InfluenceMapState
-{
-  int state;
-  int substate;
-  int substate2;
-  int substate3;
-};
-#pragma pack(pop)
-
 /* 613 */
 typedef int TRIBE_Game__MenuType;
 
@@ -35959,120 +36599,6 @@ typedef int TScrollBarPanel__ActionType;
 
 /* 895 */
 typedef int TRIBE_Panel_Button__GarrisonDiplayType;
-
-/* 951 */
-#pragma pack(push, 8)
-struct TribeInformationAIModuleVtbl
-{
-  void *(__thiscall *__vecDelDtor)(TribeInformationAIModule *, unsigned int);
-  int (__thiscall *loggingHistory)(TribeInformationAIModule *);
-  void (__thiscall *setLogHistory)(TribeInformationAIModule *, int);
-  void (__thiscall *toggleLogHistory)(TribeInformationAIModule *);
-  void (__thiscall *setHistoryFilename)(TribeInformationAIModule *, char *);
-  int (__thiscall *loggingCommonHistory)(TribeInformationAIModule *);
-  void (__thiscall *setLogCommonHistory)(TribeInformationAIModule *, int);
-  void (__thiscall *toggleLogCommonHistory)(TribeInformationAIModule *);
-  int (__thiscall *loadState)(TribeInformationAIModule *, char *);
-  int (__thiscall *saveState)(TribeInformationAIModule *, char *);
-  int (__thiscall *gleanState)(TribeInformationAIModule *, int);
-  int (__thiscall *processMessage)(TribeInformationAIModule *, AIModuleMessage *);
-  int (__thiscall *update)(TribeInformationAIModule *, int);
-  void (__thiscall *setCallbackMessage)(TribeInformationAIModule *, AIModuleMessage *);
-  int (__thiscall *filterOutMessage)(TribeInformationAIModule *, AIModuleMessage *);
-};
-#pragma pack(pop)
-
-/* 952 */
-#pragma pack(push, 8)
-struct BuildingLot
-{
-  int typeID;
-  unsigned __int8 status;
-  unsigned __int8 x;
-  unsigned __int8 y;
-};
-#pragma pack(pop)
-
-/* 953 */
-#pragma pack(push, 8)
-struct PerimeterWall
-{
-  int enabledFlag;
-  int lineCount;
-  int gateCount;
-  int gateFittingLineCount;
-  int percentageComplete;
-  int segmentCount;
-  int invisibleSegmentCount;
-  int unfinishedSegmentCount;
-  int nextLineToRefresh;
-  int nextSegmentToRefresh;
-  WallLine *wallLine;
-};
-#pragma pack(pop)
-
-/* 954 */
-#pragma pack(push, 8)
-struct AttackMemory
-{
-  int id;
-  unsigned __int8 type;
-  unsigned __int8 minX;
-  unsigned __int8 minY;
-  unsigned __int8 maxX;
-  unsigned __int8 maxY;
-  unsigned __int8 attackingOwner;
-  unsigned __int8 targetOwner;
-  __int16 kills;
-  unsigned __int8 success;
-  unsigned int timeStamp;
-  int play;
-};
-#pragma pack(pop)
-
-/* 955 */
-#pragma pack(push, 8)
-struct QuadrantLog
-{
-  int numberExploredTiles;
-  int numberAttacksOnUs;
-  int numberAttacksByUs;
-};
-#pragma pack(pop)
-
-/* 956 */
-#pragma pack(push, 8)
-struct ResourceMemory
-{
-  int id;
-  unsigned __int8 x;
-  unsigned __int8 y;
-  unsigned __int8 gatherAttempts;
-  int gatherValue;
-  unsigned __int8 valid;
-  unsigned __int8 gone;
-  unsigned __int8 dropDistance;
-  unsigned __int8 resourceType;
-  int dropsiteID;
-  unsigned int attackedTime;
-};
-#pragma pack(pop)
-
-/* 957 */
-#pragma pack(push, 8)
-struct UnitDeathMemory
-{
-  int mUnitID;
-  BVector mUnitPosition;
-  int mAttackingUnitID;
-  int mAttackingPlayerID;
-  int mAttackingUnitRange;
-  BVector mAttackingUnitPosition;
-  unsigned int mTime;
-  UnitDeathMemory *mNext;
-  UnitDeathMemory *mPrev;
-};
-#pragma pack(pop)
 
 /* 964 */
 #pragma pack(push, 8)
