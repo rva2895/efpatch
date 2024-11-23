@@ -4,6 +4,7 @@ void TRIBE_Command__do_command_ef();
 void setTribeCommandEFHooks();
 void make_cheat_by_id(RGE_Player* player, int ef_cheat_id);
 void make_cheat_by_id_with_unit_list(RGE_Player* player, int ef_cheat_id, RGE_Static_Object** units, int n);
+void make_cheat_by_id_with_unit_list_and_option(RGE_Player* player, int ef_cheat_id, RGE_Static_Object** units, int n, int option);
 void make_cheat_by_id_with_position(RGE_Player* player, int ef_cheat_id, float x, float y);
 
 //cheats
@@ -30,3 +31,6 @@ void make_cheat_by_id_with_position(RGE_Player* player, int ef_cheat_id, float x
 #define EF_CHEAT_JOIN_US_OR_DIE 0x40
 #define EF_CHEAT_DEPLOY_THE_GARRISON 0x41
 #define EF_CHEAT_THERES_ALWAYS_A_BIGGER_FISH 0x42
+#define EF_CHEAT_MY_HOME_THIS_IS 0x43
+#define EF_CHEAT_CREATE_WORKER 0x44
+#define EF_CHEAT_GIFT 0x45

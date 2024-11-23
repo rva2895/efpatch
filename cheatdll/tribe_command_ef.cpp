@@ -38,6 +38,26 @@ void make_cheat_by_id_with_unit_list(RGE_Player* player, int ef_cheat_id, RGE_St
     }
 }
 
+void make_cheat_by_id_with_unit_list_and_option(RGE_Player* player, int ef_cheat_id, RGE_Static_Object** units, int n, int option)
+{
+    int order_size = 4 + 4 + 4 * n;
+    void* cmd = calloc_internal(1, order_size);
+    if (cmd)
+    {
+        *(uint8_t*)cmd = 0x83;
+        uint8_t issuer = player->id;
+        *((uint8_t*)cmd + 1) = 1; //ef_cheat
+        *((uint8_t*)cmd + 2) = issuer;
+        *((uint8_t*)cmd + 3) = ef_cheat_id;
+        *((uint16_t*)cmd + 2) = n;
+        *((uint16_t*)cmd + 3) = option;
+        for (int i = 0; i < n; i++)
+            *((int*)cmd + 2 + i) = units[i]->id;
+
+        RGE_Command__submit((RGE_Command*)(*base_game)->world->commands, cmd, order_size, issuer);
+    }
+}
+
 void make_cheat_by_id_with_position(RGE_Player* player, int ef_cheat_id, float x, float y)
 {
     int order_size = 4 * 3;
@@ -60,8 +80,9 @@ void make_cheat_by_id_with_position(RGE_Player* player, int ef_cheat_id, float x
 float cheat_x;
 float cheat_y;
 
-void __stdcall ef_do_command(void* this_, void* order)
+void __stdcall ef_do_command(TRIBE_Command* command, void* order)
 {
+    TRIBE_World* world = (TRIBE_World*)command->world;
     uint8_t order_type = *((uint8_t*)order + 1);
     switch (order_type)
     {
@@ -74,13 +95,16 @@ void __stdcall ef_do_command(void* this_, void* order)
             uint8_t player_id = *((uint8_t*)order + 2);
             uint8_t ef_cheat_id = *((uint8_t*)order + 3);
             RGE_Player* player = (RGE_Player*)(*base_game)->world->players[player_id];
+            uint8_t target_player_id;
+            RGE_Player* target_player;
             switch (ef_cheat_id)
             {
             case EF_CHEAT_HELP_ME_OBIWAN: //tech cheats
             case EF_CHEAT_NOW_THIS_IS_PODRACING:
             case EF_CHEAT_UNLIMITED_POWER:
             case EF_CHEAT_DEPLOY_THE_GARRISON:
-                TRIBE_World__cheat(*((TRIBE_World**)this_ + 1), player_id, ef_cheat_id + 0x64);
+            case EF_CHEAT_MY_HOME_THIS_IS:
+                TRIBE_World__cheat(world, player_id, ef_cheat_id + 0x64);
                 break;
             case EF_CHEAT_ULTIMATE_POWER_IN_THE_UNIVERSE: //create unit cheats
             case EF_CHEAT_SIMONSAYS:
@@ -91,9 +115,10 @@ void __stdcall ef_do_command(void* this_, void* order)
             case EF_CHEAT_GALACTIC_UPHEAVAL:
             case EF_CHEAT_KOELSCH:
             case EF_CHEAT_THERES_ALWAYS_A_BIGGER_FISH:
+            case EF_CHEAT_CREATE_WORKER:
                 cheat_x = *((float*)order + 1);
                 cheat_y = *((float*)order + 2);
-                TRIBE_World__cheat(*((TRIBE_World**)this_ + 1), player_id, ef_cheat_id + 0x64);
+                TRIBE_World__cheat(world, player_id, ef_cheat_id + 0x64);
                 break;
             case EF_CHEAT_YOU_HAVE_FAILED_ME_FOR_THE_LAST_TIME: //modify units cheats
             case EF_CHEAT_THE_DEFLECTOR_SHIELD_IS_TOO_STRONG:
@@ -103,7 +128,7 @@ void __stdcall ef_do_command(void* this_, void* order)
             case EF_CHEAT_JOIN_US_OR_DIE:
                 for (int i = 0; i < *((int32_t*)order + 1); i++)
                 {
-                    TRIBE_Combat_Object* unit = (TRIBE_Combat_Object*)RGE_Game_World__object(*((RGE_Game_World**)this_ + 1), *((uint32_t*)order + 2 + i));
+                    TRIBE_Combat_Object* unit = (TRIBE_Combat_Object*)RGE_Game_World__object(command->world, *((uint32_t*)order + 2 + i));
                     RGE_Player* unit_owner = (RGE_Player*)unit->owner;
                     if (unit->master_obj->master_type >= 70)
                     {
@@ -160,6 +185,31 @@ void __stdcall ef_do_command(void* this_, void* order)
                     }
                 }
                 break;
+            case EF_CHEAT_GIFT:
+                target_player_id = *((uint16_t*)order + 3);
+                if (target_player_id < (*base_game)->world->player_num)
+                {
+                    target_player = (RGE_Player*)(*base_game)->world->players[target_player_id];
+                    for (int i = 0; i < *((int16_t*)order + 2); i++)
+                    {
+                        TRIBE_Combat_Object* unit = (TRIBE_Combat_Object*)RGE_Game_World__object(command->world, *((uint32_t*)order + 2 + i));
+                        RGE_Player* unit_owner = (RGE_Player*)unit->owner;
+                        if (unit->master_obj->master_type >= 70 && unit_owner == player)
+                        {
+                            unit->vfptr->change_ownership(unit, target_player);
+                            RGE_Player* current_player = RGE_Base_Game__get_player(*base_game);
+                            if ((target_player == current_player) &&
+                                (unit->master_obj->master_type != 80 || *((DWORD*)unit + 0x77) == 0))
+                            {
+                                RGE_Base_Game__play_sound(*base_game, 0x26, 0, 0);
+                                RGE_View* main_view = (RGE_View*)(*base_game)->vfptr->get_view_panel(*base_game);
+                                if (main_view)
+                                    RGE_View__display_object_selection(main_view, unit->id, 1500, 2, 4);
+                            }
+                        }
+                    }
+                }
+                break;
             default:
                 break;
             }
@@ -199,6 +249,8 @@ int __fastcall get_unit_or_tech_id(int cheat_id) //returns positive if unit, neg
         return -810;
     case EF_CHEAT_DEPLOY_THE_GARRISON:
         return -961;
+    case EF_CHEAT_MY_HOME_THIS_IS:
+        return -1233;
     case EF_CHEAT_ULTIMATE_POWER_IN_THE_UNIVERSE: //unit cheats
         return 1802;
     case EF_CHEAT_SIMONSAYS:
@@ -217,6 +269,8 @@ int __fastcall get_unit_or_tech_id(int cheat_id) //returns positive if unit, neg
         return 4894;
     case EF_CHEAT_THERES_ALWAYS_A_BIGGER_FISH:
         return 6324;
+    case EF_CHEAT_CREATE_WORKER:
+        return 83;
     default:
         return 0;
     }
