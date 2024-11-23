@@ -295,6 +295,125 @@ void __stdcall RGE_Action_List__add_action2(RGE_Action_List* list, RGE_Action* a
     }
 }
 
+int* rand_val = (int*)0x0069EC98;
+
+int rand_no_change()
+{
+    int rand_save = *rand_val;
+    int result = rand_internal();
+    *rand_val = rand_save;
+    return result;
+}
+
+struct object_save_info
+{
+    int id;
+    float originX;
+    float originY;
+    float originZ;
+};
+
+class save_info
+{
+private:
+
+    //void saveObject()
+
+public:
+    int save_pos;
+    int save_sync_counter;
+    int save_rand_val;
+    unsigned int save_worldtime;
+    std::vector<object_save_info> save_objects;
+    std::string filename;
+
+    void saveObjects(RGE_Game_World* world)
+    {
+        world->players[0]->objects->List;
+        for (int i = 0; i < world->players[0]->objects->Number_of_objects; i++)
+        {
+            UnitAIModule* unit_ai = world->players[0]->objects->List[i]->unitAIValue;
+            if (unit_ai && (unit_ai->vfptr == (UnitAIModuleVtbl*)0x00665E28 || unit_ai->vfptr == (UnitAIModuleVtbl*)0x00665D3C))
+            {
+                TribeHuntedAnimalUnitAIModule* unit_ai_origins = (TribeHuntedAnimalUnitAIModule*)unit_ai;
+                object_save_info osi;
+                osi.id = world->players[0]->objects->List[i]->id;
+                osi.originX = unit_ai_origins->originX;
+                osi.originY = unit_ai_origins->originY;
+                osi.originZ = unit_ai_origins->originZ;
+                save_objects.emplace_back(osi);
+            }
+        }
+    }
+
+    void loadObjects(RGE_Game_World* world)
+    {
+        for (auto it = save_objects.begin(); it != save_objects.end(); ++it)
+        {
+            object_save_info& osi = *it;
+            RGE_Static_Object* obj = RGE_Game_World__object(world, osi.id);
+            UnitAIModule* unit_ai = obj->unitAIValue;
+            if (unit_ai && (unit_ai->vfptr == (UnitAIModuleVtbl*)0x00665E28 || unit_ai->vfptr == (UnitAIModuleVtbl*)0x00665D3C))
+            {
+                TribeHuntedAnimalUnitAIModule* unit_ai_origins = (TribeHuntedAnimalUnitAIModule*)unit_ai;
+                unit_ai_origins->originX = osi.originX;
+                unit_ai_origins->originY = osi.originY;
+                unit_ai_origins->originZ = osi.originZ;
+            }
+        }
+    }
+};
+
+std::map<int, save_info> saved_states;
+
+void save_state(RGE_Game_World* world)
+{
+    save_info si;
+    //si.save_rand_val = *rand_val;
+    si.save_worldtime = world->world_time;
+
+    char filename[MAX_PATH];
+    snprintf(filename, _countof(filename), "tempsave_rec_%d.tmp", world->world_time);
+    si.filename = filename;
+
+    int file = rge_open2(filename, 0x8301, 0x180);
+    RGE_Game_World__save_to_open_file((RGE_Game_World*)world, file);
+    rge_close(file);
+
+    si.save_rand_val = *rand_val;
+
+    si.save_pos = tell_internal(world->com_handler->mCommandLog->mFileHandle);
+    si.save_sync_counter = world->com_handler->mCommandLog->mSyncCounter;
+    si.saveObjects(world);
+
+    saved_states.emplace(world->world_time, si);
+}
+
+void load_state(RGE_Game_World* world)
+{
+    auto it = saved_states.begin();
+    if (it == saved_states.end())
+        return;
+
+    save_info& si = (*it).second;
+
+    int file = rge_open((char*)si.filename.c_str(), 0x8000);
+    RGE_Game_World__load_from_open_file((RGE_Game_World*)world, file);
+    rge_close(file);
+    lseek_internal(world->com_handler->mCommandLog->mFileHandle, si.save_pos, 0);
+
+    world->com_handler->mCommandLog->mSyncCounter = si.save_sync_counter;
+
+    *rand_val = si.save_rand_val;
+
+    si.loadObjects(world);
+}
+
+void del_states()
+{
+    saved_states.clear();
+}
+
 int __stdcall onChat_2(int player_id, char* targets, char* s)
 {
     UNREFERENCED_PARAMETER(targets);
@@ -318,17 +437,49 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
     }
     */
     /*
+    else if (!strcmp(s, "/del-save"))
+    {
+        del_states();
+
+        return 1;
+    }
     else if (!strcmp(s, "/save"))
     {
-        int* const enable_compression = (int* const)0x006903D8;
-        writeDword(0x004D5790, 0x900004C2);
-        //*enable_compression = 0;
-        unsigned int t1 = timeGetTime();
-        (*base_game)->world->vfptr->save_game((*base_game)->world, "save.ga2", 0, 0);
-        unsigned int t2 = timeGetTime();
-        chat("Save time: %u ms", t2 - t1);
-        writeDword(0x004D5790, 0x6903D8A1);
-        //*enable_compression = 1;
+        TRIBE_World* world = (*base_game)->world;
+
+        save_state((RGE_Game_World*)world);
+
+        //int x = rand_internal();
+
+        return 1;
+    }
+    else if (!strcmp(s, "/load"))
+    {
+        TRIBE_World* world = (*base_game)->world;
+        TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
+        RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+        int id = player->id;
+        float view_x = player->view_x;
+        float view_y = player->view_y;
+
+        TRIBE_Screen_Game__unhook_world(game_screen);
+
+        world->vfptr->del_game_info(world);
+
+        load_state((RGE_Game_World*)world);
+
+        TRIBE_Screen_Game__rehook_world(game_screen);
+
+        (*base_game)->vfptr->set_player(*base_game, id);
+        player = RGE_Base_Game__get_player(*base_game);
+        RGE_Player__set_view_loc(player, view_x, view_y, 0);
+        RGE_Player__set_map_loc(player, view_x, view_y);
+
+        TPanel* panel = TPanelSystem__getTop(panel_system);
+        panel->vfptr->set_redraw(panel, 1);
+
+        //int x = rand_internal();
+
         return 1;
     }
     else if (strstr(s, "/update"))
@@ -361,7 +512,7 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
 
             unsigned int current_update_time = timeGetTime();
 
-            if (current_update_time - last_update_time > 1000)
+            if (current_update_time - last_update_time > 200)
             {
                 last_update_time = current_update_time;
                 while (PeekMessageA(&Msg, 0, 0, 0, 1u))
@@ -410,7 +561,8 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         *do_fixed_update = do_fixed_update_old;
         //chat("t = %d", t);
         return 1;
-    }*/
+    }
+    */
     /*else if (strstr(s, "/control"))
     {
         char d[0x100];
@@ -1473,9 +1625,73 @@ __declspec(naked) void on_state() //00404490
     }
 }
 
+void __stdcall log_player_update(RGE_Player* player)
+{
+    log("WT=%d, P%d, before update: rand=%d", player->world->world_time, player->id, rand_no_change());
+    player->vfptr->update(player);
+    log("WT=%d, P%d, after update: rand=%d", player->world->world_time, player->id, rand_no_change());
+}
+
+__declspec(naked) void log_on_player_update() //0061F85E
+{
+    __asm
+    {
+        push    ecx
+        call    log_player_update
+        mov     ecx, 0061F864h
+        jmp     ecx
+    }
+}
+
+void __stdcall log_object_list_update(RGE_Player_Object_List* ol)
+{
+    log("  OL: before update: rand=%d", rand_no_change());
+    RGE_Player_Object_List__Update(ol);
+    log("  OL: after update: rand=%d", rand_no_change());
+}
+
+__declspec(naked) void log_on_object_list_update() //004C1985
+{
+    __asm
+    {
+        push    ecx
+        call    log_object_list_update
+        mov     ecx, 004C198Ah
+        jmp     ecx
+    }
+}
+
+unsigned __int8 __stdcall log_object_update(RGE_Static_Object* obj)
+{
+    log("    obj=%d: before update: rand=%d", obj->id, rand_no_change());
+
+    //if (obj->owner->world->world_time == 21990 && obj->id == 10730)
+    //    __debugbreak();
+
+    unsigned __int8 result = obj->vfptr->update(obj);
+    log("    obj=%d: after update: rand=%d", obj->id, rand_no_change());
+    return result;
+}
+
+__declspec(naked) void log_on_object_update() //004AF39B
+{
+    __asm
+    {
+        push    ecx
+        call    log_object_update
+        mov     ecx, 004AF3A1h
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    //setHook((void*)0x0061F85E, log_on_player_update);
+    //setHook((void*)0x004C1985, log_on_object_list_update);
+    //setHook((void*)0x004AF39B, log_on_object_update);
+
+
     //writeNops(0x00404F59, 2);
 
     //setHook((void*)0x00404490, on_state);

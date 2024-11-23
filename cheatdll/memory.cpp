@@ -62,6 +62,8 @@ void new_allocator_uninstall()
     restore_original((void*)0x00632CCA, old_data_free);
     restore_original((void*)0x00632B42, old_data_delete);
 
+    writeNops(0x0059416C, 9);   //enemyUnits destructor
+
     log("New allocator uninstalled");
 }
 #pragma optimize( "", on )

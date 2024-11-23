@@ -379,6 +379,50 @@ __declspec(naked) void on_hotkey_text() //00501132
     }
 }
 
+bool __fastcall RGE_Static_Object__gbg_isMilitaryUnit_new(RGE_Static_Object* obj)
+{
+    switch (obj->master_obj->object_group)
+    {
+    case 11:
+    case 13:
+    case 15:
+    case 16:
+    case 17:
+    case 32:
+    case 33:
+    case 34:
+    case 35:
+    case 36:
+    case 37:
+    case 38:
+    case 39:
+    case 40:
+    case 43:
+    case 44:
+    case 46:
+    case 47:
+    case 48:
+    case 49:
+    case 50:
+    case 51:
+    case 52:
+    case 53:
+    case 54:
+    case 55:
+    case 56:
+    case 57:
+    case 59:
+    case 62:
+    case 63:
+    case 64:
+        return true;
+    case 61:
+        return current_loaded_version < 8 || obj->master_obj->id != 4798;
+    default:
+        return false;
+    }
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks(int ver)
 {
@@ -483,13 +527,17 @@ void setMiscBugfixHooks(int ver)
     //num resource lists
     writeByte(0x005CDDDD, 16);
 
-    //trawler right click shipyard
     if (ver == VER_EF)
+    {
+        //trawler right click shipyard
         setHook((void*)0x005F7D1E, on_shipyard_target_task);
 
-    //trawler dropsite zone
-    if (ver == VER_EF)
+        //trawler dropsite zone
         setHook((void*)0x0055D410, useSameZoneDropsite_new);
+
+        //exclude rs fort annex power droid
+        setHook((void*)0x0054B4E0, RGE_Static_Object__gbg_isMilitaryUnit_new);
+    }
 
     //rec header fix
     setHook((void*)0x0042F0B6, rec_header_pos_fix);
