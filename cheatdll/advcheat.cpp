@@ -122,6 +122,12 @@ bool __stdcall checkCheats(char* s2)
                     floor(player->view_x) + 0.5f, floor(player->view_y) + 0.5f);
                 return true;
             }
+            if (strstr(s, "LET'S GET TO WORK"))
+            {
+                make_cheat_by_id_with_position(player, EF_CHEAT_CREATE_WORKER,
+                    floor(player->view_x) + 0.5f, floor(player->view_y) + 0.5f);
+                return true;
+            }
         }
         //new EF cheats, SP and MP
         if (strstr(s, "HELP ME OBI-WAN"))
@@ -191,6 +197,30 @@ bool __stdcall checkCheats(char* s2)
         {
             make_cheat_by_id(player, EF_CHEAT_DEPLOY_THE_GARRISON);
             return true;
+        }
+        if (strstr(s, "MY HOME THIS IS"))
+        {
+            make_cheat_by_id(player, EF_CHEAT_MY_HOME_THIS_IS);
+            return true;
+        }
+        if (char* gift_s = strstr(s, "GIFT"))
+        {
+            int id = -1;
+            if (sscanf(gift_s + 4, "%d", &id) > 0 && id >= 0 && id <= 8)
+            {
+                if (id < (*base_game)->world->player_num && id != player->id)
+                {
+                    RGE_Static_Object** sel_units = player->sel_list;
+                    int n = player->sel_count;
+                    RGE_Static_Object* order_units[40];
+                    RGE_Static_Object** unit_ptr = order_units;
+                    for (int i = 0; i < n; i++)
+                        if ((RGE_Player*)sel_units[i]->owner == player)
+                            *unit_ptr++ = sel_units[i];
+                    make_cheat_by_id_with_unit_list_and_option(player, EF_CHEAT_GIFT, order_units, unit_ptr - order_units, id);
+                }
+                return true;
+            }
         }
     }
     //debug commands
