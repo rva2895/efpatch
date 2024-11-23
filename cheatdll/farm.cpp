@@ -971,6 +971,35 @@ __declspec(naked) void farm_walk() //00404928
     }
 }
 
+int __stdcall farm_expiration_get_string(TRIBE_Game* game, int obj_id)
+{
+    RGE_Static_Object* obj = RGE_Game_World__object((RGE_Game_World*)game->world, obj_id);
+    if (obj)
+    {
+        if (obj->master_obj->object_group == 14)
+            return 168235;
+        else
+            return 168234;
+    }
+    else
+        return 168234;
+}
+
+__declspec(naked) void farm_expiration() //005EB824
+{
+    __asm
+    {
+        mov     eax, [ebp + 10h]
+        push    eax
+        push    esi
+        call    farm_expiration_get_string
+        push    eax
+        mov     edx, [esi]
+        mov     eax, 005EB829h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setFarmHooks()
 {
@@ -1004,5 +1033,9 @@ void setFarmHooks()
     setHook((void*)0x005B6230, fishing_ship_important_objects);
 
     setHook((void*)0x00404928, farm_walk);
+
+    //expiration notifications
+    writeNops(0x005E9B48, 0xD);
+    setHook((void*)0x005EB824, farm_expiration);
 }
 #pragma optimize( "", on )

@@ -126,7 +126,6 @@ int plr_pump()
         if (bytes == OV_EINVAL)
         {
             free(buf);
-            free(buf);
             return 0;
         }
 

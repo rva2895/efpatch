@@ -24,7 +24,7 @@ std::vector<std::pair<std::string, std::string>> query_languages()
                 if (LoadString(dll, 10000, s1, MAX_LOADSTRING))
                     if (LoadString(dll, 10001, s2, MAX_LOADSTRING))
                     {
-                        languages.push_back(std::pair<std::string, std::string>(s1, s2));
+                        languages.emplace_back(std::pair<std::string, std::string>(s1, s2));
                         log("Found language: %s (%s)", s1, s2);
                         nFiles++;
                     }

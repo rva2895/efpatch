@@ -361,7 +361,7 @@ void initMapList(const char* prefix, const char* filename)
                 mi.rollover_string_id = rollover_string_id;
                 mi.drs_id = drs_id;
                 strcpy_safe(mi.filename, sizeof(mi.filename), script_filename);
-                map_list.insert(std::pair<int, MAP_INFO>(id, mi));
+                map_list.emplace(std::pair<int, MAP_INFO>(id, mi));
             }
         }
 
