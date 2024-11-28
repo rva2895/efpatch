@@ -736,7 +736,7 @@ bool check_dwrite_available()
 }
 
 #pragma optimize( "s", on )
-void setTextRenderHooks()
+void setTextRenderHooks(int version)
 {
     setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "SetTextAlign"), SetTextAlign_new);
     setHook(GetProcAddress(GetModuleHandle("gdi32.dll"), "TextOutA"), TextOutA_new);
@@ -756,13 +756,16 @@ void setTextRenderHooks()
     //slower tech tree mouse scroll refresh rate
     writeByte(0x0046BDF8, 33);
 
-    //transparent color index
-    writeByte(0x005E002A, 177);
-    writeByte(0x005DFA85, 177);
-    writeByte(0x005DFABA, 177);
+    if (version == VER_EF)
+    {
+        //transparent color index
+        writeByte(0x005E002A, 177);
+        writeByte(0x005DFA85, 177);
+        writeByte(0x005DFABA, 177);
 
-    writeByte(0x004CDB92, 177);
-    writeByte(0x004CD427, 177);
-    writeByte(0x004CD45C, 177);
+        writeByte(0x004CDB92, 177);
+        writeByte(0x004CD427, 177);
+        writeByte(0x004CD45C, 177);
+    }
 }
 #pragma optimize( "", on )
