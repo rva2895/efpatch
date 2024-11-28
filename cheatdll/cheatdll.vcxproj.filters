@@ -567,6 +567,9 @@
     <ClInclude Include="memory.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
+    <ClInclude Include="setup.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -1074,6 +1077,9 @@
       <Filter>Файлы исходного кода\engine</Filter>
     </ClCompile>
     <ClCompile Include="memory.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="setup.cpp">
       <Filter>Файлы исходного кода\misc</Filter>
     </ClCompile>
   </ItemGroup>
