@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";_DEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -117,7 +117,7 @@
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -153,7 +153,7 @@
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;TARGET_VOOBLY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -189,7 +189,7 @@
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;TARGET_VOOBLY;VOOBLY_EF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -276,6 +276,7 @@
     <ClInclude Include="gamemode.h" />
     <ClInclude Include="gamespeed.h" />
     <ClInclude Include="memory.h" />
+    <ClInclude Include="setup.h" />
     <ClInclude Include="textrender.h" />
     <ClInclude Include="guardandfollow.h" />
     <ClInclude Include="harbor.h" />
@@ -462,6 +463,7 @@
     <ClCompile Include="gamemode.cpp" />
     <ClCompile Include="gamespeed.cpp" />
     <ClCompile Include="memory.cpp" />
+    <ClCompile Include="setup.cpp" />
     <ClCompile Include="textrender.cpp" />
     <ClCompile Include="guardandfollow.cpp" />
     <ClCompile Include="harbor.cpp" />

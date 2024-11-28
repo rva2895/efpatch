@@ -2,12 +2,17 @@
 #include "stdafx.h"
 #include "structs.h"
 
-#define VOOBLY_DATA_MOD_NAME "Expanding Fronts Data"
-#define VOOBLY_ASSETS_MOD_NAME "EF Assets"
+#define VOOBLY_NAME_SUFFIX ""
+#define VOOBLY_DATA_MOD_NAME "Expanding Fronts Data" VOOBLY_NAME_SUFFIX
+#define VOOBLY_ASSETS_MOD_NAME "EF Assets" VOOBLY_NAME_SUFFIX
+#define VOOBLY_EXT_ASSETS_MOD_NAME "EF Extra Assets" VOOBLY_NAME_SUFFIX
+#define VOOBLY_LOCAL_MOD_PATH "Voobly Mods\\SWBGCC\\Local Mods\\"
+#define VOOBLY_ASSETS_ARCHIVE_NAME "ef_assets.zip.001"
+#define VOOBLY_EXT_ASSETS_ARCHIVE_NAME "ef_assets.zip.002"
 #ifdef VOOBLY_EF
-#define VOOBLY_EXE_MOD_NAME "EF EXE Patch"
+#define VOOBLY_EXE_MOD_NAME "EF EXE Patch" VOOBLY_NAME_SUFFIX
 #else
-#define VOOBLY_EXE_MOD_NAME "EXE Patch"
+#define VOOBLY_EXE_MOD_NAME "EXE Patch" VOOBLY_NAME_SUFFIX
 #endif
 
 #ifdef VOOBLY_EF
