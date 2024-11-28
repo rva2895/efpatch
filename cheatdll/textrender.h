@@ -1,6 +1,6 @@
 #pragma once
 
-void setTextRenderHooks();
+void setTextRenderHooks(int version);
 
 #include <dwrite.h>
 #include <intsafe.h>

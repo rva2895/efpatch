@@ -344,9 +344,6 @@ void setHooksCC()
 
     setAttributeHeldHooks();
 
-    if (cd.textRendering)
-        setTextRenderHooks();
-
     if (cd.chatBox)
         setEditControlHooks();
 
@@ -384,6 +381,9 @@ void setHooksEF()
     writeDword(0x0042E0CE, (DWORD)efShadow);
     writeDword(0x00609CEB, (DWORD)efBlendomatic);
     writeDword(0x00609ABA, (DWORD)efICM);
+
+    //taunt offset
+    writeDword(0x00460E9F, 61999);
 
     //fixed campaigns
     writeByte(0x00690C78, 0x65);

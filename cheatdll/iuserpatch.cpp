@@ -23,6 +23,7 @@
 #include "resolution.h"
 #include "registry.h"
 #include "memory.h"
+#include "textrender.h"
 #ifdef VOOBLY_EF
 #include "palette.h"
 #endif
@@ -285,6 +286,9 @@ void __stdcall delayed_start_process()
     if (cd.widescrnEnabled)
         resolutionTool(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), false, true);
 #endif
+
+    if (cd.textRendering)
+        setTextRenderHooks(cd.gameVersion);
 
     new_allocator_install();
 }

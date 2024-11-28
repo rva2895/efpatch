@@ -10,6 +10,7 @@
 #include "rec.h"
 #include "overlay.h"
 #include "memory.h"
+#include "textrender.h"
 
 extern int placementSettings;
 extern int cliff_type;
@@ -62,6 +63,9 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
 #ifdef _CHEATDLL_CC
     cd.crashReporting = 0;
 #endif
+
+    if (cd.textRendering)
+        setTextRenderHooks(cd.gameVersion);
 
     new_allocator_install();
 
