@@ -112,6 +112,7 @@ void __cdecl setHookCall(void* addr, void* newAddr)
     WriteProcessMemory(GetCurrentProcess(), addr, data + 3, 5, NULL);
 #else
     g_pVoobly->WriteJump((DWORD)addr, newAddr);
+    g_pVoobly->Write((DWORD)addr, "E8");
 #endif
 }
 
