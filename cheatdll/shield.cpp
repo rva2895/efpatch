@@ -53,7 +53,7 @@ bool __fastcall gbg_is_shielded_new(RGE_Static_Object* obj)
         break;
     }
 
-    return RGE_Tile__gbg_get_shield_info(&obj->owner->world->map->map_row_offset[y][x], obj->owner->id);
+    return RGE_Tile__is_shielded(&obj->owner->world->map->map_row_offset[y][x], obj->owner->id);
 }
 
 #pragma optimize( "s", on )
