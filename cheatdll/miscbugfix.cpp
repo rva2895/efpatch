@@ -423,6 +423,52 @@ bool __fastcall RGE_Static_Object__gbg_isMilitaryUnit_new(RGE_Static_Object* obj
     }
 }
 
+__declspec(naked) void on_player_update_game_screen() //005CEBBE
+{
+    __asm
+    {
+        test    eax, eax
+        jz      short loc_5CEBD8
+        mov     eax, [eax + 10C0h]
+        test    eax, eax
+        jz      short loc_5CEBD8
+        mov     ecx, 005CEBC8h
+        jmp     ecx
+
+loc_5CEBD8:
+        mov     eax, 005CEBD8h
+        jmp     eax
+    }
+}
+
+bool dbl_click_picked_sleeping = false;
+
+__declspec(naked) void on_dbl_click_sleeping_objects() //005FBDC3
+{
+    __asm
+    {
+        mov     al, dbl_click_picked_sleeping
+        test    al, al
+        jnz     dbl_click_skip_sleeping
+
+        inc     eax
+        mov     dbl_click_picked_sleeping, al
+        mov     eax, [esi + 10Ch]
+        mov     eax, [eax + 7Ch]
+        mov     ecx, 005FBD4Eh
+        jmp     ecx
+
+dbl_click_skip_sleeping:
+        xor     eax, eax
+        mov     dbl_click_picked_sleeping, al
+        mov     eax, [esp + 18h]
+        mov     ecx, [esi + 10Ch]
+        
+        mov     edx, 005FBDCDh
+        jmp     edx
+    }
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks(int ver)
 {
@@ -547,5 +593,11 @@ void setMiscBugfixHooks(int ver)
 
     //wall double click
     writeNops(0x005FBCF1, 6);
+
+    //double click pick sleeping objects
+    setHook((void*)0x005FBDC3, on_dbl_click_sleeping_objects);
+
+    //game screen nullptr player update
+    setHook((void*)0x005CEBBE, on_player_update_game_screen);
 }
 #pragma optimize( "", on )

@@ -9,6 +9,7 @@
 #include "sngoal.h"
 #include "ailog.h"
 #include "aishipyard.h"
+#include "aiactions.h"
 
 //#include <process.h>
 
@@ -116,8 +117,7 @@ __declspec(naked) void ondefconst() //00552FD0
 void setAIHooks(int version)
 {
     //MP AI selection
-    //writeDword(0x00515C17, 0x90909090);
-    //writeWord(0x00515C1B, 0x9090);
+    writeNops(0x00515C17, 6);
 
     //rule limit: 1000 -> 10000
     writeDword(0x006055E2, 10000);
@@ -145,6 +145,7 @@ void setAIHooks(int version)
         setAIBuildersCntrHooks();
         setAIUnitCountHooks();
         setAISNXHooks();
+        setAIActionsHooks();
 
         setAIGoalsHooks();
 
