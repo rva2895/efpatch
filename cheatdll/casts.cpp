@@ -524,6 +524,7 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
     case 6:
     case 7:
     case 8:
+    case 9:
         rge_read(stream, &flag, sizeof(flag));
         if (flag)
         {
@@ -575,7 +576,7 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
             }
         }
         break;
-#if CURRENT_VERSION != 8
+#if CURRENT_VERSION != 9
 #error Must update for new CURRENT_VERSION
 #endif
     default:
