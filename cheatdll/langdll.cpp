@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "langdll.h"
 
+extern int current_loaded_version;
+
 __declspec(naked) void langdll_1() //0048BB12
 {
     __asm
@@ -259,6 +261,23 @@ _not_temple_2:
     }
 }
 
+__declspec(naked) void databank_txt_filename() //0050A279
+{
+    __asm
+    {
+        mov     eax, current_loaded_version
+        cmp     eax, 9
+        mov     eax, 19811
+        jge     new_databank_txt_filename_offset
+        add     eax, 600
+
+new_databank_txt_filename_offset:
+        lea     ecx, [ebp + eax]
+        mov     eax, 0050A27Fh
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setLangDllHooks()
 {
@@ -302,5 +321,9 @@ void setLangDllHooks()
 
     setHook((void*)0x0054BA2B, medic_worker);
     writeByte(0x0054B3E9, CIV_COUNT + 1);            //wrong icon (civ > 8) fix
+
+    //databank txt filename
+    //writeDword(0x0050A27B, 19811);
+    setHook((void*)0x0050A279, databank_txt_filename);
 }
 #pragma optimize( "", on )
