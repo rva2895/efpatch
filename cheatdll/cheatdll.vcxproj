@@ -222,6 +222,7 @@
     <ClInclude Include="advcheat.h" />
     <ClInclude Include="advtriggereffect.h" />
     <ClInclude Include="ai.h" />
+    <ClInclude Include="aiactions.h" />
     <ClInclude Include="aibuilders.h" />
     <ClInclude Include="aicommandunits.h" />
     <ClInclude Include="aigoals.h" />
@@ -277,6 +278,7 @@
     <ClInclude Include="gamespeed.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="setup.h" />
+    <ClInclude Include="sleepingobjects.h" />
     <ClInclude Include="textrender.h" />
     <ClInclude Include="guardandfollow.h" />
     <ClInclude Include="harbor.h" />
@@ -394,6 +396,7 @@
     <ClCompile Include="advcheat.cpp" />
     <ClCompile Include="advtriggereffect.cpp" />
     <ClCompile Include="ai.cpp" />
+    <ClCompile Include="aiactions.cpp" />
     <ClCompile Include="aibuilders.cpp" />
     <ClCompile Include="aicommandunits.cpp" />
     <ClCompile Include="aigoals.cpp" />
@@ -464,6 +467,7 @@
     <ClCompile Include="gamespeed.cpp" />
     <ClCompile Include="memory.cpp" />
     <ClCompile Include="setup.cpp" />
+    <ClCompile Include="sleepingobjects.cpp" />
     <ClCompile Include="textrender.cpp" />
     <ClCompile Include="guardandfollow.cpp" />
     <ClCompile Include="harbor.cpp" />

@@ -136,6 +136,7 @@
 #include "textsize.h"
 #include "wallbuild.h"
 #include "farm.h"
+#include "sleepingobjects.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -504,6 +505,8 @@ void setHooksEF()
     setHarborHooks();
     setFarmHooks();
 
+    setSleepingObjectsHooks();
+
     /*
 #ifdef TARGET_VOOBLY
 #ifdef VOOBLY_EF
@@ -596,7 +599,7 @@ _1_5:
 void updateVersionEF()
 {
     //writeByte(0x00689534, 8); //EF 1.7e
-    writeByte(0x00689534, 19); //EF 1.5.4, new format
+    writeByte(0x00689534, 20); //EF 1.5.5, new format
     setHook((void*)0x0042C3D1, verHookEF_v2);
 }
 

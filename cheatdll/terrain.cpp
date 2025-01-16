@@ -929,7 +929,7 @@ __declspec(naked) void terrain_read_dat_split() //0048FAFC
     }
 }
 
-int __fastcall isCarbon(uint8_t terrain)
+bool __fastcall isCarbon(uint8_t terrain)
 {
     switch (terrain)
     {
@@ -993,12 +993,53 @@ __declspec(naked) void onResourceFound_carbon() //005856DE
     {
         mov     ecx, eax
         call    isCarbon
-        test    eax, eax
+        test    al, al
         jnz     found_carbon
         mov     eax, 00585726h
         jmp     eax
 found_carbon:
         mov     eax, 0058570Bh
+        jmp     eax
+    }
+}
+
+bool __fastcall checkCarbonTerrainBuildingBlock(uint8_t terrain)
+{
+    if (current_loaded_version < 9)
+    {
+        switch (terrain)
+        {
+        case 10:
+        case 13:
+        case 17:
+        case 18:
+        case 19:
+        case 20:
+        case 21:
+            return true;
+        default:
+            return false;
+        }
+    }
+    else
+        return isCarbon(terrain);
+}
+
+__declspec(naked) void onCheckPlacement_carbon() //005C7E2C
+{
+    __asm
+    {
+        push    ecx
+        mov     ecx, edx
+        call    checkCarbonTerrainBuildingBlock
+        pop     ecx
+        test    al, al
+        jnz     check_placement_is_carbon_terrain
+        mov     eax, 005C7F2Ah
+        jmp     eax
+
+check_placement_is_carbon_terrain:
+        mov     eax, 005C7E49h
         jmp     eax
     }
 }
@@ -1383,6 +1424,7 @@ void setExtraTerrainHooks()
     setHook((void*)0x005006F4, terrain_sound_fix);
 
     setHook((void*)0x005856DE, onResourceFound_carbon);
+    setHook((void*)0x005C7E2C, onCheckPlacement_carbon);
 
     setHook((void*)0x0048E2F5, shipyard_center_tile_req);
 }

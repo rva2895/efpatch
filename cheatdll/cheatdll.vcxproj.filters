@@ -570,6 +570,12 @@
     <ClInclude Include="setup.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
+    <ClInclude Include="sleepingobjects.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="aiactions.h">
+      <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">
@@ -1081,6 +1087,12 @@
     </ClCompile>
     <ClCompile Include="setup.cpp">
       <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="sleepingobjects.cpp">
+      <Filter>Файлы исходного кода\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="aiactions.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
