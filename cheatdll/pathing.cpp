@@ -1,26 +1,25 @@
 #include "stdafx.h"
 #include "pathing.h"
 
-bool __stdcall get_new_pathing_delay_behavior(void* player)
+int __stdcall get_pathing_version(RGE_Player* player)
 {
-    unsigned char o = *((unsigned char*)player + 0x21);
-    switch (o)
-    {
-    case 0xB:
-    case 0xC:
-        return false;
-    default:
-        return true;
-    }
+    unsigned char option = *((unsigned char*)player + 0x21);
+    if (option >= 0x10)
+        return 1;
+    else
+        return 0;
 }
 
-int __stdcall WorldPlayerBase__availablePathingAttempts_new(RGE_Static_Object* pathing_unit, RGE_Player* player, int numWaitDelays)
+int path_stats[100];
+
+int __stdcall RGE_Player__availablePathingAttempts_new2(RGE_Static_Object* pathing_unit, RGE_Player* player, int numWaitDelays)
 {
-    bool try_low_pathing_delay = (*((unsigned char*)player + 0xA0) && get_new_pathing_delay_behavior(player)) ? true : false;
+    path_stats[pathing_unit->master_obj->object_group]++;
 
-    int max_pathing_delay;
+    int pathingDelayCapValueToUse = player->pathingDelayCapValue;
+    int pathingAttemptCapValueToUse = player->pathingAttemptCapValue;
 
-    if (try_low_pathing_delay)
+    if (get_pathing_version(player) > 0)
     {
         switch (pathing_unit->master_obj->object_group)
         {
@@ -56,34 +55,36 @@ int __stdcall WorldPlayerBase__availablePathingAttempts_new(RGE_Static_Object* p
         case 62: //air cruiser
         case 63: //geo warrior
         case 64: //jedi starfighter
-            max_pathing_delay = 0;
+            //pathingAttemptCapValueToUse = 200 * player->pathingAttemptCapValue;
+            return 1;
             break;
         default:
-            max_pathing_delay = *((int*)player + 3);
+            pathingAttemptCapValueToUse = player->pathingAttemptCapValue;
             break;
         }
     }
     else
-        max_pathing_delay = *((int*)player + 3);
+    {
+        pathingAttemptCapValueToUse = player->pathingAttemptCapValue;
+    }
 
-    //int max_pathing_delay = *((int*)player + 3);
-    if (max_pathing_delay != -1 && numWaitDelays > max_pathing_delay)
+    if (player->pathingDelayCapValue != -1 && numWaitDelays > pathingDelayCapValueToUse)
         return 1;
-    int max_pathing_attempts = *((int*)player + 2);
-    if (max_pathing_attempts == -1)
+
+    if (player->pathingAttemptCapValue == -1)
         return 1;
     else
-        return *((int*)player + 4) < max_pathing_attempts;
+        return player->currentUpdatePathingAttemptsValue < pathingAttemptCapValueToUse;
 }
 
 __declspec(naked) void pathing_bmotion() //0049D15C
 {
     __asm
     {
+        mov     eax, [esi + 0B8h]
         push    ecx
-        mov     ecx, [esi + 0B8h]
-        push    ecx
-        call    WorldPlayerBase__availablePathingAttempts_new
+        push    eax
+        call    RGE_Player__availablePathingAttempts_new2
         mov     ecx, 0049D161h
         jmp     ecx
     }
@@ -95,7 +96,7 @@ __declspec(naked) void pathing_moving_object() //004A49B9
     {
         push    ecx
         push    esi
-        call    WorldPlayerBase__availablePathingAttempts_new
+        call    RGE_Player__availablePathingAttempts_new2
         mov     ecx, 004A49BEh
         jmp     ecx
     }

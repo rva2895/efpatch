@@ -414,6 +414,104 @@ void del_states()
     saved_states.clear();
 }
 
+extern int path_stats[100];
+
+struct path_stats_struct
+{
+    int object_group;
+    int count;
+    float fraction;
+};
+
+bool compare(const path_stats_struct& first, const path_stats_struct& second)
+{
+    return first.fraction > second.fraction;
+}
+
+void calc_path_stats()
+{
+    std::vector<path_stats_struct> path_stats_vector;
+    int count_total = 0;
+    for (int i = 1; i <= 64; i++)
+    {
+        path_stats_struct pt;
+        pt.object_group = i;
+        pt.count = path_stats[i];
+        count_total += pt.count;
+        path_stats_vector.push_back(pt);
+    }
+    for (int i = 0; i < path_stats_vector.size(); i++)
+    {
+        path_stats_vector[i].fraction = (float)path_stats_vector[i].count / count_total;
+    }
+    std::sort(path_stats_vector.begin(), path_stats_vector.end(), compare);
+
+    chat("Top 5 classes: %d (%.02f%%), %d (%.02f%%), %d (%.02f%%), %d (%.02f%%), %d (%.02f%%)",
+        path_stats_vector[0].object_group, path_stats_vector[0].fraction * 100,
+        path_stats_vector[1].object_group, path_stats_vector[1].fraction * 100,
+        path_stats_vector[2].object_group, path_stats_vector[2].fraction * 100,
+        path_stats_vector[3].object_group, path_stats_vector[3].fraction * 100,
+        path_stats_vector[4].object_group, path_stats_vector[4].fraction * 100);
+}
+
+void verify_unitlines()
+{
+    int p = 0;
+
+    int x = offsetof(TRIBE_Game, timings[6].accum_time);
+    x = offsetof(TRIBE_Game, timings[7].accum_time);
+    x = offsetof(TRIBE_Game, timings[21].accum_time);
+    x = offsetof(TRIBE_Game, timings[3].accum_time);
+    x = offsetof(TRIBE_Game, timings[1].accum_time);
+    x = offsetof(TRIBE_Game, timings[14].accum_time);
+    x = offsetof(TRIBE_Game, timings[12].accum_time);
+    x = offsetof(TRIBE_Game, timings[10].accum_time);
+    x = offsetof(TRIBE_Game, timings[15].accum_time);
+    x = offsetof(TRIBE_Game, timings[16].accum_time);
+    x = offsetof(TRIBE_Game, timings[13].accum_time);
+    x = offsetof(TRIBE_Game, timings[4].accum_time);
+    x = offsetof(TRIBE_Game, timings[17].accum_time);
+
+    TRIBE_World* world = (*base_game)->world;
+    TRIBE_Player* player = (TRIBE_Player*)RGE_Base_Game__get_player_by_id((*base_game), 2); //(*base_game)->world->players[0];
+
+    RGE_Master_Static_Object** player_master_objects = player->master_objects;
+    int num_master_objects = player->master_object_num;
+
+    RGE_Master_Static_Object** gaia_master_master_objects = world->master_players[0]->master_objects;
+
+    //verify unitlines
+    for (int i = 0; i < world->gbg_numberUnitlines; i++)
+    {
+        for (int j = 0; j < world->gbg_unitlines[i].numberUnits; j++)
+        {
+            int obj_id = world->gbg_unitlines[i].units[j];
+            if (!RGE_Player__isMasterObjectAvailable((RGE_Player*)player, obj_id) ||
+                player_master_objects[obj_id]->unit_line != -i)
+            {
+                ;// chat("Unitline %d: bad obj %d", i, obj_id);
+            }
+
+            if (gaia_master_master_objects[obj_id] &&
+                gaia_master_master_objects[obj_id]->unit_line != i)
+            {
+                chat("Unitline %d: obj %d", i, obj_id);
+            }
+        }
+    }
+
+    /*for (int i = 0; i < world->player_num; i++)
+        for (int j = 0; j < world->players[i]->master_object_num; j++)
+        {
+            if (RGE_Player__isMasterObjectAvailable((RGE_Player*)world->players[i], j) &&
+                world->players[i]->master_objects[j]->unit_line != -12851)
+            {
+                chat("Unitline %d: obj %d", i, j);
+            }
+        }
+    */
+}
+
 int __stdcall onChat_2(int player_id, char* targets, char* s)
 {
     UNREFERENCED_PARAMETER(targets);
@@ -424,6 +522,44 @@ int __stdcall onChat_2(int player_id, char* targets, char* s)
         sendChat(EFPATCH_VERSION, -1);
         return 1;
     }
+    /*
+    if (!strcmp(s, "/verify-unitlines"))
+    {
+        verify_unitlines();
+        return 1;
+    }
+    */
+    /*
+    else if (!strcmp(s, "/obj-count"))
+    {
+        RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+        chat("Objects: %d, Sleeping: %d, Doppleganger: %d",
+            player->objects->Number_of_objects,
+            player->sleeping_objects->Number_of_objects,
+            player->doppleganger_objects->Number_of_objects);
+        return 1;
+    }
+    else if (!strcmp(s, "/pathing-stats"))
+    {
+        calc_path_stats();
+        return 1;
+    }
+    */
+    /*
+    else if (!strcmp(s, "/power"))
+    {
+        FILE* f = fopen("power.txt", "wt");
+        RGE_Master_Static_Object obj;
+        for (int i = 0; i < 1000; i++)
+        {
+            obj.id = i;
+            int x = RGE_Master_Static_Object__gbg_needs_power(&obj);
+            if (x) fprintf(f, "%d - %d\n", i, x);
+        }
+        fclose(f);
+        return 1;
+    }
+    */
     /*
     else if (!strcmp(s, "/resfile"))
     {
@@ -1684,9 +1820,107 @@ __declspec(naked) void log_on_object_update() //004AF39B
     }
 }
 
+void __fastcall TRIBE_Game__calc_timing_text_new(TRIBE_Game* game)
+{
+    unsigned int wu; // ecx
+    unsigned int v3; // ecx
+
+    unsigned __int8* initialized_last_time = (unsigned __int8*)0x0078F6A4;
+    unsigned int* last_time = (unsigned int*)0x0078F824;
+    int* show_timing_max = (int*)0x0078F974;
+
+    if ((*initialized_last_time & 1) == 0)
+    {
+        *initialized_last_time |= 1u;
+        *last_time = timeGetTime();
+    }
+    *last_time = timeGetTime();
+    wu = game->world_update_count;
+    if (!wu)
+        wu = 1;
+    if (*show_timing_max)
+        sprintf(
+            game->timing_text2,
+            "t%lu,f%lu,max,r(v%lu,m%lu,o%lu),s%lu,u%lu,c%lu,lg%lu,sp%lu,sm%lu,m%lu,p%lu,ds%lu,ol%lu",
+            game->world_update_fps,
+            game->view_update_fps,
+            game->timings[6].last_max_time,     //render view
+            game->timings[7].last_max_time,     //render map
+            game->timings[21].last_max_time,    //render other
+            game->timings[3].last_max_time,     //s \ paint
+            game->timings[1].last_max_time,     //u \ world update
+            game->timings[14].last_max_time,    //c \ comm cycle
+            game->timings[12].last_max_time,    //lg \ draw
+            game->timings[10].last_max_time,    //sp \ sound play
+            game->timings[16].last_max_time,    //sm \ sound manager
+            game->timings[13].last_max_time,    //m \ mouse
+            game->timings[17].last_max_time,    //p \ pick
+            game->timings[2].last_max_time,     //ds \ draw smth
+            game->timings[29].last_max_time);   //ol \ object list
+    else
+        sprintf(
+            game->timing_text2,
+            "t%lu,fps:%lu,avg,r(v%lu,m%lu,o%lu),s%lu,u%lu,c%lu,lg%lu,sp%lu,ss%lu,sm%lu,m%lu,o%lu,p%lu",
+            game->world_update_fps,
+            game->view_update_fps,
+            game->timings[6].last_time / wu,    //render view
+            game->timings[7].last_time / wu,    //render map
+            game->timings[21].last_time / wu,   //render other
+            game->timings[3].last_time / wu,    //s \ paint
+            game->timings[1].last_time / wu,    //u \ world update
+            game->timings[14].last_time / wu,   //c \ comm cycle
+            game->timings[12].last_time / wu,   //lg \ draw
+            game->timings[10].last_time / wu,   //sp \ sound play
+            game->timings[15].last_time / wu,   //ss \ nothing
+            game->timings[16].last_time / wu,   //sm \ sound manager
+            game->timings[13].last_time / wu,   //m \ mouse
+            game->timings[4].last_time / wu,    //o \ nothing
+            game->timings[17].last_time / wu);  //p \ pick
+    v3 = game->view_update_count;
+    if (!v3)
+        v3 = 1;
+    sprintf(game->timing_text, "avg view time=%lu, count=%lu", game->timings[6].last_time / v3, game->view_update_count);
+}
+
+void __stdcall do_update_players_start()
+{
+
+}
+
+__declspec(naked) void update_players_start() //0061F741
+{
+    __asm
+    {
+        lea     edi, [ebp - 80h]
+        rep stosd
+        call    do_update_players_start
+
+    }
+}
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    //setHook((void*)0x00610BB0, RGE_View__draw_terrain_shape2_wr);
+
+    //writeByte(0x006519C0, 0xC3);
+
+    //writeNops(0x0060F3AF, 5);
+
+    //writeByte(0x00651BC0, 0xC3);
+
+    //writeByte(0x00610CB6, 0xEB);
+    //writeNops(0x00610BEC, 2);
+
+    //writeNops(0x00517611, 6);
+    //writeByte(0x00517611, 0xE9);
+
+    //writeByte(0x005EBB65, 0xEB);
+
+    //setHook((void*)0x005E95E0, TRIBE_Game__calc_timing_text_new);
+    //setHook((void*)0x004AF380, RGE_Player_Object_List__Update_new);
+
+
     //setHook((void*)0x0061F85E, log_on_player_update);
     //setHook((void*)0x004C1985, log_on_object_list_update);
     //setHook((void*)0x004AF39B, log_on_object_update);

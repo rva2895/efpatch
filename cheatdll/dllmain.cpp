@@ -641,7 +641,7 @@ void initialSetup()
     getSettings();
 
     //install_language(cd.lang);
-
+    
     screen_scale_factor = (float)GetDeviceCaps(GetDC(NULL), LOGPIXELSX) / 96;
     log("Set screen scale factor = %f", screen_scale_factor);
 
@@ -653,12 +653,12 @@ void initialSetup()
         cd.useFPS, cd.useDShook, cd.nBufs, cd.timeout, cd.gameVersion, cd.askAtStartup);
     log("Settings (2/5): civl = %d, res = %d, auto = %d, autoint = %d",
         cd.useAltCivLetter, cd.unlockResources, cd.editorAutosave, cd.editorAutosaveInterval);
-    log("Settings (3/5): wide = %d, wx = %d, wy = %d, wnd = %d, large = %d, crash = %d",
-        cd.widescrnEnabled, cd.xres, cd.yres, cd.windowMode, cd.largeMaps, cd.crashReporting);
+    log("Settings (3/5): wide = %d, wx = %d, wy = %d, wauto = %d, wnd = %d, large = %d",
+        cd.widescrnEnabled, cd.xres, cd.yres, cd.autoScreenSize, cd.windowMode, cd.largeMaps);
     log("Settings (4/5): grey = %d, largetext = %d, delink = %d, keydown = %d",
         cd.minimap7, cd.largeText, cd.delinkVolume, cd.keydown);
-    log("Settings (5/5): textrender = %d, chatbox = %d, obj = %d",
-        cd.textRendering, cd.chatBox, cd.unlockObjects);
+    log("Settings (5/5): textrender = %d, chatbox = %d, fog = %d, obj = %d, crash = %d",
+        cd.textRendering, cd.chatBox, cd.fog, cd.unlockObjects, cd.crashReporting);
 
     setTestHook();
 
