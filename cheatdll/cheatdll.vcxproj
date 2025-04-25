@@ -272,6 +272,7 @@
     <ClInclude Include="filenames.h" />
     <ClInclude Include="fixedpos.h" />
     <ClInclude Include="flare.h" />
+    <ClInclude Include="fog.h" />
     <ClInclude Include="functionlist.h" />
     <ClInclude Include="gaiatechtree.h" />
     <ClInclude Include="gamemode.h" />
@@ -461,6 +462,7 @@
     <ClCompile Include="filenames.cpp" />
     <ClCompile Include="fixedpos.cpp" />
     <ClCompile Include="flare.cpp" />
+    <ClCompile Include="fog.cpp" />
     <ClCompile Include="functionlist.cpp" />
     <ClCompile Include="gaiatechtree.cpp" />
     <ClCompile Include="gamemode.cpp" />

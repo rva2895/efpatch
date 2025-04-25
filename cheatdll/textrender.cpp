@@ -4,6 +4,8 @@
 
 #include <dwrite.h>
 
+float screen_scale_factor = 1.0f;
+
 extern CONFIG_DATA cd;
 
 HRESULT (__stdcall* DWriteCreateFactory_ptr)(
@@ -316,6 +318,8 @@ void DWriteProcessText(bool do_paint, HDC hdc, int x, int y, int cx, int cy, con
 
     DWRITE_TEXT_METRICS tm;
     g_pTextLayout->GetMetrics(&tm);
+    tm.width *= screen_scale_factor;
+    tm.height *= screen_scale_factor;
 
     if (psizl)
     {
@@ -396,7 +400,11 @@ HRESULT DWriteDrawText(int x, int y, bool right_align, COLORREF color)
     HRESULT hr = S_OK;
 
     ((GdiTextRenderer*)g_pGdiTextRenderer)->setColor(color);
-    hr = g_pTextLayout->Draw(NULL, g_pGdiTextRenderer, right_align ? 0 : x, y);
+    hr = g_pTextLayout->Draw(
+        NULL,
+        g_pGdiTextRenderer,
+        right_align ? 0.0f : (float)x / screen_scale_factor,
+        (float)y / screen_scale_factor);
 
     return hr;
 }
@@ -605,12 +613,13 @@ HRESULT DWritePrepareText(HDC hdc, const wchar_t* text, HFONT hfont, int x, int 
             480.0f,
             &g_pTextLayout
         );
+        
         if ((format & DT_RIGHT) && cx == -1 && cy == -1)
-            g_pTextLayout->SetMaxWidth(x);
+            g_pTextLayout->SetMaxWidth(x / screen_scale_factor);
         if (cx != -1)
-            g_pTextLayout->SetMaxWidth(cx);
+            g_pTextLayout->SetMaxWidth(cx / screen_scale_factor);
         if (cy != -1)
-            g_pTextLayout->SetMaxHeight(cy);
+            g_pTextLayout->SetMaxHeight(cy / screen_scale_factor);
     }
 
     // Underline and strikethrough are part of a LOGFONT structure, but are not

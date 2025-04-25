@@ -137,6 +137,7 @@
 #include "wallbuild.h"
 #include "farm.h"
 #include "sleepingobjects.h"
+#include "fog.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -347,6 +348,9 @@ void setHooksCC()
 
     if (cd.chatBox)
         setEditControlHooks();
+
+    if (cd.fog)
+        setFogOfWarHooks(cd.gameVersion);
 
     setRevealMapHooks();
 
@@ -622,6 +626,8 @@ extern bool expanding_fronts;
 
 const char x1_dat_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"genie_x1_p1.dat";
 
+extern float screen_scale_factor;
+
 void initialSetup()
 {
 #ifdef TARGET_VOOBLY
@@ -635,6 +641,9 @@ void initialSetup()
     getSettings();
 
     //install_language(cd.lang);
+
+    screen_scale_factor = (float)GetDeviceCaps(GetDC(NULL), LOGPIXELSX) / 96;
+    log("Set screen scale factor = %f", screen_scale_factor);
 
 #ifdef TARGET_VOOBLY
     cd.gameVersion = expanding_fronts;
@@ -690,7 +699,11 @@ void initialSetup()
     
 #ifndef TARGET_VOOBLY
     if (cd.widescrnEnabled)
-        resolutionTool(cd.xres, cd.yres, cd.gameVersion, true);
+        resolutionTool(
+            cd.autoScreenSize ? GetSystemMetrics(SM_CXSCREEN) : cd.xres,
+            cd.autoScreenSize ? GetSystemMetrics(SM_CYSCREEN) : cd.yres,
+            cd.gameVersion,
+            true);
 #endif
 
 /*#ifndef _CHEATDLL_CC

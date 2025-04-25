@@ -27,6 +27,7 @@ struct CONFIG_DATA
     int widescrnEnabled;
     int xres;
     int yres;
+    int autoScreenSize;
     int windowMode;
     int largeMaps;
     int crashReporting;
@@ -38,6 +39,7 @@ struct CONFIG_DATA
     int keydown;
     int textRendering;
     int chatBox;
+    int fog;
     int unlockObjects;
     int modCount;
     char** mods;

@@ -60,6 +60,7 @@ void processIDOK(HWND hWnd)
         char str[50];
         GetDlgItemText(hWnd, IDC_COMBO_SCREEN_SIZE, str, 50);
         sscanf_s(str, "%dx%d", &cd.xres, &cd.yres);
+        cd.autoScreenSize = IsDlgButtonChecked(hWnd, IDC_CHECK_SCREEN_SIZE_AUTO);
     }
 
     cd.minimap7 = IsDlgButtonChecked(hWnd, IDC_CHECK_GREY);
@@ -69,6 +70,7 @@ void processIDOK(HWND hWnd)
 
     cd.textRendering = IsDlgButtonChecked(hWnd, IDC_CHECK_TEXT_RENDERING);
     cd.chatBox = IsDlgButtonChecked(hWnd, IDC_CHECK_CHATBOX);
+    cd.fog = IsDlgButtonChecked(hWnd, IDC_CHECK_FOG);
 
     //char* lang_str = (char*)malloc(0x100);
     //GetDlgItemText(hWnd, IDC_COMBO_LANG, lang_str, 0x100);
@@ -104,12 +106,14 @@ void readSettingsToDialog(HWND hWnd)
     CheckDlgButton(hWnd, IDC_CHECK_UNLOCKRES, cd.unlockResources);
     CheckDlgButton(hWnd, IDC_CHECK_UNLOCKOBJECTS, cd.unlockObjects);
     CheckDlgButton(hWnd, IDC_CHECK_EDITORAUTO, cd.editorAutosave);
+    EnableWindow(GetDlgItem(hWnd, IDC_EDIT_EDITORAUTO), cd.editorAutosave);
 
     CheckDlgButton(hWnd, IDC_CHECK_CRASH, cd.crashReporting);
 
-    EnableWindow(GetDlgItem(hWnd, IDC_EDIT_EDITORAUTO), cd.editorAutosave);
-
     CheckDlgButton(hWnd, IDC_CHECK_WIDE, cd.widescrnEnabled);
+    EnableWindow(GetDlgItem(hWnd, IDC_COMBO_SCREEN_SIZE), cd.widescrnEnabled && !cd.autoScreenSize);
+    EnableWindow(GetDlgItem(hWnd, IDC_CHECK_SCREEN_SIZE_AUTO), cd.widescrnEnabled);
+
     CheckDlgButton(hWnd, IDC_CHECK_WNDMODE, cd.windowMode);
 #ifndef _CC_COMPATIBLE
     CheckDlgButton(hWnd, IDC_CHECK_MAPSIZE, cd.largeMaps);
@@ -156,6 +160,7 @@ void readSettingsToDialog(HWND hWnd)
     {
         snprintf(buf, _countof(buf), "%dx%d", cd.xres, cd.yres);
         SetDlgItemText(hWnd, IDC_COMBO_SCREEN_SIZE, buf);
+        CheckDlgButton(hWnd, IDC_CHECK_SCREEN_SIZE_AUTO, cd.autoScreenSize);
     }
 
     CheckDlgButton(hWnd, IDC_CHECK_GREY, cd.minimap7);
@@ -176,6 +181,7 @@ void readSettingsToDialog(HWND hWnd)
 
     CheckDlgButton(hWnd, IDC_CHECK_TEXT_RENDERING, cd.textRendering);
     CheckDlgButton(hWnd, IDC_CHECK_CHATBOX, cd.chatBox);
+    CheckDlgButton(hWnd, IDC_CHECK_FOG, cd.fog);
 
     //languages = query_languages();
     //for (int i = 0; i < languages.size(); i++)
@@ -232,31 +238,39 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
             case IDOK: //Patch
                 if (IsDlgButtonChecked(hWndDlg, IDC_CHECK_WIDE))
                 {
-                    char resolution[50];
                     int x = 0;
                     int y = 0;
-                    GetDlgItemText(hWndDlg, IDC_COMBO_SCREEN_SIZE, resolution, 50);
-                    int scan_result = sscanf_s(resolution, "%dx%d", &x, &y);
-                    if (((x <= 0) || (y <= 0)) || (scan_result < 2))
+                    bool auto_screen_size = IsDlgButtonChecked(hWndDlg, IDC_CHECK_SCREEN_SIZE_AUTO);
+                    if (!auto_screen_size)
                     {
-                        MessageBox(hWndDlg, "Please select a valid resolution", "Error", MB_ICONERROR);
-                        break;
-                    }
-                    if (y < 768)
-                    {
-                        MessageBox(hWndDlg, "Resolutions lower than 1024x768 are not supported", "Error", MB_ICONERROR);
-                        break;
-                    }
-                    if (x < 1024)
-                    {
-                        MessageBox(hWndDlg, "Resolutions lower than 1024x768 are not supported", "Error", MB_ICONERROR);
-                        break;
+                        char resolution[50];
+                        GetDlgItemText(hWndDlg, IDC_COMBO_SCREEN_SIZE, resolution, 50);
+                        int scan_result = sscanf_s(resolution, "%dx%d", &x, &y);
+                        if (((x <= 0) || (y <= 0)) || (scan_result < 2))
+                        {
+                            MessageBox(hWndDlg, "Please select a valid resolution", "Error", MB_ICONERROR);
+                            break;
+                        }
+                        if (y < 768)
+                        {
+                            MessageBox(hWndDlg, "Resolutions lower than 1024x768 are not supported", "Error", MB_ICONERROR);
+                            break;
+                        }
+                        if (x < 1024)
+                        {
+                            MessageBox(hWndDlg, "Resolutions lower than 1024x768 are not supported", "Error", MB_ICONERROR);
+                            break;
+                        }
                     }
                     SetDlgItemText(hWndDlg, IDOK, "Saving...");
                     EnableMenuItem(GetSystemMenu(hWndDlg, FALSE), SC_CLOSE,
                         MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
                     EnableWindow(GetDlgItem(hWndDlg, IDOK), FALSE);
-                    resolutionTool(x, y, true, false);
+                    resolutionTool(
+                        auto_screen_size ? GetSystemMetrics(SM_CXSCREEN) : x,
+                        auto_screen_size ? GetSystemMetrics(SM_CYSCREEN) : y,
+                        true,
+                        false);
                 }
 
                 processIDOK(hWndDlg);
@@ -288,6 +302,16 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
             case IDC_CHECK_EDITORAUTO:
                 EnableWindow(GetDlgItem(hWndDlg, IDC_EDIT_EDITORAUTO),
                     IsDlgButtonChecked(hWndDlg, IDC_CHECK_EDITORAUTO));
+                break;
+            case IDC_CHECK_WIDE:
+                EnableWindow(GetDlgItem(hWndDlg, IDC_COMBO_SCREEN_SIZE),
+                    IsDlgButtonChecked(hWndDlg, IDC_CHECK_WIDE) && !IsDlgButtonChecked(hWndDlg, IDC_CHECK_SCREEN_SIZE_AUTO));
+                EnableWindow(GetDlgItem(hWndDlg, IDC_CHECK_SCREEN_SIZE_AUTO),
+                    IsDlgButtonChecked(hWndDlg, IDC_CHECK_WIDE));
+                break;
+            case IDC_CHECK_SCREEN_SIZE_AUTO:
+                EnableWindow(GetDlgItem(hWndDlg, IDC_COMBO_SCREEN_SIZE),
+                    IsDlgButtonChecked(hWndDlg, IDC_CHECK_WIDE) && !IsDlgButtonChecked(hWndDlg, IDC_CHECK_SCREEN_SIZE_AUTO));
                 break;
             case IDC_CHECK_MAPSIZE:
                 if (IsDlgButtonChecked(hWndDlg, IDC_CHECK_MAPSIZE))

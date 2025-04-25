@@ -24,6 +24,7 @@ extern const CONFIG_DATA cd_default =
     0,   //widescrn on
     -1,  //x
     -1,  //y
+    1,   //auto screen size
     0,   //window mode
     0,   //large maps
 #ifdef TARGET_VOOBLY
@@ -39,6 +40,7 @@ extern const CONFIG_DATA cd_default =
     0,   //keydown hotkeys
     0,   //text rendering
     0,   //chat box
+    0,   //fog of war
     0,   //object unlock
     0,   //mod count
     NULL //mods
@@ -149,6 +151,7 @@ void regGet(CONFIG_DATA* cd)
 #endif
             query_reg_option(hKey, "Screen Size X", cd->xres, cd_default.xres);
             query_reg_option(hKey, "Screen Size Y", cd->yres, cd_default.yres);
+            query_reg_option(hKey, "Auto Screen Size", cd->autoScreenSize, cd_default.autoScreenSize);
             query_reg_option(hKey, "Window Mode", cd->windowMode, cd_default.windowMode);
             query_reg_option(hKey, "Large Maps", cd->largeMaps, cd_default.largeMaps);
             query_reg_option(hKey, "Crash Reporting", cd->crashReporting, cd_default.crashReporting);
@@ -160,6 +163,7 @@ void regGet(CONFIG_DATA* cd)
             query_reg_option(hKey, "Keydown Object Hotkeys", cd->keydown, cd_default.keydown);
             query_reg_option(hKey, "Alternative Text Rendering", cd->textRendering, cd_default.textRendering);
             query_reg_option(hKey, "Alternative Chat Box", cd->chatBox, cd_default.chatBox);
+            query_reg_option(hKey, "Alternative Fog of War", cd->fog, cd_default.fog);
             query_reg_option(hKey, "Unlock Objects", cd->unlockObjects, cd_default.unlockObjects);
 
             /*char language[32];
@@ -234,6 +238,7 @@ void regSet(const CONFIG_DATA* cd)
 #endif
         set_reg_option(hKey, "Screen Size X", cd->xres, REG_DWORD);
         set_reg_option(hKey, "Screen Size Y", cd->yres, REG_DWORD);
+        set_reg_option(hKey, "Auto Screen Size", cd->autoScreenSize, REG_DWORD);
         set_reg_option(hKey, "Window Mode", cd->windowMode, REG_DWORD);
         set_reg_option(hKey, "Large Maps", cd->largeMaps, REG_DWORD);
         set_reg_option(hKey, "Crash Reporting", cd->crashReporting, REG_DWORD);
@@ -245,6 +250,7 @@ void regSet(const CONFIG_DATA* cd)
         set_reg_option(hKey, "Keydown Object Hotkeys", cd->keydown, REG_DWORD);
         set_reg_option(hKey, "Alternative Text Rendering", cd->textRendering, REG_DWORD);
         set_reg_option(hKey, "Alternative Chat Box", cd->chatBox, REG_DWORD);
+        set_reg_option(hKey, "Alternative Fog of War", cd->fog, REG_DWORD);
         set_reg_option(hKey, "Unlock Objects", cd->unlockObjects, REG_DWORD);
 
         /*type = REG_SZ;
