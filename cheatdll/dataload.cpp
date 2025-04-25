@@ -8,6 +8,7 @@
 #include "airtoair.h"
 #include "jediholo.h"
 #include "terrain.h"
+#include "startupload.h"
 
 extern int current_save_game_version;
 int current_loaded_version = CURRENT_VERSION;
@@ -160,7 +161,7 @@ int load_game_data(TRIBE_Game* game, int version)
 
 unsigned __int8 __stdcall check_savegame_version_and_load_world(TRIBE_Game* game, const char* filename, int load_mode)
 {
-    char full_path[0x200];
+    char full_path[300];
     char dummy_str[0xE48];
     char ver_str[8];
     float version;
@@ -176,7 +177,8 @@ unsigned __int8 __stdcall check_savegame_version_and_load_world(TRIBE_Game* game
     {
         sprintf(full_path, "%s%s", (*base_game)->prog_info->save_dir, filename);
     }
-    int file_handle = rge_open(full_path, 0x8000);
+
+    int file_handle = rge_open(load_game_or_scen_abs_path_sub(false, full_path, filename), 0x8000);
     if (file_handle == -1)
         return 0;
 
