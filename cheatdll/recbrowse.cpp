@@ -24,7 +24,7 @@ extern const char* savegame_path;
 extern const char* scenario_path;
 
 std::string rec_extension;
-std::string scen_extension;
+std::string save_extension;
 
 HFONT font_bk;
 
@@ -426,6 +426,8 @@ COLORREF get_color(unsigned char c)
     case 248:
     case 249:
         return BGR(134, 126, 118);
+    case 250:
+        return BGR(151, 206, 255);
     default:
         return BGR(255, 255, 255);
     }
@@ -610,14 +612,22 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
 
     HBRUSH brush_bk = CreateSolidBrush(RGB(24, 24, 24));
     FillRect(hdc, &r, brush_bk);
-    DeleteObject(brush_bk);
+
+    bool is_recorded_game_file = TTextPanel__get_id2((TTextPanel*)SaveGameList, SaveGameList->cur_line) == 1;
 
     char* file = SaveGameList->vfptr->get_text(SaveGameList, SaveGameList->cur_line);
-
-    std::string filename = (std::string)savegame_path + (std::string)file + rec_extension;
+    std::string filename = (std::string)savegame_path + (std::string)file + (is_recorded_game_file ? rec_extension : save_extension);
     rec_cache->set_current_file(filename);
 
-    REC_DATA rd = rec_cache->get_item(filename, 2);
+    REC_DATA rd;
+    if (is_recorded_game_file)
+        rd = rec_cache->get_item(filename, 2);
+    else
+    {
+        rd = { 0 };
+        rd.exists = true;
+        rd.valid = false;
+    }
 
     //draw players
     if (!loaded_player_brushes)
@@ -709,6 +719,8 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
         r_ver.top = r_ver.bottom - 20;
         r_ver.left = r_ver.right - 60;
 
+        FillRect(hdc, &r_ver, brush_bk);
+
         //snprintf(str, _countof(str), "VER %s", (char*)&rd.version);
         strcpy_safe(str, _countof(str), rd.version.c_str());
         DrawText(hdc, str, strlen(str), &r_ver, DT_RIGHT);
@@ -778,8 +790,9 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
     }
     //DrawText(hdc, players.c_str(), players.length(), &r, DT_LEFT | DT_WORDBREAK);
 
-    SelectObject(hdc, hOld);
+    DeleteObject(brush_bk);
 
+    SelectObject(hdc, hOld);
     s->ReleaseDC(hdc);
 
     //prepare closest 5
@@ -789,9 +802,12 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
         int cache_max = (SaveGameList->cur_line + 5) < SaveGameList->num_lines ? (SaveGameList->cur_line + 5) : SaveGameList->num_lines;
         for (int i = cache_min; i < cache_max; i++)
         {
-            file = SaveGameList->vfptr->get_text(SaveGameList, i);
-            filename = (std::string)savegame_path + (std::string)file + rec_extension;
-            rec_cache->get_item(filename, 1);
+            if (TTextPanel__get_id2((TTextPanel*)SaveGameList, i) == 1)
+            {
+                file = SaveGameList->vfptr->get_text(SaveGameList, i);
+                filename = (std::string)savegame_path + (std::string)file + rec_extension;
+                rec_cache->get_item(filename, 1);
+            }
         }
     }
 
@@ -803,9 +819,12 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
         int cache_bottom = (SaveGameList->bot_line + 5) < SaveGameList->num_lines ? (SaveGameList->bot_line + 5) : SaveGameList->num_lines;
         for (int i = cache_top; i < cache_bottom; i++)
         {
-            file = SaveGameList->vfptr->get_text(SaveGameList, i);
-            filename = (std::string)savegame_path + (std::string)file + rec_extension;
-            rec_cache->get_item(filename, 0);
+            if (TTextPanel__get_id2((TTextPanel*)SaveGameList, i) == 1)
+            {
+                file = SaveGameList->vfptr->get_text(SaveGameList, i);
+                filename = (std::string)savegame_path + (std::string)file + rec_extension;
+                rec_cache->get_item(filename, 0);
+            }
         }
     }
     prev_rec_viewport = SaveGameList->top_line;
@@ -874,11 +893,29 @@ void __stdcall paint_load_scen_screen_bk(TScreenPanel* LoadScenScreen)
 
     HBRUSH brush_bk = CreateSolidBrush(RGB(24, 24, 24));
     FillRect(hdc, &r, brush_bk);
-    DeleteObject(brush_bk);
 
     char* file = ScenList->vfptr->get_text(ScenList, ScenList->cur_line);
 
-    std::string filename = (std::string)scenario_path + (std::string)file + scen_extension;
+    auto convert_list_id_to_scen_extension = [](int id)
+        {
+            switch (id)
+            {
+            case 2:
+                return ".sc2";
+            case 1:
+                return ".sc1";
+            case 0:
+                return ".scx";
+            default:
+                return "";
+            }
+        };
+
+    std::string filename =
+        (std::string)scenario_path +
+        (std::string)file +
+        convert_list_id_to_scen_extension(TTextPanel__get_id2((TTextPanel*)ScenList, ScenList->cur_line));
+
     scen_cache->set_current_file(filename);
 
     SCEN_DATA sd = scen_cache->get_item(filename, 2);
@@ -943,17 +980,28 @@ void __stdcall paint_load_scen_screen_bk(TScreenPanel* LoadScenScreen)
         r_ver.right = r.right;
         r_ver.bottom = r.bottom;
         r_ver.top = r_ver.bottom - 20;
-        r_ver.left = r_ver.right - 60;
+        r_ver.left = r_ver.right - 90;
+
+        FillRect(hdc, &r_ver, brush_bk);
 
         //snprintf(str, _countof(str), "VER %s", (char*)&rd.version);
         //strcpy_safe(str, _countof(str), rd.version.c_str());
-        snprintf(str, _countof(str), "%.02f", sd.version);
-        SetBkMode(hdc, OPAQUE);
-        SetBkColor(hdc, RGB(24, 24, 24));
+        snprintf(
+            str,
+            _countof(str),
+            "%.02f (%s)",
+            sd.version,
+            convert_list_id_to_scen_extension(TTextPanel__get_id2((TTextPanel*)ScenList, ScenList->cur_line)));
+
+        //SetBkMode(hdc, OPAQUE);
+        //SetBkColor(hdc, RGB(24, 24, 24));
         DrawText(hdc, str, strlen(str), &r_ver, DT_RIGHT);
-        SetBkMode(hdc, TRANSPARENT);
+        //SetBkMode(hdc, TRANSPARENT);
     }
 
+    DeleteObject(brush_bk);
+
+    SelectObject(hdc, hOld);
     s->ReleaseDC(hdc);
 
     //prepare closest 5
@@ -964,7 +1012,10 @@ void __stdcall paint_load_scen_screen_bk(TScreenPanel* LoadScenScreen)
         for (int i = cache_min; i < cache_max; i++)
         {
             file = ScenList->vfptr->get_text(ScenList, ScenList->cur_line + i);
-            filename = (std::string)scenario_path + (std::string)file + scen_extension;
+            filename =
+                (std::string)scenario_path +
+                (std::string)file +
+                convert_list_id_to_scen_extension(TTextPanel__get_id2((TTextPanel*)ScenList, i));
             scen_cache->get_item(filename, 1);
         }
     }
@@ -977,7 +1028,10 @@ void __stdcall paint_load_scen_screen_bk(TScreenPanel* LoadScenScreen)
         for (int i = cache_top; i < cache_bottom; i++)
         {
             file = ScenList->vfptr->get_text(ScenList, i);
-            filename = (std::string)scenario_path + (std::string)file + scen_extension;
+            filename =
+                (std::string)scenario_path +
+                (std::string)file +
+                convert_list_id_to_scen_extension(TTextPanel__get_id2((TTextPanel*)ScenList, i));
             scen_cache->get_item(filename, 0);
         }
     }
@@ -1109,15 +1163,15 @@ void setRecBrowseHooks(int version)
     {
     case VER_CC:
         rec_extension = ".mg1";
-        scen_extension = ".sc1";
+        save_extension = ".ga1";
         break;
     case VER_EF:
         rec_extension = ".mg2";
-        scen_extension = ".sc2";
+        save_extension = ".ga2";
         break;
     default:
         rec_extension.clear();
-        scen_extension.clear();
+        save_extension.clear();
         break;
     }
 }

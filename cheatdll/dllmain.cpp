@@ -138,6 +138,7 @@
 #include "farm.h"
 #include "sleepingobjects.h"
 #include "fog.h"
+#include "loadfilelist.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -269,7 +270,7 @@ void setHooksCC()
     //setExtraTerrainHooks_CC();        //Enabled this when using +1 terrain DAT!
 #endif
 #endif
-
+    
     if (cd.minimap7)
         setMinimapHooks();
 
@@ -278,7 +279,7 @@ void setHooksCC()
 
     if (cd.largeText)
         setTextSizeHooks(cd.textRendering);
-
+    
     setRecHooks();
     setHotkeyJumpHooks();
 
@@ -364,6 +365,8 @@ void setHooksCC()
     //setTCommunications_Handler2hooks();
 
     setWallBuildHooks();
+
+    setLoadFileListHooks(cd.gameVersion);
 
     log("setHooksCC() complete");
 }

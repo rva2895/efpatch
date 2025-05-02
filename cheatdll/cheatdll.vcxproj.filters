@@ -579,6 +579,9 @@
     <ClInclude Include="fog.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
+    <ClInclude Include="loadfilelist.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
     <ClInclude Include="editorui.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
@@ -1101,6 +1104,9 @@
       <Filter>Файлы исходного кода\ai</Filter>
     </ClCompile>
     <ClCompile Include="fog.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="loadfilelist.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
     <ClCompile Include="editorui.cpp">
