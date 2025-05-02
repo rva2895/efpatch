@@ -136,6 +136,18 @@ unsigned int get_worldtime()
         return 0;
 }
 
+bool __stdcall file_exists(const char* filename)
+{
+    FILE* f = fopen(filename, "rb");
+    if (f)
+    {
+        fclose(f);
+        return true;
+    }
+    else
+        return false;
+}
+
 int __stdcall language_dll_load(UINT id, char* buf, int nmax)
 {
     //HMODULE lang = GetModuleHandle("language_x2.dll");
@@ -150,7 +162,7 @@ int __stdcall language_dll_load(UINT id, char* buf, int nmax)
         return n;
 }
 
-std::string get_string(int id)
+std::string __stdcall get_string(int id)
 {
     char temp_str_buffer[0x400];
     (*base_game)->vfptr->get_string3(*base_game, id, temp_str_buffer, _countof(temp_str_buffer));

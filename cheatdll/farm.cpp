@@ -412,8 +412,8 @@ extern void* iconsBldgPtr;
 void __stdcall food_proc_display_auto_queue_button(TRIBE_Screen_Game* game_screen, TRIBE_Player* player)
 {
     char msg_str[0x200];
-    int civ = game_screen->game_obj->vfptr->gbg_get_civ_override(game_screen->game_obj);
-    TShape** bldg_pics = (TShape**)iconsBldgPtr;
+    //int civ = game_screen->game_obj->vfptr->gbg_get_civ_override(game_screen->game_obj);
+    //TShape** bldg_pics = (TShape**)iconsBldgPtr;
 
     (*base_game)->vfptr->get_string3(
         (*base_game),

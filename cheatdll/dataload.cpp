@@ -48,19 +48,6 @@ display_save_game_screen:
 }
 */
 
-bool file_exists(const char* filename)
-{
-    HANDLE hFile = CreateFile(
-        filename, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
-        CloseHandle(hFile);
-        return true;
-    }
-    else
-        return false;
-}
-
 int load_game_data(TRIBE_Game* game, int version)
 {
     char* data_file;

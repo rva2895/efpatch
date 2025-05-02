@@ -1898,19 +1898,141 @@ __declspec(naked) void update_players_start() //0061F741
     }
 }
 
+/*
+__declspec(naked) void test_rType() //00586F35
+{
+    __asm
+    {
+        cmp     edx, 4
+        jb      good_rtype
+        int     3
+
+good_rtype:
+        lea     eax, [eax + eax * 2]
+        mov     ecx, [ecx + edx * 4 + 1F24h]
+        mov     ebx, 00586F3Fh
+        jmp     ebx
+    }
+}
+
+void __stdcall TPanel__set_positioning_new(
+    void* ret_addr,
+    TPanel* this_,
+    int position_mode_in,
+    int left_border_in,
+    int top_border_in,
+    int right_border_in,
+    int bottom_border_in,
+    int min_wid_in,
+    int max_wid_in,
+    int min_hgt_in,
+    int max_hgt_in,
+    TPanel* left_panel_in,
+    TPanel* top_panel_in,
+    TPanel* right_panel_in,
+    TPanel* bottom_panel_in)
+{
+    if (this_->parent_panel && this_->parent_panel->vfptr == (TPanelVtbl*)0x00661C50)
+    {
+        std::string panel_type;
+        DWORD vtbl = (DWORD)this_->vfptr;
+        switch (vtbl)
+        {
+        case 0x0065E170:
+            panel_type = "TTextPanel";
+            break;
+        case 0x0065CD6C:
+            panel_type = "TButtonPanel";
+            break;
+        case 0x0065D6B8:
+            panel_type = "TListPanel";
+            break;
+        case 0x0065DB78:
+            panel_type = "TScrollBarPanel";
+            break;
+        case 0x00668FFC:
+            panel_type = "TRIBE_Diamond_Map_View";
+            break;
+        case 0x0065C668:
+            panel_type = "TPanel";
+            break;
+        case 0x006691A4:
+            panel_type = "TRIBE_Main_View";
+            break;
+        default:
+            panel_type = std::to_string(vtbl);
+            break;
+        }
+
+        log("Pos, r=0x%08X: type=%s, (%d,%d,%d,%d) (%d,%d)",
+            ret_addr,
+            panel_type.c_str(),
+            left_border_in,
+            top_border_in,
+            right_border_in,
+            bottom_border_in,
+            max_wid_in,
+            max_hgt_in);
+    }
+
+    TDrawArea* v15; // eax
+    TPanelVtbl* v16; // edx
+
+    this_->position_mode = position_mode_in;
+    this_->right_border = right_border_in;
+    this_->top_border = top_border_in;
+    this_->max_wid = max_wid_in;
+    this_->left_border = left_border_in;
+    this_->min_wid = min_wid_in;
+    this_->left_panel = left_panel_in;
+    this_->bottom_border = bottom_border_in;
+    this_->max_hgt = max_hgt_in;
+    this_->bottom_panel = bottom_panel_in;
+    v15 = this_->render_area;
+    this_->min_hgt = min_hgt_in;
+    this_->right_panel = right_panel_in;
+    v16 = this_->vfptr;
+    this_->top_panel = top_panel_in;
+    if (v15)
+        v16->handle_size(this_, v15->Width, v15->Height);
+    else
+        v16->handle_size(this_, 0, 0);
+    if (this_->active)
+        this_->vfptr->set_redraw(this_, 2);
+}
+
+__declspec(naked) void on_set_positioning()
+{
+    __asm
+    {
+        mov     eax, [esp]
+        mov     [esp], ecx
+        push    eax
+        push    eax
+        jmp     TPanel__set_positioning_new
+    }
+}
+*/
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
-    //setHook((void*)0x00610BB0, RGE_View__draw_terrain_shape2_wr);
+    //Sed UI panel
+    //writeDword(0x005368BA, 700);
+    //writeDword(0x005368BF, 700);
 
-    //writeByte(0x006519C0, 0xC3);
+    //diamond map dimensions
+    //writeDword(0x00536893, 800);
+    //writeDword(0x0053688E, 800);
+    //writeDword(0x00536889, 450);
+    //writeDword(0x00536884, 450);
 
-    //writeNops(0x0060F3AF, 5);
+    //diamond map bitmap sizer
+    //writeDword(0x005298C6, 50415);
 
-    //writeByte(0x00651BC0, 0xC3);
+    //setHook((void*)0x004B5D80, on_set_positioning);
 
-    //writeByte(0x00610CB6, 0xEB);
-    //writeNops(0x00610BEC, 2);
+    //setHook((void*)0x00586F35, test_rType);
 
     //writeNops(0x00517611, 6);
     //writeByte(0x00517611, 0xE9);
@@ -1920,11 +2042,9 @@ void setTestHook()
     //setHook((void*)0x005E95E0, TRIBE_Game__calc_timing_text_new);
     //setHook((void*)0x004AF380, RGE_Player_Object_List__Update_new);
 
-
     //setHook((void*)0x0061F85E, log_on_player_update);
     //setHook((void*)0x004C1985, log_on_object_list_update);
     //setHook((void*)0x004AF39B, log_on_object_update);
-
 
     //writeNops(0x00404F59, 2);
 
@@ -1959,10 +2079,6 @@ void setTestHook()
     setHook((void*)0x00632CCA, free_wr);
     setHook((void*)0x00632B42, delete_wr);*/
 
-    //pathing
-    //writeDword(0x004BF23D, 0);
-    //writeDword(0x004BF98E, 0);
-
     //setHook((void*)0x0042C360, new_game_dev_mode);
     //setHook((void*)0x00428270, new_check_multi_copies);
     //writeDword(0x00659F80, 0x004B6120);
@@ -1975,10 +2091,7 @@ void setTestHook()
     //savegame path
     writeDword(0x0048F566, (DWORD)savegame_path);
 
-    //writeByte(0x0042FAD2, 0xEB);
-
     //setHook((void*)0x005D0D59, repair_test);
-    //setHook((void*)0x00432DFF, onSync);
 
     //RMS token count
     //setHook((void*)0x004E1D40, onRmsToken);
@@ -2050,8 +2163,5 @@ void setTestHook()
 
     //action list
     //writeNops(0x004098FD, 5);
-
-    //writeByte(0x00557E88, 1);
-    //writeByte(0x00557E7B, 0xEB);
 }
 #pragma optimize( "", on )

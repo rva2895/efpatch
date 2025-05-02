@@ -1,6 +1,6 @@
 #include "stdafx.h"
-
 #include "editorstatus.h"
+#include "registry.h"
 #include <ddraw.h>
 #include <string>
 
@@ -17,6 +17,8 @@ HFONT hFont;
 
 #define RECT_X 300
 #define RECT_Y 40
+
+extern CONFIG_DATA cd;
 
 extern int placementSettings;
 
@@ -67,10 +69,12 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
     HDC hdc;
     s->GetDC(&hdc);
 
+    int r_left_shift = cd.largeText ? 40 : 0;
+
     RECT r;
-    r.left = (*base_game)->prog_info->game_wid - RECT_RIGHT_OFFSET;
+    r.left = (*base_game)->prog_info->game_wid - RECT_RIGHT_OFFSET - r_left_shift;
     r.right = RECT_X + r.left;
-    r.top = 8;
+    r.top = cd.largeText ? 4 : 8;
     r.bottom = RECT_Y + 8;
     char buf[0x100];
     const char* status_grid = status_On;
@@ -126,8 +130,8 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
 
     snprintf(buf, _countof(buf), "Cliff: %s", cliff_txt);
 
-    r.right += 160;
-    r.left += 160;
+    r.right += 160 + r_left_shift;
+    r.left += 160 + r_left_shift;
     DrawText_outline(hdc, &r, buf);
 
     //rms stuff

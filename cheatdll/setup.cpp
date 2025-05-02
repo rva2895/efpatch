@@ -105,6 +105,7 @@ bool archive_extract(unzFile z_file, const char* dest_dir, void* buf)
             size = unzReadCurrentFile(z_file, buf, WRITE_BUFFER_SIZE);
             if (size < 0)
             {
+                fclose(f);
                 return false;
             }
             else if (size > 0)
@@ -151,18 +152,6 @@ bool install_assets(const std::string& archive)
     return result;
 }
 
-bool file_exists(const std::string& filename)
-{
-    FILE* f = fopen(filename.c_str(), "rb");
-    if (f)
-    {
-        fclose(f);
-        return true;
-    }
-    else
-        return false;
-}
-
 bool append_file(const std::string& first, const std::string& second)
 {
     FILE* f = fopen(first.c_str(), "rb+");
@@ -205,7 +194,8 @@ std::string merge_archive(const std::string& first, const std::string& second)
 
 bool test_assets_mod(const std::string& mod_name, const std::string& archive_name)
 {
-    return file_exists(VOOBLY_LOCAL_MOD_PATH + mod_name + "\\" + archive_name);
+    std::string s(VOOBLY_LOCAL_MOD_PATH + mod_name + "\\" + archive_name);
+    return file_exists(s.c_str());
 }
 
 void display_assets_error(const std::string& mod_name)

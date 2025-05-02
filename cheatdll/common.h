@@ -53,8 +53,8 @@ struct BYTE_ASSIGN
     BYTE val;
 };
 
-std::string get_string(int id);
-
+std::string __stdcall get_string(int id);
+bool __stdcall file_exists(const char* filename);
 void __stdcall sendChat(const char* s, int p);
 void __cdecl chat(const char* format, ...);
 

@@ -599,5 +599,8 @@ void setMiscBugfixHooks(int ver)
 
     //game screen nullptr player update
     setHook((void*)0x005CEBBE, on_player_update_game_screen);
+
+    //MP setup screen scenario name
+    writeNops(0x005219BD, 0x17);
 }
 #pragma optimize( "", on )
