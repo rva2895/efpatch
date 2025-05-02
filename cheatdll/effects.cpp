@@ -43,6 +43,38 @@ __declspec(naked) void effectParams()
         mov     ebx, [edx + 0BCh]       //declare defeat effect
         mov     [ebx + 7], al           //player
 
+        mov     ebx, [edx + 0C0h]       //copy obj effect
+        mov     [ebx + 1], al           //quantity
+        mov     [ebx + 6], al           //obj list
+        mov     [ebx + 7], al           //player
+
+        mov     ebx, [edx + 0C4h]       //transform obj effect
+        mov     [ebx + 1], al           //quantity
+        mov     [ebx + 4], al           //obj
+        mov     [ebx + 5], al
+        mov     [ebx + 6], al           //obj list
+        mov     [ebx + 7], al           //player
+        mov     [ebx + 10h], al         //area
+        mov     [ebx + 11h], al
+        mov     [ebx + 12h], al
+        mov     [ebx + 13h], al
+        mov     [ebx + 14h], al         //obj group
+        mov     [ebx + 15h], al         //obj type
+
+        mov     ebx, [edx + 0C8h]       //teleport obj effect
+        mov     [ebx + 4], al           //obj
+        mov     [ebx + 5], al
+        mov     [ebx + 6], al           //obj list
+        mov     [ebx + 7], al           //player
+        mov     [ebx + 0Eh], al         //x
+        mov     [ebx + 0Fh], al         //y
+        mov     [ebx + 10h], al         //area
+        mov     [ebx + 11h], al
+        mov     [ebx + 12h], al
+        mov     [ebx + 13h], al
+        mov     [ebx + 14h], al         //obj group
+        mov     [ebx + 15h], al         //obj type
+
         //
         
         //mov     ebx, [edx + 0C0h]       //command effect
@@ -208,6 +240,9 @@ const char aUnitVar[] = "Change Object Variable";
 const char aTerrain[] = "Change Terrain";
 const char aDefeat[] = "Declare Defeat";
 const char aCommand[] = "Command";
+const char aCopyObj[] = "Copy Object Master";
+const char aTransformObj[] = "Transform Object";
+const char aTeleportObj[] = "Teleport Object";
 const char aBreakpoint[] = "Breakpoint";
 
 __declspec(naked) void triggerDisplayHook()
@@ -250,6 +285,24 @@ __declspec(naked) void triggerDisplayHook()
         mov     eax, 4C82A0h
         call    eax
 
+        mov     ecx, [edi + 0E24h]
+        push    30h
+        push    offset aCopyObj
+        mov     eax, 4C82A0h
+        call    eax
+
+        mov     ecx, [edi + 0E24h]
+        push    31h
+        push    offset aTransformObj
+        mov     eax, 4C82A0h
+        call    eax
+
+        mov     ecx, [edi + 0E24h]
+        push    32h
+        push    offset aTeleportObj
+        mov     eax, 4C82A0h
+        call    eax
+
         //mov     ecx, [edi + 0E24h]
         //push    30h
         //push    offset aCommand
@@ -258,7 +311,7 @@ __declspec(naked) void triggerDisplayHook()
 
 #ifdef _DEBUG
         mov     ecx, [edi + 0E24h]      //breakpoint
-        push    30h
+        push    33h
         push    offset aBreakpoint
         mov     eax, 4C82A0h
         call    eax
@@ -394,6 +447,141 @@ __declspec(naked) void effectDefeat()
     }
 }
 
+void __stdcall do_effect_copy_obj(RGE_Player* player, int dst, int src)
+{
+    if (player)
+        player->vfptr->copy_obj(player, dst, src);
+}
+
+__declspec(naked) void effectCopyObj()
+{
+    __asm
+    {
+        
+        mov     ecx, [esp + 14h] //player
+        mov     eax, [edi + 24h] //dest
+        mov     edx, [edi + 10h] //quantity (source)
+        push    edx
+        push    eax
+        push    ecx
+        call    do_effect_copy_obj
+
+        mov     ebx, 005F3DB1h
+        jmp     ebx
+    }
+}
+
+void __stdcall do_effect_transform_obj(RGE_Player* player, RGE_Static_Object** obj_list, int obj_count, int target_id)
+{
+    RGE_Master_Static_Object* target_master;
+    if (player &&
+        target_id >= 0 &&
+        target_id < player->master_object_num &&
+        (target_master = player->master_objects[target_id]))
+    {
+        for (int i = 0; i < obj_count; i++)
+            obj_list[i]->vfptr->transform(obj_list[i], target_master);
+    }
+}
+
+__declspec(naked) void effectTransformObj()
+{
+    __asm
+    {
+        mov     ecx, [esp + 14h] //player
+        mov     eax, [esp + 10h] //obj count
+        lea     ebp, [esp + 134h] //object list
+        mov     edx, [edi + 10h] //target obj
+        push    edx
+        push    eax
+        push    ebp
+        push    ecx
+        call    do_effect_transform_obj
+
+        mov     ebx, 005F3DB1h
+        jmp     ebx
+    }
+}
+
+void __stdcall do_effect_teleport_obj(RGE_Player* player, RGE_Static_Object** obj_list, int obj_count, int x, int y)
+{
+    if (player)
+    {
+        float x1 = x + 0.5f;
+        float y1 = y + 0.5f;
+
+        for (int i = 0; i < obj_count; i++)
+        {
+            RGE_Static_Object* obj = obj_list[i];
+            obj->vfptr->teleport(obj_list[i], x1, y1, 0.0f);
+        }
+
+        int obj_id_list_stack[0x100];
+        int* obj_id_list_heap;
+        int* obj_id_list;
+        if (obj_count > 0x100)
+        {
+            int* obj_id_list_heap = new int[obj_count];
+            obj_id_list = obj_id_list_heap;
+        }
+        else
+            obj_id_list = obj_id_list_stack;
+
+        for (int i = 0; i < obj_count; i++)
+            obj_id_list[i] = obj_list[i]->id;
+
+        BUnitGroup* g;
+        if (obj_count > 1 &&
+            (g = RGE_Game_World__getUnitGroup(
+                player->world,
+                RGE_Game_World__commonUnitGroupID(player->world, obj_id_list, obj_count))) &&
+            g->mNumberUnits == obj_count)
+        {
+            BUnitGroup__commandStop(g);
+        }
+        else
+        {
+            for (int i = 0; i < obj_count; i++)
+            {
+                RGE_Static_Object* obj = obj_list[i];
+                if (obj->mGroupID != -1 &&
+                    (g = RGE_Game_World__getUnitGroup(player->world, obj->mGroupID)))
+                {
+                    BUnitGroup__removeUnit(g, obj->id);
+                }
+                RGE_Static_Object__removeAllFromPathingGroup(obj);
+                obj->vfptr->stop(obj);
+                obj->vfptr->stopAllMovement(obj);
+            }
+        }
+
+        if (obj_count > 0x100)
+            delete[] obj_id_list_heap;
+    }
+}
+
+__declspec(naked) void effectTeleportObj()
+{
+    __asm
+    {
+
+        mov     ecx, [esp + 14h] //player
+        mov     eax, [esp + 10h] //obj count
+        lea     ebp, [esp + 134h] //object list
+        mov     edx, [edi + 48h] //y
+        push    edx
+        mov     edx, [edi + 44h] //x
+        push    edx
+        push    eax
+        push    ebp
+        push    ecx
+        call    do_effect_teleport_obj
+
+        mov     ebx, 005F3DB1h
+        jmp     ebx
+    }
+}
+
 __declspec(naked) void effectBreakpoint()
 {
     __asm
@@ -432,7 +620,7 @@ void setEffectHooks()
 
     //setHook ((void*)0x007B2ABF, &setVarHook);
 
-    int nEffects = 0x30;
+    int nEffects = 0x33;
     //int nEffects = 0x31;
 #ifdef _DEBUG
     nEffects++;
@@ -455,9 +643,12 @@ void setEffectHooks()
     writeDword(0x007B22F0, (DWORD)&effectUnitVar);
     writeDword(0x007B22F4, (DWORD)&effectTerrain);
     writeDword(0x007B22F8, (DWORD)&effectDefeat);
+    writeDword(0x007B22FC, (DWORD)&effectCopyObj);
+    writeDword(0x007B2300, (DWORD)&effectTransformObj);
+    writeDword(0x007B2304, (DWORD)&effectTeleportObj);
     //writeDword(0x007B22FC, (DWORD)&effectCommand);
 #ifdef _DEBUG
-    writeDword(0x007B22FC, (DWORD)&effectBreakpoint);
+    writeDword(0x007B2308, (DWORD)&effectBreakpoint);
 #endif // _DEBUG
     
     writeDword(0x007B2240 + 29 * 4, (DWORD)&effectSnapView_new);

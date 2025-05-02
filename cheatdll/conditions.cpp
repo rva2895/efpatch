@@ -549,11 +549,17 @@ float __fastcall getval_sp(RGE_Static_Object* unit, int) { return unit->sp; }
 float __fastcall getval_resources(RGE_Static_Object* unit, int) { return unit->attribute_amount_held; }
 float __fastcall getval_reload(RGE_Static_Object* unit, int) { return unit->master_obj->master_type >= 50 ? ((RGE_Combat_Object*)unit)->attack_timer : 0.0f; }
 //float __stdcall getval_constr(UNIT* unit) { return *(float*)((int)unit + 0x230); }
+float __fastcall getval_civoverride(RGE_Static_Object* unit, int) { return unit->gbg_civ_override; }
 
 float __fastcall getval_kills(RGE_Static_Object* unit, int)
 {
     UNIT_EXTRA* ud = getUnitExtra(unit);
     return ud ? ud->kills : 0;
+}
+
+float __fastcall getval_facet(RGE_Static_Object* unit, int)
+{
+    return unit->sprite ? unit->facet * 16 / unit->sprite->facet_num : 0;
 }
 
 float __fastcall getval_hp_percent(RGE_Static_Object* unit, int)
@@ -727,6 +733,13 @@ bool __stdcall conditionVariable_actual(condition* c, RGE_Player* player, RGE_St
         break;
     case 13:
         getval = getval_kills;
+        break;
+    case 14:
+        getval = getval_facet;
+        break;
+    case 15:
+        getval = getval_civoverride;
+        break;
     default:
         break;
     }

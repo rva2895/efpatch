@@ -27,6 +27,29 @@ void editVal(T* valPtr, float val, bool useMax, float max, int action)
             *valPtr = max;
 }
 
+template <class T>
+void editValRangeWrapAround(T* valPtr, float val, float min, float max, int action)
+{
+    switch (action)
+    {
+    case 0: //SET
+        *valPtr = val;
+        break;
+    case 1: //ADD
+        *valPtr += val;
+        break;
+    case 2: //MUL
+        *valPtr *= val;
+        break;
+    default:
+        break;
+    }
+    if (*valPtr >= max)
+        *valPtr = min;
+    if (*valPtr < min)
+        *valPtr = max;
+}
+
 void editHP(RGE_Static_Object* unit, float val, int action)
 {
     editVal(&unit->hp, val, false, 0, action);
@@ -114,6 +137,71 @@ void editKills(RGE_Static_Object* unit, float val, int action)
     UNIT_EXTRA* ud = createUnitExtra(unit);
     ud->keepUnitExtra = true;
     editVal(&ud->kills, val, false, 0, action);
+}
+
+void editFacet(RGE_Static_Object* unit, float val, int action)
+{
+    if (!unit->vfptr->isMoving(unit))
+    {
+        unsigned __int8 facet = unit->facet;
+        float val2 = val * unit->sprite->facet_num / 16;
+        editValRangeWrapAround(&facet, val2, 0, unit->sprite->facet_num, action);
+        RGE_Static_Object__set_facet(unit, facet);
+    }
+}
+
+void editCivOverride(RGE_Static_Object* unit, float val, int action)
+{
+    auto edit_civ_override_val = [=]()
+        {
+            editVal(&unit->gbg_civ_override, val, false, 0, action);
+            TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
+            if (game_screen && game_screen->game_obj == unit)
+                game_screen->object_panel->vfptr->set_redraw(game_screen->object_panel, 1);
+        };
+
+    if (unit->sprite == unit->master_obj->vfptr->get_sprite(unit->master_obj, unit))
+    {
+        edit_civ_override_val();
+        unit->vfptr->new_sprite(unit, unit->master_obj->vfptr->get_sprite(unit->master_obj, unit));
+    }
+    else if (unit->sprite == unit->master_obj->vfptr->get_sprite2(unit->master_obj, unit))
+    {
+        edit_civ_override_val();
+        unit->vfptr->new_sprite(unit, unit->master_obj->vfptr->get_sprite2(unit->master_obj, unit));
+    }
+    else if (unit->sprite == unit->master_obj->vfptr->get_death_sprite(unit->master_obj, unit))
+    {
+        edit_civ_override_val();
+        unit->vfptr->new_sprite(unit, unit->master_obj->vfptr->get_death_sprite(unit->master_obj, unit));
+    }
+    else if (unit->sprite == unit->master_obj->vfptr->get_undead_sprite(unit->master_obj, unit))
+    {
+        edit_civ_override_val();
+        unit->vfptr->new_sprite(unit, unit->master_obj->vfptr->get_undead_sprite(unit->master_obj, unit));
+    }
+    else if (unit->master_obj->master_type >= 30 &&
+        unit->sprite == ((RGE_Master_Moving_Object*)unit->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)unit->master_obj, unit))
+    {
+        edit_civ_override_val();
+        unit->vfptr->new_sprite(unit, ((RGE_Master_Moving_Object*)unit->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)unit->master_obj, unit));
+    }
+    else if (unit->master_obj->master_type >= 30 &&
+        unit->sprite == ((RGE_Master_Moving_Object*)unit->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)unit->master_obj, unit))
+    {
+        edit_civ_override_val();
+        unit->vfptr->new_sprite(unit, ((RGE_Master_Moving_Object*)unit->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)unit->master_obj, unit));
+    }
+    else if (unit->master_obj->master_type >= 50 &&
+        unit->sprite == ((RGE_Master_Combat_Object*)unit->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)unit->master_obj, unit))
+    {
+        edit_civ_override_val();
+        unit->vfptr->new_sprite(unit, ((RGE_Master_Combat_Object*)unit->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)unit->master_obj, unit));
+    }
+    else
+    {
+        edit_civ_override_val();
+    }
 }
 
 void __stdcall effectUnitVarActual_sub(RGE_Static_Object* unit, char* str)
@@ -254,6 +342,14 @@ void __stdcall effectUnitVarActual_sub(RGE_Static_Object* unit, char* str)
     else if (!strcmp(var, "Kills"))
     {
         editKills(unit, val, action);
+    }
+    else if (!strcmp(var, "Facet"))
+    {
+        editFacet(unit, val, action);
+    }
+    else if (!strcmp(var, "CivOverride"))
+    {
+        editCivOverride(unit, val, action);
     }
 
     free(s_heap);

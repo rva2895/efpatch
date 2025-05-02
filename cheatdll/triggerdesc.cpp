@@ -62,7 +62,7 @@ const char* effectNames[] =
     "Trigger Off",
     "AI Script Goal",
     "Create Object",
-    "Task Object",
+    "Task",
     "Victory",
     "Kill Object",
     "Remove Object",
@@ -99,6 +99,9 @@ const char* effectNames[] =
     "Var",
     "Terrain",
     "Defeat",
+    "Copy Obj",
+    "Xform Obj",
+    "Teleport",
     //"Command",
     "Breakpoint"
 #endif
@@ -373,6 +376,11 @@ void __stdcall e_str_data(effect* p, int)
     sprintf(s + strlen(s), " (%s)", check_data(p->str) ? p->str : "<syntax error>");
 }
 
+void __stdcall e_location(effect* p, int)
+{
+    sprintf(s + strlen(s), " (%d,%d)", p->location_x, p->location_y);
+}
+
 extern char** terrain_names;
 extern int terrains_loaded;
 
@@ -385,6 +393,18 @@ void __stdcall e_terrain(effect* p, int)
 void __stdcall e_goal(effect* p, int)
 {
     sprintf(s + strlen(s), " (P%d: %d)", p->source_player, p->ai_trigger_number);
+}
+
+void __stdcall e_copy_obj(effect* p, int)
+{
+    sprintf(s + strlen(s), " (%d -> %d)",
+        p->quantity, p->obj_list);
+}
+
+void __stdcall e_transform_obj(effect* p, int)
+{
+    sprintf(s + strlen(s), " (To %d)",
+        p->quantity);
 }
 
 void(__stdcall* effectPrint[]) (effect*, int) =
@@ -401,14 +421,14 @@ void(__stdcall* effectPrint[]) (effect*, int) =
     e_trigger, //deactivate trigger
     e_goal, //ai script goal
     e_player_unit, //create object
-    e_default, //task object
+    e_location, //task object
     e_player, //victory
     e_default, //kill object
     e_default, //remove object
-    e_default, //scroll view
-    e_default, //unload
+    e_location, //scroll view
+    e_location, //unload
     e_ownership, //change ownership
-    e_default, //patrol
+    e_location, //patrol
     e_str, //display inst
     e_default, //clear inst
     e_stance, //freeze unit
@@ -419,7 +439,7 @@ void(__stdcall* effectPrint[]) (effect*, int) =
     e_quantity, //change hp
     e_quantity, //change atk
     e_default, //stop unit
-    e_default, //snap view
+    e_location, //snap view
     e_default, //disable adv btn
     e_player_tech, //enable tech
     e_player_tech, //disable tech
@@ -438,6 +458,9 @@ void(__stdcall* effectPrint[]) (effect*, int) =
     e_str, //change var
     e_terrain, //terrain
     e_player, //defeat
+    e_copy_obj, //copy obj
+    e_transform_obj, //transform obj
+    e_location, //teleport
     //e_command, //command
     e_default //breakpoint
 #endif

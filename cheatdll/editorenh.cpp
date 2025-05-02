@@ -150,6 +150,12 @@ void* __stdcall getEffectParams_hook(TRIBE_Screen_Sed* scr_sed, effect* e)
 
         ai_trigger_dropdown->vfptr->set_fixed_position(ai_trigger_dropdown, 0x182, 0x16, 0xC8, 0x14);
         break;
+    case 0x30:        //copy obj
+        quantity_text->vfptr->set_text3(quantity_text, "Source ID", NULL);
+        break;
+    case 0x31:        //transform obj
+        quantity_text->vfptr->set_text3(quantity_text, "Transform ID", NULL);
+        break;
     /*case 0x30:        //command
         flush_ai_trigger_dropdown(_this);
         window_dropdown_addText(*(void**)((int)_this + 0xED0), get_command_name(RGE_COMMAND_STOP), RGE_COMMAND_STOP);
@@ -230,7 +236,9 @@ const char* var_names[] =
     "MiscCounter3",
     "MiscCounter4",
     "MiscCounter5",
-    "Kills"
+    "Kills",
+    "Facet",
+    "CivOverride"
 };
 
 void* __stdcall getConditionParams_hook(TRIBE_Screen_Sed* scr_sed, condition* c)
