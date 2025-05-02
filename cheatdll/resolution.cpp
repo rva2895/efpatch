@@ -5,6 +5,7 @@
 #include "drsfile.h"
 #include "slp.h"
 #include "palfile.h"
+#include "editorui.h"
 
 #define RESOLUTION_TOOL_VERSION 100011  //+1 SLP Writer 2.0
 
@@ -202,6 +203,10 @@ bool patchEXE(int X, int Y) //needs to be completed...
     {
         MessageBox(NULL, "Resolutions lower than 1024x768 are not supported", "Error", MB_ICONERROR);
     }
+
+    //editor
+    if (X > 1280)
+        setEditorUIHooks();
 
     if (Y >= 1024)
     {

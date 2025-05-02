@@ -262,6 +262,7 @@
     <ClInclude Include="editorenh.h" />
     <ClInclude Include="editorres.h" />
     <ClInclude Include="editorstatus.h" />
+    <ClInclude Include="editorui.h" />
     <ClInclude Include="editpropertyobject.h" />
     <ClInclude Include="effects.h" />
     <ClInclude Include="effectUnitVar.h" />
@@ -452,6 +453,7 @@
     <ClCompile Include="editorenh.cpp" />
     <ClCompile Include="editorres.cpp" />
     <ClCompile Include="editorstatus.cpp" />
+    <ClCompile Include="editorui.cpp" />
     <ClCompile Include="editpropertyobject.cpp" />
     <ClCompile Include="effects.cpp" />
     <ClCompile Include="effectUnitVar.cpp" />
