@@ -2096,10 +2096,12 @@ void setTestHook()
     //RMS token count
     //setHook((void*)0x004E1D40, onRmsToken);
 
+    /* !! conflicts trigger or condition !!
 #ifdef _DEBUG
     setHook((void*)0x005F54D2, triggerLogHook);
     setHook((void*)0x005F4A77, effectLogHook);
 #endif
+    */
 
     //fix internal log
     log_int_s = (char*)malloc(LOG_INT_BUFFER_SIZE);

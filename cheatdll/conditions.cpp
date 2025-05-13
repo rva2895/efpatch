@@ -5,7 +5,7 @@
 #include "casts.h"
 #include "autosave.h"
 
-#define NEW_COND 6
+#define NEW_COND 7
 
 #define ALLIANCE_ALLY 0
 #define ALLIANCE_NEUTRAL 1
@@ -16,6 +16,7 @@ void conditionAreaExplored();
 void conditionAlliance();
 void conditionVariable();
 void conditionPlayerCiv();
+void conditionOR();
 
 const DWORD condJMPTable[] =
 {
@@ -47,7 +48,8 @@ const DWORD condJMPTable[] =
     (DWORD)conditionAlliance,
     (DWORD)conditionVariable,
     (DWORD)conditionVariable,
-    (DWORD)conditionPlayerCiv
+    (DWORD)conditionPlayerCiv,
+    (DWORD)conditionOR
 };
 
 __declspec(naked) void condNotMet()
@@ -452,6 +454,77 @@ loc_5F4A2D:
     }
 }
 
+#define CONDITION_OR_ID 30
+
+void __stdcall TRIBE_Trigger__update_new(TRIBE_Trigger* trigger, int time)
+{
+    if (trigger->state == 1)
+    {
+        trigger->timer += time;
+
+        bool result = true;
+
+        for (int i = 0; i < trigger->condition_num; i++)
+        {
+            if (trigger->condition_list[trigger->condition_order[i]]->condition == CONDITION_OR_ID)
+            {
+                if (result)
+                    break;
+                else
+                    result = true;
+            }
+            else if (result)
+            {
+                __int8 v = trigger->condition_list[trigger->condition_order[i]]->values[8] & 0xFF;
+                __int8 r = TRIBE_Trigger_Condition__update(trigger->condition_list[trigger->condition_order[i]], trigger->timer, trigger->system->world);
+                if (r == 2) //bad condition
+                {
+                    trigger->state = 3;
+                    if (trigger->description_display_during_game && !trigger->system->objectives_updated)
+                    {
+                        (*base_game)->vfptr->notification(*base_game, 138, -1, -1, -1, 0);
+                        trigger->system->objectives_updated = 1;
+                    }
+                    result = false;
+                    break;
+                }
+                r += v;
+                if (r)
+                    result = false;
+            }
+        }
+
+        if (result)
+        {
+            for (int i = 0; i < trigger->effect_num; i++)
+                TRIBE_Trigger_Effect__update(trigger->effect_list[i], trigger->system->world);
+
+            trigger->timer = 0;
+            if (!trigger->loopable)
+            {
+                trigger->state = 2;
+                if (trigger->description_display_during_game && !trigger->system->objectives_updated)
+                {
+                    (*base_game)->vfptr->notification(*base_game, 138, -1, -1, -1, 0);
+                    trigger->system->objectives_updated = 1;
+                }
+            }
+        }
+    }
+}
+
+__declspec(naked) void on_trigger_system_update() //005F54D6
+{
+    __asm
+    {
+        mov     ecx, [ecx + edi * 4]
+        push    ecx
+        call    TRIBE_Trigger__update_new
+        mov     ecx, 005F54DEh
+        jmp     ecx
+    }
+}
+
 extern int* mapptr;
 
 __declspec(naked) void conditionAreaExplored()
@@ -782,6 +855,14 @@ __declspec(naked) void conditionPlayerCiv()
     }
 }
 
+__declspec(naked) void conditionOR()
+{
+    __asm
+    {
+        jmp     condMet
+    }
+}
+
 void* unitContainter_countUnits_ungarrisoned;
 void* unitContainter_countUnits_garrisoned;
 
@@ -929,7 +1010,9 @@ void setConditionHooks()
     setHook((void*)0x0053E014, inv5);
     setHook((void*)0x005F2756, inv6);
 
-    setHook((void*)0x005F4A0F, invProcessCond);
+    //setHook((void*)0x005F4A0F, invProcessCond);
+    setHook((void*)0x005F54D6, on_trigger_system_update);
+
 
     make_counter_functions();
 }

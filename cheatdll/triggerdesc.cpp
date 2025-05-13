@@ -45,6 +45,7 @@ const char* condNames[] =
     "Var",
     "Var",
     "Civ",
+    "--OR--"
 #endif
 };
 
@@ -212,7 +213,8 @@ void(__stdcall* condPrint[]) (condition*, int) =
     c_alliance_state, //alliance state
     c_var, //var ge
     c_var, //var e
-    c_civ //player civ
+    c_civ, //player civ
+    c_default //or
 #endif
 };
 
