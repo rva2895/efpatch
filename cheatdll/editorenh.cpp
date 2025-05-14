@@ -85,20 +85,20 @@ void* __stdcall getEffectParams_hook(TRIBE_Screen_Sed* scr_sed, effect* e)
     //set_text -> set_text3
 
     //panels
-    TTextPanel* ai_trigger_text = *(TTextPanel**)((DWORD)scr_sed + 0xECC);
-    TDropDownPanel* ai_trigger_dropdown = *(TDropDownPanel**)((DWORD)scr_sed + 0xED0);
+    TTextPanel* ai_trigger_text = scr_sed->trigger_ai_script_goal_label;
+    TDropDownPanel* ai_trigger_dropdown = scr_sed->trigger_ai_script_goal;
 
-    TTextPanel* message_text = *(TTextPanel**)((DWORD)scr_sed + 0xEB4);
-    TEditPanel* message_edit = *(TEditPanel**)((DWORD)scr_sed + 0xEB8);
+    TTextPanel* message_text = scr_sed->trigger_message_label;
+    TEditPanel* message_edit = scr_sed->trigger_message;
 
-    TTextPanel* obj_list_type_text = *(TTextPanel**)((DWORD)scr_sed + 0xE58);
-    TDropDownPanel* obj_list_type_dropdown = *(TDropDownPanel**)((DWORD)scr_sed + 0xE5C);
+    TTextPanel* obj_list_type_text = scr_sed->trigger_object_list_type_label;
+    TDropDownPanel* obj_list_type_dropdown = scr_sed->trigger_object_list_type;
 
-    TTextPanel* timer_text = *(TTextPanel**)((DWORD)scr_sed + 0xE28);
-    TEditPanel* timer_edit = *(TEditPanel**)((DWORD)scr_sed + 0xE2C);
+    TTextPanel* timer_text = scr_sed->trigger_timer_label;
+    TEditPanel* timer_edit = scr_sed->trigger_timer;
 
-    TTextPanel* quantity_text = *(TTextPanel**)((DWORD)scr_sed + 0xE68);
-    TEditPanel* quantity_edit = *(TEditPanel**)((DWORD)scr_sed + 0xE6C);
+    TTextPanel* quantity_text = scr_sed->trigger_quantity_label;
+    TEditPanel* quantity_edit = scr_sed->trigger_quantity;
 
     //quantity
     quantity_text->vfptr->set_text2(quantity_text, 10731); //"Quantity"
@@ -246,17 +246,17 @@ void* __stdcall getConditionParams_hook(TRIBE_Screen_Sed* scr_sed, condition* c)
     int civ_count = version_for_editor == VER_EF ? CIV_COUNT : 8;
 
     //panels
-    TTextPanel* ai_signal_text = *(TTextPanel**)((DWORD)scr_sed + 0xED4);
-    TDropDownPanel* ai_signal_dropdown = *(TDropDownPanel**)((DWORD)scr_sed + 0xED8);
+    TTextPanel* ai_signal_text = scr_sed->trigger_ai_signal_label;
+    TDropDownPanel* ai_signal_dropdown = scr_sed->trigger_ai_signal;
 
-    TTextPanel* timer_text = *(TTextPanel**)((DWORD)scr_sed + 0xE28);
-    TEditPanel* timer_edit = *(TEditPanel**)((DWORD)scr_sed + 0xE2C);
+    TTextPanel* timer_text = scr_sed->trigger_timer_label;
+    TEditPanel* timer_edit = scr_sed->trigger_timer;
 
-    TTextPanel* obj_list_type_text = *(TTextPanel**)((DWORD)scr_sed + 0xE58);
-    TDropDownPanel* obj_list_type_dropdown = *(TDropDownPanel**)((DWORD)scr_sed + 0xE5C);
+    TTextPanel* obj_list_type_text = scr_sed->trigger_object_list_type_label;
+    TDropDownPanel* obj_list_type_dropdown = scr_sed->trigger_object_list_type;
 
-    TTextPanel* quantity_text = *(TTextPanel**)((DWORD)scr_sed + 0xE68);
-    //TEditPanel* quantity_edit = *(TEditPanel**)((DWORD)scr_sed + 0xE6C);
+    TTextPanel* quantity_text = scr_sed->trigger_quantity_label;
+    //TEditPanel* quantity_edit = scr_sed->trigger_quantity;
 
     switch (c->id)
     {

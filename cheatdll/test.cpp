@@ -1464,14 +1464,8 @@ __declspec(naked) void* report_dynamic_tile_cache_size() //00497192
 
 #define ID_TO_WATCH 5746
 
-void __stdcall on_check_ownership_log(void* action, void* player)
+void __stdcall on_check_ownership_log(RGE_Action* action, RGE_Player* player)
 {
-    int id;
-    if (player)
-        id = *(int*)((DWORD)player + 0xA0);
-    else
-        id = -1;
-
     int wt = get_worldtime();
     int ms = wt % 1000;
     wt /= 1000;
@@ -1480,9 +1474,9 @@ void __stdcall on_check_ownership_log(void* action, void* player)
     int m = wt % 60;
     int h = wt / 60;
 
-    RGE_Static_Object* obj = *(RGE_Static_Object**)((DWORD)action + 8);
+    RGE_Action_Object* obj = action->obj;
     if (obj && obj->id == ID_TO_WATCH)
-        log(" [T = %01d:%02d:%02d.%03d] ==> check_ownership: player = %d", h, m, s, ms, id);
+        log(" [T = %01d:%02d:%02d.%03d] ==> check_ownership: player = %d", h, m, s, ms, player->id);
 }
 
 __declspec(naked) void on_check_ownership() //00565182
@@ -1501,7 +1495,7 @@ __declspec(naked) void on_check_ownership() //00565182
     }
 }
 
-void __stdcall on_update_log(void* action)
+void __stdcall on_update_log(RGE_Action* action)
 {
     int wt = get_worldtime();
     int ms = wt % 1000;
@@ -1511,11 +1505,9 @@ void __stdcall on_update_log(void* action)
     int m = wt % 60;
     int h = wt / 60;
 
-    RGE_Static_Object* obj = *(RGE_Static_Object**)((DWORD)action + 8);
-    unsigned __int16 type = *(unsigned __int16*)((DWORD)action + 4);
-    unsigned __int8 state = *(unsigned __int8*)((DWORD)action + 0xC);
+    RGE_Action_Object* obj = action->obj;
     if (obj && obj->id == ID_TO_WATCH)
-        log(" [T = %01d:%02d:%02d.%03d] => update (%d): curr_state = %d", h, m, s, ms, (int)type, (int)state);
+        log(" [T = %01d:%02d:%02d.%03d] => update (%d): curr_state = %d", h, m, s, ms, action->action_type, action->state);
 }
 
 __declspec(naked) void on_update() //005650F0
@@ -1535,12 +1527,6 @@ __declspec(naked) void on_update() //005650F0
     }
 }
 
-struct node
-{
-    void* action;
-    node* next;
-};
-
 void __stdcall pause_game2()
 {
     TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
@@ -1548,7 +1534,7 @@ void __stdcall pause_game2()
         TRIBE_Screen_Game__command_pause(game_screen);
 }
 
-void __stdcall on_action_list_update_log(void* action_list)
+void __stdcall on_action_list_update_log(RGE_Action_List* action_list)
 {
     int wt = get_worldtime();
     int ms = wt % 1000;
@@ -1558,18 +1544,15 @@ void __stdcall on_action_list_update_log(void* action_list)
     int m = wt % 60;
     int h = wt / 60;
 
-    RGE_Static_Object* obj = *(RGE_Static_Object**)((DWORD)action_list + 4);
+    RGE_Action_Object* obj = action_list->obj;
     if (obj && obj->id == ID_TO_WATCH)
     {
         char b[0x100];
         b[0] = '\0';
-        node* nd = *(node**)((DWORD)action_list + 8);
+        RGE_Action_Node* nd = action_list->list;
         while (nd)
         {
-            void* action = nd->action;
-            unsigned __int16 type = *(unsigned __int16*)((DWORD)action + 4);
-            unsigned __int8 state = *(unsigned __int8*)((DWORD)action + 0xC);
-            sprintf(b + strlen(b), "%d (%d) ", (int)type, (int)state);
+            sprintf(b + strlen(b), "%d (%d) ", nd->action->action_type, nd->action->state);
             nd = nd->next;
         }
         //log(" actions: %s", b);

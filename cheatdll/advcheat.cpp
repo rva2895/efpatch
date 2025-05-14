@@ -374,7 +374,7 @@ bool __stdcall checkCheats(char* s2)
         char name[0x80];
         name[0] = '\0';
         sscanf_s(s, "%s %s", dummy, (unsigned)_countof(dummy), name, (unsigned)_countof(name));
-        get_sn_with_alias(player, name);
+        get_sn_with_alias((TRIBE_Player*)player, name);
         return true;
     }
     if (strstr(s, "/GOAL"))
@@ -382,7 +382,7 @@ bool __stdcall checkCheats(char* s2)
         char name[0x80];
         name[0] = '\0';
         sscanf_s(s, "%s %s", dummy, (unsigned)_countof(dummy), name, (unsigned)_countof(name));
-        get_goal_with_alias(player, name);
+        get_goal_with_alias((TRIBE_Player*)player, name);
         return true;
     }
     /*if (strstr(s, "/OBJ") || strstr(s, "/OBJECT"))

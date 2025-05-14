@@ -176,6 +176,7 @@ struct TRIBE_Buildings;
 struct TRIBE_Panel_Time;
 struct Time_Slice_Special_Event;
 struct Time_Slice_History_Event;
+struct TRIBE_Scenario_Editor_Panel_Object;
 struct TRIBE_Panel_Inven;
 struct TPercentPanel;
 struct TMessagePanel;
@@ -198,6 +199,7 @@ struct BFormation;
 struct BContextAnalyzer;
 struct BFormationLine;
 struct BFormationSlot;
+struct MConvexHull;
 struct CMemoryPool;
 struct CMemoryBlock;
 struct ObstructionInfo;
@@ -487,6 +489,8 @@ struct SymbolHashNode;
 struct AILogVtbl;
 struct ResourceItemVtbl;
 struct TPanelSystemVtbl;
+struct TRIBE_Screen_SedVtbl;
+struct TRIBE_Scenario_Editor_Panel_ObjectVtbl;
 struct TRIBE_Panel_ObjectVtbl;
 struct TRIBE_Main_ViewVtbl;
 struct RGE_Main_ViewVtbl;
@@ -506,6 +510,8 @@ struct TribeMainDecisionAIModuleVtbl;
 struct TribeMainDecisionAIModule;
 struct TRIBE_Unitline;
 struct TSpreadsheetResourceVtbl;
+struct TRIBE_Screen_Sed__List_Info;
+struct TribeDiplomacyDialogVtbl;
 
 /* 54 */
 #pragma pack(push, 8)
@@ -4637,9 +4643,24 @@ struct TribeInformationAIModuleVtbl
 #pragma pack(pop)
 
 /* 404 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct ObjectMemory
 {
+  int id;
+  __int16 type;
+  __int16 group;
+  unsigned __int8 x;
+  unsigned __int8 y;
+  unsigned __int8 z;
+  unsigned __int8 owner;
+  __int16 hitPoints;
+  int attackAttempts;
+  unsigned __int8 kills;
+  float damageCapability;
+  float rateOfFire;
+  float range;
+  unsigned int timeSeen;
+  int isGarrisoned;
 };
 #pragma pack(pop)
 
@@ -6822,9 +6843,15 @@ struct AIFact
 #pragma pack(pop)
 
 /* 289 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct AIAction
 {
+  unsigned __int8 argc;
+  void (__cdecl *actionFn)();
+  unsigned __int8 arg1Type;
+  unsigned __int8 arg2Type;
+  unsigned __int8 arg3Type;
+  unsigned __int8 arg4Type;
 };
 #pragma pack(pop)
 
@@ -7622,9 +7649,22 @@ struct UnitAIModule__UnitAIRetargetEntry
 #pragma pack(pop)
 
 /* 932 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct AIModuleMessage
 {
+  void *vfptr;
+  int id;
+  char text[128];
+  int priority;
+  AIModuleID sender;
+  AIModuleID recipient;
+  int data1;
+  int data2;
+  int data3;
+  AIModuleMessage *callbackMessage;
+  int timeStamp;
+  AIModuleMessage *next;
+  AIModuleMessage *prev;
 };
 #pragma pack(pop)
 
@@ -9958,10 +9998,64 @@ struct NodeArrayInfo
 };
 #pragma pack(pop)
 
+/* 444 */
+#pragma pack(push, 8)
+struct PathingNode
+{
+  Point location;
+  PathingNode *parent;
+  PathingNode *next;
+  PathingNode *prev;
+  float distanceToGoal;
+  float costSoFar;
+  int hullIndex;
+  int vertexIndex;
+  int direction;
+};
+#pragma pack(pop)
+
+/* 1111 */
+#pragma pack(push, 8)
+struct BSimpleArray_PathingNode0X_
+{
+  PathingNode **mValue;
+  int mNumber;
+  int mMaximumNumber;
+};
+#pragma pack(pop)
+
 /* 203 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct MShortPather
 {
+  RGE_Obstruction_Manager *OBSystem;
+  int NumHulls;
+  int NumHullsAllocated;
+  MConvexHull **Hulls;
+  int IterationCap;
+  PathingNode mOpenList[2];
+  BSimpleArray_PathingNode0X_ mClosedList[2];
+  BSimpleArray_PathingNode0X_ mUnusedList;
+  bool UseIgnoreList;
+  int NumIgnoreUnits;
+  int mMaxIgnoreUnits;
+  int *IgnoreIDList;
+  int *TargetIDList;
+  int TargetIDListSize;
+  int NumTargetIds;
+  int NumHits;
+  int HitListAllocated;
+  ObsRecord **HitList;
+  int mAreaMinX;
+  int mAreaMinY;
+  int mAreaMaxX;
+  int mAreaMaxY;
+  BPath *mExitPaths;
+  BPath *mEntrancePaths;
+  float MapMinX;
+  float MapMinY;
+  float MapMaxX;
+  float MapMaxY;
 };
 #pragma pack(pop)
 
@@ -14256,6 +14350,24 @@ struct Shape_Clip_Node
 };
 #pragma pack(pop)
 
+/* 442 */
+#pragma pack(push, 8)
+struct MConvexHull
+{
+  int NumPoints;
+  Point *Points;
+  int PointsAllocated;
+  int *mEntrancePathIndices;
+  float MinX;
+  float MinY;
+  float MaxX;
+  float MaxY;
+  int NumObjects;
+  int ObjectsAllocated;
+  ObstructionInfo *Objects;
+};
+#pragma pack(pop)
+
 /* 561 */
 #pragma pack(push, 8)
 struct TDebuggingLogVtbl
@@ -15764,6 +15876,16 @@ struct TRIBE_Master_Building_ObjectVtbl
   RGE_Task_List *(__thiscall *create_task_list)(TRIBE_Master_Building_Object *);
   RGE_Sprite *(__thiscall *get_fight_sprite)(TRIBE_Master_Building_Object *, RGE_Static_Object *);
   RGE_Static_Object *(__thiscall *make_new_obj_2)(TRIBE_Master_Building_Object *, RGE_Player *, float, float, float, int);
+};
+#pragma pack(pop)
+
+/* 447 */
+#pragma pack(push, 8)
+struct ObstructionInfo
+{
+  Point minPoint;
+  Point maxPoint;
+  int id;
 };
 #pragma pack(pop)
 
@@ -26383,10 +26505,744 @@ struct TRIBE_Task_ListVtbl
 };
 #pragma pack(pop)
 
+/* 1106 */
+typedef int TRIBE_Screen_Sed__SELECT_REGION_e;
+
+/* 1107 */
+typedef int TRIBE_Screen_Sed__ScenarioMode;
+
+/* 1102 */
+typedef int TRIBE_Screen_Sed__MapType;
+
+/* 1109 */
+typedef int TRIBE_Screen_Sed__VictoryType;
+
+/* 1100 */
+typedef int TRIBE_Screen_Sed__BrushSize;
+
+/* 1105 */
+typedef int TRIBE_Screen_Sed__PaintType;
+
+/* 1104 */
+typedef int TRIBE_Screen_Sed__OptionsListType;
+
+/* 1108 */
+typedef int TRIBE_Screen_Sed__UnitListType;
+
+/* 1103 */
+typedef int TRIBE_Screen_Sed__MessageType;
+
 /* 332 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TRIBE_Screen_Sed
 {
+  TRIBE_Screen_SedVtbl *vfptr;
+  TPanel *previousPanelValue;
+  TPanel *previousModalPanelValue;
+  int pnl_x;
+  int pnl_y;
+  int pnl_wid;
+  int pnl_hgt;
+  char *panelNameValue;
+  TDrawArea *render_area;
+  RECT clip_rect;
+  TPanel__PositionMode position_mode;
+  TPanel__RedrawMode need_redraw;
+  TPanel *curr_child;
+  TPanel *parent_panel;
+  TPanel *left_panel;
+  TPanel *top_panel;
+  TPanel *right_panel;
+  TPanel *bottom_panel;
+  PanelNode *node;
+  PanelNode *first_child_node;
+  PanelNode *last_child_node;
+  TPanel *tab_prev_panel;
+  TPanel *tab_next_panel;
+  int mouse_captured;
+  int active;
+  int visible;
+  int tab_stop;
+  int have_focus;
+  int overlapping_children;
+  int handle_mouse_input;
+  int just_drawn;
+  int enabled;
+  HRGN clip_rgn;
+  RECT render_rect;
+  int left_border;
+  int top_border;
+  int right_border;
+  int bottom_border;
+  int min_wid;
+  int max_wid;
+  int min_hgt;
+  int max_hgt;
+  int mouse_hold_interval;
+  int mouse_move_tolerance;
+  int mouse_down_x;
+  int mouse_down_y;
+  int mouse_down_ctrl;
+  int mouse_down_shift;
+  unsigned int mouse_down_time;
+  int error_code;
+  int z_order;
+  int display_changed_count;
+  int help_string_id;
+  int help_page_id;
+  unsigned __int8 mouse_action;
+  unsigned __int8 mouse_down_button;
+  unsigned __int8 panel_type;
+  unsigned __int8 color;
+  unsigned __int8 fill_in_background;
+  unsigned __int8 clip_to_parent;
+  unsigned __int8 draw_rect2_flag;
+  unsigned __int8 need_restore;
+  int ideal_width;
+  int ideal_height;
+  char info_file_name[260];
+  int info_id;
+  TShape *background_pic;
+  TShape *background_pic2;
+  HPALETTE palette;
+  char cursor_file[260];
+  int cursor_id;
+  int background_pos;
+  int use_bevels;
+  int use_outline_bevels;
+  unsigned __int8 bevel_color1;
+  unsigned __int8 bevel_color2;
+  unsigned __int8 bevel_color3;
+  unsigned __int8 bevel_color4;
+  unsigned __int8 bevel_color5;
+  unsigned __int8 bevel_color6;
+  unsigned int text_color1;
+  unsigned int text_color2;
+  unsigned int focus_color1;
+  unsigned int focus_color2;
+  unsigned int state_color1;
+  unsigned int state_color2;
+  unsigned int label_color1;
+  unsigned int label_color2;
+  int label_style;
+  char popup_info_file_name[260];
+  int popup_info_id;
+  TShape *button_pics;
+  RGE_Color_Table *shadow_color_table;
+  int shadow_amount;
+  unsigned __int8 background_color1;
+  unsigned __int8 background_color2;
+  int enable_ime;
+  unsigned __int8 help_mode;
+  int stock_brush;
+  HBRUSH brush;
+  unsigned int brush_color;
+  TDrawArea *shadow_area;
+  int allow_shadow_area;
+  int saved_mouse_mode;
+  int rollover_panel_always_active;
+  TTextPanel *rollover_text_panel;
+  int rollover_num;
+  TPanel *rollover_panel[70];
+  int rollover_string[70];
+  int rollover_sound[70];
+  TPanel *last_rollover_panel;
+  int popup_dialogs_use_parent_text_colors;
+  int is_multi_player;
+  int set_player_first_flag;
+  RGE_Static_Object *SelectedObject;
+  RGE_Static_Object *DestinationObject;
+  float px1;
+  float py1;
+  float px2;
+  float py2;
+  int CurrentVictory;
+  int CurrentPlayer;
+  RGE_Static_Object *trigger_object1;
+  int trigger_object1_id;
+  RGE_Static_Object *trigger_object2;
+  int trigger_object2_id;
+  int trigger_X1;
+  int trigger_Y1;
+  int trigger_X2;
+  int trigger_Y2;
+  int trigger_loc_X1;
+  int trigger_loc_Y1;
+  int trigger_object_num;
+  int trigger_object_ids[25];
+  TRIBE_Screen_Sed__List_Info *trigger_unit_list_info;
+  __int16 trigger_unit_list_size;
+  int old_trigger_list_line;
+  int old_condition_effect_list_line;
+  int trigger_old_effect_type_line;
+  int trigger_old_condition_type_line;
+  unsigned int valid_color1;
+  unsigned int valid_color2;
+  unsigned int valid_highlight_color1;
+  unsigned int valid_highlight_color2;
+  unsigned int invalid_color1;
+  unsigned int invalid_color2;
+  unsigned int invalid_highlight_color1;
+  unsigned int invalid_highlight_color2;
+  TRIBE_Screen_Sed__SELECT_REGION_e SelectRegionFlag;
+  TRIBE_Screen_Sed__ScenarioMode scenario_mode;
+  TRIBE_Screen_Sed__MapType map_type;
+  TRIBE_Screen_Sed__VictoryType mp_victory_type;
+  TRIBE_Screen_Sed__BrushSize brush_size;
+  TRIBE_Screen_Sed__PaintType paint_type;
+  TRIBE_Screen_Sed__OptionsListType list_type_mode;
+  TRIBE_Screen_Sed__UnitListType unit_list_type_mode;
+  TRIBE_Screen_Sed__UnitListType trigger_unit_list_type_mode;
+  __int16 player_num;
+  __int16 old_dificulty_level;
+  TRIBE_Screen_Sed__MessageType message_type;
+  unsigned __int8 need_to_save_flag;
+  unsigned __int8 valid_save_spot_flag;
+  TShape *background_pic_TRIBE_Screen_Sed;
+  TRIBE_Main_View *main_view;
+  TRIBE_Diamond_Map_View *map_view;
+  TMessagePanel *help_message_panel;
+  TPanel *bottom_panel_TRIBE_Screen_Sed;
+  TButtonPanel *scenario_mode_button[10];
+  TButtonPanel *menu_button;
+  TButtonPanel *help_button;
+  TButtonPanel *map_type_button[3];
+  TTextPanel *map_type_text[3];
+  TTextPanel *map_type_label;
+  TTextPanel *default_terrain_label;
+  TDropDownPanel *default_terrain_drop;
+  TTextPanel *map_size_label;
+  TDropDownPanel *map_size_drop;
+  TTextPanel *map_style_label;
+  TDropDownPanel *map_style_drop;
+  TTextPanel *random_seed_label;
+  TEditPanel *random_seed_input;
+  TTextPanel *random_seed_used_label;
+  TTextPanel *random_seed_used_text;
+  TButtonPanel *generate_map_button;
+  TTextPanel *map_generating_text;
+  TTextPanel *brush_size_label;
+  TButtonPanel *brush_size_button[5];
+  TTextPanel *brush_size_button_label[5];
+  TTextPanel *paint_type_label;
+  TButtonPanel *paint_type_button[5];
+  TTextPanel *paint_type_button_label[5];
+  TTextPanel *paint_target_label;
+  TListPanel *paint_target_list;
+  TScrollBarPanel *paint_target_scrollbar;
+  TButtonPanel *copy_map_area_button;
+  TButtonPanel *rotate_left_button;
+  TButtonPanel *rotate_right_button;
+  TButtonPanel *flip_lr_button;
+  TButtonPanel *flip_ud_button;
+  TTextPanel *copy_map_area_state_label;
+  TButtonPanel *paint_change_player_id;
+  TDropDownPanel *paint_change_player_drop;
+  TTextPanel *paint_change_player_drop_label;
+  TTextPanel *ai_map_type_label;
+  TDropDownPanel *ai_map_type_drop;
+  TTextPanel *player_label;
+  TDropDownPanel *player_list;
+  TDropDownPanel *player_number_list;
+  TDropDownPanel *player_advance_civilization_drop;
+  TButtonPanel *player_advance_civilization_button;
+  TTextPanel *player_inven_label[7];
+  TEditPanel *player_inven_input[7];
+  TTextPanel *player_civ_name_label;
+  TEditPanel *player_civ_name_input;
+  TTextPanel *player_setting_label[2];
+  TTextPanel *player_starting_age_label;
+  TDropDownPanel *player_setting_drop[2];
+  TDropDownPanel *AiRules;
+  TTextPanel *AiRules_text;
+  TTextPanel *player_string_table_label;
+  TEditPanel *player_string_table;
+  TDropDownPanel *player_color;
+  TTextPanel *player_color_text;
+  TDropDownPanel *unit_player_list;
+  TDropDownPanel *gbg_unknown_dropdown;
+  TButtonPanel *unit_mode_select[5];
+  TTextPanel *unit_mode_select_label[5];
+  TListPanel *unit_list;
+  TScrollBarPanel *unit_scrollbar;
+  TRIBE_Screen_Sed__List_Info *unit_list_info;
+  TTextPanel *unit_garrison_label;
+  TListPanel *unit_garrison_list;
+  TButtonPanel *unit_garrison_delete;
+  TTextPanel *unit_garrison_delete_label;
+  TScrollBarPanel *unit_garrison_scrollbar;
+  TButtonPanel *unit_commands[9];
+  TButtonPanel *unit_list_mode[4];
+  RGE_Static_Object *selected_game_obj;
+  TShape *button_unit_pics[9];
+  TShape *button_bldg_pics[9];
+  TRIBE_Scenario_Editor_Panel_Object *object_panel;
+  __int16 unit_list_size;
+  TButtonPanel *victory_cond_on[3];
+  TButtonPanel *victory_and_or[2];
+  TTextPanel *victory_condition_label;
+  TTextPanel *victory_amount_label;
+  TTextPanel *victory_long_label;
+  TTextPanel *victory_text_and_or[2];
+  TTextPanel *victory_label_conquest;
+  TTextPanel *victory_label_explore;
+  TTextPanel *victory_label_explore_percent;
+  TTextPanel *victory_label_artifacts;
+  TEditPanel *victory_condition_explore;
+  TEditPanel *victory_condition_artifacts;
+  TTextPanel *victory_cond_type_label[5];
+  TButtonPanel *victory_cond_type[5];
+  TTextPanel *victory_score_label;
+  TDropDownPanel *victory_score;
+  TTextPanel *victory_time_label;
+  TDropDownPanel *victory_time;
+  TEditPanel *message_input;
+  TButtonPanel *message_button[6];
+  TTextPanel *message_button_label[6];
+  TTextPanel *message_string_table_label;
+  TEditPanel *message_string_table;
+  int current_message;
+  TTextPanel *cinematic_label[4];
+  TDropDownPanel *cinematic_input[4];
+  TTextPanel *options_full_tech_label;
+  TButtonPanel *options_full_tech_button;
+  TDropDownPanel *options_player_list;
+  TTextPanel *test_difficulty_label;
+  TDropDownPanel *test_difficulty_drop;
+  TButtonPanel *options_disable_type_buttons[3];
+  TTextPanel *options_disable_type_labels[3];
+  TTextPanel *options_disable_tech_text;
+  TTextPanel *options_disable_stuff_label;
+  TTextPanel *options_entire_stuff_label;
+  TListPanel *options_disable_stuff_list;
+  TScrollBarPanel *options_disable_stuff_scrollbar;
+  TListPanel *options_entire_stuff_list;
+  TScrollBarPanel *options_entire_stuff_scrollbar;
+  TButtonPanel *options_move_all_left_button;
+  TButtonPanel *options_move_all_right_button;
+  TButtonPanel *options_move_left_button;
+  TButtonPanel *options_move_right_button;
+  TButtonPanel *options_set_view_button;
+  TButtonPanel *options_goto_view_button;
+  TTextPanel *Diplomacy_opponent_label[8];
+  TTextPanel *Diplomacy_player_text[8];
+  TDropDownPanel *Diplomacy_player_list;
+  TTextPanel *Diplomacy_status_label[4];
+  TButtonPanel *Diplomacy_friend_box[8][3];
+  TButtonPanel *Diplomacy_AlliedVictory[8];
+  TListPanel *trigger_scenario_trigger_list;
+  TScrollBarPanel *trigger_scenario_trigger_scrollbar;
+  TTextPanel *trigger_scenario_trigger_label;
+  TButtonPanel *trigger_scenario_trigger_info;
+  TButtonPanel *trigger_scenario_trigger_add;
+  TButtonPanel *trigger_scenario_trigger_delete;
+  TButtonPanel *trigger_trigger_list_order_up;
+  TButtonPanel *trigger_trigger_list_order_down;
+  TListPanel *trigger_condition_effect_info_list;
+  TScrollBarPanel *trigger_condition_effect_info_scrollbar;
+  TTextPanel *trigger_condition_effect_info_label;
+  TButtonPanel *trigger_condition_effect_list_order_up;
+  TButtonPanel *trigger_condition_effect_list_order_down;
+  TButtonPanel *trigger_trigger_condition_add;
+  TButtonPanel *trigger_trigger_effect_add;
+  TButtonPanel *trigger_condition_effect_delete;
+  TTextPanel *trigger_source_player_label;
+  TDropDownPanel *trigger_source_player_list;
+  TTextPanel *trigger_description_label;
+  TEditPanel *trigger_description;
+  TTextPanel *trigger_description_string_table_label;
+  TEditPanel *trigger_description_string_table;
+  TTextPanel *trigger_name_label;
+  TEditPanel *trigger_name;
+  TTextPanel *trigger_start_state_label;
+  TButtonPanel *trigger_start_state[2];
+  TTextPanel *trigger_loopable_label;
+  TButtonPanel *trigger_loopable_state[2];
+  TEditPanel *trigger_description_order;
+  TTextPanel *trigger_description_order_label;
+  TTextPanel *trigger_objective_state_label;
+  TButtonPanel *trigger_objective_state[2];
+  TTextPanel *trigger_condition_type_label;
+  TDropDownPanel *trigger_condition_type;
+  TTextPanel *trigger_effect_type_label;
+  TDropDownPanel *trigger_effect_type;
+  TTextPanel *trigger_timer_label;
+  TEditPanel *trigger_timer;
+  TButtonPanel *trigger_destination_set_button;
+  TButtonPanel *trigger_destination_goto_button;
+  TButtonPanel *trigger_location_set_button;
+  TButtonPanel *trigger_location_goto_button;
+  TButtonPanel *trigger_object_1_set_button;
+  TButtonPanel *trigger_object_1_goto_button;
+  TButtonPanel *trigger_object_groups_1_set_button;
+  TButtonPanel *trigger_object_groups_1_goto_button;
+  TButtonPanel *trigger_object_2_set_button;
+  TButtonPanel *trigger_object_2_goto_button;
+  TTextPanel *trigger_object_list_type_label;
+  TDropDownPanel *trigger_object_list_type;
+  TTextPanel *trigger_object_list_label;
+  TDropDownPanel *trigger_object_list;
+  TTextPanel *trigger_quantity_label;
+  TEditPanel *trigger_quantity;
+  TTextPanel *trigger_line_label;
+  TEditPanel *trigger_line;
+  TTextPanel *trigger_tech_label;
+  TDropDownPanel *trigger_tech;
+  TTextPanel *trigger_target_player_label;
+  TDropDownPanel *trigger_target_player;
+  TTextPanel *trigger_attribute_list_label;
+  TDropDownPanel *trigger_attribute_list;
+  TTextPanel *trigger_tribute_list_label;
+  TDropDownPanel *trigger_tribute_list;
+  TTextPanel *trigger_trigger_id_label;
+  TDropDownPanel *trigger_trigger_id;
+  TTextPanel *trigger_sound_label;
+  TDropDownPanel *trigger_sound;
+  TDropDownPanel *trigger_sound_temp;
+  TTextPanel *trigger_sound_resource_label;
+  TEditPanel *trigger_sound_resource;
+  TTextPanel *trigger_message_label;
+  TEditPanel *trigger_message;
+  TTextPanel *trigger_message_string_table_label;
+  TEditPanel *trigger_message_string_table;
+  TTextPanel *trigger_diplomacy_label;
+  TDropDownPanel *trigger_diplomacy;
+  TTextPanel *trigger_ai_script_goal_label;
+  TDropDownPanel *trigger_ai_script_goal;
+  TTextPanel *trigger_ai_signal_label;
+  TDropDownPanel *trigger_ai_signal;
+  TTextPanel *trigger_object_group_label;
+  TDropDownPanel *trigger_object_group;
+  TTextPanel *trigger_object_type_label;
+  TDropDownPanel *trigger_object_type;
+  TTextPanel *trigger_difficulty_change_label;
+  TDropDownPanel *trigger_difficulty_change;
+  TRIBE_World *world;
+  unsigned int update_interval;
+  unsigned int last_update_time;
+  unsigned int map_redraw_interval;
+  unsigned int last_map_redraw_time;
+  int changed_system_colors;
+  unsigned int save_text_color;
+  unsigned int save_window_color;
+};
+#pragma pack(pop)
+
+/* 1049 */
+#pragma pack(push, 8)
+struct TRIBE_Screen_SedVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TRIBE_Screen_Sed *, unsigned int);
+  int (__thiscall *setup)(TRIBE_Screen_Sed *, TDrawArea *, TPanel *, int, int, int, int, unsigned __int8);
+  void (__thiscall *set_rect_2)(TRIBE_Screen_Sed *, RECT);
+  void (__thiscall *set_rect_1)(TRIBE_Screen_Sed *, int, int, int, int);
+  void (__thiscall *set_color)(TRIBE_Screen_Sed *, unsigned __int8);
+  void (__thiscall *set_active)(TRIBE_Screen_Sed *, int);
+  void (__thiscall *unknown1)(TRIBE_Screen_Sed *);
+  void (__thiscall *unknown2)(TRIBE_Screen_Sed *, int, int, int, int, int, int);
+  void (__thiscall *set_positioning)(TRIBE_Screen_Sed *, TPanel__PositionMode, int, int, int, int, int, int, int, int, TPanel *, TPanel *, TPanel *, TPanel *);
+  void (__thiscall *unknown3)(TRIBE_Screen_Sed *, int);
+  void (__thiscall *set_fixed_position)(TRIBE_Screen_Sed *, int, int, int, int);
+  void (__thiscall *set_redraw)(TRIBE_Screen_Sed *, TPanel__RedrawMode);
+  void (__thiscall *set_overlapped_redraw)(TRIBE_Screen_Sed *, TPanel *, TPanel *, TPanel__RedrawMode);
+  void (__thiscall *draw_setup)(TRIBE_Screen_Sed *, int);
+  void (__thiscall *draw_finish)(TRIBE_Screen_Sed *);
+  void (__thiscall *draw)(TRIBE_Screen_Sed *);
+  void (__thiscall *draw_rect)(TRIBE_Screen_Sed *, RECT *);
+  void (__thiscall *draw_offset)(TRIBE_Screen_Sed *, int, int, RECT *);
+  void (__thiscall *draw_rect2)(TRIBE_Screen_Sed *, RECT *);
+  void (__thiscall *draw_offset2)(TRIBE_Screen_Sed *, int, int, RECT *);
+  void (__thiscall *paint)(TRIBE_Screen_Sed *);
+  int (__thiscall *wnd_proc)(TRIBE_Screen_Sed *, HWND, unsigned int, unsigned int, int);
+  int (__thiscall *handle_idle)(TRIBE_Screen_Sed *);
+  int (__thiscall *handle_size)(TRIBE_Screen_Sed *, int, int);
+  int (__thiscall *handle_paint)(TRIBE_Screen_Sed *);
+  int (__thiscall *handle_key_down)(TRIBE_Screen_Sed *, int, __int16, int, int, int);
+  int (__thiscall *handle_char)(TRIBE_Screen_Sed *, int, __int16);
+  int (__thiscall *handle_command)(TRIBE_Screen_Sed *, unsigned int, int);
+  int (__thiscall *handle_user_command)(TRIBE_Screen_Sed *, unsigned int, int);
+  int (__thiscall *handle_timer_command)(TRIBE_Screen_Sed *, unsigned int, int);
+  int (__thiscall *handle_scroll)(TRIBE_Screen_Sed *, int, int);
+  int (__thiscall *handle_mouse_down)(TRIBE_Screen_Sed *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_move)(TRIBE_Screen_Sed *, int, int, int, int);
+  int (__thiscall *handle_mouse_up)(TRIBE_Screen_Sed *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_dbl_click)(TRIBE_Screen_Sed *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_wheel)(TRIBE_Screen_Sed *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_wheel_action)(TRIBE_Screen_Sed *, unsigned int, unsigned int, int);
+  int (__thiscall *handle_mouse_xbuttons)(TRIBE_Screen_Sed *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_xbuttons_action)(TRIBE_Screen_Sed *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_move_action)(TRIBE_Screen_Sed *, int, int, int, int);
+  int (__thiscall *mouse_left_down_action)(TRIBE_Screen_Sed *, int, int, int, int);
+  int (__thiscall *mouse_left_hold_action)(TRIBE_Screen_Sed *, int, int, int, int);
+  int (__thiscall *mouse_left_move_action)(TRIBE_Screen_Sed *, int, int, int, int);
+  int (__thiscall *mouse_left_up_action)(TRIBE_Screen_Sed *, int, int, int, int);
+  int (__thiscall *mouse_left_dbl_click_action)(TRIBE_Screen_Sed *, int, int, int, int);
+  int (__thiscall *mouse_right_down_action)(TRIBE_Screen_Sed *, int, int, int, int);
+  int (__thiscall *mouse_right_hold_action)(TRIBE_Screen_Sed *, int, int, int, int);
+  int (__thiscall *mouse_right_move_action)(TRIBE_Screen_Sed *, int, int, int, int);
+  int (__thiscall *mouse_right_up_action)(TRIBE_Screen_Sed *, int, int, int, int);
+  int (__thiscall *mouse_right_dbl_click_action)(TRIBE_Screen_Sed *, int, int, int, int);
+  int (__thiscall *key_down_action)(TRIBE_Screen_Sed *, int, __int16, int, int, int);
+  int (__thiscall *char_action)(TRIBE_Screen_Sed *, int, __int16);
+  int (__thiscall *action)(TRIBE_Screen_Sed *, TPanel *, int, unsigned int, unsigned int);
+  void (__thiscall *get_true_render_rect)(TRIBE_Screen_Sed *, RECT *);
+  int (__thiscall *is_inside)(TRIBE_Screen_Sed *, int, int);
+  void (__thiscall *set_focus)(TRIBE_Screen_Sed *, int);
+  void (__thiscall *set_tab_order_2)(TRIBE_Screen_Sed *, TPanel *, TPanel *);
+  void (__thiscall *set_tab_order_1)(TRIBE_Screen_Sed *, TPanel **, __int16);
+  TDrawArea *(__thiscall *renderArea)(TRIBE_Screen_Sed *);
+  unsigned __int8 (__thiscall *get_help_info)(TRIBE_Screen_Sed *, char **, int *, int, int);
+  void (__thiscall *stop_sound_system)(TRIBE_Screen_Sed *);
+  int (__thiscall *restart_sound_system)(TRIBE_Screen_Sed *);
+  void (__thiscall *take_snapshot)(TRIBE_Screen_Sed *);
+  void (__thiscall *handle_reactivate)(TRIBE_Screen_Sed *);
+  int (__thiscall *pointing_at)(TRIBE_Screen_Sed *, int, int, int *, int *, int *, int *, char *, int);
+  int (__thiscall *get_ideal_height)(TRIBE_Screen_Sed *);
+  int (__thiscall *get_ideal_width)(TRIBE_Screen_Sed *);
+  void (__thiscall *draw_background)(TRIBE_Screen_Sed *, int);
+  void (__thiscall *set_ideal_size)(TRIBE_Screen_Sed *, int, int);
+  int (__thiscall *create_button_2)(TRIBE_Screen_Sed *, TPanel *, TButtonPanel **, int, int, int, int, int, int, int, int, int);
+  int (__thiscall *create_button_1)(TRIBE_Screen_Sed *, TPanel *, TButtonPanel **, char *, char *, int, int, int, int, int, int, int);
+  int (__thiscall *create_check_box)(TRIBE_Screen_Sed *, TPanel *, TButtonPanel **, int, int, int, int, int, int);
+  int (__thiscall *create_radio_button)(TRIBE_Screen_Sed *, TButtonPanel **, int, int, int, int, int, int);
+  int (__thiscall *create_text_6)(TRIBE_Screen_Sed *, TPanel *, TTextPanel **, int, int, int, int, int, int *, int, int, int, int, int);
+  int (__thiscall *create_text_5)(TRIBE_Screen_Sed *, TPanel *, TTextPanel **, char **, int, int, int, int, int, int *, int, int, int, int);
+  int (__thiscall *create_text_4)(TRIBE_Screen_Sed *, TPanel *, TTextPanel **, char *, int, int, int, int, int *, int, int, int, int, int);
+  int (__thiscall *create_text_3)(TRIBE_Screen_Sed *, TPanel *, TTextPanel **, int, int, int, int, int, int, int, int, int);
+  int (__thiscall *create_text_2)(TRIBE_Screen_Sed *, TPanel *, TTextPanel **, char **, int, int, int, int, int, int, int, int);
+  int (__thiscall *create_text_1)(TRIBE_Screen_Sed *, TPanel *, TTextPanel **, char *, int, int, int, int, int, int, int, int);
+  int (__thiscall *create_input)(TRIBE_Screen_Sed *, TPanel *, TInputPanel **, char *, __int16, TInputPanel__FormatType, int, int, int, int, int);
+  int (__thiscall *create_edit)(TRIBE_Screen_Sed *, TPanel *, TEditPanel **, char *, __int16, TEditPanel__FormatType, int, int, int, int, int, int, int, int);
+  int (__thiscall *create_drop_down)(TRIBE_Screen_Sed *, TPanel *, TDropDownPanel **, int, int, int, int, int, int, int);
+  int (__thiscall *create_list)(TRIBE_Screen_Sed *, TPanel *, TListPanel **, int, int, int, int, int);
+  int (__thiscall *create_scrollbar)(TRIBE_Screen_Sed *, TPanel *, TScrollBarPanel **, TTextPanel *, int, int, int, int, int);
+  int (__thiscall *create_auto_scrollbar)(TRIBE_Screen_Sed *, TScrollBarPanel **, TTextPanel *, int);
+  int (__thiscall *create_vert_slider)(TRIBE_Screen_Sed *, TPanel *, TVerticalSliderPanel **, int, int, int, int, int, int, int);
+  int (__thiscall *create_horz_slider)(TRIBE_Screen_Sed *, TPanel *, THorizontalSliderPanel **, int, int, int, int, int, int, int);
+  int (__thiscall *create_picture_2)(TRIBE_Screen_Sed *, TPanel *, TPicturePanel **, TShape *, int, int, int, int, int, int, unsigned int, unsigned __int8, unsigned __int8);
+  int (__thiscall *create_picture_1)(TRIBE_Screen_Sed *, TPanel *, TPicturePanel **, char *, int, int, int, int, int, int, int, unsigned int, unsigned __int8, unsigned __int8);
+  int (__thiscall *create_timeline)(TRIBE_Screen_Sed *, TPanel *, Time_Line_Panel **, int, int, int, int, int, int, int, int, int, int);
+  void (__thiscall *position_panel)(TRIBE_Screen_Sed *, TPanel *, int, int, int, int);
+};
+#pragma pack(pop)
+
+/* 1101 */
+#pragma pack(push, 8)
+struct TRIBE_Screen_Sed__List_Info
+{
+  char text[100];
+  __int16 id;
+};
+#pragma pack(pop)
+
+/* 344 */
+#pragma pack(push, 8)
+struct TRIBE_Scenario_Editor_Panel_Object
+{
+  TRIBE_Scenario_Editor_Panel_ObjectVtbl *vfptr;
+  TPanel *previousPanelValue;
+  TPanel *previousModalPanelValue;
+  int pnl_x;
+  int pnl_y;
+  int pnl_wid;
+  int pnl_hgt;
+  char *panelNameValue;
+  TDrawArea *render_area;
+  RECT clip_rect;
+  TPanel__PositionMode position_mode;
+  TPanel__RedrawMode need_redraw;
+  TPanel *curr_child;
+  TPanel *parent_panel;
+  TPanel *left_panel;
+  TPanel *top_panel;
+  TPanel *right_panel;
+  TPanel *bottom_panel;
+  PanelNode *node;
+  PanelNode *first_child_node;
+  PanelNode *last_child_node;
+  TPanel *tab_prev_panel;
+  TPanel *tab_next_panel;
+  int mouse_captured;
+  int active;
+  int visible;
+  int tab_stop;
+  int have_focus;
+  int overlapping_children;
+  int handle_mouse_input;
+  int just_drawn;
+  int enabled;
+  HRGN clip_rgn;
+  RECT render_rect;
+  int left_border;
+  int top_border;
+  int right_border;
+  int bottom_border;
+  int min_wid;
+  int max_wid;
+  int min_hgt;
+  int max_hgt;
+  int mouse_hold_interval;
+  int mouse_move_tolerance;
+  int mouse_down_x;
+  int mouse_down_y;
+  int mouse_down_ctrl;
+  int mouse_down_shift;
+  unsigned int mouse_down_time;
+  int error_code;
+  int z_order;
+  int display_changed_count;
+  int help_string_id;
+  int help_page_id;
+  unsigned __int8 mouse_action;
+  unsigned __int8 mouse_down_button;
+  unsigned __int8 panel_type;
+  unsigned __int8 color;
+  unsigned __int8 fill_in_background;
+  unsigned __int8 clip_to_parent;
+  unsigned __int8 draw_rect2_flag;
+  unsigned __int8 need_restore;
+  int gbg_unknown_param;
+  HFONT font;
+  int font_wid;
+  int font_hgt;
+  TShape *health_pic;
+  TShape *item_pic;
+  TShape *unit_pics;
+  TShape **bldg_pics;
+  TShape *btn_brd_pic;
+  TShape *percent_pic;
+  TShape *unithalo_pic;
+  TRIBE_Panel_Object__Button btn[41];
+  int cur_btn;
+  int is_down;
+  int num_icons_shown;
+  int icon_msg_id[5];
+  int portrait_drawn;
+  TRIBE_Player *player;
+  RGE_Static_Object *game_obj;
+  int game_obj_id;
+  unsigned int idle_time;
+  unsigned int idle_interval;
+  unsigned __int8 mode;
+  RGE_Master_Static_Object *save_obj_type;
+  RGE_Sprite *save_sprite;
+  __int16 save_attr_type;
+  float save_attr_amount;
+  unsigned __int8 save_object_state;
+  float save_build_pts;
+  __int16 save_number_of_objects;
+  unsigned __int8 save_can_debark;
+  float save_world_x;
+  float save_world_y;
+  int gbg_unknown_1;
+  int gbg_unknown_2;
+  int gbg_unknown_3;
+  float save_hp;
+  __int16 save_armor;
+  __int16 save_pierce_armor;
+  __int16 save_weapon;
+  float save_weapon_range;
+  float save_speed_of_attack;
+  __int16 save_work_type;
+  __int16 save_work_target;
+  __int16 save_progress;
+  char save_name[100];
+  unsigned __int8 save_facet;
+  float save_angle;
+  float save_los;
+  int save_pop;
+  int save_max_pop;
+  __int16 save_selected_groups;
+  RGE_Player *save_owner;
+  int save_age;
+  unsigned __int8 save_have_action;
+  int save_score[9];
+  int save_farm_amt;
+  unsigned __int8 save_unit_ai_state;
+  unsigned __int8 save_captured_unit_count;
+  unsigned __int8 save_production_queue;
+  __int16 save_need_attr;
+  int save_group_id;
+  float save_player_gold;
+  __int16 save_object_group;
+  int save_locked;
+  RGE_Master_Static_Object *master_game_obj;
+  int master_culture_id;
+};
+#pragma pack(pop)
+
+/* 1051 */
+#pragma pack(push, 8)
+struct TRIBE_Scenario_Editor_Panel_ObjectVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int);
+  int (__thiscall *setup)(TRIBE_Scenario_Editor_Panel_Object *, TDrawArea *, TPanel *, int, int, int, int, unsigned __int8);
+  void (__thiscall *set_rect_2)(TRIBE_Scenario_Editor_Panel_Object *, RECT);
+  void (__thiscall *set_rect_1)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  void (__thiscall *set_color)(TRIBE_Scenario_Editor_Panel_Object *, unsigned __int8);
+  void (__thiscall *set_active)(TRIBE_Scenario_Editor_Panel_Object *, int);
+  void (__thiscall *unknown1)(TRIBE_Scenario_Editor_Panel_Object *);
+  void (__thiscall *unknown2)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int, int, int);
+  void (__thiscall *set_positioning)(TRIBE_Scenario_Editor_Panel_Object *, TPanel__PositionMode, int, int, int, int, int, int, int, int, TPanel *, TPanel *, TPanel *, TPanel *);
+  void (__thiscall *unknown3)(TRIBE_Scenario_Editor_Panel_Object *, int);
+  void (__thiscall *set_fixed_position)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  void (__thiscall *set_redraw)(TRIBE_Scenario_Editor_Panel_Object *, TPanel__RedrawMode);
+  void (__thiscall *set_overlapped_redraw)(TRIBE_Scenario_Editor_Panel_Object *, TPanel *, TPanel *, TPanel__RedrawMode);
+  void (__thiscall *draw_setup)(TRIBE_Scenario_Editor_Panel_Object *, int);
+  void (__thiscall *draw_finish)(TRIBE_Scenario_Editor_Panel_Object *);
+  void (__thiscall *draw)(TRIBE_Scenario_Editor_Panel_Object *);
+  void (__thiscall *draw_rect)(TRIBE_Scenario_Editor_Panel_Object *, RECT *);
+  void (__thiscall *draw_offset)(TRIBE_Scenario_Editor_Panel_Object *, int, int, RECT *);
+  void (__thiscall *draw_rect2)(TRIBE_Scenario_Editor_Panel_Object *, RECT *);
+  void (__thiscall *draw_offset2)(TRIBE_Scenario_Editor_Panel_Object *, int, int, RECT *);
+  void (__thiscall *paint)(TRIBE_Scenario_Editor_Panel_Object *);
+  int (__thiscall *wnd_proc)(TRIBE_Scenario_Editor_Panel_Object *, HWND, unsigned int, unsigned int, int);
+  int (__thiscall *handle_idle)(TRIBE_Scenario_Editor_Panel_Object *);
+  int (__thiscall *handle_size)(TRIBE_Scenario_Editor_Panel_Object *, int, int);
+  int (__thiscall *handle_paint)(TRIBE_Scenario_Editor_Panel_Object *);
+  int (__thiscall *handle_key_down)(TRIBE_Scenario_Editor_Panel_Object *, int, __int16, int, int, int);
+  int (__thiscall *handle_char)(TRIBE_Scenario_Editor_Panel_Object *, int, __int16);
+  int (__thiscall *handle_command)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, int);
+  int (__thiscall *handle_user_command)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, int);
+  int (__thiscall *handle_timer_command)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, int);
+  int (__thiscall *handle_scroll)(TRIBE_Scenario_Editor_Panel_Object *, int, int);
+  int (__thiscall *handle_mouse_down)(TRIBE_Scenario_Editor_Panel_Object *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_move)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  int (__thiscall *handle_mouse_up)(TRIBE_Scenario_Editor_Panel_Object *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_dbl_click)(TRIBE_Scenario_Editor_Panel_Object *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_wheel)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_wheel_action)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, unsigned int, int);
+  int (__thiscall *handle_mouse_xbuttons)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_xbuttons_action)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_move_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  int (__thiscall *mouse_left_down_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  int (__thiscall *mouse_left_hold_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  int (__thiscall *mouse_left_move_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  int (__thiscall *mouse_left_up_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  int (__thiscall *mouse_left_dbl_click_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  int (__thiscall *mouse_right_down_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  int (__thiscall *mouse_right_hold_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  int (__thiscall *mouse_right_move_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  int (__thiscall *mouse_right_up_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  int (__thiscall *mouse_right_dbl_click_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
+  int (__thiscall *key_down_action)(TRIBE_Scenario_Editor_Panel_Object *, int, __int16, int, int, int);
+  int (__thiscall *char_action)(TRIBE_Scenario_Editor_Panel_Object *, int, __int16);
+  int (__thiscall *action)(TRIBE_Scenario_Editor_Panel_Object *, TPanel *, int, unsigned int, unsigned int);
+  void (__thiscall *get_true_render_rect)(TRIBE_Scenario_Editor_Panel_Object *, RECT *);
+  int (__thiscall *is_inside)(TRIBE_Scenario_Editor_Panel_Object *, int, int);
+  void (__thiscall *set_focus)(TRIBE_Scenario_Editor_Panel_Object *, int);
+  void (__thiscall *set_tab_order_2)(TRIBE_Scenario_Editor_Panel_Object *, TPanel *, TPanel *);
+  void (__thiscall *set_tab_order_1)(TRIBE_Scenario_Editor_Panel_Object *, TPanel **, __int16);
+  TDrawArea *(__thiscall *renderArea)(TRIBE_Scenario_Editor_Panel_Object *);
+  unsigned __int8 (__thiscall *get_help_info)(TRIBE_Scenario_Editor_Panel_Object *, char **, int *, int, int);
+  void (__thiscall *stop_sound_system)(TRIBE_Scenario_Editor_Panel_Object *);
+  int (__thiscall *restart_sound_system)(TRIBE_Scenario_Editor_Panel_Object *);
+  void (__thiscall *take_snapshot)(TRIBE_Scenario_Editor_Panel_Object *);
+  void (__thiscall *handle_reactivate)(TRIBE_Scenario_Editor_Panel_Object *);
+  int (__thiscall *pointing_at)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int *, int *, int *, int *, char *, int);
+  int (__thiscall *pointing_at_2)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int *, int *, int *, int *, int *, char *, int);
+  void (__thiscall *draw_item)(TRIBE_Scenario_Editor_Panel_Object *, int, int, TRIBE_Panel_Object__ValueType, int, int, int, int, int);
+  void (__thiscall *draw_item_3)(TRIBE_Scenario_Editor_Panel_Object *, int, int, TRIBE_Panel_Object__ValueType, int, int);
 };
 #pragma pack(pop)
 
@@ -26616,13 +27472,6 @@ struct TRIBE_Dialog_Sed_MenuVtbl
   void (__thiscall *position_panel)(TRIBE_Dialog_Sed_Menu *, TPanel *, int, int, int, int);
   int (__thiscall *setup_3)(TRIBE_Dialog_Sed_Menu *, TDrawArea *, TPanel *, int, int, unsigned __int8, int);
   int (__thiscall *setup_2)(TRIBE_Dialog_Sed_Menu *, TDrawArea *, TPanel *, int, int, char *, int, int);
-};
-#pragma pack(pop)
-
-/* 344 */
-#pragma pack(push, 1)
-struct TRIBE_Scenario_Editor_Panel_Object
-{
 };
 #pragma pack(pop)
 
@@ -30429,9 +31278,262 @@ struct FullMapPrintDialogVtbl
 #pragma pack(pop)
 
 /* 380 */
-#pragma pack(push, 1)
+#pragma pack(push, 8)
 struct TribeDiplomacyDialog
 {
+  TribeDiplomacyDialogVtbl *vfptr;
+  TPanel *previousPanelValue;
+  TPanel *previousModalPanelValue;
+  int pnl_x;
+  int pnl_y;
+  int pnl_wid;
+  int pnl_hgt;
+  char *panelNameValue;
+  TDrawArea *render_area;
+  RECT clip_rect;
+  TPanel__PositionMode position_mode;
+  TPanel__RedrawMode need_redraw;
+  TPanel *curr_child;
+  TPanel *parent_panel;
+  TPanel *left_panel;
+  TPanel *top_panel;
+  TPanel *right_panel;
+  TPanel *bottom_panel;
+  PanelNode *node;
+  PanelNode *first_child_node;
+  PanelNode *last_child_node;
+  TPanel *tab_prev_panel;
+  TPanel *tab_next_panel;
+  int mouse_captured;
+  int active;
+  int visible;
+  int tab_stop;
+  int have_focus;
+  int overlapping_children;
+  int handle_mouse_input;
+  int just_drawn;
+  int enabled;
+  HRGN clip_rgn;
+  RECT render_rect;
+  int left_border;
+  int top_border;
+  int right_border;
+  int bottom_border;
+  int min_wid;
+  int max_wid;
+  int min_hgt;
+  int max_hgt;
+  int mouse_hold_interval;
+  int mouse_move_tolerance;
+  int mouse_down_x;
+  int mouse_down_y;
+  int mouse_down_ctrl;
+  int mouse_down_shift;
+  unsigned int mouse_down_time;
+  int error_code;
+  int z_order;
+  int display_changed_count;
+  int help_string_id;
+  int help_page_id;
+  unsigned __int8 mouse_action;
+  unsigned __int8 mouse_down_button;
+  unsigned __int8 panel_type;
+  unsigned __int8 color;
+  unsigned __int8 fill_in_background;
+  unsigned __int8 clip_to_parent;
+  unsigned __int8 draw_rect2_flag;
+  unsigned __int8 need_restore;
+  int ideal_width;
+  int ideal_height;
+  char info_file_name[260];
+  int info_id;
+  TShape *background_pic;
+  TShape *background_pic2;
+  HPALETTE palette;
+  char cursor_file[260];
+  int cursor_id;
+  int background_pos;
+  int use_bevels;
+  int use_outline_bevels;
+  unsigned __int8 bevel_color1;
+  unsigned __int8 bevel_color2;
+  unsigned __int8 bevel_color3;
+  unsigned __int8 bevel_color4;
+  unsigned __int8 bevel_color5;
+  unsigned __int8 bevel_color6;
+  unsigned int text_color1;
+  unsigned int text_color2;
+  unsigned int focus_color1;
+  unsigned int focus_color2;
+  unsigned int state_color1;
+  unsigned int state_color2;
+  unsigned int label_color1;
+  unsigned int label_color2;
+  int label_style;
+  char popup_info_file_name[260];
+  int popup_info_id;
+  TShape *button_pics;
+  RGE_Color_Table *shadow_color_table;
+  int shadow_amount;
+  unsigned __int8 background_color1;
+  unsigned __int8 background_color2;
+  int enable_ime;
+  unsigned __int8 help_mode;
+  int stock_brush;
+  HBRUSH brush;
+  unsigned int brush_color;
+  TDrawArea *shadow_area;
+  int allow_shadow_area;
+  int saved_mouse_mode;
+  int rollover_panel_always_active;
+  TTextPanel *rollover_text_panel;
+  int rollover_num;
+  TPanel *rollover_panel[70];
+  int rollover_string[70];
+  int rollover_sound[70];
+  TPanel *last_rollover_panel;
+  int popup_dialogs_use_parent_text_colors;
+  HWND dlg_wnd;
+  TPanel *save_parent_child;
+  TPanel *save_parent;
+  int text_font_id;
+  int input_font_id;
+  int button_font_id;
+  int button_sound_id;
+  TTextPanel *title[11];
+  TTextPanel *playerName[8];
+  TTextPanel *playerVictoryScores[8];
+  TTextPanel *playerCivilization[8];
+  TTextPanel *playerStance[8];
+  TTextPanel *needMarket;
+  TButtonPanel *goldTributeButton[8];
+  TButtonPanel *woodTributeButton[8];
+  TButtonPanel *foodTributeButton[8];
+  TButtonPanel *stoneTributeButton[8];
+  TButtonPanel *allyButton[24];
+  TButtonPanel *allianceButton;
+  TButtonPanel *okButton;
+  TButtonPanel *clearButton;
+  TButtonPanel *cancelButton;
+  TButtonPanel *help_button;
+  TShape *buttonPics;
+  TShape *backgroundPics;
+  TShape *colorPics;
+  float foodTotal;
+  float woodTotal;
+  float goldTotal;
+  float stoneTotal;
+  TTextPanel *playerFood;
+  TTextPanel *playerGold;
+  TTextPanel *playerWood;
+  TTextPanel *playerStone;
+  float goldTributeAmount[8];
+  float foodTributeAmount[8];
+  float stoneTributeAmount[8];
+  float woodTributeAmount[8];
+  float unknownAmount[8];
+  int cur_player_row;
+  int tribute_flag;
+};
+#pragma pack(pop)
+
+/* 1110 */
+#pragma pack(push, 8)
+struct TribeDiplomacyDialogVtbl
+{
+  void *(__thiscall *__vecDelDtor)(TribeDiplomacyDialog *, unsigned int);
+  int (__thiscall *setup)(TribeDiplomacyDialog *, TDrawArea *, TPanel *, int, int, int, int, unsigned __int8);
+  void (__thiscall *set_rect_2)(TribeDiplomacyDialog *, RECT);
+  void (__thiscall *set_rect_1)(TribeDiplomacyDialog *, int, int, int, int);
+  void (__thiscall *set_color)(TribeDiplomacyDialog *, unsigned __int8);
+  void (__thiscall *set_active)(TribeDiplomacyDialog *, int);
+  void (__thiscall *unknown1)(TribeDiplomacyDialog *);
+  void (__thiscall *unknown2)(TribeDiplomacyDialog *, int, int, int, int, int, int);
+  void (__thiscall *set_positioning)(TribeDiplomacyDialog *, TPanel__PositionMode, int, int, int, int, int, int, int, int, TPanel *, TPanel *, TPanel *, TPanel *);
+  void (__thiscall *unknown3)(TribeDiplomacyDialog *, int);
+  void (__thiscall *set_fixed_position)(TribeDiplomacyDialog *, int, int, int, int);
+  void (__thiscall *set_redraw)(TribeDiplomacyDialog *, TPanel__RedrawMode);
+  void (__thiscall *set_overlapped_redraw)(TribeDiplomacyDialog *, TPanel *, TPanel *, TPanel__RedrawMode);
+  void (__thiscall *draw_setup)(TribeDiplomacyDialog *, int);
+  void (__thiscall *draw_finish)(TribeDiplomacyDialog *);
+  void (__thiscall *draw)(TribeDiplomacyDialog *);
+  void (__thiscall *draw_rect)(TribeDiplomacyDialog *, RECT *);
+  void (__thiscall *draw_offset)(TribeDiplomacyDialog *, int, int, RECT *);
+  void (__thiscall *draw_rect2)(TribeDiplomacyDialog *, RECT *);
+  void (__thiscall *draw_offset2)(TribeDiplomacyDialog *, int, int, RECT *);
+  void (__thiscall *paint)(TribeDiplomacyDialog *);
+  int (__thiscall *wnd_proc)(TribeDiplomacyDialog *, HWND, unsigned int, unsigned int, int);
+  int (__thiscall *handle_idle)(TribeDiplomacyDialog *);
+  int (__thiscall *handle_size)(TribeDiplomacyDialog *, int, int);
+  int (__thiscall *handle_paint)(TribeDiplomacyDialog *);
+  int (__thiscall *handle_key_down)(TribeDiplomacyDialog *, int, __int16, int, int, int);
+  int (__thiscall *handle_char)(TribeDiplomacyDialog *, int, __int16);
+  int (__thiscall *handle_command)(TribeDiplomacyDialog *, unsigned int, int);
+  int (__thiscall *handle_user_command)(TribeDiplomacyDialog *, unsigned int, int);
+  int (__thiscall *handle_timer_command)(TribeDiplomacyDialog *, unsigned int, int);
+  int (__thiscall *handle_scroll)(TribeDiplomacyDialog *, int, int);
+  int (__thiscall *handle_mouse_down)(TribeDiplomacyDialog *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_move)(TribeDiplomacyDialog *, int, int, int, int);
+  int (__thiscall *handle_mouse_up)(TribeDiplomacyDialog *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_dbl_click)(TribeDiplomacyDialog *, unsigned __int8, int, int, int, int);
+  int (__thiscall *handle_mouse_wheel)(TribeDiplomacyDialog *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_wheel_action)(TribeDiplomacyDialog *, unsigned int, unsigned int, int);
+  int (__thiscall *handle_mouse_xbuttons)(TribeDiplomacyDialog *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_xbuttons_action)(TribeDiplomacyDialog *, unsigned int, unsigned int, int);
+  int (__thiscall *mouse_move_action)(TribeDiplomacyDialog *, int, int, int, int);
+  int (__thiscall *mouse_left_down_action)(TribeDiplomacyDialog *, int, int, int, int);
+  int (__thiscall *mouse_left_hold_action)(TribeDiplomacyDialog *, int, int, int, int);
+  int (__thiscall *mouse_left_move_action)(TribeDiplomacyDialog *, int, int, int, int);
+  int (__thiscall *mouse_left_up_action)(TribeDiplomacyDialog *, int, int, int, int);
+  int (__thiscall *mouse_left_dbl_click_action)(TribeDiplomacyDialog *, int, int, int, int);
+  int (__thiscall *mouse_right_down_action)(TribeDiplomacyDialog *, int, int, int, int);
+  int (__thiscall *mouse_right_hold_action)(TribeDiplomacyDialog *, int, int, int, int);
+  int (__thiscall *mouse_right_move_action)(TribeDiplomacyDialog *, int, int, int, int);
+  int (__thiscall *mouse_right_up_action)(TribeDiplomacyDialog *, int, int, int, int);
+  int (__thiscall *mouse_right_dbl_click_action)(TribeDiplomacyDialog *, int, int, int, int);
+  int (__thiscall *key_down_action)(TribeDiplomacyDialog *, int, __int16, int, int, int);
+  int (__thiscall *char_action)(TribeDiplomacyDialog *, int, __int16);
+  int (__thiscall *action)(TribeDiplomacyDialog *, TPanel *, int, unsigned int, unsigned int);
+  void (__thiscall *get_true_render_rect)(TribeDiplomacyDialog *, RECT *);
+  int (__thiscall *is_inside)(TribeDiplomacyDialog *, int, int);
+  void (__thiscall *set_focus)(TribeDiplomacyDialog *, int);
+  void (__thiscall *set_tab_order_2)(TribeDiplomacyDialog *, TPanel *, TPanel *);
+  void (__thiscall *set_tab_order_1)(TribeDiplomacyDialog *, TPanel **, __int16);
+  TDrawArea *(__thiscall *renderArea)(TribeDiplomacyDialog *);
+  unsigned __int8 (__thiscall *get_help_info)(TribeDiplomacyDialog *, char **, int *, int, int);
+  void (__thiscall *stop_sound_system)(TribeDiplomacyDialog *);
+  int (__thiscall *restart_sound_system)(TribeDiplomacyDialog *);
+  void (__thiscall *take_snapshot)(TribeDiplomacyDialog *);
+  void (__thiscall *handle_reactivate)(TribeDiplomacyDialog *);
+  int (__thiscall *pointing_at)(TribeDiplomacyDialog *, int, int, int *, int *, int *, int *, char *, int);
+  int (__thiscall *get_ideal_height)(TribeDiplomacyDialog *);
+  int (__thiscall *get_ideal_width)(TribeDiplomacyDialog *);
+  void (__thiscall *draw_background)(TribeDiplomacyDialog *, int);
+  void (__thiscall *set_ideal_size)(TribeDiplomacyDialog *, int, int);
+  int (__thiscall *create_button_2)(TribeDiplomacyDialog *, TPanel *, TButtonPanel **, int, int, int, int, int, int, int, int, int);
+  int (__thiscall *create_button_1)(TribeDiplomacyDialog *, TPanel *, TButtonPanel **, char *, char *, int, int, int, int, int, int, int);
+  int (__thiscall *create_check_box)(TribeDiplomacyDialog *, TPanel *, TButtonPanel **, int, int, int, int, int, int);
+  int (__thiscall *create_radio_button)(TribeDiplomacyDialog *, TButtonPanel **, int, int, int, int, int, int);
+  int (__thiscall *create_text_6)(TribeDiplomacyDialog *, TPanel *, TTextPanel **, int, int, int, int, int, int *, int, int, int, int, int);
+  int (__thiscall *create_text_5)(TribeDiplomacyDialog *, TPanel *, TTextPanel **, char **, int, int, int, int, int, int *, int, int, int, int);
+  int (__thiscall *create_text_4)(TribeDiplomacyDialog *, TPanel *, TTextPanel **, char *, int, int, int, int, int *, int, int, int, int, int);
+  int (__thiscall *create_text_3)(TribeDiplomacyDialog *, TPanel *, TTextPanel **, int, int, int, int, int, int, int, int, int);
+  int (__thiscall *create_text_2)(TribeDiplomacyDialog *, TPanel *, TTextPanel **, char **, int, int, int, int, int, int, int, int);
+  int (__thiscall *create_text_1)(TribeDiplomacyDialog *, TPanel *, TTextPanel **, char *, int, int, int, int, int, int, int, int);
+  int (__thiscall *create_input)(TribeDiplomacyDialog *, TPanel *, TInputPanel **, char *, __int16, TInputPanel__FormatType, int, int, int, int, int);
+  int (__thiscall *create_edit)(TribeDiplomacyDialog *, TPanel *, TEditPanel **, char *, __int16, TEditPanel__FormatType, int, int, int, int, int, int, int, int);
+  int (__thiscall *create_drop_down)(TribeDiplomacyDialog *, TPanel *, TDropDownPanel **, int, int, int, int, int, int, int);
+  int (__thiscall *create_list)(TribeDiplomacyDialog *, TPanel *, TListPanel **, int, int, int, int, int);
+  int (__thiscall *create_scrollbar)(TribeDiplomacyDialog *, TPanel *, TScrollBarPanel **, TTextPanel *, int, int, int, int, int);
+  int (__thiscall *create_auto_scrollbar)(TribeDiplomacyDialog *, TScrollBarPanel **, TTextPanel *, int);
+  int (__thiscall *create_vert_slider)(TribeDiplomacyDialog *, TPanel *, TVerticalSliderPanel **, int, int, int, int, int, int, int);
+  int (__thiscall *create_horz_slider)(TribeDiplomacyDialog *, TPanel *, THorizontalSliderPanel **, int, int, int, int, int, int, int);
+  int (__thiscall *create_picture_2)(TribeDiplomacyDialog *, TPanel *, TPicturePanel **, TShape *, int, int, int, int, int, int, unsigned int, unsigned __int8, unsigned __int8);
+  int (__thiscall *create_picture_1)(TribeDiplomacyDialog *, TPanel *, TPicturePanel **, char *, int, int, int, int, int, int, int, unsigned int, unsigned __int8, unsigned __int8);
+  int (__thiscall *create_timeline)(TribeDiplomacyDialog *, TPanel *, Time_Line_Panel **, int, int, int, int, int, int, int, int, int, int);
+  void (__thiscall *position_panel)(TribeDiplomacyDialog *, TPanel *, int, int, int, int);
+  int (__thiscall *setup_3)(TribeDiplomacyDialog *, TDrawArea *, TPanel *, int, int, unsigned __int8, int);
+  int (__thiscall *setup_2)(TribeDiplomacyDialog *, TDrawArea *, TPanel *, int, int, char *, int, int);
 };
 #pragma pack(pop)
 
@@ -33421,50 +34523,6 @@ struct TRIBE_Action_WonderVtbl
   void (__thiscall *set_target_obj)(TRIBE_Action_Wonder *, RGE_Static_Object *);
   void (__thiscall *set_target_obj2)(TRIBE_Action_Wonder *, RGE_Static_Object *);
   void (__thiscall *set_state)(TRIBE_Action_Wonder *, unsigned __int8);
-};
-#pragma pack(pop)
-
-/* 442 */
-#pragma pack(push, 8)
-struct MConvexHull
-{
-  int NumPoints;
-  Point *Points;
-  int PointsAllocated;
-  int *mEntrancePathIndices;
-  float MinX;
-  float MinY;
-  float MaxX;
-  float MaxY;
-  int NumObjects;
-  int ObjectsAllocated;
-  ObstructionInfo *Objects;
-};
-#pragma pack(pop)
-
-/* 447 */
-#pragma pack(push, 8)
-struct ObstructionInfo
-{
-  Point minPoint;
-  Point maxPoint;
-  int id;
-};
-#pragma pack(pop)
-
-/* 444 */
-#pragma pack(push, 8)
-struct PathingNode
-{
-  Point location;
-  PathingNode *parent;
-  PathingNode *next;
-  PathingNode *prev;
-  float distanceToGoal;
-  float costSoFar;
-  int hullIndex;
-  int vertexIndex;
-  int direction;
 };
 #pragma pack(pop)
 
@@ -36726,179 +37784,6 @@ struct TRIBE_Screen_MultimediaVtbl
 };
 #pragma pack(pop)
 
-/* 1049 */
-#pragma pack(push, 8)
-struct TRIBE_Screen_SedVtbl
-{
-  void *(__thiscall *__vecDelDtor)(TRIBE_Screen_Sed *, unsigned int);
-  int (__thiscall *setup)(TRIBE_Screen_Sed *, TDrawArea *, TPanel *, int, int, int, int, unsigned __int8);
-  void (__thiscall *set_rect_2)(TRIBE_Screen_Sed *, RECT);
-  void (__thiscall *set_rect_1)(TRIBE_Screen_Sed *, int, int, int, int);
-  void (__thiscall *set_color)(TRIBE_Screen_Sed *, unsigned __int8);
-  void (__thiscall *set_active)(TRIBE_Screen_Sed *, int);
-  void (__thiscall *unknown1)(TRIBE_Screen_Sed *);
-  void (__thiscall *unknown2)(TRIBE_Screen_Sed *, int, int, int, int, int, int);
-  void (__thiscall *set_positioning)(TRIBE_Screen_Sed *, TPanel__PositionMode, int, int, int, int, int, int, int, int, TPanel *, TPanel *, TPanel *, TPanel *);
-  void (__thiscall *unknown3)(TRIBE_Screen_Sed *, int);
-  void (__thiscall *set_fixed_position)(TRIBE_Screen_Sed *, int, int, int, int);
-  void (__thiscall *set_redraw)(TRIBE_Screen_Sed *, TPanel__RedrawMode);
-  void (__thiscall *set_overlapped_redraw)(TRIBE_Screen_Sed *, TPanel *, TPanel *, TPanel__RedrawMode);
-  void (__thiscall *draw_setup)(TRIBE_Screen_Sed *, int);
-  void (__thiscall *draw_finish)(TRIBE_Screen_Sed *);
-  void (__thiscall *draw)(TRIBE_Screen_Sed *);
-  void (__thiscall *draw_rect)(TRIBE_Screen_Sed *, RECT *);
-  void (__thiscall *draw_offset)(TRIBE_Screen_Sed *, int, int, RECT *);
-  void (__thiscall *draw_rect2)(TRIBE_Screen_Sed *, RECT *);
-  void (__thiscall *draw_offset2)(TRIBE_Screen_Sed *, int, int, RECT *);
-  void (__thiscall *paint)(TRIBE_Screen_Sed *);
-  int (__thiscall *wnd_proc)(TRIBE_Screen_Sed *, HWND, unsigned int, unsigned int, int);
-  int (__thiscall *handle_idle)(TRIBE_Screen_Sed *);
-  int (__thiscall *handle_size)(TRIBE_Screen_Sed *, int, int);
-  int (__thiscall *handle_paint)(TRIBE_Screen_Sed *);
-  int (__thiscall *handle_key_down)(TRIBE_Screen_Sed *, int, __int16, int, int, int);
-  int (__thiscall *handle_char)(TRIBE_Screen_Sed *, int, __int16);
-  int (__thiscall *handle_command)(TRIBE_Screen_Sed *, unsigned int, int);
-  int (__thiscall *handle_user_command)(TRIBE_Screen_Sed *, unsigned int, int);
-  int (__thiscall *handle_timer_command)(TRIBE_Screen_Sed *, unsigned int, int);
-  int (__thiscall *handle_scroll)(TRIBE_Screen_Sed *, int, int);
-  int (__thiscall *handle_mouse_down)(TRIBE_Screen_Sed *, unsigned __int8, int, int, int, int);
-  int (__thiscall *handle_mouse_move)(TRIBE_Screen_Sed *, int, int, int, int);
-  int (__thiscall *handle_mouse_up)(TRIBE_Screen_Sed *, unsigned __int8, int, int, int, int);
-  int (__thiscall *handle_mouse_dbl_click)(TRIBE_Screen_Sed *, unsigned __int8, int, int, int, int);
-  int (__thiscall *handle_mouse_wheel)(TRIBE_Screen_Sed *, unsigned int, unsigned int, int);
-  int (__thiscall *mouse_wheel_action)(TRIBE_Screen_Sed *, unsigned int, unsigned int, int);
-  int (__thiscall *handle_mouse_xbuttons)(TRIBE_Screen_Sed *, unsigned int, unsigned int, int);
-  int (__thiscall *mouse_xbuttons_action)(TRIBE_Screen_Sed *, unsigned int, unsigned int, int);
-  int (__thiscall *mouse_move_action)(TRIBE_Screen_Sed *, int, int, int, int);
-  int (__thiscall *mouse_left_down_action)(TRIBE_Screen_Sed *, int, int, int, int);
-  int (__thiscall *mouse_left_hold_action)(TRIBE_Screen_Sed *, int, int, int, int);
-  int (__thiscall *mouse_left_move_action)(TRIBE_Screen_Sed *, int, int, int, int);
-  int (__thiscall *mouse_left_up_action)(TRIBE_Screen_Sed *, int, int, int, int);
-  int (__thiscall *mouse_left_dbl_click_action)(TRIBE_Screen_Sed *, int, int, int, int);
-  int (__thiscall *mouse_right_down_action)(TRIBE_Screen_Sed *, int, int, int, int);
-  int (__thiscall *mouse_right_hold_action)(TRIBE_Screen_Sed *, int, int, int, int);
-  int (__thiscall *mouse_right_move_action)(TRIBE_Screen_Sed *, int, int, int, int);
-  int (__thiscall *mouse_right_up_action)(TRIBE_Screen_Sed *, int, int, int, int);
-  int (__thiscall *mouse_right_dbl_click_action)(TRIBE_Screen_Sed *, int, int, int, int);
-  int (__thiscall *key_down_action)(TRIBE_Screen_Sed *, int, __int16, int, int, int);
-  int (__thiscall *char_action)(TRIBE_Screen_Sed *, int, __int16);
-  int (__thiscall *action)(TRIBE_Screen_Sed *, TPanel *, int, unsigned int, unsigned int);
-  void (__thiscall *get_true_render_rect)(TRIBE_Screen_Sed *, RECT *);
-  int (__thiscall *is_inside)(TRIBE_Screen_Sed *, int, int);
-  void (__thiscall *set_focus)(TRIBE_Screen_Sed *, int);
-  void (__thiscall *set_tab_order_2)(TRIBE_Screen_Sed *, TPanel *, TPanel *);
-  void (__thiscall *set_tab_order_1)(TRIBE_Screen_Sed *, TPanel **, __int16);
-  TDrawArea *(__thiscall *renderArea)(TRIBE_Screen_Sed *);
-  unsigned __int8 (__thiscall *get_help_info)(TRIBE_Screen_Sed *, char **, int *, int, int);
-  void (__thiscall *stop_sound_system)(TRIBE_Screen_Sed *);
-  int (__thiscall *restart_sound_system)(TRIBE_Screen_Sed *);
-  void (__thiscall *take_snapshot)(TRIBE_Screen_Sed *);
-  void (__thiscall *handle_reactivate)(TRIBE_Screen_Sed *);
-  int (__thiscall *pointing_at)(TRIBE_Screen_Sed *, int, int, int *, int *, int *, int *, char *, int);
-  int (__thiscall *get_ideal_height)(TRIBE_Screen_Sed *);
-  int (__thiscall *get_ideal_width)(TRIBE_Screen_Sed *);
-  void (__thiscall *draw_background)(TRIBE_Screen_Sed *, int);
-  void (__thiscall *set_ideal_size)(TRIBE_Screen_Sed *, int, int);
-  int (__thiscall *create_button_2)(TRIBE_Screen_Sed *, TPanel *, TButtonPanel **, int, int, int, int, int, int, int, int, int);
-  int (__thiscall *create_button_1)(TRIBE_Screen_Sed *, TPanel *, TButtonPanel **, char *, char *, int, int, int, int, int, int, int);
-  int (__thiscall *create_check_box)(TRIBE_Screen_Sed *, TPanel *, TButtonPanel **, int, int, int, int, int, int);
-  int (__thiscall *create_radio_button)(TRIBE_Screen_Sed *, TButtonPanel **, int, int, int, int, int, int);
-  int (__thiscall *create_text_6)(TRIBE_Screen_Sed *, TPanel *, TTextPanel **, int, int, int, int, int, int *, int, int, int, int, int);
-  int (__thiscall *create_text_5)(TRIBE_Screen_Sed *, TPanel *, TTextPanel **, char **, int, int, int, int, int, int *, int, int, int, int);
-  int (__thiscall *create_text_4)(TRIBE_Screen_Sed *, TPanel *, TTextPanel **, char *, int, int, int, int, int *, int, int, int, int, int);
-  int (__thiscall *create_text_3)(TRIBE_Screen_Sed *, TPanel *, TTextPanel **, int, int, int, int, int, int, int, int, int);
-  int (__thiscall *create_text_2)(TRIBE_Screen_Sed *, TPanel *, TTextPanel **, char **, int, int, int, int, int, int, int, int);
-  int (__thiscall *create_text_1)(TRIBE_Screen_Sed *, TPanel *, TTextPanel **, char *, int, int, int, int, int, int, int, int);
-  int (__thiscall *create_input)(TRIBE_Screen_Sed *, TPanel *, TInputPanel **, char *, __int16, TInputPanel__FormatType, int, int, int, int, int);
-  int (__thiscall *create_edit)(TRIBE_Screen_Sed *, TPanel *, TEditPanel **, char *, __int16, TEditPanel__FormatType, int, int, int, int, int, int, int, int);
-  int (__thiscall *create_drop_down)(TRIBE_Screen_Sed *, TPanel *, TDropDownPanel **, int, int, int, int, int, int, int);
-  int (__thiscall *create_list)(TRIBE_Screen_Sed *, TPanel *, TListPanel **, int, int, int, int, int);
-  int (__thiscall *create_scrollbar)(TRIBE_Screen_Sed *, TPanel *, TScrollBarPanel **, TTextPanel *, int, int, int, int, int);
-  int (__thiscall *create_auto_scrollbar)(TRIBE_Screen_Sed *, TScrollBarPanel **, TTextPanel *, int);
-  int (__thiscall *create_vert_slider)(TRIBE_Screen_Sed *, TPanel *, TVerticalSliderPanel **, int, int, int, int, int, int, int);
-  int (__thiscall *create_horz_slider)(TRIBE_Screen_Sed *, TPanel *, THorizontalSliderPanel **, int, int, int, int, int, int, int);
-  int (__thiscall *create_picture_2)(TRIBE_Screen_Sed *, TPanel *, TPicturePanel **, TShape *, int, int, int, int, int, int, unsigned int, unsigned __int8, unsigned __int8);
-  int (__thiscall *create_picture_1)(TRIBE_Screen_Sed *, TPanel *, TPicturePanel **, char *, int, int, int, int, int, int, int, unsigned int, unsigned __int8, unsigned __int8);
-  int (__thiscall *create_timeline)(TRIBE_Screen_Sed *, TPanel *, Time_Line_Panel **, int, int, int, int, int, int, int, int, int, int);
-  void (__thiscall *position_panel)(TRIBE_Screen_Sed *, TPanel *, int, int, int, int);
-};
-#pragma pack(pop)
-
-/* 1051 */
-#pragma pack(push, 8)
-struct TRIBE_Scenario_Editor_Panel_ObjectVtbl
-{
-  void *(__thiscall *__vecDelDtor)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int);
-  int (__thiscall *setup)(TRIBE_Scenario_Editor_Panel_Object *, TDrawArea *, TPanel *, int, int, int, int, unsigned __int8);
-  void (__thiscall *set_rect_2)(TRIBE_Scenario_Editor_Panel_Object *, RECT);
-  void (__thiscall *set_rect_1)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  void (__thiscall *set_color)(TRIBE_Scenario_Editor_Panel_Object *, unsigned __int8);
-  void (__thiscall *set_active)(TRIBE_Scenario_Editor_Panel_Object *, int);
-  void (__thiscall *unknown1)(TRIBE_Scenario_Editor_Panel_Object *);
-  void (__thiscall *unknown2)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int, int, int);
-  void (__thiscall *set_positioning)(TRIBE_Scenario_Editor_Panel_Object *, TPanel__PositionMode, int, int, int, int, int, int, int, int, TPanel *, TPanel *, TPanel *, TPanel *);
-  void (__thiscall *unknown3)(TRIBE_Scenario_Editor_Panel_Object *, int);
-  void (__thiscall *set_fixed_position)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  void (__thiscall *set_redraw)(TRIBE_Scenario_Editor_Panel_Object *, TPanel__RedrawMode);
-  void (__thiscall *set_overlapped_redraw)(TRIBE_Scenario_Editor_Panel_Object *, TPanel *, TPanel *, TPanel__RedrawMode);
-  void (__thiscall *draw_setup)(TRIBE_Scenario_Editor_Panel_Object *, int);
-  void (__thiscall *draw_finish)(TRIBE_Scenario_Editor_Panel_Object *);
-  void (__thiscall *draw)(TRIBE_Scenario_Editor_Panel_Object *);
-  void (__thiscall *draw_rect)(TRIBE_Scenario_Editor_Panel_Object *, RECT *);
-  void (__thiscall *draw_offset)(TRIBE_Scenario_Editor_Panel_Object *, int, int, RECT *);
-  void (__thiscall *draw_rect2)(TRIBE_Scenario_Editor_Panel_Object *, RECT *);
-  void (__thiscall *draw_offset2)(TRIBE_Scenario_Editor_Panel_Object *, int, int, RECT *);
-  void (__thiscall *paint)(TRIBE_Scenario_Editor_Panel_Object *);
-  int (__thiscall *wnd_proc)(TRIBE_Scenario_Editor_Panel_Object *, HWND, unsigned int, unsigned int, int);
-  int (__thiscall *handle_idle)(TRIBE_Scenario_Editor_Panel_Object *);
-  int (__thiscall *handle_size)(TRIBE_Scenario_Editor_Panel_Object *, int, int);
-  int (__thiscall *handle_paint)(TRIBE_Scenario_Editor_Panel_Object *);
-  int (__thiscall *handle_key_down)(TRIBE_Scenario_Editor_Panel_Object *, int, __int16, int, int, int);
-  int (__thiscall *handle_char)(TRIBE_Scenario_Editor_Panel_Object *, int, __int16);
-  int (__thiscall *handle_command)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, int);
-  int (__thiscall *handle_user_command)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, int);
-  int (__thiscall *handle_timer_command)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, int);
-  int (__thiscall *handle_scroll)(TRIBE_Scenario_Editor_Panel_Object *, int, int);
-  int (__thiscall *handle_mouse_down)(TRIBE_Scenario_Editor_Panel_Object *, unsigned __int8, int, int, int, int);
-  int (__thiscall *handle_mouse_move)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  int (__thiscall *handle_mouse_up)(TRIBE_Scenario_Editor_Panel_Object *, unsigned __int8, int, int, int, int);
-  int (__thiscall *handle_mouse_dbl_click)(TRIBE_Scenario_Editor_Panel_Object *, unsigned __int8, int, int, int, int);
-  int (__thiscall *handle_mouse_wheel)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, unsigned int, int);
-  int (__thiscall *mouse_wheel_action)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, unsigned int, int);
-  int (__thiscall *handle_mouse_xbuttons)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, unsigned int, int);
-  int (__thiscall *mouse_xbuttons_action)(TRIBE_Scenario_Editor_Panel_Object *, unsigned int, unsigned int, int);
-  int (__thiscall *mouse_move_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  int (__thiscall *mouse_left_down_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  int (__thiscall *mouse_left_hold_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  int (__thiscall *mouse_left_move_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  int (__thiscall *mouse_left_up_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  int (__thiscall *mouse_left_dbl_click_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  int (__thiscall *mouse_right_down_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  int (__thiscall *mouse_right_hold_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  int (__thiscall *mouse_right_move_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  int (__thiscall *mouse_right_up_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  int (__thiscall *mouse_right_dbl_click_action)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int, int);
-  int (__thiscall *key_down_action)(TRIBE_Scenario_Editor_Panel_Object *, int, __int16, int, int, int);
-  int (__thiscall *char_action)(TRIBE_Scenario_Editor_Panel_Object *, int, __int16);
-  int (__thiscall *action)(TRIBE_Scenario_Editor_Panel_Object *, TPanel *, int, unsigned int, unsigned int);
-  void (__thiscall *get_true_render_rect)(TRIBE_Scenario_Editor_Panel_Object *, RECT *);
-  int (__thiscall *is_inside)(TRIBE_Scenario_Editor_Panel_Object *, int, int);
-  void (__thiscall *set_focus)(TRIBE_Scenario_Editor_Panel_Object *, int);
-  void (__thiscall *set_tab_order_2)(TRIBE_Scenario_Editor_Panel_Object *, TPanel *, TPanel *);
-  void (__thiscall *set_tab_order_1)(TRIBE_Scenario_Editor_Panel_Object *, TPanel **, __int16);
-  TDrawArea *(__thiscall *renderArea)(TRIBE_Scenario_Editor_Panel_Object *);
-  unsigned __int8 (__thiscall *get_help_info)(TRIBE_Scenario_Editor_Panel_Object *, char **, int *, int, int);
-  void (__thiscall *stop_sound_system)(TRIBE_Scenario_Editor_Panel_Object *);
-  int (__thiscall *restart_sound_system)(TRIBE_Scenario_Editor_Panel_Object *);
-  void (__thiscall *take_snapshot)(TRIBE_Scenario_Editor_Panel_Object *);
-  void (__thiscall *handle_reactivate)(TRIBE_Scenario_Editor_Panel_Object *);
-  int (__thiscall *pointing_at)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int *, int *, int *, int *, char *, int);
-  int (__thiscall *pointing_at_2)(TRIBE_Scenario_Editor_Panel_Object *, int, int, int *, int *, int *, int *, int *, char *, int);
-  void (__thiscall *draw_item)(TRIBE_Scenario_Editor_Panel_Object *, int, int, TRIBE_Panel_Object__ValueType, int, int, int, int, int);
-  void (__thiscall *draw_item_3)(TRIBE_Scenario_Editor_Panel_Object *, int, int, TRIBE_Panel_Object__ValueType, int, int);
-};
-#pragma pack(pop)
-
 /* 1054 */
 #pragma pack(push, 8)
 struct RGE_ViewVtbl
@@ -37042,6 +37927,18 @@ struct TSpreadsheetResource
 struct TSpreadsheetResourceVtbl
 {
   void *(__thiscall *__vecDelDtor)(TSpreadsheetResource *, unsigned int);
+};
+#pragma pack(pop)
+
+/* 1099 */
+#pragma pack(push, 8)
+struct RGE_Pick_Obj_Info
+{
+  int object_id;
+  __int16 confidence;
+  __int16 draw_level;
+  __int16 draw_x;
+  __int16 draw_y;
 };
 #pragma pack(pop)
 
