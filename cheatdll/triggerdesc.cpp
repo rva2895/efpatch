@@ -38,7 +38,6 @@ const char* condNames[] =
     "Selected Obj In Area",
     "Powered Obj In Area",
     "Units Queued Past Pop Cap",
-#ifndef _CC_COMPATIBLE
     "Per Mille Chance",        //0x18
     "Area Explored",
     "Alliance",
@@ -46,7 +45,6 @@ const char* condNames[] =
     "Var",
     "Civ",
     "--OR--"
-#endif
 };
 
 const char* effectNames[] =
@@ -90,7 +88,6 @@ const char* effectNames[] =
     "Flash Objects",
     "Turn Input Off",
     "Turn Input On",
-#ifndef _CC_COMPATIBLE
     "Change Speed",
     "Give Ability",        //0x28
     "Remove Ability",
@@ -105,7 +102,6 @@ const char* effectNames[] =
     "Teleport",
     //"Command",
     "Breakpoint"
-#endif
 };
 
 void __stdcall c_default(condition*, int) {};
@@ -207,7 +203,6 @@ void(__stdcall* condPrint[]) (condition*, int) =
     c_quantity, //sel obj in area
     c_quantity, //pow obj in area
     c_default, //units q past pop cap
-#ifndef _CC_COMPATIBLE
     c_quantity, //per mille chance
     c_quantity, //area explored
     c_alliance_state, //alliance state
@@ -215,7 +210,6 @@ void(__stdcall* condPrint[]) (condition*, int) =
     c_var, //var e
     c_civ, //player civ
     c_default //or
-#endif
 };
 
 void __stdcall e_send_chat(effect* p, int)
@@ -450,7 +444,6 @@ void(__stdcall* effectPrint[]) (effect*, int) =
     e_default, //flash obj
     e_default, //turn input off
     e_default, //turn input on
-#ifndef _CC_COMPATIBLE
     e_quantity, //change speed
     e_quantity, //give ability
     e_quantity, //remove ability
@@ -465,7 +458,6 @@ void(__stdcall* effectPrint[]) (effect*, int) =
     e_location, //teleport
     //e_command, //command
     e_default //breakpoint
-#endif
 };
 
 void __stdcall scanCond(condition* p, int i)

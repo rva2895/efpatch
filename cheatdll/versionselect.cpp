@@ -41,10 +41,6 @@ BOOL CALLBACK VersionSelectDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LP
         if (!cd.askAtStartup)
             CheckDlgButton(hWndDlg, IDC_CHECK_ALWAYSRUN, BST_CHECKED);
 
-#ifdef _CHEATDLL_CC
-        EnableWindow(GetDlgItem(hWndDlg, IDC_RADIO_X2), FALSE);
-#endif
-
         break;
     case WM_COMMAND:
     {

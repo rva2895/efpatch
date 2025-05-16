@@ -223,33 +223,23 @@ void setHooksCC()
 
     setRmsEditorHooks();
 
-#ifndef _CC_COMPATIBLE
     setVotePanelHooks();
     setFlareHooks();
-#endif
 
     setEditorEnhHooks(cd.gameVersion);
 
 #ifndef TARGET_VOOBLY
-#ifndef _CHEATDLL_CC
     if (cd.largeMaps && cd.gameVersion == VER_EF)
         setMapSizeHooks(cd.gameVersion);
     else
-#endif
-#ifndef _CC_COMPATIBLE
-#ifndef _CHEATDLL_CC
         setMapSizeHooks_legacy(cd.gameVersion);
-#endif
-#endif
 #else
     setMapSizeHooks_legacy(cd.gameVersion);
 #endif
 
     setFileNameHooks(cd.gameVersion);
 
-#ifndef _CC_COMPATIBLE
     setPopulationHooks(cd.gameVersion);
-#endif
 
     if (cd.editorAutosave)
         setAutosaveHooks(cd.gameVersion, cd.editorAutosaveInterval);
@@ -258,19 +248,11 @@ void setHooksCC()
 
     setTriggerDescHooks();
 
-#ifndef _CC_COMPATIBLE
     setEditorStatusHooks();
     setTerrainLoadHooks(cd.gameVersion);
-#endif
 
     setGameSpeedHooks();
 
-#ifdef _CHEATDLL_CC
-#ifndef _CC_COMPATIBLE
-    //setExtraTerrainHooks_CC();        //Enabled this when using +1 terrain DAT!
-#endif
-#endif
-    
     if (cd.minimap7)
         setMinimapHooks();
 
@@ -613,11 +595,9 @@ void updateVersionEF()
 void updateVersionCC()
 {
 #ifndef TARGET_VOOBLY
-#ifndef _CC_COMPATIBLE
     writeByte(0x00689534, 3); //CC 1.2
     //strcpy ((char*)0x00689BA4, verStr);
     setHook((void*)0x0042C3E1, verHookCC);
-#endif // !_CC_COMPATIBLE
 #endif
 }
 
@@ -665,7 +645,6 @@ void initialSetup()
 
     setTestHook();
 
-#ifndef _CHEATDLL_CC
     switch (cd.gameVersion)
     {
     case VER_CC:
@@ -681,8 +660,6 @@ void initialSetup()
         //updateVersionCC();
         break;
     case VER_EF:
-        //revertToX1 ();               //remove!!!! <---
-        //writeByte(0x289BA4, 0x32); //what is this???
         setHooksCC();
         setHooksEF();
 
@@ -692,14 +669,7 @@ void initialSetup()
     default:
         break;
     }
-#else
-    cd.gameVersion = VER_CC;
-    revertToX1();     //for EF
-    setHooksCC();
 
-    updateVersionCC();
-#endif
-    
 #ifndef TARGET_VOOBLY
     if (cd.widescrnEnabled)
         resolutionTool(
@@ -709,17 +679,17 @@ void initialSetup()
             true);
 #endif
 
-/*#ifndef _CHEATDLL_CC
+    /*
     if (cd.useDShook)
         initDsoundhook();
-#endif*/
+    */
 
 #ifndef TARGET_VOOBLY
     if (!cd.useFPS)
     {
         writeByte(0x0061E92C, 0x20);
 
-        //mad redraw interval
+        //map redraw interval
         writeDword(0x004F2F1D, 200);
     }
     else
@@ -728,7 +698,7 @@ void initialSetup()
         writeDword(0x005DDB7B, 100);
         writeNops(0x005DDB73, 2);
 
-        //mad redraw interval
+        //map redraw interval
         writeDword(0x004F2F1D, 100);
     }
 #else
@@ -738,7 +708,7 @@ void initialSetup()
     writeDword(0x005DDB7B, 100);
     writeNops(0x005DDB73, 2);
 
-    //mad redraw interval
+    //map redraw interval
     writeDword(0x004F2F1D, 100);
 #endif
 

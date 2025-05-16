@@ -17,15 +17,12 @@ extern const CONFIG_DATA cd_default;
 
 void processIDOK(HWND hWnd)
 {
-    //CONFIG_DATA cd;
-    //regGet(&cd);
-#ifndef _CHEATDLL_CC
     char buf[10];
     GetDlgItemText(hWnd, IDC_EDIT_DSH_NBUFS, buf, 10);
     sscanf_s(buf, "%d", &cd.nBufs);
     GetDlgItemText(hWnd, IDC_EDIT_DSH_DELAY, buf, 10);
     sscanf_s(buf, "%d", &cd.timeout);
-#endif
+
     cd.useFPS = IsDlgButtonChecked(hWnd, IDC_CHECK_FPS);
     cd.useDShook = IsDlgButtonChecked(hWnd, IDC_CHECK_DSH);
     cd.askAtStartup = !IsDlgButtonChecked(hWnd, IDC_CHECK_ALWAYSRUN);
@@ -85,23 +82,13 @@ void processIDOK(HWND hWnd)
 void readSettingsToDialog(HWND hWnd)
 {
     char buf[0x40];
-    //CONFIG_DATA cd;
-    //regGet(&cd);
 
     cd.useDShook = 0;
-
-#ifdef _CHEATDLL_CC
-    cd.gameVersion = VER_CC;
-    cd.largeMaps = 0;
-    cd.useDShook = 0;
-    cd.nBufs = 0;
-    cd.timeout = 0;
-#endif
 
     CheckDlgButton(hWnd, IDC_CHECK_FPS, cd.useFPS);
-#ifndef _CC_COMPATIBLE
+
     CheckDlgButton(hWnd, IDC_CHECK_DSH, cd.useDShook);
-#endif
+
     CheckDlgButton(hWnd, IDC_CHECK_ALWAYSRUN, !cd.askAtStartup);
     CheckDlgButton(hWnd, IDC_CHECK_UNLOCKRES, cd.unlockResources);
     CheckDlgButton(hWnd, IDC_CHECK_UNLOCKOBJECTS, cd.unlockObjects);
@@ -115,9 +102,8 @@ void readSettingsToDialog(HWND hWnd)
     EnableWindow(GetDlgItem(hWnd, IDC_CHECK_SCREEN_SIZE_AUTO), cd.widescrnEnabled);
 
     CheckDlgButton(hWnd, IDC_CHECK_WNDMODE, cd.windowMode);
-#ifndef _CC_COMPATIBLE
+
     CheckDlgButton(hWnd, IDC_CHECK_MAPSIZE, cd.largeMaps);
-#endif
 
     if (cd.gameVersion == VER_CC)
     {
@@ -140,19 +126,10 @@ void readSettingsToDialog(HWND hWnd)
         CheckDlgButton(hWnd, IDC_RADIO_EDITOR_LIST_2, BST_UNCHECKED);
     }
 
-#ifdef _CHEATDLL_CC
-    EnableWindow(GetDlgItem(hWnd, IDC_RADIO_X2), FALSE);
-    EnableWindow(GetDlgItem(hWnd, IDC_CHECK_DSH), FALSE);
-    EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_NBUFS), FALSE);
-    EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_DELAY), FALSE);
-    EnableWindow(GetDlgItem(hWnd, IDC_CHECK_MAPSIZE), FALSE); 
-    EnableWindow(GetDlgItem(hWnd, IDC_CHECK_CRASH), FALSE);
-#else
     snprintf(buf, _countof(buf), "%d", cd.nBufs);
     SetDlgItemText(hWnd, IDC_EDIT_DSH_NBUFS, buf);
     snprintf(buf, _countof(buf), "%d", cd.timeout);
     SetDlgItemText(hWnd, IDC_EDIT_DSH_DELAY, buf);
-#endif
     snprintf(buf, _countof(buf), "%d", cd.editorAutosaveInterval);
     SetDlgItemText(hWnd, IDC_EDIT_EDITORAUTO, buf);
 
@@ -168,7 +145,6 @@ void readSettingsToDialog(HWND hWnd)
     CheckDlgButton(hWnd, IDC_CHECK_MASTER_VOLUME, cd.delinkVolume);
     CheckDlgButton(hWnd, IDC_CHECK_KEYDOWN, cd.keydown);
 
-    //EnableWindow(GetDlgItem(hWnd, IDC_CHECK_GREY), FALSE);
     EnableWindow(GetDlgItem(hWnd, IDC_CHECK_DSH), FALSE);
     EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_NBUFS), FALSE);
     EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_DELAY), FALSE);
@@ -205,8 +181,6 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
         break;
     case WM_INITDIALOG:
     {
-        //SendMessage (GetDlgItem (hWndDlg, IDC_BUTTON_ASSOC), BCM_SETSHIELD, 0, TRUE);
-
         readSettingsToDialog(hWndDlg);
         //detectCC ();
         char curMode[0x40];
@@ -333,17 +307,12 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
     return true;
 }
 
-#ifndef _CC_COMPATIBLE
 #define IDD_DIALOG_CONFIG IDD_DIALOG_CONFIG_EF
-#else
-#define IDD_DIALOG_CONFIG IDD_DIALOG_CONFIG_CC
-#endif
 
 void __stdcall launchConfigurator(HWND hWnd)
 {
-#ifndef _CHEATDLL_CC
     installPalette();
-#endif
+
     DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_CONFIG), hWnd, ConfigDlgProc);
 }
 

@@ -483,13 +483,12 @@ void patchResolution(int x, int y, DRS* drs, bool patch_ef)
 
     log("Stretching SLPs...");
 
-//#ifdef _CHEATDLL_CC
     DRS x0_cc; x0_cc.loadDRS("data\\INTERFAC.DRS");
     DRS x1_cc; x1_cc.loadDRS("data\\interfac_x1.drs");
-//#else
+
     DRS x0; x0.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_p1.DRS");
     DRS x1; x1.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_x1_p1.drs");
-//#endif
+
     DRS x2; x2.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_x2.drs");
     DRS wide_x2; wide_x2.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"widescrn_x2.drs");
 
@@ -593,7 +592,6 @@ void patchResolution(int x, int y, DRS* drs, bool patch_ef)
             parseSLP(&x0, &x1, &x2, drs, 51147, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51148, x, y);
 
-#ifndef _CHEATDLL_CC
             parseSLP(&x0, &x1, &x2, drs, 51149, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51150, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51151, x, y);
@@ -601,7 +599,6 @@ void patchResolution(int x, int y, DRS* drs, bool patch_ef)
             parseSLP(&x0, &x1, &x2, drs, 51153, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51154, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51155, x, y);
-#endif
         }
         else if (y >= 768)
         {
@@ -615,7 +612,6 @@ void patchResolution(int x, int y, DRS* drs, bool patch_ef)
             parseSLP(&x0, &x1, &x2, drs, 51127, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51128, x, y);
 
-#ifndef _CHEATDLL_CC
             parseSLP(&x0, &x1, &x2, drs, 51129, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51130, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51131, x, y);
@@ -623,7 +619,6 @@ void patchResolution(int x, int y, DRS* drs, bool patch_ef)
             parseSLP(&x0, &x1, &x2, drs, 51133, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51134, x, y);
             parseSLP(&x0, &x1, &x2, drs, 51135, x, y);
-#endif
         }
 
         drs->writeDRS();

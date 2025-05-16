@@ -397,14 +397,12 @@ void setEditorEnhHooks(int ver)
     setHook((void*)0x00618F90, noGridHook);
     setHook((void*)0x0049539F, removeUnitsFix);
 
-#ifndef _CC_COMPATIBLE
     setHook((void*)0x0052A977, (void*)0x0052A9C4);    //remove ai signal dropdown init
     setHook((void*)0x0052A8F6, (void*)0x0052A943);    //remove ai trigger dropdown init
 
     writeDword(0x0053C2E4, (DWORD)&getEffectParams_new - 0x0053C2E8);
     writeDword(0x0053DD6B, (DWORD)&getConditionParams_new - 0x0053DD6F);
     writeDword(0x0053C26F, (DWORD)&getConditionParams_new - 0x0053C273);
-#endif
 
     writeByte(0x00496A0B, 0xEB); //terrain paint crash
 

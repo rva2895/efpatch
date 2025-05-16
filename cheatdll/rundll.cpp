@@ -52,19 +52,13 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
 
     initLog();
 
-#ifndef _CHEATDLL_CC
     installPalette();
-#endif
 
     initialSetup();
 
     writeDword(0x00426509, (DWORD)WndProc_dll);
 
     int retval;
-
-#ifdef _CHEATDLL_CC
-    cd.crashReporting = 0;
-#endif
 
     if (cd.textRendering)
         setTextRenderHooks(cd.gameVersion);
@@ -223,7 +217,6 @@ int CALLBACK WndProc_dll(HWND hWnd,
                 }
             }*/
             
-#ifndef _CHEATDLL_CC
             if (LOWORD(wParam) == 'Q')                        //cliff type
             {
                 if (GetKeyState(VK_CONTROL) & 0x8000)
@@ -241,7 +234,7 @@ int CALLBACK WndProc_dll(HWND hWnd,
                     }
                 }
             }
-#endif
+
             if (!editorstatus_isValid)
             {
                 if (window_editorbk)
