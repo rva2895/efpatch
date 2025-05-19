@@ -10,6 +10,7 @@
 #include "ailog.h"
 #include "aishipyard.h"
 #include "aiactions.h"
+#include "aitimer.h"
 
 //#include <process.h>
 
@@ -146,6 +147,7 @@ void setAIHooks(int version)
         setAIUnitCountHooks();
         setAISNXHooks();
         setAIActionsHooks();
+        setAITimerHooks();
 
         setAIGoalsHooks();
 

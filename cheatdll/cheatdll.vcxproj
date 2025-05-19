@@ -230,6 +230,7 @@
     <ClInclude Include="airtoair.h" />
     <ClInclude Include="aishipyard.h" />
     <ClInclude Include="aisnx.h" />
+    <ClInclude Include="aitimer.h" />
     <ClInclude Include="aiunitcount.h" />
     <ClInclude Include="animatedterrain.h" />
     <ClInclude Include="attackstance.h" />
@@ -408,6 +409,7 @@
     <ClCompile Include="airtoair.cpp" />
     <ClCompile Include="aishipyard.cpp" />
     <ClCompile Include="aisnx.cpp" />
+    <ClCompile Include="aitimer.cpp" />
     <ClCompile Include="aiunitcount.cpp" />
     <ClCompile Include="animatedterrain.cpp" />
     <ClCompile Include="attackstance.cpp" />
