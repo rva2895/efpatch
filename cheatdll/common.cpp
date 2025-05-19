@@ -191,6 +191,9 @@ void* (__cdecl* const calloc_internal)(size_t number, size_t size) =
 void* (__cdecl* const operator_new_internal)(size_t size) =
     (void* (__cdecl* const) (size_t))0x00632B9D;
 
+void (__cdecl* const operator_delete_internal)(void* ptr) =
+    (void (__cdecl* const) (void* ptr))0x00632B42;
+
 void (__cdecl* const free_internal)(void* memory) =
     (void (__cdecl* const) (void*))0x00632CCA;
 

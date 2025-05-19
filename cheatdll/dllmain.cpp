@@ -139,6 +139,7 @@
 #include "sleepingobjects.h"
 #include "fog.h"
 #include "loadfilelist.h"
+#include "mpsetupscreen.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -349,6 +350,8 @@ void setHooksCC()
     setWallBuildHooks();
 
     setLoadFileListHooks(cd.gameVersion);
+
+    //setMPSetupScreenHooks();
 
     log("setHooksCC() complete");
 }

@@ -281,6 +281,7 @@
     <ClInclude Include="gamespeed.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="loadfilelist.h" />
+    <ClInclude Include="mpsetupscreen.h" />
     <ClInclude Include="setup.h" />
     <ClInclude Include="sleepingobjects.h" />
     <ClInclude Include="textrender.h" />
@@ -474,6 +475,7 @@
     <ClCompile Include="gamespeed.cpp" />
     <ClCompile Include="memory.cpp" />
     <ClCompile Include="loadfilelist.cpp" />
+    <ClCompile Include="mpsetupscreen.cpp" />
     <ClCompile Include="setup.cpp" />
     <ClCompile Include="sleepingobjects.cpp" />
     <ClCompile Include="textrender.cpp" />
