@@ -357,10 +357,13 @@ __declspec(naked) void effectUnitVar()
 loc_5F3AAD:                             // CODE XREF: ProcessTriggerEffect+1061
 
         mov     eax, [edi + 6Ch]
+        push    0
+        push    0
+        push    1
         push    eax
         mov     eax, [esi]
         push    eax
-        call    effectUnitVarActual
+        call    effectUnitVar_do_multi_line_effect
 
         mov     eax, [esp + 10h]
         inc     ebp

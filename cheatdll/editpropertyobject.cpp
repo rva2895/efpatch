@@ -10,7 +10,7 @@ void __stdcall changePropertyObject_do_call(int player_id, int object_id, const 
     {
         RGE_Player* player = (RGE_Player*)((TRIBE_Game*)(*base_game))->game_screen->world->players[player_id];
         if (object_id < player->master_object_num && player->master_objects[object_id])
-            advTriggerEffect_do_multi_line_effect(player->master_objects[object_id], NULL, player, s);
+            advTriggerEffect_do_multi_line_effect(player->master_objects[object_id], NULL, player, s, true, NULL, 0);
     }
 }
 

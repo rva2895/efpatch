@@ -189,9 +189,6 @@
     <ClInclude Include="aisnx.h">
       <Filter>Заголовочные файлы\ai</Filter>
     </ClInclude>
-    <ClInclude Include="effectUnitVar.h">
-      <Filter>Заголовочные файлы\engine</Filter>
-    </ClInclude>
     <ClInclude Include="startupload.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
@@ -590,6 +587,9 @@
     </ClInclude>
     <ClInclude Include="aitimer.h">
       <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="effectUnitVar.h">
+      <Filter>Заголовочные файлы\editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

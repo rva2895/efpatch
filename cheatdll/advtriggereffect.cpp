@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-//#include <regex>
 #include <map>
 #include "effects.h"
 #include "advtriggereffect.h"
@@ -406,37 +405,49 @@ void modify_armor_class(RGE_Master_Static_Object* master, size_t offset, UNIT_MA
     modify_value<short>(&type_ptr->value, 0, op, value);
 }
 
-bool is_master_field_in_this_master(const CHANGE_UNIT_MASTER_PARAMS& param, unsigned __int8 master_type)
+bool is_master_field_in_this_master(const CHANGE_UNIT_MASTER_PARAMS& param, RGE_Master_Static_Object* master)
 {
-    switch (master_type)
+    if (!master)
+        return true;
+
+    switch (master->master_type)
     {
     case 10:
         return param.master_type == 10;
     case 15:
         return param.master_type == 10 || param.master_type == 15;
     case 20:
-        return (param.master_type <= master_type) && param.master_type != 15;
+        return (param.master_type <= master->master_type) && param.master_type != 15;
     case 25:
         return param.master_type == 10 || param.master_type == 20 || param.master_type == 25;
     case 30:
     case 40:
     case 50:
     case 60:
-        return (param.master_type <= master_type) && param.master_type != 15 && param.master_type != 25;
+        return (param.master_type <= master->master_type) && param.master_type != 15 && param.master_type != 25;
     case 70:
     case 80:
-        return (param.master_type <= master_type) && param.master_type != 15 && param.master_type != 25 && param.master_type != 60;
+        return (param.master_type <= master->master_type) && param.master_type != 15 && param.master_type != 25 && param.master_type != 60;
     default:
         return false;
     }
 }
 
-void __stdcall advTriggerEffect_do_single_line_effect(RGE_Master_Static_Object* master, RGE_Static_Object* obj, RGE_Player* player, const char* s)
+bool __stdcall advTriggerEffect_do_single_line_effect(
+    RGE_Master_Static_Object* master,
+    RGE_Static_Object* obj,
+    RGE_Player* player,
+    const char* s,
+    bool do_effect,
+    char* error_msg,
+    size_t error_msg_size)
 {
     char command[8];
     char variable[64];
     char amount[32];
     char amount2[32];
+
+    char error_msg_local[0x100];
 
     command[0] = '\0';
     variable[0] = '\0';
@@ -451,8 +462,17 @@ void __stdcall advTriggerEffect_do_single_line_effect(RGE_Master_Static_Object* 
 
     UNIT_MASTER_DATA_OPERATION op;
 
-    //sscanf_s(s, "%s %s %s",
-    //    command, (unsigned)_countof(command), variable, (unsigned)_countof(variable), amount, (unsigned)_countof(amount));
+    auto log_error_and_return = [&](const char* format, ...)
+        {
+            va_list ap;
+            va_start(ap, format);
+            vsnprintf(error_msg_local, _countof(error_msg_local), format, ap);
+            log("%s", error_msg_local);
+            if (error_msg)
+                strcpy_safe(error_msg, error_msg_size, error_msg_local);
+            va_end(ap);
+            return false;
+        };
 
     sscanf_s(s, "%s %s %s %s",
         command, (unsigned)_countof(command), variable, (unsigned)_countof(variable), amount, (unsigned)_countof(amount), amount2, (unsigned)_countof(amount2));
@@ -474,92 +494,107 @@ void __stdcall advTriggerEffect_do_single_line_effect(RGE_Master_Static_Object* 
     else if (!strcmp(command, "POW"))
         op = OP_POW;
     else
-    {
-        log("Error: unknown command: %s", command);
-        return;
-    }
-    
+        return log_error_and_return("Error: unknown command: %s", command);
+
     std::map<const std::string, const CHANGE_UNIT_MASTER_PARAMS&>::iterator r = unit_master_lookup_table.find(variable);
     if (r != unit_master_lookup_table.end())
     {
-        if (is_master_field_in_this_master((*r).second, master->master_type))
+        if (is_master_field_in_this_master((*r).second, master))
         {
             switch ((*r).second.val_type)
             {
             case T_UINT8:
                 if (sscanf_s(amount, "%f", &floatAmount) > 0)
-                    modify_value<unsigned char>(master, (*r).second.offset, op, floatAmount);
+                    do_effect ? modify_value<unsigned char>(master, (*r).second.offset, op, floatAmount) : noop;
                 else
-                    log("Error: value %s is invalid for variable %s", amount, variable);
+                    return log_error_and_return("Error: value %s is invalid for variable %s", amount, variable);
                 break;
             case T_INT16:
                 if (sscanf_s(amount, "%f", &floatAmount) > 0)
-                    modify_value<short>(master, (*r).second.offset, op, floatAmount);
+                    do_effect ? modify_value<short>(master, (*r).second.offset, op, floatAmount) : noop;
                 else
-                    log("Error: value %s is invalid for variable %s", amount, variable);
+                    return log_error_and_return("Error: value %s is invalid for variable %s", amount, variable);
                 break;
             case T_INT32:
                 if (sscanf_s(amount, "%f", &floatAmount) > 0)
-                    modify_value<int>(master, (*r).second.offset, op, floatAmount);
+                    do_effect ? modify_value<int>(master, (*r).second.offset, op, floatAmount) : noop;
                 else
-                    log("Error: value %s is invalid for variable %s", amount, variable);
+                    return log_error_and_return("Error: value %s is invalid for variable %s", amount, variable);
                 break;
             case T_FLOAT:
                 if (sscanf_s(amount, "%f", &floatAmount) > 0)
-                    modify_value<float>(master, (*r).second.offset, op, floatAmount);
+                    do_effect ? modify_value<float>(master, (*r).second.offset, op, floatAmount) : noop;
                 else
-                    log("Error: value %s is invalid for variable %s", amount, variable);
+                    return log_error_and_return("Error: value %s is invalid for variable %s", amount, variable);
                 break;
             case T_SPRITE_PTR:
                 if (op == OP_SET)
                 {
                     if (sscanf_s(amount, "%hd", &int16Amount) > 0)
-                        modify_sprite(master, obj, player, (RGE_Sprite**)((size_t)master + (*r).second.offset), int16Amount);
+                        do_effect ? modify_sprite(master, obj, player, (RGE_Sprite**)((size_t)master + (*r).second.offset), int16Amount) : noop;
                     else
-                        log("Error: value %s is not a valid sprite id", amount, variable);
+                        return log_error_and_return("Error: value %s is not a valid sprite id", amount, variable);
                 }
                 else
-                    log("Error: command %s is not allowed for variable %s", command, variable);
+                    return log_error_and_return("Error: command %s is not allowed for variable %s", command, variable);
                 break;
             case T_SOUND_PTR:
                 if (op == OP_SET)
                 {
                     if (sscanf_s(amount, "%hd", &int16Amount) > 0)
-                        modify_sound((RGE_Sound**)((size_t)master + (*r).second.offset), int16Amount);
+                        do_effect ? modify_sound((RGE_Sound**)((size_t)master + (*r).second.offset), int16Amount) : noop;
                     else
-                        log("Error: value %s is not a valid sprite id", amount, variable);
+                        return log_error_and_return("Error: value %s is not a valid sprite id", amount, variable);
                 }
                 else
-                    log("Error: command %s is not allowed for variable %s", command, variable);
+                    return log_error_and_return("Error: command %s is not allowed for variable %s", command, variable);
                 break;
             case T_ARMOR_CLASS:
                 if ((sscanf_s(amount, "%hd", &int16Amount) > 0) && (sscanf_s(amount2, "%hd", &int16Amount2) > 0))
-                    modify_armor_class(master, (*r).second.offset, op, int16Amount, int16Amount2);
+                    do_effect ? modify_armor_class(master, (*r).second.offset, op, int16Amount, int16Amount2) : noop;
                 else
-                    log("Error: valuee %s, %s are invalid for variable %s", amount, amount2, variable);
+                    return log_error_and_return("Error: values %s, %s are invalid for variable %s", amount, amount2, variable);
                 break;
             default:
+                return log_error_and_return("Error: variable %s cannot be modified", variable);
                 break;
             }
 
         }
         else
         {
-            log("Warning: cannot modify var %s for type %d", variable, (int)master->master_type);
+            return log_error_and_return("Warning: cannot modify var %s for type %d", variable, (int)master->master_type);
         }
     }
     else
     {
-        log("Error: unknown variable %s", variable);
+        return log_error_and_return("Error: unknown variable %s", variable);
     }
+
+    if (error_msg && error_msg_size > 0)
+        error_msg[0] = '\0';
+
+    return true;
 }
 
-void __stdcall advTriggerEffect_do_multi_line_effect(RGE_Master_Static_Object* master, RGE_Static_Object* obj, RGE_Player* player, const char* s)
+bool __stdcall advTriggerEffect_do_multi_line_effect(
+    RGE_Master_Static_Object* master,
+    RGE_Static_Object* obj,
+    RGE_Player* player,
+    const char* s,
+    bool do_effect,
+    char* error_msg,
+    size_t error_msg_size)
 {
     char* s_heap = NULL;
     char s_stack[0x800];
     size_t s_len = strlen(s);
     char* s_tmp;
+    bool result = true;
+
+    if (error_msg && error_msg_size > 0)
+        error_msg[0] = '\0';
+
     if (s_len < 0x800)
     {
         s_tmp = s_stack;
@@ -579,9 +614,16 @@ void __stdcall advTriggerEffect_do_multi_line_effect(RGE_Master_Static_Object* m
         pch = strtok(NULL, "\r\n");
     }
     for (int i = 0; i < str_count; i++)
-        advTriggerEffect_do_single_line_effect(master, obj, player, com_strs[i]);
+    {
+        if (result)
+            result = advTriggerEffect_do_single_line_effect(master, obj, player, com_strs[i], do_effect, error_msg, error_msg_size);
+        else
+            advTriggerEffect_do_single_line_effect(master, obj, player, com_strs[i], do_effect, NULL, 0);
+    }
 
     free(s_heap);
+
+    return result;
 }
 
 void __declspec(naked) advTriggerEffect()
@@ -589,6 +631,9 @@ void __declspec(naked) advTriggerEffect()
     __asm
     {
         mov     eax, [edi + 6Ch]
+        push    0           //error_msg_size
+        push    0           //error_msg
+        push    1           //do_effect
         push    eax         //string
         push    0           //player
         mov     ecx, [ebp]

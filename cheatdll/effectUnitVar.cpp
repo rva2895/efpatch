@@ -204,7 +204,12 @@ void editCivOverride(RGE_Static_Object* unit, float val, int action)
     }
 }
 
-void __stdcall effectUnitVarActual_sub(RGE_Static_Object* unit, char* str)
+bool __stdcall effectUnitVar_do_single_line_effect(
+    RGE_Static_Object* unit,
+    char* str,
+    bool do_effect,
+    char* error_msg,
+    size_t error_msg_size)
 {
     int action;
     char var[32];
@@ -215,6 +220,21 @@ void __stdcall effectUnitVarActual_sub(RGE_Static_Object* unit, char* str)
     char s_stack[0x100];
     size_t s_len = strlen(str);
     char* s;
+    char error_msg_local[0x100];
+
+    auto log_error_and_return = [&](const char* format, ...)
+        {
+            va_list ap;
+            va_start(ap, format);
+            vsnprintf(error_msg_local, _countof(error_msg_local), format, ap);
+            log("%s", error_msg_local);
+            if (error_msg)
+                strcpy_safe(error_msg, error_msg_size, error_msg_local);
+            va_end(ap);
+            free(s_heap);
+            return false;
+        };
+
     if (s_len < 0x100)
     {
         s = s_stack;
@@ -235,15 +255,11 @@ void __stdcall effectUnitVarActual_sub(RGE_Static_Object* unit, char* str)
         else if (!strcmp(pch, "MUL"))
             action = 2;
         else
-        {
-            free(s_heap);
-            return;
-        }
+            return log_error_and_return("Error: unknown command: %s", pch);
     }
     else
     {
-        free(s_heap);
-        return;
+        return log_error_and_return("Error: string parse failed");
     }
 
     pch = strtok(NULL, " ");
@@ -251,8 +267,7 @@ void __stdcall effectUnitVarActual_sub(RGE_Static_Object* unit, char* str)
         strcpy_safe(var, sizeof(var), pch);
     else
     {
-        free(s_heap);
-        return;
+        return log_error_and_return("Error: string parse failed");
     }
 
     pch = strtok(NULL, " ");
@@ -260,56 +275,55 @@ void __stdcall effectUnitVarActual_sub(RGE_Static_Object* unit, char* str)
         sscanf_s(pch, "%f", &val);
     else
     {
-        free(s_heap);
-        return;
+        return log_error_and_return("Error: string parse failed");
     }
     if (!strcmp(var, "HP"))
     {
-        editHP(unit, val, action);
+        do_effect ? editHP(unit, val, action) : noop;
     }
     else if (!strcmp(var, "HPPercent"))
     {
-        editHPPercent(unit, val, action);
+        do_effect ? editHPPercent(unit, val, action) : noop;
     }
     else if (!strcmp(var, "SP"))
     {
-        editSP(unit, val, action);
+        do_effect ? editSP(unit, val, action) : noop;
     }
     else if (!strcmp(var, "SPPercent"))
     {
-        editSPPercent(unit, val, action);
+        do_effect ? editSPPercent(unit, val, action) : noop;
     }
     else if (!strcmp(var, "ReloadCooldown"))
     {
-        editReloadCooldown(unit, val, action);
+        do_effect ? editReloadCooldown(unit, val, action) : noop;
     }
     else if (!strcmp(var, "ReloadCooldownPercent"))
     {
-        editReloadCooldownPercent(unit, val, action);
+        do_effect ? editReloadCooldownPercent(unit, val, action) : noop;
     }
     else if (!strcmp(var, "Resources"))
     {
-        editResources(unit, val, action);
+        do_effect ? editResources(unit, val, action) : noop;
     }
     else if (!strcmp(var, "MiscCounter1"))
     {
-        editCounter(unit, val, action, 1);
+        do_effect ? editCounter(unit, val, action, 1) : noop;
     }
     else if (!strcmp(var, "MiscCounter2"))
     {
-        editCounter(unit, val, action, 2);
+        do_effect ? editCounter(unit, val, action, 2) : noop;
     }
     else if (!strcmp(var, "MiscCounter3"))
     {
-        editCounter(unit, val, action, 3);
+        do_effect ? editCounter(unit, val, action, 3) : noop;
     }
     else if (!strcmp(var, "MiscCounter4"))
     {
-        editCounter(unit, val, action, 4);
+        do_effect ? editCounter(unit, val, action, 4) : noop;
     }
     else if (!strcmp(var, "MiscCounter5"))
     {
-        editCounter(unit, val, action, 5);
+        do_effect ? editCounter(unit, val, action, 5) : noop;
     }
     else if (!strcmp(var, "HPRegen"))
     {
@@ -317,12 +331,11 @@ void __stdcall effectUnitVarActual_sub(RGE_Static_Object* unit, char* str)
         if (pch)
         {
             sscanf_s(pch, "%f", &val2);
-            editHPRegen(unit, val, 10 * val2);
+            do_effect ? editHPRegen(unit, val, 10 * val2) : noop;
         }
         else
         {
-            free(s_heap);
-            return;
+            return log_error_and_return("Error: string parse failed");
         }
     }
     else if (!strcmp(var, "HPRegenPercent"))
@@ -331,36 +344,51 @@ void __stdcall effectUnitVarActual_sub(RGE_Static_Object* unit, char* str)
         if (pch)
         {
             sscanf_s(pch, "%f", &val2);
-            editHPRegenPercent(unit, val, 10 * val2);
+            do_effect ? editHPRegenPercent(unit, val, 10 * val2) : noop;
         }
         else
         {
-            free(s_heap);
-            return;
+            return log_error_and_return("Error: string parse failed");
         }
     }
     else if (!strcmp(var, "Kills"))
     {
-        editKills(unit, val, action);
+        do_effect ? editKills(unit, val, action) : noop;
     }
     else if (!strcmp(var, "Facet"))
     {
-        editFacet(unit, val, action);
+        do_effect ? editFacet(unit, val, action) : noop;
     }
     else if (!strcmp(var, "CivOverride"))
     {
-        editCivOverride(unit, val, action);
+        do_effect ? editCivOverride(unit, val, action) : noop;
+    }
+    else
+    {
+        return log_error_and_return("Error: unknown variable %s", var);
     }
 
     free(s_heap);
+
+    if (error_msg && error_msg_size > 0)
+        error_msg[0] = '\0';
+
+    return true;
 }
 
-void __stdcall effectUnitVarActual(RGE_Static_Object* unit, char* str)
+bool __stdcall effectUnitVar_do_multi_line_effect(
+    RGE_Static_Object* unit,
+    char* str,
+    bool do_effect,
+    char* error_msg,
+    size_t error_msg_size)
 {
     char* s_heap = NULL;
     char s_stack[0x800];
     size_t s_len = strlen(str);
     char* s;
+    bool result = true;
+
     if (s_len < 0x800)
     {
         s = s_stack;
@@ -380,7 +408,12 @@ void __stdcall effectUnitVarActual(RGE_Static_Object* unit, char* str)
         pch = strtok(NULL, "\r\n");
     }
     for (int i = 0; i < str_count; i++)
-        effectUnitVarActual_sub(unit, com_strs[i]);
+        if (result)
+            result = effectUnitVar_do_single_line_effect(unit, com_strs[i], do_effect, error_msg, error_msg_size);
+        else
+            effectUnitVar_do_single_line_effect(unit, com_strs[i], do_effect, NULL, 0);
 
     free(s_heap);
+
+    return result;
 }

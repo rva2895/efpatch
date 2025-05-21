@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "tribe_command_ef.h"
-#include "effects.h"
 #include "advtriggereffect.h"
+#include "effectUnitVar.h"
 
 void make_cheat_by_id(RGE_Player* player, int ef_cheat_id)
 {
@@ -154,14 +154,14 @@ void __stdcall ef_do_command(TRIBE_Command* command, void* order)
                             break;
                         case EF_CHEAT_FORCEHEAL:
                             if (unit_owner == player)
-                                effectUnitVarActual((RGE_Static_Object*)unit, "SET HPPercent 100");
+                                effectUnitVar_do_single_line_effect((RGE_Static_Object*)unit, "SET HPPercent 100", true, NULL, 0);
                             break;
                         case EF_CHEAT_FORCEPROTECT:
                             if (unit_owner == player)
                             {
                                 TRIBE_Combat_Object__create_own_master(unit);
-                                advTriggerEffect_do_single_line_effect((RGE_Master_Static_Object*)unit->master_obj, (RGE_Static_Object*)unit, NULL, "ADD Armor 3 1");
-                                advTriggerEffect_do_single_line_effect((RGE_Master_Static_Object*)unit->master_obj, (RGE_Static_Object*)unit, NULL, "ADD Armor 4 1");
+                                advTriggerEffect_do_single_line_effect((RGE_Master_Static_Object*)unit->master_obj, (RGE_Static_Object*)unit, NULL, "ADD Armor 3 1", true, NULL, 0);
+                                advTriggerEffect_do_single_line_effect((RGE_Master_Static_Object*)unit->master_obj, (RGE_Static_Object*)unit, NULL, "ADD Armor 4 1", true, NULL, 0);
                             }
                             break;
                         case EF_CHEAT_JOIN_US_OR_DIE:

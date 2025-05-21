@@ -29,6 +29,8 @@
 #define DLL_NAME "efpatch.dll"
 #endif
 
+#define noop (void)0
+
 void __cdecl writeByte(DWORD addr, BYTE val);
 void __cdecl writeWord(DWORD addr, WORD val);
 void __cdecl writeDword(DWORD addr, DWORD val);

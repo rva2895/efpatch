@@ -1,9 +1,9 @@
 #include "stdafx.h"
 
-#include <regex>
 #include <map>
 #include "effects.h"
 #include "advtriggereffect.h"
+#include "effectUnitVar.h"
 #include "triggerdesc.h"
 
 extern std::map<const std::string, const CHANGE_UNIT_MASTER_PARAMS&> unit_master_lookup_table;
@@ -323,53 +323,18 @@ void __stdcall e_alliance(effect* p, int)
     sprintf(s + strlen(s), " (P%d->P%d: %s)", p->source_player, p->target_player, alliance_states[p->alliance]);
 }
 
-bool check_data(char* str_)
+void __stdcall e_str_obj_master(effect* p, int)
 {
-    if (!str_)
-        return false;
-
-    std::regex r("^([^ \t]+) ([^ \t]+) ([0-9]+ )?([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?)$",
-        std::regex_constants::icase);
-
-    std::smatch h;
-    std::string str(str_);
-    if (std::regex_match(str, h, r))
-    {
-        std::ssub_match h_sub = h[1];
-        std::string match = h_sub.str();
-        if ((match == "SET") || (match == "ADD") || (match == "MUL"))
-        {
-            h_sub = h[2];
-            match = h_sub.str();
-            std::map<const std::string, const CHANGE_UNIT_MASTER_PARAMS&>::iterator r2 = unit_master_lookup_table.find(match);
-            if (r2 != unit_master_lookup_table.end())
-            {
-                if ((*r2).second.val_type == T_ARMOR_CLASS)
-                {
-                    h_sub = h[3];
-                    match = h_sub.str();
-                    return match.length() > 0;
-                }
-                else
-                {
-                    h_sub = h[3];
-                    match = h_sub.str();
-                    return match.length() == 0;
-                }
-            }
-            else
-                return false;
-        }
-        else
-            return false;
-    }
-    else
-        return false;
+    char error_msg[0x100];
+    bool result = advTriggerEffect_do_multi_line_effect(NULL, NULL, NULL, p->str, false, error_msg, _countof(error_msg));
+    sprintf(s + strlen(s), " (%s)", result ? p->str : error_msg);
 }
 
-void __stdcall e_str_data(effect* p, int)
+void __stdcall e_str_obj_var(effect* p, int)
 {
-    sprintf(s + strlen(s), " (%s)", check_data(p->str) ? p->str : "<syntax error>");
+    char error_msg[0x100];
+    bool result = effectUnitVar_do_multi_line_effect(NULL, p->str, false, error_msg, _countof(error_msg));
+    sprintf(s + strlen(s), " (%s)", result ? p->str : error_msg);
 }
 
 void __stdcall e_location(effect* p, int)
@@ -447,10 +412,10 @@ void(__stdcall* effectPrint[]) (effect*, int) =
     e_quantity, //change speed
     e_quantity, //give ability
     e_quantity, //remove ability
-    e_str_data, //change data
-    e_str_data, //change prop obj
+    e_str_obj_master, //change own master
+    e_str_obj_master, //change player master
     e_player, //explore
-    e_str, //change var
+    e_str_obj_var, //change var
     e_terrain, //terrain
     e_player, //defeat
     e_copy_obj, //copy obj
