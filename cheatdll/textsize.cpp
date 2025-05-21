@@ -1,43 +1,43 @@
 #include "stdafx.h"
 #include "textsize.h"
 
-int* obj_panel_obj_name_offset_x = (int*)0x0078F444;
-int* obj_panel_obj_name_offset_y = (int*)0x0078F450;
+int* const obj_panel_obj_name_offset_x = (int* const)0x0078F444;
+int* const obj_panel_obj_name_offset_y = (int* const)0x0078F450;
 
-int* obj_panel_icon_offset_x = (int*)0x0078F45C;
-int* obj_panel_icon_offset_y = (int*)0x0078F468;
+int* const obj_panel_icon_offset_x = (int* const)0x0078F45C;
+int* const obj_panel_icon_offset_y = (int* const)0x0078F468;
 
-int* obj_panel_hp_bar_offset_x = (int*)0x0078F474;
-int* obj_panel_hp_bar_offset_y = (int*)0x0078F480;
+int* const obj_panel_hp_bar_offset_x = (int* const)0x0078F474;
+int* const obj_panel_hp_bar_offset_y = (int* const)0x0078F480;
 
-int* obj_panel_hp_text_offset_x = (int*)0x0078F48C;
-int* obj_panel_hp_text_offset_y = (int*)0x0078F498;
+int* const obj_panel_hp_text_offset_x = (int* const)0x0078F48C;
+int* const obj_panel_hp_text_offset_y = (int* const)0x0078F498;
 
-int* obj_panel_sp_bar_offset_x = (int*)0x0078F4A4;
-int* obj_panel_sp_bar_offset_y = (int*)0x0078F4B0;
+int* const obj_panel_sp_bar_offset_x = (int* const)0x0078F4A4;
+int* const obj_panel_sp_bar_offset_y = (int* const)0x0078F4B0;
 
-int* obj_panel_sp_text_offset_x = (int*)0x0078F4BC;
-int* obj_panel_sp_text_offset_y = (int*)0x0078F4C8;
+int* const obj_panel_sp_text_offset_x = (int* const)0x0078F4BC;
+int* const obj_panel_sp_text_offset_y = (int* const)0x0078F4C8;
 
-int* obj_panel_player_name_offset_x = (int*)0x0078F4D4;
-int* obj_panel_player_name_offset_y = (int*)0x0078F4E0;
+int* const obj_panel_player_name_offset_x = (int* const)0x0078F4D4;
+int* const obj_panel_player_name_offset_y = (int* const)0x0078F4E0;
 
-int* obj_panel_civ_offset_x = (int*)0x0078F4EC;
-int* obj_panel_civ_offset_y = (int*)0x0078F4F8;
+int* const obj_panel_civ_offset_x = (int* const)0x0078F4EC;
+int* const obj_panel_civ_offset_y = (int* const)0x0078F4F8;
 
-int* obj_panel_alliance_state_offset_x = (int*)0x0078F504;
-int* obj_panel_alliance_state_offset_y = (int*)0x0078F510;
+int* const obj_panel_alliance_state_offset_x = (int* const)0x0078F504;
+int* const obj_panel_alliance_state_offset_y = (int* const)0x0078F510;
 
-int* obj_panel_stat_offset_x = (int*)0x0078F51C;
-int* obj_panel_stat_offset_y = (int*)0x0078F528;
+int* const obj_panel_stat_offset_x = (int* const)0x0078F51C;
+int* const obj_panel_stat_offset_y = (int* const)0x0078F528;
 
-int* obj_panel_research_icon_offset_x = (int*)0x0078F534;
-int* obj_panel_research_icon_offset_y = (int*)0x0078F540;
+int* const obj_panel_research_icon_offset_x = (int* const)0x0078F534;
+int* const obj_panel_research_icon_offset_y = (int* const)0x0078F540;
 
-int* obj_panel_research_progress_offset_x = (int*)0x0078F564;
-int* obj_panel_research_progress_offset_y = (int*)0x0078F570;
+int* const obj_panel_research_progress_offset_x = (int* const)0x0078F564;
+int* const obj_panel_research_progress_offset_y = (int* const)0x0078F570;
 
-int obj_panel_research_text_offset_y_new[] =
+const int obj_panel_research_text_offset_y_new[] =
 {
     0x29, 0x27, 0x26
 };

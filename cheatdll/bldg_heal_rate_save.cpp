@@ -38,8 +38,10 @@ skip_bldg_small_save_read:
     }
 }
 
+#pragma optimize( "s", on )
 void setBldgHealRateSaveHooks()
 {
     setHook((void*)0x005C750D, bldg_master_small_save);
     setHook((void*)0x005C72AF, bldg_master_small_read);
 }
+#pragma optimize( "", on )

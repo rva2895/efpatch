@@ -6,7 +6,7 @@
 
 extern bool isEditor;
 
-TPanel* window_editorbk = 0;
+TPanel* window_editorbk = NULL;
 
 bool editorstatus_isValid = false;
 bool background_initialized = false;
@@ -61,8 +61,11 @@ extern int terrain_paint_mode;
 std::string rms_error_1;
 std::string rms_error_2;
 
-void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
+void __stdcall editorstatus_paint(TRIBE_Screen_Sed* screen_sed)
 {
+    IDirectDrawSurface* s = screen_sed->render_area->DrawSurface;
+    window_editorbk = (TPanel*)screen_sed;
+
     if (!background_initialized)
         initBackground();
 
@@ -146,36 +149,20 @@ void __stdcall paintOnScreen(LPDIRECTDRAWSURFACE7 s)
     s->ReleaseDC(hdc);
 }
 
-#pragma warning(push)
-#pragma warning(disable:4100)
-__declspec(naked) void __fastcall window_getSurface(void* wnd)
+__declspec(naked) void screen_sed_draw_editorstatus() //00531271
 {
     __asm
     {
-        mov     eax, [ecx + 3Ch]    //surface
-        ret
-    }
-}
-#pragma warning(pop)
-
-__declspec(naked) void hook2() //00531271
-{
-    __asm
-    {
-        mov     window_editorbk, esi
-        push    ecx
-        call    window_getSurface
-        push    eax
-        call    paintOnScreen
-        pop     ecx
+        push    esi
+        call    editorstatus_paint
+        mov     ecx, [esi + 20h]
+        call    TDrawArea__Unlock
         mov     eax, 00531276h
-        push    eax
-        mov     eax, 00472B20h
         jmp     eax
     }
 }
 
 void setEditorStatusHooks()
 {
-    setHook((void*)0x00531271, hook2);
+    setHook((void*)0x00531271, screen_sed_draw_editorstatus);
 }

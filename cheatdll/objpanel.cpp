@@ -317,8 +317,10 @@ trawler_unknown_res:
     }
 }
 
-void __stdcall get_weapon_new(RGE_Combat_Object* obj, __int16* cur_weapon_in, __int16* orig_weapon_in)
+void __fastcall RGE_Combat_Object__get_weapon_new(RGE_Combat_Object* obj, DWORD dummy, __int16* cur_weapon_in, __int16* orig_weapon_in)
 {
+    UNREFERENCED_PARAMETER(dummy);
+
     *cur_weapon_in = 0;
     if (obj->master_obj->weapon)
     {
@@ -363,20 +365,6 @@ void __stdcall get_weapon_new(RGE_Combat_Object* obj, __int16* cur_weapon_in, __
     *orig_weapon_in = obj->master_obj->orig_weapon;
 }
 
-__declspec(naked) void onGetWeapon() //00444BD0
-{
-    __asm
-    {
-        mov     eax, [esp + 4]
-        mov     edx, [esp + 8]
-        push    edx
-        push    eax
-        push    ecx
-        call    get_weapon_new
-        ret     8
-    }
-}
-
 #pragma optimize( "s", on )
 void fixObjPanelDrawFunction()
 {
@@ -410,7 +398,7 @@ void fixObjPanelDrawFunction()
     writeWord(0x005DADDC, 0x9051);
     setHook((void*)0x005DADA3, onTrawlerUI);
 
-    setHook((void*)0x00444BD0, onGetWeapon);
+    setHook((void*)0x00444BD0, RGE_Combat_Object__get_weapon_new);
 
     //scenario editor object panel
     writeNops(0x005489A7, 4);

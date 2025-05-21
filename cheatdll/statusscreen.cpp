@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "statusscreen.h"
 
+/*
 const char* const aGameScreen = (const char*)0x00689ABC;
 const char* const aCombatComparis = (const char*)0x00699ED8;
 const char* const aBlankScreen = (const char*)0x0068976C;
@@ -434,3 +435,4 @@ void setStatusScreenHooks()
     setHook((void*)0x004E5F76, onStatus_generate_shore);
 }
 #pragma optimize( "", on )
+*/

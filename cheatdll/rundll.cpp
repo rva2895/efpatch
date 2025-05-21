@@ -38,7 +38,7 @@ void fixCurrentDir()
 
 extern crash_rpt::CrashRpt* g_crashRpt;
 
-extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
+int WINAPI WinMain_dll(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
     LPSTR lpCmdLine,
@@ -47,13 +47,9 @@ extern "C" __declspec(dllexport) int WINAPI WinMain_dll(
 #pragma comment(linker, "/EXPORT:" __FUNCTION__"=" __FUNCDNAME__)
 
     SetProcessDPIAware();
-
     fixCurrentDir();
-
     initLog();
-
     installPalette();
-
     initialSetup();
 
     writeDword(0x00426509, (DWORD)WndProc_dll);

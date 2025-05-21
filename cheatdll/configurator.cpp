@@ -311,14 +311,17 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 
 void __stdcall launchConfigurator(HWND hWnd)
 {
-    installPalette();
-
     DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_CONFIG), hWnd, ConfigDlgProc);
 }
 
-extern "C" __declspec(dllexport) void __stdcall Configurator(HWND parent)
+void __stdcall Configurator(HWND parent)
 {
 #pragma comment(linker, "/EXPORT:" __FUNCTION__"=" __FUNCDNAME__)
+
+    SetProcessDPIAware();
+    initLog();
     regGet(&cd);
+    installPalette();
     launchConfigurator(parent);
+    closeLog();
 }

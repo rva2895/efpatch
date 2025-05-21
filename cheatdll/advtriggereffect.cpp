@@ -223,7 +223,8 @@ void build_unit_master_variable_lookup_table()
     for (int i = 0; i < _countof(change_master_params); i++)
     {
         for (size_t j = 0; j < change_master_params[i].val_names.size(); j++)
-            unit_master_lookup_table.emplace(std::pair<const std::string, const CHANGE_UNIT_MASTER_PARAMS&>(change_master_params[i].val_names[j], change_master_params[i]));
+            if (change_master_params[i].val_names[j])
+                unit_master_lookup_table.emplace(std::pair<const std::string, const CHANGE_UNIT_MASTER_PARAMS&>(change_master_params[i].val_names[j], change_master_params[i]));
     }
 }
 

@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "mpsetupscreen.h"
 
-void* TribeMPSetupScreenExtraOptionsDialog__vector_deleting_destructor_wr();
-int TribeMPSetupScreenExtraOptionsDialog__action_wr();
+void* __fastcall TribeMPSetupScreenExtraOptionsDialog__vector_deleting_destructor(TribeMPSetupScreenExtraOptionsDialog* this_, DWORD dummy, unsigned int a2);
 int __fastcall TribeMPSetupScreenExtraOptionsDialog__action(TribeMPSetupScreenExtraOptionsDialog* this_, DWORD dummy, TPanel* fromPanel, int actionIn, unsigned int a1, unsigned int a2);
 
 const char aExtraOptionsTitle[] = "TribeMPSetupScreenExtraOptionsDialog";
@@ -11,7 +10,7 @@ EXTRA_GAME_OPTIONS extra_options;
 
 const DWORD TribeMPSetupScreenExtraOptionsDialog__vftable[] =
 {
-    (DWORD)TribeMPSetupScreenExtraOptionsDialog__vector_deleting_destructor_wr,
+    (DWORD)TribeMPSetupScreenExtraOptionsDialog__vector_deleting_destructor,
     (DWORD)TPanel__setup,
     (DWORD)TPanel__set_rect,
     (DWORD)TPanel__set_rect2,
@@ -150,24 +149,14 @@ void __stdcall TribeMPSetupScreenExtraOptionsDialog__destructor(TribeMPSetupScre
     TDialogPanel__destructor((TDialogPanel*)this_);
 }
 
-void* __stdcall TribeMPSetupScreenExtraOptionsDialog__vector_deleting_destructor(TribeMPSetupScreenExtraOptionsDialog* this_, unsigned int a2)
+void* __fastcall TribeMPSetupScreenExtraOptionsDialog__vector_deleting_destructor(TribeMPSetupScreenExtraOptionsDialog* this_, DWORD dummy, unsigned int a2)
 {
+    UNREFERENCED_PARAMETER(dummy);
+
     TribeMPSetupScreenExtraOptionsDialog__destructor(this_);
     if ((a2 & 1) != 0)
         operator_delete_internal(this_);
     return this_;
-}
-
-__declspec(naked) void* TribeMPSetupScreenExtraOptionsDialog__vector_deleting_destructor_wr()
-{
-    __asm
-    {
-        mov     eax, [esp + 4]
-        push    eax
-        push    ecx
-        call    TribeMPSetupScreenExtraOptionsDialog__vector_deleting_destructor
-        ret     4
-    }
 }
 
 #define OPTION_1_ACTION_ID 1
@@ -246,30 +235,6 @@ __declspec(naked) void Comm_PreprocessMessages_wr() //0043531A
         pop     ebx
         add     esp, 3A4h
         ret     14h
-    }
-}
-
-__declspec(naked) int TribeMPSetupScreenExtraOptionsDialog__action_wr()
-{
-    __asm
-    {
-        push    esi
-        push    edi
-        mov     esi, ecx
-        mov     eax, [esp + 0Ch]
-        mov     ecx, [esp + 10h]
-        mov     edx, [esp + 14h]
-        mov     edi, [esp + 18h]
-        push    edi
-        push    edx
-        push    ecx
-        push    eax
-        push    esi
-        call    TribeMPSetupScreenExtraOptionsDialog__action
-
-        pop     edi
-        pop     esi
-        ret     10h
     }
 }
 
@@ -436,8 +401,9 @@ __declspec(naked) void set_my_game_options_2() //005EE60C
     }
 }
 
-void* __stdcall TCommunications_Handler__GetMyGameOptions_new(TCommunications_Handler* comm, unsigned int* dwSize)
+void* __fastcall TCommunications_Handler__GetMyGameOptions_new(TCommunications_Handler* comm, DWORD dummy, unsigned int* dwSize)
 {
+    UNREFERENCED_PARAMETER(dummy);
 
     *dwSize = comm->PlayerOptions.DataSizeToFollow;
 
@@ -453,18 +419,6 @@ void* __stdcall TCommunications_Handler__GetMyGameOptions_new(TCommunications_Ha
     }
 
     return comm->OptionsData;
-}
-
-__declspec(naked) void get_my_game_options() //0043DC60
-{
-    __asm
-    {
-        mov     edx, [esp + 4]
-        push    edx
-        push    ecx
-        call    TCommunications_Handler__GetMyGameOptions_new
-        ret     4
-    }
 }
 
 TButtonPanel* mp_setup_screen_extra_options_button = NULL;
@@ -557,8 +511,10 @@ show_net_info_btn:
     }
 }
 
-char* __stdcall TCommunications_Handler__GetPlayerName_new(TCommunications_Handler* comm, unsigned int PlayerNo)
+char* __fastcall TCommunications_Handler__GetPlayerName_new(TCommunications_Handler* comm, DWORD dummy, unsigned int PlayerNo)
 {
+    UNREFERENCED_PARAMETER(dummy);
+
     if (extra_options.hide_names)
     {
         //TCommunications_Handler__SetPlayerName(comm, PlayerNo, "Hidden");
@@ -570,18 +526,6 @@ char* __stdcall TCommunications_Handler__GetPlayerName_new(TCommunications_Handl
         return comm->MyFriendlyName;
     else
         return comm->FriendlyName[PlayerNo].Text;
-}
-
-__declspec(naked) char* comm_get_player_name_wr() //0043B5A0
-{
-    __asm
-    {
-        mov     eax, [esp + 4]
-        push    eax
-        push    ecx
-        call    TCommunications_Handler__GetPlayerName_new
-        ret     4
-    }
 }
 
 char* __fastcall RGE_Game_Info__get_current_player_name_new(RGE_Game_Info* game_info)
@@ -609,14 +553,14 @@ void setMPSetupScreenHooks()
 
     setHook((void*)0x0042A421, set_my_game_options_1);
     setHook((void*)0x005EE60C, set_my_game_options_2);
-    setHook((void*)0x0043DC60, get_my_game_options);
+    setHook((void*)0x0043DC60, TCommunications_Handler__GetMyGameOptions_new);
 
     memset(&extra_options, 0, sizeof(EXTRA_GAME_OPTIONS));
     extra_options.magic = EXTRA_OPTIONS_MAGIC;
 
     //
 
-    setHook((void*)0x0043B5A0, comm_get_player_name_wr);
+    setHook((void*)0x0043B5A0, TCommunications_Handler__GetPlayerName_new);
     //setHook((void*)0x00478210, RGE_Game_Info__get_current_player_name_new);
 
     setHook((void*)0x0043531A, Comm_PreprocessMessages_wr);

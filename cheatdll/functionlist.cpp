@@ -2,6 +2,7 @@
 #include "functionlist.h"
 #include <vector>
 
+/*
 LARGE_INTEGER Frequency;
 
 std::vector<FUNCTION_HOOK*> function_hooks;
@@ -6434,7 +6435,7 @@ DWORD function_addresses [] =
 0x00625D40,
 0x00625E80,
 0x00625FD0,
-/*0x00626178,
+0x00626178, //ends here
 0x0062617F,
 0x0062618C,
 0x0062619F,
@@ -9192,7 +9193,7 @@ DWORD function_addresses [] =
 0x00647D40,
 0x00647D4B,
 0x00647D60,
-0x00647D6B*/
+0x00647D6B,
 0x00632BAC
 };
 
@@ -9213,3 +9214,4 @@ void setFunctionListHooks()
         if (function_addresses[i] % 0x10 == 0 || function_addresses[i] == 0x00632BAC)
             function_hooks.push_back(new FUNCTION_HOOK((void*)function_addresses[i]));
 }
+*/

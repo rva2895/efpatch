@@ -3,7 +3,7 @@
 
 struct drs_file_info
 {
-    std::string filename;
+    const char* filename;
     bool load_in_cc;
     bool load_in_ef;
     bool load_in_non_wide;
@@ -101,7 +101,7 @@ bool is_loaded_in_current_mode(drs_file_info& drs_file)
 std::string get_adjusted_name(drs_file_info& drs_file)
 {
     if (drs_mode_ef && drs_file.prefix_required)
-        return DATA_FOLDER_PREFIX_FROM_DATA + drs_file.filename;
+        return DATA_FOLDER_PREFIX_FROM_DATA + std::string(drs_file.filename);
     else
         return drs_file.filename;
 }

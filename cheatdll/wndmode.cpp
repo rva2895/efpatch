@@ -66,6 +66,8 @@ int __stdcall new_is_mode_avail(int formal1, int formal2, int formal3)
 #pragma optimize( "s", on )
 void setWndModeHooks()
 {
+    log("Setting up window mode...");
+
     if (LoadLibrary("wndmode.dll"))
         log("Loaded wndmode.dll");
     else

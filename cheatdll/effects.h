@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 enum UNIT_MASTER_DATA_TYPE
 {
     T_FORBIDDEN,
@@ -31,10 +33,9 @@ struct CHANGE_UNIT_MASTER_PARAMS
     UNIT_MASTER_DATA_TYPE val_type;
     bool is_saved;
     //std::vector<std::string> val_names;
-    std::vector<const char*> val_names;
+    const std::array<const char*, 3> val_names;
 };
 
 void setEffectHooks();
 void triggerDisplayHook();
 void effectUnitVar();
-void __stdcall effectUnitVarActual(RGE_Static_Object* unit, char* str);

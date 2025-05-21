@@ -428,6 +428,7 @@ cont:
     }
 }
 
+/*
 char invCond;
 
 __declspec(naked) void invProcessCond() //005F4A0F
@@ -453,6 +454,7 @@ loc_5F4A2D:
         jmp     ecx
     }
 }
+*/
 
 #define CONDITION_OR_ID 30
 
@@ -900,8 +902,8 @@ _count_garrisoned:
 
 extern void* new_memory_pages;
 
-const void* count_objects_limit_normal_continue = (const void*)0x004AFAB0;  //+0x130
-const void* count_objects_limit_normal_stop = (const void*)0x004AFACC;      //+0x14C
+void* const count_objects_limit_normal_continue = (void* const)0x004AFAB0;  //+0x130
+void* const count_objects_limit_normal_stop = (void* const)0x004AFACC;      //+0x14C
 void* count_objects_limit_garrisoned_continue;
 void* count_objects_limit_garrisoned_stop;
 void* count_objects_limit_ungarrisoned_continue;

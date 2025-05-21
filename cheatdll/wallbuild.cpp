@@ -320,14 +320,17 @@ wall_build_do_old_command:
 
 int* const allow_user_commands = (int* const)0x00690D40;
 
-int __stdcall TRIBE_Main_View__command_place_multi_object_new(
+int __fastcall TRIBE_Main_View__command_place_multi_object_new(
     TRIBE_Main_View* main_view,
+    DWORD dummy,
     int x1,
     int y1,
     int x2,
     int y2,
     int reset_mode)
 {
+    UNREFERENCED_PARAMETER(dummy);
+
     int retval = 0;
     if (!allow_user_commands)
         return 0;
@@ -369,22 +372,11 @@ int __stdcall TRIBE_Main_View__command_place_multi_object_new(
     return retval;
 }
 
-__declspec(naked) void TRIBE_Main_View__command_place_multi_object_new_wr() //005FCB20
-{
-    __asm
-    {
-        pop     eax
-        push    ecx
-        push    eax
-        jmp     TRIBE_Main_View__command_place_multi_object_new
-    }
-}
-
 #pragma optimize( "s", on )
 void setWallBuildHooks()
 {
     setHook((void*)0x005FC180, TRIBE_Main_View__draw_multi_object_outline_new);
     setHook((void*)0x005BA9F6, wall_build_on_do_command);
-    setHook((void*)0x005FCB20, TRIBE_Main_View__command_place_multi_object_new_wr);
+    setHook((void*)0x005FCB20, TRIBE_Main_View__command_place_multi_object_new);
 }
 #pragma optimize( "", on )

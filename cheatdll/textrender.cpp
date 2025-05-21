@@ -6,6 +6,8 @@
 
 float screen_scale_factor = 1.0f;
 
+bool dwrite_checked_and_available = false;
+
 extern CONFIG_DATA cd;
 
 HRESULT (__stdcall* DWriteCreateFactory_ptr)(
@@ -733,6 +735,9 @@ UINT __stdcall SetTextAlign_new(HDC hdc, UINT align)
 
 bool check_dwrite_available()
 {
+    if (dwrite_checked_and_available)
+        return true;
+
     HMODULE h = LoadLibrary("dwrite.dll");
     if (!h)
         return false;
@@ -741,6 +746,7 @@ bool check_dwrite_available()
     if (!DWriteCreateFactory_ptr)
         return false;
 
+    dwrite_checked_and_available = true;
     return true;
 }
 

@@ -101,7 +101,7 @@
       <AdditionalDependencies>winmm.lib;zlibstat.lib;ComCtl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ManifestFile>cheatdll.manifest</ManifestFile>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>C:\Users\Vasya\source\libs\zlib\contrib\vstudio\vc14\x86\ZlibStatDebug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%Cpp libs%\zlib\contrib\vstudio\vc17\x86\ZlibStatDebug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -137,7 +137,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalManifestDependencies>"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'";%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <SetChecksum>true</SetChecksum>
-      <AdditionalLibraryDirectories>C:\Users\Vasya\source\libs\zlib\contrib\vstudio\vc14\x86\ZlibStatReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%Cpp libs%\zlib\contrib\vstudio\vc17\x86\ZlibStatReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -173,7 +173,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalManifestDependencies>"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'";%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <SetChecksum>true</SetChecksum>
-      <AdditionalLibraryDirectories>C:\Users\Vasya\source\libs\zlib\contrib\vstudio\vc14\x86\ZlibStatReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%Cpp libs%\zlib\contrib\vstudio\vc17\x86\ZlibStatReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -209,7 +209,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalManifestDependencies>"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'";%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <SetChecksum>true</SetChecksum>
-      <AdditionalLibraryDirectories>C:\Users\Vasya\source\libs\zlib\contrib\vstudio\vc14\x86\ZlibStatReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%Cpp libs%\zlib\contrib\vstudio\vc17\x86\ZlibStatReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>

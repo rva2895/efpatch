@@ -196,7 +196,7 @@ void loadTerrainTxt(const char* prefix, const char* filename)
         }
 
         terrains_loaded = 0;
-        memset(terrain_array, 0, 252);
+        memset(terrain_array, 0, TERRAIN_COUNT);
         for (; fscanf(f, "%hhu,%d", &terrain_array[terrains_loaded], &terrain_language_dll[terrains_loaded]) > 0; terrains_loaded++)
             ;
         log("Loaded %d terrains", terrains_loaded);
@@ -227,6 +227,8 @@ void loadTerrainTxt(const char* prefix, const char* filename)
 
         FreeLibrary(lang);
         FreeLibrary(lang_x2);
+
+        log("Terrain data loaded");
     }
     else
     {
@@ -238,8 +240,8 @@ void loadTerrainTxt(const char* prefix, const char* filename)
 
 void setTerrainLoadHooks(int ver)
 {
-    terrain_array = (BYTE*)malloc(252 * sizeof(BYTE));
-    terrain_language_dll = (int*)malloc(252 * sizeof(int));
+    terrain_array = (BYTE*)malloc(TERRAIN_COUNT * sizeof(BYTE));
+    terrain_language_dll = (int*)malloc(TERRAIN_COUNT * sizeof(int));
 
     t_ver = ver;
     if (ver == VER_EF)

@@ -278,6 +278,7 @@ void __stdcall delayed_start_process()
 void __stdcall delayed_end_process()
 {
     new_allocator_uninstall();
+    closeLog();
 }
 
 __declspec(naked) void delayed_start_hook() //0048EFD3
