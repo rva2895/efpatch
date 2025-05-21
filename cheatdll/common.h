@@ -60,6 +60,17 @@ bool __stdcall file_exists(const char* filename);
 void __stdcall sendChat(const char* s, int p);
 void __cdecl chat(const char* format, ...);
 
+void __stdcall load_ids_from_txt(
+    const char* prefix,
+    const char* filename,
+    __int16** list,
+    int* n,
+    bool* flag,
+    void (__cdecl* install_func)(),
+    const char* desc);
+
+bool __stdcall is_id_in_list(__int16 id, __int16* list, int n);
+
 extern RGE_Base_Game** const base_game;
 extern TPanelSystem* const panel_system;
 extern int* const world_update_counter;

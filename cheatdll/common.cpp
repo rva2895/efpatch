@@ -185,6 +185,55 @@ void __cdecl chat(const char* format, ...)
     va_end(ap);
 }
 
+void __stdcall load_ids_from_txt(
+    const char* prefix,
+    const char* filename,
+    __int16** list,
+    int* n,
+    bool* flag,
+    void (__cdecl *install_func)(),
+    const char* desc)
+{
+    log(desc);
+    char full_filename[MAX_PATH];
+    snprintf(full_filename, _countof(full_filename), "%s%s", prefix, filename);
+    FILE* f = fopen(full_filename, "rt");
+    if (f)
+    {
+        __int16 id;
+        *n = 0;
+        if (*list)
+        {
+            free(*list);
+            *list = NULL;
+        }
+
+        while (fscanf(f, "%hd", &id) > 0)
+        {
+            (*n)++;
+            *list = (__int16*)realloc(*list, *n * sizeof(__int16));
+            (*list)[*n - 1] = id;
+        }
+
+        fclose(f);
+        if (!*flag)
+        {
+            install_func();
+            *flag = true;
+        }
+    }
+    else
+        log("Warning: %s not found, using default settings", full_filename);
+}
+
+bool __stdcall is_id_in_list(__int16 id, __int16* list, int n)
+{
+    for (int i = 0; i < n; i++)
+        if (id == list[i])
+            return true;
+    return false;
+}
+
 void* (__cdecl* const calloc_internal)(size_t number, size_t size) =
     (void* (__cdecl* const) (size_t, size_t))0x00632D33;
 

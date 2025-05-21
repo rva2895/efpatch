@@ -1,79 +1,51 @@
 #include "stdafx.h"
+#include "convert.h"
 
-short* unconv = NULL;
-int nUnconv = 0;
+__int16* unconv_list = NULL;
+int unconv_n = 0;
+bool unconv_installed = false;
 
-__declspec(naked) void isUnconvertable() //ebx = ID
+bool __fastcall is_unconv(__int16 id)
 {
-    __asm
-    {
-        mov     eax, nUnconv
-        mov     edx, unconv
-loopcont:
-        test    eax, eax
-        jz      loopend
-        dec     eax
-        cmp     word ptr [edx + eax * 2], bx
-        jnz     loopcont
-        xor     eax, eax
-        inc     eax
-        ret
-loopend:
-        xor     eax, eax
-        ret
-    }
+    return is_id_in_list(id, unconv_list, unconv_n);
 }
 
 __declspec(naked) void unConvertHook() //00567EDC
 {
     __asm
     {
+        push    ecx
         push    edx
-        call    isUnconvertable
+        mov     ecx, ebx
+        call    is_unconv
+        test    al, al
         pop     edx
-        test    eax, eax
-        jz      convertable
-        mov     edx, 0056823Ch
-        jmp     edx
-convertable:
+        pop     ecx
+        jz      unconv_can_convert
+
+        mov     eax, 0056823Ch
+        jmp     eax
+
+unconv_can_convert:
         mov     eax, 00567EF1h
         jmp     eax
     }
 }
 
-bool unconvHookInstalled = false;
+void __cdecl convert_hooks()
+{
+    setHook((void*)0x00567EDC, unConvertHook);
+}
 
 void setConvertHooks(const char* prefix, const char* filename)
 {
-    log("Loading unconvertable unit list");
-    char full_filename[0x100];
-    snprintf(full_filename, _countof(full_filename), "%s%s", prefix, filename);
-    FILE* f = fopen(full_filename, "rt");
-    if (f)
-    {
-        short id;
-        nUnconv = 0;
-        if (unconv)
-        {
-            free(unconv);
-            unconv = NULL;
-        }
-
-        while (fscanf(f, "%hd", &id) > 0)
-        {
-            nUnconv++;
-            unconv = (short*)realloc(unconv, nUnconv * sizeof(short));
-            unconv[nUnconv - 1] = id;
-        }
-
-        fclose(f);
-
-        if (!unconvHookInstalled)
-        {
-            setHook((void*)0x00567EDC, unConvertHook);
-            unconvHookInstalled = true;
-        }
-    }
-    else
-        log("Warning: %s not found, using default settings", full_filename);
+    load_ids_from_txt(
+        prefix,
+        filename,
+        &unconv_list,
+        &unconv_n,
+        &unconv_installed,
+        convert_hooks,
+        "Loading unconvertable unit list"
+    );
 }

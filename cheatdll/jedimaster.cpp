@@ -1,167 +1,59 @@
 #include "stdafx.h"
-
 #include "jedimaster.h"
 
-short* masters = NULL;
-int nMasters = 0;
+__int16* masters_list = NULL;
+int masters_n = 0;
+bool masters_installed = false;
 
-short* padawans = NULL;
-int nPadawans = 0;
+__int16* padawans_list = NULL;
+int padawans_n = 0;
+bool padawans_installed = false;
 
-__declspec(naked) void isMaster() //ax = ID
+bool __fastcall RGE_Static_Object__gbg_isMaster_new(RGE_Static_Object* obj)
 {
-    __asm
-    {
-        push    ecx
-        push    edx
-        mov     ecx, nMasters
-        mov     edx, masters
-loopcont:
-        test    ecx, ecx
-        jz      loopend
-        dec     ecx
-        cmp     word ptr [edx + ecx * 2], ax
-        jnz     loopcont
-        xor     eax, eax
-        inc     eax
-        pop     edx
-        pop     ecx
-        ret
-loopend:
-        xor     eax, eax
-        pop     edx
-        pop     ecx
-        ret
-    }
+    if (obj->master_obj->object_group == 50)
+        return is_id_in_list(obj->master_obj->copy_id, masters_list, masters_n);
+    else
+        return false;
 }
 
-__declspec(naked) void isPadawan() //ax = ID
+bool __fastcall RGE_Static_Object__gbg_isPadawan_new(RGE_Static_Object* obj)
 {
-    __asm
-    {
-        push    ecx
-        push    edx
-        mov     ecx, nPadawans
-        mov     edx, padawans
-loopcont_p:
-        test    ecx, ecx
-        jz      loopend_p
-        dec     ecx
-        cmp     word ptr [edx + ecx * 2], ax
-        jnz     loopcont_p
-        xor     eax, eax
-        inc     eax
-        pop     edx
-        pop     ecx
-        ret
-loopend_p:
-        xor     eax, eax
-        pop     edx
-        pop     ecx
-        ret
-    }
+    if (obj->master_obj->object_group == 50)
+        return is_id_in_list(obj->master_obj->copy_id, padawans_list, padawans_n);
+    else
+        return false;
 }
 
-__declspec(naked) void jediMasterHook() //0054B1D0
+void __cdecl masters_hooks()
 {
-    __asm
-    {
-        mov     ecx, [ecx + 14h]
-        mov     ax, [ecx + 1Eh]
-        cmp     ax, 32h
-        jnz     nonjedi
-        mov     ax, [ecx + 18h]
-        call    isMaster
-        ret
-nonjedi:
-        xor     eax, eax
-        ret
-    }
+    setHook((void*)0x0054B1D0, RGE_Static_Object__gbg_isMaster_new);
 }
 
-__declspec(naked) void jediPadawanHook() //0054B170
+void __cdecl padawans_hooks()
 {
-    __asm
-    {
-        mov     ecx, [ecx + 14h]
-        mov     ax, [ecx + 1Eh]
-        cmp     ax, 32h
-        jnz     nonjedi_p
-        mov     ax, [ecx + 1Ah]
-        call    isPadawan
-        ret
-nonjedi_p:
-        xor     eax, eax
-        ret
-    }
+    setHook((void*)0x0054B170, RGE_Static_Object__gbg_isPadawan_new);
 }
-
-bool jediMasterHookInstalled = false;
-bool jediPadawanHookInstalled = false;
 
 void setJediMasterHooks(const char* prefix, const char* filename_master, const char* filename_padawan)
 {
-    log("Loading jedi master unit list");
-    char full_filename_master[0x100];
-    char full_filename_padawan[0x100];
-    snprintf(full_filename_master, _countof(full_filename_master), "%s%s", prefix, filename_master);
-    snprintf(full_filename_padawan, _countof(full_filename_padawan), "%s%s", prefix, filename_padawan);
-    FILE* f = fopen(full_filename_master, "rt");
-    if (f)
-    {
-        short id;
-        nMasters = 0;
-        if (masters)
-        {
-            free(masters);
-            masters = NULL;
-        }
+    load_ids_from_txt(
+        prefix,
+        filename_master,
+        &masters_list,
+        &masters_n,
+        &masters_installed,
+        masters_hooks,
+        "Loading jedi master unit list"
+    );
 
-        while (fscanf(f, "%hd", &id) > 0)
-        {
-            nMasters++;
-            masters = (short*)realloc(masters, nMasters * sizeof(short));
-            masters[nMasters - 1] = id;
-        }
-
-        fclose(f);
-
-        if (!jediMasterHookInstalled)
-        {
-            setHook((void*)0x0054B1D0, jediMasterHook);
-            jediMasterHookInstalled = true;
-        }
-    }
-    else
-        log("Warning: %s not found, using default settings", full_filename_master);
-
-    log("Loading jedi padawan unit list");
-    f = fopen(full_filename_padawan, "rt");
-    if (f)
-    {
-        short id;
-        nPadawans = 0;
-        if (padawans)
-        {
-            free(padawans);
-            padawans = NULL;
-        }
-
-        while (fscanf(f, "%hd", &id) > 0)
-        {
-            nPadawans++;
-            padawans = (short*)realloc(padawans, nPadawans * sizeof(short));
-            padawans[nPadawans - 1] = id;
-        }
-
-        fclose(f);
-
-        if (!jediPadawanHookInstalled)
-        {
-            setHook((void*)0x0054B170, jediPadawanHook);
-            jediPadawanHookInstalled = true;
-        }
-    }
-    else
-        log("Warning: %s not found, using default settings", full_filename_padawan);
+    load_ids_from_txt(
+        prefix,
+        filename_padawan,
+        &padawans_list,
+        &padawans_n,
+        &padawans_installed,
+        padawans_hooks,
+        "Loading jedi padawan unit list"
+    );
 }
