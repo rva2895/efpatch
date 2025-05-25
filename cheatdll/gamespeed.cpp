@@ -83,7 +83,7 @@ float rec_speed = 0.0f;
 void __stdcall onPrintTime2(char* s)
 {
     char s2[0x100];
-    strcpy_safe(s2, _countof(s2), s);
+    strlcpy(s2, s, _countof(s2));
     if (isRec())
         sprintf(s, "%s (%2.2f)", s2, rec_speed);
         //sprintf(s, "%s (%3.3f / %3.3f)", s2, rec_speed, avg_speed);

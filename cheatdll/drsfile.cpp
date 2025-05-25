@@ -23,11 +23,12 @@ DRS::DRS()
     tInfo = NULL;
     tEntries = NULL;
     memset(hdr.copyright, 0, 0x3C);
-    strcpy_safe(hdr.copyright, _countof(hdr.copyright),
-        "Copyright(c) 2001 LucasArts Entertainment Company LLC\x1A");
+    strlcpy(hdr.copyright,
+        "Copyright(c) 2001 LucasArts Entertainment Company LLC\x1A",
+        _countof(hdr.copyright));
     strncpy(hdr.version, "1.00", 4);
     memset(hdr.ftype, 0, 12);
-    strcpy_safe(hdr.ftype, _countof(hdr.ftype), "swbg");
+    strlcpy(hdr.ftype, "swbg", _countof(hdr.ftype));
     drsFile = NULL;
 }
 

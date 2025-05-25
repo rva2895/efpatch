@@ -722,7 +722,7 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
         FillRect(hdc, &r_ver, brush_bk);
 
         //snprintf(str, _countof(str), "VER %s", (char*)&rd.version);
-        strcpy_safe(str, _countof(str), rd.version.c_str());
+        strlcpy(str, rd.version.c_str(), _countof(str));
         DrawText(hdc, str, strlen(str), &r_ver, DT_RIGHT);
 
         r.top += (y > 900 ? 30 : 24);
@@ -985,7 +985,7 @@ void __stdcall paint_load_scen_screen_bk(TScreenPanel* LoadScenScreen)
         FillRect(hdc, &r_ver, brush_bk);
 
         //snprintf(str, _countof(str), "VER %s", (char*)&rd.version);
-        //strcpy_safe(str, _countof(str), rd.version.c_str());
+        //strlcpy(str, rd.version.c_str(), _countof(str));
         snprintf(
             str,
             _countof(str),

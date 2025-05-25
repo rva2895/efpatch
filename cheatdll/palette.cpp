@@ -246,8 +246,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     SetCurrentDirectory(getenv("temp"));
     CreateDirectory(filename, NULL);
     SetCurrentDirectory(filename);
-    char* wparam_filename = (char*)malloc(strlen(filename) + 1);
-    strcpy_safe(wparam_filename, strlen(filename) + 1, filename);
+    char* wparam_filename = make_str_copy(filename);
     PostMessage(hWndPaletteDlg, WM_USER + 1, (WPARAM)wparam_filename, 0);
     log("Extracting files...");
     if (drs->extractFiles() == 0)
@@ -304,8 +303,8 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     delete slp_parallel;
 
     drs = new DRS();
-    char newfilename[MAX_PATH + 1];
-    strcpy_safe(newfilename, _countof(newfilename), filename);
+    char newfilename[MAX_PATH];
+    strlcpy(newfilename, filename, _countof(newfilename));
 //#ifndef VOOBLY_EF
     newfilename[strlen(newfilename) - 4] = 0;
     strcat(newfilename, "_p1.drs");
@@ -316,8 +315,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
 
     log("SLP optimize threads terminated, creating %s...", newfilename);
     //
-    char* wparam_newfilename = (char*)malloc(strlen(newfilename) + 1);
-    strcpy_safe(wparam_newfilename, strlen(newfilename) + 1, newfilename);
+    char* wparam_newfilename = make_str_copy(newfilename);
     PostMessage(hWndPaletteDlg, WM_USER + 1, (WPARAM)wparam_newfilename, 1);
     //
     SetCurrentDirectory(getenv("temp"));
@@ -387,8 +385,8 @@ unsigned int __stdcall patch_palette(void*)
 {
     nProc = getAffinityCount();
     slp_optimize_event = (HANDLE*)malloc(nProc * sizeof(HANDLE));
-    char dir[MAX_PATH+1];
-    GetCurrentDirectory(MAX_PATH + 1, dir);
+    char dir[MAX_PATH];
+    GetCurrentDirectory(_countof(dir), dir);
     patch_drs_palette("interfac.drs", dir);
     patch_drs_palette("interfac_x1.drs", dir);
     patch_drs_palette("graphics.drs", dir);

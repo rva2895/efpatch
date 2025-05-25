@@ -116,15 +116,40 @@ void __cdecl setHookCall(void* addr, void* newAddr)
 #endif
 }
 
-errno_t __cdecl strcpy_safe(char* dest, size_t size, const char* source)
+size_t strlcpy(char* dst, const char* src, size_t siz)
 {
-    if (size > 0)
+    char*       d = dst;
+    const char* s = src;
+    size_t      n = siz;
+
+    /* Copy as many bytes as will fit */
+    if (n != 0)
     {
-        dest[0] = '\0';
-        return strncat_s(dest, size, source, size - 1);
+        while (--n != 0)
+        {
+            if ((*d++ = *s++) == '\0')
+                break;
+        }
     }
-    else
-        return 0;
+
+    /* Not enough room in dst, add NUL and traverse rest of src */
+    if (n == 0)
+    {
+        if (siz != 0)
+            *d = '\0';          /* NUL-terminate dst */
+        while (*s++)
+            ;
+    }
+
+    return (s - src - 1);       /* count does not include NUL */
+}
+
+char* make_str_copy(const char* src)
+{
+    size_t size = strlen(src) + 1;
+    char* s = (char*)malloc(size);
+    memcpy(s, src, size);
+    return s;
 }
 
 unsigned int get_worldtime()

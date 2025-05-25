@@ -23,7 +23,7 @@ void __stdcall make_rec_filename(char* s, const char* fmt)
 {
     if (do_autoreplay)
     {
-        strcpy_safe(s, 256, rec_auto);
+        strlcpy(s, rec_auto, 256);
         do_autoreplay = false;
     }
     else

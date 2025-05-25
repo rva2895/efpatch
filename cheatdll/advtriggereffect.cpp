@@ -470,7 +470,7 @@ bool __stdcall advTriggerEffect_do_single_line_effect(
             vsnprintf(error_msg_local, _countof(error_msg_local), format, ap);
             log("%s", error_msg_local);
             if (error_msg)
-                strcpy_safe(error_msg, error_msg_size, error_msg_local);
+                strlcpy(error_msg, error_msg_local, error_msg_size);
             va_end(ap);
             return false;
         };
@@ -588,24 +588,27 @@ bool __stdcall advTriggerEffect_do_multi_line_effect(
     size_t error_msg_size)
 {
     char* s_heap = NULL;
-    char s_stack[0x800];
-    size_t s_len = strlen(s);
+    char s_stack[0x400];
+    size_t s_size = strlen(s) + 1;
+    size_t s_tmp_count;
     char* s_tmp;
     bool result = true;
 
     if (error_msg && error_msg_size > 0)
         error_msg[0] = '\0';
 
-    if (s_len < 0x800)
+    if (s_size > _countof(s_stack))
     {
-        s_tmp = s_stack;
+        s_heap = (char*)malloc(s_size);
+        s_tmp = s_heap;
+        s_tmp_count = s_size;
     }
     else
     {
-        s_heap = (char*)malloc(s_len + 1);
-        s_tmp = s_heap;
+        s_tmp = s_stack;
+        s_tmp_count = _countof(s_stack);
     }
-    strcpy_safe(s_tmp, s_len + 1, s);
+    strlcpy(s_tmp, s, s_tmp_count);
     char* pch = strtok(s_tmp, "\r\n");
     char* com_strs[64];
     int str_count = 0;
@@ -622,7 +625,8 @@ bool __stdcall advTriggerEffect_do_multi_line_effect(
             advTriggerEffect_do_single_line_effect(master, obj, player, com_strs[i], do_effect, NULL, 0);
     }
 
-    free(s_heap);
+    if (s_size > _countof(s_stack))
+        free(s_heap);
 
     return result;
 }

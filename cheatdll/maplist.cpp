@@ -246,7 +246,7 @@ int __stdcall map_list_generate_do(int map_type, char* dest)
     auto it = map_list.find(map_type);
     if (it != map_list.end())
     {
-        strcpy_safe(dest, 21, it->second.filename);
+        strlcpy(dest, it->second.filename, 21);
         return it->second.drs_id;
     }
     else
@@ -360,7 +360,7 @@ void initMapList(const char* prefix, const char* filename)
                 mi.string_id = string_id;
                 mi.rollover_string_id = rollover_string_id;
                 mi.drs_id = drs_id;
-                strcpy_safe(mi.filename, sizeof(mi.filename), script_filename);
+                strlcpy(mi.filename, script_filename, _countof(mi.filename));
                 map_list.emplace(std::pair<int, MAP_INFO>(id, mi));
             }
         }

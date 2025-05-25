@@ -210,16 +210,8 @@ void loadTerrainTxt(const char* prefix, const char* filename)
         {
             char buf[0x100];
             int n = language_dll_load(terrain_language_dll[i], buf, 0xFF);
-            if (n > 0)
-            {
-                terrain_names[i] = (char*)malloc(n + 1);
-                strcpy_safe(terrain_names[i], n + 1, buf);
-            }
-            else
-            {
-                terrain_names[i] = (char*)malloc(10);
-                strcpy_safe(terrain_names[i], 10, "FORBIDDEN");
-            }
+            terrain_names[i] = make_str_copy(n > 0 ? buf : "FORBIDDEN");
+
 #ifdef _DEBUG
             log("Terrain %d - %s", i, terrain_names[i]);
 #endif

@@ -358,7 +358,7 @@ void __stdcall append_hotkey_text(char* dest, const char* hotkey_str, const char
     s.insert(pos, " ");
     s.insert(pos + 1, b);
 
-    strcpy_safe(dest, 0x400, s.c_str());
+    strlcpy(dest, s.c_str(), 0x400);
 }
 
 __declspec(naked) void on_hotkey_text() //00501132

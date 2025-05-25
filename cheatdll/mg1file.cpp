@@ -346,19 +346,16 @@ MG1::MG1(const char* filename)
     if (p > dst)
     {
         p += 9;
-        char* map_type_tmp = (char*)malloc(128);
+        char map_type_tmp[128];
         char* ptr = map_type_tmp;
         while ((*p != '\n') && ((ptr - map_type_tmp) < 127))
             *ptr++ = *p++;
         *ptr = 0;
-        map_type = (char*)malloc(strlen(map_type_tmp) + 1);
-        strcpy_safe(map_type, strlen(map_type_tmp) + 1, map_type_tmp);
-        free(map_type_tmp);
+        map_type = make_str_copy(map_type_tmp);
     }
     else
     {
-        map_type = (char*)malloc(10);
-        strcpy_safe(map_type, 10, "<Unknown>");
+        map_type = make_str_copy("<Unknown>");
     }
 
     p = (char*)dst + dst_n - 16;

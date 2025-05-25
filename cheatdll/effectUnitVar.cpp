@@ -218,7 +218,8 @@ bool __stdcall effectUnitVar_do_single_line_effect(
     float val2 = 0.0f;
     char* s_heap = NULL;
     char s_stack[0x100];
-    size_t s_len = strlen(str);
+    size_t str_size = strlen(str) + 1;
+    size_t s_size;
     char* s;
     char error_msg_local[0x100];
 
@@ -229,22 +230,24 @@ bool __stdcall effectUnitVar_do_single_line_effect(
             vsnprintf(error_msg_local, _countof(error_msg_local), format, ap);
             log("%s", error_msg_local);
             if (error_msg)
-                strcpy_safe(error_msg, error_msg_size, error_msg_local);
+                strlcpy(error_msg, error_msg_local, error_msg_size);
             va_end(ap);
             free(s_heap);
             return false;
         };
 
-    if (s_len < 0x100)
+    if (str_size > _countof(s_stack))
     {
-        s = s_stack;
+        s_heap = (char*)malloc(str_size);
+        s = s_heap;
+        s_size = str_size;
     }
     else
     {
-        s_heap = (char*)malloc(s_len + 1);
-        s = s_heap;
+        s = s_stack;
+        s_size = _countof(s_stack);
     }
-    strcpy_safe(s, s_len + 1, str);
+    strlcpy(s, str, s_size);
     char* pch = strtok(s, " ");
     if (pch)
     {
@@ -264,7 +267,7 @@ bool __stdcall effectUnitVar_do_single_line_effect(
 
     pch = strtok(NULL, " ");
     if (pch)
-        strcpy_safe(var, sizeof(var), pch);
+        strlcpy(var, pch, _countof(var));
     else
     {
         return log_error_and_return("Error: string parse failed");
@@ -368,7 +371,8 @@ bool __stdcall effectUnitVar_do_single_line_effect(
         return log_error_and_return("Error: unknown variable %s", var);
     }
 
-    free(s_heap);
+    if (str_size > _countof(s_stack))
+        free(s_heap);
 
     if (error_msg && error_msg_size > 0)
         error_msg[0] = '\0';
@@ -384,21 +388,24 @@ bool __stdcall effectUnitVar_do_multi_line_effect(
     size_t error_msg_size)
 {
     char* s_heap = NULL;
-    char s_stack[0x800];
-    size_t s_len = strlen(str);
+    char s_stack[0x400];
+    size_t str_size = strlen(str) + 1;
+    size_t s_size;
     char* s;
     bool result = true;
 
-    if (s_len < 0x800)
+    if (str_size > _countof(s_stack))
     {
-        s = s_stack;
+        s_heap = (char*)malloc(str_size);
+        s = s_heap;
+        s_size = str_size;
     }
     else
     {
-        s_heap = (char*)malloc(s_len + 1);
-        s = s_heap;
+        s = s_stack;
+        s_size = _countof(s_stack);
     }
-    strcpy_safe(s, s_len + 1, str);
+    strlcpy(s, str, s_size);
     char* pch = strtok(s, "\r\n");
     char* com_strs[64];
     int str_count = 0;
@@ -413,7 +420,8 @@ bool __stdcall effectUnitVar_do_multi_line_effect(
         else
             effectUnitVar_do_single_line_effect(unit, com_strs[i], do_effect, NULL, 0);
 
-    free(s_heap);
+    if (str_size > _countof(s_stack))
+        free(s_heap);
 
     return result;
 }

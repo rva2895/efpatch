@@ -11,7 +11,7 @@ void __stdcall parse_tooltip_text(char* str, int string_id, RGE_Static_Object* o
         case 43024:
             if (object->master_obj->master_type >= 50)
             {
-                strcpy_safe(buf, _countof(buf), str);
+                strlcpy(buf, str, _countof(buf));
                 snprintf(str, 1024, "%s\nAttack bonuses:", buf);
                 for (int i = 0; i < ((RGE_Combat_Object*)object)->master_obj->weapon_num; i++)
                 {

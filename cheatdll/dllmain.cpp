@@ -529,7 +529,7 @@ char* __stdcall get_version_str_ef(BYTE v)
     BYTE v_major;
     if (v == 127)
     {
-        strcpy_safe(version_string, _countof(version_string), ver1x);
+        strlcpy(version_string, ver1x, _countof(version_string));
     }
     else if (v > 8)
     {

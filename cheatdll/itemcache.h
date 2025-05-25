@@ -176,8 +176,7 @@ public:
             }
             else
             {
-                char* s = (char*)malloc(f.length() + 1);
-                strcpy_safe(s, f.length() + 1, f.c_str());
+                char* s = make_str_copy(f.c_str());
                 PostThreadMessage(tid, WM_APP + 1001, (WPARAM)s, priority);
                 id = { 0 };
             }

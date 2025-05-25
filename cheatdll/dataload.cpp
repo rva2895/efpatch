@@ -103,7 +103,8 @@ int load_game_data(TRIBE_Game* game, int version)
 
     log("Loading game data, data_file = %s, data_prefix = %s", data_file, data_prefix);
 
-    strcpy_safe(game->prog_info->game_data_file, MAX_PATH, data_file);
+    //_countof(game->prog_info->game_data_file) is MAX_PATH + 1 but let's be extra safe
+    strlcpy(game->prog_info->game_data_file, data_file, MAX_PATH);
 
     if (game->world)
     {

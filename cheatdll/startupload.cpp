@@ -15,15 +15,13 @@ char* getCmdFilename(char* s)
     p++;
     //if (k)
     //    p++;
-    char* f = (char*)malloc(strlen(p) + 1);
-    strcpy_safe(f, strlen(p) + 1, p);
+    char* f = make_str_copy(p);
     return f;
 }
 
 char* __stdcall checkCmdLine(const char* command_line, const char* ext)
 {
-    char* cmdLine = (char*)malloc(strlen(command_line) + 1);
-    strcpy_safe(cmdLine, strlen(command_line) + 1, command_line);
+    char* cmdLine = make_str_copy(command_line);
 
     _strupr(cmdLine);
 
@@ -48,16 +46,15 @@ char* startup_filename = NULL;
 
 void copy_filename(const char* s)
 {
-    startup_filename = (char*)malloc(strlen(s) + 1);
-    strcpy_safe(startup_filename, strlen(s) + 1, s);
+    startup_filename = make_str_copy(s);
 }
 
 void __stdcall setup_startup_filename(TRIBE_Game* game)
 {
     if (startup_game)
-        strcpy_safe(game->startup_game, _countof(game->startup_game), startup_filename);
+        strlcpy(game->startup_game, startup_filename, _countof(game->startup_game));
     else if (edit_scenario)
-        strcpy_safe(game->edit_scenario, _countof(game->edit_scenario), startup_filename);
+        strlcpy(game->edit_scenario, startup_filename, _countof(game->edit_scenario));
 }
 
 __declspec(naked) void on_game_setup() //005E4A83
@@ -84,7 +81,7 @@ bool is_abs_path(const char* s)
 char* __stdcall load_game_or_scen_abs_path_sub(bool scen, char* dest, const char* name)
 {
     if ((scen ? edit_scenario : startup_game) && is_abs_path(name))
-        strcpy_safe(dest, 300, name);
+        strlcpy(dest, name, 300);
 
     return dest;
 }

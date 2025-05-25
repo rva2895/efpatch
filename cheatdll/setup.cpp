@@ -94,8 +94,7 @@ bool archive_extract(unzFile z_file, const char* dest_dir, void* buf)
         if (!f)
             return false;
 
-        char* wParam = (char*)malloc(strlen(filename_inzip) + 1);
-        strcpy_safe(wParam, strlen(filename_inzip) + 1, filename_inzip);
+        char* wParam = make_str_copy(filename_inzip);
         PostMessage(hWndAssetsDlg, WM_USER + 3, (WPARAM)wParam, 0);
 
         int size;

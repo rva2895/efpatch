@@ -45,7 +45,8 @@ void __cdecl writeData(DWORD addr, const void* data, size_t len);
 
 int __stdcall language_dll_load(UINT id, char* buf, int nmax);
 
-errno_t __cdecl strcpy_safe(char* dest, size_t size, const char* source);
+size_t strlcpy(char* dst, const char* src, size_t siz);
+char* make_str_copy(const char* src);
 
 unsigned int get_worldtime();
 

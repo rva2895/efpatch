@@ -14,13 +14,13 @@ void __stdcall displayVersionError(TEasy_Panel* ptr)
     ver[3] = 0;
     if (!strcmp(ver, "9.4"))
     {
-        strcpy_safe(ver, _countof(ver), EXE_PATCH_VERSION);
-        strcpy_safe(s2, _countof(s2), "\nTurn Data Patch off to watch this game");
+        strlcpy(ver, EXE_PATCH_VERSION, _countof(ver));
+        strlcpy(s2, "\nTurn Data Patch off to watch this game", _countof(s2));
     }
     else if (!strcmp(ver, "2.2"))
-        strcpy_safe(s2, _countof(s2), "\nTurn Data Patch on to watch this game");
+        strlcpy(s2, "\nTurn Data Patch on to watch this game", _countof(s2));
     else
-        strcpy_safe(s2, _countof(s2), "");
+        strlcpy(s2, "", _countof(s2));
 
     if (strcmp(ver, EXE_PATCH_VERSION))
         snprintf(buf, _countof(buf), "This file was recorded with a different version of the game\n"

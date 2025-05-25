@@ -113,9 +113,9 @@ void __stdcall setup_drs_files(TRIBE_Game* game)
     for (int i = 0; i < n_drs_files; i++)
         if (is_loaded_in_current_mode(drs_files[i]))
         {
-            char buf[0x100];
+            char buf[MAX_PATH];
             std::string filename = get_adjusted_name(drs_files[i]);
-            strcpy_safe(buf, _countof(buf), filename.c_str());
+            strlcpy(buf, filename.c_str(), _countof(buf));
             RESFILE_open_new_resource_file(buf, "swbg", game->prog_info->resource_dir, drs_files[i].no_mapping);
             log("Opened %s", buf);
         }
