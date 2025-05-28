@@ -12,6 +12,7 @@
 #include "aiactions.h"
 #include "aitimer.h"
 #include "aiunitline.h"
+#include "aiattack.h"
 
 //#include <process.h>
 
@@ -151,6 +152,7 @@ void setAIHooks(int version)
         setAISNXHooks();
         setAIActionsHooks();
         setAITimerHooks();
+        setAIAttackHooks();
 
         setAIGoalsHooks();
 

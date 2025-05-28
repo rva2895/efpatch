@@ -594,6 +594,9 @@
     <ClInclude Include="aiunitline.h">
       <Filter>Заголовочные файлы\ai</Filter>
     </ClInclude>
+    <ClInclude Include="aiattack.h">
+      <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
     <ClInclude Include="chatcommand.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
@@ -1131,6 +1134,9 @@
       <Filter>Файлы исходного кода\ai</Filter>
     </ClCompile>
     <ClCompile Include="aiunitline.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="aiattack.cpp">
       <Filter>Файлы исходного кода\ai</Filter>
     </ClCompile>
     <ClCompile Include="chatcommand.cpp">

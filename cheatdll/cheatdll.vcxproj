@@ -223,6 +223,7 @@
     <ClInclude Include="advtriggereffect.h" />
     <ClInclude Include="ai.h" />
     <ClInclude Include="aiactions.h" />
+    <ClInclude Include="aiattack.h" />
     <ClInclude Include="aibuilders.h" />
     <ClInclude Include="aicommandunits.h" />
     <ClInclude Include="aigoals.h" />
@@ -404,6 +405,7 @@
     <ClCompile Include="advtriggereffect.cpp" />
     <ClCompile Include="ai.cpp" />
     <ClCompile Include="aiactions.cpp" />
+    <ClCompile Include="aiattack.cpp" />
     <ClCompile Include="aibuilders.cpp" />
     <ClCompile Include="aicommandunits.cpp" />
     <ClCompile Include="aigoals.cpp" />
