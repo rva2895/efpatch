@@ -591,6 +591,9 @@
     <ClInclude Include="effectUnitVar.h">
       <Filter>Заголовочные файлы\editor</Filter>
     </ClInclude>
+    <ClInclude Include="aiunitline.h">
+      <Filter>Заголовочные файлы\ai</Filter>
+    </ClInclude>
     <ClInclude Include="chatcommand.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
@@ -1126,6 +1129,12 @@
     </ClCompile>
     <ClCompile Include="aitimer.cpp">
       <Filter>Файлы исходного кода\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="aiunitline.cpp">
+      <Filter>Файлы исходного кода\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="chatcommand.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

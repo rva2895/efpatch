@@ -11,6 +11,7 @@
 #include "aishipyard.h"
 #include "aiactions.h"
 #include "aitimer.h"
+#include "aiunitline.h"
 
 //#include <process.h>
 
@@ -134,6 +135,8 @@ void setAIHooks(int version)
 
     //shipyard on shore ice
     setAIShipyardHooks();
+
+    setAIUnitlineHooks();
 
     if (version == VER_EF)
     {

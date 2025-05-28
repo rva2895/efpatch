@@ -232,6 +232,7 @@
     <ClInclude Include="aisnx.h" />
     <ClInclude Include="aitimer.h" />
     <ClInclude Include="aiunitcount.h" />
+    <ClInclude Include="aiunitline.h" />
     <ClInclude Include="animatedterrain.h" />
     <ClInclude Include="attackstance.h" />
     <ClInclude Include="attribute_held.h" />
@@ -413,6 +414,7 @@
     <ClCompile Include="aisnx.cpp" />
     <ClCompile Include="aitimer.cpp" />
     <ClCompile Include="aiunitcount.cpp" />
+    <ClCompile Include="aiunitline.cpp" />
     <ClCompile Include="animatedterrain.cpp" />
     <ClCompile Include="attackstance.cpp" />
     <ClCompile Include="attribute_held.cpp" />
