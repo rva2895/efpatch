@@ -8,6 +8,9 @@ int* const world_update_counter = (int* const)0x007A22F8;
 TCommunications_Handler** const comm = (TCommunications_Handler** const)0x006A35E0;
 TChat** const tchat = (TChat** const)0x006A35D8;
 
+RGE_Obstruction_Manager** const OBSystem_Land = (RGE_Obstruction_Manager** const)0x006ACCDC;
+RGE_Airspace_Manager** const OBSystem_Air = (RGE_Airspace_Manager** const)0x006ACCE0;
+
 HINSTANCE* const hInstance_dll = (HINSTANCE* const)0x0078F81C;
 
 #ifdef TARGET_VOOBLY
@@ -306,3 +309,6 @@ int (__cdecl* const fscanf_internal)(FILE* File, const char* Format, ...) =
 
 char* (__cdecl* const fgets_internal)(char* Buf, int MaxCount, FILE* File) =
     (char* (__cdecl* const) (char*, int, FILE*))0x0063303A;
+
+char* (__cdecl* const mbsupr_internal)(char* str) =
+    (char* (__cdecl* const)(char*))0x0063658F;

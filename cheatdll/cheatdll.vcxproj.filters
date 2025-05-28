@@ -591,6 +591,9 @@
     <ClInclude Include="effectUnitVar.h">
       <Filter>Заголовочные файлы\editor</Filter>
     </ClInclude>
+    <ClInclude Include="chatcommand.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gamemode.cpp">

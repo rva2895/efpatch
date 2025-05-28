@@ -10,6 +10,7 @@
 #include "worlddump.h"
 #include "rmslog.h"
 #include "resfile.h"
+#include "chatcommand.h"
 
 #include <process.h>
 #include <MMSystem.h>
@@ -18,8 +19,6 @@
 #include <map>
 #include <time.h>
 #include <algorithm>
-
-#include "resfile.h"
 
 //extern RESFILE resfile;
 
@@ -208,75 +207,6 @@ __declspec(naked) void nullsub_26_2()
     }
 }
 
-/*
-int check_file(char* file, int player)
-{
-    char s[0x100];
-    snprintf(s, _countof(s), "Checking %s...", file);
-    sendChat(s, player);
-    FILE* f = fopen(file, "rb");
-    if (!f)
-    {
-        snprintf(s, _countof(s), "Failed to open %s!", file);
-        sendChat(s, player);
-        return 0;
-    }
-    char b;
-    char sum = 0;
-    while (fread(&b, 1, 1, f) > 0)
-        sum += b;
-    fclose(f);
-    snprintf(s, _countof(s), "File %s: %d", file, sum);
-    sendChat(s, player);
-    return sum;
-}
-
-void thread_proc(void* p)
-{
-    int player = (int)p;
-    int sum = 0;
-    sum += check_file("battlegrounds_x1.exe", player);
-    sum += check_file(DLL_NAME, player);
-    sum += check_file("language.dll", player);
-    sum += check_file("language_x1.dll", player);
-    sum += check_file("language_x2.dll", player);
-    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat", player);
-    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"gamedata.drs", player);
-    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"gamedata_x1.drs", player);
-    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"gamedata_x2.drs", player);
-    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"expl.txt", player);
-    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"ground-to-air.txt", player);
-    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"jedi-holo.txt", player);
-    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"master.txt", player);
-    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"padawan.txt", player);
-    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"resgen.txt", player);
-    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"unconv.txt", player);
-    sum += check_file(DATA_FOLDER_PREFIX_FROM_ROOT"terrain.txt", player);
-    char s[0x100];
-    sprintf(s, "Integrity check complete, checksum = %d", sum);
-    sendChat(s, player);
-}
-*/
-
-//extern int memory_temp;
-
-//DWORD performance_time = 0;
-
-//extern void __stdcall make_oos_dump();
-
-//extern std::vector<FUNCTION_HOOK*> function_hooks;
-
-struct
-{
-    bool operator() (FUNCTION_HOOK* fh1, FUNCTION_HOOK* fh2) const
-    {
-        return !(*fh1 < *fh2);
-    }
-} compare_call_counts_object;
-
-extern unsigned int dump_objects(const char* filename);
-extern int max_worldtime;
-
 void __stdcall RGE_Action_List__add_action2(RGE_Action_List* list, RGE_Action* action)
 {
     RGE_Action_Node* node;
@@ -295,7 +225,7 @@ void __stdcall RGE_Action_List__add_action2(RGE_Action_List* list, RGE_Action* a
     }
 }
 
-int* rand_val = (int*)0x0069EC98;
+int* const rand_val = (int* const)0x0069EC98;
 
 int rand_no_change()
 {
@@ -305,675 +235,12 @@ int rand_no_change()
     return result;
 }
 
-struct object_save_info
-{
-    int id;
-    float originX;
-    float originY;
-    float originZ;
-};
-
-class save_info
-{
-private:
-
-    //void saveObject()
-
-public:
-    int save_pos;
-    int save_sync_counter;
-    int save_rand_val;
-    unsigned int save_worldtime;
-    std::vector<object_save_info> save_objects;
-    std::string filename;
-
-    void saveObjects(RGE_Game_World* world)
-    {
-        world->players[0]->objects->List;
-        for (int i = 0; i < world->players[0]->objects->Number_of_objects; i++)
-        {
-            UnitAIModule* unit_ai = world->players[0]->objects->List[i]->unitAIValue;
-            if (unit_ai && (unit_ai->vfptr == (UnitAIModuleVtbl*)0x00665E28 || unit_ai->vfptr == (UnitAIModuleVtbl*)0x00665D3C))
-            {
-                TribeHuntedAnimalUnitAIModule* unit_ai_origins = (TribeHuntedAnimalUnitAIModule*)unit_ai;
-                object_save_info osi;
-                osi.id = world->players[0]->objects->List[i]->id;
-                osi.originX = unit_ai_origins->originX;
-                osi.originY = unit_ai_origins->originY;
-                osi.originZ = unit_ai_origins->originZ;
-                save_objects.emplace_back(osi);
-            }
-        }
-    }
-
-    void loadObjects(RGE_Game_World* world)
-    {
-        for (auto it = save_objects.begin(); it != save_objects.end(); ++it)
-        {
-            object_save_info& osi = *it;
-            RGE_Static_Object* obj = RGE_Game_World__object(world, osi.id);
-            UnitAIModule* unit_ai = obj->unitAIValue;
-            if (unit_ai && (unit_ai->vfptr == (UnitAIModuleVtbl*)0x00665E28 || unit_ai->vfptr == (UnitAIModuleVtbl*)0x00665D3C))
-            {
-                TribeHuntedAnimalUnitAIModule* unit_ai_origins = (TribeHuntedAnimalUnitAIModule*)unit_ai;
-                unit_ai_origins->originX = osi.originX;
-                unit_ai_origins->originY = osi.originY;
-                unit_ai_origins->originZ = osi.originZ;
-            }
-        }
-    }
-};
-
-std::map<int, save_info> saved_states;
-
-void save_state(RGE_Game_World* world)
-{
-    save_info si;
-    //si.save_rand_val = *rand_val;
-    si.save_worldtime = world->world_time;
-
-    char filename[MAX_PATH];
-    snprintf(filename, _countof(filename), "tempsave_rec_%d.tmp", world->world_time);
-    si.filename = filename;
-
-    int file = rge_open2(filename, 0x8301, 0x180);
-    RGE_Game_World__save_to_open_file((RGE_Game_World*)world, file);
-    rge_close(file);
-
-    si.save_rand_val = *rand_val;
-
-    si.save_pos = tell_internal(world->com_handler->mCommandLog->mFileHandle);
-    si.save_sync_counter = world->com_handler->mCommandLog->mSyncCounter;
-    si.saveObjects(world);
-
-    saved_states.emplace(world->world_time, si);
-}
-
-void load_state(RGE_Game_World* world)
-{
-    auto it = saved_states.begin();
-    if (it == saved_states.end())
-        return;
-
-    save_info& si = (*it).second;
-
-    int file = rge_open((char*)si.filename.c_str(), 0x8000);
-    RGE_Game_World__load_from_open_file((RGE_Game_World*)world, file);
-    rge_close(file);
-    lseek_internal(world->com_handler->mCommandLog->mFileHandle, si.save_pos, 0);
-
-    world->com_handler->mCommandLog->mSyncCounter = si.save_sync_counter;
-
-    *rand_val = si.save_rand_val;
-
-    si.loadObjects(world);
-}
-
-void del_states()
-{
-    saved_states.clear();
-}
-
-extern int path_stats[100];
-
-struct path_stats_struct
-{
-    int object_group;
-    int count;
-    float fraction;
-};
-
-bool compare(const path_stats_struct& first, const path_stats_struct& second)
-{
-    return first.fraction > second.fraction;
-}
-
-void calc_path_stats()
-{
-    std::vector<path_stats_struct> path_stats_vector;
-    int count_total = 0;
-    for (int i = 1; i <= 64; i++)
-    {
-        path_stats_struct pt;
-        pt.object_group = i;
-        pt.count = path_stats[i];
-        count_total += pt.count;
-        path_stats_vector.push_back(pt);
-    }
-    for (int i = 0; i < path_stats_vector.size(); i++)
-    {
-        path_stats_vector[i].fraction = (float)path_stats_vector[i].count / count_total;
-    }
-    std::sort(path_stats_vector.begin(), path_stats_vector.end(), compare);
-
-    chat("Top 5 classes: %d (%.02f%%), %d (%.02f%%), %d (%.02f%%), %d (%.02f%%), %d (%.02f%%)",
-        path_stats_vector[0].object_group, path_stats_vector[0].fraction * 100,
-        path_stats_vector[1].object_group, path_stats_vector[1].fraction * 100,
-        path_stats_vector[2].object_group, path_stats_vector[2].fraction * 100,
-        path_stats_vector[3].object_group, path_stats_vector[3].fraction * 100,
-        path_stats_vector[4].object_group, path_stats_vector[4].fraction * 100);
-}
-
-void verify_unitlines()
-{
-    int p = 0;
-
-    int x = offsetof(TRIBE_Game, timings[6].accum_time);
-    x = offsetof(TRIBE_Game, timings[7].accum_time);
-    x = offsetof(TRIBE_Game, timings[21].accum_time);
-    x = offsetof(TRIBE_Game, timings[3].accum_time);
-    x = offsetof(TRIBE_Game, timings[1].accum_time);
-    x = offsetof(TRIBE_Game, timings[14].accum_time);
-    x = offsetof(TRIBE_Game, timings[12].accum_time);
-    x = offsetof(TRIBE_Game, timings[10].accum_time);
-    x = offsetof(TRIBE_Game, timings[15].accum_time);
-    x = offsetof(TRIBE_Game, timings[16].accum_time);
-    x = offsetof(TRIBE_Game, timings[13].accum_time);
-    x = offsetof(TRIBE_Game, timings[4].accum_time);
-    x = offsetof(TRIBE_Game, timings[17].accum_time);
-
-    TRIBE_World* world = (*base_game)->world;
-    TRIBE_Player* player = (TRIBE_Player*)RGE_Base_Game__get_player_by_id((*base_game), 2); //(*base_game)->world->players[0];
-
-    RGE_Master_Static_Object** player_master_objects = player->master_objects;
-    int num_master_objects = player->master_object_num;
-
-    RGE_Master_Static_Object** gaia_master_master_objects = world->master_players[0]->master_objects;
-
-    //verify unitlines
-    for (int i = 0; i < world->gbg_numberUnitlines; i++)
-    {
-        for (int j = 0; j < world->gbg_unitlines[i].numberUnits; j++)
-        {
-            int obj_id = world->gbg_unitlines[i].units[j];
-            if (!RGE_Player__isMasterObjectAvailable((RGE_Player*)player, obj_id) ||
-                player_master_objects[obj_id]->unit_line != -i)
-            {
-                ;// chat("Unitline %d: bad obj %d", i, obj_id);
-            }
-
-            if (gaia_master_master_objects[obj_id] &&
-                gaia_master_master_objects[obj_id]->unit_line != i)
-            {
-                chat("Unitline %d: obj %d", i, obj_id);
-            }
-        }
-    }
-
-    /*for (int i = 0; i < world->player_num; i++)
-        for (int j = 0; j < world->players[i]->master_object_num; j++)
-        {
-            if (RGE_Player__isMasterObjectAvailable((RGE_Player*)world->players[i], j) &&
-                world->players[i]->master_objects[j]->unit_line != -12851)
-            {
-                chat("Unitline %d: obj %d", i, j);
-            }
-        }
-    */
-}
-
-int __stdcall onChat_2(int player_id, char* targets, char* s)
+bool __stdcall onChat_2(int player_id, char* targets, char* s)
 {
     UNREFERENCED_PARAMETER(targets);
     UNREFERENCED_PARAMETER(player_id);
-    
-    if (!strcmp(s, "/version"))
-    {
-        sendChat(EFPATCH_VERSION, -1);
-        return 1;
-    }
-    /*
-    if (!strcmp(s, "/verify-unitlines"))
-    {
-        verify_unitlines();
-        return 1;
-    }
-    */
-    /*
-    else if (!strcmp(s, "/obj-count"))
-    {
-        RGE_Player* player = RGE_Base_Game__get_player(*base_game);
-        chat("Objects: %d, Sleeping: %d, Doppleganger: %d",
-            player->objects->Number_of_objects,
-            player->sleeping_objects->Number_of_objects,
-            player->doppleganger_objects->Number_of_objects);
-        return 1;
-    }
-    else if (!strcmp(s, "/pathing-stats"))
-    {
-        calc_path_stats();
-        return 1;
-    }
-    */
-    /*
-    else if (!strcmp(s, "/power"))
-    {
-        FILE* f = fopen("power.txt", "wt");
-        RGE_Master_Static_Object obj;
-        for (int i = 0; i < 1000; i++)
-        {
-            obj.id = i;
-            int x = RGE_Master_Static_Object__gbg_needs_power(&obj);
-            if (x) fprintf(f, "%d - %d\n", i, x);
-        }
-        fclose(f);
-        return 1;
-    }
-    */
-    /*
-    else if (!strcmp(s, "/resfile"))
-    {
-        resfile.calc();
-        return 1;
-    }
-    else if (!strcmp(s, "/resfile-gc"))
-    {
-        resfile.collect_garbage();
-        return 1;
-    }
-    */
-    /*
-    else if (!strcmp(s, "/del-save"))
-    {
-        del_states();
 
-        return 1;
-    }
-    else if (!strcmp(s, "/save"))
-    {
-        TRIBE_World* world = (*base_game)->world;
-
-        save_state((RGE_Game_World*)world);
-
-        //int x = rand_internal();
-
-        return 1;
-    }
-    else if (!strcmp(s, "/load"))
-    {
-        TRIBE_World* world = (*base_game)->world;
-        TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
-        RGE_Player* player = RGE_Base_Game__get_player(*base_game);
-        int id = player->id;
-        float view_x = player->view_x;
-        float view_y = player->view_y;
-
-        TRIBE_Screen_Game__unhook_world(game_screen);
-
-        world->vfptr->del_game_info(world);
-
-        load_state((RGE_Game_World*)world);
-
-        TRIBE_Screen_Game__rehook_world(game_screen);
-
-        (*base_game)->vfptr->set_player(*base_game, id);
-        player = RGE_Base_Game__get_player(*base_game);
-        RGE_Player__set_view_loc(player, view_x, view_y, 0);
-        RGE_Player__set_map_loc(player, view_x, view_y);
-
-        TPanel* panel = TPanelSystem__getTop(panel_system);
-        panel->vfptr->set_redraw(panel, 1);
-
-        //int x = rand_internal();
-
-        return 1;
-    }
-    else if (strstr(s, "/update"))
-    {
-        char d[0x100];
-        int t;
-        sscanf(s, "%s %d", d, &t);
-
-        int* const do_fixed_update = (int* const)0x006A35E8;
-        int do_fixed_update_old = *do_fixed_update;
-        *do_fixed_update = 1;
-        unsigned int start_wt = (*base_game)->world->world_time;
-        unsigned int current_wt = start_wt;
-
-        TCommCommandLog* log = (*base_game)->world->com_handler->mCommandLog;
-
-        int old_speed = log->mReplaySpeed;
-        log->mReplaySpeed = 12;
-
-        unsigned int last_update_time = timeGetTime();
-
-        unsigned __int8 game_state = (*base_game)->world->game_state;
-        while (game_state == 0 && current_wt - start_wt < t * 1000)
-        {
-            game_state = (*base_game)->world->vfptr->update((*base_game)->world);
-            current_wt = (*base_game)->world->world_time;
-
-            TMessagePanel* message_panel; // [esp+0h] [ebp-20h]
-            struct tagMSG Msg; // [esp+4h] [ebp-1Ch] BYREF
-
-            unsigned int current_update_time = timeGetTime();
-
-            if (current_update_time - last_update_time > 200)
-            {
-                last_update_time = current_update_time;
-                while (PeekMessageA(&Msg, 0, 0, 0, 1u))
-                {
-                    TranslateMessage(&Msg);
-                    DispatchMessageA(&Msg);
-                }
-                TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
-                message_panel = NULL;
-                if (game_screen)
-                {
-                    TPanel* main_view = (TPanel*)game_screen->main_view;
-                    //if (main_view->have_focus)
-                    {
-                        message_panel = game_screen->message_panel;
-                        TPanel__set_redraw(main_view, 1);
-
-                        std::string message = "Seeking...";
-
-                        TMessagePanel__show_message(message_panel, 1, message.c_str(), 0xF3u, 0, 0, 0, 0, -1, 0, -1);
-                    }
-                }
-            }
-
-            TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
-            message_panel = NULL;
-            if (game_screen)
-            {
-                TPanel* main_view = (TPanel*)game_screen->main_view;
-                if (main_view->have_focus)
-                {
-                    message_panel = game_screen->message_panel;
-                    TPanel__set_redraw(main_view, 1);
-                }
-            }
-        }
-
-        //for (int i = 0; i < 10000; i++)
-        //    game_state = (*base_game)->world->vfptr->update((*base_game)->world);
-
-        log->mReplaySpeed = old_speed;
-
-        //for (int i = 0; i < 1000; i++)
-        //    game_state = (*base_game)->world->vfptr->update((*base_game)->world);
-
-        *do_fixed_update = do_fixed_update_old;
-        //chat("t = %d", t);
-        return 1;
-    }
-    */
-    /*else if (strstr(s, "/control"))
-    {
-        char d[0x100];
-        int p;
-        sscanf(s, "%s %d", d, &p);
-        if ((p >= 0) && (p <= 8))
-        {
-            RGE_Player__unselect_object(RGE_Base_Game__get_player(*base_game));
-            TRIBE_Game__set_player(*(TRIBE_Game**)base_game, p);
-        }
-        return 1;
-    }*/
-    /*else if (!strcmp(s, "/test"))
-    {
-        sendChat("Started integrity check", player_id);
-        _beginthread(thread_proc, 0, (void*)player_id);
-        return 1;
-    }
-    else if (!strcmp(s, "/memory"))
-    {
-        sendChat("Memory: set to 0x100000", player_id);
-        memory_temp = 0x100000;
-        return 1;
-    }*/
-    /*
-    else if (!strcmp(s, "/dump-world"))
-    {
-        srand(timeGetTime());
-        unsigned int r = rand();
-        char name[MAX_PATH];
-        sprintf(name, "rge_dump_%08X.txt", r);
-        chat("Dumping world to %s ...", name);
-        dump_objects(name);
-        chat("Dump complete");
-        return 1;
-    }
-    else if (!strcmp(s, "/worldtime"))
-    {
-        chat("Worldtime = %u", get_worldtime());
-        return 1;
-    }
-    else if (strstr(s, "/set-max"))
-    {
-        char d[0x100];
-        int t;
-        sscanf(s, "%s %d", d, &t);
-        max_worldtime = t;
-        chat("Set max worldtime to %d", t);
-        return 1;
-    }
-    */
-    /*
-    else if (strstr(s, "/del-sprite-list"))
-    {
-        TRIBE_World* world = (*base_game)->world;
-        if (world)
-        {
-            RGE_Player* player = RGE_Base_Game__get_player(*base_game);
-            if (player)
-            {
-                RGE_Static_Object* obj = player->selected_obj;
-                if (obj)
-                {
-                    RGE_Active_Sprite_List__delete_list(obj->sprite_list);
-                }
-                else
-                    chat("No objects selected");
-            }
-        }
-
-        return 1;
-    }
-    */
-    /*
-    else if (!strcmp(s, "/make-oos"))
-    {
-        float* r = player_getResources2(get_player(0));
-        r[0] += 100.0f;
-        chat("Caused out of sync");
-        return 1;
-    }
-    else if (!strcmp(s, "/dump-all"))
-    {
-        make_oos_dump();
-        return 1;
-    }
-    */
-    /*
-    else if (strstr(s, "/obj") || strstr(s, "/object"))
-    {
-        char d[0x100];
-        int id;
-        sscanf(s, "%s %d", d, &id);
-        TRIBE_World* world = (*base_game)->world;
-        if (world)
-        {
-            RGE_Static_Object* unit = RGE_Game_World__object((RGE_Game_World*)world, id);
-            if (unit)
-            {
-                RGE_Player* player = RGE_Base_Game__get_player(*base_game);
-                RGE_Player__unselect_object(player);
-                RGE_Player__select_object(player, unit, 1);
-            }
-            else
-                chat("Invalid object id");
-        }
-
-        return true;
-    }
-    else if (strstr(s, "/sel-id"))
-    {
-        TRIBE_World* world = (*base_game)->world;
-        if (world)
-        {
-            RGE_Player* player = RGE_Base_Game__get_player(*base_game);
-            if (player)
-            {
-                RGE_Static_Object* obj = player->selected_obj;
-                if (obj)
-                    chat("Selected object %d, 0x%X", obj->id, (DWORD)obj);
-                else
-                    chat("No objects selected");
-            }
-        }
-
-        return true;
-    }
-    else if (strstr(s, "/goto"))
-    {
-        char d[0x100];
-        float x, y;
-        sscanf(s, "%s %f %f", d, &x, &y);
-        RGE_Player__set_view_loc(RGE_Base_Game__get_player(*base_game), x, y, 0);
-        return true;
-    }
-    */
-    /*else if (strstr(s, "/load-all"))
-    {
-        int ext_types[] = {0x736C7020, 0x77617620, 0x62696E61};
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 100000; j++)
-            {
-                int size;
-                resfile.get_resource(ext_types[i], j, &size);
-            }
-        }
-        chat("Loaded all DRS resources");
-        return 1;
-    }*/
-    /*
-    else if (strstr(s, "/line"))
-    {
-        void(__thiscall * RGE_Obstruction_Manager_Land__AddDebugLine)(RGE_Obstruction_Manager_Land * this_, float X1, float Y1, float X2, float Y2, int Color, int DebugLine) =
-            (void(__thiscall*)(RGE_Obstruction_Manager_Land*, float, float, float, float, int, int))0x004B42C0;
-
-        RGE_Obstruction_Manager_Land* ob = (RGE_Obstruction_Manager_Land*)0x006ACCDC;
-
-        RGE_Obstruction_Manager_Land__AddDebugLine(ob, 1, 1, 3, 5, 57, 0);
-
-        return 1;
-    }
-    */
-    /*
-    else if (strstr(s, "/cs"))
-    {
-        WORLD_DUMP wd;
-        wd.update_cs();
-        chat("CS=%u", wd.get_cs());
-        return true;
-    }
-    /*else if (!strcmp(s, "/random-test"))
-    {
-        chat("Testing random generator...");
-        do_random_test();
-        return 1;
-    }*/
-    /*else if (!strcmp(s, "/set-zero-count"))
-    {
-        for (auto it = function_hooks.begin(), it_end = function_hooks.end(); it != it_end; ++it)
-            (*it)->set_zero_call_count();
-        chat("Set call counts to zero");
-        return 1;
-    }
-    else if (!strcmp(s, "/print-call-count"))
-    {
-        srand(timeGetTime());
-        unsigned int r = rand();
-        char name[MAX_PATH];
-        sprintf(name, "call_count_%08X.txt", r);
-        //chat("Sorting vector ...");
-        std::sort(function_hooks.begin(), function_hooks.end(), compare_call_counts_object);
-        FILE* f = fopen(name, "wt");
-        if (f)
-        {
-            for (auto it = function_hooks.begin(), it_end = function_hooks.end(); it != it_end; ++it)
-                fprintf(f, "0x%X - %lld - %lld ns\n", (*it)->get_address(), (*it)->get_call_count(), (*it)->get_total_time());
-            fclose(f);
-            chat("Printed call counts to %s", name);
-        }
-        else
-            chat("Error writing file!");
-        return 1;
-    }*/
-    /*else if (!strcmp(s, "/time-start"))
-    {
-        performance_time = timeGetTime();
-        chat("Set start time");
-        return 1;
-    }
-    else if (!strcmp(s, "/time-stop"))
-    {
-        chat("Elapsed %d ms", timeGetTime() - performance_time);
-        return 1;
-    }
-    else if (!strcmp(s, "/render-off"))
-    {
-        chat("Render OFF");
-        unsigned char instr = 0xC3;
-        SIZE_T w;
-        WriteProcessMemory(GetCurrentProcess(), (void*)0x00651BC0, &instr, 1, &w);
-        return 1;
-    }
-    else if (!strcmp(s, "/render-on"))
-    {
-        chat("Render ON");
-        unsigned char instr = 0x55;
-        SIZE_T w;
-        WriteProcessMemory(GetCurrentProcess(), (void*)0x00651BC0, &instr, 1, &w);
-        return 1;
-    }*/
-    /*else if (strstr(s, "/action"))
-    {
-        TRIBE_World* world = (*base_game)->world;
-        if (world)
-        {
-            RGE_Player* player = RGE_Base_Game__get_player(*base_game);
-            if (player)
-            {
-                RGE_Action_Object* obj = (RGE_Action_Object*)player->selected_obj;
-                if (obj)
-                    //chat("Selected object %d, 0x%X", obj->id, (DWORD)obj);
-                {
-                    RGE_Master_Action_Object* master = obj->master_obj;
-                    RGE_Sprite* sprite = master->vfptr->gbg_get_run_sprite_civ_override(master, (RGE_Static_Object*)obj);
-                    
-                    if (!sprite)
-                        sprite = master->vfptr->gbg_get_move_sprite_civ_override(master, (RGE_Static_Object*)obj);
-
-                    RGE_Action_Move_To* act = (RGE_Action_Move_To*)calloc_internal(1, sizeof(RGE_Action_Move_To));
-                    RGE_Action_Move_To__RGE_Action_Move_To(act, (RGE_Action_Object*)obj, 2, 2, 0, 0, sprite);
-                    RGE_Action_List__add_action(obj->actions, (RGE_Action*)act);
-
-                    RGE_Action_Move_To* act2 = (RGE_Action_Move_To*)calloc_internal(1, sizeof(RGE_Action_Move_To));
-                    RGE_Action_Move_To__RGE_Action_Move_To(act2, (RGE_Action_Object*)obj, 4, 5, 0, 0, sprite);
-                    RGE_Action_List__add_action(obj->actions, (RGE_Action*)act2);
-                    //RGE_Action__setSubAction((RGE_Action*)act2, 1);
-                    char name[0x100];
-                    if (obj->actions->list)
-                    {
-                        obj->actions->list->action->vfptr->get_state_name(obj->actions->list->action, name);
-                        chat("Act = %d, state = %s", obj->actions->list->action->action_type, name);
-                    }
-                    else
-                        chat("No actions");
-                }
-                else
-                    chat("No objects selected");
-            }
-        }
-
-        return 1;
-    }*/
-    else
-        return 0;
+    return check_chat_command(s);
 }
 
 __declspec(naked) void onChat() //00438140
@@ -989,12 +256,13 @@ __declspec(naked) void onChat() //00438140
         push    eax
         call    onChat_2
         pop     ecx
-        test    eax, eax
-        jnz     __skip_chat
+        test    al, al
+        jnz     skip_chat
         sub     esp, 118h
         mov     eax, 00438146h
         jmp     eax
-__skip_chat:
+
+skip_chat:
         xor     eax, eax
         ret     0Ch
     }
@@ -1350,8 +618,8 @@ __declspec(naked) int new_check_multi_copies() //00428270
 }
 
 //const char* savegame_path = "savegame\\test\\recs\\";
-const char* savegame_path = "savegame\\";
-const char* scenario_path = "scenario\\";
+//const char* savegame_path = "savegame\\";
+//const char* scenario_path = "scenario\\";
 
 std::map<void*, std::pair<void*, size_t>> allocations;
 
@@ -1997,9 +1265,82 @@ __declspec(naked) void on_set_positioning()
 }
 */
 
+void __fastcall TRIBE_Building_Object__findUnitsUnderGate_new(TRIBE_Building_Object* obj, DWORD dummy, int* units, int* numberUnits, int maxNumberUnits, int* numberAlliedUnits)
+{
+    UNREFERENCED_PARAMETER(dummy);
+
+    int* const ignoreList_4 = (int* const)0x0077FBB0;
+
+    int collisions;
+    ObsRecord* ob_recs[20];
+
+    ignoreList_4[0] = obj->id;
+    ignoreList_4[1] = obj->linked_child[0]->id;
+    ignoreList_4[2] = obj->linked_child[1]->id;
+    (*OBSystem_Land)->vfptr->SetIgnoreList(*OBSystem_Land, 1, ignoreList_4, 3);
+    (*OBSystem_Land)->vfptr->SetBufferRadius(
+        *OBSystem_Land,
+        1,
+        0.4f);
+    (*OBSystem_Land)->vfptr->CheckForCollisions(
+        *OBSystem_Land,
+        (obj->linked_child[0]->world_x),
+        (obj->linked_child[0]->world_y),
+        (obj->linked_child[1]->world_x),
+        (obj->linked_child[1]->world_y),
+        16,
+        &collisions,
+        ob_recs,
+        20,
+        -2,
+        0,
+        0);
+    *numberUnits = 0;
+    *numberAlliedUnits = 0;
+    if (collisions > 0)
+    {
+        if (obj->id == 103138)
+        {
+            char s[0x100];
+            s[0] = '\0';
+            for (int i = 0; i < collisions; i++)
+            {
+                sprintf(s + strlen(s), "%d, ", ob_recs[i]->Object->id);
+            }
+
+            chat("Found %d units: %s", collisions, s);
+
+        }
+
+        for (int i = 0; i < collisions; i++)
+        {
+            if (*numberUnits >= maxNumberUnits)
+                break;
+            RGE_Static_Object* obj = ob_recs[i]->Object;
+            if (obj
+                && obj->master_obj->object_group != 6
+                && obj->master_obj->object_group != 18
+                && obj->master_obj->object_group != 8
+                && obj->master_obj->object_group != 10
+                && obj->master_obj->object_group != 9
+                && ((obj->vfptr->maximumSpeed)(obj) >= 0.0000001f || obj->owner->id))
+            {
+                units[*numberUnits] = obj->id;
+                ++*numberUnits;
+                if (obj->owner->vfptr->isAlly(obj->owner, obj->owner->id) == 1)
+                    ++*numberAlliedUnits;
+            }
+        }
+    }
+    (*OBSystem_Land)->vfptr->SetBufferRadius(*OBSystem_Land, 0, 0.0f);
+}
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    //setHook((void*)0x00558520, TRIBE_Building_Object__findUnitsUnderGate_new);
+
+    //writeNops(0x00493B3D, 2);
     //Sed UI panel
     //writeDword(0x005368BA, 700);
     //writeDword(0x005368BF, 700);
@@ -2072,7 +1413,7 @@ void setTestHook()
     
     //setOOSHooks();
     //savegame path
-    writeDword(0x0048F566, (DWORD)savegame_path);
+    //writeDword(0x0048F566, (DWORD)savegame_path);
 
     //setHook((void*)0x005D0D59, repair_test);
 

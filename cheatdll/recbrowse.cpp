@@ -20,8 +20,8 @@ int prev_rec_position = -1;
 int prev_scen_viewport = -1;
 int prev_scen_position = -1;
 
-extern const char* savegame_path;
-extern const char* scenario_path;
+const char* const savegame_path = (const char* const)0x0068F1A4; //"savegame\\"
+const char* const scenario_path = (const char* const)0x0068F188; //"scenario\\"
 
 std::string rec_extension;
 std::string save_extension;

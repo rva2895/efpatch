@@ -13,7 +13,7 @@ struct drs_file_info
 
 //for legacy drs load
 
-drs_file_info drs_files[] =   //cc      ef     non-wide prefix  no mapping
+const drs_file_info drs_files[] =   //cc      ef     non-wide prefix  no mapping
 {
     {"sounds.drs",              true,   true,   true,   false,  true },
     {"sounds_x1.drs",           true,   true,   true,   false,  true },
@@ -93,12 +93,12 @@ drs_outside:
 bool drs_mode_ef;
 bool drs_mode_wide;
 
-bool is_loaded_in_current_mode(drs_file_info& drs_file)
+bool is_loaded_in_current_mode(const drs_file_info& drs_file)
 {
     return (!drs_mode_ef && drs_file.load_in_cc || drs_mode_ef && drs_file.load_in_ef) && (drs_mode_wide || drs_file.load_in_non_wide);
 }
 
-std::string get_adjusted_name(drs_file_info& drs_file)
+std::string get_adjusted_name(const drs_file_info& drs_file)
 {
     if (drs_mode_ef && drs_file.prefix_required)
         return DATA_FOLDER_PREFIX_FROM_DATA + std::string(drs_file.filename);

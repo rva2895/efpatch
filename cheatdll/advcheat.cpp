@@ -1,34 +1,22 @@
 #include "stdafx.h"
-
 #include "advcheat.h"
-#include "advtriggereffect.h"
-#include "effects.h"
 #include "sngoal.h"
 #include "tribe_command_ef.h"
 
-//extern float glitched_res; //remove
-
-//
-//extern int control_source;
-//extern int control_target;
-//extern bool control_initiated;
-
 __int16 player_id_for_gaia_control = 0;
 
-bool __stdcall checkCheats(char* s2)
+bool __stdcall processCheatCodeEF(TRIBE_Game* game, int playerID, char* text)
 {
-    char dummy[0x80];
-    char s[0x200];
-    strncpy(s, s2, 0x1FF);
-    s[0x1FF] = '\0';
-    _strupr(s);
+    char s[0x100];
+    strlcpy(s, text, _countof(s));
+    mbsupr_internal(s);
+    
+    RGE_Player* player = (RGE_Player*)game->world->players[playerID];
 
-    RGE_Player* player = RGE_Base_Game__get_player(*base_game);
-
-    if (RGE_Base_Game__allowCheatCodes(*base_game))
+    if (RGE_Base_Game__allowCheatCodes((RGE_Base_Game*)game))
     {
         //fixed old cheats, SP only
-        if (RGE_Base_Game__singlePlayerGame(*base_game))
+        if (RGE_Base_Game__singlePlayerGame((RGE_Base_Game*)game))
         {
             if (strstr(s, "SIMONSAYS"))
             {
@@ -69,15 +57,14 @@ bool __stdcall checkCheats(char* s2)
             //new ef cheats, SP only
             if (strstr(s, "LUMINOUS BEINGS ARE WE"))
             {
-                int player_id = RGE_Base_Game__get_player(*base_game)->id;
                 RGE_Player__unselect_object(player);
-                if (player_id != 0)
+                if (playerID != 0)
                 {
-                    player_id_for_gaia_control = (__int16)player_id;
-                    TRIBE_Game__set_player(*(TRIBE_Game**)base_game, 0);
+                    player_id_for_gaia_control = (__int16)playerID;
+                    TRIBE_Game__set_player(game, 0);
                 }
                 else
-                    TRIBE_Game__set_player(*(TRIBE_Game**)base_game, player_id_for_gaia_control);
+                    TRIBE_Game__set_player(game, player_id_for_gaia_control);
                 return true;
             }
             if (strstr(s, "YOU HAVE FAILED ME FOR THE LAST TIME"))
@@ -208,7 +195,7 @@ bool __stdcall checkCheats(char* s2)
             int id = -1;
             if (sscanf(gift_s + 4, "%d", &id) > 0 && id >= 0 && id <= 8)
             {
-                if (id < (*base_game)->world->player_num && id != player->id)
+                if (id < game->world->player_num && id != player->id)
                 {
                     RGE_Static_Object** sel_units = player->sel_list;
                     int n = player->sel_count;
@@ -372,6 +359,7 @@ bool __stdcall checkCheats(char* s2)
     if (strstr(s, "/SN"))
     {
         char name[0x80];
+        char dummy[0x80];
         name[0] = '\0';
         sscanf_s(s, "%s %s", dummy, (unsigned)_countof(dummy), name, (unsigned)_countof(name));
         get_sn_with_alias((TRIBE_Player*)player, name);
@@ -380,6 +368,7 @@ bool __stdcall checkCheats(char* s2)
     if (strstr(s, "/GOAL"))
     {
         char name[0x80];
+        char dummy[0x80];
         name[0] = '\0';
         sscanf_s(s, "%s %s", dummy, (unsigned)_countof(dummy), name, (unsigned)_countof(name));
         get_goal_with_alias((TRIBE_Player*)player, name);
@@ -388,7 +377,7 @@ bool __stdcall checkCheats(char* s2)
     /*if (strstr(s, "/OBJ") || strstr(s, "/OBJECT"))
     {
         sscanf(s, "%s %d", dummy, &id);
-        void* base_world = *(void**)((char*)*base_game + 0x420);
+        void* base_world = *(void**)((char*)game + 0x420);
         if (base_world)
         {
             UNIT* unit = (UNIT*)BaseWorld__object(base_world, id);
@@ -415,26 +404,24 @@ bool __stdcall checkCheats(char* s2)
     return false;
 }
 
-__declspec(naked) void scanChat() //005ED970
+__declspec(naked) void processCheatCode2() //005ED9AA
 {
     __asm
     {
-        mov     eax, [esp + 8] //chat string
-        push    ecx
-
-        push    eax
-        call    checkCheats
-        pop     ecx
-        sub     esp, 300h
-        push    ebx
         push    edi
+        push    eax
+        push    ebx
+        call    processCheatCodeEF
         test    al, al
-        jnz     no_chat
-        mov     edi, 005ED978h
-        jmp     edi
-no_chat:
-        mov     edi, 005EDD65h
-        jmp     edi
+        jnz     processCheatCodeEF_processed
+        or      ecx, 0FFFFFFFFh
+        xor     eax, eax
+        mov     edx, 005ED9AFh
+        jmp     edx
+
+processCheatCodeEF_processed:
+        mov     edx, 005EDD65h
+        jmp     edx
     }
 }
 
@@ -469,7 +456,7 @@ always_powered:
 #pragma optimize( "s", on )
 void setAdvCheatHooks()
 {
-    setHook((void*)0x005ED970, scanChat);
+    setHook((void*)0x005ED9AA, processCheatCode2);
     setHook((void*)0x0054BE05, checkPowerResource);
 
     //tech

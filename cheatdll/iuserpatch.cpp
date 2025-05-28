@@ -1,41 +1,17 @@
 #include "stdafx.h"
-
 #include "iuserpatch.h"
 
-#include "flare.h"
-#include "filenames.h"
-#include "terrain_gen.h"
-#include "votepanel.h"
-#include "timeline.h"
-#include "scroll.h"
-#include "gamespeed.h"
 #include "savegamever.h"
-#include "techupcolor.h"
-#include "wndproc.h"
-#include "rec.h"
-#include "recbrowse.h"
-#include "elevation.h"
-#include "network.h"
-#include "hotkeyjump.h"
-#include "recordrestore.h"
-#include "mouseoverride.h"
 #include "rundll.h"
 #include "resolution.h"
 #include "registry.h"
 #include "memory.h"
 #include "textrender.h"
+#include "chatcommand.h"
 #ifdef VOOBLY_EF
 #include "palette.h"
 #include "setup.h"
 #endif
-
-//#include "worlddump.h"
-
-#include <time.h>
-
-//#include "resfile.h"
-
-//extern RESFILE resfile;
 
 #ifdef TARGET_VOOBLY
 
@@ -379,9 +355,6 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
     return bSuccess;
 }
 
-extern int max_worldtime;
-extern unsigned int dump_objects(const char* filename);
-
 bool CUserPatch::OnChatMessage(const char *text)
 {
     if (!strcmp(text, "/version"))
@@ -394,85 +367,7 @@ bool CUserPatch::OnChatMessage(const char *text)
 #endif
         return true;
     }
-    /*if (!strcmp(text, "/load-all"))
-    {
-        chat("Loading all DRS resources ...");
-        int ext_types[] = { 0x736C7020, 0x77617620, 0x62696E61 };
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 100000; j++)
-            {
-                int size;
-                resfile.get_resource(ext_types[i], j, &size);
-            }
-        }
-        chat("Load complete");
-        return true;
-    }*/
-    /*
-    if (!strcmp(text, "/dump-world"))
-    {
-        srand(time(0));
-        unsigned int r = rand();
-        char name[MAX_PATH];
-        snprintf(name, _countof(name), "rge_dump_%08X.txt", r);
-        chat("Dumping world to %s ...", name);
-        dump_objects(name);
-        chat("Dump complete");
-        return true;
-    }
-    if (strstr(text, "/set-max"))
-    {
-        char d[0x100];
-        int t;
-        sscanf(text, "%s %d", d, &t);
-        max_worldtime = t;
-        chat("Set max worldtime to %d", t);
-        return true;
-    }*/
-    /*if (!strcmp(text, "/worldtime"))
-    {
-        chat("Worldtime = %d", get_gametime2());
-        return 1;
-    }
-    if (strstr(text, "/obj") || strstr(text, "/object"))
-    {
-        char d[0x100];
-        int id;
-        sscanf(text, "%s %d", d, &id);
-        void* base_world = *(void**)((char*)*base_game + 0x420);
-        if (base_world)
-        {
-            UNIT* unit = (UNIT*)BaseWorld__object(base_world, id);
-            if (unit)
-            {
-                void* player = getCurrentPlayer();
-                RGE_Player__unselect_object(player);
-                RGE_Player__select_object(player, unit, 1);
-            }
-            else
-                chat("Invalid object id");
-        }
-
-        return true;
-    }
-    if (strstr(text, "/goto"))
-    {
-        char d[0x100];
-        float x, y;
-        sscanf(text, "%s %f %f", d, &x, &y);
-        void* player = getCurrentPlayer();
-        RGE_Player__set_view_loc(player, x, y, 0);
-        return true;
-    }*/
-    /*if (strstr(text, "/cs"))
-    {
-        WORLD_DUMP wd;
-        wd.update_cs();
-        chat("CS=%u", wd.get_cs());
-        return true;
-    }
-    */
-    return false;
+    else
+        return check_chat_command(text);
 }
 #endif

@@ -241,6 +241,7 @@
     <ClInclude Include="campaign.h" />
     <ClInclude Include="cargotrader.h" />
     <ClInclude Include="casts.h" />
+    <ClInclude Include="chatcommand.h" />
     <ClInclude Include="chatgaiatoall.h" />
     <ClInclude Include="civletter.h" />
     <ClInclude Include="civresearch.h" />
@@ -421,6 +422,7 @@
     <ClCompile Include="campaign.cpp" />
     <ClCompile Include="cargotrader.cpp" />
     <ClCompile Include="casts.cpp" />
+    <ClCompile Include="chatcommand.cpp" />
     <ClCompile Include="chatgaiatoall.cpp" />
     <ClCompile Include="cheatdll.cpp" />
     <ClCompile Include="civletter.cpp" />

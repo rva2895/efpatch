@@ -79,6 +79,9 @@ extern int* const world_update_counter;
 extern TCommunications_Handler** const comm;
 extern TChat** const tchat;
 
+extern RGE_Obstruction_Manager** const OBSystem_Land;
+extern RGE_Airspace_Manager** const OBSystem_Air;
+
 extern HINSTANCE* const hInstance_dll;
 
 extern void* (__cdecl* const calloc_internal)(size_t number, size_t size);
@@ -97,3 +100,4 @@ extern size_t (__cdecl* const fread_internal)(void* DstBuf, size_t ElementSize, 
 extern size_t (__cdecl* const fwrite_internal)(const void* Str, size_t Size, size_t Count, FILE* File);
 extern int (__cdecl* const fscanf_internal)(FILE* File, const char* Format, ...);
 extern char* (__cdecl* const fgets_internal)(char* Buf, int MaxCount, FILE* File);
+extern char* (__cdecl* const mbsupr_internal)(char* str);

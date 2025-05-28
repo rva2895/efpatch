@@ -520,9 +520,9 @@ void __stdcall do_effect_teleport_obj(RGE_Player* player, RGE_Static_Object** ob
         }
 
         int obj_id_list_stack[0x100];
-        int* obj_id_list_heap;
+        int* obj_id_list_heap = NULL;
         int* obj_id_list;
-        if (obj_count > 0x100)
+        if (obj_count > _countof(obj_id_list_stack))
         {
             int* obj_id_list_heap = new int[obj_count];
             obj_id_list = obj_id_list_heap;
@@ -558,7 +558,7 @@ void __stdcall do_effect_teleport_obj(RGE_Player* player, RGE_Static_Object** ob
             }
         }
 
-        if (obj_count > 0x100)
+        if (obj_count > _countof(obj_id_list_stack))
             delete[] obj_id_list_heap;
     }
 }

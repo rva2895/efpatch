@@ -2348,7 +2348,7 @@ struct TRIBE_WorldVtbl
   unsigned __int8 (__thiscall *modify_gaia)(TRIBE_World *);
   void (__thiscall *setup_players)(TRIBE_World *, RGE_Player_Info *);
   unsigned __int8 (__thiscall *new_random_game)(TRIBE_World *, RGE_Player_Info *);
-  void (__thiscall *save)(TRIBE_World *, int, int);
+  void (__thiscall *save)(TRIBE_World *, int);
   void (__thiscall *scenario_make_player)(TRIBE_World *, __int16, unsigned __int8, unsigned __int8, unsigned __int8, char *);
   void (__thiscall *scenario_make_map)(TRIBE_World *, int);
   unsigned __int8 (__thiscall *load_scenario_2)(TRIBE_World *, RGE_Player_Info *);
@@ -7239,7 +7239,7 @@ struct RGE_Game_WorldVtbl
   unsigned __int8 (__thiscall *modify_gaia)(RGE_Game_World *);
   void (__thiscall *setup_players)(RGE_Game_World *, RGE_Player_Info *);
   unsigned __int8 (__thiscall *new_random_game)(RGE_Game_World *, RGE_Player_Info *);
-  void (__thiscall *save)(RGE_Game_World *, int, int);
+  void (__thiscall *save)(RGE_Game_World *, int);
   void (__thiscall *scenario_make_player)(RGE_Game_World *, __int16, unsigned __int8, unsigned __int8, unsigned __int8, char *);
   void (__thiscall *scenario_make_map)(RGE_Game_World *, int);
   unsigned __int8 (__thiscall *load_scenario_2)(RGE_Game_World *, RGE_Player_Info *);
