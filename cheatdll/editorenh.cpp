@@ -390,6 +390,86 @@ __declspec(naked) void editor_selection_box() //0052DED4
     }
 }
 
+__declspec(naked) void del_effect() //005F4F3B
+{
+    __asm
+    {
+del_effect_loop:
+        mov     ecx, [esi + 30h] //effect_num
+        inc     eax
+        cmp     eax, ecx
+        jge     del_effect_end
+        mov     ecx, [esi + 28h] //effect_list
+        mov     edx, [ecx + eax * 4]
+        mov     [ecx + eax * 4 - 4], edx
+        jmp     del_effect_loop
+
+del_effect_end:
+        mov     eax, 005F4F4Dh
+        jmp     eax
+    }
+}
+
+__declspec(naked) void del_effect_order() //005F4F70
+{
+    __asm
+    {
+del_effect_order_loop:
+        mov     ecx, [esi + 30h] //effect_num
+        inc     eax
+        cmp     eax, ecx
+        jge     del_effect_order_end
+        mov     ecx, [esi + 2Ch] //effect_order
+        mov     edx, [ecx + eax * 4]
+        mov     [ecx + eax * 4 - 4], edx
+        jmp     del_effect_order_loop
+
+del_effect_order_end:
+        mov     eax, 005F4F82h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void del_condition() //005F4C55
+{
+    __asm
+    {
+del_condition_loop:
+        mov     ecx, [esi + 20h] //condition_num
+        inc     eax
+        cmp     eax, ecx
+        jge     del_condition_end
+        mov     ecx, [esi + 18h] //condition_list
+        mov     edx, [ecx + eax * 4]
+        mov     [ecx + eax * 4 - 4], edx
+        jmp     del_condition_loop
+
+del_condition_end:
+        mov     eax, 005F4C67h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void del_condition_order() //005F4C8B
+{
+    __asm
+    {
+del_condition_order_loop:
+        mov     ecx, [esi + 20h] //condition_num
+        inc     eax
+        cmp     eax, ecx
+        jge     del_condition_order_end
+        mov     ecx, [esi + 1Ch] //condition_order
+        mov     edx, [ecx + eax * 4]
+        mov     [ecx + eax * 4 - 4], edx
+        jmp     del_condition_order_loop
+
+del_condition_order_end:
+        mov     eax, 005F4C9Dh
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setEditorEnhHooks(int ver)
 {
@@ -409,6 +489,11 @@ void setEditorEnhHooks(int ver)
     setHook((void*)0x0052DED4, editor_selection_box);
     writeData(0x0052E03D, "\xB8\x01\x00\x00\x00", 5);
     //writeByte(0x0052E04D, 0x10);
+
+    setHook((void*)0x005F4F3B, del_effect);
+    setHook((void*)0x005F4F70, del_effect_order);
+    setHook((void*)0x005F4C55, del_condition);
+    setHook((void*)0x005F4C8B, del_condition_order);
 
     version_for_editor = ver;
 }
