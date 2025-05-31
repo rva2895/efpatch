@@ -469,6 +469,84 @@ dbl_click_skip_sleeping:
     }
 }
 
+void* cmd_buf = NULL;
+size_t cmd_buf_size = 0;
+
+void* __fastcall do_cmd_buf(size_t size)
+{
+    if (size > cmd_buf_size)
+    {
+        free(cmd_buf);
+        cmd_buf_size += 128;
+        cmd_buf = malloc(cmd_buf_size);
+        memset(cmd_buf, 0, cmd_buf_size);
+    }
+    return cmd_buf;
+}
+
+__declspec(naked) void on_get_next_logged_command() //0042F4B4
+{
+    __asm
+    {
+        mov     ecx, eax
+        call    do_cmd_buf
+
+        mov     ecx, 0042F4BCh
+        jmp     ecx
+    }
+}
+
+void __fastcall do_on_unit_group_destructor(BUnitGroup* g)
+{
+    if (g->mSecondsSinceAttacking)
+    {
+        operator_delete_internal(g->mSecondsSinceAttacking);
+        g->mSecondsSinceAttacking = NULL;
+    }
+}
+
+__declspec(naked) void on_unit_group_destructor() //0047E0E6
+{
+    __asm
+    {
+        mov     ecx, esi
+        call    do_on_unit_group_destructor
+        mov     eax, [esi + 0E4h]
+        mov     ecx, 0047E0ECh
+        jmp     ecx
+    }
+}
+
+void __fastcall do_on_info_ai_destructor(TribeInformationAIModule* info_ai)
+{
+    UnitDeathMemory* dm = info_ai->mUnitDeaths.mNext;
+    while (dm != &info_ai->mUnitDeaths)
+    {
+        dm = dm->mNext;
+        operator_delete_internal(dm->mPrev);
+    }
+
+    for (int i = 0; i < _countof(info_ai->mPerimeterWall); i++)
+        if (info_ai->mPerimeterWall[i].wallLine)
+        {
+            operator_delete_internal(info_ai->mPerimeterWall[i].wallLine);
+            info_ai->mPerimeterWall[i].wallLine = NULL;
+        }
+}
+
+__declspec(naked) void on_info_ai_destructor() //00585496
+{
+    __asm
+    {
+        mov     ecx, esi
+        call    do_on_info_ai_destructor
+        mov     ecx, esi
+        mov     [esi + 0F4h], ebp
+        mov     eax, 0058549Eh
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks(int ver)
 {
@@ -602,5 +680,20 @@ void setMiscBugfixHooks(int ver)
 
     //MP setup screen scenario name
     writeNops(0x005219BD, 0x17);
+
+    //get next logged command memory leak
+    setHook((void*)0x0042F4B7, on_get_next_logged_command);
+    writeNops(0x0042F4DA, 9);
+    writeNops(0x0042F50F, 9);
+
+    //airspace manager memory leak
+    writeNops(0x00414103, 2);
+    writeNops(0x0041410D, 2);
+
+    //unit group memory leak
+    setHook((void*)0x0047E0E6, on_unit_group_destructor);
+
+    //info ai memory leak
+    setHook((void*)0x00585496, on_info_ai_destructor);
 }
 #pragma optimize( "", on )

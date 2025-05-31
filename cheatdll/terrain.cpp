@@ -771,6 +771,26 @@ forbidden_2:
     }
 }
 
+__declspec(naked) void terrain_forbidden_ids_shape_del() //004901AA
+{
+    __asm
+    {
+        cmp     ebp, 129  //forbidden ID+1
+        jg      short not_forbidden_shape_del
+        cmp     ebp, 105
+        jge     short forbidden_shape_del
+not_forbidden_shape_del:
+        mov     edi, [ebx]
+        test    edi, edi
+        jz      short forbidden_shape_del
+        mov     eax, 004901B0h
+        jmp     eax
+forbidden_shape_del:
+        mov     eax, 004901C6h
+        jmp     eax
+    }
+}
+
 int memory_temp = 0x40000000;
 
 __declspec(naked) void terrain_memory_fix() //00497141
@@ -1126,10 +1146,15 @@ void setExtraTerrainHooks()
     writeDword(0x0049479B, TERRAIN_COUNT); //asm, skip forbidden IDs.
     writeDword(0x00494796, 0x6368 + TERRAIN_SIZE * (TERRAIN_COUNT - 0x37));
 
+    writeDword(0x004901A6, TERRAIN_COUNT); //TShape delete
+    writeDword(0x004901A1, 0x636C + TERRAIN_SIZE * (TERRAIN_COUNT - 0x37));
+
+    setHook((void*)0x004901AA, terrain_forbidden_ids_shape_del);
+
     writeByte(0x00495063, TERRAIN_COUNT);
     writeByte(0x00495530, TERRAIN_COUNT);
     writeByte(0x00495B6C, TERRAIN_COUNT);
-
+    
     writeByte(0x004901DE, 0xEB); //skip border unloading
 
     //memcpy(indirect_table_water_2, indirect_table_water, TERR_MAX_CONST + 1);

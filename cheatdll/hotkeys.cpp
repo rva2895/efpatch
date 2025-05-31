@@ -54,9 +54,9 @@ HK_continue:
         jz      HK_skip
         lea     edx, [esp + 3]
         push    edx
-        lea     edx, [esp + 3]
+        lea     edx, [esp + 7]
         push    edx
-        lea     edx, [esp + 3]
+        lea     edx, [esp + 11]
         push    edx
         dec     eax
         lea     eax, [eax + eax * 2]

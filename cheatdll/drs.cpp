@@ -109,8 +109,7 @@ std::string get_adjusted_name(const drs_file_info& drs_file)
 void __stdcall setup_drs_files(TRIBE_Game* game)
 {
     log("Loading DRS files...");
-    int n_drs_files = sizeof(drs_files) / sizeof(drs_files[0]);
-    for (int i = 0; i < n_drs_files; i++)
+    for (int i = 0; i < _countof(drs_files); i++)
         if (is_loaded_in_current_mode(drs_files[i]))
         {
             char buf[MAX_PATH];
@@ -118,6 +117,20 @@ void __stdcall setup_drs_files(TRIBE_Game* game)
             strlcpy(buf, filename.c_str(), _countof(buf));
             RESFILE_open_new_resource_file(buf, "swbg", game->prog_info->resource_dir, drs_files[i].no_mapping);
             log("Opened %s", buf);
+        }
+}
+
+void __stdcall delete_drs_files(TRIBE_Game* game)
+{
+    log("Unloading DRS files...");
+    for (int i = 0; i < _countof(drs_files); i++)
+        if (is_loaded_in_current_mode(drs_files[i]))
+        {
+            char buf[MAX_PATH];
+            std::string filename = get_adjusted_name(drs_files[i]);
+            strlcpy(buf, filename.c_str(), _countof(buf));
+            RESFILE_close_new_resource_file(buf);
+            log("Closed %s", buf);
         }
 }
 
@@ -132,6 +145,17 @@ __declspec(naked) void drs_load_hook() //005E4B5A
     }
 }
 
+__declspec(naked) void drs_unload_hook() //005E4774
+{
+    __asm
+    {
+        push    esi
+        call    delete_drs_files
+        mov     eax, 005E47A6h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setDRSLoadHooks(int ver, bool wide)
 {
@@ -139,6 +163,7 @@ void setDRSLoadHooks(int ver, bool wide)
     drs_mode_wide = wide;
 
     setHook((void*)0x005E4B5A, drs_load_hook);
+    setHook((void*)0x005E4774, drs_unload_hook);
 
     //heap corruption
     setHook((void*)0x004D4FE8, drsHeaderEnd);
