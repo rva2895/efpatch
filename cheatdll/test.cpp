@@ -1335,6 +1335,11 @@ void __fastcall TRIBE_Building_Object__findUnitsUnderGate_new(TRIBE_Building_Obj
     (*OBSystem_Land)->vfptr->SetBufferRadius(*OBSystem_Land, 0, 0.0f);
 }
 
+void __cdecl setTestHook_atexit()
+{
+    free(log_int_s);
+}
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
@@ -1489,5 +1494,7 @@ void setTestHook()
 
     //action list
     //writeNops(0x004098FD, 5);
+
+    efpatch_atexit(setTestHook_atexit);
 }
 #pragma optimize( "", on )

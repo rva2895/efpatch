@@ -72,8 +72,15 @@ locret:
     }
 }
 
+void __cdecl initCivResearchTable_atexit()
+{
+    free(tableR);
+}
+
 void initCivResearchTable()
 {
     buildTableR();
     setHook((void*)0x0040FD10, researchCivAssign);
+
+    efpatch_atexit(initCivResearchTable_atexit);
 }

@@ -12,6 +12,11 @@ jedi_holo_ids* jediHoloIDs = NULL;
 
 bool jedi_holo_new_hooks_installed = false;
 
+void __cdecl jedi_holo_atexit()
+{
+    free(jediHoloIDs);
+}
+
 int __fastcall get_holo_id(int id)
 {
     for (int i = 0; i < jediHoloN; i++)
@@ -59,6 +64,8 @@ void setJediHoloHooks(const char* prefix, const char* filename)
             setHook((void*)0x005E3F10, get_non_holo_id);
 
             jedi_holo_new_hooks_installed = true;
+
+            efpatch_atexit(jedi_holo_atexit);
         }
     }
     else

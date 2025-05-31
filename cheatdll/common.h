@@ -29,7 +29,13 @@
 #define DLL_NAME "efpatch.dll"
 #endif
 
-#define noop (void)0
+#define noop ((void)0)
+
+#ifdef EFPATCH_USE_ATEXIT
+#define efpatch_atexit(p) atexit(p)
+#else
+#define efpatch_atexit(p) noop
+#endif
 
 void __cdecl writeByte(DWORD addr, BYTE val);
 void __cdecl writeWord(DWORD addr, WORD val);

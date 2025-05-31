@@ -1,5 +1,17 @@
 #pragma once
 
+//#define EFPATCH_MEMORY_DEBUG
+//#define EFPATCH_USE_ATEXIT
+//#define EFPATCH_ENABLE_DEBUG_COMMANDS
+
+#if defined(_DEBUG) && defined(EFPATCH_MEMORY_DEBUG)
+#define _CRTDBG_MAP_ALLOC
+#endif
+#include <stdlib.h>
+#if defined(_DEBUG) && defined(EFPATCH_MEMORY_DEBUG)
+#include <crtdbg.h>
+#endif
+
 #include "targetver.h"
 
 //#define WIN32_LEAN_AND_MEAN
@@ -11,7 +23,6 @@
 #include <string>
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "consts.h"
 #ifdef TARGET_VOOBLY

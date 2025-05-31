@@ -614,8 +614,19 @@ const char x1_dat_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"genie_x1_p1.dat";
 
 extern float screen_scale_factor;
 
+#ifdef EFPATCH_MEMORY_DEBUG
+void __cdecl dump_leaks()
+{
+    _CrtDumpMemoryLeaks();
+}
+#endif
+
 void initialSetup()
 {
+#ifdef EFPATCH_MEMORY_DEBUG
+    atexit(dump_leaks);
+#endif
+
 #ifdef TARGET_VOOBLY
     log("Notice: running in Voobly mode");
 

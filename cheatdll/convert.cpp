@@ -32,9 +32,16 @@ unconv_can_convert:
     }
 }
 
+void __cdecl convert_hooks_atexit()
+{
+    free(unconv_list);
+}
+
 void __cdecl convert_hooks()
 {
     setHook((void*)0x00567EDC, unConvertHook);
+
+    efpatch_atexit(convert_hooks_atexit);
 }
 
 void setConvertHooks(const char* prefix, const char* filename)

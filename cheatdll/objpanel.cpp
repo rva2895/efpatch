@@ -4,8 +4,8 @@
 
 int itemCounter;
 
-void* langDllPopup;
-char* is2ndCol;
+void* langDllPopup = NULL;
+char* is2ndCol = NULL;
 
 int second_col_offset = 108;
 
@@ -221,22 +221,21 @@ __declspec(naked) void clearStartEbp() //005DF253
     }
 }
 
+void langDllAlloc_atexit()
+{
+    free(langDllPopup);
+    free(is2ndCol);
+}
+
 void langDllAlloc()
 {
-#ifdef _DEBUG
-    log("LangDLLAlloc()");
-#endif
-
     langDllPopup = malloc(sizeof(void*) * 0x10);
     is2ndCol = (char*)malloc(0x10);
     memset(is2ndCol, 0, 0x10);
     //is2ndCol [3] = 1;
     //is2ndCol [4] = 1;
-}
 
-void langDllFree()
-{
-    free(langDllPopup);
+    efpatch_atexit(langDllAlloc_atexit);
 }
 
 const DWORD vtables[] =

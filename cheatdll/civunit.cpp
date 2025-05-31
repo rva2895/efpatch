@@ -102,8 +102,15 @@ locret:
     }
 }
 
+void __cdecl initCivUnitTable_atexit()
+{
+    free(tableU);
+}
+
 void initCivUnitTable()
 {
     buildTableU();
     setHook((void*)0x004DAD80, unitCivAssign);
+
+    efpatch_atexit(initCivUnitTable_atexit);
 }

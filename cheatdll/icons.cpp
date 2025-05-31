@@ -42,9 +42,9 @@ cont_editor:
     }
 }
 
-void* techTreeBldg;
-void* techTreeUnit;
-void* techTreeTech;
+void* techTreeBldg = NULL;
+void* techTreeUnit = NULL;
+void* techTreeTech = NULL;
 
 int baseEbp;
 
@@ -508,6 +508,13 @@ __declspec(naked) void iconTCMounted_id_unit() //00505276
     }
 }
 
+void __cdecl fixIconLoadingRoutines_atexit()
+{
+    free(techTreeBldg);
+    free(techTreeUnit);
+    free(techTreeTech);
+}
+
 #pragma optimize( "s", on )
 void fixIconLoadingRoutines()
 {
@@ -586,5 +593,7 @@ void fixIconLoadingRoutines()
     //writeDword(0x004F31FB, 53360);    //tech
 
     writeByte(0x00502D4C, CIV_COUNT + 1);
+
+    efpatch_atexit(fixIconLoadingRoutines_atexit);
 }
 #pragma optimize( "", on )

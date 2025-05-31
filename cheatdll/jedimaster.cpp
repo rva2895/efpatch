@@ -25,14 +25,28 @@ bool __fastcall RGE_Static_Object__gbg_isPadawan_new(RGE_Static_Object* obj)
         return false;
 }
 
+void __cdecl masters_hooks_atexit()
+{
+    free(masters_list);
+}
+
+void __cdecl padawans_hooks_atexit()
+{
+    free(padawans_list);
+}
+
 void __cdecl masters_hooks()
 {
     setHook((void*)0x0054B1D0, RGE_Static_Object__gbg_isMaster_new);
+
+    efpatch_atexit(masters_hooks_atexit);
 }
 
 void __cdecl padawans_hooks()
 {
     setHook((void*)0x0054B170, RGE_Static_Object__gbg_isPadawan_new);
+
+    efpatch_atexit(padawans_hooks_atexit);
 }
 
 void setJediMasterHooks(const char* prefix, const char* filename_master, const char* filename_padawan)

@@ -279,6 +279,12 @@ on_restore_game_error:
     }
 }
 
+void __cdecl setDataLoadHooks_atexit()
+{
+    free(ground_to_air_path);
+    free(jedi_holo_path);
+}
+
 #pragma optimize( "s", on )
 void setDataLoadHooks()
 {
@@ -304,5 +310,7 @@ void setDataLoadHooks()
 
     char* on_or_off = load_data_always ? "ON" : "OFF";
     log("Force data reload is %s", on_or_off);
+
+    efpatch_atexit(setDataLoadHooks_atexit);
 }
 #pragma optimize( "", on )

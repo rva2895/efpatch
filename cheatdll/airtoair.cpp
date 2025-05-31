@@ -29,9 +29,16 @@ __declspec(naked) void onAirTarget() //0041C658
     }
 }
 
+void __cdecl air_to_air_hooks_atexit()
+{
+    free(airtoair_list);
+}
+
 void __cdecl air_to_air_hooks()
 {
     setHook((void*)0x0041C658, onAirTarget);
+
+    efpatch_atexit(air_to_air_hooks_atexit);
 }
 
 void initAirToAir(const char* prefix, const char* filename)

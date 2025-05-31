@@ -1,10 +1,8 @@
 #include "stdafx.h"
 #include "chatcommand.h"
 #include "worlddump.h"
-#include "functionlist.h"
+//#include "functionlist.h"
 #include <map>
-#include <algorithm>
-#include <process.h>
 
 void verify_unitlines()
 {
@@ -64,6 +62,7 @@ void data_save()
         chat("Error");
 }
 
+/*
 extern int path_stats[100];
 
 struct path_stats_struct
@@ -103,7 +102,9 @@ void calc_path_stats()
         path_stats_vector[3].object_group, path_stats_vector[3].fraction * 100,
         path_stats_vector[4].object_group, path_stats_vector[4].fraction * 100);
 }
+*/
 
+/*
 struct object_save_info
 {
     int id;
@@ -115,9 +116,6 @@ struct object_save_info
 class save_info
 {
 private:
-
-    //void saveObject()
-
 public:
     int save_pos;
     int save_sync_counter;
@@ -214,7 +212,9 @@ void del_states()
 {
     saved_states.clear();
 }
+*/
 
+/*
 extern std::vector<FUNCTION_HOOK*> function_hooks;
 
 struct
@@ -225,8 +225,10 @@ struct
     }
 } compare_call_counts_object;
 
-//extern unsigned int dump_objects(const char* filename);
-//extern int max_worldtime;
+*/
+
+extern unsigned int dump_objects(const char* filename);
+extern int max_worldtime;
 
 //extern void __stdcall make_oos_dump();
 
@@ -404,27 +406,24 @@ bool check_chat_command(const char* str)
         chat(EFPATCH_VERSION);
         return true;
     }
-    /*
+#ifdef EFPATCH_ENABLE_DEBUG_COMMANDS
     else if (!strcmp(str, "/test"))
     {
         do_test();
         return true;
     }
-    */
-    /*
     else if (!strcmp(str, "/verify-unitlines"))
     {
         verify_unitlines();
         return true;
     }
-
+    /*
     else if (!strcmp(str, "/data-save"))
     {
         data_save();
         return true;
     }
     */
-    /*
     else if (!strcmp(str, "/obj-count"))
     {
         RGE_Player* player = RGE_Base_Game__get_player(*base_game);
@@ -434,6 +433,7 @@ bool check_chat_command(const char* str)
             player->doppleganger_objects->Number_of_objects);
         return true;
     }
+    /*
     else if (!strcmp(str, "/pathing-stats"))
     {
         calc_path_stats();
@@ -563,7 +563,6 @@ bool check_chat_command(const char* str)
         return true;
     }
     */
-    /*
     else if (strstr(str, "/control"))
     {
         char d[0x100];
@@ -576,8 +575,6 @@ bool check_chat_command(const char* str)
         }
         return true;
     }
-    */
-    /*
     else if (!strcmp(str, "/dump-world"))
     {
         srand(timeGetTime());
@@ -603,7 +600,6 @@ bool check_chat_command(const char* str)
         chat("Set max worldtime to %d", t);
         return true;
     }
-    */
     /*
     else if (!strcmp(str, "/dump-all"))
     {
@@ -611,7 +607,6 @@ bool check_chat_command(const char* str)
         return true;
     }
     */
-    /*
     else if (strstr(str, "/obj") || strstr(str, "/object"))
     {
         char d[0x100];
@@ -659,8 +654,6 @@ bool check_chat_command(const char* str)
         RGE_Player__set_view_loc(RGE_Base_Game__get_player(*base_game), x, y, 0);
         return true;
     }
-    */
-    /*
     else if (strstr(str, "/cs"))
     {
         WORLD_DUMP wd;
@@ -668,6 +661,7 @@ bool check_chat_command(const char* str)
         chat("CS=%u", wd.get_cs());
         return true;
     }
+    /*
     else if (!strcmp(str, "/set-zero-count"))
     {
         for (auto it = function_hooks.begin(), it_end = function_hooks.end(); it != it_end; ++it)
@@ -696,7 +690,6 @@ bool check_chat_command(const char* str)
         return true;
     }
     */
-    /*
     else if (!strcmp(str, "/render-off"))
     {
         chat("Render OFF");
@@ -713,7 +706,6 @@ bool check_chat_command(const char* str)
         WriteProcessMemory(GetCurrentProcess(), (void*)0x00651BC0, &instr, 1, &w);
         return true;
     }
-    */
     /*
     else if (strstr(str, "/action"))
     {
@@ -758,6 +750,6 @@ bool check_chat_command(const char* str)
         return true;
     }
     */
-
+#endif
     return false;
 }

@@ -62,6 +62,11 @@ __declspec(naked) void expl4() //005B6DF2
     }
 }
 
+void __cdecl expl_droid_hooks_atexit()
+{
+    free(expl_list);
+}
+
 #pragma optimize( "s", on )
 void __cdecl expl_droid_hooks()
 {
@@ -69,6 +74,8 @@ void __cdecl expl_droid_hooks()
     setHook((void*)0x0055A881, &expl2);
     setHook((void*)0x0055BE40, &expl3);
     setHook((void*)0x005B6DF2, &expl4);
+
+    efpatch_atexit(expl_droid_hooks_atexit);
 }
 #pragma optimize( "", on )
 

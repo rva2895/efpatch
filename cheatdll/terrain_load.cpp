@@ -187,13 +187,10 @@ void loadTerrainTxt(const char* prefix, const char* filename)
     FILE* f = fopen(full_filename, "rt");
     if (f)
     {
-        if (terrain_names)
-        {
-            for (int i = 0; i < terrains_loaded; i++)
-                free(terrain_names[i]);
-            free(terrain_names);
-            terrain_names = NULL;
-        }
+        for (int i = 0; i < terrains_loaded; i++)
+            free(terrain_names[i]);
+        free(terrain_names);
+        terrain_names = NULL;
 
         terrains_loaded = 0;
         memset(terrain_array, 0, TERRAIN_COUNT);
@@ -230,6 +227,17 @@ void loadTerrainTxt(const char* prefix, const char* filename)
     }
 }
 
+void __cdecl setTerrainLoadHooks_atexit()
+{
+    free(terrain_array);
+    free(terrain_language_dll);
+
+    for (int i = 0; i < terrains_loaded; i++)
+        free(terrain_names[i]);
+
+    free(terrain_names);
+}
+
 void setTerrainLoadHooks(int ver)
 {
     terrain_array = (BYTE*)malloc(TERRAIN_COUNT * sizeof(BYTE));
@@ -241,4 +249,6 @@ void setTerrainLoadHooks(int ver)
 
     setHook((void*)0x0052A30A, terrain1);
     setHook((void*)0x0053B3C1, terrain2);
+
+    efpatch_atexit(setTerrainLoadHooks_atexit);
 }

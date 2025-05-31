@@ -8,6 +8,11 @@ bool resGenHooksInstalled = false;
 
 extern int current_loaded_version;
 
+void __cdecl resgen_atexit()
+{
+    free(resProducersData);
+}
+
 void initBldgResProdList(const char* prefix, const char* filename)
 {
     char c;
@@ -65,6 +70,8 @@ void initBldgResProdList(const char* prefix, const char* filename)
         {
             setHook((void*)0x005553C6, resGenHook);
             resGenHooksInstalled = true;
+
+            efpatch_atexit(resgen_atexit);
         }
     }
     else
