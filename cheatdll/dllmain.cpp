@@ -340,7 +340,7 @@ void setHooksCC()
 
     setRMSLogHooks();
 
-    //setSpectateHooks();
+    setSpectateHooks();
 
     //function hook!
     //setFunctionListHooks();
