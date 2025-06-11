@@ -237,7 +237,15 @@ MG1::MG1(const char* filename)
             for (int j = 0; j < num_rule; j++)
                 skip(400+192);
         }
-        skip(5544+320);
+
+        skip(10*4 + 8*8);
+
+        if (sub_ver >= 9)   //new timer manager
+            skip(read4()*4*8);
+        else
+            skip(20*4*8);
+
+        skip(5544 + 320 - 10*4 - 8*8 - 20*4*8);
     }
 
     skip(4);

@@ -60,8 +60,10 @@ no_set_param:
     }
 }
 
+#pragma optimize( "s", on )
 void setResearchRepeatHooks()
 {
     setHook((void*)0x005F2F72, on_effect_research_tech);
     setHook((void*)0x005BFEF7, on_do_tech_check_param);
 }
+#pragma optimize( "", on )

@@ -83,6 +83,9 @@ char* __stdcall load_game_or_scen_abs_path_sub(bool scen, char* dest, const char
     if ((scen ? edit_scenario : startup_game) && is_abs_path(name))
         strlcpy(dest, name, 300);
 
+    if ((startup_game || edit_scenario) && (*base_game)->player_game_info)
+        RGE_Game_Info__retrieve_program_options((*base_game)->player_game_info);
+
     return dest;
 }
 
