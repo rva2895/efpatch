@@ -38,6 +38,4 @@
 
 #define ZLIB_WINAPI
 
-//#define CHEATDLL_NOLOG
-
 #define EFPATCH_VERSION "EFPATCH for EF v1.5.5-rc7 (1.5.4.11) " __DATE__ " " __TIME__

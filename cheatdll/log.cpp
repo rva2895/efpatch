@@ -78,13 +78,12 @@ BOOL DirectoryExistsW(LPCWSTR szPath)
 
 void initLog()
 {
-#ifndef CHEATDLL_NOLOG
     wchar_t timeBuf[100];
     time_t rawtime;
     tm* tm_time;
-    rawtime = time(0);
+    rawtime = time(NULL);
     tm_time = localtime(&rawtime);
-    wcsftime(timeBuf, 99, L"logs\\efpatch_%Y-%m-%d_%H-%M-%S.log", tm_time);
+    wcsftime(timeBuf, _countof(timeBuf) - 1, L"logs\\efpatch_%Y-%m-%d_%H-%M-%S.log", tm_time);
 
     logFileName = timeBuf;
 
@@ -113,82 +112,51 @@ void initLog()
         log("Configuration: %s", EFPATCH_CURRENT_CONFIG);
         deleteOldLogs();
     }
-#endif
 }
 
 void closeLog()
 {
-#ifndef CHEATDLL_NOLOG
     if (log_file)
     {
         log("Logging stopped");
         fclose(log_file);
         log_file = NULL;
     }
-#endif
 }
 
-void flushLog()
+void __cdecl log_do(bool is_internal, const char* format, va_list ap)
 {
-#ifndef CHEATDLL_NOLOG
-    if (log_file)
-        fflush(log_file);
-#endif
-}
-
-void putTime()
-{
+    char buf[0x1000];
     SYSTEMTIME st;
     GetSystemTime(&st);
-
-    fprintf(log_file, "[%02d:%02d:%02d.%03d] ",
-        st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+    vsnprintf(buf, _countof(buf) - 1, format, ap);
+    fprintf(log_file, "[%02d:%02d:%02d.%03d] %s %s\n",
+        st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,
+        is_internal ? "[internal]" : "[efpatch ]", buf);
+    fflush(log_file);
+#ifdef _DEBUG
+    strcat_s(buf, _countof(buf), "\n");
+    OutputDebugString(buf);
+#endif
 }
 
 void __cdecl log(const char* format, ...)
 {
-#ifndef CHEATDLL_NOLOG
-    if (log_file && loggingEnabled)
-    {
-        putTime();
-        fprintf(log_file, "[efpatch ] ");
-        va_list ap;
-        va_start(ap, format);
-        vfprintf(log_file, format, ap);
-#ifdef _DEBUG
-        char debug_str[500];
-        vsnprintf(debug_str, _countof(debug_str)-1, format, ap);
-        strcat_s(debug_str, _countof(debug_str), "\n");
-        OutputDebugString(debug_str);
-#endif
-        fputs("\n", log_file);
-        va_end(ap);
+    va_list ap;
+    va_start(ap, format);
+    log_do(false, format, ap);
+    va_end(ap);
+}
 
-        flushLog();
-    }
-#endif
+void __cdecl vlog(const char* format, va_list ap)
+{
+    log_do(false, format, ap);
 }
 
 void __cdecl log_internal(const char* format, ...)
 {
-#ifndef CHEATDLL_NOLOG
-    if (log_file && loggingEnabled)
-    {
-        putTime();
-        fprintf(log_file, "[internal] ");
-        va_list ap;
-        va_start(ap, format);
-        vfprintf(log_file, format, ap);
-#ifdef _DEBUG
-        char debug_str[500];
-        vsnprintf(debug_str, _countof(debug_str) - 1, format, ap);
-        strcat_s(debug_str, _countof(debug_str), "\n");
-        OutputDebugString(debug_str);
-#endif
-        fputs("\n", log_file);
-        va_end(ap);
-
-        flushLog();
-    }
-#endif
+    va_list ap;
+    va_start(ap, format);
+    log_do(true, format, ap);
+    va_end(ap);
 }

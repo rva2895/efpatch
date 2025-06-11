@@ -73,14 +73,11 @@ void initCrashReporter()
         &hs,
         false
     );
-#ifndef _CHEATDLL_NOLOG
 
     wchar_t fullPath[0x400];
     GetFullPathNameW(logFileName.c_str(), 0x200, fullPath, 0);
     g_crashRpt->AddFileToReport(fullPath, NULL);
 
     log("Crash reporter initialized");
-#endif
-
 #endif
 }
