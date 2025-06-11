@@ -119,6 +119,17 @@ void* __stdcall getEffectParams_hook(TRIBE_Screen_Sed* scr_sed, effect* e)
 
         ai_trigger_dropdown->vfptr->set_fixed_position(ai_trigger_dropdown, 0x190, 0x16, 0xC8, 0x14);
         break;
+    case 8:          //activate trigger
+    case 9:          //deactivate trigger
+        TDropDownPanel__empty_list(ai_trigger_dropdown);
+        TDropDownPanel__append_line(ai_trigger_dropdown, "No", -1);
+        TDropDownPanel__append_line(ai_trigger_dropdown, "Yes", 1);
+
+        ai_trigger_text->vfptr->set_fixed_position(ai_trigger_text, 0x182, 2, 0xC8, 0x14);
+        ai_trigger_text->vfptr->set_text3(ai_trigger_text, "Reset Timer", NULL);
+
+        ai_trigger_dropdown->vfptr->set_fixed_position(ai_trigger_dropdown, 0x182, 0x16, 0xC8, 0x14);
+        break;
     case 0xA:        //ai script goal
         TDropDownPanel__empty_list(ai_trigger_dropdown);
         init_ai_trigger_dropdown(ai_trigger_dropdown);

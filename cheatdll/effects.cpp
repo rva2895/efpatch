@@ -125,6 +125,12 @@ __declspec(naked) void effectParams()
         mov     ebx, [edx + 8h]         //research tech
         mov     [ebx + 0h], al
 
+        mov     ebx, [edx + 20h]        //activate trigger
+        mov     [ebx + 0h], al
+
+        mov     ebx, [edx + 24h]        //deactivate trigger
+        mov     [ebx + 0h], al
+
         //mov     ebx, [edx + 2Ch]  //create object
         //mov     [ebx + 0h], al
 
@@ -608,6 +614,67 @@ __declspec(naked) void effect_update_alloca_fix() //005F2AF5
     }
 }
 
+void __stdcall effect_activate_deactivate_trigger(effect* e, TRIBE_World* world, bool activate)
+{
+    if (e->trigger >= 0 && e->trigger < world->trigger_system->trigger_num)
+    {
+        TRIBE_Trigger* t = world->trigger_system->trigger_list[e->trigger];
+        bool trigger_updated = false;
+
+        if (activate && t->state != 1)
+        {
+            t->state = 1;
+            trigger_updated = true;
+        }
+
+        if (!activate && t->state != 0)
+        {
+            t->state = 0;
+            trigger_updated = true;
+        }
+
+        if (trigger_updated)
+        {
+            if (e->ai_trigger_number == 1)
+            {
+                t->timer = 0;
+            }
+
+            if (t->description_display_during_game && !t->system->objectives_updated)
+            {
+                (*base_game)->vfptr->notification(*base_game, 138, -1, -1, -1, 0);
+                t->system->objectives_updated = 1;
+            }
+        }
+    }
+}
+
+__declspec(naked) void effectActivateTrigger_new()
+{
+    __asm
+    {
+        push    1
+        push    esi
+        push    edi
+        call    effect_activate_deactivate_trigger
+        mov     eax, 005F3DB1h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void effectDeactivateTrigger_new()
+{
+    __asm
+    {
+        push    0
+        push    esi
+        push    edi
+        call    effect_activate_deactivate_trigger
+        mov     eax, 005F3DB1h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setEffectHooks()
 {
@@ -656,6 +723,9 @@ void setEffectHooks()
     
     writeDword(0x007B2240 + 29 * 4, (DWORD)&effectSnapView_new);
     writeDword(0x007B2240 + 15 * 4, (DWORD)&effectScrollView_new);
+
+    writeDword(0x007B2240 + 7 * 4, (DWORD)&effectActivateTrigger_new);
+    writeDword(0x007B2240 + 8 * 4, (DWORD)&effectDeactivateTrigger_new);
 
     writeNops(0x005F5B09, 0x005F5B1B - 0x005F5B09);
     writeNops(0x005F5AEE, 0x005F5B00 - 0x005F5AEE);
