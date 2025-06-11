@@ -123,24 +123,27 @@ struct TribeMPSetupScreenExtraOptionsDialog
     int button_font_id;
     int button_sound_id;
 
+    //TribeMPSetupScreenExtraOptionsDialog specific fields below
+
     TTextPanel* title;
-    TTextPanel* option1_title;
-    TButtonPanel* option1_button;
+    TTextPanel* option_allow_spectators_title;
+    TTextPanel* option_hide_names_title;
+
+    TButtonPanel* option_allow_spectators_button;
+    TButtonPanel* option_hide_names_button;
 
     TButtonPanel* ok_button;
     TButtonPanel* cancel_button;
 };
 #pragma pack(pop)
 
-//void* __stdcall TMPSetupScreenExtraOptionsDialog__vector_deleting_destructor(TMPSetupScreenExtraOptionsDialog* this_, unsigned int);
-
-
 struct EXTRA_GAME_OPTIONS
 {
-    int hide_names;
-    DWORD magic;
+    bool allow_spectators;
+    bool hide_names;
+    uint32_t magic;
 };
 
-#define EXTRA_OPTIONS_MAGIC 0x334455AA
+#define EXTRA_OPTIONS_MAGIC 0x669955AAu
 
-void setMPSetupScreenHooks();
+void setMPSetupScreenHooks(int ver);

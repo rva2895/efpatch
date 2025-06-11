@@ -4,7 +4,9 @@
 void* __fastcall TribeMPSetupScreenExtraOptionsDialog__vector_deleting_destructor(TribeMPSetupScreenExtraOptionsDialog* this_, DWORD dummy, unsigned int a2);
 int __fastcall TribeMPSetupScreenExtraOptionsDialog__action(TribeMPSetupScreenExtraOptionsDialog* this_, DWORD dummy, TPanel* fromPanel, int actionIn, unsigned int a1, unsigned int a2);
 
-const char aExtraOptionsTitle[] = "TribeMPSetupScreenExtraOptionsDialog";
+const char aExtraOptionsTitle[] = "MP Setup Screen Extra Options";
+
+int extra_options_button_pic_index = -1;
 
 EXTRA_GAME_OPTIONS extra_options;
 
@@ -141,8 +143,10 @@ void __stdcall TribeMPSetupScreenExtraOptionsDialog__destructor(TribeMPSetupScre
 {
     this_->vfptr = (TDialogPanelVtbl*)TribeMPSetupScreenExtraOptionsDialog__vftable;
     TPanel__delete_panel((TPanel*)this_, (TPanel**)&this_->title);
-    TPanel__delete_panel((TPanel*)this_, (TPanel**)&this_->option1_title);
-    TPanel__delete_panel((TPanel*)this_, (TPanel**)&this_->option1_button);
+    TPanel__delete_panel((TPanel*)this_, (TPanel**)&this_->option_allow_spectators_title);
+    TPanel__delete_panel((TPanel*)this_, (TPanel**)&this_->option_hide_names_title);
+    TPanel__delete_panel((TPanel*)this_, (TPanel**)&this_->option_allow_spectators_button);
+    TPanel__delete_panel((TPanel*)this_, (TPanel**)&this_->option_hide_names_button);
 
     TPanel__delete_panel((TPanel*)this_, (TPanel**)&this_->ok_button);
     TPanel__delete_panel((TPanel*)this_, (TPanel**)&this_->cancel_button);
@@ -159,9 +163,10 @@ void* __fastcall TribeMPSetupScreenExtraOptionsDialog__vector_deleting_destructo
     return this_;
 }
 
-#define OPTION_1_ACTION_ID 1
-#define OK_ACTION_ID 2
-#define CANCEL_ACTION_ID 3
+#define OPTION_ALLOW_SPECTATORS_ACTION_ID 1
+#define OPTION_HIDE_NAMES_ACTION_ID 2
+#define OK_ACTION_ID 3
+#define CANCEL_ACTION_ID 4
 
 int __fastcall TribeMPSetupScreenExtraOptionsDialog__action(TribeMPSetupScreenExtraOptionsDialog* this_, DWORD dummy, TPanel* fromPanel, int actionIn, unsigned int a1, unsigned int a2)
 {
@@ -169,7 +174,8 @@ int __fastcall TribeMPSetupScreenExtraOptionsDialog__action(TribeMPSetupScreenEx
     //a1 = action_id
     switch (a1)
     {
-    case OPTION_1_ACTION_ID:
+    /*
+    case OPTION_HIDE_NAMES_ACTION_ID:
         if (actionIn == 1) //button click
         {
             int state = TButtonPanel__get_state((TButtonPanel*)fromPanel);
@@ -177,19 +183,21 @@ int __fastcall TribeMPSetupScreenExtraOptionsDialog__action(TribeMPSetupScreenEx
         }
 
         break;
+    */
     case OK_ACTION_ID:
         if (actionIn == 1)
         {
             if (TCommunications_Handler__IsHost(*comm))
             {
-                extra_options.hide_names = TButtonPanel__get_state((TButtonPanel*)this_->option1_button);
-                if (extra_options.hide_names)
-                {
+                extra_options.allow_spectators = TButtonPanel__get_state((TButtonPanel*)this_->option_allow_spectators_button);
+                extra_options.hide_names = TButtonPanel__get_state((TButtonPanel*)this_->option_hide_names_button);
+                //if (extra_options.hide_names)
+                //{
                     //for (int i = 1; i < 9; i++)
                     //    TCommunications_Handler__SetPlayerName(*comm, i, "Hidden");
 
                     TribeMPSetupScreen__fillPlayers((TribeMPSetupScreen*)this_->parent_panel);
-                }
+                //}
                 (*base_game)->vfptr->send_game_options(*base_game);
             }
             
@@ -200,9 +208,7 @@ int __fastcall TribeMPSetupScreenExtraOptionsDialog__action(TribeMPSetupScreenEx
     {
         if (actionIn == 1)
         {
-            int msg = 10;
-            __debugbreak();
-            TCommunications_Handler__CommOut(*comm, 0, 10, &msg, 4, 0);
+            TPanelSystem__destroyPanel(panel_system, aExtraOptionsTitle);
         }
     }
         break;
@@ -242,12 +248,14 @@ __declspec(naked) void Comm_PreprocessMessages_wr() //0043531A
 #define EXTRA_OPTIONS_WINDOW_HEIGHT 410
 #define EXTRA_OPTIONS_WINDOW_VERT_MARGIN 15
 #define EXTRA_OPTIONS_WINDOW_HORZ_MARGIN 20
-#define EXTRA_OPTIONS_WINDOW_CLIENT_AREA_TOP_MARGIN 100
-#define EXTRA_OPTIONS_WINDOW_CLIENT_AREA_BOTTOM_MARGIN 60
+#define EXTRA_OPTIONS_WINDOW_CLIENT_AREA_TOP_MARGIN 80
+#define EXTRA_OPTIONS_WINDOW_CLIENT_AREA_BOTTOM_MARGIN 50
 
-#define EXTRA_OPTIONS_WINDOW_CHECKBOX_SIZE 30
+#define EXTRA_OPTIONS_WINDOW_CHECKBOX_SIZE 28
+#define EXTRA_OPTIONS_WINDOW_OPTION_TEXT_OFFSET 2
 #define EXTRA_OPTIONS_WINDOW_BUTTON_WIDTH 120
-#define EXTRA_OPTIONS_WINDOW_BUTTON_HEIGHT 40
+#define EXTRA_OPTIONS_WINDOW_BUTTON_HEIGHT 36
+#define EXTRA_OPTIONS_WINDOW_OPTION_SPACING 50
 
 TribeMPSetupScreenExtraOptionsDialog* __stdcall TribeMPSetupScreenExtraOptionsDialog__TribeMPSetupScreenExtraOptionsDialog(
     TribeMPSetupScreenExtraOptionsDialog* this_,
@@ -272,7 +280,7 @@ TribeMPSetupScreenExtraOptionsDialog* __stdcall TribeMPSetupScreenExtraOptionsDi
         (TEasy_Panel*)this_,
         (TPanel*)this_,
         &this_->title,
-        "Options",
+        "Additional Options",
         EXTRA_OPTIONS_WINDOW_HORZ_MARGIN,
         EXTRA_OPTIONS_WINDOW_VERT_MARGIN,
         EXTRA_OPTIONS_WINDOW_WIDTH - (EXTRA_OPTIONS_WINDOW_HORZ_MARGIN * 2),
@@ -285,26 +293,57 @@ TribeMPSetupScreenExtraOptionsDialog* __stdcall TribeMPSetupScreenExtraOptionsDi
     TEasy_Panel__create_check_box(
         (TEasy_Panel*)this_,
         (TPanel*)this_,
-        &this_->option1_button,
+        &this_->option_allow_spectators_button,
         EXTRA_OPTIONS_WINDOW_HORZ_MARGIN,
         EXTRA_OPTIONS_WINDOW_CLIENT_AREA_TOP_MARGIN,
         EXTRA_OPTIONS_WINDOW_CHECKBOX_SIZE,
         EXTRA_OPTIONS_WINDOW_CHECKBOX_SIZE,
         0,
-        OPTION_1_ACTION_ID
+        OPTION_ALLOW_SPECTATORS_ACTION_ID
     );
 
-    TButtonPanel__set_state(this_->option1_button, extra_options.hide_names);
+    TEasy_Panel__create_check_box(
+        (TEasy_Panel*)this_,
+        (TPanel*)this_,
+        &this_->option_hide_names_button,
+        EXTRA_OPTIONS_WINDOW_HORZ_MARGIN,
+        EXTRA_OPTIONS_WINDOW_CLIENT_AREA_TOP_MARGIN + EXTRA_OPTIONS_WINDOW_OPTION_SPACING,
+        EXTRA_OPTIONS_WINDOW_CHECKBOX_SIZE,
+        EXTRA_OPTIONS_WINDOW_CHECKBOX_SIZE,
+        0,
+        OPTION_HIDE_NAMES_ACTION_ID
+    );
+
+    TButtonPanel__set_state(this_->option_allow_spectators_button, extra_options.allow_spectators);
+    TButtonPanel__set_state(this_->option_hide_names_button, extra_options.hide_names);
     if (!TCommunications_Handler__IsHost(*comm))
-        TButtonPanel__set_disabled(this_->option1_button, 1);
+    {
+        TButtonPanel__set_disabled(this_->option_allow_spectators_button, 1);
+        TButtonPanel__set_disabled(this_->option_hide_names_button, 1);
+    }
 
     TEasy_Panel__create_text6(
         (TEasy_Panel*)this_,
         (TPanel*)this_,
-        &this_->option1_title,
+        &this_->option_allow_spectators_title,
+        "Allow Spectators",
+        EXTRA_OPTIONS_WINDOW_HORZ_MARGIN + EXTRA_OPTIONS_WINDOW_CHECKBOX_SIZE,
+        EXTRA_OPTIONS_WINDOW_CLIENT_AREA_TOP_MARGIN + EXTRA_OPTIONS_WINDOW_OPTION_TEXT_OFFSET,
+        EXTRA_OPTIONS_WINDOW_WIDTH - (EXTRA_OPTIONS_WINDOW_HORZ_MARGIN * 2),
+        EXTRA_OPTIONS_WINDOW_CHECKBOX_SIZE,
+        0,
+        0,
+        0,
+        0
+    );
+
+    TEasy_Panel__create_text6(
+        (TEasy_Panel*)this_,
+        (TPanel*)this_,
+        &this_->option_hide_names_title,
         "Hide Player Names",
         EXTRA_OPTIONS_WINDOW_HORZ_MARGIN + EXTRA_OPTIONS_WINDOW_CHECKBOX_SIZE,
-        EXTRA_OPTIONS_WINDOW_CLIENT_AREA_TOP_MARGIN,
+        EXTRA_OPTIONS_WINDOW_CLIENT_AREA_TOP_MARGIN + EXTRA_OPTIONS_WINDOW_OPTION_TEXT_OFFSET + EXTRA_OPTIONS_WINDOW_OPTION_SPACING,
         EXTRA_OPTIONS_WINDOW_WIDTH - (EXTRA_OPTIONS_WINDOW_HORZ_MARGIN * 2),
         EXTRA_OPTIONS_WINDOW_CHECKBOX_SIZE,
         0,
@@ -317,7 +356,8 @@ TribeMPSetupScreenExtraOptionsDialog* __stdcall TribeMPSetupScreenExtraOptionsDi
         (TEasy_Panel*)this_,
         (TPanel*)this_,
         &this_->ok_button,
-        "OK", "text2",
+        "OK",
+        NULL,
         (EXTRA_OPTIONS_WINDOW_WIDTH - (3 * EXTRA_OPTIONS_WINDOW_HORZ_MARGIN)) / 2 - EXTRA_OPTIONS_WINDOW_BUTTON_WIDTH + EXTRA_OPTIONS_WINDOW_HORZ_MARGIN,
         EXTRA_OPTIONS_WINDOW_HEIGHT - EXTRA_OPTIONS_WINDOW_CLIENT_AREA_BOTTOM_MARGIN,
         EXTRA_OPTIONS_WINDOW_BUTTON_WIDTH,
@@ -331,7 +371,8 @@ TribeMPSetupScreenExtraOptionsDialog* __stdcall TribeMPSetupScreenExtraOptionsDi
         (TEasy_Panel*)this_,
         (TPanel*)this_,
         &this_->cancel_button,
-        "Cancel", "text2",
+        "Cancel",
+        NULL,
         (EXTRA_OPTIONS_WINDOW_WIDTH - (3 * EXTRA_OPTIONS_WINDOW_HORZ_MARGIN)) / 2 - EXTRA_OPTIONS_WINDOW_BUTTON_WIDTH + 2 * EXTRA_OPTIONS_WINDOW_HORZ_MARGIN + EXTRA_OPTIONS_WINDOW_BUTTON_WIDTH,
         EXTRA_OPTIONS_WINDOW_HEIGHT - EXTRA_OPTIONS_WINDOW_CLIENT_AREA_BOTTOM_MARGIN,
         EXTRA_OPTIONS_WINDOW_BUTTON_WIDTH,
@@ -369,7 +410,8 @@ void __stdcall set_my_game_options_wr(TCommunications_Handler* comm, char* vpDat
     char* new_data = (char*)malloc(dwSize + sizeof(EXTRA_GAME_OPTIONS));
     memcpy(new_data, vpData, dwSize);
     memcpy(new_data + dwSize, &extra_options, sizeof(EXTRA_GAME_OPTIONS));
-    log("SetMyGameOptions(): sent options: hide_names=%d", extra_options.hide_names);
+    log("SetMyGameOptions(): sent options: allow_spectators=%d, hide_names=%d",
+        extra_options.allow_spectators, extra_options.hide_names);
     TCommunications_Handler__SetMyGameOptions(comm, new_data, dwSize + sizeof(EXTRA_GAME_OPTIONS));
     free(new_data);
 }
@@ -407,11 +449,20 @@ void* __fastcall TCommunications_Handler__GetMyGameOptions_new(TCommunications_H
 
     *dwSize = comm->PlayerOptions.DataSizeToFollow;
 
-    DWORD magic = EXTRA_OPTIONS_MAGIC;
-    if (!memcmp(comm->OptionsData + *dwSize - sizeof(EXTRA_GAME_OPTIONS) + offsetof(EXTRA_GAME_OPTIONS, magic), &magic, sizeof(DWORD)))
+    uint32_t magic = EXTRA_OPTIONS_MAGIC;
+    if (!memcmp(comm->OptionsData + *dwSize - sizeof(EXTRA_GAME_OPTIONS) + offsetof(EXTRA_GAME_OPTIONS, magic), &magic, sizeof(magic)))
     {
         memcpy(&extra_options, comm->OptionsData + *dwSize - sizeof(EXTRA_GAME_OPTIONS), sizeof(EXTRA_GAME_OPTIONS));
-        log("GetMyGameOptions(): received options: hide_names=%d", extra_options.hide_names);
+        /*
+        if (extra_options.hide_names)
+        {
+            TribeMPSetupScreen* setup_screen = (TribeMPSetupScreen*)TPanelSystem__panel(panel_system, "MP Setup Screen");
+            if (setup_screen)
+                TribeMPSetupScreen__fillPlayers(setup_screen);
+        }
+        */
+        log("GetMyGameOptions(): received options: allow_spectators=%d, hide_names=%d",
+            extra_options.allow_spectators, extra_options.hide_names);
     }
     else
     {
@@ -432,12 +483,16 @@ void __stdcall on_create_mp_setup_screen(TribeMPSetupScreen* setup_screen)
         -1,
         0,
         230,
-        495,
+        498,
         37,
         37,
         0,
         0,
         0);
+
+    TButtonPanel__setDrawType(mp_setup_screen_extra_options_button, 9);
+    TButtonPanel__set_picture_info(mp_setup_screen_extra_options_button, setup_screen->button_cmd_pic, extra_options_button_pic_index, 0, 0, 1, 0);
+    TEasy_Panel__set_rollover((TEasy_Panel*)setup_screen, (TPanel*)mp_setup_screen_extra_options_button, 30215, -1);
 }
 
 __declspec(naked) void on_create_mp_setup_screen_wr() //00515AB4
@@ -451,6 +506,55 @@ __declspec(naked) void on_create_mp_setup_screen_wr() //00515AB4
         pop     eax
         mov     ecx, 00515AB9h
         jmp     ecx
+    }
+}
+
+void __stdcall on_mp_setup_screen_init_vars()
+{
+#ifdef TARGET_VOOBLY
+    extra_options.allow_spectators = true;
+#else
+    extra_options.allow_spectators = false;
+#endif
+    extra_options.hide_names = false;;
+    (*base_game)->vfptr->send_game_options(*base_game);
+}
+
+__declspec(naked) void on_mp_setup_screen_init_vars_wr() //00516D91
+{
+    __asm
+    {
+        call    on_mp_setup_screen_init_vars
+        mov     ecx, 00516D9Ch
+        jmp     ecx
+    }
+}
+
+void __stdcall mp_setup_screen_button_set_disabled(TribeMPSetupScreen* setup_screen)
+{
+    TButtonPanel__set_disabled(setup_screen->techTreeButton, setup_screen->i_am_ready);
+    TButtonPanel__set_disabled(mp_setup_screen_extra_options_button, setup_screen->i_am_ready);
+}
+
+__declspec(naked) void on_mp_setup_screen_button_set_disabled_1() //0051808C
+{
+    __asm
+    {
+        push    esi
+        call    mp_setup_screen_button_set_disabled
+        mov     eax, 0051809Eh
+        jmp     eax
+    }
+}
+
+__declspec(naked) void on_mp_setup_screen_button_set_disabled_2() //00520F79
+{
+    __asm
+    {
+        push    esi
+        call    mp_setup_screen_button_set_disabled
+        mov     eax, 00520F8Bh
+        jmp     eax
     }
 }
 
@@ -511,14 +615,16 @@ show_net_info_btn:
     }
 }
 
+#define HIDE_NAMES_PLAYER_NAME "Hidden"
+
 char* __fastcall TCommunications_Handler__GetPlayerName_new(TCommunications_Handler* comm, DWORD dummy, unsigned int PlayerNo)
 {
     UNREFERENCED_PARAMETER(dummy);
 
     if (extra_options.hide_names)
     {
-        //TCommunications_Handler__SetPlayerName(comm, PlayerNo, "Hidden");
-        return "Hidden";
+        TCommunications_Handler__SetPlayerName(comm, PlayerNo, HIDE_NAMES_PLAYER_NAME);
+        return HIDE_NAMES_PLAYER_NAME;
     }
     else if (PlayerNo > comm->MaxGamePlayers)
         return NULL;
@@ -531,38 +637,43 @@ char* __fastcall TCommunications_Handler__GetPlayerName_new(TCommunications_Hand
 char* __fastcall RGE_Game_Info__get_current_player_name_new(RGE_Game_Info* game_info)
 {
     if (extra_options.hide_names)
-        return "Hidden";
+        return HIDE_NAMES_PLAYER_NAME;
     else if (game_info->current_person >= 0)
         return game_info->people_info[game_info->current_person]->name;
     else
         return NULL;
 }
 
-void __stdcall TCommunications_Handler__SwitchPlayers(TCommunications_Handler* fcomm, int p1, int p2)
-{
-
-}
-
 #pragma optimize( "s", on )
-void setMPSetupScreenHooks()
+void setMPSetupScreenHooks(int ver)
 {
     setHook((void*)0x00516F5C, mp_setup_screen_destructor);
     setHook((void*)0x00515AB4, on_create_mp_setup_screen_wr);
     setHook((void*)0x005173D0, on_mp_setup_screen_destructor_wr);
     setHook((void*)0x005182C1, on_mp_setup_screen_action);
+    setHook((void*)0x00516D91, on_mp_setup_screen_init_vars_wr);
+    setHook((void*)0x0051808C, on_mp_setup_screen_button_set_disabled_1);
+    setHook((void*)0x00520F79, on_mp_setup_screen_button_set_disabled_2);
+
 
     setHook((void*)0x0042A421, set_my_game_options_1);
     setHook((void*)0x005EE60C, set_my_game_options_2);
     setHook((void*)0x0043DC60, TCommunications_Handler__GetMyGameOptions_new);
 
     memset(&extra_options, 0, sizeof(EXTRA_GAME_OPTIONS));
+    extra_options.allow_spectators = false;
+    extra_options.hide_names = false;
     extra_options.magic = EXTRA_OPTIONS_MAGIC;
 
+    if (ver == VER_EF)
+        extra_options_button_pic_index = 17;
+    else
+        extra_options_button_pic_index = 8;
     //
 
     setHook((void*)0x0043B5A0, TCommunications_Handler__GetPlayerName_new);
     //setHook((void*)0x00478210, RGE_Game_Info__get_current_player_name_new);
 
-    setHook((void*)0x0043531A, Comm_PreprocessMessages_wr);
+    //setHook((void*)0x0043531A, Comm_PreprocessMessages_wr);
 }
 #pragma optimize( "", on )

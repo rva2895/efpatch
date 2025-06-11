@@ -351,7 +351,7 @@ void setHooksCC()
 
     setLoadFileListHooks(cd.gameVersion);
 
-    //setMPSetupScreenHooks();
+    setMPSetupScreenHooks(cd.gameVersion);
 
     log("setHooksCC() complete");
 }
