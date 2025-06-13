@@ -334,7 +334,7 @@ void setHooksCC()
         setEditControlHooks();
 
     if (cd.fog)
-        setFogOfWarHooks(cd.gameVersion);
+        setFogOfWarHooks(cd.fog);
 
     setRevealMapHooks();
 

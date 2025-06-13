@@ -399,6 +399,10 @@ void do_test()
     chat("Scan complete. Found %d errors", counter);
 }
 
+#define MAKE_UINT32(a,b,c,d) (((d) << 24) | ((c) << 16) | ((b) << 8) | (a))
+
+int last_find_id = INT_MAX;
+
 bool check_chat_command(const char* str)
 {
     if (!strcmp(str, "/version"))
@@ -706,6 +710,69 @@ bool check_chat_command(const char* str)
         WriteProcessMemory(GetCurrentProcess(), (void*)0x00651BC0, &instr, 1, &w);
         return true;
     }
+    else if (strstr(str, "/fog-color"))
+    {
+        char d[0x100];
+        int c;
+        sscanf(str, "%s %d", d, &c);
+        if (sscanf(str, "%s %d", d, &c) == 2 && c >= 0 && c < 256)
+        {
+            fog_param_a2 = MAKE_UINT32(c, c, c, c);
+            fog_param_a4 = fog_param_a2;
+        }
+        else
+        {
+            chat("Invalid color");
+        }
+        return true;
+    }
+    else if (strstr(str, "/fog"))
+    {
+        char d[0x100];
+        char param[0x100];
+        //uint32_t a1, a3;
+        sscanf(str, "%s %s", d, param);
+        unsigned __int8 a = 0;
+        unsigned __int8 b = 0xFF;
+        if (!strcmp(param, "dark"))
+        {
+            fog_param_a1 = MAKE_UINT32(b, a, b, a); //dark
+            fog_param_a3 = MAKE_UINT32(a, a, a, a);
+            chat("Set fog pattern: 'dark'");
+        }
+        else if (!strcmp(param, "light"))
+        {
+            fog_param_a1 = MAKE_UINT32(b, a, b, a); //light
+            fog_param_a3 = MAKE_UINT32(b, b, b, b);
+            chat("Set fog pattern: 'light'");
+        }
+        else if (!strcmp(param, "vert"))
+        {
+            fog_param_a1 = MAKE_UINT32(b, a, b, a); //vert
+            fog_param_a3 = MAKE_UINT32(b, a, b, a);
+            chat("Set fog pattern: 'vert'");
+        }
+        else if (!strcmp(param, "horz"))
+        {
+            fog_param_a1 = MAKE_UINT32(b, b, b, b); //horz
+            fog_param_a3 = MAKE_UINT32(a, a, a, a);
+            chat("Set fog pattern: 'horz'");
+        }
+        else if (!strcmp(param, "standard"))
+        {
+            fog_param_a1 = MAKE_UINT32(a, b, a, b); //standard
+            fog_param_a3 = MAKE_UINT32(b, a, b, a);
+            chat("Set fog pattern: 'standard'");
+        }
+        else
+        {
+            chat("Unknown fog pattern");
+        }
+        //fog_param_a1 = a1;
+        //fog_param_a3 = a3;
+        return true;
+    }
+    
     /*
     else if (strstr(str, "/action"))
     {

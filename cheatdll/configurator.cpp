@@ -67,7 +67,8 @@ void processIDOK(HWND hWnd)
 
     cd.textRendering = IsDlgButtonChecked(hWnd, IDC_CHECK_TEXT_RENDERING);
     cd.chatBox = IsDlgButtonChecked(hWnd, IDC_CHECK_CHATBOX);
-    cd.fog = IsDlgButtonChecked(hWnd, IDC_CHECK_FOG);
+
+    cd.fog = SendMessage(GetDlgItem(hWnd, IDC_COMBO_FOG), CB_GETCURSEL, 0, 0);
 
     //char* lang_str = (char*)malloc(0x100);
     //GetDlgItemText(hWnd, IDC_COMBO_LANG, lang_str, 0x100);
@@ -157,7 +158,8 @@ void readSettingsToDialog(HWND hWnd)
 
     CheckDlgButton(hWnd, IDC_CHECK_TEXT_RENDERING, cd.textRendering);
     CheckDlgButton(hWnd, IDC_CHECK_CHATBOX, cd.chatBox);
-    CheckDlgButton(hWnd, IDC_CHECK_FOG, cd.fog);
+
+    SendMessage(GetDlgItem(hWnd, IDC_COMBO_FOG), CB_SETCURSEL, cd.fog, 0);
 
     //languages = query_languages();
     //for (int i = 0; i < languages.size(); i++)

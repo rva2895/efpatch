@@ -163,7 +163,31 @@ void regGet(CONFIG_DATA* cd)
             query_reg_option(hKey, "Keydown Object Hotkeys", cd->keydown, cd_default.keydown);
             query_reg_option(hKey, "Alternative Text Rendering", cd->textRendering, cd_default.textRendering);
             query_reg_option(hKey, "Alternative Chat Box", cd->chatBox, cd_default.chatBox);
+#ifdef TARGET_VOOBLY
+            query_reg_option(hKey, "Light Fog of War", cd->fog, cd_default.fog);
+            if (cd->fog)
+                cd->fog = 1;
+            else
+            {
+                query_reg_option(hKey, "Dark Fog of War", cd->fog, cd_default.fog);
+                if (cd->fog)
+                    cd->fog = 2;
+                else
+                {
+                    query_reg_option(hKey, "Horizontal Fog of War", cd->fog, cd_default.fog);
+                    if (cd->fog)
+                        cd->fog = 3;
+                    else
+                    {
+                        query_reg_option(hKey, "Vertical Fog of War", cd->fog, cd_default.fog);
+                        if (cd->fog)
+                            cd->fog = 4;
+                    }
+                }
+            }
+#else
             query_reg_option(hKey, "Alternative Fog of War", cd->fog, cd_default.fog);
+#endif
             query_reg_option(hKey, "Unlock Objects", cd->unlockObjects, cd_default.unlockObjects);
 
             /*char language[32];

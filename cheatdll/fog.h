@@ -1,3 +1,3 @@
 #pragma once
 
-void setFogOfWarHooks(int version);
+void setFogOfWarHooks(int pattern);

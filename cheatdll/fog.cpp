@@ -84,8 +84,11 @@ __declspec(naked) void RGE_View__draw_terrain_shape2_wr()
 #define MAKE_UINT32(a,b,c,d) (((d) << 24) | ((c) << 16) | ((b) << 8) | (a))
 
 unsigned int* const shadowing = (unsigned int* const)0x007A4060;
-//unsigned int fog_param_a2;
-//unsigned int fog_param_a4;
+
+unsigned int fog_param_a1;
+unsigned int fog_param_a3;
+unsigned int fog_param_a2;
+unsigned int fog_param_a4;
 
 void __cdecl ASMSet_Shadowing_new(int a1, int a2, int a3, int a4) //00651780
 {
@@ -94,14 +97,11 @@ void __cdecl ASMSet_Shadowing_new(int a1, int a2, int a3, int a4) //00651780
         && a3 == 0xFF00FF00
         && a4 == 0)
     {
-        //a2 = fog_param_a2;
-        //a4 = fog_param_a4;
-        unsigned __int8 a = 0;
-        unsigned __int8 b = 0xFF;
-        a1 = MAKE_UINT32(b, a, b, a);
-        a2 = MAKE_UINT32(a, a, a, a);
-        a3 = MAKE_UINT32(b, b, b, b);
-        a4 = MAKE_UINT32(a, a, a, a);
+        a1 = fog_param_a1;
+        a3 = fog_param_a3;
+
+        a2 = fog_param_a2;
+        a4 = fog_param_a4;
     }
 
     shadowing[0] = a1;
@@ -115,21 +115,38 @@ void __cdecl ASMSet_Shadowing_new(int a1, int a2, int a3, int a4) //00651780
 }
 
 #pragma optimize( "s", on )
-void setFogOfWarHooks(int version)
+void setFogOfWarHooks(int pattern)
 {
-    /*
-    unsigned __int8 c;
-    if (version == VER_EF)
-        c = 2;
-    else
-        c = 129;
+    unsigned __int8 a = 0;
+    unsigned __int8 b = 0xFF;
 
-    //c = 0;
-    unsigned __int8 d = 0;
+    fog_param_a2 = 0;
+    fog_param_a4 = 0;
 
-    fog_param_a2 = MAKE_UINT32(0, c, 0, c);
-    fog_param_a4 = MAKE_UINT32(c, 0, c, 0);
-    */
+    switch (pattern)
+    {
+    case 1: //light
+        fog_param_a1 = MAKE_UINT32(b, a, b, a);
+        fog_param_a3 = MAKE_UINT32(b, b, b, b);
+        break;
+    case 2: //dark
+        fog_param_a1 = MAKE_UINT32(b, a, b, a);
+        fog_param_a3 = MAKE_UINT32(a, a, a, a);
+        break;
+    case 3: //horz
+        fog_param_a1 = MAKE_UINT32(b, b, b, b);
+        fog_param_a3 = MAKE_UINT32(a, a, a, a);
+        break;
+    case 4: //vert
+        fog_param_a1 = MAKE_UINT32(b, a, b, a);
+        fog_param_a3 = MAKE_UINT32(b, a, b, a);
+        break;
+    default:
+        fog_param_a1 = MAKE_UINT32(a, b, a, b);
+        fog_param_a3 = MAKE_UINT32(b, a, b, a);
+        break;
+    }
+
     setHook((void*)0x00651780, ASMSet_Shadowing_new);
 }
 #pragma optimize( "", on )
