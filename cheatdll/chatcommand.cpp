@@ -4,6 +4,11 @@
 //#include "functionlist.h"
 #include <map>
 
+extern unsigned int fog_param_a1;
+extern unsigned int fog_param_a3;
+extern unsigned int fog_param_a2;
+extern unsigned int fog_param_a4;
+
 void verify_unitlines()
 {
     chat("Started unitline verification..");

@@ -8,12 +8,16 @@
 #include "localisation.h"
 #include "textrender.h"
 
+#include <process.h>
 #include <CommCtrl.h>
 
 //std::vector<std::pair<std::string, std::string>> languages;
 
 extern CONFIG_DATA cd;
 extern const CONFIG_DATA cd_default;
+
+HANDLE display_modes_enumerated_event;
+bool display_modes_enumerated = false;
 
 void processIDOK(HWND hWnd)
 {
@@ -173,42 +177,84 @@ void processDefaults(HWND hWnd)
     readSettingsToDialog(hWnd);
 }
 
+std::vector<std::string> display_modes;
+
+void __cdecl screen_settings_enumerator(void* param)
+{
+    UNREFERENCED_PARAMETER(param);
+
+    char curMode[0x40];
+    DEVMODE devMode;
+    DWORD prevW = 0;
+    DWORD prevH = 0;
+
+    display_modes.clear();
+
+    memset(&devMode, 0, sizeof(devMode));
+    devMode.dmSize = sizeof(devMode);
+
+    for (int nMode = 0; EnumDisplaySettings(0, nMode, &devMode) != 0; nMode++)
+        if ((devMode.dmBitsPerPel == 32) && ((prevW != devMode.dmPelsWidth) || (prevH != devMode.dmPelsHeight)))
+        {
+            snprintf(curMode, _countof(curMode), "%lux%lu", devMode.dmPelsWidth, devMode.dmPelsHeight);
+            if ((devMode.dmPelsWidth >= 1024) && (devMode.dmPelsHeight >= 768))
+                display_modes.emplace_back(curMode);
+            prevW = devMode.dmPelsWidth;
+            prevH = devMode.dmPelsHeight;
+        }
+
+    SetEvent(display_modes_enumerated_event);
+}
+
 BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
+
+    auto add_dropdown_str = [&hWndDlg](int item, const char* str)
+        {
+            SendMessage(GetDlgItem(hWndDlg, item), CB_ADDSTRING, 0, (LPARAM)str);
+        };
+
+    auto wait_for_screen_settings_enumeration = [&hWndDlg, &add_dropdown_str]()
+        {
+            if (!display_modes_enumerated)
+            {
+                WaitForSingleObject(display_modes_enumerated_event, INFINITE);
+                for (auto it = display_modes.begin(); it != display_modes.end(); ++it)
+                    add_dropdown_str(IDC_COMBO_SCREEN_SIZE, it->c_str());
+                display_modes_enumerated = true;
+            }
+        };
+
+    auto end_dialog = [&hWndDlg, &wait_for_screen_settings_enumeration]()
+        {
+            wait_for_screen_settings_enumeration();
+            display_modes.clear();
+            CloseHandle(display_modes_enumerated_event);
+            EndDialog(hWndDlg, 0);
+        };
+
     switch (message)
     {
     case WM_CLOSE:
-        EndDialog(hWndDlg, 0);
+        end_dialog();
         break;
     case WM_INITDIALOG:
-    {
+        add_dropdown_str(IDC_COMBO_FOG, "Standard");
+        add_dropdown_str(IDC_COMBO_FOG, "Light");
+        add_dropdown_str(IDC_COMBO_FOG, "Dark");
+        add_dropdown_str(IDC_COMBO_FOG, "Horizontal");
+        add_dropdown_str(IDC_COMBO_FOG, "Vertical");
+
         readSettingsToDialog(hWndDlg);
-        //detectCC ();
-        char curMode[0x40];
-        int nMode = 0;
-        DEVMODE devMode;
-        DWORD prevW = 0;
-        DWORD prevH = 0;
-        //int prevBits = 0;
-        while (EnumDisplaySettings(0, nMode, &devMode) != 0)
-        {
-            if (devMode.dmBitsPerPel == 32)
-                if ((prevW != devMode.dmPelsWidth) || (prevH != devMode.dmPelsHeight))
-                {
-                    snprintf(curMode, _countof(curMode), "%lux%lu", devMode.dmPelsWidth, devMode.dmPelsHeight);
-                    if ((devMode.dmPelsWidth >= 1024) && (devMode.dmPelsHeight >= 768))
-                        SendMessage(GetDlgItem(hWndDlg, IDC_COMBO_SCREEN_SIZE), CB_ADDSTRING, 0, (LPARAM)curMode);
-                    prevW = devMode.dmPelsWidth;
-                    prevH = devMode.dmPelsHeight;
-                    //prevBits = devMode.dmBitsPerPel;
-                }
-            nMode++;
-        }
-    }
-    break;
+
+        display_modes_enumerated = false;
+        display_modes_enumerated_event = CreateEvent(NULL, FALSE, FALSE, 0);
+        _beginthread(screen_settings_enumerator, 0, NULL);
+        break;
     case WM_COMMAND:
         if (HIWORD(wParam) == BN_CLICKED)
+        {
             switch (LOWORD(wParam))
             {
             case IDOK: //Patch
@@ -251,30 +297,15 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 
                 processIDOK(hWndDlg);
                 PostMessage(GetParent(hWndDlg), WM_APP + 1, 0, 0);
-                EndDialog(hWndDlg, 0);
-
+                end_dialog();
                 break;
+            case IDCANCEL:
             case IDC_BUTTON_CANCEL:
-                EndDialog(hWndDlg, 0);
-
+                end_dialog();
                 break;
             case IDC_BUTTON_DEFAULT: //defaults
                 processDefaults(hWndDlg);
-
                 break;
-
-                /*case IDC_BUTTON1:
-                    {
-                        GetDlgItemText (hWndDlg, IDC_COMBO1, buf, 255);
-                        SetCurrentDirectory ("Random");
-                        if (fileExists (buf))
-                            SendMessage (GetDlgItem (hWndDlg, IDC_LIST1), LB_ADDSTRING, 0, (LPARAM)buf);
-                        else
-                            MessageBox (hWndDlg, "File not found", "Error", MB_ICONERROR);
-                        SetCurrentDirectory ("..");
-
-                        break;
-                    }*/
             case IDC_CHECK_EDITORAUTO:
                 EnableWindow(GetDlgItem(hWndDlg, IDC_EDIT_EDITORAUTO),
                     IsDlgButtonChecked(hWndDlg, IDC_CHECK_EDITORAUTO));
@@ -301,8 +332,22 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
             default:
                 break;
             }
+        }
+        else if (HIWORD(wParam) == CBN_DROPDOWN)
+        {
+            switch (LOWORD(wParam))
+            {
+            case IDC_COMBO_SCREEN_SIZE:
+                wait_for_screen_settings_enumeration();
+                break;
+            default:
+                break;
+            }
+        }
         else
+        {
             break;
+        }
     default:
         return false;
     }
