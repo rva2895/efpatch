@@ -407,7 +407,7 @@ int __fastcall RGE_Action_Gather__auto_rebuild_farm_new(RGE_Action_Gather* actio
     return 1;
 }
 
-extern void* iconsBldgPtr;
+extern TShape** iconsBldgPtr;
 
 void __stdcall food_proc_display_auto_queue_button(TRIBE_Screen_Game* game_screen, TRIBE_Player* player)
 {
@@ -478,7 +478,7 @@ void __stdcall harbor_display_aqua_harvester_buttons(TRIBE_Screen_Game* game_scr
             item.help_string_id = RGE_Master_Static_Object__get_help_message(aqua_harvester);
             item.help_page_id = RGE_Master_Static_Object__get_help_page(aqua_harvester);
             TRIBE_Screen_Game__calc_text_msg(game_screen, msg_str, &item, -1, 4139);
-            TShape** bldg_pics = (TShape**)iconsBldgPtr;
+            TShape** bldg_pics = iconsBldgPtr;
             int civ = game_screen->game_obj->vfptr->gbg_get_civ_override(game_screen->game_obj);
             TRIBE_Screen_Game__set_button(game_screen, bldg_pics[civ], 4, item.pict, ADD_AQUA_HARVESTER_QUEUE_BUTTON, AQUA_HARVESTER_ID, 4939, 0, -1, 0, 0, msg_str, 0);
             game_screen->buttons[4]->shift_id1 = ADD_AQUA_HARVESTER_QUEUE_SHIFT_BUTTON;

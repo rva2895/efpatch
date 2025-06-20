@@ -900,9 +900,9 @@ int __fastcall TribeTechHelpScreen__make_bld_zone_constructor_list_new(TribeTech
     return bld_zone_cntr;
 }
 
-extern void* techTreeBldg;
-extern void* techTreeUnit;
-extern void* techTreeTech;
+extern TShape** techTreeBldg;
+extern TShape** techTreeUnit;
+extern TShape** techTreeTech;
 
 void __stdcall techtree_set_button_pics(TribeTechHelpScreen* tech_tree)
 {
@@ -910,9 +910,9 @@ void __stdcall techtree_set_button_pics(TribeTechHelpScreen* tech_tree)
     if (!popup_help)
         return;
 
-    TShape** tech_tree_tech_pics = (TShape**)techTreeTech;
-    TShape** tech_tree_bldg_pics = (TShape**)techTreeBldg;
-    TShape** tech_tree_unit_pics = (TShape**)techTreeUnit;
+    TShape** tech_tree_tech_pics = techTreeTech;
+    TShape** tech_tree_bldg_pics = techTreeBldg;
+    TShape** tech_tree_unit_pics = techTreeUnit;
 
     int master_player_id = tech_tree->current_tech_tree_master_player_id > 0 ? tech_tree->current_tech_tree_master_player_id : 1;
 

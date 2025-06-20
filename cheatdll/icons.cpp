@@ -1,130 +1,94 @@
 #include "stdafx.h"
 #include "icons.h"
 
-#define CIV_ICON_OFFSET (CIV_COUNT*4+4)
+#define CIV_ICON_OFFSET_DWORDS (CIV_COUNT+1)
+#define CIV_ICON_OFFSET (CIV_ICON_OFFSET_DWORDS*4)
 
-void* iconsPtr = 0;
+TShape** iconsPtr = NULL;
 
-void* iconsTechPtr;
-void* iconsUnitPtr;
-void* iconsBldgPtr;
+TShape** iconsTechPtr;
+TShape** iconsUnitPtr;
+TShape** iconsBldgPtr;
 
 __declspec(naked) void newIconsEditor()
 {
     __asm
     {
-        push    esi
-
-        push    CIV_ICON_OFFSET*4
-        call    malloc                   //allocate new buffer for icons
-        add     esp, 4
-        mov     esi, eax
-        mov     eax, iconsPtr            //test if need to free prev buffer
-        test    eax, eax
-        jz      cont_editor
-        push    eax
-        call    free
-        add     esp, 4
-cont_editor:
-        mov     iconsPtr, esi
-        mov     iconsTechPtr, esi
-        add     esi, CIV_ICON_OFFSET
-        mov     iconsUnitPtr, esi
-        lea     ebx, [esi + 4]
-        add     esi, CIV_ICON_OFFSET
-        mov     iconsBldgPtr, esi
-
-        mov     eax, ebx
-
-        pop     esi
+        mov     eax, iconsUnitPtr
+        add     eax, 4
         mov     ebx, 00533796h
         jmp     ebx
     }
 }
 
-void* techTreeBldg = NULL;
-void* techTreeUnit = NULL;
-void* techTreeTech = NULL;
-
-int baseEbp;
-
-void newIconsTechTreeBldg();
-void newIconsTechTreeUnit();
-void newIconsTechTreeTech();
-
-void loadTechTreeBldg();
-void loadTechTreeUnit();
-void loadTechTreeTech();
-void loadTechTreeTech2();
-
-void setBaseEbp();
-
-__declspec(naked) void setBaseEbp() //004632E2
+__declspec(naked) void newIconsEditor_destructor()
 {
     __asm
     {
-        lea     ebp, [esi + 1C74h]
-        mov     ecx, ebp
-        sub     ecx, 4
-        mov     baseEbp, ecx
-        mov     ecx, 004632E8h
-        jmp     ecx
+        mov     edi, iconsBldgPtr
+        mov     dword ptr [edi], 0
+        mov     edi, iconsTechPtr
+        mov     dword ptr [edi], 0
+        mov     edi, iconsUnitPtr
+        mov     dword ptr [edi], 0
+        add     edi, 4
+        mov     eax, 0052AFE0h
+        jmp     eax
     }
 }
 
-__declspec(naked) void newIconsTechTreeBldg() //00463332
+TShape** techTreeIconsPtr = NULL;
+
+TShape** techTreeBldg;
+TShape** techTreeUnit;
+TShape** techTreeTech;
+
+__declspec(naked) void newIconsTechTree()
 {
     __asm
     {
-        push    ecx
-        mov     ecx, ebp
-        sub     ecx, baseEbp
-        add     ecx, techTreeBldg
-        mov     [ecx], eax
-        pop     ecx
-        cmp     eax, ebx
-        jz      jumploc_bldg
-        mov     ecx, 0046333Bh
-        jmp     ecx
-jumploc_bldg:
-        mov     edi, 00463F15h
-        jmp     edi
+        mov     ebp, techTreeUnit
+        add     ebp, 4
+        mov     eax, 004632E8h
+        jmp     eax
     }
 }
 
-__declspec(naked) void newIconsTechTreeUnit() //0046338E
+__declspec(naked) void newIconsTechTree_destructor()
 {
     __asm
     {
-        mov     ecx, ebp
-        sub     ecx, baseEbp
-        add     ecx, techTreeUnit
-        mov     [ecx], eax
-        cmp     eax, ebx
-        jz      jumploc_unit
-        mov     ecx, 00463397h
-        jmp     ecx
-jumploc_unit:
-        mov     edi, 00463F15h
-        jmp     edi
+        mov     edi, techTreeUnit
+        mov     [edi], ebp
+        mov     edi, techTreeBldg
+        mov     [edi], ebp
+        mov     edi, techTreeTech
+        mov     [edi], ebp
+        add     edi, 4
+        mov     eax, 0046420Eh
+        jmp     eax
     }
 }
 
-__declspec(naked) void newIconsTechTreeTech() //004633EA
+__declspec(naked) void newIconsTechTree_destructor_asm1()
 {
     __asm
     {
-        mov     ecx, ebp
-        sub     ecx, baseEbp
-        add     ecx, techTreeTech
-        mov     [ecx], eax
-        cmp     eax, ebx
-        jz      jumploc_tech
-        mov     ecx, 004633F3h
-        jmp     ecx
-jumploc_tech:
-        mov     edi, 00463F15h
-        jmp     edi
+        mov     ebx, [edi + 2 * CIV_ICON_OFFSET]
+        cmp     ebx, ebp
+        mov     eax, 0046422Dh
+        jmp     eax
+    }
+}
+
+__declspec(naked) void newIconsTechTree_destructor_asm2()
+{
+    __asm
+    {
+        add     esp, 4
+        mov     [edi + 2 * CIV_ICON_OFFSET], ebp
+        mov     eax, 00464242h
+        jmp     eax
     }
 }
 
@@ -185,30 +149,48 @@ __declspec(naked) void newIconsGame()
 {
     __asm
     {
-        push    esi
-
-        push    CIV_ICON_OFFSET*4
-        call    malloc                   //allocate new buffer for icons
-        add     esp, 4
-        mov     esi, eax
-        mov     eax, iconsPtr            //test if need to free prev buffer
-        test    eax, eax
-        jz      cont_game
-        push    eax
-        call    free
-        add     esp, 4
-cont_game:
-        mov     iconsPtr, esi
-        mov     iconsTechPtr, esi
-        add     esi, CIV_ICON_OFFSET
-        mov     iconsUnitPtr, esi
-        lea     ebp, [esi + 4]
-        add     esi, CIV_ICON_OFFSET
-        mov     iconsBldgPtr, esi
-
-        pop     esi
+        mov     ebp, iconsUnitPtr
+        add     ebp, 4
         mov     ecx, 004F3117h
         jmp     ecx
+    }
+}
+
+__declspec(naked) void newIconsGame_destructor()
+{
+    __asm
+    {
+
+        mov     edi, iconsUnitPtr
+        mov     dword ptr [edi], 0
+        mov     edi, iconsBldgPtr
+        mov     dword ptr [edi], 0
+        mov     edi, iconsTechPtr
+        mov     dword ptr [edi], 0
+        add     edi, 4
+        mov     eax, 004F5CF5h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void newIconsGame_destructor_asm1()
+{
+    __asm
+    {
+        mov     ebx, [edi + 2 * CIV_ICON_OFFSET]
+        test    ebx, ebx
+        mov     eax, 004F5CFFh
+        jmp     eax
+    }
+}
+
+__declspec(naked) void newIconsGame_destructor_asm2()
+{
+    __asm
+    {
+        mov     dword ptr [edi + 2 * CIV_ICON_OFFSET], 0
+        mov     eax, 004F5D18h
+        jmp     eax
     }
 }
 
@@ -510,16 +492,34 @@ __declspec(naked) void iconTCMounted_id_unit() //00505276
 
 void __cdecl fixIconLoadingRoutines_atexit()
 {
-    free(techTreeBldg);
-    free(techTreeUnit);
-    free(techTreeTech);
+    free(iconsPtr);
+    free(techTreeIconsPtr);
 }
 
 #pragma optimize( "s", on )
 void fixIconLoadingRoutines()
 {
+    iconsPtr = (TShape**)malloc(CIV_ICON_OFFSET * 3);
+
+    iconsTechPtr = iconsPtr;
+    iconsUnitPtr = iconsPtr + CIV_ICON_OFFSET_DWORDS;
+    iconsBldgPtr = iconsPtr + CIV_ICON_OFFSET_DWORDS * 2;
+
     setHook((void*)0x004F3111, newIconsGame);
     setHook((void*)0x00533790, newIconsEditor);
+
+    setHook((void*)0x004F5CEF, newIconsGame_destructor);
+    setHook((void*)0x004F5CFA, newIconsGame_destructor_asm1);
+    setHook((void*)0x004F5D11, newIconsGame_destructor_asm2);
+    setHook((void*)0x0052AFDA, newIconsEditor_destructor);
+
+    writeDword(0x004F5CF6, CIV_COUNT);                        //game screen destructor
+    writeByte(0x004F5D36, CIV_ICON_OFFSET);
+    writeByte(0x004F5D4D, CIV_ICON_OFFSET);
+
+    writeDword(0x0052AFE1, CIV_COUNT);                        //scenario editor destructor
+    writeByte(0x0052AFE7, CIV_ICON_OFFSET);
+    writeByte(0x0052AFFE, CIV_ICON_OFFSET);
 
     writeByte(0x005337EF, CIV_ICON_OFFSET);                   //buildings (load scenario routine)
     writeByte(0x0053386B, CIV_COUNT + 1);                     //civ counter (loop counter) (load game routine)
@@ -562,22 +562,30 @@ void fixIconLoadingRoutines()
 
     // TECH TREE
 
-    setHook((void*)0x00463332, newIconsTechTreeBldg);
-    setHook((void*)0x0046338E, newIconsTechTreeUnit);
-    setHook((void*)0x004633EA, newIconsTechTreeTech);
+    setHook((void*)0x004632E2, newIconsTechTree);
+    setHook((void*)0x00464208, newIconsTechTree_destructor);
+    setHook((void*)0x00464228, newIconsTechTree_destructor_asm1);
+    setHook((void*)0x0046423C, newIconsTechTree_destructor_asm2);
+
+    writeByte(0x00463334, CIV_ICON_OFFSET);
+    writeByte(0x004633EC, -CIV_ICON_OFFSET);
+
+    writeByte(0x0046425C, CIV_ICON_OFFSET);
+    writeByte(0x00464273, CIV_ICON_OFFSET);
 
     setHook((void*)0x0046B9D7, loadTechTreeBldg);
     setHook((void*)0x0046B9F4, loadTechTreeUnit);
     setHook((void*)0x0046B9EB, loadTechTreeTech);
     setHook((void*)0x0046BB18, loadTechTreeTech2);
 
-    setHook((void*)0x004632E2, setBaseEbp);
+    techTreeIconsPtr = (TShape**)malloc(CIV_ICON_OFFSET * 3);
 
-    techTreeBldg = malloc(CIV_ICON_OFFSET);
-    techTreeUnit = malloc(CIV_ICON_OFFSET);
-    techTreeTech = malloc(CIV_ICON_OFFSET);
+    techTreeTech = techTreeIconsPtr;
+    techTreeUnit = techTreeIconsPtr + CIV_ICON_OFFSET_DWORDS;
+    techTreeBldg = techTreeIconsPtr + CIV_ICON_OFFSET_DWORDS * 2;
 
     writeByte(0x00463402, CIV_COUNT + 1);
+    writeDword(0x00464224, CIV_COUNT);
 
     //new EF icon offsets
     writeDword(0x00463314, 53300);    //bldg
