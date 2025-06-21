@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include "test.h"
-#include "log.h"
 #include "advcheat.h"
 #include "rundll.h"
 #include "oos.h"
@@ -13,10 +12,6 @@
 #include "chatcommand.h"
 
 #include <process.h>
-#include <MMSystem.h>
-#include <vector>
-#include <string>
-#include <map>
 #include <time.h>
 #include <algorithm>
 

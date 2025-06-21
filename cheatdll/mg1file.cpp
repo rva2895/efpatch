@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "mg1file.h"
 #include "zlib.h"
-#include <stdio.h>
 
 #define SCEN_STEP 0x2000
 

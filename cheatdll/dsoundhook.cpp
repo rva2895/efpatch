@@ -1,7 +1,5 @@
 #include "stdafx.h"
 
-#include <MMSystem.h>
-#include <Windows.h>
 #include <dsound.h>
 #include "dsoundhook.h"
 

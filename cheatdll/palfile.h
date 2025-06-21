@@ -1,7 +1,5 @@
 #pragma once
 
-#include <map>
-
 class T_PALETTE
 {
 private:

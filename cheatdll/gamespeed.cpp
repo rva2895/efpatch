@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "rec.h"
-#include <MMSystem.h>
 
 #define REC_SPEED_COUNT 12
 

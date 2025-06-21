@@ -1,7 +1,5 @@
 #pragma once
 
-#include <windows.h>
-
 #ifdef TARGET_VOOBLY
 #define REGPATH "Software\\Voobly\\Voobly\\game\\16\\" VOOBLY_EXE_MOD_NAME
 #else

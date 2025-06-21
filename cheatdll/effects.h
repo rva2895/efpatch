@@ -1,7 +1,5 @@
 #pragma once
 
-#include <array>
-
 enum UNIT_MASTER_DATA_TYPE
 {
     T_FORBIDDEN,

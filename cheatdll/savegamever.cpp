@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <stdio.h>
 
 char ver[4];
 

@@ -2,7 +2,6 @@
 #include "worlddump.h"
 
 #include <time.h>
-#include <MMSystem.h>
 #include <zlib.h>
 
 #include <process.h>

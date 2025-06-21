@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "common.h"
 
-#include <array>
-
 RGE_Base_Game** const base_game = (RGE_Base_Game** const)0x006A3684;
 TPanelSystem* const panel_system = (TPanelSystem* const)0x006ADBB8;
 int* const world_update_counter = (int* const)0x007A22F8;

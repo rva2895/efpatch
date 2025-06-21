@@ -1,6 +1,5 @@
 #pragma once
 #include "stdafx.h"
-#include "structs.h"
 
 #define VOOBLY_NAME_SUFFIX ""
 #define VOOBLY_DATA_MOD_NAME "Expanding Fronts Data" VOOBLY_NAME_SUFFIX

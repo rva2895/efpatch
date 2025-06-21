@@ -3,7 +3,6 @@
 
 #ifdef EFPATCH_MEMORY_DEBUG
 #include <intrin.h>
-#include <map>
 #include <algorithm>
 #endif
 

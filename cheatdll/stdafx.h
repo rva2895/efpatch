@@ -14,13 +14,16 @@
 
 #include "targetver.h"
 
-//#define WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <windows.h>
+#include <MMSystem.h>
 
 #include <stdint.h>
 #include <vector>
 #include <string>
+#include <array>
+#include <map>
 
 #include <stdio.h>
 

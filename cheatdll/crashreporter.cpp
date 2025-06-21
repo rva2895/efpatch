@@ -2,7 +2,6 @@
 
 #include <CrashRpt.h>
 #include <DbgHelp.h>
-#include <string>
 
 crash_rpt::CrashRpt* g_crashRpt;
 

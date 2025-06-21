@@ -2,7 +2,6 @@
 #include "editorstatus.h"
 #include "registry.h"
 #include <ddraw.h>
-#include <string>
 
 extern bool isEditor;
 

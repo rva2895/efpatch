@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "maplist.h"
-#include <map>
 
 std::map<int, MAP_INFO> map_list;
 

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "log.h"
 
 #define OOS_STR "Out of sync replaying game: worldtime=%d, continuing anyway"
 

@@ -1,8 +1,6 @@
 #include "stdafx.h"
-
-#include <map>
-#include "effects.h"
 #include "advtriggereffect.h"
+#include "effects.h"
 
 const CHANGE_UNIT_MASTER_PARAMS change_master_params[] =
 {

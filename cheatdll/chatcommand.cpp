@@ -2,7 +2,6 @@
 #include "chatcommand.h"
 #include "worlddump.h"
 //#include "functionlist.h"
-#include <map>
 
 extern unsigned int fog_param_a1;
 extern unsigned int fog_param_a3;

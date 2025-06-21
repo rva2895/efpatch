@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "functionlist.h"
-#include <vector>
 
 /*
 LARGE_INTEGER Frequency;

@@ -4,8 +4,6 @@
 #include "drsfile.h"
 #include "resource.h"
 #include "commctrl.h"
-#include <vector>
-#include <string>
 #include <process.h>
 
 __declspec(naked) void onSelectionBox() //00473C90

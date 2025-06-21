@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "rms.h"
 #include "maplist.h"
-#include <vector>
-#include <map>
 
 char** filenames;
 int nFiles;

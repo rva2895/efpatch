@@ -2,7 +2,6 @@
 
 #include "effects.h"
 #include "casts.h"
-#include "structs.h"
 #include "objpanel.h"
 
 template <class T>

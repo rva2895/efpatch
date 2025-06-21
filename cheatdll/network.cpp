@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "network.h"
-#include <MMSystem.h>
 
 __declspec(naked) void network1() //00431D10, also check
 {

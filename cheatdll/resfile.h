@@ -1,8 +1,5 @@
 #pragma once
 
-#include <map>
-#include <vector>
-
 struct RESFILE_entry
 {
     int resfile_id;

@@ -2,9 +2,6 @@
 #include "sc1file.h"
 #include "zlib.h"
 
-#include <stdio.h>
-#include <Windows.h>
-
 #define SCEN_STEP 0x2000
 
 void read_str32(str32* s, FILE* f)

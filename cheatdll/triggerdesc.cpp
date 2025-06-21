@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-#include <map>
 #include "effects.h"
 #include "advtriggereffect.h"
 #include "effectUnitVar.h"

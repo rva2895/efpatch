@@ -5,8 +5,6 @@
 #include "registry.h"
 #include <ddraw.h>
 #include <process.h>
-#include <string>
-#include <vector>
 #include <time.h>
 
 extern CONFIG_DATA cd;
