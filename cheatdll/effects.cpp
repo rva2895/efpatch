@@ -530,7 +530,7 @@ void __stdcall do_effect_teleport_obj(RGE_Player* player, RGE_Static_Object** ob
         int* obj_id_list;
         if (obj_count > _countof(obj_id_list_stack))
         {
-            int* obj_id_list_heap = new int[obj_count];
+            obj_id_list_heap = new int[obj_count];
             obj_id_list = obj_id_list_heap;
         }
         else

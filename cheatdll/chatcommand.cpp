@@ -249,6 +249,11 @@ void do_test()
             return ((id == -1) || ((id >= 0) && (id < master_player->master_object_num) && master_player->master_objects[id]));
         };
 
+    auto test_valid_missile = [&](RGE_Master_Player* master_player, __int16 id)
+        {
+            return test_obj(master_player, id) && ((id == -1) || (master_player->master_objects[id]->master_type == 60));
+        };
+
     auto is_obj_in_line = [](TRIBE_Unitline* line, __int16 id)
         {
             for (int i = 0; i < line->numberUnits; i++)
@@ -354,7 +359,7 @@ void do_test()
                         if (obj->master_type >= 50)
                         {
                             RGE_Master_Combat_Object* combat_obj = (RGE_Master_Combat_Object*)obj;
-                            if (!test_obj(master_player, combat_obj->missile_id))
+                            if (!test_valid_missile(master_player, combat_obj->missile_id))
                                 report_error_and_inc_counter("bad missile_id");
 
                             if (obj->master_type >= 70)
@@ -369,7 +374,7 @@ void do_test()
                                 if (!test_obj(master_player, tcombat_obj->id_of_building_obj))
                                     report_error_and_inc_counter("bad id_of_building_obj");
 
-                                if (!test_obj(master_player, tcombat_obj->volley_missile_id))
+                                if (!test_valid_missile(master_player, tcombat_obj->volley_missile_id))
                                     report_error_and_inc_counter("bad volley_missile_id");
 
                                 if (obj->master_type >= 80)
@@ -442,6 +447,22 @@ bool check_chat_command(const char* str)
             player->doppleganger_objects->Number_of_objects);
         return true;
     }
+    else if (strstr(str, "/find-obj"))
+    {
+        char d[0x100];
+        int id;
+        sscanf(str, "%s %d", d, &id);
+        RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+        RGE_Static_Object* unit = RGE_Player_Object_List__find_by_master_id(player->objects, id, -1.0f, -1.0f, 0, 0, NULL, -1);
+        if (unit)
+        {
+            RGE_Player__unselect_object(player);
+            RGE_Player__select_object(player, unit, 1);
+        }
+        else
+            chat("Invalid object id");
+        return true;
+    }
     /*
     else if (!strcmp(str, "/pathing-stats"))
     {
@@ -491,6 +512,7 @@ bool check_chat_command(const char* str)
 
         return true;
     }
+    */
     else if (strstr(str, "/update"))
     {
         char d[0x100];
@@ -510,6 +532,8 @@ bool check_chat_command(const char* str)
 
         unsigned int last_update_time = timeGetTime();
 
+        unsigned int first_update_time = last_update_time;
+
         unsigned __int8 game_state = (*base_game)->world->game_state;
         while (game_state == 0 && current_wt - start_wt < t * 1000)
         {
@@ -521,6 +545,7 @@ bool check_chat_command(const char* str)
 
             unsigned int current_update_time = timeGetTime();
 
+            //if (false)
             if (current_update_time - last_update_time > 200)
             {
                 last_update_time = current_update_time;
@@ -559,6 +584,12 @@ bool check_chat_command(const char* str)
             }
         }
 
+        chat("Jumped %d seconds ahead, time elapsed: %u", t, timeGetTime() - first_update_time);
+        char buf[0x100];
+        snprintf(buf, _countof(buf), "%d", timeGetTime() - first_update_time);
+        //MessageBox(0, buf, "test", 0);
+        //TEasy_Panel__popupOKDialog((TEasy_Panel*)TPanelSystem__getTop(panel_system), buf, "Test", 450, 100, 1);
+
         //for (int i = 0; i < 10000; i++)
         //    game_state = (*base_game)->world->vfptr->update((*base_game)->world);
 
@@ -571,7 +602,6 @@ bool check_chat_command(const char* str)
         //chat("t = %d", t);
         return true;
     }
-    */
     else if (strstr(str, "/control"))
     {
         char d[0x100];
@@ -616,7 +646,7 @@ bool check_chat_command(const char* str)
         return true;
     }
     */
-    else if (strstr(str, "/obj") || strstr(str, "/object"))
+    else if (strstr(str, "/obj"))
     {
         char d[0x100];
         int id;

@@ -38,6 +38,49 @@ void fixCurrentDir()
 
 extern crash_rpt::CrashRpt* g_crashRpt;
 
+/*
+void* old_stack;
+DWORD old_esi;
+DWORD old_edi;
+
+__declspec(naked) int __stdcall winmain_wr(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+    LPSTR lpCmdLine,
+    int nCmdShow)
+{
+    __asm
+    {
+        mov     old_esi, esi
+        mov     old_edi, edi
+
+        push    0x100000
+        call    malloc
+        add     esp, 4
+
+        mov     edi, [esp + 4]
+        mov     ecx, [esp + 8]
+        mov     edx, [esp + 0Ch]
+        mov     esi, [esp + 10h]
+
+        mov     old_stack, esp
+        add     eax, 0xFFFFC
+        mov     esp, eax
+
+        push    esi
+        push    edx
+        push    ecx
+        push    edi
+        call    WinMain_exe
+
+        mov     esp, old_stack
+        mov     esi, old_esi
+        mov     edi, old_edi
+        ret
+    }
+}
+*/
+
 int WINAPI WinMain_dll(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
@@ -93,6 +136,7 @@ int WINAPI WinMain_dll(
         log("Crash reporting is OFF");
         log("Calling WinMain_exe");
         retval = WinMain_exe(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+        //retval = winmain_wr(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
     }
 
     new_allocator_uninstall();
@@ -128,7 +172,7 @@ void __stdcall update_editor_bk()
 void update_load_save_game_panel(TPanel* panel)
 {
     if (panel_system->currentPanelValue == panel && panel &&
-        panel->vfptr == (TPanelVtbl*)0x006607F4 || panel->vfptr == (TPanelVtbl*)0x00662128 || panel->vfptr == (TPanelVtbl*)0x00661F3C)
+        (panel->vfptr == (TPanelVtbl*)0x006607F4 || panel->vfptr == (TPanelVtbl*)0x00662128 || panel->vfptr == (TPanelVtbl*)0x00661F3C))
         panel->vfptr->set_redraw(panel, 1);
 }
 

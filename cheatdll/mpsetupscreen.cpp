@@ -171,6 +171,10 @@ void* __fastcall TribeMPSetupScreenExtraOptionsDialog__vector_deleting_destructo
 int __fastcall TribeMPSetupScreenExtraOptionsDialog__action(TribeMPSetupScreenExtraOptionsDialog* this_, DWORD dummy, TPanel* fromPanel, int actionIn, unsigned int a1, unsigned int a2)
 {
     UNREFERENCED_PARAMETER(dummy);
+
+    UNREFERENCED_PARAMETER(fromPanel);
+    UNREFERENCED_PARAMETER(a2);
+
     //a1 = action_id
     switch (a1)
     {

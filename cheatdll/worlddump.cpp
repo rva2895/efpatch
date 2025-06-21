@@ -6,6 +6,7 @@
 #include <zlib.h>
 
 #include <process.h>
+#include <algorithm>
 
 //int max_worldtime = 3256380; //checksums start to diverge, 01_1_rva_recorded game - 2021-05-07_23-53-08
 //int max_worldtime = 1673840; //last working in both recs

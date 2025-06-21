@@ -238,7 +238,7 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
     {
     case WM_CLOSE:
         end_dialog();
-        break;
+        return TRUE;
     case WM_INITDIALOG:
         add_dropdown_str(IDC_COMBO_FOG, "Standard");
         add_dropdown_str(IDC_COMBO_FOG, "Light");
@@ -251,7 +251,7 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
         display_modes_enumerated = false;
         display_modes_enumerated_event = CreateEvent(NULL, FALSE, FALSE, 0);
         _beginthread(screen_settings_enumerator, 0, NULL);
-        break;
+        return TRUE;
     case WM_COMMAND:
         if (HIWORD(wParam) == BN_CLICKED)
         {
@@ -298,28 +298,28 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
                 processIDOK(hWndDlg);
                 PostMessage(GetParent(hWndDlg), WM_APP + 1, 0, 0);
                 end_dialog();
-                break;
+                return TRUE;
             case IDCANCEL:
             case IDC_BUTTON_CANCEL:
                 end_dialog();
-                break;
+                return TRUE;
             case IDC_BUTTON_DEFAULT: //defaults
                 processDefaults(hWndDlg);
-                break;
+                return TRUE;
             case IDC_CHECK_EDITORAUTO:
                 EnableWindow(GetDlgItem(hWndDlg, IDC_EDIT_EDITORAUTO),
                     IsDlgButtonChecked(hWndDlg, IDC_CHECK_EDITORAUTO));
-                break;
+                return TRUE;
             case IDC_CHECK_WIDE:
                 EnableWindow(GetDlgItem(hWndDlg, IDC_COMBO_SCREEN_SIZE),
                     IsDlgButtonChecked(hWndDlg, IDC_CHECK_WIDE) && !IsDlgButtonChecked(hWndDlg, IDC_CHECK_SCREEN_SIZE_AUTO));
                 EnableWindow(GetDlgItem(hWndDlg, IDC_CHECK_SCREEN_SIZE_AUTO),
                     IsDlgButtonChecked(hWndDlg, IDC_CHECK_WIDE));
-                break;
+                return TRUE;
             case IDC_CHECK_SCREEN_SIZE_AUTO:
                 EnableWindow(GetDlgItem(hWndDlg, IDC_COMBO_SCREEN_SIZE),
                     IsDlgButtonChecked(hWndDlg, IDC_CHECK_WIDE) && !IsDlgButtonChecked(hWndDlg, IDC_CHECK_SCREEN_SIZE_AUTO));
-                break;
+                return TRUE;
             case IDC_CHECK_MAPSIZE:
                 if (IsDlgButtonChecked(hWndDlg, IDC_CHECK_MAPSIZE))
                     CheckDlgButton(hWndDlg, IDC_CHECK_MAPSIZE,
@@ -328,7 +328,7 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
                             "It is recommended that you do not enable this for better experience.\n"
                             "\nAre you sure you want to enable large maps support?",
                             "Warning", MB_YESNO | MB_ICONEXCLAMATION) == 6 ? TRUE : FALSE);
-                break;
+                return TRUE;
             default:
                 break;
             }
@@ -339,19 +339,16 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
             {
             case IDC_COMBO_SCREEN_SIZE:
                 wait_for_screen_settings_enumeration();
-                break;
+                return TRUE;
             default:
                 break;
             }
         }
-        else
-        {
-            break;
-        }
+        break;
     default:
-        return false;
+        break;
     }
-    return true;
+    return FALSE;
 }
 
 #define IDD_DIALOG_CONFIG IDD_DIALOG_CONFIG_EF

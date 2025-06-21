@@ -79,7 +79,6 @@ __declspec(naked) void core4() //00606A60, operator minus
     }
 }
 
-
 __declspec(naked) void core5() //00606AB0
 {
     __asm
@@ -149,7 +148,7 @@ __declspec(naked) void core7() //00606970
 //
 
 /*
-__declspec(naked) int __stdcall ftol_new_sse() //00632BAC
+__declspec(naked) __int64 __cdecl ftol_new_sse(double x) //00632BAC
 {
     __asm
     {
@@ -163,7 +162,7 @@ __declspec(naked) int __stdcall ftol_new_sse() //00632BAC
     }
 }
 
-__declspec(naked) int __stdcall ftol_new_sse_fixed(double val)
+__declspec(naked) __int64 __cdecl ftol_new_sse_fixed(double x)
 {
     __asm
     {
@@ -173,7 +172,7 @@ __declspec(naked) int __stdcall ftol_new_sse_fixed(double val)
     }
 }
 
-__declspec(naked) int __stdcall ftol_new_sse_fixed_2() //00632BAC
+__declspec(naked) __int64 __cdecl ftol_new_sse_fixed_2(double x) //00632BAC
 {
     __asm
     {
@@ -185,16 +184,35 @@ __declspec(naked) int __stdcall ftol_new_sse_fixed_2() //00632BAC
         retn
     }
 }
+
+__declspec(naked) __int64 __cdecl ftol_new_sse_fixed_3(double x) //00632BAC
+{
+    __asm
+    {
+        mov     ecx, esp
+        sub     esp, 8
+        and     esp, 0FFFFFFF8h
+        fstp    qword ptr [esp]
+        cvttsd2si eax, mmword ptr [esp]
+        cdq
+        mov     esp, ecx
+        retn
+    }
+}
 */
 
 /*
 const unsigned char ftol_new_sse_packed[] =
 { 0x83, 0xEC, 0x04, 0xD9, 0x1C, 0x24, 0xF3, 0x0F, 0x10, 0x04, 0x24, 0xF3, 0x0F, 0x2C, 0xC0, 0x99, 0x83, 0xC4, 0x04, 0xC3 };
+*/
 const unsigned char ftol_new_sse_fixed_2_packed[] =
 { 0x83, 0xEC, 0x08, 0xDD, 0x1C, 0x24, 0xF2, 0x0F, 0x2C, 0x04, 0x24, 0x99, 0x83, 0xC4, 0x08, 0xC3 };
-*/
 
-/*const unsigned char ftol_new_up[] =
+/*
+const unsigned char ftol_new_sse_fixed_3_packed[] =
+{ 0x8B, 0xCC, 0x83, 0xEC, 0x08, 0x83, 0xE4, 0xF8, 0xDD, 0x1C, 0x24, 0xF2, 0x0F, 0x2C, 0x04, 0x24, 0x99, 0x8B, 0xE1, 0xC3 };
+
+const unsigned char ftol_new_up[] =
 { 0x83, 0xEC, 0x08, 0xDD, 0x0C, 0x24, 0x58, 0x5A, 0xC3, 0x90 };
 */
 
@@ -1148,14 +1166,122 @@ loc_5CEB4E:
     }
 }
 
+/*
+#define TEST_COUNT 40000000
+#define DATA_COUNT 100
+
+BVector vectors[TEST_COUNT];
+float floats[TEST_COUNT];
+
+RGE_Static_Object objects[DATA_COUNT];
+RGE_Master_Static_Object masters[DATA_COUNT];
+
+__int64(__cdecl* ftol_internal)(double a) = (__int64(__cdecl*)(double))0x00632BAC;
+
+int cntr = 0;
+
+float __fastcall RGE_Static_Object__distance_to_object_new(RGE_Static_Object* obj1, DWORD dummy, RGE_Static_Object* obj2)
+{
+    UNREFERENCED_PARAMETER(dummy);
+
+    cntr++;
+    if (cntr % 10000 == 0)
+        chat("Cntr: %d", cntr);
+
+    double result; // st7
+
+    if (!obj2)
+        return FLT_MAX;
+
+    double diff_x = obj2->world_x - obj1->world_x;
+    double diff_y = obj2->world_y - obj1->world_y;
+
+    if (diff_x < 0.0)
+        diff_x = -diff_x;
+    if (diff_y < 0.0)
+        diff_y = -diff_y;
+
+    double dx = diff_x - obj1->master_obj->radius_x - obj2->master_obj->radius_x;
+    double dy = diff_y - obj1->master_obj->radius_y - obj2->master_obj->radius_y;
+    if (dx < 0.0)
+        dx = 0.0;
+    if (dy < 0.0)
+        dy = 0.0;
+    result = sqrt(dx * dx + dy * dy);
+    if (result <= 0.0)
+        result = 0.0;
+
+    return result;
+}
+
+__declspec(noinline) BVector* __fastcall BVector__operator_mul2_new(BVector* this_, DWORD dummy, BVector* result, const float a)
+{
+    result->x = a * this_->x;
+    result->y = a * this_->y;
+    result->z = a * this_->z;
+    return result;
+}
+*/
+
 #pragma optimize( "s", on )
 void setCoreHooks()
 {
+    /*
+    auto rand_f = []()
+        {
+            return rand() % 100 / 10.0;
+        };
+
+    for (int i = 0; i < DATA_COUNT; i++)
+    {
+        objects[i].world_x = rand_f();
+        objects[i].world_y = rand_f();
+        objects[i].master_obj = &masters[i];
+        masters[i].radius_x = rand_f();
+        masters[i].radius_y = rand_f();
+    }
+
+    for (int i = 0; i < TEST_COUNT; i++)
+    {
+        int x = ftol_new_sse_fixed_3(floats[i]);
+        //BVector__operator_mul2(&vectors[i], &result, floats[i]);
+    }
+
+    unsigned int t_start = timeGetTime();
+    for (int i = 0; i < TEST_COUNT; i++)
+    {
+        //BVector result;
+        //BVector__operator_mul2(&vectors[i], &result, floats[i]);
+        __int64 x = ftol_new_sse_fixed_2(floats[i]);
+    }
+    unsigned int t_before = timeGetTime() - t_start;
+
+    //
+
+    //
+
+    t_start = timeGetTime();
+    for (int i = 0; i < TEST_COUNT; i++)
+    {
+        //BVector result;
+        //BVector__operator_mul2_new(&vectors[i], 0, &result, floats[i]);
+        //result.x++;
+        __int64 x = ftol_new_sse_fixed_3(floats[i]);
+    }
+    unsigned int t_after = timeGetTime() - t_start;
+
+    volatile float x = result.x;
+
+    char buf[0x100];
+    snprintf(buf, _countof(buf), "Old: %u, new: %u (%.2f)", t_before, t_after, (float)t_after / t_before);
+    MessageBox(0, buf, "Test result", 0);
+    */
+    
     setHook((void*)0x00606920, core1);
     setHook((void*)0x006069C0, core2);
     setHook((void*)0x00606A10, core3);
     setHook((void*)0x00606A60, core4);
-    setHook((void*)0x00606AB0, core5);
+    setHook((void*)0x00606AB0, core5); //keep an eye on this
     setHook((void*)0x00606B00, core6);
     setHook((void*)0x00606970, core7);
 
@@ -1168,6 +1294,9 @@ void setCoreHooks()
     }
     else
         log("SSE3 not detected");*/
+
+    writeData(0x00632BAC, ftol_new_sse_fixed_2_packed, sizeof(ftol_new_sse_fixed_2_packed));
+    //setHook((void*)0x00632BAC, ftol_new_sse_fixed_3);
 
     //float (__thiscall UNIT::*unit_distance_to_position_new_p)(float, float, float) = &UNIT::unit_distance_to_position_new;
     //setHook((void*)0x00551C60, (void*&)unit_distance_to_position_new_p);

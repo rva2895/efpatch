@@ -410,14 +410,14 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
     {
     case WM_CLOSE:
         EndDialog(hWndDlg, 0);
-        break;
+        return TRUE;
     case WM_INITDIALOG:
         slp_counter = 0;
         hWndPaletteDlg = hWndDlg;
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, "Ready");
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETRANGE, 0, MAKELPARAM(0, 0x1280));
         _beginthreadex(NULL, 0, patch_palette, NULL, 0, &palette_tid);
-        break;
+        return TRUE;
     case WM_USER + 1: //status update DRS
         switch (lParam)
         {
@@ -434,16 +434,16 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
         snprintf(s, _countof(s), "%s %s...", st, (char*)wParam);
         free((char*)wParam);
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
-        break;
+        return TRUE;
     case WM_USER + 2: //status update SLP
         snprintf(s, _countof(s), "Processing %d.slp...", (int)wParam);
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETPOS, slp_counter++, 0);
-        break;
+        return TRUE;
     default:
-        return false;
+        break;
     }
-    return true;
+    return FALSE;
 }
 
 const char creating_new_p1_drs[] = ", creating new p1 DRS files";

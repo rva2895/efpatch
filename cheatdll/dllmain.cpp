@@ -407,7 +407,7 @@ void setHooksEF()
     //writeByte (0x00444A10, 0xE8); //remove 1.0f check in getDamage function
     //writeByte (0x00444A11, 0x13);
 
-    setGameModeHooks();
+    //setGameModeHooks();
 
     setChatGaiaToAllHooks();
 
@@ -429,7 +429,7 @@ void setHooksEF()
     setCliffTypeHooks();
 
     setRmsTokenHooks();
-    setRmsCreateObjectHooks();
+    //setRmsCreateObjectHooks();
 
     setPatrolHooks();
     setAttackStanceHooks();

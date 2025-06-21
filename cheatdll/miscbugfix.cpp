@@ -547,6 +547,61 @@ __declspec(naked) void on_info_ai_destructor() //00585496
     }
 }
 
+void __fastcall do_on_tech_tree_destructor(TribeTechHelpScreen* techtree)
+{
+    if (techtree->scroll_left_button_render_area)
+    {
+        TDrawArea__destructor(techtree->scroll_left_button_render_area);
+        operator_delete_internal(techtree->scroll_left_button_render_area);
+        techtree->scroll_left_button_render_area = NULL;
+    }
+
+    if (techtree->scroll_right_button_render_area)
+    {
+        TDrawArea__destructor(techtree->scroll_right_button_render_area);
+        operator_delete_internal(techtree->scroll_right_button_render_area);
+        techtree->scroll_right_button_render_area = NULL;
+    }
+
+    if (techtree->other_button_pic)
+    {
+        TShape__destructor(techtree->other_button_pic);
+        operator_delete_internal(techtree->other_button_pic);
+        techtree->other_button_pic = NULL;
+    }
+}
+
+__declspec(naked) void on_tech_tree_destructor() //0046405C
+{
+    __asm
+    {
+        mov     ecx, esi
+        call    do_on_tech_tree_destructor
+        mov     edi, [esi + 820h]
+        mov     eax, 00464062h
+        jmp     eax
+    }
+}
+
+void __fastcall RGE_Object_List__removeAllObjects_new(RGE_Object_List* ol)
+{
+    RGE_Object_Node* node = ol->list;
+    RGE_Object_Node* node_cur;
+
+    while (node)
+    {
+        if (node->node)
+            node->node->vfptr->__vecDelDtor(node->node, 1);
+        node_cur = node;
+        node = node->next;
+        free_internal(node_cur);
+    }
+
+    ol->list = NULL;
+    ol->number_of_objects = 0;
+    ol->next_node = NULL;
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks(int ver)
 {
@@ -695,5 +750,11 @@ void setMiscBugfixHooks(int ver)
 
     //info ai memory leak
     setHook((void*)0x00585496, on_info_ai_destructor);
+
+    //tech tree memory leak
+    setHook((void*)0x0046405C, on_tech_tree_destructor);
+
+    //object list memory leak
+    setHook((void*)0x004AEA70, RGE_Object_List__removeAllObjects_new);
 }
 #pragma optimize( "", on )

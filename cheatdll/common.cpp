@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "common.h"
 
+#include <array>
+
 RGE_Base_Game** const base_game = (RGE_Base_Game** const)0x006A3684;
 TPanelSystem* const panel_system = (TPanelSystem* const)0x006ADBB8;
 int* const world_update_counter = (int* const)0x007A22F8;
@@ -44,29 +46,6 @@ void __cdecl writeDword(DWORD addr, DWORD val)
 #endif
 }
 
-BYTE* nops = NULL;
-size_t nops_len = 0;
-
-void __cdecl writeNops(DWORD addr, size_t len)
-{
-    if (len > nops_len)
-    {
-        while (len > nops_len)
-        {
-            nops_len += 0x20;
-        }
-        free(nops);
-        nops = (BYTE*)malloc(nops_len);
-        memset(nops, 0x90, nops_len);
-    }
-
-#ifndef TARGET_VOOBLY
-    WriteProcessMemory(GetCurrentProcess(), (void*)addr, nops, len, NULL);
-#else
-    g_pVoobly->Write(addr, nops, len);
-#endif
-}
-
 void __cdecl writeByteF(DWORD addr, BYTE val)
 {
 #ifndef TARGET_VOOBLY
@@ -92,6 +71,36 @@ void __cdecl writeData(DWORD addr, const void* data, size_t len)
 #else
     g_pVoobly->Write(addr, data, len);
 #endif
+}
+
+const std::array<BYTE, 9> nop_bytes[] =
+{
+    { 0x90 },
+    { 0x66, 0x90 },
+    { 0x0F, 0x1F, 0x00 },
+    { 0x0F, 0x1F, 0x40, 0x00 },
+    { 0x0F, 0x1F, 0x44, 0x00, 0x00 },
+    { 0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00 },
+    { 0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00 },
+    { 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00 },
+    { 0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00}
+};
+
+void __cdecl write_nop_seq(DWORD addr, size_t len)
+{
+    if (len >= 1 && len <= 9)
+        writeData(addr, nop_bytes[len - 1].data(), len);
+}
+
+void __cdecl writeNops(DWORD addr, size_t len)
+{
+    while (len > 0)
+    {
+        size_t nop_len = len > 9 ? 9 : len;
+        write_nop_seq(addr, nop_len);
+        len -= nop_len;
+        addr += nop_len;
+    }
 }
 
 void __cdecl setHook(void* addr, void* newAddr)

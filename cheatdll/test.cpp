@@ -1340,9 +1340,136 @@ void __cdecl setTestHook_atexit()
     free(log_int_s);
 }
 
+/*
+RGE_Static_Object* __fastcall RGE_Player__make_new_object_new(RGE_Player* player, DWORD dummy, int obj_id, float x, float y, float z, int build_all_the_way)
+{
+    UNREFERENCED_PARAMETER(dummy);
+
+    if (obj_id == 112)
+    {
+        player->world->next_object_id++;
+    }
+
+    if (obj_id >= 0 && player->master_objects[obj_id])
+        return player->master_objects[obj_id]->vfptr->make_new_obj(
+            player->master_objects[obj_id],
+            player,
+            x,
+            y,
+            z);
+    else
+        return 0;
+}
+
+__declspec(naked) void on_master_setup() //0048C4CA
+{
+    __asm
+    {
+        cmp     word ptr [edi + 18h], 112
+        jnz     no_set_recyclable
+        mov     byte ptr [edi + 0BCh], 1
+
+no_set_recyclable:
+        lea     edx, [edi + 0BDh]
+        mov     eax, 0048C4D0h
+        jmp     eax
+    }
+}
+
+int* const View_Tiles_Drawn = (int* const)0x007A1C68;
+
+TMousePointer** const MouseSystem = (TMousePointer** const)0x006ACCF0;
+
+int* const dword_7A1C64 = (int* const)0x007A1C64;
+
+int* const VIEW_MAP_CheckVis = (int* const)0x007A1C6C;
+int* const VIEW_TileFoggedMask = (int* const)0x007A1C40;
+int* const VIEW_TileVisibleMask = (int* const)0x007A1C44;
+DClipInfo_List** SDI_List = (DClipInfo_List**)0x0077FA74;
+
+int** const unified_map_offsets = (int** const)0x007A1CBC;
+int* const map_current_x = (int* const)0x006ACCE4;
+int* const map_current_y = (int* const)0x006ACCE8;
+
+int* const SDI_Draw_Level = (int* const)0x0077FA68;
+int* const SDI_Object_ID = (int* const)0x0077FA6C;
+int* const SDI_Capture_Info = (int* const)0x0077FA70;
+
+int* const Global_Draw_Flags = (int* const)0x0077FA60;
+int* const VIEW_map_scr_x_offset = (int* const)0x007A1C50;
+int* const VIEW_map_scr_y_offset = (int* const)0x007A1C54;
+
+int* const UC_Target_Obj = (int* const)0x007A1C88;
+int* const UC_Save_Last_Obj = (int* const)0x0069B830;
+
+int* const dword_7A1C7C = (int* const)0x007A1C7C;
+int* const dword_7A1C80 = (int* const)0x007A1C80;
+int* const dword_7A1C84 = (int* const)0x007A1C84;
+
+void(__cdecl* ASMSet_Shadowing)(int a1, int a2, int a3, int a4) =
+(void(__cdecl*)(int a1, int a2, int a3, int a4))0x00651780;
+
+void(__cdecl* ASMSet_Color_Xform)(unsigned int a1) =
+(void (__cdecl*)(unsigned int a1))0x00651860;
+
+int(__cdecl* ASMGet_Color_Xform)() =
+(int(__cdecl*)())0x006518E0;
+
+void(__cdecl* ASMSet_Surface_Info)(int a1, int a2, int a3, int a4, int a5, int a6, int a7) =
+(void (__cdecl*)(int a1, int a2, int a3, int a4, int a5, int a6, int a7))0x00651820;
+
+void(__cdecl* ASMSet_Xlate_Table)(unsigned __int8* Xlate_Table_In) =
+(void (__cdecl*)(unsigned __int8* Xlate_Table_In))0x006519C0;
+
+void (__cdecl* ASMSet_Special_Colors)(unsigned int a1, unsigned int a2) =
+(void (__cdecl*)(unsigned int a1, unsigned int a2))0x00651940;
+
+void (__cdecl* ASMEnable_Special_Colors)(int a1, int a2) =
+(void (__cdecl*)(int a1, int a2))0x00651980;
+
+int (__cdecl* ASMDraw_Sprite)(void* slp, int x, int y, int width, int height, int data_offset, int outline_offset, int fog) =
+(int (__cdecl*)(void* slp, int x, int y, int width, int height, int data_offset, int outline_offset, int fog))0x00651BC0;
+
+void(__cdecl* ASMSetStaticClipMask)(int, int, int) =
+(void(__cdecl*)(int, int, int))0x006531A0;
+
+void(__cdecl* ASMSpecialDraw_Sprite)(int, int, int, int, int, int, int, int) =
+(void(__cdecl*)(int, int, int, int, int, int, int, int))0x006531E0;
+
+bool* const VIEW_Enable_Occlusion = (bool* const)0x007A1C48;
+bool* const VIEW_Object_Occludes_Others = (bool* const)0x007A1C49;
+
+int* const SDI_Draw_Line = (int* const)0x0077FA64;
+int* const VIEW_Occlusion_Color = (int* const)0x007A1C4C;
+*/
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    //setHook((void*)0x00651BC0, ASMDraw_Sprite_new);
+
+    //setHook((void*)0x005430C0, TShape__shape_draw_new);
+    //setHook((void*)0x00543270, TShape__shape_mirror_new);
+
+    //setHook((void*)0x0054A5C0, RGE_Sprite__draw_new);
+    //setHook((void*)0x0054C9E0, RGE_Static_Object__draw_new);
+
+    //setHook((void*)0x0060B590, RGE_View__draw_new);
+    //setHook((void*)0x004F7E60, TRIBE_Screen_Game__handle_paint_new);
+    //setHook((void*)0x004B6A00, TPanel__handle_paint_new);
+
+    //setHook((void*)0x0060DBE0, RGE_View__view_function_terrain_new);
+
+    //setHook((void*)0x004B62E0, nullsub_1);
+    //setHook((void*)0x004B6330, nullsub_0);
+
+    //setHook((void*)0x004B5F90, TPanel__set_redraw_new);
+    //setHook((void*)0x00634890, memset_new);
+    //setHook((void*)0x006348F0, memcpy_new);
+    //setHook((void*)0x00634CD0, memcpy_new);
+    //setHook((void*)0x0048C4CA, on_master_setup);
+    //setHook((void*)0x004C2D10, RGE_Player__make_new_object_new);
+    //setHookCall((void*)0x005CFAF1, RGE_Player__make_new_object_new);
     //setHook((void*)0x00558520, TRIBE_Building_Object__findUnitsUnderGate_new);
 
     //writeNops(0x00493B3D, 2);

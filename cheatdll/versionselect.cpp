@@ -28,10 +28,10 @@ BOOL CALLBACK VersionSelectDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LP
             CheckDlgButton(hWndDlg, IDC_CHECK_ALWAYSRUN, BST_UNCHECKED);
         else
             CheckDlgButton(hWndDlg, IDC_CHECK_ALWAYSRUN, BST_CHECKED);
-        break;
+        return TRUE;
     case WM_CLOSE:
         ExitProcess(0);
-        break;
+        return TRUE;
     case WM_INITDIALOG:
         log("Version select dialog opened");
         if (cd.gameVersion == VER_CC)
@@ -41,7 +41,7 @@ BOOL CALLBACK VersionSelectDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LP
         if (!cd.askAtStartup)
             CheckDlgButton(hWndDlg, IDC_CHECK_ALWAYSRUN, BST_CHECKED);
 
-        break;
+        return TRUE;
     case WM_COMMAND:
     {
         if (HIWORD(wParam) == BN_CLICKED)
@@ -64,22 +64,20 @@ BOOL CALLBACK VersionSelectDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LP
                 else
                     MessageBox(hWndDlg, "Please select game version", "Error", MB_ICONERROR);
 
-                break;
+                return TRUE;
             case IDCANCEL:
                 ExitProcess(0);
-                break;
+                return TRUE;
             case IDC_BUTTON_CONFIG:
                 launchConfigurator(hWndDlg);
-                break;
-
+                return TRUE;
             default:
                 break;
             }
-        else
-            break;
+        break;
     }
     default:
-        return FALSE;
+        break;
     }
-    return TRUE;
+    return FALSE;
 }

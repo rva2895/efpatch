@@ -239,25 +239,25 @@ BOOL CALLBACK AssetsDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
     {
     case WM_CLOSE:
         EndDialog(hWndDlg, 0);
-        break;
+        return TRUE;
     case WM_INITDIALOG:
         hWndAssetsDlg = hWndDlg;
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, "Setting up assets...");
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETRANGE, 0, MAKELPARAM(0, 100));
         _beginthreadex(NULL, 0, patch_assets, NULL, 0, &assets_tid);
-        break;
+        return TRUE;
     case WM_USER + 2: //status set progress
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETPOS, wParam, 0);
-        break;
+        return TRUE;
     case WM_USER + 3: //status set current file
         snprintf(s, _countof(s), "Extracting %s...", (char*)wParam);
         free((char*)wParam);
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
-        break;
+        return TRUE;
     default:
-        return false;
+        break;
     }
-    return true;
+    return FALSE;
 }
 
 void do_assets_setup()
