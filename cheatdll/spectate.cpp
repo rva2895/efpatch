@@ -267,7 +267,7 @@ struct spec_client_param
 };
 
 volatile bool spec_client_set_active = false;
-volatile bool spec_client_set_complete = false;
+volatile bool spec_client_set_complete = true;
 
 class spec_client_locals
 {
@@ -318,7 +318,7 @@ unsigned int __stdcall spec_client(void* data)
         return 0;
     }
 
-    locals.handle = _sopen((*comm)->mCommandLog->mFileName, _O_BINARY | _O_RDONLY, _SH_DENYNO, 0);
+    locals.handle = _sopen((*comm)->mCommandLog->mFileName, _O_BINARY | _O_RDONLY, _SH_DENYNO);
     if (locals.handle == -1)
     {
         log_spec_client("cannot open stream");
@@ -377,7 +377,6 @@ unsigned int __stdcall spec_client(void* data)
             strncpy(hdr.name, "gbgspc\0", 8);
             hdr.proto_version = 1;
             hdr.reserved = 0;
-
             return send_data(locals.ConnectSocket, (char*)&hdr, sizeof(hdr));
         };
 
@@ -437,6 +436,18 @@ unsigned int __stdcall spec_client(void* data)
             return send_msg(MESSAGE_TYPE_GAME_STATUS, msg, 2 * sizeof(uint32_t));
         };
 
+    auto send_multiple_rec_stream = [&]()
+        {
+            int bytes_read;
+            do
+            {
+                bytes_read = _read(locals.handle, msg, MSG_BUFFER_SIZE);
+                if (bytes_read > 0 && !send_rec_stream(bytes_read))
+                    return false;
+            } while (bytes_read >= MSG_BUFFER_SIZE);
+            return true;
+        };
+
     if (!send_proto_header()
         || !send_client_type(CLIENT_TYPE_GAME)
         || !send_game_info()
@@ -448,37 +459,53 @@ unsigned int __stdcall spec_client(void* data)
 
     unsigned int last_status_time = timeGetTime();
     unsigned int world_time = 0;
+    unsigned int old_world_time = 0;
 
-    auto get_world_time = [&world_time]()
+    auto get_world_time = [&world_time, &old_world_time]()
         {
             if (*base_game && (*base_game)->world)
                 world_time = (*base_game)->world->world_time;
-            return world_time;
+            if (world_time > old_world_time)
+                old_world_time = world_time;
+            return world_time < old_world_time ? old_world_time : world_time;
         };
+
+    //send first
+    log_spec_client("sending initial stream data");
+    if (!send_multiple_rec_stream())
+    {
+        log_spec_client("lost connection to server");
+        return 0;
+    }
+    log_spec_client("initial stream data sent");
 
     while (spec_client_set_active)
     {
-        int bytes_read = _read(locals.handle, msg, MSG_BUFFER_SIZE);
-        if (bytes_read > 0 && !send_rec_stream(bytes_read))
+        if (!send_multiple_rec_stream())
         {
             log_spec_client("lost connection to server");
             return 0;
         }
-        if (bytes_read < MSG_BUFFER_SIZE)
+        unsigned int current_time = timeGetTime();
+        if (current_time - last_status_time > 5000)
         {
-            unsigned int current_time = timeGetTime();
-            if (current_time - last_status_time > 5000)
+            if (!send_game_status(GAME_STATUS_IN_PROGRESS, get_world_time()))
             {
-                if (!send_game_status(GAME_STATUS_IN_PROGRESS, get_world_time()))
-                {
-                    log_spec_client("lost connection to server");
-                    return 0;
-                }
-
-                last_status_time = current_time;
+                log_spec_client("lost connection to server");
+                return 0;
             }
-            Sleep(200);
+
+            last_status_time = current_time;
         }
+        Sleep(200);
+    }
+
+    //send remaining
+    log_spec_client("received stop request, sending remaining data");
+    if (!send_multiple_rec_stream())
+    {
+        log_spec_client("lost connection to server");
+        return 0;
     }
 
     //send game ended
@@ -492,14 +519,22 @@ unsigned int __stdcall spec_client(void* data)
 
 void __stdcall stop_spec_client()
 {
-    if (spec_client_set_active)
-    {
-        log("Logging stopped, waiting for spectator client...");
-        spec_client_set_active = false;
-        while (!spec_client_set_complete)
-            Sleep(10);
+    log("Logging stopped, waiting for spectator client...");
+    spec_client_set_active = false;
+    while (!spec_client_set_complete)
+        Sleep(10);
 
-        log("Spectator client stopped");
+    log("Spectator client stopped");
+}
+
+void __stdcall stop_spec_client_no_wait_and_stop_logging()
+{
+    TCommCommandLog* comm_log = (*comm)->mCommandLog;
+    if (spec_client_set_active && comm_log && comm_log->mLogging > 0)
+    {
+        TCommCommandLog__stopLogging(comm_log);
+        log("Game ended, requested spectator client stop");
+        spec_client_set_active = false;
     }
 }
 
@@ -507,8 +542,8 @@ int __fastcall TCommCommandLog__startLogging_spec_new(TCommCommandLog* comm_log,
 {
     UNREFERENCED_PARAMETER(dummy);
 
-    int r = TCommCommandLog__startLogging(comm_log, name);
     stop_spec_client();
+    int r = TCommCommandLog__startLogging(comm_log, name);
     if (r && extra_options.allow_spectators && TCommunications_Handler__IsHost(*comm))
     {
         spec_client_param* param = new spec_client_param;
@@ -517,9 +552,14 @@ int __fastcall TCommCommandLog__startLogging_spec_new(TCommCommandLog* comm_log,
         param->port = "53650";
 
         spec_client_set_active = true;
+        spec_client_set_complete = false;
         log("Logging, started spectator client");
         unsigned int threadID;
         _beginthreadex(NULL, 0, &spec_client, param, 0, &threadID);
+    }
+    else
+    {
+        spec_client_set_complete = true;
     }
     return r;
 }
@@ -563,6 +603,18 @@ __declspec(naked) void on_stop_logging_world_destructor() //0061B0B9
         mov     ecx, esi
         mov     eax, 0061B0C0h
         jmp     eax
+    }
+}
+
+__declspec(naked) void on_set_game_ended() //004F849F
+{
+    __asm
+    {
+        call    stop_spec_client_no_wait_and_stop_logging
+        mov     eax, 1
+        cmp     bl, 4
+        mov     ecx, 004F84A7h
+        jmp     ecx
     }
 }
 
@@ -619,5 +671,7 @@ void setSpectateHooks()
     setHook((void*)0x0042E916, on_stop_logging_init);
     setHook((void*)0x0042EF23, on_stop_logging_destructor);
     setHook((void*)0x0061B0B9, on_stop_logging_world_destructor);
+
+    setHook((void*)0x004F849F, on_set_game_ended);
 }
 #pragma optimize( "", on )
