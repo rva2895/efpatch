@@ -3,7 +3,7 @@
 #include <time.h>
 
 FILE* log_file = NULL;
-bool loggingEnabled;
+bool loggingEnabled = false;
 
 std::wstring logFileName;
 
@@ -130,10 +130,13 @@ void __cdecl log_do(bool is_internal, const char* format, va_list ap)
     SYSTEMTIME st;
     GetSystemTime(&st);
     vsnprintf(buf, _countof(buf) - 1, format, ap);
-    fprintf(log_file, "[%02d:%02d:%02d.%03d] %s %s\n",
-        st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,
-        is_internal ? "[internal]" : "[efpatch ]", buf);
-    fflush(log_file);
+    if (loggingEnabled)
+    {
+        fprintf(log_file, "[%02d:%02d:%02d.%03d] %s %s\n",
+            st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,
+            is_internal ? "[internal]" : "[efpatch ]", buf);
+        fflush(log_file);
+    }
 #ifdef _DEBUG
     strcat_s(buf, _countof(buf), "\n");
     OutputDebugString(buf);

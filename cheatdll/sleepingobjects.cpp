@@ -31,18 +31,21 @@ set_sleep:
 
 void __stdcall do_sleeping_objects_update(RGE_Player* player)
 {
-    for (int i = 0; i < player->sleeping_objects->Number_of_objects; i++)
+    if (current_loaded_version >= 9)
     {
-        RGE_Static_Object* obj = player->sleeping_objects->List[i];
-        if (obj->type == 80 && obj->object_state == 2)
+        for (int i = 0; i < player->sleeping_objects->Number_of_objects; i++)
         {
-            if (obj->vfptr->is_shielded(obj) && obj->master_obj->hp >= obj->sp)
+            RGE_Static_Object* obj = player->sleeping_objects->List[i];
+            if (obj->type == 80 && obj->object_state == 2)
             {
-                obj->vfptr->gbg_doShieldRecharge(obj);
-            }
-            else if (obj->sp > 0.0f)
-            {
-                obj->vfptr->gbg_doShieldDropoff(obj);
+                if (obj->vfptr->is_shielded(obj) && obj->master_obj->hp >= obj->sp)
+                {
+                    obj->vfptr->gbg_doShieldRecharge(obj);
+                }
+                else if (obj->sp > 0.0f)
+                {
+                    obj->vfptr->gbg_doShieldDropoff(obj);
+                }
             }
         }
     }

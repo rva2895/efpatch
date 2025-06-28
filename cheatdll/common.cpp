@@ -162,6 +162,21 @@ char* make_str_copy(const char* src)
     return s;
 }
 
+void trySetProcessDPIAware()
+{
+    BOOL (__stdcall* SetProcessDPIAware_p)();
+    SetProcessDPIAware_p = GetProcAddress(GetModuleHandle("user32.dll"), "SetProcessDPIAware");
+    if (SetProcessDPIAware_p)
+    {
+        SetProcessDPIAware_p();
+        log("SetProcessDPIAware() ok");
+    }
+    else
+    {
+        log("SetProcessDPIAware() not available");
+    }
+}
+
 unsigned int get_worldtime()
 {
     TRIBE_World* world = (*base_game)->world;

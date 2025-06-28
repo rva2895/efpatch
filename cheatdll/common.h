@@ -53,6 +53,8 @@ int __stdcall language_dll_load(UINT id, char* buf, int nmax);
 size_t strlcpy(char* dst, const char* src, size_t siz);
 char* make_str_copy(const char* src);
 
+void trySetProcessDPIAware();
+
 unsigned int get_worldtime();
 
 struct BYTE_ASSIGN

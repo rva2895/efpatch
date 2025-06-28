@@ -202,7 +202,9 @@ const char widescrnErrorMsg[] =
 
 void __stdcall delayed_start_process()
 {
-    SetProcessDPIAware();
+    trySetProcessDPIAware();
+
+    initialSetup();
 
     bool voobly_widescreen_installed = isVooblyWidescreenInstalled();
     if (voobly_widescreen_installed && cd.widescrnEnabled)
@@ -322,8 +324,6 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
         setSaveGameVerHooks(false);
         g_pVoobly->Log("Data patch is OFF");
     }
-
-    initialSetup();
 
     //wndproc for voobly
     writeDword(0x00426509, (DWORD)WndProc_dll);

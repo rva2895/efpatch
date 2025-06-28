@@ -351,10 +351,23 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
     return FALSE;
 }
 
+bool common_controls_initialized = false;
+
 #define IDD_DIALOG_CONFIG IDD_DIALOG_CONFIG_EF
 
 void __stdcall launchConfigurator(HWND hWnd)
 {
+    if (!common_controls_initialized)
+    {
+        INITCOMMONCONTROLSEX p;
+        p.dwSize = sizeof(INITCOMMONCONTROLSEX);
+        p.dwICC = ICC_LISTVIEW_CLASSES;
+
+        InitCommonControlsEx(&p);
+
+        common_controls_initialized = true;
+    }
+
     DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_CONFIG), hWnd, ConfigDlgProc);
 }
 
@@ -362,8 +375,8 @@ void __stdcall Configurator(HWND parent)
 {
 #pragma comment(linker, "/EXPORT:" __FUNCTION__"=" __FUNCDNAME__)
 
-    SetProcessDPIAware();
     initLog();
+    trySetProcessDPIAware();
     regGet(&cd);
     installPalette();
     launchConfigurator(parent);

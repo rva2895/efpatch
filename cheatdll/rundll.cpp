@@ -89,9 +89,9 @@ int WINAPI WinMain_dll(
 {
 #pragma comment(linker, "/EXPORT:" __FUNCTION__"=" __FUNCDNAME__)
 
-    SetProcessDPIAware();
-    fixCurrentDir();
     initLog();
+    trySetProcessDPIAware();
+    fixCurrentDir();
     installPalette();
     initialSetup();
 
