@@ -203,7 +203,7 @@ unsigned int __stdcall slp_optimize_thread(void* p)
             slp.load((uint8_t*)data);
             free(data);
             slp.color_replace(colors_to_replace, sizeof(colors_to_replace) / sizeof(colors_to_replace[0]) / 2);
-            PostMessage(hWndPaletteDlg, WM_USER + 2, (WPARAM)id, NULL);
+            PostMessage(hWndPaletteDlg, WM_APP_STATUS_SLP, (WPARAM)id, NULL);
             data = slp.write(&size, (id < 15000) || (id > 16000));
             g = fopen((*slp_parallel)[i].c_str(), "wb");
             fwrite(data, size, 1, g);
@@ -245,7 +245,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     CreateDirectory(filename, NULL);
     SetCurrentDirectory(filename);
     char* wparam_filename = make_str_copy(filename);
-    PostMessage(hWndPaletteDlg, WM_USER + 1, (WPARAM)wparam_filename, 0);
+    PostMessage(hWndPaletteDlg, WM_APP_STATUS_DRS, (WPARAM)wparam_filename, 0);
     log("Extracting files...");
     if (drs->extractFiles() == 0)
     {
@@ -314,7 +314,7 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     log("SLP optimize threads terminated, creating %s...", newfilename);
     //
     char* wparam_newfilename = make_str_copy(newfilename);
-    PostMessage(hWndPaletteDlg, WM_USER + 1, (WPARAM)wparam_newfilename, 1);
+    PostMessage(hWndPaletteDlg, WM_APP_STATUS_DRS, (WPARAM)wparam_newfilename, 1);
     //
     SetCurrentDirectory(getenv("temp"));
     SetCurrentDirectory(filename);
@@ -416,7 +416,7 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETRANGE, 0, MAKELPARAM(0, 0x1280));
         _beginthreadex(NULL, 0, patch_palette, NULL, 0, &palette_tid);
         return TRUE;
-    case WM_USER + 1: //status update DRS
+    case WM_APP_STATUS_DRS: //status update DRS
         switch (lParam)
         {
         case 0:
@@ -433,7 +433,7 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
         free((char*)wParam);
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
         return TRUE;
-    case WM_USER + 2: //status update SLP
+    case WM_APP_STATUS_SLP: //status update SLP
         snprintf(s, _countof(s), "Processing %d.slp...", (int)wParam);
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETPOS, slp_counter++, 0);

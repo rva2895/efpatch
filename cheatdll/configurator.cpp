@@ -296,7 +296,7 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
                 }
 
                 processIDOK(hWndDlg);
-                PostMessage(GetParent(hWndDlg), WM_APP + 1, 0, 0);
+                PostMessage(GetParent(hWndDlg), WM_APP_UPDATE_SETTINGS, 0, 0);
                 end_dialog();
                 return TRUE;
             case IDCANCEL:

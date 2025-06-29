@@ -177,7 +177,7 @@ public:
             else
             {
                 char* s = make_str_copy(f.c_str());
-                PostThreadMessage(tid, WM_APP + 1001, (WPARAM)s, priority);
+                PostThreadMessage(tid, WM_APP_ITEMCACHE_FILE, (WPARAM)s, priority);
                 id = { 0 };
             }
         }
@@ -215,7 +215,7 @@ public:
     void update(const std::string& file)
     {
         if (state_valid && (file == current_file))
-            PostMessage(hWnd_main, WM_APP + 1000, (WPARAM)wnd, 0);
+            PostMessage(hWnd_main, WM_APP_ITEMCACHE_UPDATE_BK, (WPARAM)wnd, 0);
     };
 
     bool isValid()
@@ -229,7 +229,7 @@ public:
         if (state_valid)
         {
             state_valid = false;
-            PostThreadMessage(tid, WM_APP + 1002, 0, 0);
+            PostThreadMessage(tid, WM_APP_ITEMCACHE_STOP, 0, 0);
             for (int i = 0; i < CACHE_SIZE; i++)
             {
                 //if (cache[i]->map)
@@ -374,11 +374,11 @@ unsigned int __stdcall item_cache_thread(ITEM_CACHE<T>* item_cache)
     while (true)
     {
         //check message queue
-        while (PeekMessage(&msg, nullptr, WM_APP + 1002, WM_APP + 1002, PM_REMOVE))
+        while (PeekMessage(&msg, nullptr, WM_APP_ITEMCACHE_STOP, WM_APP_ITEMCACHE_STOP, PM_REMOVE))
         {
             switch (msg.message)
             {
-            case WM_APP + 1002:    //end
+            case WM_APP_ITEMCACHE_STOP: //end
                 priority_queue.clear();
                 return 0;
                 break;
@@ -392,7 +392,7 @@ unsigned int __stdcall item_cache_thread(ITEM_CACHE<T>* item_cache)
             //process messages if available
             switch (msg.message)
             {
-            case WM_APP + 1001:    //file
+            case WM_APP_ITEMCACHE_FILE: //file
             {
                 int i = 0;
                 std::string file((char*)msg.wParam);
@@ -408,7 +408,7 @@ unsigned int __stdcall item_cache_thread(ITEM_CACHE<T>* item_cache)
                 free((void*)msg.wParam);
                 break;
             }
-            case WM_APP + 1002:    //end
+            case WM_APP_ITEMCACHE_STOP: //end
                 priority_queue.clear();
                 return 0;
                 break;

@@ -36,6 +36,15 @@
 #define efpatch_atexit(p) noop
 #endif
 
+#define WM_APP_STATUS_DRS           (WM_APP + 1)
+#define WM_APP_STATUS_SLP           (WM_APP + 2)
+#define WM_APP_STATUS_PROGRESS      (WM_APP + 3)
+#define WM_APP_STATUS_CURRENT_FILE  (WM_APP + 4)
+#define WM_APP_UPDATE_SETTINGS      (WM_APP + 5)
+#define WM_APP_ITEMCACHE_FILE       (WM_APP + 6)
+#define WM_APP_ITEMCACHE_STOP       (WM_APP + 7)
+#define WM_APP_ITEMCACHE_UPDATE_BK  (WM_APP + 8)
+
 void __cdecl writeByte(DWORD addr, BYTE val);
 void __cdecl writeWord(DWORD addr, WORD val);
 void __cdecl writeDword(DWORD addr, DWORD val);

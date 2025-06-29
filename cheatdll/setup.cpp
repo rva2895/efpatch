@@ -95,7 +95,7 @@ bool archive_extract(unzFile z_file, const char* dest_dir, void* buf)
             return false;
 
         char* wParam = make_str_copy(filename_inzip);
-        PostMessage(hWndAssetsDlg, WM_USER + 3, (WPARAM)wParam, 0);
+        PostMessage(hWndAssetsDlg, WM_APP_STATUS_CURRENT_FILE, (WPARAM)wParam, 0);
 
         int size;
 
@@ -113,7 +113,7 @@ bool archive_extract(unzFile z_file, const char* dest_dir, void* buf)
                 size_written += size;
                 write_counter++;
                 if (write_counter % 256 == 0)
-                    PostMessage(hWndAssetsDlg, WM_USER + 2, (int)((float)size_written / uncompressed_size_total * 100.0f), 0);
+                    PostMessage(hWndAssetsDlg, WM_APP_STATUS_PROGRESS, (int)((float)size_written / uncompressed_size_total * 100.0f), 0);
             }
 
         } while (size > 0);
@@ -246,10 +246,10 @@ BOOL CALLBACK AssetsDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETRANGE, 0, MAKELPARAM(0, 100));
         _beginthreadex(NULL, 0, patch_assets, NULL, 0, &assets_tid);
         return TRUE;
-    case WM_USER + 2: //status set progress
+    case WM_APP_STATUS_PROGRESS: //status set progress
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETPOS, wParam, 0);
         return TRUE;
-    case WM_USER + 3: //status set current file
+    case WM_APP_STATUS_CURRENT_FILE: //status set current file
         snprintf(s, _countof(s), "Extracting %s...", (char*)wParam);
         free((char*)wParam);
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);

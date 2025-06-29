@@ -306,7 +306,7 @@ int CALLBACK WndProc_dll(HWND hWnd,
             editorstatus_isValid = false;
         }
     }
-    if (msg == WM_APP + 1000) //updatebk
+    if (msg == WM_APP_ITEMCACHE_UPDATE_BK) //updatebk
     {
         update_load_save_game_panel((TPanel*)wParam);
     }

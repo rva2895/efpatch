@@ -12,7 +12,7 @@ BOOL CALLBACK VersionSelectDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LP
     UNREFERENCED_PARAMETER(lParam);
     switch (message)
     {
-    case WM_APP + 1: //update settings
+    case WM_APP_UPDATE_SETTINGS: //update settings
         if (cd.gameVersion == VER_CC)
         {
             CheckDlgButton(hWndDlg, IDC_RADIO_X1, BST_CHECKED);
