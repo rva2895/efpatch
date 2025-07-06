@@ -335,43 +335,6 @@ enter_drop_resources:
     }
 }
 
-bool __fastcall TRIBE_Building_Object__gbg_is_regenerating_bldg_new(TRIBE_Building_Object* obj)
-{
-    switch (obj->master_obj->id)
-    {
-    case 68:    //food proc cntr
-    case 319:   //animal nursery
-    case 562:   //carbon proc cntr
-    case 323:   //nova proc cntr
-    case 584:   //ore proc cntr
-    case 87:    //troop cntr
-    case 101:   //mech factory
-    case 45:    //shipyard
-    case 104:   //jedi temple
-    case 49:    //hvy wep factory
-    case 317:   //airbase
-    case 82:    //fortress
-    case 103:   //war center
-    case 209:   //research center
-    case 84:    //spaceport
-    case 530:   //tatooine spaceport
-    case 598:   //sentry post
-    case 70:    //prefab shelter
-    case 79:    //light turret
-    case 234:   //medium turret
-    case 235:   //adv turret
-    case 236:   //aa turret
-    case 196:   //adv aa turret
-    case 1001:  //underwater prefab shelter
-    case 335:   //shield generator
-    case 109:   //command center
-    case HARBOR_ID_COMPLETE:
-        return true;
-    default:
-        return false;
-    }
-}
-
 #pragma optimize( "s", on )
 void setHarborHooks()
 {
@@ -411,7 +374,5 @@ void setHarborHooks()
     setHook((void*)0x0055F198, harbor_back_to_work_4);
 
     setHook((void*)0x0040375F, harbor_drop_off_on_enter);
-
-    setHook((void*)0x00554F70, TRIBE_Building_Object__gbg_is_regenerating_bldg_new);
 }
 #pragma optimize( "", on )
