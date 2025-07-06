@@ -602,6 +602,33 @@ void __fastcall RGE_Object_List__removeAllObjects_new(RGE_Object_List* ol)
     ol->next_node = NULL;
 }
 
+__declspec(naked) void on_game_id_of_resource_object() //00586F15
+{
+    __asm
+    {
+        cmp     edx, 3
+        ja      bad_rtype
+        mov     eax, [edi + edx * 4 + 1F34h]
+        mov     ecx, 00586F1Ch
+        jmp     ecx
+
+bad_rtype:
+        mov     ecx, 0058745Ah
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void on_stop_sound_system_sound_num() //00427AD4
+{
+    __asm
+    {
+        mov     dword ptr [esi + 8Ch], 0
+        mov     word ptr [esi + 88h], 0
+        mov     eax, 00427ADEh
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks(int ver)
 {
@@ -756,5 +783,11 @@ void setMiscBugfixHooks(int ver)
 
     //object list memory leak
     setHook((void*)0x004AEA70, RGE_Object_List__removeAllObjects_new);
+
+    //game id of resource object bad rtype
+    setHook((void*)0x00586F15, on_game_id_of_resource_object);
+
+    //sound crash on host migration
+    setHook((void*)0x00427AD4, on_stop_sound_system_sound_num);
 }
 #pragma optimize( "", on )
