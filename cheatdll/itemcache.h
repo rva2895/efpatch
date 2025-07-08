@@ -152,7 +152,9 @@ public:
         }
         //init cache thread
         worker_thread_event = CreateEvent(NULL, FALSE, FALSE, 0);
-        _beginthreadex(NULL, 0, (_beginthreadex_proc_type)cache_thread, this, 0, &tid);
+        HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, (unsigned int (__stdcall*)(void*))cache_thread, this, 0, &tid);
+        if (hThread)
+            CloseHandle(hThread);
         WaitForSingleObject(worker_thread_event, INFINITE);
         CloseHandle(worker_thread_event);
         state_valid = true;

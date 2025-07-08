@@ -241,7 +241,9 @@ unsigned __stdcall spec_server(void* data)
     while ((client_socket = accept(ListenSocket, NULL, NULL)))
     {
         unsigned threadID;
-        HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, &client_session, (void*)client_socket, 0, &threadID);
+        HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, client_session, (void*)client_socket, 0, &threadID);
+        if (hThread)
+            CloseHandle(hThread);
     }
 
     closesocket(ListenSocket);
@@ -555,7 +557,9 @@ int __fastcall TCommCommandLog__startLogging_spec_new(TCommCommandLog* comm_log,
         spec_client_set_complete = false;
         log("Logging, started spectator client");
         unsigned int threadID;
-        _beginthreadex(NULL, 0, &spec_client, param, 0, &threadID);
+        HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, spec_client, param, 0, &threadID);
+        if (hThread)
+            CloseHandle(hThread);
     }
     else
     {

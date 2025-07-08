@@ -292,7 +292,9 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     {
         slp_optimize_event[i] = CreateEvent(NULL, TRUE, FALSE, NULL);
         unsigned int slp_tid;
-        _beginthreadex(NULL, 0, slp_optimize_thread, (void*)i, 0, &slp_tid);
+        HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, slp_optimize_thread, (void*)i, 0, &slp_tid);
+        if (hThread)
+            CloseHandle(hThread);
     }
     WaitForMultipleObjects(nProc, slp_optimize_event, TRUE, INFINITE);
     for (int i = 0; i < nProc; i++)
@@ -404,6 +406,7 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
     char s[0x100];
     char* st;
     unsigned int palette_tid;
+    HANDLE hThread;
     switch (message)
     {
     case WM_CLOSE:
@@ -414,7 +417,9 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
         hWndPaletteDlg = hWndDlg;
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, "Ready");
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETRANGE, 0, MAKELPARAM(0, 0x1280));
-        _beginthreadex(NULL, 0, patch_palette, NULL, 0, &palette_tid);
+        hThread = (HANDLE)_beginthreadex(NULL, 0, patch_palette, NULL, 0, &palette_tid);
+        if (hThread)
+            CloseHandle(hThread);
         return TRUE;
     case WM_APP_STATUS_DRS: //status update DRS
         switch (lParam)

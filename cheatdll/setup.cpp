@@ -235,6 +235,7 @@ BOOL CALLBACK AssetsDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 {
     char s[0x100];
     unsigned int assets_tid;
+    HANDLE hThread;
     switch (message)
     {
     case WM_CLOSE:
@@ -244,7 +245,9 @@ BOOL CALLBACK AssetsDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
         hWndAssetsDlg = hWndDlg;
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, "Setting up assets...");
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETRANGE, 0, MAKELPARAM(0, 100));
-        _beginthreadex(NULL, 0, patch_assets, NULL, 0, &assets_tid);
+        hThread = (HANDLE)_beginthreadex(NULL, 0, patch_assets, NULL, 0, &assets_tid);
+        if (hThread)
+            CloseHandle(hThread);
         return TRUE;
     case WM_APP_STATUS_PROGRESS: //status set progress
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETPOS, wParam, 0);

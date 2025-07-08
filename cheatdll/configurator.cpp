@@ -179,7 +179,7 @@ void processDefaults(HWND hWnd)
 
 std::vector<std::string> display_modes;
 
-void __cdecl screen_settings_enumerator(void* param)
+unsigned int __stdcall screen_settings_enumerator(void* param)
 {
     UNREFERENCED_PARAMETER(param);
 
@@ -204,11 +204,16 @@ void __cdecl screen_settings_enumerator(void* param)
         }
 
     SetEvent(display_modes_enumerated_event);
+
+    return 0;
 }
 
 BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
+
+    HANDLE hThread;
+    unsigned int tid;
 
     auto add_dropdown_str = [&hWndDlg](int item, const char* str)
         {
@@ -250,7 +255,9 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 
         display_modes_enumerated = false;
         display_modes_enumerated_event = CreateEvent(NULL, FALSE, FALSE, 0);
-        _beginthread(screen_settings_enumerator, 0, NULL);
+        hThread = (HANDLE)_beginthreadex(NULL, 0, screen_settings_enumerator, NULL, 0, &tid);
+        if (hThread)
+            CloseHandle(hThread);
         return TRUE;
     case WM_COMMAND:
         if (HIWORD(wParam) == BN_CLICKED)
