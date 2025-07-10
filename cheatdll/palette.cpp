@@ -257,36 +257,36 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     delete drs;
 
     log("Scanning folder...");
-    //
-    int nSLPInFolder = 0;
-    //
+
     slp_parallel = new std::vector<std::string>;
-    WIN32_FIND_DATA fd;
-    HANDLE hFile = FindFirstFile("*.slp", &fd);
-    if (hFile != INVALID_HANDLE_VALUE)
+
+    struct palette_slp_callback_param
     {
-        do
+        int nSLPInFolder;
+        std::vector<std::string>* slp_parallel;
+    } param;
+    param.nSLPInFolder = 0;
+    param.slp_parallel = slp_parallel;
+
+    auto palette_slp_callback = [](const char* filename, void* param)
         {
-            char* s = fd.cFileName;
+            palette_slp_callback_param* p = (palette_slp_callback_param*)param;
+            const char* s = filename;
             if (s[0] == '"')
                 s++;
             int id;
             sscanf_s(s, "%d", &id);
-            switch (id)
+            if (id != 50230)
             {
-            case 50230:
-                continue;
-            default:
-                break;
+                std::string str(filename);
+                p->slp_parallel->push_back(str);
+                p->nSLPInFolder++;
             }
-            std::string str(fd.cFileName);
-            slp_parallel->push_back(str);        
-            nSLPInFolder++;
-        } while (FindNextFile(hFile, &fd));
-        FindClose(hFile);
-    }
+        };
 
-    log("Found %d SLPs, starting %d SLP optimize threads...", nSLPInFolder, nProc);
+    findfirst_callback("*.slp", palette_slp_callback, &param);
+
+    log("Found %d SLPs, starting %d SLP optimize threads...", param.nSLPInFolder, nProc);
     
     for (int i = 0; i < nProc; i++)
     {
@@ -321,18 +321,22 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     SetCurrentDirectory(getenv("temp"));
     SetCurrentDirectory(filename);
     //log("DRS header set up, adding files...");
-    hFile = FindFirstFile("*.*", &fd);
-    std::vector<std::string> files;
-    //
-    int nDrsFiles = 0;
-    //
-    if (hFile != INVALID_HANDLE_VALUE)
+
+    struct palette_drs_callback_param
     {
-        do
+        std::vector<std::string> files;
+        int nDrsFiles;
+        DRS* drs;
+    } param_drs;
+    param_drs.nDrsFiles = 0;
+    param_drs.drs = drs;
+
+    auto palette_drs_callback = [](const char* filename, void* param)
         {
+            palette_drs_callback_param* p = (palette_drs_callback_param*)param;
             unsigned long table;
-            char* s = fd.cFileName + strlen(fd.cFileName) - 3;
-            if (fd.cFileName[strlen(fd.cFileName - 1)] == '"')
+            const char* s = filename + strlen(filename) - 3;
+            if (filename[strlen(filename - 1)] == '"')
                 s--;
             if (!strncmp(s, "slp", 3))
                 table = 0x736C7020;
@@ -341,35 +345,38 @@ void patch_drs_palette(const char* filename, const char* main_dir)
             else if (!strncmp(s, "wav", 3))
                 table = 0x77617620;
             else
-                continue;
-            std::string str(fd.cFileName);
-            files.push_back(str);
-            s = fd.cFileName;
-            if (s[0] == '"')
-                s++;
-            int id;
-            sscanf_s(s, "%d", &id);
-            FILE* g = fopen(fd.cFileName, "rb");
-            fseek(g, 0, SEEK_END);
-            int size = ftell(g);
-            fseek(g, 0, SEEK_SET);
-            void* data = malloc(size);
-            fread(data, size, 1, g);
-            fclose(g);
-            drs->addFile(data, size, id, table);
-            free(data);
-            nDrsFiles++;
+                table = 0;
+            if (table != 0)
+            {
+                std::string str(filename);
+                p->files.push_back(str);
+                s = filename;
+                if (s[0] == '"')
+                    s++;
+                int id;
+                sscanf_s(s, "%d", &id);
+                FILE* g = fopen(filename, "rb");
+                fseek(g, 0, SEEK_END);
+                int size = ftell(g);
+                fseek(g, 0, SEEK_SET);
+                void* data = malloc(size);
+                fread(data, size, 1, g);
+                fclose(g);
+                p->drs->addFile(data, size, id, table);
+                free(data);
+                p->nDrsFiles++;
+            }
+        };
 
-        } while (FindNextFile(hFile, &fd));
-        FindClose(hFile);
-    }
-    for (auto i = files.begin(); i != files.end(); ++i)
+    findfirst_callback("*.*", palette_drs_callback, &param_drs);
+
+    for (auto i = param_drs.files.begin(); i != param_drs.files.end(); ++i)
         DeleteFile((*i).c_str());
     SetCurrentDirectory(getenv("temp"));
     RemoveDirectory(filename);
     SetCurrentDirectory(main_dir);
     SetCurrentDirectory(DATA_FOLDER_PREFIX_FROM_ROOT);
-    log("Added %d files to DRS, writing...", nDrsFiles);
+    log("Added %d files to DRS, writing...", param_drs.nDrsFiles);
     if (!drs->writeDRS())
     {
         snprintf(err, _countof(err), "Cannot create DRS file.\nMake sure there is at least 500 MB free in Game folder, and you have write permissions");

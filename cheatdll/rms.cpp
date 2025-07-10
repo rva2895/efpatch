@@ -36,30 +36,18 @@ void list_rms_files()
 {
     log("Listing RMS files...");
 
-    if (!rms_files.empty())
-        rms_files.clear();
+    rms_files.clear();
 
-    WIN32_FIND_DATA fd;
-    HANDLE hFile = FindFirstFile("random\\*.rms", &fd);
-    if (hFile == INVALID_HANDLE_VALUE)
-    {
-        log("FindFirstFile returned INVALID_HANDLE_VALUE");
-    }
-    else
-    {
-        do
+    auto rms_file_callback = [](const char* filename, void* param)
         {
-            std::string filename(fd.cFileName);
-            filename.erase(filename.length() - 4);
-            rms_files.push_back(filename);
-        } while (FindNextFile(hFile, &fd));
-        DWORD err = GetLastError();
-        if (err != ERROR_NO_MORE_FILES)
-            log("WARNING: FindNextFile(): unrecognised error %u", err);
-        else
-            log("Finished listing files");
-        FindClose(hFile);
-    }
+            UNREFERENCED_PARAMETER(param);
+            std::string filename_str(filename);
+            filename_str.erase(filename_str.length() - 4);
+            rms_files.push_back(filename_str);
+        };
+
+    findfirst_callback("random\\*.rms", rms_file_callback, NULL);
+
     log("Found %zu RMS files", rms_files.size());
 }
 

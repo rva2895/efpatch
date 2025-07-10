@@ -88,6 +88,11 @@ void __stdcall load_ids_from_txt(
 
 bool __stdcall is_id_in_list(__int16 id, __int16* list, int n);
 
+void __stdcall findfirst_callback(
+    const char* filename,
+    void (__cdecl* callback)(const char* filename, void* param),
+    void* param);
+
 extern RGE_Base_Game** const base_game;
 extern TPanelSystem* const panel_system;
 extern int* const world_update_counter;

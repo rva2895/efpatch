@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "loadfilelist.h"
-#include <io.h>
 
 int loadfilelist_version;
 
@@ -103,25 +102,35 @@ void __stdcall sed_open_action_2(TRIBE_Screen_Sed_Open* sed_open)
         TEasy_Panel__popupOKDialog2((TEasy_Panel*)sed_open, 9423, 0, 450, 100, 1);
 }
 
+struct fillList_callback_param
+{
+    TTextPanel* list;
+    int n;
+    bool exclude;
+};
+
+void __cdecl fillList_callback(const char* filename, void* param)
+{
+    fillList_callback_param* p = (fillList_callback_param*)param;
+    size_t len = strlen(filename) + 1;
+    char Filename[MAX_PATH];
+    strncpy(Filename, filename, len - 5);
+    Filename[len - 5] = '\0';
+    if (!p->exclude || strcmp(Filename, "gencomb") && strncmp(Filename, "default", 7u))
+        TTextPanel__append_line(p->list, Filename, p->n, NULL);
+}
+
 void __fastcall TRIBE_Screen_Sed_Open__fillList_new(TRIBE_Screen_Sed_Open* sed_open) //0053FC50
 {
     auto sed_open_fill_list = [](TRIBE_Screen_Sed_Open* sed_open, const char* s, int n)
         {
             char Filename[MAX_PATH];
             snprintf(Filename, _countof(Filename), s, (*base_game)->prog_info->scenario_dir);
-            _finddata_t fileinfo;
-            intptr_t fd = _findfirst(Filename, &fileinfo);
-            if (fd != -1)
-            {
-                do
-                {
-                    size_t len = strlen(fileinfo.name) + 1;
-                    strncpy(Filename, fileinfo.name, len - 5);
-                    Filename[len - 5] = '\0';
-                    TTextPanel__append_line((TTextPanel*)sed_open->list, Filename, n, NULL);
-                } while (_findnext(fd, &fileinfo) != -1);
-                _findclose(fd);
-            }
+            fillList_callback_param param;
+            param.list = (TTextPanel*)sed_open->list;
+            param.n = n;
+            param.exclude = false;
+            findfirst_callback(Filename, fillList_callback, &param);
         };
 
     TTextPanel__empty_list((TTextPanel*)sed_open->list);
@@ -140,19 +149,11 @@ void __fastcall TribeSaveGameScreen__fillList_new(TribeSaveGameScreen* savegames
         {
             char Filename[MAX_PATH];
             snprintf(Filename, _countof(Filename), s, dir);
-            _finddata_t fileinfo;
-            intptr_t fd = _findfirst(Filename, &fileinfo);
-            if (fd != -1)
-            {
-                do
-                {
-                    size_t len = strlen(fileinfo.name) + 1;
-                    strncpy(Filename, fileinfo.name, len - 5);
-                    Filename[len - 5] = '\0';
-                    TTextPanel__append_line((TTextPanel*)savegamescreen->list, Filename, n, NULL);
-                } while (_findnext(fd, &fileinfo) != -1);
-                _findclose(fd);
-            }
+            fillList_callback_param param;
+            param.list = (TTextPanel*)savegamescreen->list;
+            param.n = n;
+            param.exclude = false;
+            findfirst_callback(Filename, fillList_callback, &param);
         };
 
     TTextPanel__empty_list((TTextPanel*)savegamescreen->list);
@@ -181,20 +182,11 @@ void __fastcall TribeSelectScenarioScreen__fillScenarios_new(TribeSelectScenario
         {
             char Filename[MAX_PATH];
             snprintf(Filename, _countof(Filename), s, (*base_game)->prog_info->scenario_dir);
-            _finddata_t fileinfo;
-            intptr_t fd = _findfirst(Filename, &fileinfo);
-            if (fd != -1)
-            {
-                do
-                {
-                    size_t len = strlen(fileinfo.name) + 1;
-                    strncpy(Filename, fileinfo.name, len - 5);
-                    Filename[len - 5] = '\0';
-                    if (strcmp(Filename, "gencomb") && strncmp(Filename, "default", 7u))
-                        TTextPanel__append_line((TTextPanel*)sel_scen->scenarioList, Filename, n, NULL);
-                } while (_findnext(fd, &fileinfo) != -1);
-                _findclose(fd);
-            }
+            fillList_callback_param param;
+            param.list = (TTextPanel*)sel_scen->scenarioList;
+            param.n = n;
+            param.exclude = true;
+            findfirst_callback(Filename, fillList_callback, &param);
         };
 
     TTextPanel__empty_list((TTextPanel*)sel_scen->scenarioList);
@@ -205,6 +197,34 @@ void __fastcall TribeSelectScenarioScreen__fillScenarios_new(TribeSelectScenario
 
     sel_scen_fill_list(sel_scen, "%s*.sc1", 1);
     sel_scen_fill_list(sel_scen, "%s*.scx", 0);
+}
+
+void __fastcall TribeLoadSavedGameScreen__fillList_new(TribeLoadSavedGameScreen* loadsavedgamescreen) //0050A880
+{
+    auto loadsavedgamescreen_fill_list = [](TribeLoadSavedGameScreen* loadsavedgamescreen, const char* s, const char* dir, int n)
+        {
+            char Filename[MAX_PATH];
+            snprintf(Filename, _countof(Filename), s, dir);
+            fillList_callback_param param;
+            param.list = (TTextPanel*)loadsavedgamescreen->list;
+            param.n = n;
+            param.exclude = false;
+            findfirst_callback(Filename, fillList_callback, &param);
+        };
+
+    TTextPanel__empty_list((TTextPanel*)loadsavedgamescreen->list);
+    loadsavedgamescreen->list->sorted = 1;
+
+    if (loadfilelist_version == VER_EF)
+    {
+        loadsavedgamescreen_fill_list(loadsavedgamescreen, "%s*.ga2", (*base_game)->prog_info->save_dir, 0);
+        loadsavedgamescreen_fill_list(loadsavedgamescreen, "%s*.mg2", (*base_game)->prog_info->save_dir, 1);
+    }
+    else
+    {
+        loadsavedgamescreen_fill_list(loadsavedgamescreen, "%s*.ga1", (*base_game)->prog_info->save_dir, 0);
+        loadsavedgamescreen_fill_list(loadsavedgamescreen, "%s*.mg1", (*base_game)->prog_info->save_dir, 1);
+    }
 }
 
 __declspec(naked) void sed_open_action_1_wr() //0053FE51
@@ -407,6 +427,64 @@ __declspec(naked) void scenario_create_game_wr() //005ECBCE
     }
 }
 
+void __stdcall set_autosave_name(RGE_Game_World* world)
+{
+    strlcpy(world->auto_save_name, "autosave.ga1", 100);
+    if (loadfilelist_version == VER_EF)
+        world->auto_save_name[11] = '2';
+}
+
+__declspec(naked) void autosave_load_game() //0061DA0D
+{
+    __asm
+    {
+        push    ebp
+        call    set_autosave_name
+        mov     ecx, 0061DA9Dh
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void autosave_new_game() //0061E4A1
+{
+    __asm
+    {
+        push    ebp
+        call    set_autosave_name
+        mov     ecx, 0061E531h
+        jmp     ecx
+    }
+}
+
+void __stdcall loadsavedgamescreen_action(TribeLoadSavedGameScreen* loadsavedgamescreen, int n, const char* name)
+{
+    const char* ext;
+    char Filename[MAX_PATH];
+    if (n == 1)
+        ext = loadfilelist_version == VER_EF ? ".mg2" : ".mg1";
+    else
+        ext = loadfilelist_version == VER_EF ? ".ga2" : ".ga1";
+    snprintf(Filename, _countof(Filename), "%s%s%s", (*base_game)->prog_info->save_dir, name, ext);
+    if (file_exists(Filename))
+        snprintf(Filename, _countof(Filename), "%s%s", name, ext);
+    if (!TRIBE_Game__load_game((TRIBE_Game*)*base_game, Filename, n == 1 ? 3 : 0))
+        TEasy_Panel__popupOKDialog2((TEasy_Panel*)loadsavedgamescreen, 9473, 0, 450, 100, 1);
+}
+
+__declspec(naked) void loadsavedgamescreen_action_wr() //0050AC8F
+{
+    __asm
+    {
+        lea     ecx, [esp + 114h]
+        push    ecx
+        push    eax
+        push    ebx
+        call    loadsavedgamescreen_action
+        mov     eax, 0050AD91h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setLoadFileListHooks(int version)
 {
@@ -415,8 +493,10 @@ void setLoadFileListHooks(int version)
     setHook((void*)0x0053FE51, sed_open_action_1_wr);
     setHook((void*)0x00528E2C, savegamescreen_action_1_wr);
     setHook((void*)0x0053FFE1, sed_open_action_2_wr);
+    setHook((void*)0x0050AC8F, loadsavedgamescreen_action_wr);
     setHook((void*)0x0053FC50, TRIBE_Screen_Sed_Open__fillList_new);
     setHook((void*)0x00528BF0, TribeSaveGameScreen__fillList_new);
+    setHook((void*)0x0050A880, TribeLoadSavedGameScreen__fillList_new);
     setHook((void*)0x00540B70, TribeSelectScenarioScreen__fillScenarios_new);
     setHook((void*)0x00517E42, scenario_checksum_1_wr);
     setHook((void*)0x0051DA7A, scenario_checksum_2_wr);
@@ -426,5 +506,9 @@ void setLoadFileListHooks(int version)
     setHook((void*)0x005EC3D2, scenario_info_1_wr);
     setHook((void*)0x0051D69B, scenario_info_2_wr);
     setHook((void*)0x005ECBCE, scenario_create_game_wr);
+
+    //remove autosave count
+    setHook((void*)0x0061DA0D, autosave_load_game);
+    setHook((void*)0x0061E4A1, autosave_new_game);
 }
 #pragma optimize( "", on )

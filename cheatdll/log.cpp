@@ -9,63 +9,44 @@ std::wstring logFileName;
 
 void deleteOldLogs()
 {
-    char filename[MAX_PATH+5];
-
-    time_t rawtime_current = time(NULL);
-    time_t rawtime_old;
-
-    tm time_old;
-    memset(&time_old, 0, sizeof(tm));
-
-    int nFiles = 0;
-#ifdef _DEBUG
-    log("Looking for old logs...");
-#endif
-    WIN32_FIND_DATA fd;
-    HANDLE hFile = FindFirstFile("logs\\efpatch*.log", &fd);
-    //int xxxx = GetLastError ();
-    if (hFile == INVALID_HANDLE_VALUE)
+    struct delete_logs_callback_param
     {
-        log("FindFirstFile returned INVALID_HANDLE_VALUE");
-    }
-    else
-    {
-        do
+        int nFiles;
+        time_t rawtime_current;
+    } param;
+    param.nFiles = 0;
+    param.rawtime_current = time(NULL);
+
+    auto delete_logs_callback = [](const char* filename, void* param)
         {
-            sscanf_s(fd.cFileName, "efpatch_%d-%d-%d_%d-%d-%d.log",
+            delete_logs_callback_param* p = (delete_logs_callback_param*)param;
+            tm time_old;
+            memset(&time_old, 0, sizeof(tm));
+            sscanf_s(filename, "efpatch_%d-%d-%d_%d-%d-%d.log",
                 &time_old.tm_year, &time_old.tm_mon, &time_old.tm_mday,
                 &time_old.tm_hour, &time_old.tm_min, &time_old.tm_sec);
             time_old.tm_year -= 1900;
             time_old.tm_mon -= 1;
 
-            rawtime_old = mktime(&time_old);
-
-            if (difftime(rawtime_current, rawtime_old) > 604800) //1 week
+            time_t rawtime_old = mktime(&time_old);
+            if (difftime(p->rawtime_current, rawtime_old) > 604800) //1 week
             {
-                snprintf(filename, _countof(filename), "logs\\%s", fd.cFileName);
-                if (!DeleteFile(filename))
+                char filename_with_path[MAX_PATH];
+                snprintf(filename_with_path, _countof(filename_with_path), "logs\\%s", filename);
+                if (!DeleteFile(filename_with_path))
                 {
-                    log("ERROR: Cannot delete %s, error %d", fd.cFileName, GetLastError());
+                    log("Error: cannot delete %s", filename);
                 }
                 else
                 {
-#ifdef _DEBUG
-                    log("Deleted %s", fd.cFileName);
-#endif
-                    nFiles++;
+                    p->nFiles++;
                 }
             }
-        } while (FindNextFile(hFile, &fd));
-        int err = GetLastError();
-        if (err != ERROR_NO_MORE_FILES)
-            log("WARNING: FindNextFile(): unrecognised error %d", err);
-#ifdef _DEBUG
-        else
-            log("Finished listing files");
-#endif
-        FindClose(hFile);
-    }
-    log("Deleted %d logs", nFiles);
+        };
+
+    findfirst_callback("logs\\efpatch*.log", delete_logs_callback, &param);
+
+    log("Deleted %d logs", param.nFiles);
 }
 
 BOOL DirectoryExistsW(LPCWSTR szPath)

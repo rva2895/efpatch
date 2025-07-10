@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "common.h"
+#include <io.h>
 
 RGE_Base_Game** const base_game = (RGE_Base_Game** const)0x006A3684;
 TPanelSystem* const panel_system = (TPanelSystem* const)0x006ADBB8;
@@ -282,6 +283,23 @@ bool __stdcall is_id_in_list(__int16 id, __int16* list, int n)
         if (id == list[i])
             return true;
     return false;
+}
+
+void __stdcall findfirst_callback(
+    const char* filename,
+    void (__cdecl* callback)(const char* filename, void* param),
+    void* param)
+{
+    _finddata_t fileinfo;
+    intptr_t fd = _findfirst(filename, &fileinfo);
+    if (fd != -1)
+    {
+        do
+        {
+            callback(fileinfo.name, param);
+        } while (_findnext(fd, &fileinfo) != -1);
+        _findclose(fd);
+    }
 }
 
 void* (__cdecl* const calloc_internal)(size_t number, size_t size) =
