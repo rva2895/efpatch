@@ -485,6 +485,188 @@ __declspec(naked) void loadsavedgamescreen_action_wr() //0050AC8F
     }
 }
 
+bool test_campaign_filename(const char* str)
+{
+    return strlen(str) != 5
+        || (strnicmp(str, "xcam", 4)
+            && strnicmp(str, "1cam", 4)
+            && strnicmp(str, "ecam", 4)
+            && strnicmp(str, "2cam", 4));
+}
+
+void __fastcall TRIBE_Screen_Campaign_Selection__fillCampaigns_new(TRIBE_Screen_Campaign_Selection* camselscreen) //004F17B0
+{
+    TTextPanel__empty_list((TTextPanel*)camselscreen->campaignList);
+    char** campaign_list;
+    int current_campaign;
+    int campaign_num = RGE_Game_Info__get_campaign_list((*base_game)->player_game_info, &campaign_list, &current_campaign);
+    if (campaign_num > 0)
+    {
+        camselscreen->campaignList->sorted = 1;
+        for (int i = 0; i < campaign_num; i++)
+            if (test_campaign_filename(campaign_list[i]))
+                TTextPanel__append_line((TTextPanel*)camselscreen->campaignList, campaign_list[i], i, 0);
+
+        TTextPanel__set_line((TTextPanel*)camselscreen->campaignList, TTextPanel__get_line2((TTextPanel*)camselscreen->campaignList, current_campaign));
+        for (int i = 0; i < campaign_num; i++)
+            free_internal(campaign_list[i]);
+        free_internal(campaign_list);
+        if (TTextPanel__get_line((TTextPanel*)camselscreen->campaignList) != -1)
+            RGE_Game_Info__set_current_campaign((*base_game)->player_game_info, TTextPanel__get_id((TTextPanel*)camselscreen->campaignList));
+    }
+}
+
+void __fastcall TRIBE_Campaign_Editor_Screen__fill_campaign_drop_new(TRIBE_Campaign_Editor_Screen* cameditscreen) //004EFB70
+{
+    char Dest[MAX_PATH];
+
+    TDropDownPanel__set_sorted(cameditscreen->filename_drop, 1);
+    TDropDownPanel__empty_list(cameditscreen->filename_drop);
+
+    struct campaign_editor_fill_callback_param
+    {
+        TDropDownPanel* dropdown;
+    } param;
+
+    auto campaign_editor_fill_callback = [](const char* filename, void* param)
+        {
+            campaign_editor_fill_callback_param* p = (campaign_editor_fill_callback_param*)param;
+            size_t len = strlen(filename) + 1;
+            char Filename[MAX_PATH];
+            strncpy(Filename, filename, len - 5);
+            Filename[len - 5] = '\0';
+
+            if (test_campaign_filename(Filename))
+            {
+                TDropDownPanel__append_line(p->dropdown, Filename, 0);
+            }
+        };
+
+    param.dropdown = cameditscreen->filename_drop;
+
+    snprintf(Dest, _countof(Dest), "%s*.cp1", (*base_game)->prog_info->campaign_dir);
+    findfirst_callback(Dest, campaign_editor_fill_callback, &param);
+
+    snprintf(Dest, _countof(Dest), "%s*.cpx", (*base_game)->prog_info->campaign_dir);
+    findfirst_callback(Dest, campaign_editor_fill_callback, &param);
+
+    TPanel__set_curr_child((TPanel*)cameditscreen->filename_drop, (TPanel*)cameditscreen->filename);
+    TPanel__set_curr_child((TPanel*)cameditscreen, (TPanel*)cameditscreen->filename_drop);
+    TPanel__set_curr_child((TPanel*)cameditscreen, (TPanel*)cameditscreen->cancel_button);
+}
+
+int __stdcall campaign_editor_check_campaign_filename(const char* str)
+{
+    return test_campaign_filename(str);
+}
+
+__declspec(naked) void campaign_editor_load_campaign_wr() //004EFF27
+{
+    __asm
+    {
+        push    eax
+        call    campaign_editor_check_campaign_filename
+        mov     ecx, 004EFF93h
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void campaign_editor_make_campaign_wr() //004F039F
+{
+    __asm
+    {
+        push    eax
+        call    campaign_editor_check_campaign_filename
+        mov     ecx, 004F040Bh
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void campaign_editor_action_1_wr() //004F098D
+{
+    __asm
+    {
+        push    eax
+        call    campaign_editor_check_campaign_filename
+        mov     ecx, 004F09F9h
+        jmp     ecx
+    }
+}
+
+__declspec(naked) void campaign_editor_action_2_wr() //004F0AF0
+{
+    __asm
+    {
+        push    eax
+        call    campaign_editor_check_campaign_filename
+        mov     ecx, 004F0B6Fh
+        jmp     ecx
+    }
+}
+
+void __fastcall TRIBE_Campaign_Editor_Screen__fill_scenario_list_new(TRIBE_Campaign_Editor_Screen* cameditscreen) //004EFD80
+{
+    auto cameditscreen_fill_list = [](TRIBE_Campaign_Editor_Screen* cameditscreen, const char* s, const char* dir, int n)
+        {
+            char Filename[MAX_PATH];
+            snprintf(Filename, _countof(Filename), s, dir);
+            fillList_callback_param param;
+            param.list = (TTextPanel*)cameditscreen->scenarios;
+            param.n = n;
+            param.exclude = false;
+            findfirst_callback(Filename, fillList_callback, &param);
+        };
+
+    TTextPanel__empty_list((TTextPanel*)cameditscreen->scenarios);
+    cameditscreen->scenarios->sorted = 1;
+
+    if (loadfilelist_version == VER_EF)
+        cameditscreen_fill_list(cameditscreen, "%s*.sc2", (*base_game)->prog_info->scenario_dir, 2);
+
+    cameditscreen_fill_list(cameditscreen, "%s*.sc1", (*base_game)->prog_info->scenario_dir, 1);
+    cameditscreen_fill_list(cameditscreen, "%s*.scx", (*base_game)->prog_info->scenario_dir, 0);
+}
+
+const char* __stdcall get_campaign_scenario_list_file_ext(TRIBE_Campaign_Editor_Screen* cameditscreen, const char* str, int id)
+{
+    /*
+    const char* ext = convert_list_id_to_file_extension(
+        TTextPanel__get_id2((TTextPanel*)cameditscreen->campaign_scenarios, TTextPanel__currentLineNumber((TTextPanel*)cameditscreen->campaign_scenarios)));
+    return ext ? ext : (loadfilelist_version == VER_EF ? ".sc2" : ".sc1");
+    */
+
+    auto test_campaign_scenario_file_exists = [](const char* s, const char* name, const char* dir)
+        {
+            char Filename[MAX_PATH];
+            snprintf(Filename, _countof(Filename), s, dir, name);
+            return file_exists(Filename);
+        };
+
+    if (loadfilelist_version == VER_EF && test_campaign_scenario_file_exists("%s%s.sc2", str, (*base_game)->prog_info->scenario_dir))
+        return ".sc2";
+    else if (test_campaign_scenario_file_exists("%s%s.sc1", str, (*base_game)->prog_info->scenario_dir))
+        return ".sc1";
+    else if (test_campaign_scenario_file_exists("%s%s.scx", str, (*base_game)->prog_info->scenario_dir))
+        return ".scx";
+    else
+        return loadfilelist_version == VER_EF ? ".sc2" : ".sc1";
+}
+
+__declspec(naked) void campaign_editor_make_campaign_scen_wr() //004F04E2
+{
+    __asm
+    {
+        mov     eax, [esi]
+        push    edi
+        push    eax
+        push    ebp
+        call    get_campaign_scenario_list_file_ext
+        push    eax
+        mov     ecx, 004F0530h
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void setLoadFileListHooks(int version)
 {
@@ -506,6 +688,18 @@ void setLoadFileListHooks(int version)
     setHook((void*)0x005EC3D2, scenario_info_1_wr);
     setHook((void*)0x0051D69B, scenario_info_2_wr);
     setHook((void*)0x005ECBCE, scenario_create_game_wr);
+
+    //campaign selection
+    setHook((void*)0x004F17B0, TRIBE_Screen_Campaign_Selection__fillCampaigns_new);
+
+    //campaign editor
+    setHook((void*)0x004EFB70, TRIBE_Campaign_Editor_Screen__fill_campaign_drop_new);
+    setHook((void*)0x004EFD80, TRIBE_Campaign_Editor_Screen__fill_scenario_list_new);
+    setHook((void*)0x004EFF27, campaign_editor_load_campaign_wr);
+    setHook((void*)0x004F039F, campaign_editor_make_campaign_wr);
+    setHook((void*)0x004F098D, campaign_editor_action_1_wr);
+    setHook((void*)0x004F0AF0, campaign_editor_action_2_wr);
+    setHook((void*)0x004F04E2, campaign_editor_make_campaign_scen_wr);
 
     //remove autosave count
     setHook((void*)0x0061DA0D, autosave_load_game);
