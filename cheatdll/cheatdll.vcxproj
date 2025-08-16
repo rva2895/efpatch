@@ -287,6 +287,7 @@
     <ClInclude Include="mpsetupscreen.h" />
     <ClInclude Include="setup.h" />
     <ClInclude Include="sleepingobjects.h" />
+    <ClInclude Include="tabstop.h" />
     <ClInclude Include="textrender.h" />
     <ClInclude Include="guardandfollow.h" />
     <ClInclude Include="harbor.h" />
@@ -484,6 +485,7 @@
     <ClCompile Include="mpsetupscreen.cpp" />
     <ClCompile Include="setup.cpp" />
     <ClCompile Include="sleepingobjects.cpp" />
+    <ClCompile Include="tabstop.cpp" />
     <ClCompile Include="textrender.cpp" />
     <ClCompile Include="guardandfollow.cpp" />
     <ClCompile Include="harbor.cpp" />

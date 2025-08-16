@@ -600,6 +600,9 @@
     <ClInclude Include="rescheat.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
+    <ClInclude Include="tabstop.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ai.cpp">
@@ -1141,6 +1144,9 @@
     </ClCompile>
     <ClCompile Include="rescheat.cpp">
       <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="tabstop.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

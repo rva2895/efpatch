@@ -140,6 +140,7 @@
 #include "fog.h"
 #include "loadfilelist.h"
 #include "mpsetupscreen.h"
+#include "tabstop.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -352,6 +353,8 @@ void setHooksCC()
     setLoadFileListHooks(cd.gameVersion);
 
     setMPSetupScreenHooks(cd.gameVersion);
+
+    setTabstopHooks();
 
     log("setHooksCC() complete");
 }
