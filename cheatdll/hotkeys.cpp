@@ -16,7 +16,8 @@ const char hotkeys[] = {
     10, 12,  1, //new master
     11,  3, 15, //sensor buoy
     12,  3, 16, //underwater prefab shelter
-    13,  7,  7  //at-at swimmer
+    13,  7,  7, //at-at swimmer
+    14,  3, 17  //harbor
 };
 
 void* hotkeyTestRet;
@@ -48,7 +49,7 @@ HK_underwater:
         mov     eax, 12
 
 HK_continue:
-        cmp     eax, 13
+        cmp     eax, 14
         ja      HK_skip
         test    eax, eax
         jz      HK_skip
@@ -111,7 +112,7 @@ void __stdcall TRIBE_Hotkey_Handler__setup_new(TRIBE_Hotkey_Handler* hh_t, TRIBE
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 0, 17);   //unit commands
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 1, set_ef_hotkeys ? 99 : 98); //game commands
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 2, 16);
-    RGE_Hotkey_Handler__set_hotkey_groups(hh, 3, 17);   //build economic
+    RGE_Hotkey_Handler__set_hotkey_groups(hh, 3, set_ef_hotkeys ? 18 : 17); //build economic
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 4, 7);
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 5, set_ef_hotkeys ? 9 : 7);
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 6, 5);
@@ -177,7 +178,9 @@ void __stdcall TRIBE_Hotkey_Handler__default_hotkeys_add(TRIBE_Hotkey_Handler* h
         TRIBE_Hotkey_Handler__setDefaultHotkey(hh, 19, 0);  //aqua harvester add queue
         TRIBE_Hotkey_Handler__setDefaultHotkey(hh, 19, 1);  //aqua harvester auto queue
 
-        TRIBE_Hotkey_Handler__setDefaultHotkey(hh, 1, 0x62);    //select all harbors
+        TRIBE_Hotkey_Handler__setDefaultHotkey(hh, 1, 0x62); //select all harbors
+
+        TRIBE_Hotkey_Handler__setDefaultHotkey(hh, 3, 0x11); //build harbor
     }
 
     TRIBE_Hotkey_Handler__setDefaultHotkey(hh, 1, 0x55);    //select all idle workers
@@ -221,6 +224,8 @@ void __stdcall TRIBE_Hotkey_Handler__init_hotkey_names_add(TRIBE_Hotkey_Handler*
         RGE_Hotkey_Handler__set_hotkey_name(hh, 19, 1, 19075);  //aqua harvester auto queue
 
         RGE_Hotkey_Handler__set_hotkey_name(hh, 1, 0x62, 4364); //select all harbors
+
+        RGE_Hotkey_Handler__set_hotkey_name(hh, 3, 0x11, 5383); //build harbor
     }
 
     RGE_Hotkey_Handler__set_hotkey_name(hh, 1, 0x55, 4351);     //select all idle workers
@@ -572,6 +577,9 @@ void __stdcall TRIBE_Hotkey_Handler__setDefaultHotkey_new(TRIBE_Hotkey_Handler* 
             break;
         case 16:    //underwater prefab shelter
             RGE_Hotkey_Handler__set_hotkey(hh, 3, 16, 0x4E, 0, 0, 0, 4160);
+            break;
+        case 17:    //harbor
+            RGE_Hotkey_Handler__set_hotkey(hh, 3, 17, 'U', 0, 0, 0, 4172);
             break;
         default:
             return;
@@ -1151,6 +1159,136 @@ new_game_hotkey_not_queried:
     }
 }
 
+TButtonPanel* hotkey_setup_allow_dup_checkbox = NULL;
+TTextPanel* hotkey_setup_allow_dup_text = NULL;
+bool hotkey_setup_allow_dup_flag = false;
+
+void __stdcall hotkey_setup_allow_dup_create_checkbox(TRIBE_Screen_Options* screen)
+{
+    TEasy_Panel__create_check_box(
+        (TEasy_Panel*)screen,
+        (TPanel*)screen,
+        &hotkey_setup_allow_dup_checkbox,
+        105,
+        415,
+        28,
+        28,
+        0,
+        5
+    );
+
+    TEasy_Panel__create_text6(
+        (TEasy_Panel*)screen,
+        (TPanel*)screen,
+        &hotkey_setup_allow_dup_text,
+        "Allow Duplicates",
+        135,
+        417,
+        190,
+        30,
+        0,
+        0,
+        0,
+        0);
+
+    hotkey_setup_allow_dup_flag = false;
+}
+
+void __stdcall hotkey_setup_allow_dup_delete_checkbox(TRIBE_Screen_Options* screen)
+{
+    TPanel__delete_panel((TPanel*)screen, (TPanel**)&hotkey_setup_allow_dup_checkbox);
+    TPanel__delete_panel((TPanel*)screen, (TPanel**)&hotkey_setup_allow_dup_text);
+
+    hotkey_setup_allow_dup_flag = false;
+}
+
+void __stdcall hotkey_setup_allow_dup_checkbox_action(TRIBE_Screen_Options* screen)
+{
+    hotkey_setup_allow_dup_flag = TButtonPanel__get_state(hotkey_setup_allow_dup_checkbox);
+}
+
+bool __stdcall hotkey_setup_allow_dup_test()
+{
+    return hotkey_setup_allow_dup_flag;
+}
+
+__declspec(naked) void hotkey_setup_allow_dup_1() //00527654
+{
+    __asm
+    {
+        push    esi
+        call    hotkey_setup_allow_dup_create_checkbox
+        mov     ecx, [esi + 83Ch]
+        mov     eax, 0052765Ah
+        jmp     eax
+    }
+}
+
+__declspec(naked) void hotkey_setup_allow_dup_2() //00527043
+{
+    __asm
+    {
+        push    esi
+        call    hotkey_setup_allow_dup_create_checkbox
+        mov     ecx, [esi + 83Ch]
+        mov     eax, 00527049h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void hotkey_setup_allow_dup_3() //005277F0
+{
+    __asm
+    {
+        push    esi
+        call    hotkey_setup_allow_dup_delete_checkbox
+        mov     ecx, [esi + 7F4h]
+        mov     eax, 005277F6h
+        jmp     eax
+    }
+}
+
+__declspec(naked) void hotkey_setup_allow_dup_4()
+{
+    __asm
+    {
+        push    esi
+        call    hotkey_setup_allow_dup_checkbox_action
+        mov     eax, 1
+        mov     ecx, 00527E34h
+        jmp     ecx
+    }
+}
+
+const DWORD hotkey_setup_allow_dup_action_dispatch[] =
+{
+    0x527B52,
+    0x527C47,
+    0x527B67,
+    0x527E0E,
+    0x527C07,
+    (DWORD)hotkey_setup_allow_dup_4
+};
+
+__declspec(naked) void hotkey_setup_allow_dup_5() //0056389D
+{
+    __asm
+    {
+        call    hotkey_setup_allow_dup_test
+        test    al, al
+        jz      hotkey_setup_allow_dup_false
+        mov     edx, 005639E3h
+        jmp     edx
+
+hotkey_setup_allow_dup_false:
+        mov     eax, [ebp + 0]
+        mov     ecx, ebx
+        push    eax
+        mov     edx, 005638A3h
+        jmp     edx
+    }
+}
+
 void __stdcall TRIBE_Command__command_shift_delete(TRIBE_Command* this_, RGE_Static_Object** units)
 {
     int unit_count = 0;
@@ -1378,5 +1516,14 @@ void setHotkeysHooks(int version)
 
     writeNops(0x00527CDE, 0x23);
     writeNops(0x00527DB9, 0x27);
+
+    //allow duplicate hotkeys
+    setHook((void*)0x00527654, hotkey_setup_allow_dup_1);
+    setHook((void*)0x00527043, hotkey_setup_allow_dup_2);
+    setHook((void*)0x005277F0, hotkey_setup_allow_dup_3);
+    setHook((void*)0x0056389D, hotkey_setup_allow_dup_5);
+
+    writeByte(0x00527B44, 5);
+    writeDword(0x00527B4E, (DWORD)hotkey_setup_allow_dup_action_dispatch);
 }
 #pragma optimize( "", on )
