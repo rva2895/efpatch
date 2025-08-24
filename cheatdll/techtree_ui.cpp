@@ -454,6 +454,6 @@ void setTechTreeUIHooks()
     setHook((void*)0x00516F02, tech_tree_resolution_close_6);
     setHook((void*)0x005E4A27, tech_tree_resolution_close_7);
     setHook((void*)0x005ED758, tech_tree_resolution_close_8);
-    setHook((void*)0x0046BE3E, tech_tree_mouse_scroll);
+    //setHook((void*)0x0046BE3E, tech_tree_mouse_scroll);
 }
 #pragma optimize( "", on )

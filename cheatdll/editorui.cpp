@@ -165,8 +165,8 @@ void setEditorUIHooks()
     writeDword(0x00536A95, 230 + SED_SIDEBAR_STRETCH);
     writeDword(0x00536A9A, 230 + SED_SIDEBAR_STRETCH);
 
-    //???
-    writeDword(0x00536DAF, 200 + SED_SIDEBAR_STRETCH);
-    writeDword(0x00536DB4, 200 + SED_SIDEBAR_STRETCH);
+    //Units list box 2
+    writeDword(0x00536A45, 230 + SED_SIDEBAR_STRETCH); //originally 250
+    writeDword(0x00536A4A, 230 + SED_SIDEBAR_STRETCH);
 }
 #pragma optimize( "", on )

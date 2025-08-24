@@ -193,8 +193,8 @@ int __fastcall TribeMPSetupScreenExtraOptionsDialog__action(TribeMPSetupScreenEx
         {
             if (TCommunications_Handler__IsHost(*comm))
             {
-                extra_options.allow_spectators = TButtonPanel__get_state((TButtonPanel*)this_->option_allow_spectators_button);
-                extra_options.hide_names = TButtonPanel__get_state((TButtonPanel*)this_->option_hide_names_button);
+                extra_options.allow_spectators = TButtonPanel__get_state(this_->option_allow_spectators_button);
+                extra_options.hide_names = TButtonPanel__get_state(this_->option_hide_names_button);
                 //if (extra_options.hide_names)
                 //{
                     //for (int i = 1; i < 9; i++)
@@ -279,7 +279,7 @@ TribeMPSetupScreenExtraOptionsDialog* __stdcall TribeMPSetupScreenExtraOptionsDi
         (char*)TEasy_Panel__get_popup_info_file((TEasy_Panel*)parent_panel_in),
         TEasy_Panel__get_popup_info_id((TEasy_Panel*)parent_panel_in),
         1);
-        
+
     TEasy_Panel__create_text6(
         (TEasy_Panel*)this_,
         (TPanel*)this_,
@@ -385,6 +385,18 @@ TribeMPSetupScreenExtraOptionsDialog* __stdcall TribeMPSetupScreenExtraOptionsDi
         0,
         CANCEL_ACTION_ID
     );
+
+    this_->cancel_button->hotkey = VK_ESCAPE;
+    this_->cancel_button->hotkey_alt = 0;
+    this_->cancel_button->hotkey_ctrl = 0;
+    this_->cancel_button->hotkey_shift = 0;
+
+    TPanel* panel_list[2];
+    panel_list[0] = (TPanel*)this_->ok_button;
+    panel_list[1] = (TPanel*)this_->cancel_button;
+
+    TPanel__set_tab_order2((TPanel*)this_, panel_list, _countof(panel_list));
+    TPanel__set_curr_child((TPanel*)this_, (TPanel*)this_->ok_button);
 
     return this_;
 }

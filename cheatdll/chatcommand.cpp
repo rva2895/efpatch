@@ -806,7 +806,17 @@ bool check_chat_command(const char* str)
         //fog_param_a3 = a3;
         return true;
     }
-    
+    else if (strstr(str, "/dump-mem"))
+    {
+        void* mem = malloc(0x00247000);
+        SIZE_T w;
+        ReadProcessMemory(GetCurrentProcess(), (void*)0x00401000, mem, 0x00247000, &w);
+        FILE* f = fopen("image-dump.bin", "wb");
+        fwrite(mem, 0x00247000, 1, f);
+        fclose(f);
+        chat("Dumped");
+        return true;
+    }
     /*
     else if (strstr(str, "/action"))
     {

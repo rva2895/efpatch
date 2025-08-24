@@ -177,13 +177,13 @@ bool setStartupLoadHooks()
     //scenario
     else if (filename = checkCmdLine(command_line, ".SCX"))
     {
-        cd.gameVersion = VER_CC;
+        //cd.gameVersion = VER_CC;
         edit_scenario = true;
         copy_filename(filename);
     }
     else if (filename = checkCmdLine(command_line, ".SC1"))
     {
-        cd.gameVersion = VER_CC;
+        //cd.gameVersion = VER_CC;
         edit_scenario = true;
         copy_filename(filename);
     }
