@@ -2,6 +2,7 @@
 #include "hotkeys.h"
 #include "farm.h"
 #include "harbor.h"
+#include "playeroptions.h"
 
 const char hotkeys[] = {
      1,  7,  6, //monitor
@@ -111,7 +112,7 @@ void __stdcall TRIBE_Hotkey_Handler__setup_new(TRIBE_Hotkey_Handler* hh_t, TRIBE
     RGE_Hotkey_Handler__set_num_hotkey_groups(hh, set_ef_hotkeys ? 20 : 19);
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 0, 17);   //unit commands
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 1, set_ef_hotkeys ? 99 : 98); //game commands
-    RGE_Hotkey_Handler__set_hotkey_groups(hh, 2, 16);
+    RGE_Hotkey_Handler__set_hotkey_groups(hh, 2, 16 + NUM_SAVED_PLAYER_LOC * 2);
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 3, set_ef_hotkeys ? 18 : 17); //build economic
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 4, 7);
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 5, set_ef_hotkeys ? 9 : 7);
@@ -201,6 +202,9 @@ void __stdcall TRIBE_Hotkey_Handler__default_hotkeys_add(TRIBE_Hotkey_Handler* h
 
     TRIBE_Hotkey_Handler__setDefaultHotkey(hh, 3, 0xF);     //build sensor buoy
     TRIBE_Hotkey_Handler__setDefaultHotkey(hh, 3, 0x10);    //build underwater prefab shelter
+
+    for (int i = 0; i < NUM_SAVED_PLAYER_LOC * 2; i++)      //camera hotkeys
+        TRIBE_Hotkey_Handler__setDefaultHotkey(hh, 2, 16 + i);
 }
 
 void __stdcall TRIBE_Hotkey_Handler__init_hotkey_names_add(TRIBE_Hotkey_Handler* hh_t)
@@ -246,6 +250,9 @@ void __stdcall TRIBE_Hotkey_Handler__init_hotkey_names_add(TRIBE_Hotkey_Handler*
 
     RGE_Hotkey_Handler__set_hotkey_name(hh, 3, 0xF, 5478);      //build sensor buoy
     RGE_Hotkey_Handler__set_hotkey_name(hh, 3, 0x10, 5001);     //build underwater prefab shelter
+
+    for (int i = 0; i < NUM_SAVED_PLAYER_LOC * 2; i++)          //camera hotkeys
+        RGE_Hotkey_Handler__set_hotkey_name(hh, 2, 16 + i, 4365 + i);
 }
 
 void __stdcall TRIBE_Hotkey_Handler__setDefaultHotkey_new(TRIBE_Hotkey_Handler* hh_t, int groupID, int hotkey)
@@ -521,6 +528,19 @@ void __stdcall TRIBE_Hotkey_Handler__setDefaultHotkey_new(TRIBE_Hotkey_Handler* 
             RGE_Hotkey_Handler__set_hotkey(hh, 2, 3, 40, 0, 0, 0, -1);
             break;
         default:
+            if (hotkey >= 16 && hotkey < 16 + NUM_SAVED_PLAYER_LOC * 2)
+            {
+                hotkey;
+                RGE_Hotkey_Handler__set_hotkey(
+                    hh,
+                    2,
+                    hotkey,
+                    VK_F1 + (hotkey - 16) % NUM_SAVED_PLAYER_LOC,
+                    (hotkey - 16) < NUM_SAVED_PLAYER_LOC ? 1 : 0,
+                    0,
+                    1,
+                    -1);
+            }
             return;
         }
         break;
@@ -1134,6 +1154,36 @@ bool __stdcall game_hotkey_dispatch(int hotkey, TRIBE_Screen_Game* this_)
     return false;
 }
 
+bool __stdcall scroll_hotkey_dispatch(int hotkey, TRIBE_Screen_Game* game_screen)
+{
+    hotkey -= 16;
+    if (hotkey >= 0 && hotkey < NUM_SAVED_PLAYER_LOC * 2)
+    {
+        RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+        PLAYER_EXTRA* pe = get_player_extra(player);
+        if (hotkey < NUM_SAVED_PLAYER_LOC)  //set
+        {
+            pe->view_loc[hotkey].set = true;
+            pe->view_loc[hotkey].x = player->view_x;
+            pe->view_loc[hotkey].y = player->view_y;
+        }
+        else                                //goto
+        {
+            if (pe->view_loc[hotkey - NUM_SAVED_PLAYER_LOC].set)
+            {
+                RGE_Player__set_view_loc(player, pe->view_loc[hotkey - NUM_SAVED_PLAYER_LOC].x, pe->view_loc[hotkey - NUM_SAVED_PLAYER_LOC].y, 0);
+                RGE_Player__set_map_loc(player, pe->view_loc[hotkey - NUM_SAVED_PLAYER_LOC].x, pe->view_loc[hotkey - NUM_SAVED_PLAYER_LOC].y);
+                game_screen->main_view->vfptr->set_redraw(game_screen->main_view, 1);
+            }
+        }
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 __declspec(naked) void dispatch_hotkey_game() //004F9F79
 {
     __asm
@@ -1150,10 +1200,27 @@ new_game_hotkeys_query:
         push    eax
         call    game_hotkey_dispatch
         test    al, al
-        jz      new_game_hotkey_not_queried
+        jz      new_game_hotkey_not_queried_game
+new_game_hotkey_end:
         mov     eax, 004F9F93h
         jmp     eax
-new_game_hotkey_not_queried:
+new_game_hotkey_not_queried_game:
+        mov     edx, [esp + 16Ch]
+        mov     ecx, base_game
+        mov     ecx, [ecx]
+        push    edx
+        push    edi
+        push    esi
+        push    ebx
+        push    2
+        call    TRIBE_Game__get_hotkey_handler
+        mov     ecx, eax
+        call    RGE_Hotkey_Handler__return_function
+        push    ebp
+        push    eax
+        call    scroll_hotkey_dispatch
+        test    al, al
+        jnz     new_game_hotkey_end
         mov     eax, 004FA66Bh
         jmp     eax
     }
