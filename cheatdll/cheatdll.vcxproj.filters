@@ -603,6 +603,9 @@
     <ClInclude Include="tabstop.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
+    <ClInclude Include="mousewheel.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ai.cpp">
@@ -1146,6 +1149,9 @@
       <Filter>Файлы исходного кода\misc</Filter>
     </ClCompile>
     <ClCompile Include="tabstop.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="mousewheel.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>

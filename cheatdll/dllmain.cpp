@@ -141,6 +141,7 @@
 #include "loadfilelist.h"
 #include "mpsetupscreen.h"
 #include "tabstop.h"
+#include "mousewheel.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -355,6 +356,7 @@ void setHooksCC()
     setMPSetupScreenHooks(cd.gameVersion);
 
     setTabstopHooks();
+    setMouseWheelHooks();
 
     log("setHooksCC() complete");
 }
