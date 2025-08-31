@@ -649,6 +649,9 @@ void WORLD_DUMP::update_cs()
         for (auto it_res = it->resources.begin(), it_res_end = it->resources.end(); it_res != it_res_end; ++it_res)
             it->cs += *it_res * 100;
 
+        //FIXME: inconsistent resource cs when generating map in editor
+        //it->cs = 0;
+
         for (auto it_obj = it->objects.begin(), it_obj_end = it->objects.end(); it_obj != it_obj_end; ++it_obj)
         {
             it_obj->cs =

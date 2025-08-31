@@ -11,6 +11,7 @@
 #include "overlay.h"
 #include "memory.h"
 #include "textrender.h"
+//#include "worlddump.h"
 
 extern int placementSettings;
 extern int cliff_type;
@@ -186,6 +187,11 @@ void update_load_save_game_panel(TPanel* panel)
 
 extern bool world_dump_enabled;
 
+/*
+extern int oos_player_no;
+extern std::string rms_error_1;
+*/
+
 int CALLBACK WndProc_dll(HWND hWnd,
     UINT msg,
     WPARAM wParam,
@@ -274,6 +280,99 @@ int CALLBACK WndProc_dll(HWND hWnd,
                     }
                 }
             }
+
+            /*
+            auto generate_map_and_get_cs = [](TRIBE_Map* map, int size, int size_id, char* script, int map_id, int player_num)
+                {
+                    RGE_Player_Info pi;
+                    memset(&pi, 0, sizeof(pi));
+                    TRIBE_Game__setMapSize((TRIBE_Game*)*base_game, size_id);
+                    TRIBE_Game__setMapType((TRIBE_Game*)*base_game, map_id);
+                    map->vfptr->map_generate(map, size, size, script, &pi, player_num);
+                    WORLD_DUMP wd;
+                    wd.update_cs();
+                    return wd.get_cs();
+                };
+
+            auto test_map = [&generate_map_and_get_cs](TRIBE_Map* map, char* script, int map_id)
+                {
+                    for (int i = 0; i < 30; i++)
+                    {
+                        (*base_game)->random_map_seed = 200 + i;
+                        unsigned int cs_prev = 0;
+                        for (int k = 0; k < 9; k++)
+                        {
+                            unsigned int cs = generate_map_and_get_cs(map, 220, 4, script, map_id, 9);
+                            if (k != 0 && cs != cs_prev)
+                                return false;
+                            oos_player_no++;
+                            cs_prev = cs;
+                        }
+                    }
+                    return true;
+                };
+
+            auto do_rms_oos_test = [&generate_map_and_get_cs, &test_map]()
+                {
+                    TRIBE_Map* map = (TRIBE_Map*)(*base_game)->world->map;
+                    TRIBE_Game* game = (TRIBE_Game*)*base_game;
+
+                    TRIBE_Screen_Sed* screen_sed = (TRIBE_Screen_Sed*)TPanelSystem__getTop(panel_system);
+                    if (screen_sed->vfptr != (TRIBE_Screen_SedVtbl*)0x00661C50)
+                        return;
+
+                    TRIBE_Main_View* main_view = screen_sed->main_view;
+                    
+                    RGE_Diamond_Map* map_view = (RGE_Diamond_Map*)screen_sed->map_view;
+                    RGE_Player_Info pi;
+                    memset(&pi, 0, sizeof(pi));
+
+                    bool is_error = false;
+                    int error_map_id = -1;
+
+                    for (int k = 113; k < 114; k++)
+                    {
+                        if (!test_map(map, "56072_rms_ef_swamps_of_naboo", -1))
+                        {
+                            is_error = true;
+                            error_map_id = k;
+                            std::string str = "Map " + std::to_string(k) + " error\n";
+                            OutputDebugString(str.c_str());
+                            break;
+                        }
+                        else
+                        {
+                            std::string str = "Map " + std::to_string(k) + " ok\n";
+                            OutputDebugString(str.c_str());
+                        }
+                    }
+
+                    for (int j = 0; j < 8; ++j)
+                    {
+                        RGE_Tile_List__del_list(&(*base_game)->world->players[j]->tile_list);
+                        RGE_Player__set_map_visible((RGE_Player*)(*base_game)->world->players[j]);
+                    }
+                    RGE_View__set_world((RGE_View*)main_view, (RGE_Game_World*)game->world);
+                    RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+                    RGE_View__set_player((RGE_View*)main_view, player);
+                    RGE_Diamond_Map__set_world(map_view, (RGE_Game_World*)game->world);
+                    RGE_Diamond_Map__set_player(map_view, player);
+
+                    if (is_error)
+                        rms_error_1 = "Error map " + std::to_string(error_map_id);
+                    else
+                        rms_error_1 = "No error";
+                };
+
+            if (LOWORD(wParam) == 'L')                        //test
+            {
+                if (short x = GetKeyState(VK_CONTROL))
+                {
+                    do_rms_oos_test();
+                    //editorstatus_isValid = false;
+                }
+            }
+            */
 
             if (!editorstatus_isValid)
             {

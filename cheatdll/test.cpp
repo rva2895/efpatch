@@ -1438,9 +1438,63 @@ int* const SDI_Draw_Line = (int* const)0x0077FA64;
 int* const VIEW_Occlusion_Color = (int* const)0x007A1C4C;
 */
 
+/*
+int oos_player_no = 0;
+
+bool __stdcall sed_test_obj_gen_oos_do(TRIBE_Building_Object* obj)
+{
+    return (oos_player_no % obj->owner->world->player_num) == obj->owner->id;
+}
+
+__declspec(naked) void sed_test_obj_gen_oos() //00557C1A
+{
+    __asm
+    {
+        push    edi
+        call    sed_test_obj_gen_oos_do
+        test    al, al
+        jnz     change_terrain
+        mov     eax, 00557CE1h
+        jmp     eax
+
+change_terrain:
+        mov     eax, 00557C31h
+        jmp     eax
+    }
+}
+
+extern std::string rms_error_1;
+
+void __stdcall report_map_checksum()
+{
+    WORLD_DUMP wd;
+    wd.update_cs();
+    rms_error_1 = std::to_string(wd.get_cs());
+}
+
+__declspec(naked) void sed_test_obj_inc_counter() //0052ED61
+{
+    __asm
+    {
+        inc     oos_player_no
+        mov     ecx, [edx + 34h]
+        push    esi
+        call    dword ptr [eax + 2Ch]
+        call    report_map_checksum
+        mov     ecx, 0052ED68h
+        jmp     ecx
+    }
+}
+*/
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    //writeNops(0x0041AB12, 5);
+    //setHook((void*)0x00557C1A, sed_test_obj_gen_oos);
+    //setHook((void*)0x0052ED61, sed_test_obj_inc_counter);
+    //writeByte(0x00557C21, 0xEB);
+
     //setHook((void*)0x00651BC0, ASMDraw_Sprite_new);
 
     //setHook((void*)0x005430C0, TShape__shape_draw_new);
