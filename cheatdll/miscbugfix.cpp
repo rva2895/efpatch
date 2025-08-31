@@ -629,6 +629,25 @@ __declspec(naked) void on_stop_sound_system_sound_num() //00427AD4
     }
 }
 
+void __stdcall on_setup_replay_controls_player_drop_do(TRIBE_Screen_Game* game_screen)
+{
+    RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+    TDropDownPanel__set_line_by_id(
+        game_screen->watching_player_drop,
+        player ? player->id : (*comm)->mCommandLog->mRecordedPlayer);
+}
+
+__declspec(naked) void on_setup_replay_controls_player_drop() //00502C34
+{
+    __asm
+    {
+        push    esi
+        call    on_setup_replay_controls_player_drop_do
+        mov     ecx, 00502C52h
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks(int ver)
 {
@@ -789,5 +808,8 @@ void setMiscBugfixHooks(int ver)
 
     //sound crash on host migration
     setHook((void*)0x00427AD4, on_stop_sound_system_sound_num);
+
+    //watching player dropdown
+    setHook((void*)0x00502C34, on_setup_replay_controls_player_drop);
 }
 #pragma optimize( "", on )
