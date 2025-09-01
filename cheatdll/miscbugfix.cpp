@@ -629,6 +629,42 @@ __declspec(naked) void on_stop_sound_system_sound_num() //00427AD4
     }
 }
 
+bool __fastcall is_building_target_class(int object_group)
+{
+    switch (object_group)
+    {
+    case 11:    //cruiser
+    case 34:    //undeployed cannon
+    case 35:    //pummel
+    case 36:    //cannon
+        return true;
+    case 32:    //artillery
+    case 43:    //bomber
+        return current_loaded_version < 9;
+    default:
+        return false;
+    }
+}
+
+__declspec(naked) void targeting_classes_sort_buildings() //0041AAFE
+{
+    __asm
+    {
+        push    ecx
+        mov     ecx, eax
+        call    is_building_target_class
+        test    al, al
+        pop     ecx
+        jz      set_buildings_last
+        mov     eax, 0041AB2Bh
+        jmp     eax
+
+set_buildings_last:
+        mov     eax, 0041AB1Ch
+        jmp     eax
+    }
+}
+
 void __stdcall on_setup_replay_controls_player_drop_do(TRIBE_Screen_Game* game_screen)
 {
     RGE_Player* player = RGE_Base_Game__get_player(*base_game);
@@ -762,6 +798,9 @@ void setMiscBugfixHooks(int ver)
 
         //exclude rs fort annex power droid
         setHook((void*)0x0054B4E0, RGE_Static_Object__gbg_isMilitaryUnit_new);
+
+        //artillery and bomber building targeting
+        setHook((void*)0x0041AAFE, targeting_classes_sort_buildings);
     }
 
     //rec header fix
