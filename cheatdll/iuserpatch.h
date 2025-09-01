@@ -6,8 +6,8 @@
 #define BUILD_VERSION( l1,l2,l3,l4 )  ( ( l1 << 24 ) | ( l2 << 16 ) | ( l3 << 8 ) | ( l4 << 0 ) )
 #endif
 
-#define EXE_PATCH_VERSION "3.2"
-#define USERPATCH_VERSION "EXE Patch v3.2.8 (" EXE_PATCH_VERSION ") " __DATE__ " " __TIME__
+#define EXE_PATCH_VERSION "3.3"
+#define USERPATCH_VERSION "EXE Patch v3.3.0 (" EXE_PATCH_VERSION ") " __DATE__ " " __TIME__
 
 struct UserPatchConfig_t
 {

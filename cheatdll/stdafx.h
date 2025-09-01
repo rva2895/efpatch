@@ -41,4 +41,4 @@
 
 #define ZLIB_WINAPI
 
-#define EFPATCH_VERSION "EFPATCH for EF v1.5.5-rc7 (1.5.4.11) " __DATE__ " " __TIME__
+#define EFPATCH_VERSION "EFPATCH for EF v1.5.5 (1.5.5.0) " __DATE__ " " __TIME__

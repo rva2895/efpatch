@@ -34,7 +34,7 @@ void initCrashReporter()
     ai.AppName = L"Star Wars Galactic Battlegrounds: Expanding Fronts";
     ai.Company = L"Expanding Fronts Development Team";
 
-    USHORT version[4] = { 1, 5, 4, 11 };
+    USHORT version[4] = { 1, 5, 5, 0 };
 
     ai.V[0] = version[0]; ai.V[1] = version[1]; ai.V[2] = version[2]; ai.V[3] = version[3];
     ai.Hotfix = 0;
