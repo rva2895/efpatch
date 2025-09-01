@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "miscbugfix.h"
 #include "rmslog.h"
+#include "casts.h"
 
 __declspec(naked) void annex_unit_crash_mitigation() //00555640
 {
@@ -684,6 +685,46 @@ __declspec(naked) void on_setup_replay_controls_player_drop() //00502C34
     }
 }
 
+TRIBE_Building_Object* cancel_exception_obj = NULL;
+
+void __stdcall construction_cancel_desolid_fix_do(TRIBE_Building_Object* obj)
+{
+    if (current_loaded_version >= 9)    //1.5.5
+    {
+        UNIT_EXTRA* ud = createUnitExtra((RGE_Static_Object*)obj);
+        if (ud->solidifyCounter <= 0)
+        {
+            cancel_exception_obj = obj;
+            TRIBE_Building_Object__cancel_desolid_buildings_under_building(obj);
+            cancel_exception_obj = NULL;
+            ud->solidifyCounter++;
+            ud->keepUnitExtra = true;
+        }
+    }
+    else
+    {
+        TRIBE_Building_Object__solidifyBuildingBeingConstructed(obj);
+        TRIBE_Building_Object__cancel_desolid_buildings_under_building(obj);
+    }
+}
+
+__declspec(naked) void construction_cancel_desolid_fix() //00556511
+{
+    __asm
+    {
+        push    esi
+        call    construction_cancel_desolid_fix_do
+        mov     eax, 0055651Fh
+        jmp     eax
+    }
+}
+
+void __fastcall TRIBE_Building_Object__cancel_build_exception(TRIBE_Building_Object* obj)
+{
+    if (obj != cancel_exception_obj)
+        TRIBE_Building_Object__cancel_build(obj);
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks(int ver)
 {
@@ -801,6 +842,10 @@ void setMiscBugfixHooks(int ver)
 
         //artillery and bomber building targeting
         setHook((void*)0x0041AAFE, targeting_classes_sort_buildings);
+
+        //construction cancel obstruction error
+        setHook((void*)0x00556511, construction_cancel_desolid_fix);
+        setHookCall((void*)0x0055824D, TRIBE_Building_Object__cancel_build_exception);
     }
 
     //rec header fix

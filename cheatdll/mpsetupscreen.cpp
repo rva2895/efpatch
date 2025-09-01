@@ -532,7 +532,7 @@ void __stdcall on_mp_setup_screen_init_vars()
 #else
     extra_options.allow_spectators = false;
 #endif
-    extra_options.hide_names = false;;
+    extra_options.hide_names = false;
     (*base_game)->vfptr->send_game_options(*base_game);
 }
 

@@ -13,8 +13,8 @@ struct UNIT_EXTRA
     bool    keepUnitExtra;
 
     unsigned int animalTimer;
-
     unsigned int kills;
+    int     solidifyCounter;
 
     float   speedReductionModifier;
     float   speedReductionTime;

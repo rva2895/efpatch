@@ -530,7 +530,6 @@ void __stdcall TRIBE_Hotkey_Handler__setDefaultHotkey_new(TRIBE_Hotkey_Handler* 
         default:
             if (hotkey >= 16 && hotkey < 16 + NUM_SAVED_PLAYER_LOC * 2)
             {
-                hotkey;
                 RGE_Hotkey_Handler__set_hotkey(
                     hh,
                     2,

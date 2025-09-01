@@ -203,7 +203,6 @@ const char widescrnErrorMsg[] =
 void __stdcall delayed_start_process()
 {
     trySetProcessDPIAware();
-
     initialSetup();
 
     bool voobly_widescreen_installed = isVooblyWidescreenInstalled();

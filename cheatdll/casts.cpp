@@ -1,9 +1,5 @@
 #include "stdafx.h"
 #include "casts.h"
-#include <algorithm>
-
-#include "processunit.h"
-#include "dataload.h"
 
 //TODO:
 //         1: process getDamage funcion [done?]
@@ -18,88 +14,100 @@
 
 int current_save_game_version;
 
-void __stdcall processUnitExtra(RGE_Static_Object* unit, int timerRes)
+void __stdcall processUnitExtra(RGE_Static_Object* unit)
 {
     UNIT_EXTRA* ud = getUnitExtra(unit);
     if (ud)
     {
+        float world_time_delta_seconds = unit->owner->world->world_time_delta_seconds;
         if (ud->speedReductionEnabled)
         {
-            ud->speedReductionTime -= *(float*)&timerRes;
-            if (ud->speedReductionTime <= 0)
+            ud->speedReductionTime -= world_time_delta_seconds;
+            if (ud->speedReductionTime <= 0.0f)
             {
-                ud->speedReductionTime = 0;
-                ud->speedReductionEnabled = 0;
+                ud->speedReductionTime = 0.0f;
+                ud->speedReductionEnabled = false;
             }
         }
         if (ud->stealthOffEnabled)
         {
-            ud->stealthOffTime -= *(float*)&timerRes;
-            if (ud->stealthOffTime <= 0)
+            ud->stealthOffTime -= world_time_delta_seconds;
+            if (ud->stealthOffTime <= 0.0f)
             {
-                ud->stealthOffTime = 0;
-                ud->stealthOffEnabled = 0;
+                ud->stealthOffTime = 0.0f;
+                ud->stealthOffEnabled = false;
             }
         }
         if (ud->reloadTimeEnabled)
         {
-            ud->reloadTimeTime -= *(float*)&timerRes;
-            if (ud->reloadTimeTime <= 0)
+            ud->reloadTimeTime -= world_time_delta_seconds;
+            if (ud->reloadTimeTime <= 0.0f)
             {
-                ud->reloadTimeTime = 0;
-                ud->reloadTimeEnabled = 0;
+                ud->reloadTimeTime = 0.0f;
+                ud->reloadTimeEnabled = false;
             }
         }
         if (ud->hpDrainEnabled)
         {
-            ud->hpDrainTime -= *(float*)&timerRes;
-            if (ud->hpDrainTime <= 0)
+            ud->hpDrainTime -= world_time_delta_seconds;
+            if (ud->hpDrainTime <= 0.0f)
             {
-                ud->hpDrainTime = 0;
-                ud->hpDrainEnabled = 0;
+                ud->hpDrainTime = 0.0f;
+                ud->hpDrainEnabled = false;
             }
             else
             {
-                float maxHP = unit->master_obj->hp;
-                float* hp = &unit->hp;
-                ud->hpDrainLeftover += *(float*)&timerRes * ud->hpDrainPerSecond;
+                ud->hpDrainLeftover += world_time_delta_seconds * ud->hpDrainPerSecond;
                 float intp;
                 modf(ud->hpDrainLeftover, &intp);
-                if (abs(intp) > 0.0)
+                if (abs(intp) > 0.0f)
                 {
                     ud->hpDrainLeftover -= intp;
-                    *hp -= intp;
-                    if (*hp > maxHP)
-                        *hp = maxHP;
+                    unit->hp -= intp;
+                    if (unit->hp > unit->master_obj->hp)
+                        unit->hp = unit->master_obj->hp;
                 }
             }
         }
         if (ud->hpDrainPercentEnabled)
         {
-            ud->hpDrainPercentTime -= *(float*)&timerRes;
-            if (ud->hpDrainPercentTime <= 0)
+            ud->hpDrainPercentTime -= world_time_delta_seconds;
+            if (ud->hpDrainPercentTime <= 0.0f)
             {
-                ud->hpDrainPercentTime = 0;
-                ud->hpDrainPercentEnabled = 0;
+                ud->hpDrainPercentTime = 0.0f;
+                ud->hpDrainPercentEnabled = false;
             }
             else
             {
-                float maxHP = unit->master_obj->hp;
-                float* hp = &unit->hp;
                 ud->hpDrainPercentLeftover +=
-                    *(float*)&timerRes * ud->hpDrainPercentPerSecond*maxHP;
+                    world_time_delta_seconds * ud->hpDrainPercentPerSecond * unit->master_obj->hp;
                 float intp;
                 modf(ud->hpDrainPercentLeftover, &intp);
-                if (abs(intp) > 0.0)
+                if (abs(intp) > 0.0f)
                 {
                     ud->hpDrainPercentLeftover -= intp;
-                    *hp -= intp;
-                    if (*hp > maxHP)
-                        *hp = maxHP;
+                    unit->hp -= intp;
+                    if (unit->hp > unit->master_obj->hp)
+                        unit->hp = unit->master_obj->hp;
                 }
             }
         }
-        
+
+        //construction cancel obstruction error
+        if (ud->solidifyCounter > 0 && unit->master_obj->master_type == 80)
+        {
+            if (ud->solidifyCounter > 2)
+            {
+                TRIBE_Building_Object__solidifyBuildingBeingConstructed((TRIBE_Building_Object*)unit);
+                ud->solidifyCounter = 0;
+                ud->keepUnitExtra = false;
+            }
+            else
+            {
+                ud->solidifyCounter++;
+            }
+        }
+
         if (!ud->keepUnitExtra &&
             !ud->speedReductionEnabled &&
             !ud->stealthOffEnabled &&
@@ -112,31 +120,15 @@ void __stdcall processUnitExtra(RGE_Static_Object* unit, int timerRes)
     }
 }
 
-__declspec(naked) void processUnitHook() //00444DA0, 0054EF00
+__declspec(naked) void processUnitHook() //0054EF00
 {
     __asm
     {
-        //mov     eax, [ecx+18h]
-        //mov     eax, [eax+8Ch]
-        //mov     eax, dword ptr [eax+0A8h]
-        //push    esi
-        //mov     esi, ecx
-        //push    eax
-        //push    ecx
-        //call    processUnitExtra
-        //sub     esp, 8
-        //push    00444DA6h
-        //ret
-
         push    ecx
         push    ebx
-        xor     ebx, ebx
-        mov     eax, [ecx + 18h]
-        mov     eax, [eax + 8Ch]
-        mov     eax, dword ptr [eax + 0A8h]
         push    esi
         mov     esi, ecx
-        push    eax
+        xor     ebx, ebx
         push    ecx
         call    processUnitExtra
         mov     eax, 0054EF07h
@@ -463,9 +455,6 @@ stealth_off:
     }
 }
 
-#pragma warning(push)
-#pragma warning(disable:4100)
-
 void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
 {
     char flag;
@@ -512,6 +501,8 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
             ud->hasBeenPurged = false;
             ud->keepUnitExtra = false;
             ud->animalTimer = 0;
+            ud->kills = 0;
+            ud->solidifyCounter = 0;
         }
         break;
     case 1:
@@ -560,6 +551,7 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
             ud->keepUnitExtra = false;
             ud->animalTimer = 0;
             ud->kills = 0;
+            ud->solidifyCounter = 0;
 
             if (current_save_game_version >= 6)
             {
@@ -571,6 +563,11 @@ void __stdcall readUnitExtra(RGE_Static_Object* unit, int stream)
             if (current_save_game_version >= 7)
             {
                 rge_read(stream, &ud->kills, sizeof(ud->kills));
+            }
+
+            if (current_save_game_version >= 9)
+            {
+                rge_read(stream, &ud->solidifyCounter, sizeof(ud->solidifyCounter));
             }
         }
         break;
@@ -623,6 +620,7 @@ void __stdcall writeUnitExtra(RGE_Static_Object* unit, int stream)
         rge_write(stream, &ud->keepUnitExtra, sizeof(ud->keepUnitExtra));
         rge_write(stream, &ud->animalTimer, sizeof(ud->animalTimer));
         rge_write(stream, &ud->kills, sizeof(ud->kills));
+        rge_write(stream, &ud->solidifyCounter, sizeof(ud->solidifyCounter));
     }
     else
     {
@@ -757,6 +755,9 @@ __declspec(naked) void verSaveHook2() //006206CE
         jmp     eax
     }
 }
+
+#pragma warning(push)
+#pragma warning(disable:4100)
 
 __declspec(naked) void __fastcall removeUnitExtra(RGE_Static_Object* unit)
 {
