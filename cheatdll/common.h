@@ -57,12 +57,11 @@ void __cdecl writeData(DWORD addr, const void* data, size_t len);
 //void __cdecl setHookRestorable (void* addr, void* newAddr, void* oldData);
 //void __cdecl restoreHook (void* addr, void* oldData);
 
-int __stdcall language_dll_load(UINT id, char* buf, int nmax);
-
 size_t strlcpy(char* dst, const char* src, size_t siz);
 char* make_str_copy(const char* src);
 
 void trySetProcessDPIAware();
+HMODULE __stdcall efpatch_LoadStringTable(LPCSTR lpLibFileName);
 
 unsigned int get_worldtime();
 
@@ -72,7 +71,7 @@ struct BYTE_ASSIGN
     BYTE val;
 };
 
-std::string __stdcall get_string(int id);
+const char* __stdcall get_string(int id);
 bool __stdcall file_exists(const char* filename);
 void __stdcall sendChat(const char* s, int p);
 void __cdecl chat(const char* format, ...);

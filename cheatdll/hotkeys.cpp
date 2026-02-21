@@ -1243,11 +1243,11 @@ void __stdcall hotkey_setup_allow_dup_create_checkbox(TRIBE_Screen_Options* scre
         5
     );
 
-    TEasy_Panel__create_text6(
+    TEasy_Panel__create_text4(
         (TEasy_Panel*)screen,
         (TPanel*)screen,
         &hotkey_setup_allow_dup_text,
-        "Allow Duplicates",
+        1524, //"Allow Duplicates"
         135,
         417,
         190,

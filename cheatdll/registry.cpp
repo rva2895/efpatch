@@ -43,8 +43,8 @@ extern const CONFIG_DATA cd_default =
     0,   //fog of war
     0,   //object unlock
     0,   //mod count
-    NULL //mods
-    //"en" //lang
+    NULL,//mods
+    "en" //lang
 };
 
 #ifdef TARGET_VOOBLY
@@ -190,8 +190,10 @@ void regGet(CONFIG_DATA* cd)
 #endif
             query_reg_option(hKey, "Unlock Objects", cd->unlockObjects, cd_default.unlockObjects);
 
-            /*char language[32];
-            size = 32;
+#ifndef TARGET_VOOBLY
+            char language[32];
+            DWORD size = 32;
+            DWORD type;
 
             if (RegQueryValueEx(
                 hKey,
@@ -205,7 +207,10 @@ void regGet(CONFIG_DATA* cd)
             {
                 language[31] = 0;
                 cd->lang = language;
-            }*/
+            }
+#else
+            cd->lang = cd_default.lang;
+#endif
 
             RegCloseKey(hKey);
             log("Successfully read settings from the registry");
@@ -277,7 +282,8 @@ void regSet(const CONFIG_DATA* cd)
         set_reg_option(hKey, "Alternative Fog of War", cd->fog, REG_DWORD);
         set_reg_option(hKey, "Unlock Objects", cd->unlockObjects, REG_DWORD);
 
-        /*type = REG_SZ;
+#ifndef TARGET_VOOBLY
+        DWORD type = REG_SZ;
 
         RegSetValueEx(
             hKey,
@@ -285,7 +291,8 @@ void regSet(const CONFIG_DATA* cd)
             0,
             type,
             (BYTE*)cd->lang.c_str(),
-            cd->lang.length() + 1);*/
+            cd->lang.length() + 1);
+#endif
 
         RegCloseKey(hKey);
         log("Successfully written settings to the registry");

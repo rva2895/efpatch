@@ -60,7 +60,8 @@ int __stdcall up_read_do(TCommCommandLog* comm_log, int handle, void* buffer, un
             if (message_panel && timeGetTime() > up_read_next_time && !message_panel->active)
             {
                 //std::string message = get_string(1108);
-                TMessagePanel__show_message(message_panel, 1, "Waiting for stream ...", cd.gameVersion ? 68 : 243, 0, NULL, 0, 0, 5000, NULL, -1);
+                TMessagePanel__show_message(message_panel, 1, get_string(1530), //"Waiting for stream ..."
+                    cd.gameVersion ? 68 : 243, 0, NULL, 0, 0, 5000, NULL, -1);
                 /*TPanel* main_view = (TPanel*)game_screen->main_view;
                 if (main_view->have_focus)
                 {

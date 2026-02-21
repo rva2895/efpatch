@@ -18,6 +18,8 @@ char* jedi_holo_path;
 
 bool load_data_always = false;
 
+extern char* lang_local;
+
 /*
 bool __stdcall on_deny_save_game_popup()
 {
@@ -139,12 +141,12 @@ int load_game_data(TRIBE_Game* game, int version)
 
     char dll_name[MAX_PATH];
     if (!strcmp(data_prefix, DATA_FOLDER_PREFIX_FROM_ROOT))
-        snprintf(dll_name, _countof(dll_name), DATA_FOLDER_PREFIX_FROM_ROOT"..\\language_x2.dll");
+        snprintf(dll_name, _countof(dll_name), DATA_FOLDER_PREFIX_FROM_ROOT"..\\%s", lang_local);
     else
         snprintf(dll_name, _countof(dll_name), "%slanguage_x2.dll", data_prefix);
 
     FreeLibrary(*hInstance_dll);
-    *hInstance_dll = LoadLibrary(dll_name);
+    *hInstance_dll = efpatch_LoadStringTable(dll_name);
 
     log("Game data loaded");
 

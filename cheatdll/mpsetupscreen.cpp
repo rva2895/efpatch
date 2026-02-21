@@ -280,11 +280,11 @@ TribeMPSetupScreenExtraOptionsDialog* __stdcall TribeMPSetupScreenExtraOptionsDi
         TEasy_Panel__get_popup_info_id((TEasy_Panel*)parent_panel_in),
         1);
 
-    TEasy_Panel__create_text6(
+    TEasy_Panel__create_text4(
         (TEasy_Panel*)this_,
         (TPanel*)this_,
         &this_->title,
-        "Additional Options",
+        1525, //"Additional Options"
         EXTRA_OPTIONS_WINDOW_HORZ_MARGIN,
         EXTRA_OPTIONS_WINDOW_VERT_MARGIN,
         EXTRA_OPTIONS_WINDOW_WIDTH - (EXTRA_OPTIONS_WINDOW_HORZ_MARGIN * 2),
@@ -326,11 +326,11 @@ TribeMPSetupScreenExtraOptionsDialog* __stdcall TribeMPSetupScreenExtraOptionsDi
         TButtonPanel__set_disabled(this_->option_hide_names_button, 1);
     }
 
-    TEasy_Panel__create_text6(
+    TEasy_Panel__create_text4(
         (TEasy_Panel*)this_,
         (TPanel*)this_,
         &this_->option_allow_spectators_title,
-        "Allow Spectators",
+        1526, //"Allow Spectators"
         EXTRA_OPTIONS_WINDOW_HORZ_MARGIN + EXTRA_OPTIONS_WINDOW_CHECKBOX_SIZE,
         EXTRA_OPTIONS_WINDOW_CLIENT_AREA_TOP_MARGIN + EXTRA_OPTIONS_WINDOW_OPTION_TEXT_OFFSET,
         EXTRA_OPTIONS_WINDOW_WIDTH - (EXTRA_OPTIONS_WINDOW_HORZ_MARGIN * 2),
@@ -341,11 +341,11 @@ TribeMPSetupScreenExtraOptionsDialog* __stdcall TribeMPSetupScreenExtraOptionsDi
         0
     );
 
-    TEasy_Panel__create_text6(
+    TEasy_Panel__create_text4(
         (TEasy_Panel*)this_,
         (TPanel*)this_,
         &this_->option_hide_names_title,
-        "Hide Player Names",
+        1527, //"Hide Player Names"
         EXTRA_OPTIONS_WINDOW_HORZ_MARGIN + EXTRA_OPTIONS_WINDOW_CHECKBOX_SIZE,
         EXTRA_OPTIONS_WINDOW_CLIENT_AREA_TOP_MARGIN + EXTRA_OPTIONS_WINDOW_OPTION_TEXT_OFFSET + EXTRA_OPTIONS_WINDOW_OPTION_SPACING,
         EXTRA_OPTIONS_WINDOW_WIDTH - (EXTRA_OPTIONS_WINDOW_HORZ_MARGIN * 2),
@@ -356,11 +356,11 @@ TribeMPSetupScreenExtraOptionsDialog* __stdcall TribeMPSetupScreenExtraOptionsDi
         0
     );
 
-    TEasy_Panel__create_button2(
+    TEasy_Panel__create_button(
         (TEasy_Panel*)this_,
         (TPanel*)this_,
         &this_->ok_button,
-        "OK",
+        4001, //"OK"
         NULL,
         (EXTRA_OPTIONS_WINDOW_WIDTH - (3 * EXTRA_OPTIONS_WINDOW_HORZ_MARGIN)) / 2 - EXTRA_OPTIONS_WINDOW_BUTTON_WIDTH + EXTRA_OPTIONS_WINDOW_HORZ_MARGIN,
         EXTRA_OPTIONS_WINDOW_HEIGHT - EXTRA_OPTIONS_WINDOW_CLIENT_AREA_BOTTOM_MARGIN,
@@ -371,11 +371,11 @@ TribeMPSetupScreenExtraOptionsDialog* __stdcall TribeMPSetupScreenExtraOptionsDi
         OK_ACTION_ID
     );
 
-    TEasy_Panel__create_button2(
+    TEasy_Panel__create_button(
         (TEasy_Panel*)this_,
         (TPanel*)this_,
         &this_->cancel_button,
-        "Cancel",
+        4002, //"Cancel"
         NULL,
         (EXTRA_OPTIONS_WINDOW_WIDTH - (3 * EXTRA_OPTIONS_WINDOW_HORZ_MARGIN)) / 2 - EXTRA_OPTIONS_WINDOW_BUTTON_WIDTH + 2 * EXTRA_OPTIONS_WINDOW_HORZ_MARGIN + EXTRA_OPTIONS_WINDOW_BUTTON_WIDTH,
         EXTRA_OPTIONS_WINDOW_HEIGHT - EXTRA_OPTIONS_WINDOW_CLIENT_AREA_BOTTOM_MARGIN,

@@ -5,8 +5,7 @@ std::map<int, MAP_INFO> map_list;
 
 bool __stdcall check_map_list_presence()
 {
-    std::string ef_locales = get_string(13599);
-    return (ef_locales.length() != 0 && !map_list.empty());
+    return (strlen(get_string(13599)) != 0 && !map_list.empty());
 }
 
 __declspec(naked) void on_append_line_1() //0051F82B

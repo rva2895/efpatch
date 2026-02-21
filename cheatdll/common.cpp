@@ -178,6 +178,11 @@ void trySetProcessDPIAware()
     }
 }
 
+HMODULE __stdcall efpatch_LoadStringTable(LPCSTR lpLibFileName)
+{
+    return LoadLibraryEx(lpLibFileName, NULL, LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE | LOAD_LIBRARY_AS_IMAGE_RESOURCE);
+}
+
 unsigned int get_worldtime()
 {
     TRIBE_World* world = (*base_game)->world;
@@ -199,25 +204,11 @@ bool __stdcall file_exists(const char* filename)
         return false;
 }
 
-int __stdcall language_dll_load(UINT id, char* buf, int nmax)
+const char* __stdcall get_string(int id)
 {
-    //HMODULE lang = GetModuleHandle("language_x2.dll");
-    //if (!lang)
-    //    LoadLibrary("language_x2.dll");
-    //int e = GetLastError();
-    int n = LoadString(GetModuleHandle("language_x2.dll"), id, buf, nmax);
-    //e = GetLastError();
-    if (n == 0)
-        return LoadString(GetModuleHandle("language.dll"), id, buf, nmax);
-    else
-        return n;
-}
-
-std::string __stdcall get_string(int id)
-{
-    char temp_str_buffer[0x400];
-    (*base_game)->vfptr->get_string3(*base_game, id, temp_str_buffer, _countof(temp_str_buffer));
-    return temp_str_buffer;
+    thread_local char s[0x400];
+    (*base_game)->vfptr->get_string3(*base_game, id, s, _countof(s));
+    return s;
 }
 
 void __stdcall sendChat(const char* s, int p)

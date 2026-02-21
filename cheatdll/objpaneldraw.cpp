@@ -32,7 +32,7 @@ void TRIBE_Panel_Object__draw_kills(TRIBE_Panel_Object* this_, unsigned int kill
     HGDIOBJ hfont;
     char dest[0x100];
 
-    snprintf(dest, _countof(dest), "Kills: %u", kills);
+    snprintf(dest, _countof(dest), get_string(1528), kills); //"Kills: %u"
     if (TDrawArea__GetDc(this_->render_area, ""))
     {
         SetBkMode(this_->render_area->DrawDc, 1);

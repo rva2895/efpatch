@@ -81,9 +81,11 @@ loc_7CD8B0:
     }
 }
 
+char* const rec_err_str = (char* const)0x0069E730; //"%s - worldtime: %ld"
+
 void __stdcall make_eof_string(char* dest, long t)
 {
-    snprintf(dest, 240, "Unexpected end of file. Replaying stopped. - worldtime: %ld", t);
+    snprintf(dest, 240, rec_err_str, get_string(1529), t);
 }
 
 __declspec(naked) void rec_unexpected_eof() //0061FD04

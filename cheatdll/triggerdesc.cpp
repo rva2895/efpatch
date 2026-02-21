@@ -11,98 +11,6 @@ char* s;
 
 extern const char* resourceNames[];
 
-const char* condNames[] =
-{
-    "None",
-    "Bring Object to Area",
-    "Bring Object to Object",
-    "Own Objects",
-    "Own Fewer Objects",
-    "Objects in Area",
-    "Destroy Object",
-    "Capture Object",
-    "Attrib",                //0x08
-    "Research Tech",
-    "Timer",
-    "Object Selected",
-    "AI Signal",
-    "Player Defeated",
-    "Object Has Target",
-    "Object Visible",
-    "Object Not Visible",    //0x10
-    "Researching Tech",
-    "Units Garrisoned",
-    "Difficulty",
-    "Own Fewer Foundations",
-    "Selected Obj In Area",
-    "Powered Obj In Area",
-    "Units Queued Past Pop Cap",
-    "Per Mille Chance",        //0x18
-    "Area Explored",
-    "Alliance",
-    "Var",
-    "Var",
-    "Civ",
-    "--OR--"
-};
-
-const char* effectNames[] =
-{
-    "None",
-    "Alliance",
-    "Research Tech",
-    "Chat",
-    "Play Sound",
-    "Trib",
-    "Unlock Gate",
-    "Lock Gate",
-    "Trigger On",        //0x08
-    "Trigger Off",
-    "AI Script Goal",
-    "Create Object",
-    "Task",
-    "Victory",
-    "Kill Object",
-    "Remove Object",
-    "Scroll View",        //0x10
-    "Unload",
-    "Ownership",
-    "Patrol",
-    "Instr",
-    "Clear Instructions",
-    "Stance",
-    "Enable Adv Btns",
-    "Damage Object",    //0x18
-    "Place Foundation",
-    "Name",
-    "Change HP",
-    "Change Attack",
-    "Stop Unit",
-    "Snap View",
-    "Disable Adv Btns",
-    "Enable Tech",        //0x20
-    "Disable Tech",
-    "Enable Unit",
-    "Disable Unit",
-    "Flash Objects",
-    "Turn Input Off",
-    "Turn Input On",
-    "Change Speed",
-    "Give Ability",        //0x28
-    "Remove Ability",
-    "Own",
-    "Plr",
-    "Explore",
-    "Var",
-    "Terrain",
-    "Defeat",
-    "Copy Obj",
-    "Xform Obj",
-    "Teleport",
-    //"Command",
-    "Breakpoint"
-};
-
 void __stdcall c_default(condition*, int) {};
 void __stdcall e_default(effect*, int) {};
 
@@ -138,17 +46,24 @@ void __stdcall c_player_tech(condition* p, int)
     sprintf(s + strlen(s), " (P%d: %d)", p->player, p->tech);
 }
 
-const char* alliance_states[] =
+int get_alliance_state_string_id(int state)
 {
-    "Ally",
-    "Neutral",
-    "",
-    "Enemy"
-};
+    switch (state)
+    {
+    case 0: //Ally
+        return 10701;
+    case 1: //Neutral
+        return 10702;
+    case 3: //Enemy
+        return 10703;
+    default: //Unknown
+        return 1531;
+    }
+}
 
 void __stdcall c_alliance_state(condition* p, int)
 {
-    sprintf(s + strlen(s), " (P%d->P%d: %s)", p->player, p->timer, alliance_states[p->ai_signal]);
+    sprintf(s + strlen(s), " (P%d->P%d: %s)", p->player, p->timer, get_string(get_alliance_state_string_id(p->ai_signal)));
 }
 
 extern const char* var_names[];
@@ -173,7 +88,7 @@ void __stdcall c_var(condition* p, int)
 
 void __stdcall c_civ(condition* p, int)
 {
-    sprintf(s + strlen(s), " (P%d: %s)", p->player, get_string(10230 + p->ai_signal).c_str());
+    sprintf(s + strlen(s), " (P%d: %s)", p->player, get_string(10230 + p->ai_signal));
 }
 
 void(__stdcall* condPrint[]) (condition*, int) =
@@ -270,31 +185,33 @@ void __stdcall e_player(effect* p, int)
 
 void __stdcall e_stance(effect* p, int)
 {
+    int st;
     if (p->ai_trigger_number == -1)
-        sprintf(s + strlen(s), " (%s)", "Freeze Unit");
+    {
+        st = 1511; //"Freeze Unit"
+    }
     else
     {
-        char* st;
         switch (p->ai_trigger_number)
         {
         case 1:
-            st = "Aggressive";
+            st = 1512; //"Aggressive"
             break;
         case 2:
-            st = "Defensive";
+            st = 1513; //"Defensive"
             break;
         case 3:
-            st = "Stand Ground";
+            st = 1514; //"Stand Ground"
             break;
         case 4:
-            st = "No Attack";
+            st = 1515; //"No Attack"
             break;
         default:
-            st = "";
+            st = 1531; //"Unknown"
             break;
         }
-        sprintf(s + strlen(s), " (%s)", st);
     }
+    sprintf(s + strlen(s), " (%s)", get_string(st));
 }
 
 /*
@@ -314,12 +231,12 @@ void __stdcall e_command(effect* p, int)
 void __stdcall e_trigger(effect* p, int)
 {
     TRIBE_Trigger* t = TRIBE_Trigger_System__get_trigger((*base_game)->world->trigger_system, p->trigger);
-    sprintf(s + strlen(s), " (%s)", t ? t->name : "none");
+    sprintf(s + strlen(s), " (%s)", t ? t->name : get_string(1532));
 }
 
 void __stdcall e_alliance(effect* p, int)
 {
-    sprintf(s + strlen(s), " (P%d->P%d: %s)", p->source_player, p->target_player, alliance_states[p->alliance]);
+    sprintf(s + strlen(s), " (P%d->P%d: %s)", p->source_player, p->target_player, get_string(get_alliance_state_string_id(p->alliance)));
 }
 
 void __stdcall e_str_obj_master(effect* p, int)
@@ -341,13 +258,13 @@ void __stdcall e_location(effect* p, int)
     sprintf(s + strlen(s), " (%d,%d)", p->location_x, p->location_y);
 }
 
-extern char** terrain_names;
 extern int terrains_loaded;
+extern int* terrain_language_dll;
 
 void __stdcall e_terrain(effect* p, int)
 {
     sprintf(s + strlen(s), " (%s)",
-        (p->ai_trigger_number >= 0) && (p->ai_trigger_number < terrains_loaded) ? terrain_names[p->ai_trigger_number] : "Unknown");
+        get_string((p->ai_trigger_number >= 0) && (p->ai_trigger_number < terrains_loaded) ? terrain_language_dll[p->ai_trigger_number] : 1531));
 }
 
 void __stdcall e_goal(effect* p, int)
@@ -363,7 +280,7 @@ void __stdcall e_copy_obj(effect* p, int)
 
 void __stdcall e_transform_obj(effect* p, int)
 {
-    sprintf(s + strlen(s), " (To %d)",
+    sprintf(s + strlen(s), " (-> %d)",
         p->quantity);
 }
 
@@ -429,13 +346,13 @@ void __stdcall scanCond(condition* p, int i)
     sprintf(s, "C#%d: ", i);
     if (!(p->trigger & 0xFF))
         strcpy(s + strlen(s), "!");
-    sprintf(s + strlen(s), "%s", condNames[p->id]);
+    sprintf(s + strlen(s), "%s", get_string(1700 + p->id));
     condPrint[p->id](p, i);
 }
 
 void __stdcall scanEffect(effect* p, int i)
 {
-    sprintf(s, "E#%d: %s", i, effectNames[p->id]);
+    sprintf(s, "E#%d: %s", i, get_string(1800 + p->id));
     effectPrint[p->id](p, i);
 }
 

@@ -4,8 +4,6 @@
 
 int t_ver;
 
-char** terrain_names = NULL;
-
 int* terrain_language_dll = NULL;
 extern BYTE* terrain_array;
 int terrains_loaded = 0;
@@ -187,37 +185,12 @@ void loadTerrainTxt(const char* prefix, const char* filename)
     FILE* f = fopen(full_filename, "rt");
     if (f)
     {
-        for (int i = 0; i < terrains_loaded; i++)
-            free(terrain_names[i]);
-        free(terrain_names);
-        terrain_names = NULL;
-
         terrains_loaded = 0;
         memset(terrain_array, 0, TERRAIN_COUNT);
         for (; fscanf(f, "%hhu,%d", &terrain_array[terrains_loaded], &terrain_language_dll[terrains_loaded]) > 0; terrains_loaded++)
             ;
         log("Loaded %d terrains", terrains_loaded);
         fclose(f);
-
-        HMODULE lang = LoadLibrary("language.dll");
-        HMODULE lang_x2 = LoadLibrary("language_x2.dll");
-
-        terrain_names = (char**)malloc(terrains_loaded*sizeof(char**));
-        for (int i = 0; i < terrains_loaded; i++)
-        {
-            char buf[0x100];
-            int n = language_dll_load(terrain_language_dll[i], buf, 0xFF);
-            terrain_names[i] = make_str_copy(n > 0 ? buf : "FORBIDDEN");
-
-#ifdef _DEBUG
-            log("Terrain %d - %s", i, terrain_names[i]);
-#endif
-        }
-
-        FreeLibrary(lang);
-        FreeLibrary(lang_x2);
-
-        log("Terrain data loaded");
     }
     else
     {
@@ -231,11 +204,6 @@ void __cdecl setTerrainLoadHooks_atexit()
 {
     free(terrain_array);
     free(terrain_language_dll);
-
-    for (int i = 0; i < terrains_loaded; i++)
-        free(terrain_names[i]);
-
-    free(terrain_names);
 }
 
 void setTerrainLoadHooks(int ver)

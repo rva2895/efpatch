@@ -239,95 +239,6 @@ void snapscroll_setJMP(DWORD jmp_location)
     writeDword(jmp_location + 1, (DWORD)&snapscroll_finish - (jmp_location + 5));
 }
 
-const char aChangeOwnMaster[] = "Change Own Object Master";
-const char aChangeGlobalUnit[] = "Change Player Object Master";
-const char aExplore[] = "Explore Area";
-const char aUnitVar[] = "Change Object Variable";
-const char aTerrain[] = "Change Terrain";
-const char aDefeat[] = "Declare Defeat";
-const char aCommand[] = "Command";
-const char aCopyObj[] = "Copy Object Master";
-const char aTransformObj[] = "Transform Object";
-const char aTeleportObj[] = "Teleport Object";
-const char aBreakpoint[] = "Breakpoint";
-
-__declspec(naked) void triggerDisplayHook()
-{
-    __asm
-    {
-        mov     ecx, [edi + 0E24h]
-        push    2Ah
-        push    offset aChangeOwnMaster
-        mov     eax, 4C82A0h
-        call    eax
-
-        mov     ecx, [edi + 0E24h]
-        push    2Bh
-        push    offset aChangeGlobalUnit
-        mov     eax, 4C82A0h
-        call    eax
-
-        mov     ecx, [edi + 0E24h]
-        push    2Ch
-        push    offset aExplore
-        mov     eax, 4C82A0h
-        call    eax
-
-        mov     ecx, [edi + 0E24h]
-        push    2Dh
-        push    offset aUnitVar
-        mov     eax, 4C82A0h
-        call    eax
-
-        mov     ecx, [edi + 0E24h]
-        push    2Eh
-        push    offset aTerrain
-        mov     eax, 4C82A0h
-        call    eax
-
-        mov     ecx, [edi + 0E24h]
-        push    2Fh
-        push    offset aDefeat
-        mov     eax, 4C82A0h
-        call    eax
-
-        mov     ecx, [edi + 0E24h]
-        push    30h
-        push    offset aCopyObj
-        mov     eax, 4C82A0h
-        call    eax
-
-        mov     ecx, [edi + 0E24h]
-        push    31h
-        push    offset aTransformObj
-        mov     eax, 4C82A0h
-        call    eax
-
-        mov     ecx, [edi + 0E24h]
-        push    32h
-        push    offset aTeleportObj
-        mov     eax, 4C82A0h
-        call    eax
-
-        //mov     ecx, [edi + 0E24h]
-        //push    30h
-        //push    offset aCommand
-        //mov     eax, 4C82A0h
-        //call    eax
-
-#ifdef _DEBUG
-        mov     ecx, [edi + 0E24h]      //breakpoint
-        push    33h
-        push    offset aBreakpoint
-        mov     eax, 4C82A0h
-        call    eax
-#endif
-
-        mov     eax, 007B23ACh
-        jmp     eax
-    }
-}//2B02FC
-
 void __stdcall do_effect_explore_area(effect* e, RGE_Player* player)
 {
     if (player)
@@ -686,7 +597,9 @@ void setEffectHooks()
     //int adrSetVarEffect = (int)&setVarEffect;
 
     setHook((void*)0x007B2A9B, effectParams);
-    setHook((void*)0x007B2376, triggerDisplayHook);
+
+    static const BYTE effect_list_orig_instr[] = { 0x8B, 0x8F, 0x24, 0x0E, 0x00, 0x00 };
+    writeData(0x0053BD3A, effect_list_orig_instr, sizeof(effect_list_orig_instr));
 
     //setHook ((void*)0x007B2ABF, &setVarHook);
 
@@ -695,6 +608,8 @@ void setEffectHooks()
 #ifdef _DEBUG
     nEffects++;
 #endif // _DEBUG
+
+    writeByte(0x0053BD37, nEffects);
 
     writeByte(0x005F2B4C, nEffects); //effect count, old = 2d
     //writeByte (0x0053BD37, 0x28);
@@ -756,7 +671,7 @@ void setEffectHooks()
     writeDword(0x005F3DB4, 0x55E4);
     writeDword(0x005F3DC7, 0x55E0);
 
-    setHook((void*)0x0053BD3A, (void*)0x007B2340);
+    //setHook((void*)0x0053BD3A, (void*)0x007B2340);
     writeByte(0x0053CE86, 0xEB);
     setHook((void*)0x005F557B, (void*)0x007B2A00);
     writeDword(0x005F2B56, 0x007B2240);

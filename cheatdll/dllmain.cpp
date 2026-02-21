@@ -358,6 +358,8 @@ void setHooksCC()
     setTabstopHooks();
     setMouseWheelHooks();
 
+    setLanguageDllHooks();
+
     log("setHooksCC() complete");
 }
 #pragma optimize( "", on )
@@ -504,6 +506,8 @@ void setHooksEF()
 
     setSleepingObjectsHooks();
 
+    install_language(cd.lang);
+
     /*
 #ifdef TARGET_VOOBLY
 #ifdef VOOBLY_EF
@@ -641,8 +645,6 @@ void initialSetup()
     new_memory_pages = VirtualAlloc(0, 0x1000, MEM_COMMIT, PAGE_READWRITE);
 
     getSettings();
-
-    //install_language(cd.lang);
     
     screen_scale_factor = (float)GetDeviceCaps(GetDC(NULL), LOGPIXELSX) / 96;
     log("Set screen scale factor = %f", screen_scale_factor);

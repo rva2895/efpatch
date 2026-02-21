@@ -5,52 +5,58 @@
 
 std::vector<std::pair<std::string, std::string>> query_languages()
 {
-    std::vector<std::pair<std::string, std::string>> languages;
-    int nFiles = 0;
-    WIN32_FIND_DATA fd;
-    HANDLE hFile = FindFirstFile("language_x2-*.dll", &fd);
-    if (hFile == INVALID_HANDLE_VALUE)
+    struct load_language_callback_param
     {
-        log("FindFirstFile returned INVALID_HANDLE_VALUE");
-    }
-    else
-    {
-        char* s1 = (char*)malloc(MAX_LOADSTRING);
-        char* s2 = (char*)malloc(MAX_LOADSTRING);
-        do
+        std::vector<std::pair<std::string, std::string>> languages;
+    } param;
+
+    auto load_language_callback = [](const char* filename, void* param)
         {
+            load_language_callback_param* p = (load_language_callback_param*)param;
             HMODULE dll;
-            if (dll = LoadLibrary(fd.cFileName))
-                if (LoadString(dll, 10000, s1, MAX_LOADSTRING))
-                    if (LoadString(dll, 10001, s2, MAX_LOADSTRING))
-                    {
-                        languages.emplace_back(std::pair<std::string, std::string>(s1, s2));
-                        log("Found language: %s (%s)", s1, s2);
-                        nFiles++;
-                    }
-        } while (FindNextFile(hFile, &fd));
-        free(s1);
-        free(s2);
-        int err = GetLastError();
-        if (err != ERROR_NO_MORE_FILES)
-            log("WARNING: FindNextFile(): unrecognised error %d", err);
-        else
-            log("Finished listing files");
-        FindClose(hFile);
-    }
-    log("Found %d language dll files", nFiles);
-    return languages;
+            char s1[MAX_LOADSTRING];
+            char s2[MAX_LOADSTRING];
+            if (dll = efpatch_LoadStringTable(filename))
+            {
+                if (LoadString(dll, 10000, s1, MAX_LOADSTRING) && LoadString(dll, 10001, s2, MAX_LOADSTRING))
+                {
+                    p->languages.emplace_back(std::pair<std::string, std::string>(s1, s2));
+                    log("Found language: %s (%s)", s1, s2);
+                }
+                FreeLibrary(dll);
+            }
+        };
+
+    findfirst_callback("language_x2-*.dll", load_language_callback, &param);
+
+    return param.languages;
 }
 
-const char* lang_base = "language_x2.dll";
-char* lang_local;
+const char* lang_base = "language_x2-en.dll";
+char* lang_local = NULL;
 const char* lang_mask = "language_x2-%s.dll";
 
-void install_language(std::string lang)
+void install_language(const std::string& lang)
 {
+    free(lang_local);
     lang_local = (char*)malloc(lang.length() + strlen(lang_mask) - 2 + 1);
     sprintf(lang_local, lang_mask, lang.c_str());
     writeDword(0x0042467D, (DWORD)lang_base);
     writeDword(0x005E40A3, (DWORD)lang_local);
     log("Language: %s, filename: %s", lang.c_str(), lang_local);
+}
+
+void __cdecl setLanguageDllHooks_atexit()
+{
+    free(lang_local);
+}
+
+void setLanguageDllHooks()
+{
+    writeByte(0x00424DE2, 0x90);
+    setHookCall((void*)0x00424DE3, efpatch_LoadStringTable);
+    writeByte(0x005E4B3F, 0x90);
+    setHookCall((void*)0x005E4B40, efpatch_LoadStringTable);
+
+    efpatch_atexit(setLanguageDllHooks_atexit);
 }

@@ -51,9 +51,6 @@ void DrawText_outline(HDC hdc, RECT* r, const char* str)
     SelectObject(hdc, hOld);
 }
 
-const char status_On[] = "On";
-const char status_Off[] = "Off";
-
 extern int cliff_type;
 extern int terrain_paint_mode;
 
@@ -79,50 +76,53 @@ void __stdcall editorstatus_paint(TRIBE_Screen_Sed* screen_sed)
     r.top = cd.largeText ? 4 : 8;
     r.bottom = RECT_Y + 8;
     char buf[0x100];
-    const char* status_grid = status_On;
-    const char* status_collision = status_On;
-    if (placementSettings & 1)
-        status_collision = status_Off;
-    if (placementSettings & 2)
-        status_grid = status_Off;
 
-    snprintf(buf, _countof(buf), "Grid placement: %s\nCollision enabled: %s", status_grid, status_collision);
+    std::string status_On = get_string(1520);
+    std::string status_Off = get_string(1521);
+
+    std::string& status_collision = (placementSettings & 1) ? status_Off : status_On;
+    std::string& status_grid = (placementSettings & 2) ? status_Off : status_On;
+
+    snprintf(buf, _countof(buf), get_string(1522), //"Grid placement: %s\nCollision enabled: %s"
+        status_grid.c_str(), status_collision.c_str());
     DrawText_outline(hdc, &r, buf);
 
-    char* cliff_txt;
+    int cliff_string_id;
     switch (cliff_type)
     {
     case 0x108:
-        cliff_txt = "Standard";
+        cliff_string_id = 1680; //"Standard";
         break;
     case 3971:
-        cliff_txt = "Gray 1";
+        cliff_string_id = 1681; //"Gray 1";
         break;
     case 3981:
-        cliff_txt = "Gray 2";
+        cliff_string_id = 1682; //"Gray 2";
         break;
     case 3991:
-        cliff_txt = "Brown";
+        cliff_string_id = 1683; //"Brown";
         break;
     case 4196:
-        cliff_txt = "Jungle";
+        cliff_string_id = 1684; //"Jungle";
         break;
     case 4206:
-        cliff_txt = "Red";
+        cliff_string_id = 1685; //"Red";
         break;
     case 4216:
-        cliff_txt = "Sand";
+        cliff_string_id = 1686; //"Sand";
         break;
     case 4226:
-        cliff_txt = "Snow";
+        cliff_string_id = 1687; //"Snow";
         break;
     case 4236:
-        cliff_txt = "Volcanic";
+        cliff_string_id = 1688; //"Volcanic";
         break;
     default:
-        cliff_txt = "Error!";
+        cliff_string_id = 1531; //"Unknown"
         break;
     }
+
+    std::string cliff_txt = get_string(cliff_string_id);
 
     /*char* status_terrain;
     if (terrain_paint_mode)
@@ -130,7 +130,7 @@ void __stdcall editorstatus_paint(TRIBE_Screen_Sed* screen_sed)
     else
         status_terrain = status_Off;*/
 
-    snprintf(buf, _countof(buf), "Cliff: %s", cliff_txt);
+    snprintf(buf, _countof(buf), get_string(1523), cliff_txt.c_str()); //"Cliff: %s"
 
     r.right += 160 + r_left_shift;
     r.left += 160 + r_left_shift;

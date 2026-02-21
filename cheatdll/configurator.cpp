@@ -11,7 +11,7 @@
 #include <process.h>
 #include <CommCtrl.h>
 
-//std::vector<std::pair<std::string, std::string>> languages;
+std::vector<std::pair<std::string, std::string>> languages;
 
 extern CONFIG_DATA cd;
 extern const CONFIG_DATA cd_default;
@@ -74,12 +74,12 @@ void processIDOK(HWND hWnd)
 
     cd.fog = SendMessage(GetDlgItem(hWnd, IDC_COMBO_FOG), CB_GETCURSEL, 0, 0);
 
-    //char* lang_str = (char*)malloc(0x100);
-    //GetDlgItemText(hWnd, IDC_COMBO_LANG, lang_str, 0x100);
-    //std::string lang_str_s = lang_str;
-    //for (int i = 0; i < languages.size(); i++)
-    //    if (languages[i].first == lang_str_s)
-    //        cd.lang = languages[i].second;
+    char lang_str[0x100];
+    GetDlgItemText(hWnd, IDC_COMBO_LANG, lang_str, _countof(lang_str));
+    std::string lang_str_s = lang_str;
+    for (int i = 0; i < languages.size(); i++)
+        if (languages[i].first == lang_str_s)
+            cd.lang = languages[i].second;
 
     regSet(&cd);
 }
@@ -165,9 +165,13 @@ void readSettingsToDialog(HWND hWnd)
 
     SendMessage(GetDlgItem(hWnd, IDC_COMBO_FOG), CB_SETCURSEL, cd.fog, 0);
 
-    //languages = query_languages();
-    //for (int i = 0; i < languages.size(); i++)
-    //    SendMessage(GetDlgItem(hWnd, IDC_COMBO2), CB_ADDSTRING, 0, (LPARAM)languages[i].first.c_str());
+    languages = query_languages();
+    for (int i = 0; i < languages.size(); i++)
+    {
+        SendMessage(GetDlgItem(hWnd, IDC_COMBO_LANG), CB_ADDSTRING, 0, (LPARAM)languages[i].first.c_str());
+        if (languages[i].second == cd.lang)
+            SendMessage(GetDlgItem(hWnd, IDC_COMBO_LANG), CB_SETCURSEL, i, 0);
+    }
 }
 
 void processDefaults(HWND hWnd)

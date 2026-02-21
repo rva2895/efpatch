@@ -62,11 +62,8 @@ _no_remove:
     }
 }
 
-const char szAmount[] = "Amount";
-const char szOptions[] = "Options";
-
-extern char** terrain_names;
 extern int terrains_loaded;
+extern int* terrain_language_dll;
 
 void init_ai_trigger_dropdown(TDropDownPanel* ai_trigger_dropdown)
 {
@@ -109,24 +106,24 @@ void* __stdcall getEffectParams_hook(TRIBE_Screen_Sed* scr_sed, effect* e)
     {
     case 2:            //research technology
         TDropDownPanel__empty_list(ai_trigger_dropdown);
-        TDropDownPanel__append_line(ai_trigger_dropdown, "Default", -1);
-        TDropDownPanel__append_line(ai_trigger_dropdown, "Allow stacking", 1);
-        TDropDownPanel__append_line(ai_trigger_dropdown, "Ignore civ restrictions", 2);
-        TDropDownPanel__append_line(ai_trigger_dropdown, "Stacking/ignore civ restrictions", 3);
+        TDropDownPanel__append_line2(ai_trigger_dropdown, 1500, -1); //"Default"
+        TDropDownPanel__append_line2(ai_trigger_dropdown, 1501, 1); //"Allow stacking"
+        TDropDownPanel__append_line2(ai_trigger_dropdown, 1502, 2); //"Ignore civ restrictions"
+        TDropDownPanel__append_line2(ai_trigger_dropdown, 1503, 3); //"Stacking/ignore civ restrictions"
 
         ai_trigger_text->vfptr->set_fixed_position(ai_trigger_text, 0x190, 2, 0xC8, 0x14);
-        ai_trigger_text->vfptr->set_text3(ai_trigger_text, szOptions, NULL);
+        ai_trigger_text->vfptr->set_text2(ai_trigger_text, 1504); //"Options"
 
         ai_trigger_dropdown->vfptr->set_fixed_position(ai_trigger_dropdown, 0x190, 0x16, 0xC8, 0x14);
         break;
     case 8:          //activate trigger
     case 9:          //deactivate trigger
         TDropDownPanel__empty_list(ai_trigger_dropdown);
-        TDropDownPanel__append_line(ai_trigger_dropdown, "No", -1);
-        TDropDownPanel__append_line(ai_trigger_dropdown, "Yes", 1);
+        TDropDownPanel__append_line2(ai_trigger_dropdown, 1506, -1); //"No"
+        TDropDownPanel__append_line2(ai_trigger_dropdown, 1505, 1); //"Yes"
 
         ai_trigger_text->vfptr->set_fixed_position(ai_trigger_text, 0x182, 2, 0xC8, 0x14);
-        ai_trigger_text->vfptr->set_text3(ai_trigger_text, "Reset Timer", NULL);
+        ai_trigger_text->vfptr->set_text2(ai_trigger_text, 1507); //"Reset Timer"
 
         ai_trigger_dropdown->vfptr->set_fixed_position(ai_trigger_dropdown, 0x182, 0x16, 0xC8, 0x14);
         break;
@@ -154,7 +151,7 @@ void* __stdcall getEffectParams_hook(TRIBE_Screen_Sed* scr_sed, effect* e)
         TDropDownPanel__empty_list(ai_trigger_dropdown);
         for (int i = 0; i < terrains_loaded; i++)
             if (((i < 104) || (i > 128)) && (i != 53))
-                TDropDownPanel__append_line(ai_trigger_dropdown, terrain_names[i], i);
+                TDropDownPanel__append_line2(ai_trigger_dropdown, terrain_language_dll[i], i);
 
         ai_trigger_text->vfptr->set_fixed_position(ai_trigger_text, 0x182, 2, 0xC8, 0x14);
         ai_trigger_text->vfptr->set_text2(ai_trigger_text, 10684); //"Terrain"
@@ -162,10 +159,10 @@ void* __stdcall getEffectParams_hook(TRIBE_Screen_Sed* scr_sed, effect* e)
         ai_trigger_dropdown->vfptr->set_fixed_position(ai_trigger_dropdown, 0x182, 0x16, 0xC8, 0x14);
         break;
     case 0x30:        //copy obj
-        quantity_text->vfptr->set_text3(quantity_text, "Source ID", NULL);
+        quantity_text->vfptr->set_text2(quantity_text, 1508); //"Source ID"
         break;
     case 0x31:        //transform obj
-        quantity_text->vfptr->set_text3(quantity_text, "Transform ID", NULL);
+        quantity_text->vfptr->set_text2(quantity_text, 1509); //"Transform ID"
         break;
     /*case 0x30:        //command
         flush_ai_trigger_dropdown(_this);
@@ -192,14 +189,14 @@ void* __stdcall getEffectParams_hook(TRIBE_Screen_Sed* scr_sed, effect* e)
         break;
     case 0x16:      //freeze unit
         TDropDownPanel__empty_list(ai_trigger_dropdown);
-        TDropDownPanel__append_line(ai_trigger_dropdown, "Freeze unit", -1);
-        TDropDownPanel__append_line(ai_trigger_dropdown, "Aggressive", 1);
-        TDropDownPanel__append_line(ai_trigger_dropdown, "Defensive", 2);
-        TDropDownPanel__append_line(ai_trigger_dropdown, "Stand Ground", 3);
-        TDropDownPanel__append_line(ai_trigger_dropdown, "No Attack", 4);
+        TDropDownPanel__append_line2(ai_trigger_dropdown, 1511, -1); //"Freeze unit"
+        TDropDownPanel__append_line2(ai_trigger_dropdown, 1512, 1); //"Aggressive"
+        TDropDownPanel__append_line2(ai_trigger_dropdown, 1513, 2); //"Defensive"
+        TDropDownPanel__append_line2(ai_trigger_dropdown, 1514, 3); //"Stand Ground"
+        TDropDownPanel__append_line2(ai_trigger_dropdown, 1515, 4); //"No Attack"
 
         ai_trigger_text->vfptr->set_fixed_position(ai_trigger_text, 0x238, 2, 0xC8, 0x14);
-        ai_trigger_text->vfptr->set_text3(ai_trigger_text, "Stance", NULL);
+        ai_trigger_text->vfptr->set_text2(ai_trigger_text, 1510); //"Stance"
 
         ai_trigger_dropdown->vfptr->set_fixed_position(ai_trigger_dropdown, 0x238, 0x16, 0xC8, 0x14);
         break;
@@ -273,12 +270,12 @@ void* __stdcall getConditionParams_hook(TRIBE_Screen_Sed* scr_sed, condition* c)
     {
     case 5:            //objects in area
         TDropDownPanel__empty_list(ai_signal_dropdown);
-        TDropDownPanel__append_line(ai_signal_dropdown, "Default", -1);
-        TDropDownPanel__append_line(ai_signal_dropdown, "Ungarrisoned only", 1);
-        TDropDownPanel__append_line(ai_signal_dropdown, "Garrisoned only", 2);
+        TDropDownPanel__append_line2(ai_signal_dropdown, 1500, -1); //"Default"
+        TDropDownPanel__append_line2(ai_signal_dropdown, 1516, 1); //"Ungarrisoned only"
+        TDropDownPanel__append_line2(ai_signal_dropdown, 1517, 2); //"Garrisoned only"
         //ai signal hlp
         ai_signal_text->vfptr->set_fixed_position(ai_signal_text, 0x240, 2, 0xC8, 0x14);
-        ai_signal_text->vfptr->set_text3(ai_signal_text, szOptions, NULL);
+        ai_signal_text->vfptr->set_text2(ai_signal_text, 1504); //"Options"
         //ai signal
         ai_signal_dropdown->vfptr->set_fixed_position(ai_signal_dropdown, 0x240, 0x16, 0xC8, 0x14);
         break;
@@ -316,12 +313,12 @@ void* __stdcall getConditionParams_hook(TRIBE_Screen_Sed* scr_sed, condition* c)
 
         //timer hlp
         timer_text->vfptr->set_fixed_position(timer_text, 0x240, 0x3C, 0x96, 0x14);
-        timer_text->vfptr->set_text3(timer_text, szAmount, 0);
+        timer_text->vfptr->set_text2(timer_text, 1518); //"Amount"
         //timer
         timer_edit->vfptr->set_fixed_position(timer_edit, 0x240, 0x50, 0x5A, 0x14);
         //ai signal hlp
         ai_signal_text->vfptr->set_fixed_position(ai_signal_text, 0x240, 2, 0xC8, 0x14);
-        ai_signal_text->vfptr->set_text3(ai_signal_text, "Variable", 0);
+        ai_signal_text->vfptr->set_text2(ai_signal_text, 1519); //"Variable"
         //ai signal
         ai_signal_dropdown->vfptr->set_fixed_position(ai_signal_dropdown, 0x240, 0x16, 0xC8, 0x14);
         //quantity

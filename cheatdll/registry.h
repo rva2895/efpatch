@@ -40,7 +40,7 @@ struct CONFIG_DATA
     int modCount;
     char** mods;
 
-    //std::string lang;
+    std::string lang;
 };
 
 void regGet(CONFIG_DATA*);
