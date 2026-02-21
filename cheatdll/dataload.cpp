@@ -89,10 +89,14 @@ int load_game_data(TRIBE_Game* game, int version)
         data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.4\\";
         break;
     case 9:
+        data_file = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.5\\genie_x2.dat";
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.5\\";
+        break;
+    case 10:
         data_file = DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat";
         data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT;
         break;
-#if CURRENT_VERSION != 9
+#if CURRENT_VERSION != 10
 #error Must update for new CURRENT_VERSION
 #endif
     default:

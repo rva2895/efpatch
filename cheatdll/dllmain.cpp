@@ -596,7 +596,7 @@ _1_5:
 void updateVersionEF()
 {
     //writeByte(0x00689534, 8); //EF 1.7e
-    writeByte(0x00689534, 20); //EF 1.5.5, new format
+    writeByte(0x00689534, 21); //EF 1.5.6, new format
     setHook((void*)0x0042C3D1, verHookEF_v2);
 }
 
