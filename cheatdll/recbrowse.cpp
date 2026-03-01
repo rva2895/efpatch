@@ -7,8 +7,6 @@
 #include <process.h>
 #include <time.h>
 
-extern CONFIG_DATA cd;
-
 ITEM_CACHE<REC_DATA>* rec_cache = NULL;
 ITEM_CACHE<SCEN_DATA>* scen_cache = NULL;
 
@@ -24,12 +22,10 @@ const char* const scenario_path = (const char* const)0x0068F188; //"scenario\\"
 std::string rec_extension;
 std::string save_extension;
 
-HFONT font_bk;
-
 bool loaded_player_brushes = false;
 HBRUSH hb[9];
 
-COLORREF player_colors[] =
+const COLORREF player_colors[] =
 {
     RGB(0, 0, 255),
     RGB(255, 0, 0),
@@ -530,23 +526,12 @@ HBITMAP make_bitmap_for_scen(int view_x, int view_y, SCEN& scen)
 
 bool load_screen_font = false;
 
-void setup_screen_font()
-{
-    load_screen_font = true;
-    font_bk = CreateFont(16, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET,
-        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, TEXT("Arial"));
-}
-
 void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScreen)
 {
     if (!SaveGameScreen->list)
         return;
 
     IDirectDrawSurface* s = SaveGameScreen->render_area->DrawSurface;
-
-    if (!load_screen_font)
-        setup_screen_font();
 
     int x = SaveGameScreen->pnl_wid;
     int y = SaveGameScreen->pnl_hgt;
@@ -703,7 +688,7 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
 
     r.left += text_offset;
 
-    HANDLE hOld = SelectObject(hdc, font_bk);
+    HANDLE hOld = SelectObject(hdc, RGE_Base_Game__get_font((*base_game), 22)->font);
     SetBkMode(hdc, TRANSPARENT);
     SetTextColor(hdc, RGB(255, 255, 255));
     DrawText(hdc, str, strlen(str), &r, DT_LEFT | DT_WORDBREAK);
@@ -851,9 +836,6 @@ void __stdcall paint_load_scen_screen_bk(TScreenPanel* LoadScenScreen)
 
     IDirectDrawSurface* s = LoadScenScreen->render_area->DrawSurface;
 
-    if (!load_screen_font)
-        setup_screen_font();
-
     int x = LoadScenScreen->pnl_wid;
     int y = LoadScenScreen->pnl_hgt;
 
@@ -968,7 +950,7 @@ void __stdcall paint_load_scen_screen_bk(TScreenPanel* LoadScenScreen)
 
     r.left += text_offset;
 
-    HANDLE hOld = SelectObject(hdc, font_bk);
+    HANDLE hOld = SelectObject(hdc, RGE_Base_Game__get_font((*base_game), 22)->font);
     SetBkMode(hdc, TRANSPARENT);
     SetTextColor(hdc, RGB(255, 255, 255));
     DrawText(hdc, str, strlen(str), &r, DT_LEFT | DT_WORDBREAK);

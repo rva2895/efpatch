@@ -11,7 +11,6 @@
 #include <ws2tcpip.h>
 #include <process.h>
 
-extern CONFIG_DATA cd;
 extern EXTRA_GAME_OPTIONS extra_options;
 
 unsigned int up_read_next_time = 0;

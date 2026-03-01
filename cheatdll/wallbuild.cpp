@@ -2,8 +2,6 @@
 #include "wallbuild.h"
 #include "registry.h"
 
-extern CONFIG_DATA cd;
-
 int sign(int a)
 {
     if (a)

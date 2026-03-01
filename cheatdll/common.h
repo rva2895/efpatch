@@ -92,6 +92,8 @@ void __stdcall findfirst_callback(
     void (__cdecl* callback)(const char* filename, void* param),
     void* param);
 
+extern CONFIG_DATA cd;
+
 extern RGE_Base_Game** const base_game;
 extern TPanelSystem* const panel_system;
 extern int* const world_update_counter;

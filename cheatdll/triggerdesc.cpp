@@ -126,6 +126,23 @@ void(__stdcall* condPrint[]) (condition*, int) =
     c_default //or
 };
 
+std::string trigger_get_formatted_ui_string(const char* str, bool truncate_newline, size_t max_len)
+{
+    std::string str_formatted(str);
+    size_t pos_newline = str_formatted.find('\r');
+    if (pos_newline == std::string::npos)
+    {
+        pos_newline = str_formatted.find('\n');
+    }
+    size_t trunc_pos = min(pos_newline, max_len);
+    if (trunc_pos != std::string::npos)
+    {
+        str_formatted.resize(trunc_pos);
+        str_formatted += " ...";
+    }
+    return str_formatted;
+}
+
 void __stdcall e_send_chat(effect* p, int)
 {
     sprintf(s + strlen(s), " (P%d: ", p->source_player);
@@ -133,15 +150,9 @@ void __stdcall e_send_chat(effect* p, int)
     {
         sprintf(s + strlen(s), ")");
     }
-    else if (strlen(p->str) > 20)
-    {
-        char* ptr = s + strlen(s) + 20;
-        strncpy(s + strlen(s), p->str, 20);
-        sprintf(ptr, "...)");
-    }
     else
     {
-        strcpy(s + strlen(s), p->str);
+        strcpy(s + strlen(s), trigger_get_formatted_ui_string(p->str, true, 20).c_str());
         sprintf(s + strlen(s), ")");
     }
 }
@@ -160,7 +171,7 @@ void __stdcall e_ownership(effect* p, int)
 
 void __stdcall e_str(effect* p, int)
 {
-    sprintf(s + strlen(s), " (%s)", p->str ? p->str : "");
+    sprintf(s + strlen(s), " (%s)", p->str ? trigger_get_formatted_ui_string(p->str, true, 20).c_str() : "");
 }
 
 void __stdcall e_quantity(effect* p, int)
@@ -243,14 +254,15 @@ void __stdcall e_str_obj_master(effect* p, int)
 {
     char error_msg[0x100];
     bool result = advTriggerEffect_do_multi_line_effect(NULL, NULL, NULL, p->str, false, error_msg, _countof(error_msg));
-    sprintf(s + strlen(s), " (%s)", result ? p->str : error_msg);
+    
+    sprintf(s + strlen(s), " (%s)", result ? trigger_get_formatted_ui_string(p->str, true, 20).c_str() : error_msg);
 }
 
 void __stdcall e_str_obj_var(effect* p, int)
 {
     char error_msg[0x100];
     bool result = effectUnitVar_do_multi_line_effect(NULL, p->str, false, error_msg, _countof(error_msg));
-    sprintf(s + strlen(s), " (%s)", result ? p->str : error_msg);
+    sprintf(s + strlen(s), " (%s)", result ? trigger_get_formatted_ui_string(p->str, true, 20).c_str() : error_msg);
 }
 
 void __stdcall e_location(effect* p, int)

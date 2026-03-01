@@ -1,7 +1,6 @@
 #pragma once
-void initialSetup();
 
-void __stdcall update_editor_bk();
+void initialSetup();
 
 int CALLBACK WndProc_dll(HWND hWnd,
     UINT msg,

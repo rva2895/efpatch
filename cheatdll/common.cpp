@@ -2,6 +2,8 @@
 #include "common.h"
 #include <io.h>
 
+CONFIG_DATA cd;
+
 RGE_Base_Game** const base_game = (RGE_Base_Game** const)0x006A3684;
 TPanelSystem* const panel_system = (TPanelSystem* const)0x006ADBB8;
 int* const world_update_counter = (int* const)0x007A22F8;
@@ -204,11 +206,12 @@ bool __stdcall file_exists(const char* filename)
         return false;
 }
 
+char string_buffer[0x400];
+
 const char* __stdcall get_string(int id)
 {
-    thread_local char s[0x400];
-    (*base_game)->vfptr->get_string3(*base_game, id, s, _countof(s));
-    return s;
+    (*base_game)->vfptr->get_string3(*base_game, id, string_buffer, _countof(string_buffer));
+    return string_buffer;
 }
 
 void __stdcall sendChat(const char* s, int p)

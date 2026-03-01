@@ -13,7 +13,6 @@
 
 std::vector<std::pair<std::string, std::string>> languages;
 
-extern CONFIG_DATA cd;
 extern const CONFIG_DATA cd_default;
 
 HANDLE display_modes_enumerated_event;

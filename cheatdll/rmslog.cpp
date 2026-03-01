@@ -7,8 +7,6 @@
 extern std::string rms_error_1;
 extern std::string rms_error_2;
 
-extern bool isEditor;
-
 bool rms_first_error;
 
 std::stack<FILE*> open_rms_files;
@@ -95,8 +93,6 @@ void __stdcall setup_rms_log()
 {
     clear_rms_error();
     rms_error_1 = "RMS: No errors";
-    if (isEditor)
-        update_editor_bk();
     rms_first_error = true;
 }
 

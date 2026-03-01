@@ -2,8 +2,6 @@
 #include "registry.h"
 #include "startupload.h"
 
-extern CONFIG_DATA cd;
-
 char* getCmdFilename(char* s)
 {
     char* p = s + strlen(s) - 1;

@@ -147,8 +147,6 @@
 #include "iuserpatch.h"
 #endif
 
-CONFIG_DATA cd;
-
 void getSettings()
 {
     regGet(&cd);

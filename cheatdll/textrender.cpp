@@ -8,8 +8,6 @@ float screen_scale_factor = 1.0f;
 
 bool dwrite_checked_and_available = false;
 
-extern CONFIG_DATA cd;
-
 HRESULT (__stdcall* DWriteCreateFactory_ptr)(
     __in DWRITE_FACTORY_TYPE factoryType,
     __in REFIID iid,

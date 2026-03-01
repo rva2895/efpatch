@@ -817,6 +817,97 @@ bool check_chat_command(const char* str)
         chat("Dumped");
         return true;
     }
+    else if (strstr(str, "/set-draw-flag"))
+    {
+        char d[0x100];
+        int id;
+        sscanf(str, "%s %x", d, &id);
+        //writeDword(0x005FBFCF, id);
+        writeDword(0x0060C858, id);
+        //writeNops(0x005FBFC7, 2);
+        chat("Set 0x%04X", id);
+        return true;
+    }
+    else if (strstr(str, "/act-list"))
+    {
+        TRIBE_World* world = (*base_game)->world;
+        if (world)
+        {
+            RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+            if (player)
+            {
+                RGE_Static_Object* obj = player->selected_obj;
+                if (obj)
+                {
+                    if (obj->master_obj->master_type >= 40)
+                    {
+                        RGE_Action_Object* act_obj = (RGE_Action_Object*)obj;
+                        
+                        auto print_action = [](RGE_Action* a)
+                            {
+                                char b[0x100];
+                                RGE_Action__get_state_name(a, b);
+                                chat("A#%02d: %s", a->action_type, b);
+                            };
+                        RGE_Action_Node* node = act_obj->actions->list;
+                        while (node)
+                        {
+                            print_action(node->action);
+                            node = node->next;
+                        }
+                    }
+                    else
+                    {
+                        chat("Not an action object");
+                    }
+                }
+                else
+                    chat("No objects selected");
+            }
+        }
+        return true;
+    }
+    else if (strstr(str, "/add-order"))
+    {
+        TRIBE_World* world = (*base_game)->world;
+        if (world)
+        {
+            RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+            if (player)
+            {
+                RGE_Static_Object* obj = player->selected_obj;
+                if (obj)
+                {
+                    if (obj->master_obj->master_type >= 40)
+                    {
+                        RGE_Action_Object* act_obj = (RGE_Action_Object*)obj;
+                        UnitAIModule* ai = act_obj->unitAIValue;
+
+                        UnitAIModule__order(
+                            act_obj->unitAIValue,
+                            player->id,
+                            724,
+                            -1,
+                            -1,
+                            10.0f,
+                            10.0f,
+                            0.0f,
+                            0.0f,
+                            0,
+                            0,
+                            0);
+                    }
+                    else
+                    {
+                        chat("Not an action object");
+                    }
+                }
+                else
+                    chat("No objects selected");
+            }
+        }
+        return true;
+    }
     /*
     else if (strstr(str, "/action"))
     {

@@ -4,8 +4,6 @@
 #include <CommCtrl.h>
 
 /*
-extern CONFIG_DATA cd;
-
 HWND CreateListView(HWND hwndParent)
 {
     INITCOMMONCONTROLSEX icex;           // Structure for control initialization.

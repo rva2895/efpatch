@@ -183,8 +183,6 @@ const char voobly_ef_data_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat";
 const char voobly_ef_language_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"..\\language_x2.dll";
 #endif
 
-extern CONFIG_DATA cd;
-
 bool isVooblyWidescreenInstalled()
 {
     DWORD d;
@@ -249,12 +247,16 @@ void __stdcall delayed_start_process()
     if (cd.textRendering)
         setTextRenderHooks(cd.gameVersion);
 
+#ifdef VOOBLY_EF
     new_allocator_install();
+#endif
 }
 
 void __stdcall delayed_end_process()
 {
+#ifdef VOOBLY_EF
     new_allocator_uninstall();
+#endif
     closeLog();
 }
 

@@ -2,7 +2,6 @@
 #include "rundll.h"
 #include "autosave.h"
 #include "editorstatus.h"
-#include "cliff.h"
 #include "terrain.h"
 #include "crashreporter.h"
 #include "registry.h"
@@ -12,16 +11,6 @@
 #include "memory.h"
 #include "textrender.h"
 //#include "worlddump.h"
-
-extern int placementSettings;
-extern int cliff_type;
-
-extern bool editorstatus_isValid;
-
-extern CONFIG_DATA cd;
-
-const int cliff_types_ef[] = { 0x108, 3971, 3981, 3991, 4196, 4206, 4216, 4226, 4236, 0 };
-int current_cliff_index = 0;
 
 #ifndef TARGET_VOOBLY
 
@@ -152,24 +141,6 @@ int WINAPI WinMain_dll(
 
 HWND hWnd_main = NULL;
 
-extern bool isEditor;
-
-extern TPanel* window_editorbk;
-
-void update_editor_screen(TPanel* panel)
-{
-    if (panel && panel->vfptr == (TPanelVtbl*)0x00661C50)
-    {
-        panel->vfptr->handle_size(panel, panel->pnl_wid, panel->pnl_hgt);
-        panel->vfptr->set_redraw(panel, 1);
-    }
-}
-
-void __stdcall update_editor_bk()
-{
-    update_editor_screen(window_editorbk);
-}
-
 void update_load_save_game_panel(TPanel* panel)
 {
     if (panel_system->currentPanelValue == panel && panel &&
@@ -200,8 +171,8 @@ int CALLBACK WndProc_dll(HWND hWnd,
     if (!hWnd_main)
         hWnd_main = hWnd;
 
-    if (msg == WM_KEYDOWN)
-    {
+    //if (msg == WM_KEYDOWN)
+    //{
         /*
 #ifdef _DEBUG
         //timeGetTime debug
@@ -241,18 +212,8 @@ int CALLBACK WndProc_dll(HWND hWnd,
             overlay_switch();
         }
         */
-        if (isEditor)
-        {
-            if (LOWORD(wParam) == 'S')                        //grid - collision
-            {
-                if (GetKeyState(VK_CONTROL) & 0x8000)
-                {
-                    placementSettings++;
-                    if (placementSettings > 3)
-                        placementSettings = 0;
-                    editorstatus_isValid = false;
-                }
-            }
+        //if (isEditor)
+        //{
             /*if (LOWORD(wParam) == 'L')                        //terrain transition
             {
                 if (short x = GetKeyState(VK_CONTROL))
@@ -263,24 +224,6 @@ int CALLBACK WndProc_dll(HWND hWnd,
                 }
             }*/
             
-            if (LOWORD(wParam) == 'Q')                        //cliff type
-            {
-                if (GetKeyState(VK_CONTROL) & 0x8000)
-                {
-                    if (cd.gameVersion == VER_EF)
-                    {
-                        cliff_type = cliff_types_ef[++current_cliff_index];
-                        if (!cliff_type)
-                        {
-                            current_cliff_index = 0;
-                            cliff_type = cliff_types_ef[0];
-                        }
-                        setCliffType(cliff_type, (*base_game)->world->map);
-                        editorstatus_isValid = false;
-                    }
-                }
-            }
-
             /*
             auto generate_map_and_get_cs = [](TRIBE_Map* map, int size, int size_id, char* script, int map_id, int player_num)
                 {
@@ -373,20 +316,13 @@ int CALLBACK WndProc_dll(HWND hWnd,
                 }
             }
             */
-
-            if (!editorstatus_isValid)
-            {
-                if (window_editorbk)
-                    update_editor_bk();
-
-                editorstatus_isValid = true;
-            }
-        }
-        else
-        {
+        //}
+        //else
+        //{
             
-        }
-    }
+        //}
+    //}
+
     if (msg == WM_SYSKEYDOWN)
     {
         if ((LOWORD(wParam) >= '0') && (LOWORD(wParam) <= '9')) //rec switch player
@@ -402,7 +338,6 @@ int CALLBACK WndProc_dll(HWND hWnd,
         if (wParam == AUTOSAVE_TIMER)
         {
             editor_autosave();
-            editorstatus_isValid = false;
         }
     }
     if (msg == WM_APP_ITEMCACHE_UPDATE_BK) //updatebk

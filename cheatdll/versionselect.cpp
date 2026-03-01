@@ -5,8 +5,6 @@
 #include "configurator.h"
 #include "registry.h"
 
-extern CONFIG_DATA cd;
-
 BOOL CALLBACK VersionSelectDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);

@@ -32,6 +32,7 @@
 #include "iuserpatch.h"
 #endif
 #include "log.h"
+#include "registry.h"
 
 #include "src\idb\idb_types.h"
 #include "src\idb\idb_functions.h"

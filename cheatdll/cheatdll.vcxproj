@@ -89,7 +89,6 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";_DEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -115,7 +114,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -151,7 +149,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;TARGET_VOOBLY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -187,7 +184,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;TARGET_VOOBLY;VOOBLY_EF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StructMemberAlignment>4Bytes</StructMemberAlignment>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

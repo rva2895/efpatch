@@ -1250,7 +1250,7 @@ void __stdcall hotkey_setup_allow_dup_create_checkbox(TRIBE_Screen_Options* scre
         1524, //"Allow Duplicates"
         135,
         417,
-        190,
+        215,
         30,
         0,
         0,
@@ -1591,5 +1591,9 @@ void setHotkeysHooks(int version)
 
     writeByte(0x00527B44, 5);
     writeDword(0x00527B4E, (DWORD)hotkey_setup_allow_dup_action_dispatch);
+
+    //Hotkey Groups rect
+    writeDword(0x00526E2B, 240);
+    writeDword(0x0052743D, 240);
 }
 #pragma optimize( "", on )
