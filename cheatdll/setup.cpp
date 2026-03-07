@@ -7,7 +7,7 @@
 
 #define WRITE_BUFFER_SIZE 0x4000
 
-HWND hWndAssetsDlg;
+HWND hWndAssetsDlg = NULL;
 
 bool verify_zip_path(const char* p)
 {
@@ -90,11 +90,11 @@ bool archive_extract(unzFile z_file, const char* dest_dir, void* buf)
         std::string filename(dest_dir);
         filename += filename_inzip;
 
-        FILE* f = fopen(filename.c_str(), "wb");
+        FILE* f = _wfopen(UTF8ToWide_c_str(filename), L"wb");
         if (!f)
             return false;
 
-        char* wParam = make_str_copy(filename_inzip);
+        std::wstring* wParam = new std::wstring(UTF8ToWide(filename_inzip));
         PostMessage(hWndAssetsDlg, WM_APP_STATUS_CURRENT_FILE, (WPARAM)wParam, 0);
 
         int size;
@@ -135,29 +135,34 @@ bool archive_extract(unzFile z_file, const char* dest_dir, void* buf)
     return true;
 }
 
-bool install_assets(const std::string& archive)
+bool install_assets(const std::wstring& archive)
 {
-    unzFile z_file = unzOpen(archive.c_str());
+    int count = WideCharToMultiByte(CP_ACP, 0, archive.c_str(), -1, NULL, 0, NULL, NULL);
+    std::string archive_acp(count, 0);
+    WideCharToMultiByte(CP_ACP, 0, archive.c_str(), -1, &archive_acp[0], count, NULL, NULL);
+    archive_acp.resize(strlen(archive_acp.c_str()));
+
+    unzFile z_file = unzOpen(archive_acp.c_str());
 
     if (!z_file)
         return false;
 
     void* buf = malloc(WRITE_BUFFER_SIZE);
 
-    bool result = archive_extract(z_file, DATA_FOLDER_PREFIX_FROM_ROOT, buf);
+    bool result = archive_extract(z_file, WideToUTF8_c_str(DATA_FOLDER_PREFIX_FROM_ROOT), buf);
     free(buf);
     unzClose(z_file);
 
     return result;
 }
 
-bool append_file(const std::string& first, const std::string& second)
+bool append_file(const std::wstring& first, const std::wstring& second)
 {
-    FILE* f = fopen(first.c_str(), "rb+");
+    FILE* f = _wfopen(first.c_str(), L"rb+");
     if (!f)
         return false;
 
-    FILE* g = fopen(second.c_str(), "rb");
+    FILE* g = _wfopen(second.c_str(), L"rb");
     if (!g)
     {
         fclose(f);
@@ -177,45 +182,45 @@ bool append_file(const std::string& first, const std::string& second)
     return true;
 }
 
-std::string merge_archive(const std::string& first, const std::string& second)
+std::wstring merge_archive(const std::wstring& first, const std::wstring& second)
 {
-    char temp_name[MAX_PATH];
-    char temp_path[MAX_PATH];
+    wchar_t temp_name[MAX_PATH];
+    wchar_t temp_path[MAX_PATH];
     GetTempPath(_countof(temp_path), temp_path);
-    GetTempFileName(temp_path, "efp", 0, temp_name);
+    GetTempFileName(temp_path, L"efp", 0, temp_name);
 
     CopyFile(first.c_str(), temp_name, FALSE);
     if (append_file(temp_name, second))
         return temp_name;
     else
-        return "";
+        return L"";
 }
 
-bool test_assets_mod(const std::string& mod_name, const std::string& archive_name)
+bool test_assets_mod(const std::wstring& mod_name, const std::wstring& archive_name)
 {
-    std::string s(VOOBLY_LOCAL_MOD_PATH + mod_name + "\\" + archive_name);
+    std::wstring s(VOOBLY_LOCAL_MOD_PATH + mod_name + L"\\" + archive_name);
     return file_exists(s.c_str());
 }
 
-void display_assets_error(const std::string& mod_name)
+void display_assets_error(const std::wstring& mod_name)
 {
-    std::string err_msg("Error: cannot open \"" + mod_name + "\" mod\n\n"
-        "To play Expanding Fronts, download and enable \"" VOOBLY_ASSETS_MOD_NAME "\" and \"" VOOBLY_EXT_ASSETS_MOD_NAME "\" local mods.");
-    MessageBox(hWndAssetsDlg, err_msg.c_str(), "Error", MB_ICONERROR);
+    std::wstring err_msg(L"Error: cannot open \"" + mod_name + L"\" mod\n\n"
+        L"To play Expanding Fronts, download and enable \"" VOOBLY_ASSETS_MOD_NAME L"\" and \"" VOOBLY_EXT_ASSETS_MOD_NAME L"\" local mods.");
+    MessageBox(hWndAssetsDlg, err_msg.c_str(), L"Error", MB_ICONERROR);
     exit(0);
 }
 
 void display_assets_install_error()
 {
-    MessageBox(hWndAssetsDlg, "Assets install error", "Error", MB_ICONERROR);
+    MessageBox(hWndAssetsDlg, L"Assets install error", L"Error", MB_ICONERROR);
     exit(0);
 }
 
 unsigned int __stdcall patch_assets(void*)
 {
-    std::string assets_archive = merge_archive(
-        VOOBLY_LOCAL_MOD_PATH VOOBLY_ASSETS_MOD_NAME "\\" VOOBLY_ASSETS_ARCHIVE_NAME,
-        VOOBLY_LOCAL_MOD_PATH VOOBLY_EXT_ASSETS_MOD_NAME "\\" VOOBLY_EXT_ASSETS_ARCHIVE_NAME
+    std::wstring assets_archive = merge_archive(
+        VOOBLY_LOCAL_MOD_PATH VOOBLY_ASSETS_MOD_NAME L"\\" VOOBLY_ASSETS_ARCHIVE_NAME,
+        VOOBLY_LOCAL_MOD_PATH VOOBLY_EXT_ASSETS_MOD_NAME L"\\" VOOBLY_EXT_ASSETS_ARCHIVE_NAME
     );
 
     if (assets_archive.length() == 0)
@@ -233,7 +238,9 @@ unsigned int __stdcall patch_assets(void*)
 
 BOOL CALLBACK AssetsDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    char s[0x100];
+    UNREFERENCED_PARAMETER(lParam);
+
+    wchar_t s[0x100];
     unsigned int assets_tid;
     HANDLE hThread;
     switch (message)
@@ -243,7 +250,7 @@ BOOL CALLBACK AssetsDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
         return TRUE;
     case WM_INITDIALOG:
         hWndAssetsDlg = hWndDlg;
-        SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, "Setting up assets...");
+        SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, L"Setting up assets...");
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETRANGE, 0, MAKELPARAM(0, 100));
         hThread = (HANDLE)_beginthreadex(NULL, 0, patch_assets, NULL, 0, &assets_tid);
         if (hThread)
@@ -253,8 +260,8 @@ BOOL CALLBACK AssetsDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETPOS, wParam, 0);
         return TRUE;
     case WM_APP_STATUS_CURRENT_FILE: //status set current file
-        snprintf(s, _countof(s), "Extracting %s...", (char*)wParam);
-        free((char*)wParam);
+        _snwprintf(s, _countof(s), L"Extracting %s...", ((std::wstring*)wParam)->c_str());
+        delete (std::wstring*)wParam;
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
         return TRUE;
     default:
@@ -265,8 +272,8 @@ BOOL CALLBACK AssetsDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
 
 void do_assets_setup()
 {
-    if (!file_exists(DATA_FOLDER_PREFIX_FROM_ROOT "graphics_x2.drs") ||
-        !file_exists(DATA_FOLDER_PREFIX_FROM_ROOT "sounds_x2.drs"))
+    if (!file_exists(DATA_FOLDER_PREFIX_FROM_ROOT L"graphics_x2.drs") ||
+        !file_exists(DATA_FOLDER_PREFIX_FROM_ROOT L"sounds_x2.drs"))
     {
         if (!test_assets_mod(VOOBLY_ASSETS_MOD_NAME, VOOBLY_ASSETS_ARCHIVE_NAME))
             display_assets_error(VOOBLY_ASSETS_MOD_NAME);

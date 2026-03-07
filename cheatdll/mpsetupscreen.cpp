@@ -226,7 +226,7 @@ int __stdcall Comm_PreprocessMessages(char* data)
 {
     if (*data == 10)
     {
-        MessageBox(0, "Received", "OK", 0);
+        MessageBoxW(0, L"Received", L"OK", 0);
         return 1;
     }
     else

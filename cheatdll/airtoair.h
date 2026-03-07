@@ -1,3 +1,3 @@
 #pragma once
 
-void initAirToAir(const char* prefix, const char* filename);
+void initAirToAir(const wchar_t* prefix, const wchar_t* filename);

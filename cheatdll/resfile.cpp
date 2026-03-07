@@ -51,7 +51,7 @@ void RESFILE::add_resource_file(char* filename)
 
     int resfile_id = res_files.size();
 
-    FILE* f = fopen(filename, "rb");
+    FILE* f = _wfopen(UTF8ToWide_c_str(filename), L"rb");
     if (!f)
         return;
 
@@ -341,7 +341,7 @@ int __fastcall RESFILE_Make_File_new(unsigned int rType, unsigned int rId, char*
     data = RESFILE_load(rType, rId, &load_type, &load_size);
     if (data)
     {
-        file = fopen(fileName, "rb");
+        file = _wfopen(UTF8ToWide_c_str(fileName), L"rb");
         if (file)
         {
             fclose(file);
@@ -349,7 +349,7 @@ int __fastcall RESFILE_Make_File_new(unsigned int rType, unsigned int rId, char*
         }
         else
         {
-            file = fopen(fileName, "wb+");
+            file = _wfopen(UTF8ToWide_c_str(fileName), L"wb+");
             if (file)
             {
                 if (load_size > 0)

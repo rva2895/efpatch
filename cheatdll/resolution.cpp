@@ -22,10 +22,10 @@ void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
             data = x0 ? x0->getFile(id, &size) : NULL;
             if (!data)
             {
-                char err[0x100];
-                snprintf(err, _countof(err), "Cannot load SLP %d from DRS", id);
-                log(err);
-                MessageBox(NULL, err, "Error", MB_ICONERROR);
+                wchar_t err[0x100];
+                _snwprintf(err, _countof(err), L"Cannot load SLP %d from DRS", id);
+                log(WideToUTF8_c_str(err));
+                MessageBox(NULL, err, L"Error", MB_ICONERROR);
                 exit(0);
             }
         }
@@ -201,7 +201,7 @@ bool patchEXE(int X, int Y) //needs to be completed...
     }
     else
     {
-        MessageBox(NULL, "Resolutions lower than 1024x768 are not supported", "Error", MB_ICONERROR);
+        MessageBox(NULL, L"Resolutions lower than 1024x768 are not supported", L"Error", MB_ICONERROR);
     }
 
     //editor
@@ -333,21 +333,21 @@ void patchResRects(int x, int y, DRS* drs)
     int size;
 
     DRS x1;
-    if (!x1.loadDRS("data\\interfac_x1.drs"))
+    if (!x1.loadDRS(L"data\\interfac_x1.drs"))
     {
-        char err[0x100];
-        snprintf(err, _countof(err), "Cannot load interfac_x1.drs");
-        log(err);
-        MessageBox(NULL, err, "Error", MB_ICONERROR);
+        wchar_t err[0x100];
+        _snwprintf(err, _countof(err), L"Cannot load interfac_x1.drs");
+        log(WideToUTF8_c_str(err));
+        MessageBox(NULL, err, L"Error", MB_ICONERROR);
         exit(0);
     }
     void* drsRects2 = x1.getFile(53290, &size);
     if (!drsRects2)
     {
-        char err[0x100];
-        snprintf(err, _countof(err), "Cannot load BIN 53290 from interfac_x1.drs");
-        log(err);
-        MessageBox(NULL, err, "Error", MB_ICONERROR);
+        wchar_t err[0x100];
+        _snwprintf(err, _countof(err), L"Cannot load BIN 53290 from interfac_x1.drs");
+        log(WideToUTF8_c_str(err));
+        MessageBox(NULL, err, L"Error", MB_ICONERROR);
         exit(0);
     }
     void* drsRects = malloc(size * 2);
@@ -393,10 +393,10 @@ void placeSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool
         data = wide_x2 ? wide_x2->getFile(id, &size) : NULL;
         if (!data)
         {
-            char err[0x100];
-            snprintf(err, _countof(err), "Cannot load SLP %d from DRS", id);
-            log(err);
-            MessageBox(NULL, err, "Error", MB_ICONERROR);
+            wchar_t err[0x100];
+            _snwprintf(err, _countof(err), L"Cannot load SLP %d from DRS", id);
+            log(WideToUTF8_c_str(err));
+            MessageBox(NULL, err, L"Error", MB_ICONERROR);
             exit(0);
         }
     }
@@ -411,10 +411,10 @@ void placeSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool
                 data = x0 ? x0->getFile(id, &size) : NULL;
                 if (!data)
                 {
-                    char err[0x100];
-                    snprintf(err, _countof(err), "Cannot load SLP %d from DRS", id);
-                    log(err);
-                    MessageBox(NULL, err, "Error", MB_ICONERROR);
+                    wchar_t err[0x100];
+                    _snwprintf(err, _countof(err), L"Cannot load SLP %d from DRS", id);
+                    log(WideToUTF8_c_str(err));
+                    MessageBox(NULL, err, L"Error", MB_ICONERROR);
                     exit(0);
                 }
             }
@@ -433,10 +433,10 @@ void placeScaledSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id
         data = wide_x2 ? wide_x2->getFile(id, &size) : NULL;
         if (!data)
         {
-            char err[0x100];
-            snprintf(err, _countof(err), "Cannot load SLP %d from DRS", id);
-            log(err);
-            MessageBox(NULL, err, "Error", MB_ICONERROR);
+            wchar_t err[0x100];
+            _snwprintf(err, _countof(err), L"Cannot load SLP %d from DRS", id);
+            log(WideToUTF8_c_str(err));
+            MessageBox(NULL, err, L"Error", MB_ICONERROR);
             exit(0);
         }
     }
@@ -451,10 +451,10 @@ void placeScaledSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id
                 data = x0 ? x0->getFile(id, &size) : NULL;
                 if (!data)
                 {
-                    char err[0x100];
-                    snprintf(err, _countof(err), "Cannot load SLP %d from DRS", id);
-                    log(err);
-                    MessageBox(NULL, err, "Error", MB_ICONERROR);
+                    wchar_t err[0x100];
+                    _snwprintf(err, _countof(err), L"Cannot load SLP %d from DRS", id);
+                    log(WideToUTF8_c_str(err));
+                    MessageBox(NULL, err, L"Error", MB_ICONERROR);
                     exit(0);
                 }
             }
@@ -483,14 +483,14 @@ void patchResolution(int x, int y, DRS* drs, bool patch_ef)
 
     log("Stretching SLPs...");
 
-    DRS x0_cc; x0_cc.loadDRS("data\\INTERFAC.DRS");
-    DRS x1_cc; x1_cc.loadDRS("data\\interfac_x1.drs");
+    DRS x0_cc; x0_cc.loadDRS(L"data\\INTERFAC.DRS");
+    DRS x1_cc; x1_cc.loadDRS(L"data\\interfac_x1.drs");
 
-    DRS x0; x0.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_p1.DRS");
-    DRS x1; x1.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_x1_p1.drs");
+    DRS x0; x0.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT L"interfac_p1.DRS");
+    DRS x1; x1.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT L"interfac_x1_p1.drs");
 
-    DRS x2; x2.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"interfac_x2.drs");
-    DRS wide_x2; wide_x2.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"widescrn_x2.drs");
+    DRS x2; x2.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT L"interfac_x2.drs");
+    DRS wide_x2; wide_x2.loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT L"widescrn_x2.drs");
 
     //tech tree
     parseSLP(&x0_cc, &x0, &x2, drs, 50341, x, y);
@@ -550,7 +550,7 @@ void patchResolution(int x, int y, DRS* drs, bool patch_ef)
 
     if (patch_ef)
     {
-        drs->setFileName(DATA_FOLDER_PREFIX_FROM_ROOT"wide_p1.drs");
+        drs->setFileName(DATA_FOLDER_PREFIX_FROM_ROOT L"wide_p1.drs");
 
         if (x >= 1920 && y >= 1080)
         {
@@ -631,12 +631,12 @@ void resolutionTool(int x, int y, bool patch_ef, bool patch_exe)
 {
     int size;
     DRS drs;
-    drs.setFileName(DATA_FOLDER_PREFIX_FROM_ROOT"wide.drs");
+    drs.setFileName(DATA_FOLDER_PREFIX_FROM_ROOT L"wide.drs");
     DRS* drs2 = new DRS;
     if (patch_ef)
-        drs2->loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"wide_p1.drs");
+        drs2->loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT L"wide_p1.drs");
     else
-        drs2->loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT"wide.drs");
+        drs2->loadDRS(DATA_FOLDER_PREFIX_FROM_ROOT L"wide.drs");
     void* drsResStr = drs2->getFile(RESOLUTION_TOOL_VERSION, &size);
     delete drs2;
     if (drsResStr)

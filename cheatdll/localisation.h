@@ -1,5 +1,5 @@
 #pragma once
 
-std::vector<std::pair<std::string, std::string>> query_languages();
-void install_language(const std::string& lang);
+std::vector<std::pair<std::wstring, std::wstring>> query_languages();
+void install_language(const std::wstring& lang);
 void setLanguageDllHooks();

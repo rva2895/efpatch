@@ -1,34 +1,36 @@
 #pragma once
 #include "stdafx.h"
 
-#define VOOBLY_NAME_SUFFIX ""
-#define VOOBLY_DATA_MOD_NAME "Expanding Fronts Data" VOOBLY_NAME_SUFFIX
-#define VOOBLY_ASSETS_MOD_NAME "EF Assets" VOOBLY_NAME_SUFFIX
-#define VOOBLY_EXT_ASSETS_MOD_NAME "EF Extra Assets" VOOBLY_NAME_SUFFIX
-#define VOOBLY_LOCAL_MOD_PATH "Voobly Mods\\SWBGCC\\Local Mods\\"
-#define VOOBLY_ASSETS_ARCHIVE_NAME "ef_assets.zip.001"
-#define VOOBLY_EXT_ASSETS_ARCHIVE_NAME "ef_assets.zip.002"
+#define VOOBLY_NAME_SUFFIX L""
+#define VOOBLY_DATA_MOD_NAME L"Expanding Fronts Data" VOOBLY_NAME_SUFFIX
+#define VOOBLY_ASSETS_MOD_NAME L"EF Assets" VOOBLY_NAME_SUFFIX
+#define VOOBLY_EXT_ASSETS_MOD_NAME L"EF Extra Assets" VOOBLY_NAME_SUFFIX
+#define VOOBLY_LOCAL_MOD_PATH L"Voobly Mods\\SWBGCC\\Local Mods\\"
+#define VOOBLY_ASSETS_ARCHIVE_NAME L"ef_assets.zip.001"
+#define VOOBLY_EXT_ASSETS_ARCHIVE_NAME L"ef_assets.zip.002"
 #ifdef VOOBLY_EF
-#define VOOBLY_EXE_MOD_NAME "EF EXE Patch" VOOBLY_NAME_SUFFIX
+#define VOOBLY_EXE_MOD_NAME L"EF EXE Patch" VOOBLY_NAME_SUFFIX
 #else
-#define VOOBLY_EXE_MOD_NAME "EXE Patch" VOOBLY_NAME_SUFFIX
+#define VOOBLY_EXE_MOD_NAME L"EXE Patch" VOOBLY_NAME_SUFFIX
 #endif
 
 #ifdef VOOBLY_EF
-#define DATA_FOLDER_PREFIX_FROM_ROOT "Voobly Mods\\SWBGCC\\Data Mods\\" VOOBLY_DATA_MOD_NAME "\\Data\\" 
-#define DATA_FOLDER_PREFIX_FROM_DATA "..\\Voobly Mods\\SWBGCC\\Data Mods\\" VOOBLY_DATA_MOD_NAME "\\Data\\"
+#define DATA_FOLDER_PREFIX_FROM_ROOT L"Voobly Mods\\SWBGCC\\Data Mods\\" VOOBLY_DATA_MOD_NAME L"\\Data\\" 
+#define DATA_FOLDER_PREFIX_FROM_DATA L"..\\Voobly Mods\\SWBGCC\\Data Mods\\" VOOBLY_DATA_MOD_NAME L"\\Data\\"
 #else
-#define DATA_FOLDER_PREFIX_FROM_ROOT "data\\"
-#define DATA_FOLDER_PREFIX_FROM_DATA ""
+#define DATA_FOLDER_PREFIX_FROM_ROOT L"data\\"
+#define DATA_FOLDER_PREFIX_FROM_DATA L""
 #endif
 
 #ifdef TARGET_VOOBLY
-#define DLL_NAME "userpatch.dll"
+#define DLL_NAME L"userpatch.dll"
 #else
-#define DLL_NAME "efpatch.dll"
+#define DLL_NAME L"efpatch.dll"
 #endif
 
 #define noop ((void)0)
+
+#define MAX_LOADSTRING 0x1000
 
 #ifdef EFPATCH_USE_ATEXIT
 #define efpatch_atexit(p) atexit(p)
@@ -62,6 +64,7 @@ char* make_str_copy(const char* src);
 
 void trySetProcessDPIAware();
 HMODULE __stdcall efpatch_LoadStringTable(LPCSTR lpLibFileName);
+HMODULE __stdcall efpatch_LoadStringTable(LPCWSTR lpLibFileName);
 
 unsigned int get_worldtime();
 
@@ -73,23 +76,24 @@ struct BYTE_ASSIGN
 
 const char* __stdcall get_string(int id);
 bool __stdcall file_exists(const char* filename);
+bool __stdcall file_exists(const wchar_t* filename);
 void __stdcall sendChat(const char* s, int p);
 void __cdecl chat(const char* format, ...);
 
 void __stdcall load_ids_from_txt(
-    const char* prefix,
-    const char* filename,
+    const wchar_t* prefix,
+    const wchar_t* filename,
     __int16** list,
     int* n,
     bool* flag,
     void (__cdecl* install_func)(),
-    const char* desc);
+    const wchar_t* desc);
 
 bool __stdcall is_id_in_list(__int16 id, __int16* list, int n);
 
 void __stdcall findfirst_callback(
-    const char* filename,
-    void (__cdecl* callback)(const char* filename, void* param),
+    const wchar_t* filename,
+    void (__cdecl* callback)(const wchar_t* filename, void* param),
     void* param);
 
 extern CONFIG_DATA cd;

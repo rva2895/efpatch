@@ -5,7 +5,7 @@
 char** filenames;
 int nFiles;
 
-std::vector<std::string> rms_files;
+std::vector<std::wstring> rms_files;
 extern std::map<int, MAP_INFO> map_list;
 
 const RMS_ASSIGN rms_assign[] =
@@ -38,15 +38,15 @@ void list_rms_files()
 
     rms_files.clear();
 
-    auto rms_file_callback = [](const char* filename, void* param)
+    auto rms_file_callback = [](const wchar_t* filename, void* param)
         {
             UNREFERENCED_PARAMETER(param);
-            std::string filename_str(filename);
+            std::wstring filename_str(filename);
             filename_str.erase(filename_str.length() - 4);
             rms_files.push_back(filename_str);
         };
 
-    findfirst_callback("random\\*.rms", rms_file_callback, NULL);
+    findfirst_callback(L"random\\*.rms", rms_file_callback, NULL);
 
     log("Found %zu RMS files", rms_files.size());
 }
@@ -62,7 +62,7 @@ void __stdcall setup_editor_rms_list(TDropDownPanel* dropdown)
     list_rms_files();
     int rms_index = 1000;
     for (auto it = rms_files.begin(); it != rms_files.end(); ++it)
-        TDropDownPanel__append_line(dropdown, it->c_str(), rms_index++);
+        TDropDownPanel__append_line(dropdown, WideToUTF8_c_str(it->c_str()), rms_index++);
 }
 
 __declspec(naked) void on_editor_rms_list() //0052A2CC

@@ -691,7 +691,7 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
     HANDLE hOld = SelectObject(hdc, RGE_Base_Game__get_font((*base_game), 22)->font);
     SetBkMode(hdc, TRANSPARENT);
     SetTextColor(hdc, RGB(255, 255, 255));
-    DrawText(hdc, str, strlen(str), &r, DT_LEFT | DT_WORDBREAK);
+    DrawTextA(hdc, str, strlen(str), &r, DT_LEFT | DT_WORDBREAK);
 
     if (rd.exists && rd.valid)
     {
@@ -707,7 +707,7 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
 
         //snprintf(str, _countof(str), "VER %s", (char*)&rd.version);
         strlcpy(str, rd.version.c_str(), _countof(str));
-        DrawText(hdc, str, strlen(str), &r_ver, DT_RIGHT);
+        DrawTextA(hdc, str, strlen(str), &r_ver, DT_RIGHT);
 
         r.top += (y > 900 ? 30 : 24);
 
@@ -741,7 +741,7 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
             LineTo(hdc, color_box.left, color_box.top);
             color_box.top += color_box_dist;
             color_box.bottom += color_box_dist;
-            DrawText(hdc, rd.team_1[i].c_str(), rd.team_1[i].length(), &player_name, DT_LEFT);
+            DrawTextA(hdc, rd.team_1[i].c_str(), rd.team_1[i].length(), &player_name, DT_LEFT);
             player_name.top += color_box_dist;
             player_name.bottom += color_box_dist;
         }
@@ -764,7 +764,7 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
             LineTo(hdc, color_box.left, color_box.top);
             color_box.top += color_box_dist;
             color_box.bottom += color_box_dist;
-            DrawText(hdc, rd.team_2[i].c_str(), rd.team_2[i].length(), &player_name, DT_LEFT);
+            DrawTextA(hdc, rd.team_2[i].c_str(), rd.team_2[i].length(), &player_name, DT_LEFT);
             player_name.top += color_box_dist;
             player_name.bottom += color_box_dist;
         }
@@ -953,7 +953,7 @@ void __stdcall paint_load_scen_screen_bk(TScreenPanel* LoadScenScreen)
     HANDLE hOld = SelectObject(hdc, RGE_Base_Game__get_font((*base_game), 22)->font);
     SetBkMode(hdc, TRANSPARENT);
     SetTextColor(hdc, RGB(255, 255, 255));
-    DrawText(hdc, str, strlen(str), &r, DT_LEFT | DT_WORDBREAK);
+    DrawTextA(hdc, str, strlen(str), &r, DT_LEFT | DT_WORDBREAK);
 
     if (sd.exists && sd.valid)
     {
@@ -976,7 +976,7 @@ void __stdcall paint_load_scen_screen_bk(TScreenPanel* LoadScenScreen)
 
         //SetBkMode(hdc, OPAQUE);
         //SetBkColor(hdc, RGB(24, 24, 24));
-        DrawText(hdc, str, strlen(str), &r_ver, DT_RIGHT);
+        DrawTextA(hdc, str, strlen(str), &r_ver, DT_RIGHT);
         //SetBkMode(hdc, TRANSPARENT);
     }
 

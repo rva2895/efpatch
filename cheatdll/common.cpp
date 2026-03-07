@@ -168,7 +168,7 @@ char* make_str_copy(const char* src)
 void trySetProcessDPIAware()
 {
     BOOL (__stdcall* SetProcessDPIAware_p)();
-    SetProcessDPIAware_p = GetProcAddress(GetModuleHandle("user32.dll"), "SetProcessDPIAware");
+    SetProcessDPIAware_p = GetProcAddress(GetModuleHandleW(L"user32.dll"), "SetProcessDPIAware");
     if (SetProcessDPIAware_p)
     {
         SetProcessDPIAware_p();
@@ -182,7 +182,12 @@ void trySetProcessDPIAware()
 
 HMODULE __stdcall efpatch_LoadStringTable(LPCSTR lpLibFileName)
 {
-    return LoadLibraryEx(lpLibFileName, NULL, LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE | LOAD_LIBRARY_AS_IMAGE_RESOURCE);
+    return efpatch_LoadStringTable(UTF8ToWide_c_str(lpLibFileName));
+}
+
+HMODULE __stdcall efpatch_LoadStringTable(LPCWSTR lpLibFileName)
+{
+    return LoadLibraryExW(lpLibFileName, NULL, LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE | LOAD_LIBRARY_AS_IMAGE_RESOURCE);
 }
 
 unsigned int get_worldtime()
@@ -196,7 +201,19 @@ unsigned int get_worldtime()
 
 bool __stdcall file_exists(const char* filename)
 {
-    FILE* f = fopen(filename, "rb");
+    FILE* f = _wfopen(UTF8ToWide_c_str(filename), L"rb");
+    if (f)
+    {
+        fclose(f);
+        return true;
+    }
+    else
+        return false;
+}
+
+bool __stdcall file_exists(const wchar_t* filename)
+{
+    FILE* f = _wfopen(filename, L"rb");
     if (f)
     {
         fclose(f);
@@ -231,18 +248,18 @@ void __cdecl chat(const char* format, ...)
 }
 
 void __stdcall load_ids_from_txt(
-    const char* prefix,
-    const char* filename,
+    const wchar_t* prefix,
+    const wchar_t* filename,
     __int16** list,
     int* n,
     bool* flag,
     void (__cdecl *install_func)(),
-    const char* desc)
+    const wchar_t* desc)
 {
-    log(desc);
-    char full_filename[MAX_PATH];
-    snprintf(full_filename, _countof(full_filename), "%s%s", prefix, filename);
-    FILE* f = fopen(full_filename, "rt");
+    log(WideToUTF8_c_str(desc));
+    wchar_t full_filename[MAX_PATH];
+    _snwprintf(full_filename, _countof(full_filename), L"%s%s", prefix, filename);
+    FILE* f = _wfopen(full_filename, L"rt");
     if (f)
     {
         __int16 id;
@@ -268,7 +285,7 @@ void __stdcall load_ids_from_txt(
         }
     }
     else
-        log("Warning: %s not found, using default settings", full_filename);
+        log("Warning: %s not found, using default settings", WideToUTF8_c_str(full_filename));
 }
 
 bool __stdcall is_id_in_list(__int16 id, __int16* list, int n)
@@ -280,18 +297,19 @@ bool __stdcall is_id_in_list(__int16 id, __int16* list, int n)
 }
 
 void __stdcall findfirst_callback(
-    const char* filename,
-    void (__cdecl* callback)(const char* filename, void* param),
+    const wchar_t* filename,
+    void (__cdecl* callback)(const wchar_t* filename, void* param),
     void* param)
 {
-    _finddata_t fileinfo;
-    intptr_t fd = _findfirst(filename, &fileinfo);
+    _wfinddata_t fileinfo;
+    
+    intptr_t fd = _wfindfirst(filename, &fileinfo);
     if (fd != -1)
     {
         do
         {
             callback(fileinfo.name, param);
-        } while (_findnext(fd, &fileinfo) != -1);
+        } while (_wfindnext(fd, &fileinfo) != -1);
         _findclose(fd);
     }
 }

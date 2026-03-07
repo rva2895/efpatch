@@ -179,8 +179,8 @@ fix_civ:
 }
 
 #ifdef VOOBLY_EF
-const char voobly_ef_data_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat";
-const char voobly_ef_language_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"..\\language_x2.dll";
+const wchar_t voobly_ef_data_file[] = DATA_FOLDER_PREFIX_FROM_ROOT L"genie_x2.dat";
+//const wchar_t voobly_ef_language_file[] = DATA_FOLDER_PREFIX_FROM_ROOT L"..\\language_x2.dll";
 #endif
 
 bool isVooblyWidescreenInstalled()
@@ -190,12 +190,12 @@ bool isVooblyWidescreenInstalled()
     return d != 0x2B68FF6A;
 }
 
-const char widescrnErrorMsg[] =
-    "You have enabled both Voobly resolution tool and \"Enable Built-in Widescreen\" option.\n\n"
+const wchar_t widescrnErrorMsg[] =
+    L"You have enabled both Voobly resolution tool and \"Enable Built-in Widescreen\" option.\n\n"
 #ifdef VOOBLY_EF
-    "Please turn off Voobly resolution tool";
+    L"Please turn off Voobly resolution tool";
 #else
-    "Please either turn off Voobly resolution tool, or uncheck \"Enable Built-in Widescreen\" option";
+    L"Please either turn off Voobly resolution tool, or uncheck \"Enable Built-in Widescreen\" option";
 #endif
 
 void __stdcall delayed_start_process()
@@ -206,26 +206,30 @@ void __stdcall delayed_start_process()
     bool voobly_widescreen_installed = isVooblyWidescreenInstalled();
     if (voobly_widescreen_installed && cd.widescrnEnabled)
     {
-        MessageBox(NULL, widescrnErrorMsg, "Error", MB_ICONERROR);
+        MessageBoxW(NULL, widescrnErrorMsg, L"Error", MB_ICONERROR);
         exit(0);
     }
 #ifdef VOOBLY_EF
     if (voobly_widescreen_installed)
     {
-        MessageBox(NULL, "You have enabled Voobly resolution tool, which is incompatible with Expanding Fronts mod\n\n"
-            "Please turn off Voobly resolution tool, and check \"Enable Built-in Widescreen\" option", "Error", MB_ICONERROR);
+        MessageBoxW(NULL, L"You have enabled Voobly resolution tool, which is incompatible with Expanding Fronts mod\n\n"
+            L"Please turn off Voobly resolution tool, and check \"Enable Built-in Widescreen\" option", L"Error", MB_ICONERROR);
         exit(0);
     }
     if (!expanding_fronts)
     {
-        MessageBox(NULL, "This patch must be used with the Expanding Fronts mod.\n\n"
-            "To play Clone Campaigns, use \"EXE Patch\" instead", "Error", MB_ICONERROR);
+        MessageBoxW(NULL, L"This patch must be used with the Expanding Fronts mod.\n\n"
+            L"To play Clone Campaigns, use \"EXE Patch\" instead", L"Error", MB_ICONERROR);
         exit(0);
     }
 
     installPalette();
-    writeDword(0x0048F0E5, (DWORD)voobly_ef_data_file);
-    writeDword(0x005E40A3, (DWORD)voobly_ef_language_file);
+
+    static std::string voobly_ef_data_file_s(WideToUTF8(voobly_ef_data_file));
+    //static std::string voobly_ef_language_file_s(WideToUTF8(voobly_ef_language_file));
+
+    writeDword(0x0048F0E5, (DWORD)voobly_ef_data_file_s.c_str());
+    //writeDword(0x005E40A3, (DWORD)voobly_ef_language_file_s.c_str());
 
     //copy assets
     do_assets_setup();
@@ -312,7 +316,7 @@ bool CUserPatch::Init(struct UserPatchConfig_t &config)
 
         writeByte(0x00557DD6, 53);   //gungan foundation: 53
     }
-    else if (strstr(config.VooblyModDirPath, VOOBLY_DATA_MOD_NAME))
+    else if (strstr(config.VooblyModDirPath, WideToUTF8_c_str(VOOBLY_DATA_MOD_NAME)))
     {
         expanding_fronts = true;
         setSaveGameVerHooks(false);

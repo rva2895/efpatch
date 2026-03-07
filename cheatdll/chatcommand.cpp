@@ -548,10 +548,10 @@ bool check_chat_command(const char* str)
             if (current_update_time - last_update_time > 200)
             {
                 last_update_time = current_update_time;
-                while (PeekMessageA(&Msg, 0, 0, 0, 1u))
+                while (PeekMessage(&Msg, 0, 0, 0, 1u))
                 {
                     TranslateMessage(&Msg);
-                    DispatchMessageA(&Msg);
+                    DispatchMessage(&Msg);
                 }
                 TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
                 message_panel = NULL;
@@ -715,7 +715,7 @@ bool check_chat_command(const char* str)
         sprintf(name, "call_count_%08X.txt", r);
         //chat("Sorting vector ...");
         std::sort(function_hooks.begin(), function_hooks.end(), compare_call_counts_object);
-        FILE* f = fopen(name, "wt");
+        FILE* f = _wfopen(UTF8ToWide_c_str(name), L"wt");
         if (f)
         {
             for (auto it = function_hooks.begin(), it_end = function_hooks.end(); it != it_end; ++it)
@@ -811,7 +811,7 @@ bool check_chat_command(const char* str)
         void* mem = malloc(0x00247000);
         SIZE_T w;
         ReadProcessMemory(GetCurrentProcess(), (void*)0x00401000, mem, 0x00247000, &w);
-        FILE* f = fopen("image-dump.bin", "wb");
+        FILE* f = _wfopen(L"image-dump.bin", L"wb");
         fwrite(mem, 0x00247000, 1, f);
         fclose(f);
         chat("Dumped");

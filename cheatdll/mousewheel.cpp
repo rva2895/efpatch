@@ -5,7 +5,7 @@ UINT nScrollLines;
 
 void get_wheel_scroll_lines()
 {
-    if (!SystemParametersInfoA(SPI_GETWHEELSCROLLLINES, 0, &nScrollLines, 0))
+    if (!SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &nScrollLines, 0))
     {
         nScrollLines = 3;
     }

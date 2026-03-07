@@ -98,7 +98,7 @@ void initDsoundhook ()
 
 void InterceptDSoundCreate (void)
 {
-    HINSTANCE hinst = GetModuleHandle ("dsound.dll");
+    HINSTANCE hinst = GetModuleHandleW (L"dsound.dll");
     adr_DirectSoundCreate = (DWORD)GetProcAddress (hinst, "DirectSoundCreate");
 
     log ("DirectSoundCreate found at %X", adr_DirectSoundCreate);

@@ -177,12 +177,12 @@ __declspec(naked) int terrain2()
     }
 }
 
-void loadTerrainTxt(const char* prefix, const char* filename)
+void loadTerrainTxt(const wchar_t* prefix, const wchar_t* filename)
 {
     log("Loading terrain data...");
-    char full_filename[0x100];
-    snprintf(full_filename, _countof(full_filename), "%s%s", prefix, filename);
-    FILE* f = fopen(full_filename, "rt");
+    wchar_t full_filename[MAX_PATH];
+    _snwprintf(full_filename, _countof(full_filename), L"%s%s", prefix, filename);
+    FILE* f = _wfopen(full_filename, L"rt");
     if (f)
     {
         terrains_loaded = 0;
@@ -194,8 +194,8 @@ void loadTerrainTxt(const char* prefix, const char* filename)
     }
     else
     {
-        log("Error: %s not found, aborting", full_filename);
-        MessageBox(0, "Error: terrain.txt was not found. Check installation integrity.", "Error", MB_ICONERROR);
+        log("Error: %s not found, aborting", WideToUTF8_c_str(full_filename));
+        MessageBoxW(NULL, L"Error: terrain.txt was not found. Check installation integrity.", L"Error", MB_ICONERROR);
         exit(0);
     }
 }
@@ -213,7 +213,7 @@ void setTerrainLoadHooks(int ver)
 
     t_ver = ver;
     if (ver == VER_EF)
-        loadTerrainTxt(DATA_FOLDER_PREFIX_FROM_ROOT, "terrain.txt");
+        loadTerrainTxt(DATA_FOLDER_PREFIX_FROM_ROOT, L"terrain.txt");
 
     setHook((void*)0x0052A30A, terrain1);
     setHook((void*)0x0053B3C1, terrain2);

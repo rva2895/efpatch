@@ -49,7 +49,7 @@ void __cdecl padawans_hooks()
     efpatch_atexit(padawans_hooks_atexit);
 }
 
-void setJediMasterHooks(const char* prefix, const char* filename_master, const char* filename_padawan)
+void setJediMasterHooks(const wchar_t* prefix, const wchar_t* filename_master, const wchar_t* filename_padawan)
 {
     load_ids_from_txt(
         prefix,
@@ -58,7 +58,7 @@ void setJediMasterHooks(const char* prefix, const char* filename_master, const c
         &masters_n,
         &masters_installed,
         masters_hooks,
-        "Loading jedi master unit list"
+        L"Loading jedi master unit list"
     );
 
     load_ids_from_txt(
@@ -68,6 +68,6 @@ void setJediMasterHooks(const char* prefix, const char* filename_master, const c
         &padawans_n,
         &padawans_installed,
         padawans_hooks,
-        "Loading jedi padawan unit list"
+        L"Loading jedi padawan unit list"
     );
 }

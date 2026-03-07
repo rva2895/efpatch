@@ -33,12 +33,12 @@ int __fastcall get_non_holo_id(int id)
     return id;
 }
 
-void setJediHoloHooks(const char* prefix, const char* filename)
+void setJediHoloHooks(const wchar_t* prefix, const wchar_t* filename)
 {
     log("Loading jedi-holo unit list");
-    char full_filename[0x100];
-    snprintf(full_filename, _countof(full_filename), "%s%s", prefix, filename);
-    FILE* f = fopen(full_filename, "rt");
+    wchar_t full_filename[MAX_PATH];
+    _snwprintf(full_filename, _countof(full_filename), L"%s%s", prefix, filename);
+    FILE* f = _wfopen(full_filename, L"rt");
     if (f)
     {
         short id1, id2;
@@ -69,5 +69,5 @@ void setJediHoloHooks(const char* prefix, const char* filename)
         }
     }
     else
-        log("Warning: %s not found, using default settings", full_filename);
+        log("Warning: %s not found, using default settings", WideToUTF8_c_str(full_filename));
 }

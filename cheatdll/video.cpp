@@ -13,7 +13,7 @@ __declspec(naked) void on_f1()
 void setVideoHooks()
 {
     //
-    HMODULE m = LoadLibrary("dxmci.dll");
+    HMODULE m = LoadLibraryW(L"dxmci.dll");
     DWORD d = (DWORD)GetProcAddress(m, "MCIWndCreateA2");
 
     writeDword(0x005E832A, d - 0x005E832E);

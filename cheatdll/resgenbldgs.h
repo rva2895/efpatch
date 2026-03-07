@@ -1,6 +1,6 @@
 #pragma once
 
-void initBldgResProdList(const char* prefix, const char* filename);
+void initBldgResProdList(const wchar_t* prefix, const wchar_t* filename);
 int resGenHook();
 void setResGenHooks();
 

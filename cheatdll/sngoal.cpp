@@ -16,7 +16,7 @@ void load_goal_sn_txt()
     char name[0x100];
     int id;
     log("Loading goal list");
-    FILE* f = fopen(DATA_FOLDER_PREFIX_FROM_ROOT"goal.txt", "rt");
+    FILE* f = _wfopen(DATA_FOLDER_PREFIX_FROM_ROOT L"goal.txt", L"rt");
     if (f)
     {
         while (fscanf_s(f, "%d %s", &id, name, _countof(name)) > 0)
@@ -31,7 +31,7 @@ void load_goal_sn_txt()
         log("Warning: goal.txt not found, you cannot use aliases with /goal command");
 
     log("Loading sn list");
-    f = fopen(DATA_FOLDER_PREFIX_FROM_ROOT"sn.txt", "rt");
+    f = _wfopen(DATA_FOLDER_PREFIX_FROM_ROOT L"sn.txt", L"rt");
     if (f)
     {
         while (fscanf_s(f, "%d %s", &id, name, _countof(name)) > 0)

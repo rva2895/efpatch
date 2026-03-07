@@ -79,7 +79,7 @@ MG1::MG1(const char* filename)
     map_type = NULL;
     p = NULL;
 
-    FILE* f = fopen(filename, "rb");
+    FILE* f = _wfopen(UTF8ToWide_c_str(filename), L"rb");
 
     if (!f)
         return;
@@ -414,7 +414,7 @@ MG1::MG1(const char* filename)
     d.duration2 = 0;
 
     //************* READ COMMANDS *****************
-    f = fopen(filename, "rb");
+    f = _wfopen(UTF8ToWide_c_str(filename), L"rb");
     if (!f)
     {
         log("Error: cannot open file %s", filename);
@@ -460,7 +460,7 @@ MG1::MG1(const char* filename)
     {
         if (!first_chapter)
         {
-            f = fopen(filename, "rb");
+            f = _wfopen(UTF8ToWide_c_str(filename), L"rb");
             if (!f)
             {
                 log("Error: cannot open file %s", filename);

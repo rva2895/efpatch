@@ -60,7 +60,7 @@ BOOL CALLBACK VersionSelectDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LP
                     EndDialog(hWndDlg, 0);
                 }
                 else
-                    MessageBox(hWndDlg, "Please select game version", "Error", MB_ICONERROR);
+                    MessageBoxW(hWndDlg, L"Please select game version", L"Error", MB_ICONERROR);
 
                 return TRUE;
             case IDCANCEL:

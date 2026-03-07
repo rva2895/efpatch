@@ -65,7 +65,7 @@ const uint8_t colors_to_replace[] =
 //0x1308
 //int complete_slp_counter = 0;
 HWND hWndPaletteDlg;
-std::vector<std::string>* slp_parallel;
+std::vector<std::wstring>* slp_parallel;
 int nProc;
 HANDLE* slp_optimize_event;
 
@@ -189,11 +189,11 @@ unsigned int __stdcall slp_optimize_thread(void* p)
     for (int i = (int)p; i < slp_parallel->size(); i += nProc)
     {
         int id;
-        sscanf_s((*slp_parallel)[i].c_str(), "%d", &id);
+        swscanf_s((*slp_parallel)[i].c_str(), L"%d", &id);
         if (slp_interfac(id))
         {
             SLP slp;
-            FILE* g = fopen((*slp_parallel)[i].c_str(), "rb");
+            FILE* g = _wfopen((*slp_parallel)[i].c_str(), L"rb");
             fseek(g, 0, SEEK_END);
             int size = ftell(g);
             fseek(g, 0, SEEK_SET);
@@ -205,7 +205,7 @@ unsigned int __stdcall slp_optimize_thread(void* p)
             slp.color_replace(colors_to_replace, sizeof(colors_to_replace) / sizeof(colors_to_replace[0]) / 2);
             PostMessage(hWndPaletteDlg, WM_APP_STATUS_SLP, (WPARAM)id, NULL);
             data = slp.write(&size, (id < 15000) || (id > 16000));
-            g = fopen((*slp_parallel)[i].c_str(), "wb");
+            g = _wfopen((*slp_parallel)[i].c_str(), L"wb");
             fwrite(data, size, 1, g);
             fclose(g);
             free(data);
@@ -226,65 +226,64 @@ unsigned int getAffinityCount()
     return c;
 }
 
-void patch_drs_palette(const char* filename, const char* main_dir)
+void patch_drs_palette(const wchar_t* filename, const wchar_t* main_dir)
 {
     log("Loading %s...", filename);
-    char err[0x100];
+    wchar_t err[0x100];
     DRS* drs;
     drs = new DRS();
     SetCurrentDirectory(main_dir);
-    SetCurrentDirectory("data\\");
+    SetCurrentDirectory(L"data\\");
     if (!drs->loadDRS(filename))
     {
-        snprintf(err, _countof(err), "Cannot load %s.\nCheck installation integrity.", filename);
-        log(err);
-        MessageBox(NULL, err, "Error", MB_ICONERROR);
+        _snwprintf(err, _countof(err), L"Cannot load %s.\nCheck installation integrity.", filename);
+        log(WideToUTF8_c_str(err));
+        MessageBox(NULL, err, L"Error", MB_ICONERROR);
         exit(0);
     }
-    SetCurrentDirectory(getenv("temp"));
+    SetCurrentDirectory(_wgetenv(L"temp"));
     CreateDirectory(filename, NULL);
     SetCurrentDirectory(filename);
-    char* wparam_filename = make_str_copy(filename);
+    std::wstring* wparam_filename = new std::wstring(filename);
     PostMessage(hWndPaletteDlg, WM_APP_STATUS_DRS, (WPARAM)wparam_filename, 0);
     log("Extracting files...");
     if (drs->extractFiles() == 0)
     {
-        snprintf(err, _countof(err), "Cannot create temporary file.\nMake sure there is at least 500 MB free in TEMP folder");
-        log(err);
-        MessageBox(NULL, err, "Error", MB_ICONERROR);
+        _snwprintf(err, _countof(err), L"Cannot create temporary file.\nMake sure there is at least 1 GB free in TEMP folder");
+        log(WideToUTF8_c_str(err));
+        MessageBox(NULL, err, L"Error", MB_ICONERROR);
         exit(0);
     }
     delete drs;
 
     log("Scanning folder...");
 
-    slp_parallel = new std::vector<std::string>;
+    slp_parallel = new std::vector<std::wstring>;
 
     struct palette_slp_callback_param
     {
         int nSLPInFolder;
-        std::vector<std::string>* slp_parallel;
+        std::vector<std::wstring>* slp_parallel;
     } param;
     param.nSLPInFolder = 0;
     param.slp_parallel = slp_parallel;
 
-    auto palette_slp_callback = [](const char* filename, void* param)
+    auto palette_slp_callback = [](const wchar_t* filename, void* param)
         {
             palette_slp_callback_param* p = (palette_slp_callback_param*)param;
-            const char* s = filename;
-            if (s[0] == '"')
+            const wchar_t* s = filename;
+            if (s[0] == L'"')
                 s++;
             int id;
-            sscanf_s(s, "%d", &id);
+            swscanf_s(s, L"%d", &id);
             if (id != 50230)
             {
-                std::string str(filename);
-                p->slp_parallel->push_back(str);
+                p->slp_parallel->emplace_back(filename);
                 p->nSLPInFolder++;
             }
         };
 
-    findfirst_callback("*.slp", palette_slp_callback, &param);
+    findfirst_callback(L"*.slp", palette_slp_callback, &param);
 
     log("Found %d SLPs, starting %d SLP optimize threads...", param.nSLPInFolder, nProc);
     
@@ -303,11 +302,11 @@ void patch_drs_palette(const char* filename, const char* main_dir)
     delete slp_parallel;
 
     drs = new DRS();
-    char newfilename[MAX_PATH];
-    strlcpy(newfilename, filename, _countof(newfilename));
+    wchar_t newfilename[MAX_PATH];
+    wcscpy(newfilename, filename);
 //#ifndef VOOBLY_EF
-    newfilename[strlen(newfilename) - 4] = 0;
-    strcat(newfilename, "_p1.drs");
+    newfilename[wcslen(newfilename) - 4] = 0;
+    wcscat(newfilename, L"_p1.drs");
 //#endif
     SetCurrentDirectory(main_dir);
     SetCurrentDirectory(DATA_FOLDER_PREFIX_FROM_ROOT);
@@ -315,47 +314,46 @@ void patch_drs_palette(const char* filename, const char* main_dir)
 
     log("SLP optimize threads terminated, creating %s...", newfilename);
     //
-    char* wparam_newfilename = make_str_copy(newfilename);
+    std::wstring* wparam_newfilename = new std::wstring(newfilename);
     PostMessage(hWndPaletteDlg, WM_APP_STATUS_DRS, (WPARAM)wparam_newfilename, 1);
     //
-    SetCurrentDirectory(getenv("temp"));
+    SetCurrentDirectory(_wgetenv(L"temp"));
     SetCurrentDirectory(filename);
     //log("DRS header set up, adding files...");
 
     struct palette_drs_callback_param
     {
-        std::vector<std::string> files;
+        std::vector<std::wstring> files;
         int nDrsFiles;
         DRS* drs;
     } param_drs;
     param_drs.nDrsFiles = 0;
     param_drs.drs = drs;
 
-    auto palette_drs_callback = [](const char* filename, void* param)
+    auto palette_drs_callback = [](const wchar_t* filename, void* param)
         {
             palette_drs_callback_param* p = (palette_drs_callback_param*)param;
             unsigned long table;
-            const char* s = filename + strlen(filename) - 3;
-            if (filename[strlen(filename - 1)] == '"')
+            const wchar_t* s = filename + wcslen(filename) - 3;
+            if (filename[wcslen(filename) - 1] == L'"')
                 s--;
-            if (!strncmp(s, "slp", 3))
+            if (!wcsncmp(s, L"slp", 3))
                 table = 0x736C7020;
-            else if (!strncmp(s, "bin", 3))
+            else if (!wcsncmp(s, L"bin", 3))
                 table = 0x62696E61;
-            else if (!strncmp(s, "wav", 3))
+            else if (!wcsncmp(s, L"wav", 3))
                 table = 0x77617620;
             else
                 table = 0;
             if (table != 0)
             {
-                std::string str(filename);
-                p->files.push_back(str);
+                p->files.emplace_back(filename);
                 s = filename;
                 if (s[0] == '"')
                     s++;
                 int id;
-                sscanf_s(s, "%d", &id);
-                FILE* g = fopen(filename, "rb");
+                swscanf_s(s, L"%d", &id);
+                FILE* g = _wfopen(filename, L"rb");
                 fseek(g, 0, SEEK_END);
                 int size = ftell(g);
                 fseek(g, 0, SEEK_SET);
@@ -368,38 +366,38 @@ void patch_drs_palette(const char* filename, const char* main_dir)
             }
         };
 
-    findfirst_callback("*.*", palette_drs_callback, &param_drs);
+    findfirst_callback(L"*.*", palette_drs_callback, &param_drs);
 
     for (auto i = param_drs.files.begin(); i != param_drs.files.end(); ++i)
         DeleteFile((*i).c_str());
-    SetCurrentDirectory(getenv("temp"));
+    SetCurrentDirectory(_wgetenv(L"temp"));
     RemoveDirectory(filename);
     SetCurrentDirectory(main_dir);
     SetCurrentDirectory(DATA_FOLDER_PREFIX_FROM_ROOT);
     log("Added %d files to DRS, writing...", param_drs.nDrsFiles);
     if (!drs->writeDRS())
     {
-        snprintf(err, _countof(err), "Cannot create DRS file.\nMake sure there is at least 500 MB free in Game folder, and you have write permissions");
-        log(err);
-        MessageBox(NULL, err, "Error", MB_ICONERROR);
+        _snwprintf(err, _countof(err), L"Cannot create DRS file.\nMake sure there is at least 1 GB free in Game folder, and you have write permissions");
+        log(WideToUTF8_c_str(err));
+        MessageBox(NULL, err, L"Error", MB_ICONERROR);
         exit(0);
     }
     delete drs;
-    log("%s patched", filename);
+    log("%s patched", WideToUTF8_c_str(filename));
 }
 
 unsigned int __stdcall patch_palette(void*)
 {
     nProc = getAffinityCount();
     slp_optimize_event = (HANDLE*)malloc(nProc * sizeof(HANDLE));
-    char dir[MAX_PATH];
+    wchar_t dir[MAX_PATH];
     GetCurrentDirectory(_countof(dir), dir);
-    patch_drs_palette("interfac.drs", dir);
-    patch_drs_palette("interfac_x1.drs", dir);
-    patch_drs_palette("graphics.drs", dir);
-    patch_drs_palette("graphics_x1.drs", dir);
-    patch_drs_palette("terrain.drs", dir);
-    patch_drs_palette("terrain_x1.drs", dir);
+    patch_drs_palette(L"interfac.drs", dir);
+    patch_drs_palette(L"interfac_x1.drs", dir);
+    patch_drs_palette(L"graphics.drs", dir);
+    patch_drs_palette(L"graphics_x1.drs", dir);
+    patch_drs_palette(L"terrain.drs", dir);
+    patch_drs_palette(L"terrain_x1.drs", dir);
     SetCurrentDirectory(dir);
     PostMessage(hWndPaletteDlg, WM_CLOSE, NULL, NULL);
     free(slp_optimize_event);
@@ -410,8 +408,8 @@ int slp_counter;
 
 BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    char s[0x100];
-    char* st;
+    wchar_t s[0x100];
+    wchar_t* st;
     unsigned int palette_tid;
     HANDLE hThread;
     switch (message)
@@ -422,7 +420,7 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
     case WM_INITDIALOG:
         slp_counter = 0;
         hWndPaletteDlg = hWndDlg;
-        SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, "Ready");
+        SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, L"Ready");
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETRANGE, 0, MAKELPARAM(0, 0x1280));
         hThread = (HANDLE)_beginthreadex(NULL, 0, patch_palette, NULL, 0, &palette_tid);
         if (hThread)
@@ -432,21 +430,21 @@ BOOL CALLBACK PaletteDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM l
         switch (lParam)
         {
         case 0:
-            st = "Extracting";
+            st = L"Extracting";
             break;
         case 1:
-            st = "Writing";
+            st = L"Writing";
             break;
         default:
-            st = "";
+            st = L"";
             break;
         }
-        snprintf(s, _countof(s), "%s %s...", st, (char*)wParam);
-        free((char*)wParam);
+        _snwprintf(s, _countof(s), L"%s %s...", st, ((std::wstring*)wParam)->c_str());
+        delete (std::wstring*)wParam;
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
         return TRUE;
     case WM_APP_STATUS_SLP: //status update SLP
-        snprintf(s, _countof(s), "Processing %d.slp...", (int)wParam);
+        _snwprintf(s, _countof(s), L"Processing %d.slp...", (int)wParam);
         SetDlgItemText(hWndDlg, IDC_STATIC_PALETTE_CURRENT, s);
         SendMessage(GetDlgItem(hWndDlg, IDC_PROGRESS_PALETTE), PBM_SETPOS, slp_counter++, 0);
         return TRUE;
@@ -460,7 +458,7 @@ const char creating_new_p1_drs[] = ", creating new p1 DRS files";
 
 void installPalette()
 {
-    FILE* f = fopen(DATA_FOLDER_PREFIX_FROM_ROOT"palette", "rb");
+    FILE* f = _wfopen(DATA_FOLDER_PREFIX_FROM_ROOT L"palette", L"rb");
     char ver = 0;
     if (f)
     {
@@ -477,7 +475,7 @@ void installPalette()
     else
         log("Palette not found%s", creating_new_p1_drs);
     DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_PALETTE), NULL, PaletteDlgProc);
-    f = fopen(DATA_FOLDER_PREFIX_FROM_ROOT"palette", "wb");
+    f = _wfopen(DATA_FOLDER_PREFIX_FROM_ROOT L"palette", L"wb");
     ver = '5';
     fwrite(&ver, sizeof(char), 1, f);
     fclose(f);

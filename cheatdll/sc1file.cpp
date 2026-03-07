@@ -106,7 +106,7 @@ SCEN::SCEN(const char* filename)
 
 	//
 
-	FILE* f = fopen(filename, "rb");
+	FILE* f = _wfopen(UTF8ToWide_c_str(filename), L"rb");
 
 	if (!f)
 	{

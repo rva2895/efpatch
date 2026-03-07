@@ -3,8 +3,8 @@
 #include "zlib.h"
 
 #ifdef TARGET_VOOBLY
-const char legacy_patch_error1[] = "Error decompressing legacy patch data.";
-const char legacy_patch_error2[] = "Error writing legacy patch data.";
+const wchar_t legacy_patch_error1[] = L"Error decompressing legacy patch data.";
+const wchar_t legacy_patch_error2[] = L"Error writing legacy patch data.";
 
 uint8_t legacy_patch_data_compressed[] =
 {
@@ -77,8 +77,8 @@ uint8_t legacy_patch_data_compressed[] =
     0x40, 0xFF, 0xCE, 0x03, 0xCB, 0xE6, 0x3F
 };
 
-const char jedi_holo_txt_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"jedi-holo.txt";
-const char ground_to_air_txt_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"ground-to-air.txt";
+const wchar_t jedi_holo_txt_file[] = DATA_FOLDER_PREFIX_FROM_ROOT L"jedi-holo.txt";
+const wchar_t ground_to_air_txt_file[] = DATA_FOLDER_PREFIX_FROM_ROOT L"ground-to-air.txt";
 
 void install_legacy_patch()
 {
@@ -126,8 +126,11 @@ void install_legacy_patch()
             setHook((void*)0x005E3F10, (void*)0x007B2130);
             setHook((void*)0x0041C593, (void*)0x007B2170);
 
-            writeDword(0x007B2046, (DWORD)jedi_holo_txt_file);
-            writeDword(0x007B21B6, (DWORD)ground_to_air_txt_file);
+            static std::string jedi_holo_txt_file_s(WideToUTF8(jedi_holo_txt_file));
+            static std::string ground_to_air_txt_file_s(WideToUTF8(ground_to_air_txt_file));
+
+            writeDword(0x007B2046, (DWORD)jedi_holo_txt_file_s.c_str());
+            writeDword(0x007B21B6, (DWORD)ground_to_air_txt_file_s.c_str());
 
             writeByte(0x006910F2, 0x32);
             writeByte(0x006910FA, 0x32);
@@ -142,17 +145,17 @@ void install_legacy_patch()
         }
         else
         {
-            log(legacy_patch_error2);
+            log(WideToUTF8_c_str(legacy_patch_error2));
             free(dst);
-            MessageBox(NULL, legacy_patch_error2, "Error", MB_ICONERROR);
+            MessageBox(NULL, legacy_patch_error2, L"Error", MB_ICONERROR);
             exit(0);
         }
     }
     else
     {
-        log(legacy_patch_error1);
+        log(WideToUTF8_c_str(legacy_patch_error1));
         free(dst);
-        MessageBox(NULL, legacy_patch_error1, "Error", MB_ICONERROR);
+        MessageBox(NULL, legacy_patch_error1, L"Error", MB_ICONERROR);
         exit(0);
     }
 }

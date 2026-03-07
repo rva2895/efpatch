@@ -26,22 +26,22 @@ int __stdcall up_read_do(TCommCommandLog* comm_log, int handle, void* buffer, un
             return result;
         }
         lseek_internal(comm_log->mFileHandle, -result, SEEK_CUR);
-        int tmp_handle = _sopen(comm_log->mFileName, _O_BINARY | _O_APPEND | _O_WRONLY, _SH_DENYNO);
+        int tmp_handle = _wsopen(UTF8ToWide_c_str(comm_log->mFileName), _O_BINARY | _O_APPEND | _O_WRONLY, _SH_DENYNO);
         if (tmp_handle >= 0)
         {
             _close(tmp_handle);
             return 0;
         }
         MSG Msg;
-        while (PeekMessageA(&Msg, NULL, 0, 0, 1))
+        while (PeekMessage(&Msg, NULL, 0, 0, 1))
         {
             if (Msg.message == WM_QUIT)
             {
-                PostMessageA(Msg.hwnd, Msg.message, Msg.wParam, Msg.lParam);
+                PostMessage(Msg.hwnd, Msg.message, Msg.wParam, Msg.lParam);
                 return 0;
             }
             TranslateMessage(&Msg);
-            DispatchMessageA(&Msg);
+            DispatchMessage(&Msg);
         }
         TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
         TMessagePanel* message_panel = NULL;
@@ -320,7 +320,7 @@ unsigned int __stdcall spec_client(void* data)
         return 0;
     }
 
-    locals.handle = _sopen((*comm)->mCommandLog->mFileName, _O_BINARY | _O_RDONLY, _SH_DENYNO);
+    locals.handle = _wsopen(UTF8ToWide_c_str((*comm)->mCommandLog->mFileName), _O_BINARY | _O_RDONLY, _SH_DENYNO);
     if (locals.handle == -1)
     {
         log_spec_client("cannot open stream");

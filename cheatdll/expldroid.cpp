@@ -79,7 +79,7 @@ void __cdecl expl_droid_hooks()
 }
 #pragma optimize( "", on )
 
-void initExplDroid(const char* prefix, const char* filename)
+void initExplDroid(const wchar_t* prefix, const wchar_t* filename)
 {
     load_ids_from_txt(
         prefix,
@@ -88,6 +88,6 @@ void initExplDroid(const char* prefix, const char* filename)
         &expl_n,
         &expl_installed,
         expl_droid_hooks,
-        "Loading suicide attack unit list"
+        L"Loading suicide attack unit list"
     );
 }

@@ -7,6 +7,6 @@ void setExtraTerrainHooks();
 void setExtraTerrainHooks_CC();
 
 void setTerrainLoadHooks(int);
-void loadTerrainTxt(const char* prefix, const char* filename);
+void loadTerrainTxt(const wchar_t* prefix, const wchar_t* filename);
 
 void setTerrainBlendHooks();

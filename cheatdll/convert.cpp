@@ -44,7 +44,7 @@ void __cdecl convert_hooks()
     efpatch_atexit(convert_hooks_atexit);
 }
 
-void setConvertHooks(const char* prefix, const char* filename)
+void setConvertHooks(const wchar_t* prefix, const wchar_t* filename)
 {
     load_ids_from_txt(
         prefix,
@@ -53,6 +53,6 @@ void setConvertHooks(const char* prefix, const char* filename)
         &unconv_n,
         &unconv_installed,
         convert_hooks,
-        "Loading unconvertable unit list"
+        L"Loading unconvertable unit list"
     );
 }

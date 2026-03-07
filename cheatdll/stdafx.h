@@ -33,6 +33,7 @@
 #endif
 #include "log.h"
 #include "registry.h"
+#include "utf8.h"
 
 #include "src\idb\idb_types.h"
 #include "src\idb\idb_functions.h"

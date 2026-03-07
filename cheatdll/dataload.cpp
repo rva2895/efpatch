@@ -18,7 +18,7 @@ char* jedi_holo_path;
 
 bool load_data_always = false;
 
-extern char* lang_local;
+extern const char* lang_local;
 
 /*
 bool __stdcall on_deny_save_game_popup()
@@ -52,65 +52,68 @@ display_save_game_screen:
 
 int load_game_data(TRIBE_Game* game, int version)
 {
-    char* data_file;
-    char* data_prefix;
+    wchar_t* data_file;
+    wchar_t* data_prefix;
 
     switch (version)
     {
     case 0:
-        data_file = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.0\\genie_x2.dat";
-        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.0\\";
+        data_file = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.4.0\\genie_x2.dat";
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.4.0\\";
         break;
     case 1:
     case 2:
-        data_file = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.1\\genie_x2.dat";
-        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.1\\";
+        data_file = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.4.1\\genie_x2.dat";
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.4.1\\";
         break;
     case 3:
-        data_file = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.2\\genie_x2.dat";
-        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.4.2\\";
+        data_file = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.4.2\\genie_x2.dat";
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.4.2\\";
         break;
     case 4:
-        data_file = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.0\\genie_x2.dat";
-        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.0\\";
+        data_file = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.5.0\\genie_x2.dat";
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.5.0\\";
         break;
     case 5:
-        data_file = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.1\\genie_x2.dat";
-        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.1\\";
+        data_file = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.5.1\\genie_x2.dat";
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.5.1\\";
         break;
     case 6:
-        data_file = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.2\\genie_x2.dat";
-        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.2\\";
+        data_file = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.5.2\\genie_x2.dat";
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.5.2\\";
         break;
     case 7:
-        data_file = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.3\\genie_x2.dat";
-        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.3\\";
+        data_file = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.5.3\\genie_x2.dat";
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.5.3\\";
         break;
     case 8:
-        data_file = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.4\\genie_x2.dat";
-        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.4\\";
+        data_file = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.5.4\\genie_x2.dat";
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.5.4\\";
         break;
     case 9:
-        data_file = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.5\\genie_x2.dat";
-        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT"old\\1.5.5\\";
+        data_file = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.5.5\\genie_x2.dat";
+        data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT L"old\\1.5.5\\";
         break;
     case 10:
-        data_file = DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat";
+        data_file = DATA_FOLDER_PREFIX_FROM_ROOT L"genie_x2.dat";
         data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT;
         break;
 #if CURRENT_VERSION != 10
 #error Must update for new CURRENT_VERSION
 #endif
     default:
-        data_file = DATA_FOLDER_PREFIX_FROM_ROOT"genie_x2.dat";
+        data_file = DATA_FOLDER_PREFIX_FROM_ROOT L"genie_x2.dat";
         data_prefix = DATA_FOLDER_PREFIX_FROM_ROOT;
         break;
     }
 
-    log("Loading game data, data_file = %s, data_prefix = %s", data_file, data_prefix);
+    std::string data_file_u(WideToUTF8(data_file));
+    std::string data_prefix_u(WideToUTF8(data_prefix));
+
+    log("Loading game data, data_file = %s, data_prefix = %s", data_file_u.c_str(), data_prefix_u.c_str());
 
     //_countof(game->prog_info->game_data_file) is MAX_PATH + 1 but let's be extra safe
-    strlcpy(game->prog_info->game_data_file, data_file, MAX_PATH);
+    strlcpy(game->prog_info->game_data_file, data_file_u.c_str(), MAX_PATH);
 
     if (game->world)
     {
@@ -125,25 +128,25 @@ int load_game_data(TRIBE_Game* game, int version)
     //clear legacy jedi-holo and ground-to-air
     memset((void*)0x007B1000, 0, 0x1000);
 
-    snprintf(ground_to_air_path, MAX_PATH, "%sground-to-air.txt", data_prefix);
-    snprintf(jedi_holo_path, MAX_PATH, "%sjedi-holo.txt", data_prefix);
+    snprintf(ground_to_air_path, MAX_PATH, "%sground-to-air.txt", data_prefix_u.c_str());
+    snprintf(jedi_holo_path, MAX_PATH, "%sjedi-holo.txt", data_prefix_u.c_str());
 
     writeDword(0x007B2046, (DWORD)jedi_holo_path);
     writeDword(0x007B21B6, (DWORD)ground_to_air_path);
 
-    initExplDroid(data_prefix, "expl.txt");
-    setJediMasterHooks(data_prefix, "master.txt", "padawan.txt");
-    initBldgResProdList(data_prefix, "resgen.txt");
-    setConvertHooks(data_prefix, "unconv.txt");
-    initAirToAir(data_prefix, "air-to-air.txt");
-    setJediHoloHooks(data_prefix, "jedi-holo.txt");
-    loadTerrainTxt(data_prefix, "terrain.txt");
+    initExplDroid(data_prefix, L"expl.txt");
+    setJediMasterHooks(data_prefix, L"master.txt", L"padawan.txt");
+    initBldgResProdList(data_prefix, L"resgen.txt");
+    setConvertHooks(data_prefix, L"unconv.txt");
+    initAirToAir(data_prefix, L"air-to-air.txt");
+    setJediHoloHooks(data_prefix, L"jedi-holo.txt");
+    loadTerrainTxt(data_prefix, L"terrain.txt");
 
-    char dll_name[MAX_PATH];
-    if (!strcmp(data_prefix, DATA_FOLDER_PREFIX_FROM_ROOT))
-        snprintf(dll_name, _countof(dll_name), DATA_FOLDER_PREFIX_FROM_ROOT"..\\%s", lang_local);
+    wchar_t dll_name[MAX_PATH];
+    if (!wcscmp(data_prefix, DATA_FOLDER_PREFIX_FROM_ROOT))
+        _snwprintf(dll_name, _countof(dll_name), DATA_FOLDER_PREFIX_FROM_ROOT L"..\\%s", UTF8ToWide_c_str(lang_local));
     else
-        snprintf(dll_name, _countof(dll_name), "%slanguage_x2.dll", data_prefix);
+        _snwprintf(dll_name, _countof(dll_name), L"%slanguage_x2.dll", data_prefix);
 
     FreeLibrary(*hInstance_dll);
     *hInstance_dll = efpatch_LoadStringTable(dll_name);
@@ -309,7 +312,7 @@ void setDataLoadHooks()
     ground_to_air_path = (char*)malloc(MAX_PATH);
     jedi_holo_path = (char*)malloc(MAX_PATH);
 
-    if (file_exists(DATA_FOLDER_PREFIX_FROM_ROOT"reload_data"))
+    if (file_exists(DATA_FOLDER_PREFIX_FROM_ROOT L"reload_data"))
         load_data_always = true;
     else
         load_data_always = false;

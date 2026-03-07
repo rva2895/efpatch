@@ -86,7 +86,7 @@ void __stdcall sed_open_action_2(TRIBE_Screen_Sed_Open* sed_open)
         TTextPanel__get_text((TTextPanel*)sed_open->list),
         ext);
 
-    HANDLE hFile = CreateFileA(Filename, 0x80000000, 1u, 0, 3u, 0x80u, 0);
+    HANDLE hFile = CreateFile(UTF8ToWide_c_str(Filename), 0x80000000, 1u, 0, 3u, 0x80u, 0);
     if (hFile != INVALID_HANDLE_VALUE)
     {
         CloseHandle(hFile);
@@ -109,15 +109,15 @@ struct fillList_callback_param
     bool exclude;
 };
 
-void __cdecl fillList_callback(const char* filename, void* param)
+void __cdecl fillList_callback(const wchar_t* filename, void* param)
 {
     fillList_callback_param* p = (fillList_callback_param*)param;
-    size_t len = strlen(filename) + 1;
-    char Filename[MAX_PATH];
-    strncpy(Filename, filename, len - 5);
-    Filename[len - 5] = '\0';
-    if (!p->exclude || strcmp(Filename, "gencomb") && strncmp(Filename, "default", 7u))
-        TTextPanel__append_line(p->list, Filename, p->n, NULL);
+    size_t len = wcslen(filename) + 1;
+    wchar_t Filename[MAX_PATH];
+    wcsncpy(Filename, filename, len - 5);
+    Filename[len - 5] = L'\0';
+    if (!p->exclude || wcscmp(Filename, L"gencomb") && wcsncmp(Filename, L"default", 7u))
+        TTextPanel__append_line(p->list, WideToUTF8_c_str(Filename), p->n, NULL);
 }
 
 void __fastcall TRIBE_Screen_Sed_Open__fillList_new(TRIBE_Screen_Sed_Open* sed_open) //0053FC50
@@ -130,7 +130,7 @@ void __fastcall TRIBE_Screen_Sed_Open__fillList_new(TRIBE_Screen_Sed_Open* sed_o
             param.list = (TTextPanel*)sed_open->list;
             param.n = n;
             param.exclude = false;
-            findfirst_callback(Filename, fillList_callback, &param);
+            findfirst_callback(UTF8ToWide_c_str(Filename), fillList_callback, &param);
         };
 
     TTextPanel__empty_list((TTextPanel*)sed_open->list);
@@ -153,7 +153,7 @@ void __fastcall TribeSaveGameScreen__fillList_new(TribeSaveGameScreen* savegames
             param.list = (TTextPanel*)savegamescreen->list;
             param.n = n;
             param.exclude = false;
-            findfirst_callback(Filename, fillList_callback, &param);
+            findfirst_callback(UTF8ToWide_c_str(Filename), fillList_callback, &param);
         };
 
     TTextPanel__empty_list((TTextPanel*)savegamescreen->list);
@@ -186,7 +186,7 @@ void __fastcall TribeSelectScenarioScreen__fillScenarios_new(TribeSelectScenario
             param.list = (TTextPanel*)sel_scen->scenarioList;
             param.n = n;
             param.exclude = true;
-            findfirst_callback(Filename, fillList_callback, &param);
+            findfirst_callback(UTF8ToWide_c_str(Filename), fillList_callback, &param);
         };
 
     TTextPanel__empty_list((TTextPanel*)sel_scen->scenarioList);
@@ -209,7 +209,7 @@ void __fastcall TribeLoadSavedGameScreen__fillList_new(TribeLoadSavedGameScreen*
             param.list = (TTextPanel*)loadsavedgamescreen->list;
             param.n = n;
             param.exclude = false;
-            findfirst_callback(Filename, fillList_callback, &param);
+            findfirst_callback(UTF8ToWide_c_str(Filename), fillList_callback, &param);
         };
 
     TTextPanel__empty_list((TTextPanel*)loadsavedgamescreen->list);
@@ -485,13 +485,13 @@ __declspec(naked) void loadsavedgamescreen_action_wr() //0050AC8F
     }
 }
 
-bool test_campaign_filename(const char* str)
+bool test_campaign_filename(const wchar_t* str)
 {
-    return strlen(str) != 5
-        || (strnicmp(str, "xcam", 4)
-            && strnicmp(str, "1cam", 4)
-            && strnicmp(str, "ecam", 4)
-            && strnicmp(str, "2cam", 4));
+    return wcslen(str) != 5
+        || (_wcsnicmp(str, L"xcam", 4)
+            && _wcsnicmp(str, L"1cam", 4)
+            && _wcsnicmp(str, L"ecam", 4)
+            && _wcsnicmp(str, L"2cam", 4));
 }
 
 void __fastcall TRIBE_Screen_Campaign_Selection__fillCampaigns_new(TRIBE_Screen_Campaign_Selection* camselscreen) //004F17B0
@@ -504,7 +504,7 @@ void __fastcall TRIBE_Screen_Campaign_Selection__fillCampaigns_new(TRIBE_Screen_
     {
         camselscreen->campaignList->sorted = 1;
         for (int i = 0; i < campaign_num; i++)
-            if (test_campaign_filename(campaign_list[i]))
+            if (test_campaign_filename(UTF8ToWide_c_str(campaign_list[i])))
                 TTextPanel__append_line((TTextPanel*)camselscreen->campaignList, campaign_list[i], i, 0);
 
         TTextPanel__set_line((TTextPanel*)camselscreen->campaignList, TTextPanel__get_line2((TTextPanel*)camselscreen->campaignList, current_campaign));
@@ -518,7 +518,7 @@ void __fastcall TRIBE_Screen_Campaign_Selection__fillCampaigns_new(TRIBE_Screen_
 
 void __fastcall TRIBE_Campaign_Editor_Screen__fill_campaign_drop_new(TRIBE_Campaign_Editor_Screen* cameditscreen) //004EFB70
 {
-    char Dest[MAX_PATH];
+    wchar_t Dest[MAX_PATH];
 
     TDropDownPanel__set_sorted(cameditscreen->filename_drop, 1);
     TDropDownPanel__empty_list(cameditscreen->filename_drop);
@@ -528,26 +528,26 @@ void __fastcall TRIBE_Campaign_Editor_Screen__fill_campaign_drop_new(TRIBE_Campa
         TDropDownPanel* dropdown;
     } param;
 
-    auto campaign_editor_fill_callback = [](const char* filename, void* param)
+    auto campaign_editor_fill_callback = [](const wchar_t* filename, void* param)
         {
             campaign_editor_fill_callback_param* p = (campaign_editor_fill_callback_param*)param;
-            size_t len = strlen(filename) + 1;
-            char Filename[MAX_PATH];
-            strncpy(Filename, filename, len - 5);
-            Filename[len - 5] = '\0';
+            size_t len = wcslen(filename) + 1;
+            wchar_t Filename[MAX_PATH];
+            wcsncpy(Filename, filename, len - 5);
+            Filename[len - 5] = L'\0';
 
             if (test_campaign_filename(Filename))
             {
-                TDropDownPanel__append_line(p->dropdown, Filename, 0);
+                TDropDownPanel__append_line(p->dropdown, WideToUTF8_c_str(Filename), 0);
             }
         };
 
     param.dropdown = cameditscreen->filename_drop;
 
-    snprintf(Dest, _countof(Dest), "%s*.cp1", (*base_game)->prog_info->campaign_dir);
+    _snwprintf(Dest, _countof(Dest), L"%s*.cp1", UTF8ToWide_c_str((*base_game)->prog_info->campaign_dir));
     findfirst_callback(Dest, campaign_editor_fill_callback, &param);
 
-    snprintf(Dest, _countof(Dest), "%s*.cpx", (*base_game)->prog_info->campaign_dir);
+    _snwprintf(Dest, _countof(Dest), L"%s*.cpx", UTF8ToWide_c_str((*base_game)->prog_info->campaign_dir));
     findfirst_callback(Dest, campaign_editor_fill_callback, &param);
 
     TPanel__set_curr_child((TPanel*)cameditscreen->filename_drop, (TPanel*)cameditscreen->filename);
@@ -557,7 +557,7 @@ void __fastcall TRIBE_Campaign_Editor_Screen__fill_campaign_drop_new(TRIBE_Campa
 
 int __stdcall campaign_editor_check_campaign_filename(const char* str)
 {
-    return test_campaign_filename(str);
+    return test_campaign_filename(UTF8ToWide_c_str(str));
 }
 
 __declspec(naked) void campaign_editor_load_campaign_wr() //004EFF27
@@ -614,7 +614,7 @@ void __fastcall TRIBE_Campaign_Editor_Screen__fill_scenario_list_new(TRIBE_Campa
             param.list = (TTextPanel*)cameditscreen->scenarios;
             param.n = n;
             param.exclude = false;
-            findfirst_callback(Filename, fillList_callback, &param);
+            findfirst_callback(UTF8ToWide_c_str(Filename), fillList_callback, &param);
         };
 
     TTextPanel__empty_list((TTextPanel*)cameditscreen->scenarios);
@@ -630,9 +630,9 @@ void __fastcall TRIBE_Campaign_Editor_Screen__fill_scenario_list_new(TRIBE_Campa
 const char* __stdcall get_campaign_scenario_list_file_ext(TRIBE_Campaign_Editor_Screen* cameditscreen, const char* str, int id)
 {
     /*
-    const char* ext = convert_list_id_to_file_extension(
-        TTextPanel__get_id2((TTextPanel*)cameditscreen->campaign_scenarios, TTextPanel__currentLineNumber((TTextPanel*)cameditscreen->campaign_scenarios)));
-    return ext ? ext : (loadfilelist_version == VER_EF ? ".sc2" : ".sc1");
+        const char* ext = convert_list_id_to_file_extension(
+            TTextPanel__get_id2((TTextPanel*)cameditscreen->campaign_scenarios, TTextPanel__currentLineNumber((TTextPanel*)cameditscreen->campaign_scenarios)));
+        return ext ? ext : (loadfilelist_version == VER_EF ? ".sc2" : ".sc1");
     */
 
     auto test_campaign_scenario_file_exists = [](const char* s, const char* name, const char* dir)

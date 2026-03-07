@@ -5,7 +5,7 @@ std::map<int, MAP_INFO> map_list;
 
 bool __stdcall check_map_list_presence()
 {
-    return (strlen(get_string(13599)) != 0 && !map_list.empty());
+    return (get_string(13599)[0] != '\0' && !map_list.empty());
 }
 
 __declspec(naked) void on_append_line_1() //0051F82B
@@ -333,7 +333,7 @@ map_list_load_mp_save_handled:
     }
 }
 
-void initMapList(const char* prefix, const char* filename)
+void initMapList(const wchar_t* prefix, const wchar_t* filename)
 {
     int id;
     int string_id;
@@ -345,9 +345,9 @@ void initMapList(const char* prefix, const char* filename)
     if (!map_list.empty())
         map_list.clear();
 
-    char full_filename[0x100];
-    snprintf(full_filename, _countof(full_filename), "%s%s", prefix, filename);
-    FILE* f = fopen(full_filename, "rt");
+    wchar_t full_filename[MAX_PATH];
+    _snwprintf(full_filename, _countof(full_filename), L"%s%s", prefix, filename);
+    FILE* f = _wfopen(full_filename, L"rt");
     if (f)
     {
         while (fscanf_s(f, "%d,%d,%d,%d,%s", &id, &string_id, &rollover_string_id, &drs_id, script_filename, _countof(script_filename)) > 0)
@@ -382,6 +382,6 @@ void setMapListHooks()
     setHook((void*)0x00600AE6, map_list_new_game);
     setHook((void*)0x005133F3, map_list_load_mp_save);
 
-    initMapList(DATA_FOLDER_PREFIX_FROM_ROOT, "maps.txt");
+    initMapList(DATA_FOLDER_PREFIX_FROM_ROOT, L"maps.txt");
 }
 #pragma optimize( "", on )

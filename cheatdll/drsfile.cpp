@@ -3,8 +3,8 @@
 
 FILE* DRS::load(bool write)
 {
-    if (drsFile)
-        return fopen(drsFile, write ? "rb+" : "rb");
+    if (drs_filename.length() > 0)
+        return _wfopen(drs_filename.c_str(), write ? L"rb+" : L"rb");
     else
         return NULL;
 }
@@ -29,10 +29,10 @@ DRS::DRS()
     strncpy(hdr.version, "1.00", 4);
     memset(hdr.ftype, 0, 12);
     strlcpy(hdr.ftype, "swbg", _countof(hdr.ftype));
-    drsFile = NULL;
+    drs_filename.clear();
 }
 
-bool DRS::loadDRS(const char* filename)
+bool DRS::loadDRS(const wchar_t* filename)
 {
     setFileName(filename);
 
@@ -101,7 +101,7 @@ bool DRS::writeDRS()
         for (int j = 0; j < tInfo[i].nFiles; j++)
             fsize += tEntries[i][j].size;
     //set file size
-    HANDLE f1 = CreateFile(drsFile, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    HANDLE f1 = CreateFile(drs_filename.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     bool result = SetFilePointer(f1, fsize, 0, FILE_BEGIN) != INVALID_SET_FILE_POINTER;
     result = result && SetEndOfFile(f1);
     CloseHandle(f1);
@@ -181,10 +181,6 @@ void* DRS::getFile(int id, int* size)
 
 int DRS::extractFiles()
 {
-    void* data;
-    char* ext;
-    char filename[0x100];
-    FILE* g;
     int size_total = 0;
 
     FILE* f = load(false);
@@ -193,33 +189,35 @@ int DRS::extractFiles()
 
     for (int i = 0; i < hdr.nTables; i++)
     {
+        const wchar_t* ext;
         switch (*(unsigned long*)&tInfo[i].ext)
         {
         case 0x62696E61:
-            ext = ".bin";
+            ext = L".bin";
             break;
         case 0x736C7020:
-            ext = ".slp";
+            ext = L".slp";
             break;
         case 0x77617620:
-            ext = ".wav";
+            ext = L".wav";
             break;
         default:
-            ext = "";
+            ext = L"";
             break;
         }
         for (int j = 0; j < tInfo[i].nFiles; j++)
         {
-            data = malloc(tEntries[i][j].size);
+            wchar_t filename[MAX_PATH];
+            void* data = malloc(tEntries[i][j].size);
             size_total += tEntries[i][j].size;
             fseek(f, tEntries[i][j].offset, SEEK_SET);
             fread(data, tEntries[i][j].size, 1, f);
-            snprintf(filename, _countof(filename), "%d%s", tEntries[i][j].id, ext);
+            _snwprintf(filename, _countof(filename), L"%d%s", tEntries[i][j].id, ext);
             HANDLE f1 = CreateFile(filename, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
             SetFilePointer(f1, tEntries[i][j].size, 0, FILE_BEGIN);
             SetEndOfFile(f1);
             CloseHandle(f1);
-            g = fopen(filename, "rb+");
+            FILE* g = _wfopen(filename, L"rb+");
             if (!g)
             {
                 free(data);
@@ -272,17 +270,14 @@ DRS::~DRS()
         delete[] tEntries;
         delete[] tInfo;
     }
-
-    delete[] drsFile;
 }
 
-void DRS::setFileName(const char* filename)
+void DRS::setFileName(const wchar_t* filename)
 {
-    delete[] drsFile;
-
     int size = GetFullPathName(filename, 0, NULL, NULL);
-    drsFile = new char[size];
-    GetFullPathName(filename, size, drsFile, NULL);
+    drs_filename = std::wstring(size, 0);
+    GetFullPathName(filename, size, &drs_filename[0], NULL);
+    drs_filename.resize(wcslen(drs_filename.c_str()));
 }
 
 void DRS::addFile(void* data, int size, int id, unsigned long table)

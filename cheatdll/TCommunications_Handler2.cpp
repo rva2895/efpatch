@@ -428,7 +428,7 @@ public:
         va_end(ap);
 
         if (msg_box)
-            MessageBox(NULL, debug_str, "CommHand - NOT IMPLEMENTED", 0);
+            MessageBoxA(NULL, debug_str, "CommHand - NOT IMPLEMENTED", 0);
     }
 
     void __thiscall GameOver()

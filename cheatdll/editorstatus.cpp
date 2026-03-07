@@ -21,11 +21,11 @@ void DrawText_outline(HDC hdc, RECT* r, const char* str)
     r->top += 2;    r->bottom += 2;
     //DrawText(hdc, str, strlen(str), r, DT_LEFT);
     r->left -= 2;    r->right -= 2;
-    DrawText(hdc, str, strlen(str), r, DT_LEFT);
+    DrawTextA(hdc, str, strlen(str), r, DT_LEFT);
     r->top -= 2;    r->bottom -= 2;
     r->left++;    r->top++; r->right++; r->bottom++;
     SetTextColor(hdc, RGB(255, 255, 255));
-    DrawText(hdc, str, strlen(str), r, DT_LEFT);
+    DrawTextA(hdc, str, strlen(str), r, DT_LEFT);
     SelectObject(hdc, hOld);
 }
 

@@ -33,9 +33,7 @@ struct DRS_tableEntry
 class DRS
 {
 private:
-    //FILE* f;
-
-    char* drsFile;
+    std::wstring drs_filename;
 
     bool init;
 
@@ -50,7 +48,7 @@ public:
     DRS();
     ~DRS();
 
-    void setFileName(const char* filename);
+    void setFileName(const wchar_t* filename);
     void addFile(void* data, int size, int id, unsigned long table);
 
     char* listFiles(int* count);
@@ -61,6 +59,6 @@ public:
 
     void writeInt(int offset, int val);
 
-    bool loadDRS(const char* filename);
+    bool loadDRS(const wchar_t* filename);
     bool writeDRS();
 };

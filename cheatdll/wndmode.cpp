@@ -29,21 +29,20 @@ __declspec(naked) void onTechTreeDestroy() //00463F68
     }
 }
 
-char* cmdline = 0;
 bool normalmouse = false;
+bool normal_mouse_argument_tested = false;
 
 void __stdcall fixCur(HWND hWnd, LPRECT rect)
 {
-    if (!cmdline)
+    if (!normal_mouse_argument_tested)
     {
-        cmdline = GetCommandLine();
-        if (strstr(cmdline, "NORMALMOUSE"))
+        normal_mouse_argument_tested = true;
+        if (wcsstr(GetCommandLineW(), L"NORMALMOUSE"))
             normalmouse = true;
     }
     GetClientRect(hWnd, rect);
-    if (!normalmouse)
-        if (!isTechTree)
-            SetCursor(0);
+    if (!normalmouse && !isTechTree)
+        SetCursor(NULL);
 }
 
 __declspec(naked) void wndtmp() //00616C0F
@@ -68,7 +67,7 @@ void setWndModeHooks()
 {
     log("Setting up window mode...");
 
-    if (LoadLibrary("wndmode.dll"))
+    if (LoadLibraryW(L"wndmode.dll"))
         log("Loaded wndmode.dll");
     else
         log("No wndmode.dll. Using ddraw window mode if possible");

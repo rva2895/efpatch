@@ -53,7 +53,7 @@ unsigned int dump_objects(const char* filename)
     unsigned int retval;
     FILE* dump_file = NULL;
     if (filename)
-        dump_file = fopen(filename, "wt");
+        dump_file = _wfopen(UTF8ToWide_c_str(filename), L"wt");
     if ((dump_file || !filename) && get_worldtime() >= 0)
     {
         printf_if_exists(dump_file, "Out Of Sync world dump, worldtime=%u\n\n", get_worldtime());
@@ -167,7 +167,7 @@ void __stdcall dump_checksums(long time)
     //unsigned int r = rand();
     //char name[MAX_PATH];
     //snprintf(name, _countof(name), "rge_checksum_dump_%08X.txt", r);
-    FILE* f = fopen("rge_checksum_dump.txt", "at");
+    FILE* f = _wfopen(L"rge_checksum_dump.txt", L"at");
     if (f)
     {
         fprintf(f, "%ld,%u\n", time, checksum);
@@ -243,7 +243,7 @@ loc_61FD69:
 
 void __stdcall dump_expected_checksum(long* checksum)
 {
-    FILE* f = fopen("rge_expected_checksum_dump.txt", "at");
+    FILE* f = _wfopen(L"rge_expected_checksum_dump.txt", L"at");
     if (f)
     {
         fprintf(f, "%u,%ld\n", get_worldtime(), *checksum);
@@ -285,7 +285,7 @@ void __stdcall make_oos_dump()
     strcpy(name + strlen(name), r_n);
     snprintf(r_n, _countof(r_n), "_%u.txt", get_worldtime());
     strcpy(name + strlen(name), r_n);
-    FILE* f = fopen(name, "wt");
+    FILE* f = _wfopen(UTF8ToWide_c_str(name), L"wt");
     if (f)
     {
         wd_queue.print_dump(f);
@@ -492,7 +492,7 @@ void __stdcall check_action(RGE_Action* action)
         RGE_Action_Object* unit = action->obj;
         if (unit && unit->id == 4325)
         {
-            FILE* f = fopen("act_log.txt", "at");
+            FILE* f = _wfopen(L"act_log.txt", L"at");
             if (f)
             {
                 //chat("Action found ")
@@ -507,7 +507,7 @@ void __stdcall check_create_action(RGE_Action_Object* unit, RGE_Action* action, 
 {
     if (unit && unit->id == 4325 && get_gametime2() == 527900)
     {
-        FILE* f = fopen("act_log.txt", "at");
+        FILE* f = _wfopen(L"act_log.txt", L"at");
         if (f)
         {
             //chat("Action found ")

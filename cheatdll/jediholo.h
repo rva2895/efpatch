@@ -1,3 +1,3 @@
 #pragma once
 
-void setJediHoloHooks(const char* prefix, const char* filename);
+void setJediHoloHooks(const wchar_t* prefix, const wchar_t* filename);

@@ -41,7 +41,7 @@ void __cdecl air_to_air_hooks()
     efpatch_atexit(air_to_air_hooks_atexit);
 }
 
-void initAirToAir(const char* prefix, const char* filename)
+void initAirToAir(const wchar_t* prefix, const wchar_t* filename)
 {
     load_ids_from_txt(
         prefix,
@@ -50,6 +50,6 @@ void initAirToAir(const char* prefix, const char* filename)
         &airtoair_n,
         &airtoair_installed,
         air_to_air_hooks,
-        "Loading air-to-air unit list"
+        L"Loading air-to-air unit list"
     );
 }

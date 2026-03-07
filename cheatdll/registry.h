@@ -1,12 +1,12 @@
 #pragma once
 
 #ifdef TARGET_VOOBLY
-#define REGPATH "Software\\Voobly\\Voobly\\game\\16\\" VOOBLY_EXE_MOD_NAME
+#define REGPATH L"Software\\Voobly\\Voobly\\game\\16\\" VOOBLY_EXE_MOD_NAME
 #else
-#define REGPATH "Software\\LucasArts Entertainment Company LLC\\Star Wars Galactic Battlegrounds: Expanding Fronts\\Configurator"
+#define REGPATH L"Software\\LucasArts Entertainment Company LLC\\Star Wars Galactic Battlegrounds: Expanding Fronts\\Configurator"
 #endif
 
-//#define REGPATH "Software\\LucasArts Entertainment Company LLC\\Star Wars Galactic Battlegrounds: Clone Campaigns\\Configurator"
+//#define REGPATH L"Software\\LucasArts Entertainment Company LLC\\Star Wars Galactic Battlegrounds: Clone Campaigns\\Configurator"
 
 struct CONFIG_DATA
 {
@@ -40,7 +40,7 @@ struct CONFIG_DATA
     int modCount;
     char** mods;
 
-    std::string lang;
+    std::wstring lang;
 };
 
 void regGet(CONFIG_DATA*);

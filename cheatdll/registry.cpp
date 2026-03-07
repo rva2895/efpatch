@@ -44,7 +44,7 @@ extern const CONFIG_DATA cd_default =
     0,   //object unlock
     0,   //mod count
     NULL,//mods
-    "en" //lang
+    L"en" //lang
 };
 
 #ifdef TARGET_VOOBLY
@@ -54,7 +54,7 @@ extern const CONFIG_DATA cd_default =
 #endif
 
 template<class T>
-void query_reg_option(HKEY hKey, const char* option_name, T& option, const T& default_option)
+void query_reg_option(HKEY hKey, const wchar_t* option_name, T& option, const T& default_option)
 {
     unsigned long type;
 #ifndef TARGET_VOOBLY
@@ -68,8 +68,8 @@ void query_reg_option(HKEY hKey, const char* option_name, T& option, const T& de
         &size))
         option = default_option;
 #else
-    char str[0x100];
-    unsigned long size = 0x100;
+    wchar_t str[0x100];
+    unsigned long size = sizeof(str);
     if (RegQueryValueEx(
         hKey,
         option_name,
@@ -80,10 +80,11 @@ void query_reg_option(HKEY hKey, const char* option_name, T& option, const T& de
         option = default_option;
     else
     {
-        strupr(str);
-        if (strstr(str, "TRUE"))
+        str[_countof(str) - 1] = L'\0';
+        _wcsupr(str);
+        if (wcsstr(str, L"TRUE"))
             option = 1;
-        else if (strstr(str, "FALSE"))
+        else if (wcsstr(str, L"FALSE"))
             option = 0;
         else
             option = default_option;
@@ -92,7 +93,7 @@ void query_reg_option(HKEY hKey, const char* option_name, T& option, const T& de
 }
 
 template<class T>
-void set_reg_option(HKEY hKey, const char* option_name, const T& option, unsigned long reg_type)
+void set_reg_option(HKEY hKey, const wchar_t* option_name, const T& option, unsigned long reg_type)
 {
 #ifndef TARGET_VOOBLY
     RegSetValueEx(
@@ -134,70 +135,70 @@ void regGet(CONFIG_DATA* cd)
 #endif
         if (regResult == 0)
         {
-            query_reg_option(hKey, "Enable FPS", cd->useFPS, cd_default.useFPS);
-            query_reg_option(hKey, "Enable DSoundhook", cd->useDShook, cd_default.useDShook);
-            query_reg_option(hKey, "Number of Buffers", cd->nBufs, cd_default.nBufs);
-            query_reg_option(hKey, "Delay", cd->timeout, cd_default.timeout);
-            query_reg_option(hKey, "Launch Version", cd->gameVersion, cd_default.gameVersion);
-            query_reg_option(hKey, "Ask At Startup", cd->askAtStartup, cd_default.askAtStartup);
-            query_reg_option(hKey, "Use Alternative List", cd->useAltCivLetter, cd_default.useAltCivLetter);
-            query_reg_option(hKey, "Unlock Resources", cd->unlockResources, cd_default.unlockResources);
-            query_reg_option(hKey, "Editor Autosave", cd->editorAutosave, cd_default.editorAutosave);
-            query_reg_option(hKey, "Editor Autosave Interval", cd->editorAutosaveInterval, cd_default.editorAutosaveInterval);
+            query_reg_option(hKey, L"Enable FPS", cd->useFPS, cd_default.useFPS);
+            query_reg_option(hKey, L"Enable DSoundhook", cd->useDShook, cd_default.useDShook);
+            query_reg_option(hKey, L"Number of Buffers", cd->nBufs, cd_default.nBufs);
+            query_reg_option(hKey, L"Delay", cd->timeout, cd_default.timeout);
+            query_reg_option(hKey, L"Launch Version", cd->gameVersion, cd_default.gameVersion);
+            query_reg_option(hKey, L"Ask At Startup", cd->askAtStartup, cd_default.askAtStartup);
+            query_reg_option(hKey, L"Use Alternative List", cd->useAltCivLetter, cd_default.useAltCivLetter);
+            query_reg_option(hKey, L"Unlock Resources", cd->unlockResources, cd_default.unlockResources);
+            query_reg_option(hKey, L"Editor Autosave", cd->editorAutosave, cd_default.editorAutosave);
+            query_reg_option(hKey, L"Editor Autosave Interval", cd->editorAutosaveInterval, cd_default.editorAutosaveInterval);
 #ifdef TARGET_VOOBLY
-            query_reg_option(hKey, "Enable Built-in Widescreen", cd->widescrnEnabled, cd_default.widescrnEnabled);
+            query_reg_option(hKey, L"Enable Built-in Widescreen", cd->widescrnEnabled, cd_default.widescrnEnabled);
 #else
-            query_reg_option(hKey, "Resolution Patch Enabled", cd->widescrnEnabled, cd_default.widescrnEnabled);
+            query_reg_option(hKey, L"Resolution Patch Enabled", cd->widescrnEnabled, cd_default.widescrnEnabled);
 #endif
-            query_reg_option(hKey, "Screen Size X", cd->xres, cd_default.xres);
-            query_reg_option(hKey, "Screen Size Y", cd->yres, cd_default.yres);
-            query_reg_option(hKey, "Auto Screen Size", cd->autoScreenSize, cd_default.autoScreenSize);
-            query_reg_option(hKey, "Window Mode", cd->windowMode, cd_default.windowMode);
-            query_reg_option(hKey, "Large Maps", cd->largeMaps, cd_default.largeMaps);
-            query_reg_option(hKey, "Crash Reporting", cd->crashReporting, cd_default.crashReporting);
-            query_reg_option(hKey, "Grid Terrain", cd->gridTerrain, cd_default.gridTerrain);
-            query_reg_option(hKey, "Small Trees", cd->smallTrees, cd_default.smallTrees);
-            query_reg_option(hKey, "Dark Minimap Grey", cd->minimap7, cd_default.minimap7);
-            query_reg_option(hKey, "Large Text", cd->largeText, cd_default.largeText);
-            query_reg_option(hKey, "Delink System Volume", cd->delinkVolume, cd_default.delinkVolume);
-            query_reg_option(hKey, "Keydown Object Hotkeys", cd->keydown, cd_default.keydown);
-            query_reg_option(hKey, "Alternative Text Rendering", cd->textRendering, cd_default.textRendering);
-            query_reg_option(hKey, "Alternative Chat Box", cd->chatBox, cd_default.chatBox);
+            query_reg_option(hKey, L"Screen Size X", cd->xres, cd_default.xres);
+            query_reg_option(hKey, L"Screen Size Y", cd->yres, cd_default.yres);
+            query_reg_option(hKey, L"Auto Screen Size", cd->autoScreenSize, cd_default.autoScreenSize);
+            query_reg_option(hKey, L"Window Mode", cd->windowMode, cd_default.windowMode);
+            query_reg_option(hKey, L"Large Maps", cd->largeMaps, cd_default.largeMaps);
+            query_reg_option(hKey, L"Crash Reporting", cd->crashReporting, cd_default.crashReporting);
+            query_reg_option(hKey, L"Grid Terrain", cd->gridTerrain, cd_default.gridTerrain);
+            query_reg_option(hKey, L"Small Trees", cd->smallTrees, cd_default.smallTrees);
+            query_reg_option(hKey, L"Dark Minimap Grey", cd->minimap7, cd_default.minimap7);
+            query_reg_option(hKey, L"Large Text", cd->largeText, cd_default.largeText);
+            query_reg_option(hKey, L"Delink System Volume", cd->delinkVolume, cd_default.delinkVolume);
+            query_reg_option(hKey, L"Keydown Object Hotkeys", cd->keydown, cd_default.keydown);
+            query_reg_option(hKey, L"Alternative Text Rendering", cd->textRendering, cd_default.textRendering);
+            query_reg_option(hKey, L"Alternative Chat Box", cd->chatBox, cd_default.chatBox);
 #ifdef TARGET_VOOBLY
-            query_reg_option(hKey, "Light Fog of War", cd->fog, cd_default.fog);
+            query_reg_option(hKey, L"Light Fog of War", cd->fog, cd_default.fog);
             if (cd->fog)
                 cd->fog = 1;
             else
             {
-                query_reg_option(hKey, "Dark Fog of War", cd->fog, cd_default.fog);
+                query_reg_option(hKey, L"Dark Fog of War", cd->fog, cd_default.fog);
                 if (cd->fog)
                     cd->fog = 2;
                 else
                 {
-                    query_reg_option(hKey, "Horizontal Fog of War", cd->fog, cd_default.fog);
+                    query_reg_option(hKey, L"Horizontal Fog of War", cd->fog, cd_default.fog);
                     if (cd->fog)
                         cd->fog = 3;
                     else
                     {
-                        query_reg_option(hKey, "Vertical Fog of War", cd->fog, cd_default.fog);
+                        query_reg_option(hKey, L"Vertical Fog of War", cd->fog, cd_default.fog);
                         if (cd->fog)
                             cd->fog = 4;
                     }
                 }
             }
 #else
-            query_reg_option(hKey, "Alternative Fog of War", cd->fog, cd_default.fog);
+            query_reg_option(hKey, L"Alternative Fog of War", cd->fog, cd_default.fog);
 #endif
-            query_reg_option(hKey, "Unlock Objects", cd->unlockObjects, cd_default.unlockObjects);
+            query_reg_option(hKey, L"Unlock Objects", cd->unlockObjects, cd_default.unlockObjects);
 
 #ifndef TARGET_VOOBLY
-            char language[32];
-            DWORD size = 32;
+            wchar_t language[0x20];
+            DWORD size = sizeof(language);
             DWORD type;
 
             if (RegQueryValueEx(
                 hKey,
-                "Language",
+                L"Language",
                 0,
                 &type,
                 (BYTE*)language,
@@ -205,7 +206,7 @@ void regGet(CONFIG_DATA* cd)
                 cd->lang = cd_default.lang;
             else
             {
-                language[31] = 0;
+                language[_countof(language) - 1] = L'\0';
                 cd->lang = language;
             }
 #else
@@ -218,7 +219,7 @@ void regGet(CONFIG_DATA* cd)
         else
         {
 #ifndef TARGET_VOOBLY
-            MessageBox(NULL, "Error: cannot access application registry key. Using default settings", "Error", MB_ICONEXCLAMATION);
+            MessageBox(NULL, L"Error: cannot access application registry key. Using default settings", L"Error", MB_ICONEXCLAMATION);
 #endif
             *cd = cd_default;
             log("Failed to create registry key, using default settings");
@@ -250,48 +251,48 @@ void regSet(const CONFIG_DATA* cd)
 
     if (regResult == 0)
     {
-        set_reg_option(hKey, "Enable FPS", cd->useFPS, REG_DWORD);
-        set_reg_option(hKey, "Enable DSoundhook", cd->useDShook, REG_DWORD);
-        set_reg_option(hKey, "Number of Buffers", cd->nBufs, REG_DWORD);
-        set_reg_option(hKey, "Delay", cd->timeout, REG_DWORD);
-        set_reg_option(hKey, "Launch Version", cd->gameVersion, REG_DWORD);
-        set_reg_option(hKey, "Ask At Startup", cd->askAtStartup, REG_DWORD);
-        set_reg_option(hKey, "Use Alternative List", cd->useAltCivLetter, REG_DWORD);
-        set_reg_option(hKey, "Unlock Resources", cd->unlockResources, REG_DWORD);
-        set_reg_option(hKey, "Editor Autosave", cd->editorAutosave, REG_DWORD);
-        set_reg_option(hKey, "Editor Autosave Interval", cd->editorAutosaveInterval, REG_DWORD);
+        set_reg_option(hKey, L"Enable FPS", cd->useFPS, REG_DWORD);
+        set_reg_option(hKey, L"Enable DSoundhook", cd->useDShook, REG_DWORD);
+        set_reg_option(hKey, L"Number of Buffers", cd->nBufs, REG_DWORD);
+        set_reg_option(hKey, L"Delay", cd->timeout, REG_DWORD);
+        set_reg_option(hKey, L"Launch Version", cd->gameVersion, REG_DWORD);
+        set_reg_option(hKey, L"Ask At Startup", cd->askAtStartup, REG_DWORD);
+        set_reg_option(hKey, L"Use Alternative List", cd->useAltCivLetter, REG_DWORD);
+        set_reg_option(hKey, L"Unlock Resources", cd->unlockResources, REG_DWORD);
+        set_reg_option(hKey, L"Editor Autosave", cd->editorAutosave, REG_DWORD);
+        set_reg_option(hKey, L"Editor Autosave Interval", cd->editorAutosaveInterval, REG_DWORD);
 #ifdef TARGET_VOOBLY
-        set_reg_option(hKey, "Enable Built-in Widescreen", cd->widescrnEnabled, REG_DWORD);
+        set_reg_option(hKey, L"Enable Built-in Widescreen", cd->widescrnEnabled, REG_DWORD);
 #else
-        set_reg_option(hKey, "Resolution Patch Enabled", cd->widescrnEnabled, REG_DWORD);
+        set_reg_option(hKey, L"Resolution Patch Enabled", cd->widescrnEnabled, REG_DWORD);
 #endif
-        set_reg_option(hKey, "Screen Size X", cd->xres, REG_DWORD);
-        set_reg_option(hKey, "Screen Size Y", cd->yres, REG_DWORD);
-        set_reg_option(hKey, "Auto Screen Size", cd->autoScreenSize, REG_DWORD);
-        set_reg_option(hKey, "Window Mode", cd->windowMode, REG_DWORD);
-        set_reg_option(hKey, "Large Maps", cd->largeMaps, REG_DWORD);
-        set_reg_option(hKey, "Crash Reporting", cd->crashReporting, REG_DWORD);
-        set_reg_option(hKey, "Grid Terrain", cd->gridTerrain, REG_DWORD);
-        set_reg_option(hKey, "Small Trees", cd->smallTrees, REG_DWORD);
-        set_reg_option(hKey, "Dark Minimap Grey", cd->minimap7, REG_DWORD);
-        set_reg_option(hKey, "Large Text", cd->largeText, REG_DWORD);
-        set_reg_option(hKey, "Delink System Volume", cd->delinkVolume, REG_DWORD);
-        set_reg_option(hKey, "Keydown Object Hotkeys", cd->keydown, REG_DWORD);
-        set_reg_option(hKey, "Alternative Text Rendering", cd->textRendering, REG_DWORD);
-        set_reg_option(hKey, "Alternative Chat Box", cd->chatBox, REG_DWORD);
-        set_reg_option(hKey, "Alternative Fog of War", cd->fog, REG_DWORD);
-        set_reg_option(hKey, "Unlock Objects", cd->unlockObjects, REG_DWORD);
+        set_reg_option(hKey, L"Screen Size X", cd->xres, REG_DWORD);
+        set_reg_option(hKey, L"Screen Size Y", cd->yres, REG_DWORD);
+        set_reg_option(hKey, L"Auto Screen Size", cd->autoScreenSize, REG_DWORD);
+        set_reg_option(hKey, L"Window Mode", cd->windowMode, REG_DWORD);
+        set_reg_option(hKey, L"Large Maps", cd->largeMaps, REG_DWORD);
+        set_reg_option(hKey, L"Crash Reporting", cd->crashReporting, REG_DWORD);
+        set_reg_option(hKey, L"Grid Terrain", cd->gridTerrain, REG_DWORD);
+        set_reg_option(hKey, L"Small Trees", cd->smallTrees, REG_DWORD);
+        set_reg_option(hKey, L"Dark Minimap Grey", cd->minimap7, REG_DWORD);
+        set_reg_option(hKey, L"Large Text", cd->largeText, REG_DWORD);
+        set_reg_option(hKey, L"Delink System Volume", cd->delinkVolume, REG_DWORD);
+        set_reg_option(hKey, L"Keydown Object Hotkeys", cd->keydown, REG_DWORD);
+        set_reg_option(hKey, L"Alternative Text Rendering", cd->textRendering, REG_DWORD);
+        set_reg_option(hKey, L"Alternative Chat Box", cd->chatBox, REG_DWORD);
+        set_reg_option(hKey, L"Alternative Fog of War", cd->fog, REG_DWORD);
+        set_reg_option(hKey, L"Unlock Objects", cd->unlockObjects, REG_DWORD);
 
 #ifndef TARGET_VOOBLY
         DWORD type = REG_SZ;
 
         RegSetValueEx(
             hKey,
-            "Language",
+            L"Language",
             0,
             type,
             (BYTE*)cd->lang.c_str(),
-            cd->lang.length() + 1);
+            (cd->lang.length() + 1) * sizeof(wchar_t));
 #endif
 
         RegCloseKey(hKey);
@@ -299,7 +300,7 @@ void regSet(const CONFIG_DATA* cd)
     }
     else
     {
-        MessageBox(NULL, "Error: cannot access application registry key. Settings not saved", "Error", MB_ICONEXCLAMATION);
+        MessageBox(NULL, L"Error: cannot access application registry key. Settings not saved", L"Error", MB_ICONEXCLAMATION);
         log("Failed to create registry key, settings not saved");
     }
     RegCloseKey(hKeyCU);

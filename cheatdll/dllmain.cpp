@@ -142,6 +142,7 @@
 #include "mpsetupscreen.h"
 #include "tabstop.h"
 #include "mousewheel.h"
+#include "utf8.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -154,7 +155,7 @@ void getSettings()
     bool key = GetKeyState(VK_SHIFT) & 0x8000;
 
     if (!setStartupLoadHooks() && (cd.askAtStartup || key))
-        DialogBox(GetModuleHandle(DLL_NAME), MAKEINTRESOURCE(IDD_DIALOG_STARTUP), 0, VersionSelectDlgProc);
+        DialogBoxW(GetModuleHandleW(DLL_NAME), MAKEINTRESOURCEW(IDD_DIALOG_STARTUP), 0, VersionSelectDlgProc);
 #endif
 }
 
@@ -293,7 +294,9 @@ void setHooksCC()
     setMbsHooks();
 
     setHotkeysHooks(cd.gameVersion);
-    setLanguageDllOverrideHooks();
+
+    if (cd.gameVersion == VER_CC)
+        setLanguageDllOverrideHooks();
 
     setAIHooks(cd.gameVersion);
 
@@ -357,6 +360,7 @@ void setHooksCC()
     setMouseWheelHooks();
 
     setLanguageDllHooks();
+    setUTF8Hooks();
 
     log("setHooksCC() complete");
 }
@@ -364,9 +368,9 @@ void setHooksCC()
 
 const char efDatabank[] = "stream\\ef_databank%d.mp3";
 const char efCiv[] = "stream\\ef_civ%d.mp3";
-const char efShadow[] = DATA_FOLDER_PREFIX_FROM_ROOT"shadow_x2.col";
-const char efBlendomatic[] = DATA_FOLDER_PREFIX_FROM_ROOT"blendomatic_x2.dat";
-const char efICM[] = DATA_FOLDER_PREFIX_FROM_ROOT"view_icm_x2.dat";
+const wchar_t efShadow[] = DATA_FOLDER_PREFIX_FROM_ROOT L"shadow_x2.col";
+const wchar_t efBlendomatic[] = DATA_FOLDER_PREFIX_FROM_ROOT L"blendomatic_x2.dat";
+const wchar_t efICM[] = DATA_FOLDER_PREFIX_FROM_ROOT L"view_icm_x2.dat";
 //const char efMenubk[] = "stream\\ef_menu_skb.mp3";
 const char efMenubk[] = "stream\\ef_menu_yavin.mp3";
 
@@ -376,9 +380,13 @@ void setHooksEF()
     log("setHooksEF() started");
 
     //filename hooks
-    writeDword(0x0042E0CE, (DWORD)efShadow);
-    writeDword(0x00609CEB, (DWORD)efBlendomatic);
-    writeDword(0x00609ABA, (DWORD)efICM);
+    static std::string efShadow_s(WideToUTF8(efShadow));
+    static std::string efBlendomatic_s(WideToUTF8(efBlendomatic));
+    static std::string efICM_s(WideToUTF8(efICM));
+
+    writeDword(0x0042E0CE, (DWORD)efShadow_s.c_str());
+    writeDword(0x00609CEB, (DWORD)efBlendomatic_s.c_str());
+    writeDword(0x00609ABA, (DWORD)efICM_s.c_str());
 
     //taunt offset
     writeDword(0x00460E9F, 61999);
@@ -399,11 +407,11 @@ void setHooksEF()
     fixIconLoadingRoutines();
     fixCivLetterFunction();
 
-    initExplDroid(DATA_FOLDER_PREFIX_FROM_ROOT, "expl.txt");
-    setJediMasterHooks(DATA_FOLDER_PREFIX_FROM_ROOT, "master.txt", "padawan.txt");
-    setConvertHooks(DATA_FOLDER_PREFIX_FROM_ROOT, "unconv.txt");
-    initAirToAir(DATA_FOLDER_PREFIX_FROM_ROOT, "air-to-air.txt");
-    setJediHoloHooks(DATA_FOLDER_PREFIX_FROM_ROOT, "jedi-holo.txt");
+    initExplDroid(DATA_FOLDER_PREFIX_FROM_ROOT, L"expl.txt");
+    setJediMasterHooks(DATA_FOLDER_PREFIX_FROM_ROOT, L"master.txt", L"padawan.txt");
+    setConvertHooks(DATA_FOLDER_PREFIX_FROM_ROOT, L"unconv.txt");
+    initAirToAir(DATA_FOLDER_PREFIX_FROM_ROOT, L"air-to-air.txt");
+    setJediHoloHooks(DATA_FOLDER_PREFIX_FROM_ROOT, L"jedi-holo.txt");
 
     setResGenHooks();
 
@@ -617,7 +625,7 @@ void* new_memory_pages;
 extern bool expanding_fronts;
 #endif
 
-const char x1_dat_file[] = DATA_FOLDER_PREFIX_FROM_ROOT"genie_x1_p1.dat";
+const wchar_t x1_dat_file[] = DATA_FOLDER_PREFIX_FROM_ROOT L"genie_x1_p1.dat";
 
 extern float screen_scale_factor;
 
@@ -664,6 +672,8 @@ void initialSetup()
 
     setTestHook();
 
+    static std::string x1_dat_file_s(WideToUTF8(x1_dat_file));
+
     switch (cd.gameVersion)
     {
     case VER_CC:
@@ -673,7 +683,7 @@ void initialSetup()
         setHooksCC();
 
 #ifndef TARGET_VOOBLY
-        writeDword(0x0048F0E5, (DWORD)x1_dat_file);
+        writeDword(0x0048F0E5, (DWORD)x1_dat_file_s.c_str());
 #endif
 
         //updateVersionCC();

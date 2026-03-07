@@ -18,7 +18,7 @@
 
 void __fastcall print_token(char* s, short id)
 {
-    FILE* f = fopen("tokens.txt", "at");
+    FILE* f = _wfopen(L"tokens.txt", L"at");
     if (f)
     {
         fprintf(f, "%d %s\n", (int)id, s);

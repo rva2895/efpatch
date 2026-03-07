@@ -1,3 +1,3 @@
 #pragma once
 
-void setJediMasterHooks(const char* prefix, const char* filename_master, const char* filename_padawan);
+void setJediMasterHooks(const wchar_t* prefix, const wchar_t* filename_master, const wchar_t* filename_padawan);

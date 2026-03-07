@@ -18,11 +18,11 @@
 
 void fixCurrentDir()
 {
-    char fname[256];
-    GetModuleFileName(0, fname, 255);
-    char* p = fname + strlen(fname);
-    while (*--p != '\\');
-    *p = 0;
+    wchar_t fname[MAX_PATH];
+    GetModuleFileName(NULL, fname, _countof(fname));
+    wchar_t* p = fname + wcslen(fname);
+    while (*--p != L'\\');
+    *p = L'\0';
     SetCurrentDirectory(fname);
 }
 

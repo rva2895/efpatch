@@ -13,16 +13,16 @@ void __cdecl resgen_atexit()
     free(resProducersData);
 }
 
-void initBldgResProdList(const char* prefix, const char* filename)
+void initBldgResProdList(const wchar_t* prefix, const wchar_t* filename)
 {
     char c;
     int value;
     int id;
     int res;
     log("Loading resource generating buildings list");
-    char full_filename[0x100];
-    snprintf(full_filename, _countof(full_filename), "%s%s", prefix, filename);
-    FILE* f = fopen(full_filename, "rt");
+    wchar_t full_filename[MAX_PATH];
+    _snwprintf(full_filename, _countof(full_filename), L"%s%s", prefix, filename);
+    FILE* f = _wfopen(full_filename, L"rt");
     if (f)
     {
         numberOfResProducers = 0;
@@ -75,7 +75,7 @@ void initBldgResProdList(const char* prefix, const char* filename)
         }
     }
     else
-        log("Warning: %s not found, resource generating buildings disabled", full_filename);
+        log("Warning: %s not found, resource generating buildings disabled", WideToUTF8_c_str(full_filename));
 }
 
 void __stdcall doResGen(TRIBE_Building_Object* obj)
@@ -121,6 +121,6 @@ __declspec(naked) int resGenHook()
 #pragma optimize( "s", on )
 void setResGenHooks()
 {
-    initBldgResProdList(DATA_FOLDER_PREFIX_FROM_ROOT, "resgen.txt");
+    initBldgResProdList(DATA_FOLDER_PREFIX_FROM_ROOT, L"resgen.txt");
 }
 #pragma optimize( "", on )

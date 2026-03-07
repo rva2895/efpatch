@@ -17,12 +17,12 @@ void deleteOldLogs()
     param.nFiles = 0;
     param.rawtime_current = time(NULL);
 
-    auto delete_logs_callback = [](const char* filename, void* param)
+    auto delete_logs_callback = [](const wchar_t* filename, void* param)
         {
             delete_logs_callback_param* p = (delete_logs_callback_param*)param;
             tm time_old;
             memset(&time_old, 0, sizeof(tm));
-            sscanf_s(filename, "efpatch_%d-%d-%d_%d-%d-%d.log",
+            swscanf_s(filename, L"efpatch_%d-%d-%d_%d-%d-%d.log",
                 &time_old.tm_year, &time_old.tm_mon, &time_old.tm_mday,
                 &time_old.tm_hour, &time_old.tm_min, &time_old.tm_sec);
             time_old.tm_year -= 1900;
@@ -31,11 +31,11 @@ void deleteOldLogs()
             time_t rawtime_old = mktime(&time_old);
             if (difftime(p->rawtime_current, rawtime_old) > 604800) //1 week
             {
-                char filename_with_path[MAX_PATH];
-                snprintf(filename_with_path, _countof(filename_with_path), "logs\\%s", filename);
-                if (!DeleteFile(filename_with_path))
+                wchar_t filename_with_path[MAX_PATH];
+                _snwprintf(filename_with_path, _countof(filename_with_path), L"logs\\%s", filename);
+                if (!DeleteFileW(filename_with_path))
                 {
-                    log("Error: cannot delete %s", filename);
+                    log("Error: cannot delete %s", WideToUTF8_c_str(filename));
                 }
                 else
                 {
@@ -44,7 +44,7 @@ void deleteOldLogs()
             }
         };
 
-    findfirst_callback("logs\\efpatch*.log", delete_logs_callback, &param);
+    findfirst_callback(L"logs\\efpatch*.log", delete_logs_callback, &param);
 
     log("Deleted %d logs", param.nFiles);
 }
@@ -120,7 +120,7 @@ void __cdecl log_do(bool is_internal, const char* format, va_list ap)
     }
 #ifdef _DEBUG
     strcat_s(buf, _countof(buf), "\n");
-    OutputDebugString(buf);
+    OutputDebugStringA(buf);
 #endif
 }
 
