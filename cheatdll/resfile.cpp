@@ -22,6 +22,8 @@ unsigned __int8* data_ptr_retval;
 
 int __fastcall RESFILE_locate_resource_new(unsigned int rType, unsigned int rId, int* file, int* offset, unsigned __int8** mapped_file, int* size)
 {
+    UNREFERENCED_PARAMETER(file);
+
     void* data = resfile.get_resource(rType, rId, size);
     if (data)
     {
@@ -389,7 +391,8 @@ loc_542A31:
 
 int __fastcall RESFILE_Decommit_Mapped_Memory_new(unsigned __int8* ResData, int resSize)
 {
-    //resSize = res_id
+    UNREFERENCED_PARAMETER(ResData);
+
     resfile_close_resource(0x736C7020, resSize);
     return 0;
 }

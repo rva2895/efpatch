@@ -122,6 +122,8 @@ void __stdcall setup_drs_files(TRIBE_Game* game)
 
 void __stdcall delete_drs_files(TRIBE_Game* game)
 {
+    UNREFERENCED_PARAMETER(game);
+
     log("Unloading DRS files...");
     for (int i = 0; i < _countof(drs_files); i++)
         if (is_loaded_in_current_mode(drs_files[i]))

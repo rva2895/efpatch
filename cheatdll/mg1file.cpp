@@ -317,8 +317,8 @@ MG1::MG1(const char* filename)
             {
                 for (int i = 0; i <= pl; i++)
                 {
-                    free(d.players[0].name);
-                    d.players[0].name = 0;
+                    free(d.players[i].name);
+                    d.players[i].name = 0;
                 }
                 free(dst);
                 dst = 0;

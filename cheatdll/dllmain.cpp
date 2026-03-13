@@ -374,15 +374,16 @@ const wchar_t efICM[] = DATA_FOLDER_PREFIX_FROM_ROOT L"view_icm_x2.dat";
 //const char efMenubk[] = "stream\\ef_menu_skb.mp3";
 const char efMenubk[] = "stream\\ef_menu_yavin.mp3";
 
+static std::string efShadow_s(WideToUTF8(efShadow));
+static std::string efBlendomatic_s(WideToUTF8(efBlendomatic));
+static std::string efICM_s(WideToUTF8(efICM));
+
 #pragma optimize( "s", on )
 void setHooksEF()
 {
     log("setHooksEF() started");
 
     //filename hooks
-    static std::string efShadow_s(WideToUTF8(efShadow));
-    static std::string efBlendomatic_s(WideToUTF8(efBlendomatic));
-    static std::string efICM_s(WideToUTF8(efICM));
 
     writeDword(0x0042E0CE, (DWORD)efShadow_s.c_str());
     writeDword(0x00609CEB, (DWORD)efBlendomatic_s.c_str());
@@ -626,6 +627,7 @@ extern bool expanding_fronts;
 #endif
 
 const wchar_t x1_dat_file[] = DATA_FOLDER_PREFIX_FROM_ROOT L"genie_x1_p1.dat";
+std::string x1_dat_file_s(WideToUTF8(x1_dat_file));
 
 extern float screen_scale_factor;
 
@@ -671,8 +673,6 @@ void initialSetup()
         cd.textRendering, cd.chatBox, cd.fog, cd.unlockObjects, cd.crashReporting);
 
     setTestHook();
-
-    static std::string x1_dat_file_s(WideToUTF8(x1_dat_file));
 
     switch (cd.gameVersion)
     {

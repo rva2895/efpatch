@@ -113,7 +113,8 @@ public:
         x = 0;
         y = 0;
         tid = 0;
-        current_file = "";
+        current_file.clear();
+        worker_thread_event = NULL;
         memset(cache, 0, sizeof(cache));
         /*for (int i = 0; i < CACHE_SIZE; i++)
         {
@@ -243,7 +244,7 @@ public:
             x = 0;
             y = 0;
             tid = 0;
-            current_file = "";
+            current_file.clear();
         }
         LeaveCriticalSection(&cs);
     };

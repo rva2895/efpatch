@@ -139,6 +139,9 @@ void setAIHooks(int version)
 
     setAIUnitlineHooks();
 
+    //sn-attack-winning-player-factor crash
+    writeByte(0x0040E539, 0x24);
+
     if (version == VER_EF)
     {
         //setHook((void*)0x00552FD0, ondefconst);

@@ -629,11 +629,8 @@ void __fastcall TRIBE_Campaign_Editor_Screen__fill_scenario_list_new(TRIBE_Campa
 
 const char* __stdcall get_campaign_scenario_list_file_ext(TRIBE_Campaign_Editor_Screen* cameditscreen, const char* str, int id)
 {
-    /*
-        const char* ext = convert_list_id_to_file_extension(
-            TTextPanel__get_id2((TTextPanel*)cameditscreen->campaign_scenarios, TTextPanel__currentLineNumber((TTextPanel*)cameditscreen->campaign_scenarios)));
-        return ext ? ext : (loadfilelist_version == VER_EF ? ".sc2" : ".sc1");
-    */
+    UNREFERENCED_PARAMETER(cameditscreen);
+    UNREFERENCED_PARAMETER(id);
 
     auto test_campaign_scenario_file_exists = [](const char* s, const char* name, const char* dir)
         {

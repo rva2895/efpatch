@@ -31,11 +31,12 @@ std::vector<std::pair<std::wstring, std::wstring>> query_languages()
 }
 
 const char* lang_local = NULL;
+static std::string lang_local_s;
+static std::string lang_base_s(WideToUTF8(DATA_FOLDER_PREFIX_FROM_ROOT L"..\\language_x2-en.dll"));
 
 void install_language(const std::wstring& lang)
 {
-    static std::string lang_local_s(WideToUTF8(DATA_FOLDER_PREFIX_FROM_ROOT L"..\\language_x2-" + lang + L".dll"));
-    static std::string lang_base_s(WideToUTF8(DATA_FOLDER_PREFIX_FROM_ROOT L"..\\language_x2-en.dll"));
+    lang_local_s = WideToUTF8(DATA_FOLDER_PREFIX_FROM_ROOT L"..\\language_x2-" + lang + L".dll");
 
     writeDword(0x0042467D, (DWORD)lang_base_s.c_str());
     writeDword(0x005E40A3, (DWORD)lang_local_s.c_str());

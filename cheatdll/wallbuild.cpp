@@ -330,7 +330,7 @@ int __fastcall TRIBE_Main_View__command_place_multi_object_new(
     UNREFERENCED_PARAMETER(dummy);
 
     int retval = 0;
-    if (!allow_user_commands)
+    if (!*allow_user_commands)
         return 0;
     short master_obj_id = (*base_game)->master_obj_id;
     if (master_obj_id != -1)

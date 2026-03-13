@@ -77,8 +77,12 @@ uint8_t legacy_patch_data_compressed[] =
     0x40, 0xFF, 0xCE, 0x03, 0xCB, 0xE6, 0x3F
 };
 
+#ifdef VOOBLY_EF
 const wchar_t jedi_holo_txt_file[] = DATA_FOLDER_PREFIX_FROM_ROOT L"jedi-holo.txt";
 const wchar_t ground_to_air_txt_file[] = DATA_FOLDER_PREFIX_FROM_ROOT L"ground-to-air.txt";
+static std::string jedi_holo_txt_file_s(WideToUTF8(jedi_holo_txt_file));
+static std::string ground_to_air_txt_file_s(WideToUTF8(ground_to_air_txt_file));
+#endif
 
 void install_legacy_patch()
 {
@@ -125,9 +129,6 @@ void install_legacy_patch()
             setHook((void*)0x005E3EE0, (void*)0x007B2000);
             setHook((void*)0x005E3F10, (void*)0x007B2130);
             setHook((void*)0x0041C593, (void*)0x007B2170);
-
-            static std::string jedi_holo_txt_file_s(WideToUTF8(jedi_holo_txt_file));
-            static std::string ground_to_air_txt_file_s(WideToUTF8(ground_to_air_txt_file));
 
             writeDword(0x007B2046, (DWORD)jedi_holo_txt_file_s.c_str());
             writeDword(0x007B21B6, (DWORD)ground_to_air_txt_file_s.c_str());

@@ -181,6 +181,8 @@ fix_civ:
 #ifdef VOOBLY_EF
 const wchar_t voobly_ef_data_file[] = DATA_FOLDER_PREFIX_FROM_ROOT L"genie_x2.dat";
 //const wchar_t voobly_ef_language_file[] = DATA_FOLDER_PREFIX_FROM_ROOT L"..\\language_x2.dll";
+static std::string voobly_ef_data_file_s(WideToUTF8(voobly_ef_data_file));
+//static std::string voobly_ef_language_file_s(WideToUTF8(voobly_ef_language_file));
 #endif
 
 bool isVooblyWidescreenInstalled()
@@ -206,27 +208,24 @@ void __stdcall delayed_start_process()
     bool voobly_widescreen_installed = isVooblyWidescreenInstalled();
     if (voobly_widescreen_installed && cd.widescrnEnabled)
     {
-        MessageBoxW(NULL, widescrnErrorMsg, L"Error", MB_ICONERROR);
+        MessageBox(NULL, widescrnErrorMsg, L"Error", MB_ICONERROR);
         exit(0);
     }
 #ifdef VOOBLY_EF
     if (voobly_widescreen_installed)
     {
-        MessageBoxW(NULL, L"You have enabled Voobly resolution tool, which is incompatible with Expanding Fronts mod\n\n"
+        MessageBox(NULL, L"You have enabled Voobly resolution tool, which is incompatible with Expanding Fronts mod\n\n"
             L"Please turn off Voobly resolution tool, and check \"Enable Built-in Widescreen\" option", L"Error", MB_ICONERROR);
         exit(0);
     }
     if (!expanding_fronts)
     {
-        MessageBoxW(NULL, L"This patch must be used with the Expanding Fronts mod.\n\n"
+        MessageBox(NULL, L"This patch must be used with the Expanding Fronts mod.\n\n"
             L"To play Clone Campaigns, use \"EXE Patch\" instead", L"Error", MB_ICONERROR);
         exit(0);
     }
 
     installPalette();
-
-    static std::string voobly_ef_data_file_s(WideToUTF8(voobly_ef_data_file));
-    //static std::string voobly_ef_language_file_s(WideToUTF8(voobly_ef_language_file));
 
     writeDword(0x0048F0E5, (DWORD)voobly_ef_data_file_s.c_str());
     //writeDword(0x005E40A3, (DWORD)voobly_ef_language_file_s.c_str());
@@ -239,8 +238,8 @@ void __stdcall delayed_start_process()
 #else
     if (expanding_fronts)
     {
-        MessageBox(NULL, "This patch cannot be used with Expanding Fronts mod\n\n"
-            "To play Expanding Fronts, use \"EF EXE Patch\" instead", "Error", MB_ICONERROR);
+        MessageBox(NULL, L"This patch cannot be used with Expanding Fronts mod\n\n"
+            L"To play Expanding Fronts, use \"EF EXE Patch\" instead", L"Error", MB_ICONERROR);
         exit(0);
     }
 

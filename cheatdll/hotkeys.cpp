@@ -1270,6 +1270,8 @@ void __stdcall hotkey_setup_allow_dup_delete_checkbox(TRIBE_Screen_Options* scre
 
 void __stdcall hotkey_setup_allow_dup_checkbox_action(TRIBE_Screen_Options* screen)
 {
+    UNREFERENCED_PARAMETER(screen);
+
     hotkey_setup_allow_dup_flag = TButtonPanel__get_state(hotkey_setup_allow_dup_checkbox);
 }
 
