@@ -789,7 +789,7 @@ uint8_t* SLP::write(int* size, bool allow_fill)
     return data;
 }
 
-void SLP::resize(int x, int y, T_PALETTE& pal)
+void SLP::resize(int x, int y, COLOR_TABLE& pal)
 {
     for (int i = 0; i < meta.num_frames; i++)
         if (x != frames[i].width || y != frames[i].height)

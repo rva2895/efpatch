@@ -77,7 +77,7 @@ public:
     bool load(uint8_t* data);
     void stretch(int x, int y, int id);
     void stretch_techtree(int x, int y);
-    void resize(int x, int y, T_PALETTE& pal);
+    void resize(int x, int y, COLOR_TABLE& pal);
     void color_replace(const uint8_t* c, int count);
     uint8_t* write(int* size, bool allow_fill);
 };

@@ -424,7 +424,7 @@ void placeSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool
     free(data);
 }
 
-void placeScaledSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool wide, int new_x, int new_y, T_PALETTE& pal)
+void placeScaledSLP(DRS* x0, DRS* x1, DRS* x2, DRS* wide_x2, DRS* target, int id, bool wide, int new_x, int new_y, COLOR_TABLE& pal)
 {
     int size;
     void* data;
@@ -532,7 +532,7 @@ void patchResolution(int x, int y, DRS* drs, bool patch_ef)
 
     int pal_size;
     void* pal_file = x0_cc.getFile(50031, &pal_size);
-    T_PALETTE pal(pal_file, pal_size);
+    COLOR_TABLE pal(pal_file, pal_size);
     free(pal_file);
 
     if (x >= 1280 && y >= 1024)
