@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "objpanel.h"
 #include "resgenbldgs.h"
+#include "prodqueue_overlay.h"
 
 int itemCounter;
 

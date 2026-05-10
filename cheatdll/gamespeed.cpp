@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "rec.h"
+#include "prodqueue_overlay.h"
 
 #define REC_SPEED_COUNT 12
 
@@ -213,9 +214,9 @@ __declspec(naked) void fixDefaultRecSpeed() //0042E8E2
 
 int __stdcall check_main_view_redraw(TRIBE_Screen_Game* game_screen, unsigned int t, unsigned int wt_delta)
 {
+    int result = 0;
     if (isRec())
     {
-        int result = 0;
         switch ((*comm)->mCommandLog->mReplaySpeed)
         {
         default:
@@ -248,10 +249,17 @@ int __stdcall check_main_view_redraw(TRIBE_Screen_Game* game_screen, unsigned in
             game_screen->time_panel->vfptr->set_redraw(game_screen->time_panel, 1);
             game_screen->time_panel->parent_panel->vfptr->set_redraw(game_screen->time_panel->parent_panel, 1);
         }
-        return result;
     }
     else
-        return (wt_delta || t - game_screen->last_view_time >= game_screen->view_interval);
+    {
+        result = (wt_delta || t - game_screen->last_view_time >= game_screen->view_interval);
+    }
+
+    if (result && game_screen->object_panel)
+        game_screen->object_panel->vfptr->set_redraw(
+            game_screen->object_panel, TPanel__RedrawMode(1));
+
+    return result;
 }
 
 __declspec(naked) void on_main_view_redraw() //004F8DD6
@@ -307,6 +315,31 @@ skip_time_panel_redraw:
     }
 }
 
+static void __stdcall maybe_draw_overlay_for_panel(void* panel)
+{
+    if (!*base_game || !(*base_game)->world) return;
+    TRIBE_Screen_Game* gs = ((TRIBE_Game*)(*base_game))->game_screen;
+    if (!gs || !gs->object_panel) return;
+    if ((void*)gs->object_panel != panel) return;
+    draw_prodqueue_overlay(gs->object_panel);
+}
+
+__declspec(naked) void on_panel_draw_finish() //004B6330
+{
+    __asm
+    {
+        push    ecx
+        push    ecx
+        call    maybe_draw_overlay_for_panel
+        pop     ecx
+        push    esi
+        mov     esi, ecx
+        mov     eax, [esi + 20h]
+        push    004B6336h
+        ret
+    }
+}
+
 #pragma optimize( "s", on )
 void setGameSpeedHooks()
 {
@@ -331,5 +364,7 @@ void setGameSpeedHooks()
 
     setHook((void*)0x004F8DD6, on_main_view_redraw);
     setHook((void*)0x005DFFA5, on_time_panel_redraw);
+
+    setHook((void*)0x004B6330, on_panel_draw_finish);
 }
 #pragma optimize( "", on )
