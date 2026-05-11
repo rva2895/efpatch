@@ -38,47 +38,105 @@ std::string WideToUTF8(const std::wstring& ws)
     return WideToUTF8(ws.c_str());
 }
 
-int get_u_char_len(const char* s)
+int get_u_char_len_fast(const unsigned char* s)
 {
-    for (int i = 1; i <= 4; i++)
-    {
-        int n = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, s, i, NULL, 0);
-        if (n > 0)
-            return i;
-    }
-    return -1;
+    if ((*s & 0x80) == 0)
+        return 1;
+    else if ((*s & 0xE0) == 0xC0)
+        return 2;
+    else if ((*s & 0xF0) == 0xE0)
+        return 3;
+    else if ((*s & 0xF8) == 0xF0)
+        return 4;
+    else
+        return -1;
 }
 
-wchar_t get_wchar_from_us(const char* s)
+wchar_t get_wchar_from_us(const unsigned char* s)
 {
-    int len = get_u_char_len(s);
+    int len = get_u_char_len_fast(s);
     wchar_t wc = 0;
     if (len > 0)
     {
-        MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, s, len, &wc, 1);
+        MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (const char*)s, len, &wc, 1);
     }
     return wc;
 }
 
-const char* __cdecl usinc(const char* s)
+inline bool is_u_cont_byte(const unsigned char c)
 {
-    while (*s)
-    {
-        int len = get_u_char_len(s);
-        if (len >= 0)
-        {
-            s += len;
-            break;
-        }
-        else
-        {
-            s++;
-        }
-    }
-    return s;
+    return ((c & 0xC0) == 0x80);
 }
 
-const char* __cdecl uschr(const char* s, unsigned int c)
+int valid_utf8_seq_len(const unsigned char* us)
+{
+    if (!us || !*us) return 0;
+
+    unsigned char c = *us;
+
+    // ASCII
+    if (c < 0x80)
+        return 1;
+
+    // Continuation byte as start - invalid
+    if (c < 0xC0)
+        return -1;
+
+    // 2-byte sequence
+    if (c < 0xE0)
+    {
+        if (is_u_cont_byte(us[1]))
+            return 2;
+        return -1;
+    }
+
+    // 3-byte sequence
+    if (c < 0xF0)
+    {
+        if (is_u_cont_byte(us[1]) &&
+            is_u_cont_byte(us[2]))
+        {
+            return 3;
+        }
+        return -1;
+    }
+
+    // 4-byte sequence
+    if (c < 0xF8)
+    {
+        if (is_u_cont_byte(us[1]) &&
+            is_u_cont_byte(us[2]) &&
+            is_u_cont_byte(us[3]))
+        {
+            return 4;
+        }
+        return -1;
+    }
+
+    // Invalid byte (0xF8-0xFF)
+    return -1;
+}
+
+const unsigned char* __cdecl usinc(const unsigned char* s)
+{
+    if (!s || !*s) return s;
+
+    while (*s)
+    {
+        int len = valid_utf8_seq_len(s);
+        if (len > 0)
+        {
+            // Found valid sequence
+            return s + len;
+        }
+        // Invalid - skip this byte and continue scanning
+        s++;
+    }
+
+    return s;  // Reached null
+}
+
+const unsigned char* __cdecl uschr(const unsigned char* s, unsigned int c)
 {
     do
     {
@@ -94,39 +152,31 @@ int __cdecl uscmp(const char* s1, const char* s2)
     return wcscmp(UTF8ToWide_c_str(s1), UTF8ToWide_c_str(s2));
 }
 
-const char* __cdecl usdec(const char* start, const char* pos)
+const unsigned char* __cdecl usdec(const unsigned char* start, const unsigned char* pos)
 {
-    const char* prev = start;
-    const char* cur;
-    while (true)
+    while (pos > start)
     {
-        cur = usinc(prev);
-        if (cur == prev)
-            return cur;
-        if (cur >= pos)
-            return prev;
-        else
-            prev = cur;
+        if (valid_utf8_seq_len(--pos) > 0)
+            break;
     }
-}
-
-const char* __cdecl usninc(const char* s, size_t c)
-{
-    const char* pos = s;
-    for (int i = 0; i < c; i++)
-        pos = usinc(pos);
-
     return pos;
 }
 
-char* __cdecl usncpy(char* dst, const char* src, size_t count)
+const unsigned char* __cdecl usninc(const unsigned char* s, size_t c)
 {
-    const char* pos = usninc(src, count);
-    memcpy(dst, src, pos - src);
+    for (int i = 0; i < c; i++)
+        s = usinc(s);
+
+    return s;
+}
+
+unsigned char* __cdecl usncpy(unsigned char* dst, const unsigned char* src, size_t count)
+{
+    memcpy(dst, src, usninc(src, count) - src);
     return dst;
 }
 
-size_t __cdecl uslen(const char* s)
+size_t __cdecl uslen(const unsigned char* s)
 {
     size_t len = 0;
     do
@@ -137,13 +187,13 @@ size_t __cdecl uslen(const char* s)
     return len;
 }
 
-char* __cdecl usncat(char* dst, const char* src, size_t count)
+unsigned char* __cdecl usncat(unsigned char* dst, const unsigned char* src, size_t count)
 {
     while (*dst)
     {
-        dst = (char*)usinc(dst);
+        dst = (unsigned char*)usinc(dst);
     }
-    const char* src_p = src;
+    const unsigned char* src_p = src;
     while (*src_p && count > 0)
     {
         src_p = usinc(src_p);
@@ -163,7 +213,7 @@ int __cdecl isucspace(unsigned int c)
 }
 */
 
-int __stdcall is_next_char_space(const char* s)
+int __stdcall is_next_char_space(const unsigned char* s)
 {
     return iswspace(get_wchar_from_us(s));
 }
@@ -188,11 +238,11 @@ __declspec(naked) int __cdecl ismbcspace_edi()
     }
 }
 
-const char* __cdecl usstr(const char* str, const char* substr)
+const unsigned char* __cdecl usstr(const unsigned char* str, const unsigned char* substr)
 {
-    size_t n = strlen(substr);
-    const char* pos = str;
-    size_t n_src = strlen(pos) - n;
+    size_t n = strlen((const char*)substr);
+    const unsigned char* pos = str;
+    size_t n_src = strlen((const char*)pos) - n;
     while (*pos && pos - str <= n_src)
     {
         if (!memcmp(pos, substr, n))
@@ -496,7 +546,7 @@ int __stdcall TEditPanel__verify_char_new(TEditPanel* edit_panel, int key)
             }
             else
             {
-                if (key != '.' || uschr(edit_panel->text, '.'))
+                if (key != '.' || uschr((unsigned char*)edit_panel->text, '.'))
                     break;
                 if (edit_panel->format == 1)
                     return 1;
@@ -509,7 +559,7 @@ int __stdcall TEditPanel__verify_char_new(TEditPanel* edit_panel, int key)
             case '.':
                 if (edit_panel->format != 4)
                     break;
-                if (uschr(edit_panel->text, '.'))
+                if (uschr((unsigned char*)edit_panel->text, '.'))
                     break;
                 return 1;
             case '\\':
@@ -823,6 +873,85 @@ int __fastcall TEasy_Panel__create_text4_new(
         word_wrap);
 }
 
+char* point_at_text_buffer = NULL;
+
+char* __stdcall point_at_text_setup_buffer_do()
+{
+    if (point_at_text_buffer == NULL)
+        point_at_text_buffer = (char*)malloc(POINT_AT_TEXT_BUFFER_SIZE);
+
+    return point_at_text_buffer;
+}
+
+__declspec(naked) void point_at_text_setup_buffer() //004F2FA1
+{
+    __asm
+    {
+        push    eax
+        call    point_at_text_setup_buffer_do
+        mov     [esi + 1374h], eax
+        pop     eax
+        mov     ecx, 004F2FA7h
+        jmp     ecx
+    }
+}
+
+const char* __fastcall TPanel__get_string2_new(TPanel* panel, DWORD dummy, int textId)
+{
+    UNREFERENCED_PARAMETER(dummy);
+
+    return get_string(textId);
+}
+
+void __stdcall rollover_rect_do(TTextPanel* rollover_panel)
+{
+    rollover_panel->position_mode = 8;
+    rollover_panel->left_border = 4;
+    rollover_panel->top_border = 0;
+    rollover_panel->right_border = 184;
+    rollover_panel->bottom_border = 2;
+    rollover_panel->left_panel = NULL;
+    rollover_panel->top_panel = NULL;
+    rollover_panel->right_panel = NULL;
+    rollover_panel->bottom_panel = NULL;
+    const char* rollover_rects = get_string(10002);
+    int x1, y1, x2, y2;
+    if (sscanf(rollover_rects, "%dx%d,%dx%d", &x1, &y1, &x2, &y2) == 4)
+    {
+        rollover_panel->min_wid = cd.largeText ? x2 : x1;
+        rollover_panel->max_wid = cd.largeText ? x2 : x1;
+        rollover_panel->min_hgt = cd.largeText ? y2 : y1;
+        rollover_panel->max_hgt = cd.largeText ? y2 : y1;
+    }
+    else
+    {
+        rollover_panel->min_wid = 540;
+        rollover_panel->max_wid = 540;
+        rollover_panel->min_hgt = 128;
+        rollover_panel->max_hgt = 128;
+    }
+
+    TDrawArea* render_area = rollover_panel->render_area;
+    if (render_area)
+        rollover_panel->vfptr->handle_size(rollover_panel, render_area->Width, render_area->Height);
+    else
+        rollover_panel->vfptr->handle_size(rollover_panel, 0, 0);
+
+    if (rollover_panel->active)
+        rollover_panel->vfptr->set_redraw(rollover_panel, 2);
+}
+
+__declspec(naked) void on_rollover_rect() //004F7991
+{
+    __asm
+    {
+        push    ecx
+        call    rollover_rect_do
+        mov     eax, 004F79A7h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setUTF8Hooks()
 {
@@ -869,6 +998,24 @@ void setUTF8Hooks()
 
     setHook((void*)0x005E7F80, TRIBE_Game__show_status_message2_new);
     setHook((void*)0x004B9A80, TEasy_Panel__create_text4_new);
+
+    writeByte(0x00500A84, 0x8B);
+    writeByte(0x005009E9, 0x8B);
+    writeByte(0x00500A76, 0x8B);
+    writeByte(0x00500B87, 0x8B);
+
+    writeDword(0x00500C64, POINT_AT_TEXT_BUFFER_SIZE);
+    writeDword(0x00500CA9, POINT_AT_TEXT_BUFFER_SIZE);
+    writeDword(0x00500D01, POINT_AT_TEXT_BUFFER_SIZE);
+    writeDword(0x00500C64, POINT_AT_TEXT_BUFFER_SIZE);
+
+    static const BYTE point_at_text_patch[] = {0x8B, 0xBE, 0x74, 0x13, 0x00, 0x00, 0x8A, 0x07, 0x0F, 0x1F, 0x40, 0x00};
+    writeData(0x00500A98, point_at_text_patch, sizeof(point_at_text_patch));
+
+    setHook((void*)0x004F2FA1, point_at_text_setup_buffer);
+    setHook((void*)0x004B76F0, TPanel__get_string2_new);
+
+    setHook((void*)0x004F7991, on_rollover_rect);
 
     setHook(GetProcAddress(GetModuleHandleW(L"kernel32.dll"), "CompareStringA"), CompareStringU);
     setHook(GetProcAddress(GetModuleHandleW(L"kernel32.dll"), "FindFirstFileA"), FindFirstFileU);

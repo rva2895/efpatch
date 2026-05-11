@@ -223,7 +223,7 @@ bool __stdcall file_exists(const wchar_t* filename)
         return false;
 }
 
-char string_buffer[0x400];
+char string_buffer[0x1000];
 
 const char* __stdcall get_string(int id)
 {

@@ -680,9 +680,9 @@ void __stdcall paint_save_game_screen_bk(TribeLoadSavedGameScreen* SaveGameScree
             }
         }
         else
-            snprintf(str, _countof(str), "Preview not available");
+            snprintf(str, _countof(str), get_string(1534)); //Preview not available
     else
-        snprintf(str, _countof(str), "Loading...");
+        snprintf(str, _countof(str), get_string(1533)); //Loading...
 
     r.top += (r.right - r.left) / 2 + map_edge_dist;
 
@@ -920,13 +920,11 @@ void __stdcall paint_load_scen_screen_bk(TScreenPanel* LoadScenScreen)
 
             strftime(s_time, _countof(s_time), "%Y-%m-%d_%H:%M:%S", &lt);
 
-            snprintf(str, _countof(str), "Players: %d human%s, %d computer%s\nTrigger count: %d\nTimestamp: %s\n\nInstructions:\n%s",
-                //sd.orig_filename.c_str(),
-                n_humans, n_humans == 1 ? "" : "s", n_computers, n_computers == 1 ? "" : "s",
+            snprintf(str, _countof(str), std::string(get_string(1553)).c_str(), //Players: %s, %s\nTrigger count: %d\nTimestamp: %s\n\nInstructions:\n%s
+                std::string(get_string(1535 + n_humans)).c_str(), std::string(get_string(1544 + n_computers)).c_str(),
                 sd.trigger_count,
                 s_time,
                 sd.instructions.c_str());
-
 
             HDC hdcMem = CreateCompatibleDC(hdc);
             HGDIOBJ oldBitmap = SelectObject(hdcMem, sd.map.get()->get_map());
@@ -939,9 +937,9 @@ void __stdcall paint_load_scen_screen_bk(TScreenPanel* LoadScenScreen)
             DeleteDC(hdcMem);
         }
         else
-            snprintf(str, _countof(str), "Preview not available");
+            snprintf(str, _countof(str), get_string(1534)); //Preview not available
     else
-        snprintf(str, _countof(str), "Loading...");
+        snprintf(str, _countof(str), get_string(1533)); //Loading...
 
     int map_edge_dist = y > 900 ? 10 : 8;
     int text_offset = y > 900 ? 7 : 3;

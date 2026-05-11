@@ -176,7 +176,11 @@ void setTextSizeHooks(bool text_rendering)
     //achievements
     writeByte(0x004EBB40, 16);
     writeByte(0x004EB7BA, 42);
-    writeByte(0x004EB7BC, 97);
+    writeByte(0x004EB7BC, 98);
     writeDword(0x004EB7A3, 85);
+
+    //tech tree popup width
+    writeDword(0x004621B3, 275 + 70);
+    writeDword(0x00463193, 340 + 70);
 }
 #pragma optimize( "", on )
