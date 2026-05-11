@@ -2,28 +2,38 @@
 #include "prodqueue_overlay.h"
 #include "consts.h"
 
+// --- Layout constants ---
 static const int ICON_SIZE = 36;
 static const int COUNT_H   = 14;
 static const int BAR_H     = 5;
 static const int CELL_W    = ICON_SIZE + 2;
 static const int MARGIN_R  = 8;
+static const int ROW_H     = ICON_SIZE + COUNT_H + BAR_H;   // 55 px per row
+static const int ROW_GAP   = 2;                              // gap between rows
+static const int TECH_ROW_Y = ROW_H + ROW_GAP;              // tech row starts at y=57
+static const int PANEL_H   = TECH_ROW_Y + ROW_H + 2;        // total panel height = 114
 
 static HBRUSH s_br_bg     = NULL;
 static HBRUSH s_br_bar_bg = NULL;
 static HBRUSH s_br_bar_fg = NULL;
+static HBRUSH s_br_bar_tech = NULL;
 static HBRUSH s_br_icon   = NULL;
 
 static void ensure_brushes()
 {
     if (!s_br_bg)
     {
-        s_br_bg     = CreateSolidBrush(RGB(  0,   0,   0));
-        s_br_bar_bg = CreateSolidBrush(RGB( 40,  40,  40));
-        s_br_bar_fg = CreateSolidBrush(RGB( 30, 160,  60));
-        s_br_icon   = CreateSolidBrush(RGB( 60,  60,  80));
+        s_br_bg       = CreateSolidBrush(RGB(  0,   0,   0));
+        s_br_bar_bg   = CreateSolidBrush(RGB( 40,  40,  40));
+        s_br_bar_fg   = CreateSolidBrush(RGB( 30, 160,  60));
+        s_br_bar_tech = CreateSolidBrush(RGB( 60, 120, 220));
+        s_br_icon     = CreateSolidBrush(RGB( 60,  60,  80));
     }
 }
 
+// ---------------------------------------------------------------------------
+// collect_prodqueue
+// ---------------------------------------------------------------------------
 bool collect_prodqueue(std::vector<PQEntry>& entries)
 {
     entries.clear();
@@ -82,6 +92,53 @@ bool collect_prodqueue(std::vector<PQEntry>& entries)
     return !entries.empty();
 }
 
+// ---------------------------------------------------------------------------
+// collect_techqueue
+// ---------------------------------------------------------------------------
+bool collect_techqueue(std::vector<TechEntry>& entries)
+{
+    entries.clear();
+
+    if (!*base_game || !(*base_game)->world) return false;
+
+    TRIBE_Player* player = (TRIBE_Player*)RGE_Base_Game__get_player(*base_game);
+    if (!player || !player->tech_tree) return false;
+
+    TRIBE_Player_Tech* pt  = player->tech_tree;
+    if (!pt->tech_player_tree || !pt->base_tech) return false;
+
+    __int16 num      = pt->tech_player_tree_num;
+    __int16 tech_num = pt->base_tech->tech_tree_num;
+    __int16 limit    = (num < tech_num) ? num : tech_num;
+
+    for (__int16 i = 0; i < limit; i++)
+    {
+        Tech_Player_Tree& ptt = pt->tech_player_tree[i];
+
+        // state == 2 is RESEARCHING in the AoE2/SWGB engine.
+        // Also require research_done > 0 as a safety check.
+        if (ptt.state != 2 || ptt.research_done <= 0.0f) continue;
+
+        float total = (float)pt->base_tech->tech_tree[i].research;
+        int pct = 0;
+        if (total > 0.0f)
+            pct = (int)((ptt.research_done / total) * 100.0f);
+        if (pct < 0)   pct = 0;
+        if (pct > 100) pct = 100;
+
+        TechEntry e;
+        e.tech_id  = i;
+        e.progress = (__int16)pct;
+        e.icon     = pt->base_tech->tech_tree[i].icon;
+        entries.push_back(e);
+    }
+
+    return !entries.empty();
+}
+
+// ---------------------------------------------------------------------------
+// draw_prodqueue_overlay  (unit row)
+// ---------------------------------------------------------------------------
 void draw_prodqueue_overlay(TDrawArea* da, int panel_w, const std::vector<PQEntry>& entries, HRGN clip_region)
 {
     ensure_brushes();
@@ -109,12 +166,12 @@ void draw_prodqueue_overlay(TDrawArea* da, int panel_w, const std::vector<PQEntr
     int origin_x = panel_w - n * CELL_W - MARGIN_R;
     if (origin_x < 0) origin_x = 0;
 
-    // --- GDI pass: count text + progress bar (+ fallback icon placeholder) ---
-    if (TDrawArea__GetDc(da, "prodqueue"))
+    // --- GDI pass: count text + progress bar ---
+    if (TDrawArea__GetDc(da, "pq_unit"))
     {
         HDC hdc = da->DrawDc;
-        RECT full_rect = { 0, 0, panel_w, ICON_SIZE + COUNT_H + BAR_H };
-        TDrawArea__SetClipRect(da, &full_rect);
+        RECT clip_rect = { 0, 0, panel_w, ROW_H };
+        TDrawArea__SetClipRect(da, &clip_rect);
         SelectClipRgn(hdc, clip_region);
 
         SetBkMode(hdc, TRANSPARENT);
@@ -155,11 +212,11 @@ void draw_prodqueue_overlay(TDrawArea* da, int panel_w, const std::vector<PQEntr
 
         SelectObject(hdc, old_font);
         SelectClipRgn(hdc, 0);
-        TDrawArea__ReleaseDc(da, "prodqueue");
+        TDrawArea__ReleaseDc(da, "pq_unit");
     }
 
     // --- TShape icon pass ---
-    if (has_slp && TDrawArea__Lock(da, "prodqueue", 1))
+    if (has_slp && TDrawArea__Lock(da, "pq_unit", 1))
     {
         for (int i = 0; i < n; i++)
         {
@@ -172,11 +229,108 @@ void draw_prodqueue_overlay(TDrawArea* da, int panel_w, const std::vector<PQEntr
             int dy = si->Hotspot_Y;
             TShape__shape_draw(unit_slp, da, dx, dy, frame, NULL);
         }
-        TDrawArea__Unlock(da, "prodqueue");
+        TDrawArea__Unlock(da, "pq_unit");
     }
 }
 
-// --- Overlay API callbacks ---
+// ---------------------------------------------------------------------------
+// draw_techqueue_overlay  (tech row)
+// ---------------------------------------------------------------------------
+void draw_techqueue_overlay(TDrawArea* da, int panel_w, const std::vector<TechEntry>& entries, HRGN clip_region, int row_y)
+{
+    ensure_brushes();
+
+    TRIBE_Player* player = (TRIBE_Player*)RGE_Base_Game__get_player(*base_game);
+    if (!player) return;
+
+    // Resolve the tech-icon SLP for this civ (fall back to any loaded civ).
+    int civ = player->culture;
+    TShape* tech_slp = (iconsTechPtr && civ >= 1 && civ <= CIV_COUNT) ? iconsTechPtr[civ] : NULL;
+    if (!tech_slp || !tech_slp->Is_Loaded || tech_slp->Num_Shapes <= 0)
+    {
+        if (iconsTechPtr)
+        {
+            for (int k = 1; k <= CIV_COUNT; k++)
+            {
+                TShape* s = iconsTechPtr[k];
+                if (s && s->Is_Loaded && s->Num_Shapes > 0) { tech_slp = s; break; }
+            }
+        }
+    }
+    bool has_slp = tech_slp && tech_slp->Is_Loaded && tech_slp->Num_Shapes > 0;
+
+    int n        = (int)entries.size();
+    int origin_x = panel_w - n * CELL_W - MARGIN_R;
+    if (origin_x < 0) origin_x = 0;
+
+    // --- GDI pass: progress % label + progress bar ---
+    if (TDrawArea__GetDc(da, "pq_tech"))
+    {
+        HDC hdc = da->DrawDc;
+        RECT clip_rect = { 0, row_y, panel_w, row_y + ROW_H };
+        TDrawArea__SetClipRect(da, &clip_rect);
+        SelectClipRgn(hdc, clip_region);
+
+        SetBkMode(hdc, TRANSPARENT);
+        HGDIOBJ old_font = SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
+
+        for (int i = 0; i < n; i++)
+        {
+            const TechEntry& e = entries[i];
+            int cx = origin_x + i * CELL_W;
+
+            if (!has_slp)
+            {
+                RECT ricon = { cx, row_y, cx + ICON_SIZE, row_y + ICON_SIZE };
+                FillRect(hdc, &ricon, s_br_icon);
+            }
+
+            int label_y = row_y + ICON_SIZE;
+            RECT rlabel = { cx, label_y, cx + ICON_SIZE, label_y + COUNT_H };
+            FillRect(hdc, &rlabel, s_br_bg);
+            SetTextColor(hdc, RGB(140, 200, 255));   // light blue for techs
+            char buf[8];
+            snprintf(buf, sizeof(buf), "%d%%", (int)e.progress);
+            DrawTextA(hdc, buf, -1, &rlabel, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+            int bar_y = label_y + COUNT_H;
+            RECT rbar = { cx, bar_y, cx + ICON_SIZE, bar_y + BAR_H };
+            FillRect(hdc, &rbar, s_br_bar_bg);
+            if (e.progress > 0)
+            {
+                int fill_w = (ICON_SIZE * e.progress) / 100;
+                if (fill_w > 0)
+                {
+                    RECT rfill = { cx, bar_y, cx + fill_w, bar_y + BAR_H };
+                    FillRect(hdc, &rfill, s_br_bar_tech);
+                }
+            }
+        }
+
+        SelectObject(hdc, old_font);
+        SelectClipRgn(hdc, 0);
+        TDrawArea__ReleaseDc(da, "pq_tech");
+    }
+
+    // --- TShape icon pass ---
+    if (has_slp && TDrawArea__Lock(da, "pq_tech", 1))
+    {
+        for (int i = 0; i < n; i++)
+        {
+            __int16 frame = entries[i].icon;
+            if (frame < 0 || frame >= tech_slp->Num_Shapes) continue;
+            Shape_Info* si = &tech_slp->shape_info[frame];
+            int dx = origin_x + i * CELL_W + si->Hotspot_X;
+            int dy = row_y + si->Hotspot_Y;
+            TShape__shape_draw(tech_slp, da, dx, dy, frame, NULL);
+        }
+        TDrawArea__Unlock(da, "pq_tech");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Overlay API callbacks
+// ---------------------------------------------------------------------------
 
 struct PQUserData
 {
@@ -198,17 +352,20 @@ static void pq_destroy(void* user_data)
 static bool pq_need_redraw(void* user_data)
 {
     PQUserData* d = (PQUserData*)user_data;
-    std::vector<PQEntry> pq;
-    bool has_queue = collect_prodqueue(pq);
-    bool needs_redraw = has_queue || d->had_queue;
-    d->had_queue = has_queue;
+    std::vector<PQEntry> units;
+    bool has_units = collect_prodqueue(units);
+    std::vector<TechEntry> techs;
+    bool has_techs = collect_techqueue(techs);
+    bool has_anything = has_units || has_techs;
+    bool needs_redraw = has_anything || d->had_queue;
+    d->had_queue = has_anything;
     return needs_redraw;
 }
 
 static panel_size pq_handle_size(void* user_data)
 {
-    // Span full parent width at top of game view, fixed height of 57px.
-    // Mode 7 (L+T+R anchored): left=0, top=2, right=0 from edges; stretch width; fixed height.
+    // Span full parent width at top of game view.
+    // Mode 7 (L+T+R anchored): left/right borders = 0 (flush to parent edges).
     panel_size s;
     s.left_border_in   = 0;
     s.top_border_in    = 2;
@@ -216,16 +373,24 @@ static panel_size pq_handle_size(void* user_data)
     s.bottom_border_in = 0;
     s.min_wid_in       = 100;
     s.max_wid_in       = 10000;
-    s.min_hgt_in       = ICON_SIZE + COUNT_H + BAR_H + 2;
-    s.max_hgt_in       = ICON_SIZE + COUNT_H + BAR_H + 2;
+    s.min_hgt_in       = PANEL_H;
+    s.max_hgt_in       = PANEL_H;
     return s;
 }
 
 static void pq_render_to_image_buffer(void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
 {
-    std::vector<PQEntry> entries;
-    if (!collect_prodqueue(entries)) return;
-    draw_prodqueue_overlay(render_area, render_rect->right, entries, clip_region);
+    int panel_w = render_rect->right;
+
+    std::vector<PQEntry> units;
+    collect_prodqueue(units);
+    if (!units.empty())
+        draw_prodqueue_overlay(render_area, panel_w, units, clip_region);
+
+    std::vector<TechEntry> techs;
+    collect_techqueue(techs);
+    if (!techs.empty())
+        draw_techqueue_overlay(render_area, panel_w, techs, clip_region, TECH_ROW_Y);
 }
 
 void register_prodqueue_overlay()
