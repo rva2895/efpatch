@@ -154,8 +154,6 @@ void __fastcall TRIBE_Panel_Screen_Overlay__get_true_render_rect(TRIBE_Panel_Scr
 {
     UNREFERENCED_PARAMETER(dummy);
 
-    RECT test_rect = { 500, 10, 800, 110 };
-
     if (this_->ImageBuffer && this_->render_area && this_->visible && this_->active)
         *drawRect = this_->ScreenRect;
     else
@@ -164,27 +162,12 @@ void __fastcall TRIBE_Panel_Screen_Overlay__get_true_render_rect(TRIBE_Panel_Scr
 
 void __fastcall TRIBE_Panel_Screen_Overlay__draw(TRIBE_Panel_Screen_Overlay* this_)
 {
-    int v2; // ebx
-    TPanel* v3; // ecx
-    int v4; // ebp
-    int v5; // ebx
-    __int64 v6; // rax
-    int i; // edi
-    TShape* v8; // ecx
-    int v9; // eax
-    int v10; // [esp-14h] [ebp-30h]
-    int v11; // [esp+8h] [ebp-14h]
-    float* v12; // [esp+Ch] [ebp-10h]
-    HGDIOBJ h; // [esp+14h] [ebp-8h]
-    UINT align; // [esp+18h] [ebp-4h]
-
-    v2 = 0;
     if (!this_->render_area || !this_->visible || !this_->active)
     {
         this_->need_redraw = 0;
         return;
     }
-    v3 = this_->parent_panel;
+    TPanel* v3 = this_->parent_panel;
     if (v3)
     {
         v3->vfptr->draw_rect(v3, &this_->clip_rect);
@@ -206,7 +189,6 @@ void __fastcall TRIBE_Panel_Screen_Overlay__draw(TRIBE_Panel_Screen_Overlay* thi
 
     this_->need_restore = 0;
     this_->vfptr->draw_finish((TPanel*)this_);
-
 }
 
 int __fastcall TRIBE_Panel_Screen_Overlay__handle_idle(TRIBE_Panel_Screen_Overlay* this_)
@@ -245,7 +227,6 @@ TRIBE_Panel_Screen_Overlay* __stdcall TRIBE_Panel_Screen_Overlay__TRIBE_Panel_Sc
 
     this_->vfptr->set_active((TPanel*)this_, 1);
     this_->vfptr->set_redraw((TPanel*)this_, 1);
-    //this_->need_restore = 1;
 
     return this_;
 }

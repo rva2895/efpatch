@@ -275,15 +275,10 @@ __declspec(naked) void fixDefaultRecSpeed() //0042E8E2
 
 int __stdcall check_main_view_redraw(TRIBE_Screen_Game* game_screen, unsigned int t, unsigned int wt_delta)
 {
+    int result = 0;
     if (isRec())
     {
-        int result = 0;
-
-        if (wt_delta)
-        {
-            result = (t - game_screen->last_view_time >= frame_times[frame_time_index]);
-        }
-        else
+        switch ((*comm)->mCommandLog->mReplaySpeed)
         {
             result = t - game_screen->last_view_time >= game_screen->view_interval;
         }
@@ -293,11 +288,13 @@ int __stdcall check_main_view_redraw(TRIBE_Screen_Game* game_screen, unsigned in
             game_screen->time_panel->vfptr->set_redraw(game_screen->time_panel, 1);
             game_screen->time_panel->parent_panel->vfptr->set_redraw(game_screen->time_panel->parent_panel, 1);
         }
-        
-        return result;
     }
     else
-        return (wt_delta || t - game_screen->last_view_time >= game_screen->view_interval);
+    {
+        result = (wt_delta || t - game_screen->last_view_time >= game_screen->view_interval);
+    }
+
+    return result;
 }
 
 __declspec(naked) void on_main_view_redraw() //004F8DD6
@@ -352,6 +349,7 @@ skip_time_panel_redraw:
         jmp     eax
     }
 }
+
 
 #pragma optimize( "s", on )
 void setGameSpeedHooks()

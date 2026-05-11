@@ -324,6 +324,7 @@
     <ClInclude Include="notify.h" />
     <ClInclude Include="objpanel.h" />
     <ClInclude Include="oos.h" />
+    <ClInclude Include="prodqueue_overlay.h" />
     <ClInclude Include="overlay.h" />
     <ClInclude Include="palette.h" />
     <ClInclude Include="palfile.h" />
@@ -524,6 +525,7 @@
     <ClCompile Include="notify.cpp" />
     <ClCompile Include="objpanel.cpp" />
     <ClCompile Include="objpaneldraw.cpp" />
+    <ClCompile Include="prodqueue_overlay.cpp" />
     <ClCompile Include="oos.cpp" />
     <ClCompile Include="overlay.cpp" />
     <ClCompile Include="palette.cpp" />
