@@ -5,6 +5,7 @@
 //#define EFPATCH_MEMORY_DEBUG
 //#define EFPATCH_USE_ATEXIT
 //#define EFPATCH_ENABLE_DEBUG_COMMANDS
+//#define EFPATCH_ENABLE_VERBOSE_STATS
 //#define EFPATCH_ENABLE_TIMING
 
 #if defined(_DEBUG) && defined(EFPATCH_MEMORY_DEBUG)
@@ -44,4 +45,4 @@
 
 #define ZLIB_WINAPI
 
-#define EFPATCH_VERSION "EFPATCH for EF v1.5.6-rc1 (1.5.5.1) " __DATE__ " " __TIME__
+#define EFPATCH_VERSION "EFPATCH for EF v1.5.6-rc6 (1.5.5.6) " __DATE__ " " __TIME__

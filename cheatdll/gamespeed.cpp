@@ -77,6 +77,12 @@ __declspec(naked) void onSpeedNormal() //004FAF9F
     }
 }
 
+#ifdef EFPATCH_ENABLE_VERBOSE_STATS
+#define SPEED_VAL_COUNT 64
+float speed_vals[SPEED_VAL_COUNT];
+int speed_val_pos = 0;
+#endif
+
 float rec_speed = 0.0f;
 
 void __stdcall onPrintTime2(char* s)
@@ -84,8 +90,17 @@ void __stdcall onPrintTime2(char* s)
     char s2[0x100];
     strlcpy(s2, s, _countof(s2));
     if (isRec())
+    {
+#ifdef EFPATCH_ENABLE_VERBOSE_STATS
+        float avg_speed = 0.0f;
+        for (int i = 0; i < SPEED_VAL_COUNT; i++)
+            avg_speed += speed_vals[i];
+        avg_speed /= SPEED_VAL_COUNT;
+        sprintf(s, "%s (%3.3f / %3.3f)", s2, rec_speed, avg_speed * rec_speed);
+#else
         sprintf(s, "%s (%2.2f)", s2, rec_speed);
-        //sprintf(s, "%s (%3.3f / %3.3f)", s2, rec_speed, avg_speed);
+#endif
+    }
     else
         sprintf(s, "%s", s2);
 }
@@ -104,7 +119,14 @@ __declspec(naked) void onPrintTime() //005E01E6
     }
 }
 
-void __stdcall do_rec_speed_adjust(int speed)
+int overload_c = 0;
+int good_c = 0;
+#define OVERLOAD_MAX 8
+#define GOOD_MAX 24
+int frame_times[] = {0, 16, 22, 33, 50, 100, 200};
+int frame_time_index = 0;
+
+void __stdcall do_rec_speed_adjust(RGE_Game_World* world, int wt_delta, int speed)
 {
     switch (speed)
     {
@@ -151,6 +173,38 @@ void __stdcall do_rec_speed_adjust(int speed)
         rec_speed = 1.00f;
         break;
     }
+    int wt_delta_corrected = wt_delta / (world->game_speed * rec_speed);
+    if (wt_delta_corrected <= world->mReplayRecordedInterval)
+    {
+        world->mReplayRecordedInterval = 0;
+        overload_c++;
+        good_c = 0;
+        if (overload_c > OVERLOAD_MAX)
+        {
+            frame_time_index++;
+            if (frame_time_index >= _countof(frame_times))
+                frame_time_index = _countof(frame_times) - 1;
+            
+            //chat("Overload! %d Frame time @ %d: %d", overload_c, frame_time_index, frame_times[frame_time_index]);
+
+            overload_c = 0;
+        }
+    }
+    else
+    {
+        world->mReplayRecordedInterval = wt_delta_corrected - world->mReplayRecordedInterval;
+        overload_c = 0;
+        good_c++;
+        if (good_c > GOOD_MAX)
+        {
+            if (frame_time_index > 0)
+                frame_time_index--;
+
+            //chat("Good! %d Frame time @ %d: %d", good_c, frame_time_index, frame_times[frame_time_index]);
+
+            good_c = 0;
+        }
+    }
 }
 
 __declspec(naked) void onCheckSpeed2() //0061EB81
@@ -160,7 +214,8 @@ __declspec(naked) void onCheckSpeed2() //0061EB81
         push    ecx
         push    eax
         mov     eax, [ebp - 10h]
-        mov     [edi + 204h], eax
+        push    eax
+        push    edi
         call    do_rec_speed_adjust
         pop     ecx
 
@@ -172,13 +227,20 @@ __declspec(naked) void onCheckSpeed2() //0061EB81
 int __stdcall do_new_rec_speed_control(RGE_Game_World* world)
 {
     unsigned int t = timeGetTime();
+    unsigned int delta = 0;
     if (world->mReplayTimeStart)
     {
-        unsigned int delta = t - world->mReplayTimeStart;
-        if ((float)world->mReplayRecordedInterval > (float)delta * world->game_speed * rec_speed)
+        delta = t - world->mReplayTimeStart;
+        if (world->mReplayRecordedInterval > delta)
             return 0;
     }
-    world->mReplayTimeStart = t;
+    world->mReplayRecordedInterval = delta - world->mReplayRecordedInterval;
+#ifdef EFPATCH_ENABLE_VERBOSE_STATS
+    if (world->world_time_delta != 0)
+    {
+        speed_vals[++speed_val_pos % SPEED_VAL_COUNT] = (float)(t - world->mReplayTimeStart) * world->game_speed * rec_speed / (world->world_time_delta);
+    }
+#endif
     return 1;
 }
 
@@ -216,38 +278,22 @@ int __stdcall check_main_view_redraw(TRIBE_Screen_Game* game_screen, unsigned in
     if (isRec())
     {
         int result = 0;
-        switch ((*comm)->mCommandLog->mReplaySpeed)
+
+        if (wt_delta)
         {
-        default:
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-            result = (wt_delta || t - game_screen->last_view_time >= game_screen->view_interval);
-            break;
-        case 4:
-        case 5:
-        case 6:
-            result = (t - game_screen->last_view_time >= 16);
-            break;
-        case 7:
-        case 8:
-        case 9:
-            result = (t - game_screen->last_view_time >= 33);
-            break;
-        case 10:
-        case 11:
-            result = (t - game_screen->last_view_time >= 100);
-            break;
-        case 12:
-            result = (t - game_screen->last_view_time >= 333);
-            break;
+            result = (t - game_screen->last_view_time >= frame_times[frame_time_index]);
         }
+        else
+        {
+            result = t - game_screen->last_view_time >= game_screen->view_interval;
+        }
+
         if ((*comm)->mCommandLog->mReplaySpeed > 5 && result)
         {
             game_screen->time_panel->vfptr->set_redraw(game_screen->time_panel, 1);
             game_screen->time_panel->parent_panel->vfptr->set_redraw(game_screen->time_panel->parent_panel, 1);
         }
+        
         return result;
     }
     else
@@ -316,8 +362,8 @@ void setGameSpeedHooks()
     writeByte(0x0061EBC2, REC_SPEED_COUNT);
     setHook((void*)0x0061EB81, onCheckSpeed2);
 
-    writeNops(0x0061EB66, 6);
-    writeNops(0x0061EB6F, 6);
+    //writeNops(0x0061EB66, 6);
+    //writeNops(0x0061EB6F, 6);
 
     setHook((void*)0x0061EABA, new_rec_speed_control);
 
