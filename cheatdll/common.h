@@ -31,6 +31,7 @@
 #define noop ((void)0)
 
 #define MAX_LOADSTRING 0x1000
+#define POINT_AT_TEXT_BUFFER_SIZE 0x1000
 
 #ifdef EFPATCH_USE_ATEXIT
 #define efpatch_atexit(p) atexit(p)

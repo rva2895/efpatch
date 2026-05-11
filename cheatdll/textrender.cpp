@@ -670,11 +670,15 @@ HRESULT DWriteProcessText(
 #endif // EFPATCH_ENABLE_TIMING
     }
 
+    int indexed_width_bytes =
+        ((((static_vars.pbmi_indexed_target->bmiHeader.biWidth *
+            static_vars.pbmi_indexed_target->bmiHeader.biBitCount) + 31) & ~31) >> 3);
+
     for (int y = blt_y; y < (blt_y + blt_cy); y++)
     {
         int y2 = static_vars.ds.dsBm.bmHeight - 1 - y;
-        DWORD* row_start = (DWORD*)((BYTE*)static_vars.ds.dsBm.bmBits + (y * static_vars.ds.dsBm.bmWidth + blt_x) * 4);
-        BYTE* row_dst = static_vars.px_indexed_target + (y2 * static_vars.pbmi_indexed_target->bmiHeader.biWidth + blt_x);
+        DWORD* row_start = (DWORD*)((BYTE*)static_vars.ds.dsBm.bmBits + y * static_vars.ds.dsBm.bmWidthBytes + blt_x * 4);
+        BYTE* row_dst = static_vars.px_indexed_target + y2 * indexed_width_bytes + blt_x;
         int last_index = 0;
         DWORD last_rgb = 0;
         for (int x = 0; x < blt_cx; x++)

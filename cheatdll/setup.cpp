@@ -176,6 +176,7 @@ bool append_file(const std::wstring& first, const std::wstring& second)
     {
         fwrite(buf, size, 1, f);
     }
+    free(buf);
     fclose(f);
     fclose(g);
 

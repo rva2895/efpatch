@@ -10,6 +10,7 @@
 #include "rmslog.h"
 #include "resfile.h"
 #include "chatcommand.h"
+#include "overlay.h"
 
 #include <process.h>
 #include <time.h>
@@ -1487,9 +1488,106 @@ __declspec(naked) void sed_test_obj_inc_counter() //0052ED61
 }
 */
 
+struct test_user_data
+{
+    unsigned int wt;
+};
+
+void DrawTextA_outline_4(HDC hdc, RECT* r, COLORREF color, const char* str)
+{
+    SetTextColor(hdc, RGB(0, 0, 0));
+    r->left--;  r->top--;   r->right--; r->bottom--;
+    DrawTextA(hdc, str, strlen(str), r, DT_LEFT);
+    r->left += 2;   r->right += 2;
+    DrawTextA(hdc, str, strlen(str), r, DT_LEFT);
+    r->top += 2;    r->bottom += 2;
+    DrawTextA(hdc, str, strlen(str), r, DT_LEFT);
+    r->left -= 2;   r->right -= 2;
+    DrawTextA(hdc, str, strlen(str), r, DT_LEFT);
+    r->top -= 2;    r->bottom -= 2;
+    r->left++;  r->top++;   r->right++; r->bottom++;
+    SetTextColor(hdc, color);
+    DrawTextA(hdc, str, strlen(str), r, DT_LEFT);
+}
+
+extern TShape** iconsUnitPtr;
+
+HBRUSH br = CreateSolidBrush(RGB(0, 80, 128));
+
+void test_render_to_image_buffer(void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
+{
+    test_user_data* my_user_data = (test_user_data*)user_data;
+
+    if (TDrawArea__GetDc(render_area, "test overlay"))
+    {
+        TDrawArea__SetClipRect(render_area, render_rect);
+        SelectClipRgn(render_area->DrawDc, clip_region);
+        HGDIOBJ h = SelectObject(render_area->DrawDc, RGE_Base_Game__get_font(*base_game, 11)->font);
+        SetBkMode(render_area->DrawDc, TRANSPARENT);
+        
+        RECT fill_rect = { render_rect->right - 30, render_rect->top + 2, render_rect->right - 2, render_rect->bottom - 2 };
+        FillRect(render_area->DrawDc, &fill_rect, br);
+
+        char b[0x100];
+        snprintf(b, _countof(b), "WT=%u", (*base_game)->world->world_time);
+
+        RECT text_rect = { render_rect->left + 2, render_rect->top + 2, render_rect->right, render_rect->bottom };
+        DrawTextA_outline_4(render_area->DrawDc, &text_rect, RGB(255, 255, 255), b);
+
+        SelectObject(render_area->DrawDc, h);
+        SelectClipRgn(render_area->DrawDc, 0);
+        TDrawArea__ReleaseDc(render_area, "test overlay");
+    }
+
+    if (TDrawArea__Lock(render_area, "test overlay", 1))
+    {
+        TShape__shape_draw(iconsUnitPtr[1], render_area, render_rect->left + 2, render_rect->top + 40, 0, 0);
+        TDrawArea__Unlock(render_area, "test overlay");
+    }
+}
+
+panel_size test_handle_size(void* user_data)
+{
+    panel_size size = { 500, 10, 800, 210, 300, 300, 100, 100 };
+    return size;
+}
+
+bool test_need_redraw(void* user_data)
+{
+    test_user_data* my_user_data = (test_user_data*)user_data;
+    if ((*base_game)->world->world_time > my_user_data->wt + 2000)
+    {
+        my_user_data->wt = (*base_game)->world->world_time;
+        return true;
+    }
+    else
+        return false;
+}
+
+void* test_create()
+{
+    test_user_data* my_user_data = new test_user_data;
+    my_user_data->wt = UINT_MAX;
+    return my_user_data;
+}
+
+void test_destroy(void* user_data)
+{
+    test_user_data* my_user_data = (test_user_data*)user_data;
+    delete my_user_data;
+}
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
+    TRIBE_Panel_Screen_Overlay_User_Callbacks test_overlay_callbacks;
+    test_overlay_callbacks.render_to_image_buffer = test_render_to_image_buffer;
+    test_overlay_callbacks.handle_size = test_handle_size;
+    test_overlay_callbacks.need_redraw = test_need_redraw;
+    test_overlay_callbacks.create = test_create;
+    test_overlay_callbacks.destroy = test_destroy;
+    register_screen_overlay(test_overlay_callbacks);
+
     //writeNops(0x0041AB12, 5);
     //setHook((void*)0x00557C1A, sed_test_obj_gen_oos);
     //setHook((void*)0x0052ED61, sed_test_obj_inc_counter);

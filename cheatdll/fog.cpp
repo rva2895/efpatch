@@ -114,6 +114,23 @@ void __cdecl ASMSet_Shadowing_new(int a1, int a2, int a3, int a4) //00651780
     shadowing[7] = a4;
 }
 
+int __stdcall get_rollover_bk_image()
+{
+    return 50150 + cd.fog;
+}
+
+__declspec(naked) void on_rollover_bk() //004F4472
+{
+    __asm
+    {
+        call    get_rollover_bk_image
+        mov     ecx, [edi]
+        push    eax
+        mov     eax, 004F4479h
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setFogOfWarHooks(int pattern)
 {
@@ -148,5 +165,6 @@ void setFogOfWarHooks(int pattern)
     }
 
     setHook((void*)0x00651780, ASMSet_Shadowing_new);
+    setHook((void*)0x004F4472, on_rollover_bk);
 }
 #pragma optimize( "", on )
