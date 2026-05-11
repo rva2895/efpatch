@@ -332,3 +332,212 @@ void setOverlayHooks()
     setHook((void*)0x004F6A42, on_game_screen_handle_size);
 }
 #pragma optimize( "", on )
+
+/*
+void* overlay_ptr = NULL;
+
+int pos_x = 400;
+int pos_y = 600;
+int size_x = 1000;
+int size_y = 300;
+
+HBRUSH br_black;
+bool brushes_loaded = false;
+
+bool overlay_state = false;
+
+void print_graph(HDC hdc, std::vector<std::vector<std::pair<int, int>>> data)
+{
+
+}
+
+class TABLE
+{
+private:
+    std::string title;
+    std::vector<std::string> row_names;
+    std::vector<std::string> column_names;
+    std::vector<std::vector<float>> values;
+    typedef struct
+    {
+        int x;
+    } column_info;
+    void print_text(HDC hdc, int x, int y, int w, int h, const std::string& text)
+    {
+        RECT r;
+        r.left = x;
+        r.right = x + w;
+        r.top = y;
+        r.bottom = y + h;
+        DrawTextA(hdc, text.c_str(), text.length(), &r, NULL);
+    }
+public:
+    void add_column(const std::string& column_title, const std::vector<float>& column_values)
+    {
+        column_names.push_back(column_title);
+        values.push_back(column_values);
+    }
+    void add_row(const std::string& row_title)
+    {
+        row_names.push_back(row_title);
+    }
+    void print(HDC hdc, int x, int y, int w, int h, int col_width, int col_height)
+    {
+        //print row names
+        int y_offset = y + col_height;
+        for (auto it = row_names.begin(); it != row_names.end(); ++it)
+        {
+            print_text(hdc, x, y_offset, col_width, col_height, *it);
+            y_offset += col_height;
+        }
+        //print columns
+        int col_index = 0;
+        int x_offset = x + col_width;
+        for (auto col_it = column_names.begin(); col_it != column_names.end(); ++col_it)
+        {
+            y_offset = y;
+            
+            print_text(hdc, x_offset, y_offset, col_width, col_height, *col_it);
+            for (auto row_it = values[col_index].begin(); row_it != values[col_index].end(); ++row_it)
+            {
+                y_offset += col_height;
+                int v = *row_it;
+                char s[0x10];
+                snprintf(s, _countof(s), "%d", v);
+                print_text(hdc, x_offset, y_offset, col_width, col_height, s);
+            }
+            x_offset += col_width;
+            col_index++;
+        }
+    }
+};
+
+void __stdcall window_overlay_draw2(HDC hdc)
+{
+    if (!brushes_loaded)
+    {
+        br_black = CreateSolidBrush(RGB(32, 32, 32));
+        //br_black = CreateHatchBrush(HS_DIAGCROSS, RGB(32, 32, 32));
+        brushes_loaded = true;
+    }
+
+    //get_player_units(get_player(1));
+
+    RECT r;
+    r.left = 0;
+    r.top = 0;
+    r.right = size_x;
+    r.bottom = size_y;
+    SetBkMode(hdc, TRANSPARENT);
+    FillRect(hdc, &r, br_black);
+    
+    SetTextColor(hdc, RGB(255, 255, 255));
+    char b[0x100];
+    //sprintf(b, "%d players", );
+    //TextOut(hdc, 0, 0, b, strlen(b));
+
+    TABLE t;
+    //resources
+    std::vector<float>carbon;
+    std::vector<float>food;
+    std::vector<float>nova;
+    std::vector<float>ore;
+
+    std::vector<float>carbon_workers;
+    std::vector<float>food_workers;
+    std::vector<float>nova_workers;
+    std::vector<float>ore_workers;
+
+    for (int i = 1; i < (*base_game)->world->player_num; i++)
+    {
+        TRIBE_Player* player = (*base_game)->world->players[i];
+        t.add_row(player->name);
+        
+        food.push_back(player->attributes[0]);
+        carbon.push_back(player->attributes[1]);
+        ore.push_back(player->attributes[2]);
+        nova.push_back(player->attributes[3]);
+
+        int carbon_workers_count = 0;
+        int food_workers_count = 0;
+        int nova_workers_count = 0;
+        int ore_workers_count = 0;
+
+        for (int j = 0; j < player->objects->Number_of_objects; j++)
+        {
+            if (player->objects->List[j]->master_obj->object_group == 58)
+            {
+                switch (player->objects->List[j]->master_obj->id)
+                {
+                case 56:    //fisher
+                case 57:
+                case 120:   //forager
+                case 354:
+                case 122:   //hunter
+                case 216:
+                case 214:   //farmer
+                case 259:
+                case 590:   //herder
+                case 592:
+                    food_workers_count++;
+                    break;
+                case 123:   //carbon collector
+                case 218:
+                    carbon_workers_count++;
+                    break;
+                case 124:   //ore collector
+                case 220:
+                    ore_workers_count++;
+                    break;
+                case 579:   //nova collector
+                case 581:
+                    nova_workers_count++;
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+
+        carbon_workers.push_back(carbon_workers_count);
+        food_workers.push_back(food_workers_count);
+        nova_workers.push_back(nova_workers_count);
+        ore_workers.push_back(ore_workers_count);
+    }
+
+    t.add_column("Carbon", carbon);
+    t.add_column("Food", food);
+    t.add_column("Nova", nova);
+    t.add_column("Ore", ore);
+
+    t.add_column("Carbon workers", carbon_workers);
+    t.add_column("Food workers", food_workers);
+    t.add_column("Nova workers", nova_workers);
+    t.add_column("Ore workers", ore_workers);
+
+    
+    r.left += 5;
+    r.top += 5;
+    r.right -= 5;
+    r.bottom -= 5;
+    t.print(hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, 100, 20);
+
+}
+
+void overlay_switch()
+{
+    if (overlay_ptr)
+    {
+        if (overlay_state)
+        {
+            overlay_off();
+            overlay_state = false;
+        }
+        else
+        {
+            overlay_on();
+            overlay_state = true;
+        }
+    }
+}
+*/
