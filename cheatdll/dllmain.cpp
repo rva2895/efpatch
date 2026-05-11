@@ -282,7 +282,7 @@ void setHooksCC()
     if (cd.keydown)
         setHotkeyHooks();
 
-    //setOverlayHooks();
+    setOverlayHooks();
 
     //setStatusScreenHooks();
 
