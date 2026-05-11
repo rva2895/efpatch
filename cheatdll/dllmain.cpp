@@ -85,6 +85,7 @@
 #include "rms_tokens.h"
 #include "hotkey.h"
 #include "overlay.h"
+#include "prodqueue_overlay.h"
 #include "menu.h"
 #include "localisation.h"
 #include "video.h"
@@ -283,6 +284,7 @@ void setHooksCC()
         setHotkeyHooks();
 
     setOverlayHooks();
+    register_prodqueue_overlay();
 
     //setStatusScreenHooks();
 

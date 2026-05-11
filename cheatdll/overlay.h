@@ -100,7 +100,5 @@ struct TRIBE_Panel_Screen_Overlay
 #pragma pack(pop)
 
 void setOverlayHooks();
-//void overlay_switch();
-
 
 void register_screen_overlay(const TRIBE_Panel_Screen_Overlay_User_Callbacks& user_callbacks);
