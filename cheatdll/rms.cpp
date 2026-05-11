@@ -2,9 +2,6 @@
 #include "rms.h"
 #include "maplist.h"
 
-char** filenames;
-int nFiles;
-
 std::vector<std::wstring> rms_files;
 extern std::map<int, MAP_INFO> map_list;
 

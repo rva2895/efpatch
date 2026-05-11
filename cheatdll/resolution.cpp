@@ -44,10 +44,98 @@ void parseSLP(DRS* x0, DRS* x1, DRS* x2, DRS* target, int id, int x, int y)
     free(new_slp);
 }
 
+int resolution_index_to_replace = -1;
+int resolution_patch_x = -1;
+int resolution_patch_y = -1;
+
+void format_resolution_string(char* s, size_t size, int i, int string_id)
+{
+    if (i == resolution_index_to_replace)
+    {
+        snprintf(s, size, "%d x %d", resolution_patch_x, resolution_patch_y);
+    }
+    else
+    {
+        strlcpy(s, get_string(string_id), size);
+    }
+}
+
+int __stdcall resolution_text_menu(int y_pos, TTextPanel** p_panel, int string_id, TRIBE_Screen_Main_Menu* scr)
+{
+    char str[0x40];
+    format_resolution_string(str, _countof(str), string_id - 9522, string_id);
+    return scr->vfptr->create_text_1(
+        scr,
+        (TPanel*)scr,
+        p_panel,
+        str,
+        470,
+        y_pos,
+        100,
+        30,
+        11,
+        0,
+        1,
+        0);
+}
+
+__declspec(naked) void on_resolution_text_menu() //0050C88B
+{
+    __asm
+    {
+        push    esi
+        lea     eax, [ebp + 2532h]
+        push    eax
+        lea     ecx, [ebx - 1Ch]
+        push    ecx
+        push    edi
+        call    resolution_text_menu
+        mov     ecx, 0050C8B3h
+        jmp     ecx
+    }
+}
+
+int __stdcall resolution_text_config_dlg(int i, int string_id, TribeConfigDialog* scr)
+{
+    char str[0x40];
+    format_resolution_string(str, _countof(str), i, string_id);
+    return TEasy_Panel__create_text6(
+        (TEasy_Panel*)scr,
+        (TPanel*)scr,
+        &scr->sizeTitle[i + 1],
+        str,
+        105,
+        35 * i + 255,
+        100,
+        30,
+        11,
+        0,
+        1,
+        0);
+}
+
+__declspec(naked) void on_resolution_config_dlg() //0045A2CC
+{
+    __asm
+    {
+        sub     eax, edi
+        lea     ebx, [eax + eax * 4 + 0FFh]
+        push    esi
+        push    ebp
+        push    edi
+        call    resolution_text_config_dlg
+        mov     ecx, 0045A2F5h
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 bool patchEXE(int X, int Y) //needs to be completed...
 {
     log("Patching EXE for resolution %dx%d...", X, Y);
+
+    resolution_patch_x = X;
+    resolution_patch_y = Y;
 
     if (Y >= 1024)
     {
@@ -106,6 +194,8 @@ bool patchEXE(int X, int Y) //needs to be completed...
         writeDwordF(0x1D853F, X); //most likely
         writeDwordF(0x1D98E9, X); //likely OK
         //writeDwordF(0x1F6757, X); //not resolution                            voobly
+
+        resolution_index_to_replace = 2;
     }
     else if (Y >= 768)
     {
@@ -198,6 +288,11 @@ bool patchEXE(int X, int Y) //needs to be completed...
         writeDwordF(0x1D98DA, X);
         writeDwordF(0x1D98E9, X + 1);
         //writeDwordF(0x1F6757, X+1); //not res
+
+        resolution_index_to_replace = 1;
+
+        writeNops(0x0045A3DB, 2); //block higher res
+        writeNops(0x0050C994, 2);
     }
     else
     {
@@ -220,6 +315,10 @@ bool patchEXE(int X, int Y) //needs to be completed...
         writeByte(0x00426204, 0x90);
         writeByte(0x004774F5, 0xEB);
     }
+
+    setHook((void*)0x0050C88B, on_resolution_text_menu);
+    setHook((void*)0x0045A2CC, on_resolution_config_dlg);
+
     return true;
 }
 #pragma optimize( "", on )

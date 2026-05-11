@@ -462,6 +462,23 @@ bool check_chat_command(const char* str)
             chat("Invalid object id");
         return true;
     }
+    else if (strstr(str, "/command"))
+    {
+        RGE_Player* player = RGE_Base_Game__get_player(*base_game);
+        RGE_Static_Object* objects[0x100];
+        int count = 0;
+        for (int i = 0; i < player->objects->Number_of_objects; i++)
+        {
+            if (player->objects->List[i]->master_obj->master_type >= 70)
+            {
+                objects[count++] = player->objects->List[i];
+            }
+        }
+        RGE_Command__command_order((RGE_Command*)(*base_game)->world->commands, objects, count, NULL, 10, 10);
+
+        return true;
+    }
+
     /*
     else if (!strcmp(str, "/pathing-stats"))
     {
