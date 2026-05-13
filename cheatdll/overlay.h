@@ -14,10 +14,10 @@ struct panel_size
 
 struct TRIBE_Panel_Screen_Overlay_User_Callbacks
 {
-    void (*render_to_image_buffer)(void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region);
+    RECT (*render_to_image_buffer)(void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region);
     bool (*need_redraw)(void* user_data);
     panel_size (*handle_size)(void* user_data);
-    void* (*create)();
+    void* (*create)(const void* user_init);
     void (*destroy)(void* user_data);
 };
 
@@ -91,7 +91,8 @@ struct TRIBE_Panel_Screen_Overlay
 
     TDrawArea* ImageBuffer;
     RECT ImageRect;
-    RECT ScreenRect;
+    RECT UsedImageRect;
+    RECT UsedScreenRect;
     HRGN image_clip_region;
 
     TRIBE_Panel_Screen_Overlay_User_Callbacks user_callbacks;
@@ -102,4 +103,4 @@ struct TRIBE_Panel_Screen_Overlay
 void setOverlayHooks();
 // void overlay_switch();
 
-void register_screen_overlay(const TRIBE_Panel_Screen_Overlay_User_Callbacks& user_callbacks);
+void register_screen_overlay(const TRIBE_Panel_Screen_Overlay_User_Callbacks& user_callbacks, const void* user_init);

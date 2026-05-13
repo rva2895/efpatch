@@ -1514,7 +1514,7 @@ extern TShape** iconsUnitPtr;
 
 HBRUSH br = CreateSolidBrush(RGB(0, 80, 128));
 
-void test_render_to_image_buffer(void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
+RECT test_render_to_image_buffer(void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
 {
     test_user_data* my_user_data = (test_user_data*)user_data;
 
@@ -1544,11 +1544,13 @@ void test_render_to_image_buffer(void* user_data, TDrawArea* render_area, RECT* 
         TShape__shape_draw(iconsUnitPtr[1], render_area, render_rect->left + 2, render_rect->top + 40, 0, 0);
         TDrawArea__Unlock(render_area, "test overlay");
     }
+
+    return *render_rect;
 }
 
 panel_size test_handle_size(void* user_data)
 {
-    panel_size size = { 500, 10, 800, 210, 300, 300, 100, 100 };
+    panel_size size = { 500, 300, 800, 400, 300, 300, 100, 100 };
     return size;
 }
 
@@ -1564,7 +1566,7 @@ bool test_need_redraw(void* user_data)
         return false;
 }
 
-void* test_create()
+void* test_create(const void* user_init)
 {
     test_user_data* my_user_data = new test_user_data;
     my_user_data->wt = UINT_MAX;
@@ -1586,7 +1588,9 @@ void setTestHook()
     test_overlay_callbacks.need_redraw = test_need_redraw;
     test_overlay_callbacks.create = test_create;
     test_overlay_callbacks.destroy = test_destroy;
-    register_screen_overlay(test_overlay_callbacks);
+    //register_screen_overlay(test_overlay_callbacks, NULL);
+
+    //setHook((void*)0x005DF6C0, (void*)0x004B5BB0);
 
     //writeNops(0x0041AB12, 5);
     //setHook((void*)0x00557C1A, sed_test_obj_gen_oos);

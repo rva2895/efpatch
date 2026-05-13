@@ -337,7 +337,7 @@ struct PQUserData
     bool had_queue;
 };
 
-static void* pq_create()
+static void* pq_create(const void* user_init)
 {
     PQUserData* d = new PQUserData;
     d->had_queue = false;
@@ -378,7 +378,7 @@ static panel_size pq_handle_size(void* user_data)
     return s;
 }
 
-static void pq_render_to_image_buffer(void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
+static RECT pq_render_to_image_buffer(void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
 {
     int panel_w = render_rect->right;
 
@@ -391,6 +391,8 @@ static void pq_render_to_image_buffer(void* user_data, TDrawArea* render_area, R
     collect_techqueue(techs);
     if (!techs.empty())
         draw_techqueue_overlay(render_area, panel_w, techs, clip_region, TECH_ROW_Y);
+
+    return *render_rect;
 }
 
 void register_prodqueue_overlay()
@@ -401,5 +403,5 @@ void register_prodqueue_overlay()
     cb.handle_size            = pq_handle_size;
     cb.create                 = pq_create;
     cb.destroy                = pq_destroy;
-    register_screen_overlay(cb);
+    register_screen_overlay(cb, NULL);
 }

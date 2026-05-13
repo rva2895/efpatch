@@ -11,13 +11,14 @@ void* __fastcall TRIBE_Panel_Screen_Overlay__vector_deleting_destructor(TRIBE_Pa
 void __fastcall TRIBE_Panel_Screen_Overlay__draw(TRIBE_Panel_Screen_Overlay* this_);
 int __fastcall TRIBE_Panel_Screen_Overlay__handle_idle(TRIBE_Panel_Screen_Overlay* this_);
 void __fastcall TRIBE_Panel_Screen_Overlay__get_true_render_rect(TRIBE_Panel_Screen_Overlay* this_, DWORD dummy, RECT* drawRect);
+void __fastcall TRIBE_Panel_Screen_Overlay__set_rect2(TRIBE_Panel_Screen_Overlay* this_, DWORD dummy, int x_in, int y_in, int wid_in, int hgt_in);
 
 const DWORD TRIBE_Panel_Screen_Overlay__vftable[] =
 {
     (DWORD)TRIBE_Panel_Screen_Overlay__vector_deleting_destructor,
     (DWORD)TPanel__setup,
     (DWORD)TPanel__set_rect,
-    (DWORD)TPanel__set_rect2,
+    (DWORD)TRIBE_Panel_Screen_Overlay__set_rect2,
     (DWORD)TPanel__set_color,
     (DWORD)TPanel__set_active,
     0x004557A0,
@@ -129,6 +130,24 @@ void TRIBE_Panel_Screen_Overlay__destroy_image_buffer(TRIBE_Panel_Screen_Overlay
     }
 }
 
+void TRIBE_Panel_Screen_Overlay__create_image_buffer(TRIBE_Panel_Screen_Overlay* this_)
+{
+    if (!this_->ImageBuffer)
+    {
+        this_->ImageBuffer = (TDrawArea*)operator_new_internal(sizeof(TDrawArea));
+
+        char b[0x40];
+        snprintf(b, _countof(b), "overlay draw area %x", this_);
+        TDrawArea__TDrawArea(this_->ImageBuffer, b, 0);
+        TDrawArea__Init(this_->ImageBuffer, this_->render_area->DrawSystem, this_->pnl_wid - 1, this_->pnl_hgt - 1, 0, 0);
+    }
+
+    if (!this_->image_clip_region)
+    {
+        this_->image_clip_region = CreateRectRgn(0, 0, this_->pnl_wid - 1, this_->pnl_hgt - 1);
+    }
+}
+
 void __stdcall TRIBE_Panel_Screen_Overlay__destructor(TRIBE_Panel_Screen_Overlay* this_)
 {
     this_->user_callbacks.destroy(this_->user_data);
@@ -155,24 +174,30 @@ void __fastcall TRIBE_Panel_Screen_Overlay__get_true_render_rect(TRIBE_Panel_Scr
     UNREFERENCED_PARAMETER(dummy);
 
     if (this_->ImageBuffer && this_->render_area && this_->visible && this_->active)
-        *drawRect = this_->ScreenRect;
+        *drawRect = this_->UsedScreenRect;
     else
         *drawRect = this_->render_rect;
+}
+
+void __fastcall TRIBE_Panel_Screen_Overlay__set_rect2(TRIBE_Panel_Screen_Overlay* this_, DWORD dummy, int x_in, int y_in, int wid_in, int hgt_in)
+{
+    TPanel__set_rect2((TPanel*)this_, x_in, y_in, wid_in, hgt_in);
+
+    if (this_->ImageBuffer && (this_->ImageBuffer->Width != (wid_in - 1) || this_->ImageBuffer->Height != (hgt_in - 1)))
+    {
+        TRIBE_Panel_Screen_Overlay__destroy_image_buffer(this_);
+    }
+
+    this_->need_restore = 1;
+    this_->vfptr->set_redraw((TPanel*)this_, 1);
 }
 
 void __fastcall TRIBE_Panel_Screen_Overlay__draw(TRIBE_Panel_Screen_Overlay* this_)
 {
     if (!this_->render_area || !this_->visible || !this_->active)
-    {
-        this_->need_redraw = 0;
         return;
-    }
-    TPanel* v3 = this_->parent_panel;
-    if (v3)
-    {
-        v3->vfptr->draw_rect(v3, &this_->clip_rect);
-        this_->ScreenRect = this_->clip_rect;
-    }
+
+    TRIBE_Panel_Screen_Overlay__create_image_buffer(this_);
 
     ++this_->display_changed_count;
     this_->vfptr->draw_setup((TPanel*)this_, 0);
@@ -180,11 +205,17 @@ void __fastcall TRIBE_Panel_Screen_Overlay__draw(TRIBE_Panel_Screen_Overlay* thi
     if (this_->need_restore)
     {
         TDrawArea__PtrClear(this_->ImageBuffer, &this_->ImageRect, 1);
-        this_->user_callbacks.render_to_image_buffer(this_->user_data, this_->ImageBuffer, &this_->ImageRect, this_->image_clip_region);
+        this_->UsedImageRect = this_->user_callbacks.render_to_image_buffer(this_->user_data, this_->ImageBuffer, &this_->ImageRect, this_->image_clip_region);
+        this_->UsedScreenRect = {
+            this_->render_rect.left + this_->UsedImageRect.left,
+            this_->render_rect.top + this_->UsedImageRect.top,
+            this_->render_rect.left + this_->UsedImageRect.right,
+            this_->render_rect.top + this_->UsedImageRect.bottom
+        };
     }
 
     TDrawArea__SetTrans(this_->ImageBuffer, 1, 1);
-    TDrawArea__Copy(this_->ImageBuffer, this_->render_area, this_->clip_rect.left, this_->clip_rect.top, &this_->ImageRect, 1);
+    TDrawArea__Copy(this_->ImageBuffer, this_->render_area, this_->UsedScreenRect.left, this_->UsedScreenRect.top, &this_->UsedImageRect, 1);
     TDrawArea__SetTrans(this_->ImageBuffer, 0, 1);
 
     this_->need_restore = 0;
@@ -195,9 +226,16 @@ int __fastcall TRIBE_Panel_Screen_Overlay__handle_idle(TRIBE_Panel_Screen_Overla
 {
     TPanel__handle_idle((TPanel*)this_);
 
-    int v2 = (*base_game)->prog_mode;
-    if (v2 != 4 && v2 != 6 && v2 != 7 && v2 != 5)
+    switch ((*base_game)->prog_mode)
+    {
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+        break;
+    default:
         return 0;
+    }
 
     if (this_->user_callbacks.need_redraw(this_->user_data))
     {
@@ -216,12 +254,14 @@ TRIBE_Panel_Screen_Overlay* __stdcall TRIBE_Panel_Screen_Overlay__TRIBE_Panel_Sc
 )
 {
     TPanel__TPanel((TPanel*)this_);
-    this_->vfptr = (TPanelVtbl*)TRIBE_Panel_Screen_Overlay__vftable;
-
     TPanel__setup((TPanel*)this_, render_area_in, parent_panel_in, 0, 0, 0, 0, 0);
+
+    this_->vfptr = (TPanelVtbl*)TRIBE_Panel_Screen_Overlay__vftable;
 
     this_->ImageBuffer = NULL;
     this_->image_clip_region = NULL;
+    this_->UsedImageRect = { 0 };
+    this_->UsedScreenRect = { 0 };
     this_->user_callbacks = { NULL };
     this_->user_data = NULL;
 
@@ -236,18 +276,24 @@ void TRIBE_Panel_Screen_Overlay__register_callbacks(TRIBE_Panel_Screen_Overlay* 
     this_->user_callbacks = user_callbacks;
 }
 
-std::vector<TRIBE_Panel_Screen_Overlay*> created_overlays;
-std::vector<TRIBE_Panel_Screen_Overlay_User_Callbacks> registered_overlays;
+struct overlay_data
+{
+    TRIBE_Panel_Screen_Overlay_User_Callbacks user_callbacks;
+    const void* user_init;
+};
 
-void __stdcall create_overlay_panels(TDrawArea* render_area_in, TRIBE_Screen_Game* game_screen)
+std::vector<TRIBE_Panel_Screen_Overlay*> created_overlays;
+std::vector<overlay_data> registered_overlays;
+
+void __stdcall create_overlay_panels(TRIBE_Screen_Game* game_screen)
 {
     for (auto it = registered_overlays.begin(); it != registered_overlays.end(); ++it)
     {
         TRIBE_Panel_Screen_Overlay* overlay = (TRIBE_Panel_Screen_Overlay*)operator_new_internal(sizeof(TRIBE_Panel_Screen_Overlay));
         created_overlays.push_back(overlay);
-        TRIBE_Panel_Screen_Overlay__TRIBE_Panel_Screen_Overlay(overlay, render_area_in, (TPanel*)game_screen->main_view);
-        TRIBE_Panel_Screen_Overlay__register_callbacks(overlay, *it);
-        overlay->user_data = overlay->user_callbacks.create();
+        TRIBE_Panel_Screen_Overlay__TRIBE_Panel_Screen_Overlay(overlay, game_screen->render_area, (TPanel*)game_screen->main_view);
+        TRIBE_Panel_Screen_Overlay__register_callbacks(overlay, it->user_callbacks);
+        overlay->user_data = overlay->user_callbacks.create(it->user_init);
     }
 }
 
@@ -266,32 +312,28 @@ void __stdcall handle_overlay_size()
     {
         TRIBE_Panel_Screen_Overlay* overlay = *it;
         panel_size size = overlay->user_callbacks.handle_size(overlay);
+
         TPanel__set_positioning((TPanel*)overlay, 7,
             size.left_border_in, size.top_border_in, size.right_border_in, size.bottom_border_in,
             size.min_wid_in, size.max_wid_in, size.min_hgt_in, size.max_hgt_in,
             0, 0, 0, 0);
-
+        
+        overlay->ImageRect = { 0, 0, overlay->pnl_wid - 1, overlay->pnl_hgt - 1 };
         TRIBE_Panel_Screen_Overlay__destroy_image_buffer(overlay);
-        overlay->ImageBuffer = (TDrawArea*)operator_new_internal(sizeof(TDrawArea));
-        TDrawArea__TDrawArea(overlay->ImageBuffer, "overlay draw area", 0);
-        TDrawArea__Init(overlay->ImageBuffer, overlay->render_area->DrawSystem, overlay->pnl_wid-1, overlay->pnl_hgt-1, 0, 0);
-        overlay->ImageRect = { 0, 0, overlay->pnl_wid, overlay->pnl_hgt };
-        overlay->image_clip_region = CreateRectRgn(0, 0, overlay->pnl_wid-1, overlay->pnl_hgt-1);
-
         overlay->need_restore = 1;
     }
 }
 
-__declspec(naked) void on_create_overlay_panels() //004F364F
+__declspec(naked) void on_create_overlay_panels() //004F45C1
 {
     __asm
     {
+        push    ecx
         push    esi
-        push    edx
         call    create_overlay_panels
-        mov     ecx, edi
-        call    TRIBE_Panel_Inven__TRIBE_Panel_Inven
-        mov     ecx, 004F365Ah
+        pop     ecx
+        call    TRIBE_Panel_Time__TRIBE_Panel_Time
+        mov     ecx, 004F45CAh
         jmp     ecx
     }
 }
@@ -319,15 +361,16 @@ __declspec(naked) void on_game_screen_handle_size() //004F6A42
     }
 }
 
-void register_screen_overlay(const TRIBE_Panel_Screen_Overlay_User_Callbacks& user_callbacks)
+void register_screen_overlay(const TRIBE_Panel_Screen_Overlay_User_Callbacks& user_callbacks, const void* user_init)
 {
-    registered_overlays.emplace_back(user_callbacks);
+    overlay_data d = { user_callbacks , user_init };
+    registered_overlays.emplace_back(d);
 }
 
 #pragma optimize( "s", on )
 void setOverlayHooks()
 {
-    setHook((void*)0x004F364F, on_create_overlay_panels);
+    setHook((void*)0x004F45C1, on_create_overlay_panels);
     setHook((void*)0x004F5E9D, on_destroy_overlay_panels);
     setHook((void*)0x004F6A42, on_game_screen_handle_size);
 }

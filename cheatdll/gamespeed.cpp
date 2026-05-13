@@ -278,7 +278,11 @@ int __stdcall check_main_view_redraw(TRIBE_Screen_Game* game_screen, unsigned in
     int result = 0;
     if (isRec())
     {
-        switch ((*comm)->mCommandLog->mReplaySpeed)
+        if (wt_delta)
+        {
+            result = (t - game_screen->last_view_time >= frame_times[frame_time_index]);
+        }
+        else
         {
             result = t - game_screen->last_view_time >= game_screen->view_interval;
         }
