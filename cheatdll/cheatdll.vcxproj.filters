@@ -610,7 +610,7 @@
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
     <ClInclude Include="prodqueue_overlay.h">
-      <Filter>Заголовочные файлы\ui</Filter>
+      <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1164,7 +1164,7 @@
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
     <ClCompile Include="prodqueue_overlay.cpp">
-      <Filter>Файлы исходного кода\ui</Filter>
+      <Filter>Файлы исходного кода</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
