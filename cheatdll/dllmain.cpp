@@ -285,6 +285,7 @@ void setHooksCC()
 
     setOverlayHooks();
     register_prodqueue_overlay();
+    register_spectator_overlay();
 
     //setStatusScreenHooks();
 
