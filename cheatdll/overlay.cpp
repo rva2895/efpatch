@@ -150,7 +150,7 @@ void TRIBE_Panel_Screen_Overlay__create_image_buffer(TRIBE_Panel_Screen_Overlay*
 
 void __stdcall TRIBE_Panel_Screen_Overlay__destructor(TRIBE_Panel_Screen_Overlay* this_)
 {
-    this_->user_callbacks.destroy(this_->user_data);
+    this_->user_callbacks.destroy(this_, this_->user_data);
 
     this_->vfptr = (TPanelVtbl*)TRIBE_Panel_Screen_Overlay__vftable;
 
@@ -205,7 +205,13 @@ void __fastcall TRIBE_Panel_Screen_Overlay__draw(TRIBE_Panel_Screen_Overlay* thi
     if (this_->need_restore)
     {
         TDrawArea__PtrClear(this_->ImageBuffer, &this_->ImageRect, 1);
-        this_->UsedImageRect = this_->user_callbacks.render_to_image_buffer(this_->user_data, this_->ImageBuffer, &this_->ImageRect, this_->image_clip_region);
+        this_->UsedImageRect = this_->user_callbacks.render_to_image_buffer(
+            this_,
+            this_->user_data,
+            this_->ImageBuffer,
+            &this_->ImageRect,
+            this_->image_clip_region);
+
         this_->UsedScreenRect = {
             this_->render_rect.left + this_->UsedImageRect.left,
             this_->render_rect.top + this_->UsedImageRect.top,
@@ -237,7 +243,7 @@ int __fastcall TRIBE_Panel_Screen_Overlay__handle_idle(TRIBE_Panel_Screen_Overla
         return 0;
     }
 
-    if (this_->user_callbacks.need_redraw(this_->user_data))
+    if (this_->active && this_->user_callbacks.need_redraw(this_, this_->user_data))
     {
         this_->vfptr->set_redraw((TPanel*)this_, 1);
         this_->parent_panel->vfptr->set_redraw(this_->parent_panel, 1);
@@ -250,7 +256,9 @@ int __fastcall TRIBE_Panel_Screen_Overlay__handle_idle(TRIBE_Panel_Screen_Overla
 TRIBE_Panel_Screen_Overlay* __stdcall TRIBE_Panel_Screen_Overlay__TRIBE_Panel_Screen_Overlay(
     TRIBE_Panel_Screen_Overlay* this_,
     TDrawArea* render_area_in,
-    TPanel* parent_panel_in
+    TPanel* parent_panel_in,
+    const TRIBE_Panel_Screen_Overlay_User_Callbacks& user_callbacks,
+    const void* user_init
 )
 {
     TPanel__TPanel((TPanel*)this_);
@@ -268,12 +276,10 @@ TRIBE_Panel_Screen_Overlay* __stdcall TRIBE_Panel_Screen_Overlay__TRIBE_Panel_Sc
     this_->vfptr->set_active((TPanel*)this_, 1);
     this_->vfptr->set_redraw((TPanel*)this_, 1);
 
-    return this_;
-}
-
-void TRIBE_Panel_Screen_Overlay__register_callbacks(TRIBE_Panel_Screen_Overlay* this_, const TRIBE_Panel_Screen_Overlay_User_Callbacks& user_callbacks)
-{
     this_->user_callbacks = user_callbacks;
+    this_->user_data = this_->user_callbacks.create(this_, user_init);
+
+    return this_;
 }
 
 struct overlay_data
@@ -291,9 +297,12 @@ void __stdcall create_overlay_panels(TRIBE_Screen_Game* game_screen)
     {
         TRIBE_Panel_Screen_Overlay* overlay = (TRIBE_Panel_Screen_Overlay*)operator_new_internal(sizeof(TRIBE_Panel_Screen_Overlay));
         created_overlays.push_back(overlay);
-        TRIBE_Panel_Screen_Overlay__TRIBE_Panel_Screen_Overlay(overlay, game_screen->render_area, (TPanel*)game_screen->main_view);
-        TRIBE_Panel_Screen_Overlay__register_callbacks(overlay, it->user_callbacks);
-        overlay->user_data = overlay->user_callbacks.create(it->user_init);
+        TRIBE_Panel_Screen_Overlay__TRIBE_Panel_Screen_Overlay(
+            overlay,
+            game_screen->render_area,
+            (TPanel*)game_screen->main_view,
+            it->user_callbacks,
+            it->user_init);
     }
 }
 
@@ -311,7 +320,7 @@ void __stdcall handle_overlay_size()
     for (auto it = created_overlays.begin(); it != created_overlays.end(); ++it)
     {
         TRIBE_Panel_Screen_Overlay* overlay = *it;
-        panel_size size = overlay->user_callbacks.handle_size(overlay);
+        panel_size size = overlay->user_callbacks.handle_size(overlay, overlay->user_data);
 
         TPanel__set_positioning((TPanel*)overlay, 7,
             size.left_border_in, size.top_border_in, size.right_border_in, size.bottom_border_in,
@@ -321,6 +330,14 @@ void __stdcall handle_overlay_size()
         overlay->ImageRect = { 0, 0, overlay->pnl_wid - 1, overlay->pnl_hgt - 1 };
         TRIBE_Panel_Screen_Overlay__destroy_image_buffer(overlay);
         overlay->need_restore = 1;
+    }
+}
+
+void overlay_hotkey(int hotkey)
+{
+    for (auto it = created_overlays.begin(); it != created_overlays.end(); ++it)
+    {
+        (*it)->user_callbacks.handle_hotkey(*it, (*it)->user_data, hotkey);
     }
 }
 

@@ -3,6 +3,7 @@
 #include "farm.h"
 #include "harbor.h"
 #include "playeroptions.h"
+#include "overlay.h"
 
 const char hotkeys[] = {
      1,  7,  6, //monitor
@@ -111,7 +112,7 @@ void __stdcall TRIBE_Hotkey_Handler__setup_new(TRIBE_Hotkey_Handler* hh_t, TRIBE
     RGE_Hotkey_Handler* hh = (RGE_Hotkey_Handler*)hh_t;
     RGE_Hotkey_Handler__set_num_hotkey_groups(hh, set_ef_hotkeys ? 20 : 19);
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 0, 17);   //unit commands
-    RGE_Hotkey_Handler__set_hotkey_groups(hh, 1, set_ef_hotkeys ? 99 : 98); //game commands
+    RGE_Hotkey_Handler__set_hotkey_groups(hh, 1, set_ef_hotkeys ? 101 : 100); //game commands
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 2, 16 + NUM_SAVED_PLAYER_LOC * 2);
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 3, set_ef_hotkeys ? 18 : 17); //build economic
     RGE_Hotkey_Handler__set_hotkey_groups(hh, 4, 7);
@@ -205,6 +206,9 @@ void __stdcall TRIBE_Hotkey_Handler__default_hotkeys_add(TRIBE_Hotkey_Handler* h
 
     for (int i = 0; i < NUM_SAVED_PLAYER_LOC * 2; i++)      //camera hotkeys
         TRIBE_Hotkey_Handler__setDefaultHotkey(hh, 2, 16 + i);
+
+    TRIBE_Hotkey_Handler__setDefaultHotkey(hh, 1, 0x63);    //toggle screen overlay
+    TRIBE_Hotkey_Handler__setDefaultHotkey(hh, 1, 0x64);    //next overlay view
 }
 
 void __stdcall TRIBE_Hotkey_Handler__init_hotkey_names_add(TRIBE_Hotkey_Handler* hh_t)
@@ -253,6 +257,9 @@ void __stdcall TRIBE_Hotkey_Handler__init_hotkey_names_add(TRIBE_Hotkey_Handler*
 
     for (int i = 0; i < NUM_SAVED_PLAYER_LOC * 2; i++)          //camera hotkeys
         RGE_Hotkey_Handler__set_hotkey_name(hh, 2, 16 + i, 4365 + i);
+
+    RGE_Hotkey_Handler__set_hotkey_name(hh, 1, 0x63, 4381);     //toggle screen overlay
+    RGE_Hotkey_Handler__set_hotkey_name(hh, 1, 0x64, 4382);     //next overlay view
 }
 
 void __stdcall TRIBE_Hotkey_Handler__setDefaultHotkey_new(TRIBE_Hotkey_Handler* hh_t, int groupID, int hotkey)
@@ -507,6 +514,12 @@ void __stdcall TRIBE_Hotkey_Handler__setDefaultHotkey_new(TRIBE_Hotkey_Handler* 
             break;
         case 0x62:
             RGE_Hotkey_Handler__set_hotkey(hh, 1, 0x62, 'R', 1, 0, 1, 4167);
+            break;
+        case 0x63:
+            RGE_Hotkey_Handler__set_hotkey(hh, 1, 0x63, VK_F8, 0, 0, 0, -1);
+            break;
+        case 0x64:
+            RGE_Hotkey_Handler__set_hotkey(hh, 1, 0x64, 'Q', 0, 1, 0, 4702);
             break;
         default:
             return;
@@ -1124,6 +1137,14 @@ bool __stdcall game_hotkey_dispatch(int hotkey, TRIBE_Screen_Game* this_)
         break;
     case 0x62: //harbor
         id_to_search = HARBOR_ID_COMPLETE;
+        break;
+    case 0x63: //toggle overlay
+        overlay_hotkey(0x63);
+        return true;
+        break;
+    case 0x64: //next overlay view
+        overlay_hotkey(0x64);
+        return true;
         break;
     default:
         break;

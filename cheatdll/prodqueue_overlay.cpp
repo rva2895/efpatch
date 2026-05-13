@@ -337,19 +337,19 @@ struct PQUserData
     bool had_queue;
 };
 
-static void* pq_create(const void* user_init)
+static void* pq_create(TRIBE_Panel_Screen_Overlay* panel, const void* user_init)
 {
     PQUserData* d = new PQUserData;
     d->had_queue = false;
     return d;
 }
 
-static void pq_destroy(void* user_data)
+static void pq_destroy(TRIBE_Panel_Screen_Overlay* panel, void* user_data)
 {
     delete (PQUserData*)user_data;
 }
 
-static bool pq_need_redraw(void* user_data)
+static bool pq_need_redraw(TRIBE_Panel_Screen_Overlay* panel, void* user_data)
 {
     PQUserData* d = (PQUserData*)user_data;
     std::vector<PQEntry> units;
@@ -362,7 +362,7 @@ static bool pq_need_redraw(void* user_data)
     return needs_redraw;
 }
 
-static panel_size pq_handle_size(void* user_data)
+static panel_size pq_handle_size(TRIBE_Panel_Screen_Overlay* panel, void* user_data)
 {
     // Span full parent width at top of game view.
     // Mode 7 (L+T+R anchored): left/right borders = 0 (flush to parent edges).
@@ -378,7 +378,7 @@ static panel_size pq_handle_size(void* user_data)
     return s;
 }
 
-static RECT pq_render_to_image_buffer(void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
+static RECT pq_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* panel, void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
 {
     int panel_w = render_rect->right;
 
@@ -395,12 +395,31 @@ static RECT pq_render_to_image_buffer(void* user_data, TDrawArea* render_area, R
     return *render_rect;
 }
 
+static void pq_handle_hotkey(TRIBE_Panel_Screen_Overlay* panel, void* user_data, int hotkey)
+{
+    switch (hotkey)
+    {
+    case 0x63:
+        if (panel->active)
+            panel->vfptr->set_active((TPanel*)panel, 0);
+        else
+            panel->vfptr->set_active((TPanel*)panel, 1);
+
+        break;
+    case 0x64:
+        break;
+    default:
+        break;
+    }
+}
+
 void register_prodqueue_overlay()
 {
     TRIBE_Panel_Screen_Overlay_User_Callbacks cb;
     cb.render_to_image_buffer = pq_render_to_image_buffer;
     cb.need_redraw            = pq_need_redraw;
     cb.handle_size            = pq_handle_size;
+    cb.handle_hotkey          = pq_handle_hotkey;
     cb.create                 = pq_create;
     cb.destroy                = pq_destroy;
     register_screen_overlay(cb, NULL);
