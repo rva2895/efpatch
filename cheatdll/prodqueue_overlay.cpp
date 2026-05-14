@@ -356,8 +356,6 @@ static void* pq_create(TRIBE_Panel_Screen_Overlay* panel, const void* user_init)
     d->had_queue = false;
     return d;
 }
-static void pq_destroy(TRIBE_Panel_Screen_Overlay* /*panel*/, void* user_data) { delete (PQUserData*)user_data; }
-
 static void pq_destroy(TRIBE_Panel_Screen_Overlay* panel, void* user_data)
 {
     delete (PQUserData*)user_data;

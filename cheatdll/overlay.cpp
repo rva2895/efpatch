@@ -229,11 +229,10 @@ void __fastcall TRIBE_Panel_Screen_Overlay__draw(TRIBE_Panel_Screen_Overlay* thi
 }
 
 // ---------------------------------------------------------------------------
-// Input polling — called every idle tick.
-// Uses edge-detection so each input event fires exactly once.
-// F8       (VK_F8  = 0x77) → hotkey 0x63
-// Alt+Q    (VK_MENU + 'Q') → hotkey 0x64
-// LMB click → dispatched as handle_mouse_down to each overlay
+// Supplemental hotkey polling — called every idle tick.
+// Covers cases where the game's hotkey pipeline is not active.
+// F8    → hotkey 0x63 (toggle overlay)
+// Alt+Q → hotkey 0x64 (cycle view)
 // ---------------------------------------------------------------------------
 static void overlay_poll_hotkeys()
 {
@@ -268,9 +267,7 @@ int __fastcall TRIBE_Panel_Screen_Overlay__handle_idle(TRIBE_Panel_Screen_Overla
         return 0;
     }
 
-    // Poll hotkeys; static edge-detection inside prevents duplicate fires per frame
     overlay_poll_hotkeys();
-
 
     if (this_->active && this_->user_callbacks.need_redraw(this_, this_->user_data))
     {
