@@ -12,13 +12,16 @@ struct panel_size
     int max_hgt_in;
 };
 
+struct TRIBE_Panel_Screen_Overlay;
+
 struct TRIBE_Panel_Screen_Overlay_User_Callbacks
 {
-    RECT (*render_to_image_buffer)(void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region);
-    bool (*need_redraw)(void* user_data);
-    panel_size (*handle_size)(void* user_data);
-    void* (*create)(const void* user_init);
-    void (*destroy)(void* user_data);
+    RECT (*render_to_image_buffer)(TRIBE_Panel_Screen_Overlay* panel, void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region);
+    bool (*need_redraw)(TRIBE_Panel_Screen_Overlay* panel, void* user_data);
+    panel_size (*handle_size)(TRIBE_Panel_Screen_Overlay* panel, void* user_data);
+    void (*handle_hotkey)(TRIBE_Panel_Screen_Overlay* panel, void* user_data, int hotkey);
+    void* (*create)(TRIBE_Panel_Screen_Overlay* panel, const void* user_init);
+    void (*destroy)(TRIBE_Panel_Screen_Overlay* panel, void* user_data);
 };
 
 #pragma pack(push, 8)
@@ -104,3 +107,4 @@ void setOverlayHooks();
 // void overlay_switch();
 
 void register_screen_overlay(const TRIBE_Panel_Screen_Overlay_User_Callbacks& user_callbacks, const void* user_init);
+void overlay_hotkey(int hotkey);
