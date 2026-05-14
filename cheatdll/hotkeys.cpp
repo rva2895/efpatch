@@ -1141,7 +1141,8 @@ bool __stdcall game_hotkey_dispatch(int hotkey, TRIBE_Screen_Game* this_)
     case 0x63: //toggle overlay
         overlay_hotkey(0x63);
         return true;
-    case 0x64: //next overlay view (Alt+Q; WM_SYSKEYDOWN, handled by overlay_poll_hotkeys)
+    case 0x64: //next overlay view
+        overlay_hotkey(0x64);
         return true;
     default:
         break;

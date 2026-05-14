@@ -202,6 +202,23 @@ void draw_prodqueue_overlay(TDrawArea* da, int cell_x, int cell_w,
                    ? max(cell_x, cell_x + cell_w - n * cell_w_i - MARGIN_R)
                    : cell_x;
 
+    // Draw SLP sprites first so GDI text (count, bar) is composited on top.
+    if (has_slp && TDrawArea__Lock(da, "pq_unit", 1))
+    {
+        for (int i = 0; i < n; i++)
+        {
+            RGE_Master_Static_Object* mo = player->master_objects[entries[i].master_id];
+            if (!mo) continue;
+            __int16 frame = mo->button_pict;
+            if (frame < 0 || frame >= unit_slp->Num_Shapes) continue;
+            Shape_Info* si = &unit_slp->shape_info[frame];
+            TShape__shape_draw(unit_slp, da,
+                origin_x + i * cell_w_i + si->Hotspot_X,
+                row_y + si->Hotspot_Y, frame, NULL);
+        }
+        TDrawArea__Unlock(da, "pq_unit");
+    }
+
     if (TDrawArea__GetDc(da, "pq_unit"))
     {
         HDC hdc = da->DrawDc;
@@ -244,22 +261,6 @@ void draw_prodqueue_overlay(TDrawArea* da, int cell_x, int cell_w,
         SelectClipRgn(hdc, 0);
         TDrawArea__ReleaseDc(da, "pq_unit");
     }
-
-    if (has_slp && TDrawArea__Lock(da, "pq_unit", 1))
-    {
-        for (int i = 0; i < n; i++)
-        {
-            RGE_Master_Static_Object* mo = player->master_objects[entries[i].master_id];
-            if (!mo) continue;
-            __int16 frame = mo->button_pict;
-            if (frame < 0 || frame >= unit_slp->Num_Shapes) continue;
-            Shape_Info* si = &unit_slp->shape_info[frame];
-            TShape__shape_draw(unit_slp, da,
-                origin_x + i * cell_w_i + si->Hotspot_X,
-                row_y + si->Hotspot_Y, frame, NULL);
-        }
-        TDrawArea__Unlock(da, "pq_unit");
-    }
 }
 
 // ---------------------------------------------------------------------------
@@ -284,6 +285,21 @@ void draw_techqueue_overlay(TDrawArea* da, int cell_x, int cell_w,
     int origin_x = right_align
                    ? max(cell_x, cell_x + cell_w - n * cell_w_i - MARGIN_R)
                    : cell_x;
+
+    // Draw SLP sprites first so GDI text (progress %, bar) is composited on top.
+    if (has_slp && TDrawArea__Lock(da, "pq_tech", 1))
+    {
+        for (int i = 0; i < n; i++)
+        {
+            __int16 frame = entries[i].icon;
+            if (frame < 0 || frame >= tech_slp->Num_Shapes) continue;
+            Shape_Info* si = &tech_slp->shape_info[frame];
+            TShape__shape_draw(tech_slp, da,
+                origin_x + i * cell_w_i + si->Hotspot_X,
+                row_y + si->Hotspot_Y, frame, NULL);
+        }
+        TDrawArea__Unlock(da, "pq_tech");
+    }
 
     if (TDrawArea__GetDc(da, "pq_tech"))
     {
@@ -326,20 +342,6 @@ void draw_techqueue_overlay(TDrawArea* da, int cell_x, int cell_w,
         SelectObject(hdc, old_font);
         SelectClipRgn(hdc, 0);
         TDrawArea__ReleaseDc(da, "pq_tech");
-    }
-
-    if (has_slp && TDrawArea__Lock(da, "pq_tech", 1))
-    {
-        for (int i = 0; i < n; i++)
-        {
-            __int16 frame = entries[i].icon;
-            if (frame < 0 || frame >= tech_slp->Num_Shapes) continue;
-            Shape_Info* si = &tech_slp->shape_info[frame];
-            TShape__shape_draw(tech_slp, da,
-                origin_x + i * cell_w_i + si->Hotspot_X,
-                row_y + si->Hotspot_Y, frame, NULL);
-        }
-        TDrawArea__Unlock(da, "pq_tech");
     }
 }
 

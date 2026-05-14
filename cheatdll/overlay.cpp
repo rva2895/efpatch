@@ -228,18 +228,6 @@ void __fastcall TRIBE_Panel_Screen_Overlay__draw(TRIBE_Panel_Screen_Overlay* thi
     this_->vfptr->draw_finish((TPanel*)this_);
 }
 
-// Alt+Q (WM_SYSKEYDOWN) does not reach the game's hotkey pipeline, so poll it directly.
-// F8 is handled via game_hotkey_dispatch in hotkeys.cpp.
-static void overlay_poll_hotkeys()
-{
-    static bool s_altq_down = false;
-
-    bool altq_now = (GetAsyncKeyState(VK_MENU) & 0x8000) != 0
-                 && (GetAsyncKeyState('Q')      & 0x8000) != 0;
-
-    if (altq_now && !s_altq_down) overlay_hotkey(0x64);
-    s_altq_down = altq_now;
-}
 
 int __fastcall TRIBE_Panel_Screen_Overlay__handle_idle(TRIBE_Panel_Screen_Overlay* this_)
 {
@@ -255,8 +243,6 @@ int __fastcall TRIBE_Panel_Screen_Overlay__handle_idle(TRIBE_Panel_Screen_Overla
     default:
         return 0;
     }
-
-    overlay_poll_hotkeys();
 
     if (this_->active && this_->user_callbacks.need_redraw(this_, this_->user_data))
     {
