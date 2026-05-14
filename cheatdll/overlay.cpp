@@ -228,29 +228,6 @@ void __fastcall TRIBE_Panel_Screen_Overlay__draw(TRIBE_Panel_Screen_Overlay* thi
     this_->vfptr->draw_finish((TPanel*)this_);
 }
 
-// ---------------------------------------------------------------------------
-// Supplemental hotkey polling — called every idle tick.
-// Covers cases where the game's hotkey pipeline is not active.
-// F8    → hotkey 0x63 (toggle overlay)
-// Alt+Q → hotkey 0x64 (cycle view)
-// ---------------------------------------------------------------------------
-static void overlay_poll_hotkeys()
-{
-    static bool s_f8_down   = false;
-    static bool s_altq_down = false;
-
-    bool f8_now   = (GetAsyncKeyState(VK_F8)   & 0x8000) != 0;
-    bool alt_now  = (GetAsyncKeyState(VK_MENU)  & 0x8000) != 0;
-    bool q_now    = (GetAsyncKeyState('Q')       & 0x8000) != 0;
-    bool altq_now = alt_now && q_now;
-    if (f8_now && !s_f8_down)
-        overlay_hotkey(0x63);
-    s_f8_down = f8_now;
-
-    if (altq_now && !s_altq_down)
-        overlay_hotkey(0x64);
-    s_altq_down = altq_now;
-}
 
 int __fastcall TRIBE_Panel_Screen_Overlay__handle_idle(TRIBE_Panel_Screen_Overlay* this_)
 {
@@ -266,8 +243,6 @@ int __fastcall TRIBE_Panel_Screen_Overlay__handle_idle(TRIBE_Panel_Screen_Overla
     default:
         return 0;
     }
-
-    overlay_poll_hotkeys();
 
     if (this_->active && this_->user_callbacks.need_redraw(this_, this_->user_data))
     {
