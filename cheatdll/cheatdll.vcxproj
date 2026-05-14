@@ -325,6 +325,8 @@
     <ClInclude Include="objpanel.h" />
     <ClInclude Include="oos.h" />
     <ClInclude Include="prodqueue_overlay.h" />
+    <ClInclude Include="spectator_overlay.h" />
+    <ClInclude Include="resources_overlay.h" />
     <ClInclude Include="overlay.h" />
     <ClInclude Include="palette.h" />
     <ClInclude Include="palfile.h" />
@@ -526,6 +528,8 @@
     <ClCompile Include="objpanel.cpp" />
     <ClCompile Include="objpaneldraw.cpp" />
     <ClCompile Include="prodqueue_overlay.cpp" />
+    <ClCompile Include="spectator_overlay.cpp" />
+    <ClCompile Include="resources_overlay.cpp" />
     <ClCompile Include="oos.cpp" />
     <ClCompile Include="overlay.cpp" />
     <ClCompile Include="palette.cpp" />
