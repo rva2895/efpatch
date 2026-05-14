@@ -1138,14 +1138,9 @@ bool __stdcall game_hotkey_dispatch(int hotkey, TRIBE_Screen_Game* this_)
     case 0x62: //harbor
         id_to_search = HARBOR_ID_COMPLETE;
         break;
-    case 0x63: //toggle overlay
-        overlay_hotkey(0x63);
+    case 0x63: //toggle overlay (dispatched via overlay_poll_hotkeys)
+    case 0x64: //next overlay view (dispatched via overlay_poll_hotkeys)
         return true;
-        break;
-    case 0x64: //next overlay view
-        overlay_hotkey(0x64);
-        return true;
-        break;
     default:
         break;
     }
