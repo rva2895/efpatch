@@ -254,6 +254,7 @@
     <ClInclude Include="core.h" />
     <ClInclude Include="crashreporter.h" />
     <ClInclude Include="create_object.h" />
+    <ClInclude Include="databank.h" />
     <ClInclude Include="dataload.h" />
     <ClInclude Include="drs.h" />
     <ClInclude Include="drsfile.h" />
@@ -441,6 +442,7 @@
     <ClCompile Include="core.cpp" />
     <ClCompile Include="crashreporter.cpp" />
     <ClCompile Include="create_object.cpp" />
+    <ClCompile Include="databank.cpp" />
     <ClCompile Include="dataload.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
