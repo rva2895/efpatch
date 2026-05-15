@@ -2,26 +2,27 @@
 #include "overlay.h"
 #include <windows.h>
 
-// Layout mode passed to each view's render callback.
 enum SpectatorLayout { SP_FULL = 0, SP_COMPACT = 1 };
 
-// A view that can be shown in the spectator panel.
-// Register views with register_spectator_view(); the container handles
-// the panel lifecycle, player layout, and name/stripe header.
-struct SpectatorViewDef {
-    const char* label;      // Short name shown in the tab strip (e.g. "Queue")
-    int         full_h;     // Content cell height (px) for SP_FULL layout
-    int         compact_h;  // Content cell height (px) for SP_COMPACT layout
+// Container batches Lock/Unlock and GetDc/ReleaseDc across all cells, so
+// views must NOT acquire them and must do only SLP work on SP_PASS_SLP,
+// only GDI work (via da->DrawDc) on SP_PASS_GDI.
+enum SpectatorPass { SP_PASS_SLP = 0, SP_PASS_GDI = 1 };
 
-    // Draw one player's content cell into |da|.
-    // (x, y) is the top-left of the content area (below the name header).
-    // |w| is the cell width minus the colour stripe.
+struct SpectatorViewDef {
+    const char* label;
+    int         full_h;
+    int         compact_h;
+
     void (*render)(TDrawArea* da, HRGN clip,
                    TRIBE_Player* player, int player_idx,
-                   int x, int y, int w, SpectatorLayout layout);
+                   int x, int y, int w,
+                   SpectatorLayout layout, SpectatorPass pass);
 
-    // Return true when game state has changed and a redraw is needed.
     bool (*need_redraw)();
+
+    // Optional: pre-collect per-player data once per frame, reused by both passes.
+    void (*begin_frame)();
 };
 
 // Register the spectator container panel.

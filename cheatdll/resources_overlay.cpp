@@ -98,16 +98,15 @@ static bool res_need_redraw()
 
 static void res_render(TDrawArea* da, HRGN /*clip*/,
                        TRIBE_Player* player, int /*player_idx*/,
-                       int x, int y, int w, SpectatorLayout /*layout*/)
+                       int x, int y, int w,
+                       SpectatorLayout /*layout*/, SpectatorPass pass)
 {
+    if (pass != SP_PASS_GDI) return;
     if (!player || !player->attributes) return;
-    if (!TDrawArea__GetDc(da, "sp_res")) return;
+    HDC hdc = da->DrawDc;
+    if (!hdc) return;
 
     ensure_res_brushes();
-
-    HDC hdc = da->DrawDc;
-    SetBkMode(hdc, TRANSPARENT);
-    HGDIOBJ old_font = SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
 
     // Right-align all N_CARDS cards within [x, x+w]
     int strip_w = N_CARDS * CARD_W;
@@ -139,9 +138,6 @@ static void res_render(TDrawArea* da, HRGN /*clip*/,
                       s_br_icon_bg[4], POP_COLOR,
                       "P", buf);
     }
-
-    SelectObject(hdc, old_font);
-    TDrawArea__ReleaseDc(da, "sp_res");
 }
 
 // ---------------------------------------------------------------------------
@@ -149,10 +145,11 @@ static void res_render(TDrawArea* da, HRGN /*clip*/,
 // ---------------------------------------------------------------------------
 static const SpectatorViewDef s_res_view_def = {
     "Resources",
-    ROW_H_RES,   // full_h
-    ROW_H_RES,   // compact_h – matches queue view so no resize on tab switch
+    ROW_H_RES,
+    ROW_H_RES,        // matches queue view's compact_h so no resize on tab switch
     res_render,
-    res_need_redraw
+    res_need_redraw,
+    NULL
 };
 
 void register_resources_spectator_view()

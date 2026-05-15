@@ -69,6 +69,7 @@ HBRUSH get_player_brush(int idx)
 // ---------------------------------------------------------------------------
 static std::vector<SpectatorViewDef> s_views;
 static int s_active = 0;
+static unsigned int s_view_generation = 0;
 
 // Declared in overlay.cpp; triggers panel resize for all registered overlays.
 extern void __stdcall handle_overlay_size();
@@ -82,6 +83,7 @@ void spectator_next_view()
 {
     if ((int)s_views.size() <= 1) return;
     s_active = (s_active + 1) % (int)s_views.size();
+    ++s_view_generation;
     handle_overlay_size();
 }
 
@@ -102,17 +104,11 @@ static int current_cell_h()
 
 static int current_tab_h() { return TAB_H; }  // always shown
 
-// ---------------------------------------------------------------------------
-// Tab strip
-// ---------------------------------------------------------------------------
-// x = left edge of the content column, w = column width
-static void draw_tab_strip(TDrawArea* da, int x, int w, int y, int h)
+// Caller owns the HDC and has set SetBkMode(TRANSPARENT).
+static void draw_tab_strip(HDC hdc, int x, int w, int y, int h)
 {
-    if (s_views.empty() || !TDrawArea__GetDc(da, "sp_tab")) return;
+    if (s_views.empty() || !hdc) return;
 
-    HDC hdc = da->DrawDc;
-
-    // Single tab: background colour is unique to the active view
     COLORREF bg_col = (s_active < (int)(sizeof(TAB_VIEW_BG) / sizeof(TAB_VIEW_BG[0])))
                       ? TAB_VIEW_BG[s_active] : RGB(40, 40, 60);
     HBRUSH bg = CreateSolidBrush(bg_col);
@@ -120,24 +116,26 @@ static void draw_tab_strip(TDrawArea* da, int x, int w, int y, int h)
     FillRect(hdc, &rtab, bg);
     DeleteObject(bg);
 
-    SetBkMode(hdc, TRANSPARENT);
     HGDIOBJ old_font = SelectObject(hdc, get_bold_font());
     SetTextColor(hdc, RGB(255, 255, 255));
     DrawTextA(hdc, s_views[s_active].label, -1, &rtab, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     SelectObject(hdc, old_font);
-
-    TDrawArea__ReleaseDc(da, "sp_tab");
 }
 
 // ---------------------------------------------------------------------------
 // Overlay callbacks
 // ---------------------------------------------------------------------------
-struct SpectatorUserData { bool had_content; };
+struct SpectatorUserData
+{
+    bool had_content;
+    unsigned int seen_view_generation;
+};
 
 static void* sp_create(TRIBE_Panel_Screen_Overlay* /*panel*/, const void* /*user_init*/)
 {
     SpectatorUserData* d = new SpectatorUserData;
     d->had_content = false;
+    d->seen_view_generation = s_view_generation;
     return d;
 }
 
@@ -147,6 +145,12 @@ static bool sp_need_redraw(TRIBE_Panel_Screen_Overlay* /*panel*/, void* user_dat
 {
     if (!isRec() || s_views.empty()) return false;
     SpectatorUserData* d = (SpectatorUserData*)user_data;
+    if (d->seen_view_generation != s_view_generation)
+    {
+        d->seen_view_generation = s_view_generation;
+        d->had_content = true;
+        return true;
+    }
     bool any   = s_views[s_active].need_redraw();
     bool needs = any || d->had_content;
     d->had_content = any;
@@ -167,6 +171,25 @@ static panel_size sp_handle_size(TRIBE_Panel_Screen_Overlay* /*panel*/, void* /*
     return s;
 }
 
+static void draw_player_header(HDC hdc, int col_x, int col_w, int cell_y, int cell_h,
+                                TRIBE_Player* player, int player_idx)
+{
+    RECT rstripe = { col_x + col_w - STRIPE_W, cell_y, col_x + col_w, cell_y + cell_h };
+    FillRect(hdc, &rstripe, get_player_brush(player_idx));
+
+    const char* name = (player->name && player->name[0]) ? player->name : NULL;
+    char name_buf[64];
+    if (!name) { snprintf(name_buf, sizeof(name_buf), "Player %d", player_idx); name = name_buf; }
+
+    SetTextColor(hdc, get_player_color(player_idx));
+    HGDIOBJ old_font = SelectObject(hdc, get_bold_font());
+    int content_w = col_w - STRIPE_W;
+    RECT rname = { col_x + 3, cell_y, col_x + content_w - 2, cell_y + LABEL_H };
+    DrawTextA(hdc, name, -1, &rname,
+              DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+    SelectObject(hdc, old_font);
+}
+
 static RECT sp_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* /*panel*/, void* /*user_data*/,
                                        TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
 {
@@ -184,46 +207,57 @@ static RECT sp_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* /*panel*/, voi
     int col_w     = min(panel_w, SP_MAX_COL_W);
     int col_x     = panel_w - col_w;  // right-align: push content to right edge
     int cell_step = cell_h + SP_CELL_GAP;
+    int content_x = col_x;
+    int content_w = col_w - STRIPE_W;
 
-    draw_tab_strip(render_area, col_x, col_w, 0, tab_h);
+    if (view.begin_frame) view.begin_frame();
 
-    for (int i = 1; i < pnum; i++)
+    if (TDrawArea__Lock(render_area, "sp_slp", 1))
     {
-        TRIBE_Player* player = (*base_game)->world->players[i];
-        if (!player) continue;
-
-        int cell_y = tab_h + (i - 1) * cell_step;
-
-        // Stripe on RIGHT edge; content fills left portion
-        int content_x = col_x;
-        int content_w = col_w - STRIPE_W;
-
-        // Header: player name label + colour stripe on right edge
-        if (TDrawArea__GetDc(render_area, "sp_hdr"))
+        for (int i = 1; i < pnum; i++)
         {
-            HDC hdc = render_area->DrawDc;
+            TRIBE_Player* player = (*base_game)->world->players[i];
+            if (!player) continue;
+            int cell_y = tab_h + (i - 1) * cell_step;
 
-            RECT rstripe = { col_x + col_w - STRIPE_W, cell_y, col_x + col_w, cell_y + cell_h };
-            FillRect(hdc, &rstripe, get_player_brush(i));
+            // Per-cell surface clip required — otherwise the previous cell's
+            // clip leaks and SLP icons disappear.
+            RECT cell_rect = { content_x, cell_y + LABEL_H,
+                               content_x + content_w, cell_y + cell_h };
+            TDrawArea__SetClipRect(render_area, &cell_rect);
 
-            const char* name = (player->name && player->name[0]) ? player->name : NULL;
-            char name_buf[64];
-            if (!name) { snprintf(name_buf, sizeof(name_buf), "Player %d", i); name = name_buf; }
+            view.render(render_area, clip_region, player, i,
+                        content_x, cell_y + LABEL_H, content_w,
+                        SP_COMPACT, SP_PASS_SLP);
+        }
+        TDrawArea__SetClipRect(render_area, NULL);
+        TDrawArea__Unlock(render_area, "sp_slp");
+    }
 
-            SetBkMode(hdc, TRANSPARENT);
-            SetTextColor(hdc, get_player_color(i));
-            HGDIOBJ old_font = SelectObject(hdc, get_bold_font());
-            RECT rname = { content_x + 3, cell_y, col_x + content_w - 2, cell_y + LABEL_H };
-            DrawTextA(hdc, name, -1, &rname,
-                      DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
-            SelectObject(hdc, old_font);
+    if (TDrawArea__GetDc(render_area, "sp_gdi"))
+    {
+        HDC hdc = render_area->DrawDc;
+        SetBkMode(hdc, TRANSPARENT);
+        HGDIOBJ old_font = SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
 
-            TDrawArea__ReleaseDc(render_area, "sp_hdr");
+        draw_tab_strip(hdc, col_x, col_w, 0, tab_h);
+
+        for (int i = 1; i < pnum; i++)
+        {
+            TRIBE_Player* player = (*base_game)->world->players[i];
+            if (!player) continue;
+            int cell_y = tab_h + (i - 1) * cell_step;
+
+            draw_player_header(hdc, col_x, col_w, cell_y, cell_h, player, i);
+
+            view.render(render_area, clip_region, player, i,
+                        content_x, cell_y + LABEL_H, content_w,
+                        SP_COMPACT, SP_PASS_GDI);
         }
 
-        // Content area handed to the active view
-        view.render(render_area, clip_region, player, i,
-                    content_x, cell_y + LABEL_H, content_w, SP_COMPACT);
+        SelectObject(hdc, old_font);
+        SelectClipRgn(hdc, 0);
+        TDrawArea__ReleaseDc(render_area, "sp_gdi");
     }
 
     return *render_rect;

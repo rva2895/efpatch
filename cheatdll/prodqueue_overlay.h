@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "overlay.h"
+#include "spectator_overlay.h"  // SpectatorPass
 
 extern TShape** iconsUnitPtr;   // defined in icons.cpp; iconsUnitPtr[civ] -> unit-icon SLP
 extern TShape** iconsTechPtr;   // defined in icons.cpp; iconsTechPtr[civ] -> tech-icon SLP
@@ -29,14 +30,14 @@ bool collect_techqueue_for_player(TRIBE_Player* player, std::vector<TechEntry>& 
 bool collect_prodqueue(std::vector<PQEntry>& entries);
 bool collect_techqueue(std::vector<TechEntry>& entries);
 
-// Draw the production-queue unit strip into |da|.
-// cell_x/cell_w define the horizontal cell bounds.
-// right_align=true  → icons flush-right (normal overlay style)
-// right_align=false → icons flush-left  (spectator style)
+// Self-contained: acquires Lock and GetDc internally. One cell per frame only.
 void draw_prodqueue_overlay(TDrawArea* da, int cell_x, int cell_w, const std::vector<PQEntry>& entries, HRGN clip_region, TRIBE_Player* player, int row_y = 0, int icon_size = 36, bool right_align = true);
-
-// Draw the tech-research strip into |da| within the same cell bounds.
 void draw_techqueue_overlay(TDrawArea* da, int cell_x, int cell_w, const std::vector<TechEntry>& entries, HRGN clip_region, TRIBE_Player* player, int row_y = 0, int icon_size = 36, bool right_align = true);
+
+// Pass-aware. Caller owns Lock (SLP) or GetDc + SetBkMode + default font (GDI),
+// and (SLP only) sets the per-cell TDrawArea__SetClipRect before each cell.
+void draw_prodqueue_overlay_pass(TDrawArea* da, int cell_x, int cell_w, const std::vector<PQEntry>& entries, HRGN clip_region, TRIBE_Player* player, int row_y, int icon_size, bool right_align, SpectatorPass pass);
+void draw_techqueue_overlay_pass(TDrawArea* da, int cell_x, int cell_w, const std::vector<TechEntry>& entries, HRGN clip_region, TRIBE_Player* player, int row_y, int icon_size, bool right_align, SpectatorPass pass);
 
 // Register the normal (single-player) overlay – active during live games.
 void register_prodqueue_overlay();
