@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "overlay.h"
+#include "spectator_overlay.h"  // SpectatorPass
 
 extern TShape** iconsUnitPtr;   // defined in icons.cpp; iconsUnitPtr[civ] -> unit-icon SLP
 extern TShape** iconsTechPtr;   // defined in icons.cpp; iconsTechPtr[civ] -> tech-icon SLP
@@ -19,18 +20,28 @@ struct TechEntry
     __int16 icon;       // frame index into iconsTechPtr SLP
 };
 
-// Populate |entries| from the local player's production queues.  Returns false when nothing queued.
-bool collect_prodqueue(std::vector<PQEntry>& entries);
+// Populate |entries| from a specific player's production queues.
+bool collect_prodqueue_for_player(TRIBE_Player* player, std::vector<PQEntry>& entries);
 
-// Populate |entries| from the local player's active tech research.  Returns false when nothing.
+// Populate |entries| from a specific player's active tech research.
+bool collect_techqueue_for_player(TRIBE_Player* player, std::vector<TechEntry>& entries);
+
+// Convenience wrappers that use the local/observed player.
+bool collect_prodqueue(std::vector<PQEntry>& entries);
 bool collect_techqueue(std::vector<TechEntry>& entries);
 
-// Draw the production-queue unit strip into |da| (the overlay image buffer).
-// |panel_w| is render_rect->right.  Caller must NOT have a DC or lock already acquired.
-void draw_prodqueue_overlay(TDrawArea* da, int panel_w, const std::vector<PQEntry>& entries, HRGN clip_region);
+// Self-contained: acquires Lock and GetDc internally. One cell per frame only.
+void draw_prodqueue_overlay(TDrawArea* da, int cell_x, int cell_w, const std::vector<PQEntry>& entries, HRGN clip_region, TRIBE_Player* player, int row_y = 0, int icon_size = 36, bool right_align = true);
+void draw_techqueue_overlay(TDrawArea* da, int cell_x, int cell_w, const std::vector<TechEntry>& entries, HRGN clip_region, TRIBE_Player* player, int row_y = 0, int icon_size = 36, bool right_align = true);
 
-// Draw the tech-research strip into |da| at the given y offset.
-void draw_techqueue_overlay(TDrawArea* da, int panel_w, const std::vector<TechEntry>& entries, HRGN clip_region, int row_y);
+// Pass-aware. Caller owns Lock (SLP) or GetDc + SetBkMode + default font (GDI),
+// and (SLP only) sets the per-cell TDrawArea__SetClipRect before each cell.
+void draw_prodqueue_overlay_pass(TDrawArea* da, int cell_x, int cell_w, const std::vector<PQEntry>& entries, HRGN clip_region, TRIBE_Player* player, int row_y, int icon_size, bool right_align, SpectatorPass pass);
+void draw_techqueue_overlay_pass(TDrawArea* da, int cell_x, int cell_w, const std::vector<TechEntry>& entries, HRGN clip_region, TRIBE_Player* player, int row_y, int icon_size, bool right_align, SpectatorPass pass);
 
-// Register the prodqueue overlay with the overlay system.  Call once at startup.
+// Register the normal (single-player) overlay – active during live games.
 void register_prodqueue_overlay();
+
+// Register the Queue view into the spectator container.
+// Call after register_spectator_overlay() in DllMain.
+void register_queue_spectator_view();

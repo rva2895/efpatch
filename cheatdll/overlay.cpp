@@ -228,6 +228,7 @@ void __fastcall TRIBE_Panel_Screen_Overlay__draw(TRIBE_Panel_Screen_Overlay* thi
     this_->vfptr->draw_finish((TPanel*)this_);
 }
 
+
 int __fastcall TRIBE_Panel_Screen_Overlay__handle_idle(TRIBE_Panel_Screen_Overlay* this_)
 {
     TPanel__handle_idle((TPanel*)this_);
