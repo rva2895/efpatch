@@ -251,8 +251,9 @@ void draw_prodqueue_overlay_pass(TDrawArea* da, int cell_x, int cell_w,
         int tx = cx + (strip_w - sz.cx) / 2;
         int ty = cy + (count_h_i - font_h) / 2;
         if (ty < cy) ty = cy;
-        RECT clip = { cx, cy, cx + strip_w, cy + count_h_i };
-        ExtTextOutA(hdc, tx, ty, ETO_CLIPPED, &clip, buf, len, NULL);
+        //RECT clip = { cx, cy, cx + strip_w, cy + count_h_i };
+        //ExtTextOutA(hdc, tx, ty, ETO_CLIPPED, &clip, buf, len, NULL);
+        TextOutA(hdc, tx, ty, buf, len);
     }
 }
 
@@ -333,8 +334,9 @@ void draw_techqueue_overlay_pass(TDrawArea* da, int cell_x, int cell_w,
         int tx = cx + (strip_w - sz.cx) / 2;
         int ty = ly + (count_h_i - font_h) / 2;
         if (ty < ly) ty = ly;
-        RECT clip = { cx, ly, cx + strip_w, ly + count_h_i };
-        ExtTextOutA(hdc, tx, ty, ETO_CLIPPED, &clip, buf, len, NULL);
+        //RECT clip = { cx, ly, cx + strip_w, ly + count_h_i };
+        //ExtTextOutA(hdc, tx, ty, ETO_CLIPPED, &clip, buf, len, NULL);
+        TextOutA(hdc, tx, ty, buf, len);
     }
 }
 
@@ -459,11 +461,13 @@ static panel_size pq_handle_size(TRIBE_Panel_Screen_Overlay* panel, void* user_d
 
 static RECT pq_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* panel, void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
 {
-    if (isRec()) return *render_rect;
+    RECT used_render_rect = {};
+
+    if (isRec()) return used_render_rect;
 
     int panel_w = render_rect->right;
     TRIBE_Player* player = (TRIBE_Player*)RGE_Base_Game__get_player(*base_game);
-    if (!player) return *render_rect;
+    if (!player) return used_render_rect;
 
     std::vector<PQEntry> units;
     collect_prodqueue_for_player(player, units);
@@ -475,7 +479,19 @@ static RECT pq_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* panel, void* u
     if (!techs.empty())
         draw_techqueue_overlay(render_area, 0, panel_w, techs, clip_region, player, TECH_ROW_Y);
 
-    return *render_rect;
+    int cell_w_c = max(ICON_SIZE_C, 36) + 4;
+    int max_units_techs_size = max(units.size(), techs.size());
+    int render_w = max_units_techs_size > 0 ? max_units_techs_size * (cell_w_c + MARGIN_R / 2) + MARGIN_R * 2 : 0;
+
+    if (render_w <= 0)
+        return used_render_rect;
+
+    used_render_rect.left = render_rect->right - render_w;
+    used_render_rect.top = render_rect->top;
+    used_render_rect.right = render_rect->right;
+    used_render_rect.bottom = render_rect->bottom;
+
+    return used_render_rect;
 }
 
 static void pq_handle_hotkey(TRIBE_Panel_Screen_Overlay* panel, void* /*user_data*/, int hotkey)
@@ -499,7 +515,7 @@ void register_prodqueue_overlay()
 // Queue spectator view: container handles player grid + name + stripe; this
 // view fills the per-player content area with the unit and tech rows.
 
-static bool queue_need_redraw()
+static bool queue_need_redraw(void* /* user_data */)
 {
     return *base_game && (*base_game)->world;
 }
@@ -508,48 +524,76 @@ struct QueueCacheEntry {
     std::vector<PQEntry>   units;
     std::vector<TechEntry> techs;
 };
-static QueueCacheEntry s_queue_cache[9];  // index 1..8; 0 unused (gaia)
 
-static void queue_begin_frame()
+struct QueueOverlayUserData {
+    QueueCacheEntry s_queue_cache[9]; // index 1..8; 0 unused (gaia)
+};
+
+static void* queue_create()
 {
+    QueueOverlayUserData* queue_user_data = new QueueOverlayUserData;
+
+    return queue_user_data;
+}
+
+static void queue_destroy(void* user_data)
+{
+    QueueOverlayUserData* queue_user_data = (QueueOverlayUserData*)user_data;
+
+    delete queue_user_data;
+}
+
+static void queue_begin_frame(void* user_data)
+{
+    QueueOverlayUserData* queue_user_data = (QueueOverlayUserData*)user_data;
+
     if (!*base_game || !(*base_game)->world) return;
     int pnum = (*base_game)->world->player_num;
     if (pnum > 9) pnum = 9;
     for (int i = 1; i < pnum; i++)
     {
         TRIBE_Player* p = (*base_game)->world->players[i];
-        s_queue_cache[i].units.clear();
-        s_queue_cache[i].techs.clear();
+        queue_user_data->s_queue_cache[i].units.clear();
+        queue_user_data->s_queue_cache[i].techs.clear();
         if (!p) continue;
-        collect_prodqueue_for_player(p, s_queue_cache[i].units);
-        collect_techqueue_for_player(p, s_queue_cache[i].techs);
+        collect_prodqueue_for_player(p, queue_user_data->s_queue_cache[i].units);
+        collect_techqueue_for_player(p, queue_user_data->s_queue_cache[i].techs);
     }
 }
 
-static void queue_render(TDrawArea* da, HRGN clip,
-                          TRIBE_Player* player, int player_idx,
+static int queue_render(TDrawArea* da, HRGN clip,
+                          TRIBE_Player* player,
                           int x, int y, int w,
-                          SpectatorLayout layout, SpectatorPass pass)
+                          SpectatorLayout layout, SpectatorPass pass,
+                          void* user_data)
 {
-    if (player_idx < 1 || player_idx > 8) return;
-    const std::vector<PQEntry>&   units = s_queue_cache[player_idx].units;
-    const std::vector<TechEntry>& techs = s_queue_cache[player_idx].techs;
+    QueueOverlayUserData* queue_user_data = (QueueOverlayUserData*)user_data;
+
+    if (player->id < 1 || player->id > 8) return 0;
+    const std::vector<PQEntry>&   units = queue_user_data->s_queue_cache[player->id].units;
+    const std::vector<TechEntry>& techs = queue_user_data->s_queue_cache[player->id].techs;
 
     if (layout == SP_FULL)
     {
+        int cell_w_c = max(ICON_SIZE_C, 36) + 4;
         if (!units.empty())
             draw_prodqueue_overlay_pass(da, x, w, units, clip, player, y, ICON_SIZE, false, pass);
         if (!techs.empty())
             draw_techqueue_overlay_pass(da, x, w, techs, clip, player, y + TECH_ROW_Y, ICON_SIZE, false, pass);
+
+        return max(units.size(), techs.size()) * (cell_w_c + MARGIN_R / 2) + MARGIN_R * 2;
     }
     else // SP_COMPACT: both right-aligned; techs at far right, units to their left
     {
         int cell_w_c     = max(ICON_SIZE_C, 36) + 4;
-        int tech_strip_w = techs.empty() ? 0 : ((int)techs.size() * cell_w_c + MARGIN_R);
+        int tech_strip_w = techs.empty() ? 0 : ((int)techs.size() * (cell_w_c + MARGIN_R / 2) + MARGIN_R);
         if (!techs.empty())
             draw_techqueue_overlay_pass(da, x, w,                techs, clip, player, y, ICON_SIZE_C, true, pass);
         if (!units.empty())
             draw_prodqueue_overlay_pass(da, x, w - tech_strip_w, units, clip, player, y, ICON_SIZE_C, true, pass);
+
+        int unit_strip_w = units.empty() ? 0 : ((int)units.size() * (cell_w_c + MARGIN_R / 2));
+        return tech_strip_w + unit_strip_w + MARGIN_R * 2;
     }
 }
 
@@ -559,7 +603,9 @@ static const SpectatorViewDef s_queue_view_def = {
     ROW_H_COMPACT,
     queue_render,
     queue_need_redraw,
-    queue_begin_frame
+    queue_begin_frame,
+    queue_create,
+    queue_destroy,
 };
 
 void register_queue_spectator_view()

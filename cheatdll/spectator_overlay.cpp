@@ -5,7 +5,7 @@
 #include "log.h"
 #include <vector>
 
-static const int SP_FONT_ID = 22;
+static const int SP_FONT_ID = 11;
 
 static const int STRIPE_W    = 4;
 static const int SP_CELL_GAP = 3;
@@ -21,20 +21,20 @@ static int sp_col_w(int panel_w) {
     return w;
 }
 
-static int label_h() { return cd.largeText ? 22 : 16; }
+static int label_h() { return cd.largeText ? 22 : 18; }
 
 // SWGB lobby colour order, slots 1..8. Slot 0 = gaia / fallback.
 static const COLORREF PLAYER_COLORS[] =
 {
     RGB(  0,   0,   0),
-    RGB( 36,  73, 255),
-    RGB(255,   0,   0),
-    RGB(  0, 204,   0),
+    RGB(110, 166, 235),
+    RGB(255, 100, 100),
+    RGB(  0, 255,   0),
     RGB(255, 255,   0),
-    RGB(  0, 220, 220),
-    RGB(220,   0, 200),
-    RGB(160, 160, 160),
-    RGB(220, 120,   0),
+    RGB(  0, 255, 255),
+    RGB(241, 108, 232),
+    RGB(223, 223, 223),
+    RGB(255, 180,  21),
 };
 
 static const COLORREF TAB_VIEW_BG[] = {
@@ -43,19 +43,6 @@ static const COLORREF TAB_VIEW_BG[] = {
     RGB( 90,  35,  90),
     RGB(100,  60,  10),
 };
-
-// color_table->get_id() returns 0..7 (the actual shown colour even with
-// shuffled lobby picks). PLAYER_COLORS is 1-based
-static int player_color_id(TRIBE_Player* player, int fallback_idx)
-{
-    if (player && player->color_table && player->color_table->vfptr
-        && player->color_table->vfptr->get_id)
-    {
-        int id = player->color_table->vfptr->get_id(player->color_table);
-        if (id >= 0 && id <= 7) return id + 1;
-    }
-    return (fallback_idx >= 1 && fallback_idx <= 8) ? fallback_idx : 0;
-}
 
 static COLORREF get_player_color(int idx)
 {
@@ -66,6 +53,7 @@ static COLORREF get_player_color(int idx)
 struct PalCacheEntry { COLORREF rgb; unsigned __int8 idx; };
 static std::vector<PalCacheEntry> s_pal_cache;
 
+/*
 static unsigned __int8 pal_lookup_uncached(COLORREF rgb)
 {
     if (!*base_game || !(*base_game)->draw_system) return 0;
@@ -81,12 +69,13 @@ static unsigned __int8 pal_lookup_uncached(COLORREF rgb)
     }
     return (unsigned __int8)best_i;
 }
+*/
 
 unsigned __int8 pal_index(COLORREF rgb)
 {
     for (size_t i = 0; i < s_pal_cache.size(); i++)
         if (s_pal_cache[i].rgb == rgb) return s_pal_cache[i].idx;
-    PalCacheEntry e; e.rgb = rgb; e.idx = pal_lookup_uncached(rgb);
+    PalCacheEntry e; e.rgb = rgb; e.idx = GetNearestPaletteIndex((*base_game)->draw_system->Pal, rgb); //pal_lookup_uncached(rgb);
     s_pal_cache.push_back(e);
     return e.idx;
 }
@@ -138,26 +127,33 @@ int sp_font_h()
 }
 
 static std::vector<SpectatorViewDef> s_views;
-static int s_active = 0;
-static unsigned int s_view_generation = 0;
+//static int s_active = 0;
+//static unsigned int s_view_generation = 0;
 
 // Wall-clock-gated throttle (need_redraw callback rate is unspecified).
 // 100 ms matches the main object UI update cadence.
 static const DWORD SP_REDRAW_MIN_MS = 100;
 
-extern void __stdcall handle_overlay_size();
+struct SpectatorUserData
+{
+    bool had_content;
+    bool view_changed;
+    DWORD last_draw_ms;
+    TDrawArea* player_name_draw_area[9];
+    std::vector<SpectatorViewInstance> views;
+    int s_active;
+};
 
 void register_spectator_view(const SpectatorViewDef& def)
 {
     s_views.push_back(def);
 }
 
-void spectator_next_view()
+void spectator_next_view(SpectatorUserData* sp_user_data)
 {
-    if ((int)s_views.size() <= 1) return;
-    s_active = (s_active + 1) % (int)s_views.size();
-    ++s_view_generation;
-    handle_overlay_size();
+    if ((int)sp_user_data->views.size() <= 1) return;
+    sp_user_data->s_active = (sp_user_data->s_active + 1) % (int)sp_user_data->views.size();
+    sp_user_data->view_changed = true;
 }
 
 static int active_player_count()
@@ -166,26 +162,26 @@ static int active_player_count()
     return max(1, (int)(*base_game)->world->player_num - 1);
 }
 
-static int current_cell_h()
+static int current_cell_h(SpectatorUserData* sp_user_data)
 {
-    if (s_views.empty()) return label_h();
-    return label_h() + s_views[s_active].compact_h;
+    if (sp_user_data->views.empty()) return label_h();
+    return label_h() + sp_user_data->views[sp_user_data->s_active].def.compact_h;
 }
 
 static int current_tab_h() { return TAB_H; }
 
-static void draw_tab_bg(TDrawArea* da, int x, int w, int y, int h)
+static void draw_tab_bg(TDrawArea* da, int x, int w, int y, int h, SpectatorUserData* sp_user_data)
 {
-    if (s_views.empty() || !da) return;
-    COLORREF bg_col = (s_active < (int)(sizeof(TAB_VIEW_BG) / sizeof(TAB_VIEW_BG[0])))
-                      ? TAB_VIEW_BG[s_active] : RGB(40, 40, 60);
+    if (sp_user_data->views.empty() || !da) return;
+    COLORREF bg_col = (sp_user_data->s_active < (int)(sizeof(TAB_VIEW_BG) / sizeof(TAB_VIEW_BG[0])))
+                      ? TAB_VIEW_BG[sp_user_data->s_active] : RGB(40, 40, 60);
     TDrawArea__FillRect(da, x, y, x + w, y + h, pal_index(bg_col));
 }
 
-static void draw_tab_text(HDC hdc, int x, int w, int y, int h)
+static void draw_tab_text(HDC hdc, int x, int w, int y, int h, SpectatorUserData* sp_user_data)
 {
-    if (s_views.empty() || !hdc) return;
-    const char* label = s_views[s_active].label;
+    if (sp_user_data->views.empty() || !hdc) return;
+    const char* label = sp_user_data->views[sp_user_data->s_active].def.label;
     int len = (int)strlen(label);
 
     SetTextColor(hdc, RGB(255, 255, 255));
@@ -196,54 +192,161 @@ static void draw_tab_text(HDC hdc, int x, int w, int y, int h)
     int tx = x + (w - sz.cx) / 2;
     int ty = y + (h - font_h) / 2;
     if (ty < y) ty = y;
-    RECT clip = { x, y, x + w, y + h };
-    ExtTextOutA(hdc, tx, ty, ETO_CLIPPED, &clip, label, len, NULL);
+    //RECT clip = { x, y, x + w, y + h };
+    //ExtTextOutA(hdc, tx, ty, ETO_CLIPPED, &clip, label, len, NULL);
+    TextOutA(hdc, tx, ty, label, len);
 }
 
-struct SpectatorUserData
+void TextOut_outline(HDC hdc, int x, int y, LPCSTR lpString, int c, COLORREF color)
 {
-    bool had_content;
-    unsigned int seen_view_generation;
-    DWORD last_draw_ms;
-};
+    SetTextColor(hdc, RGB(0, 0, 0));
+    TextOutA(hdc, x,     y    , lpString, c);
+    TextOutA(hdc, x + 2, y    , lpString, c);
+    TextOutA(hdc, x    , y + 2, lpString, c);
+    TextOutA(hdc, x + 2, y + 2, lpString, c);
+    SetTextColor(hdc, color);
+    TextOutA(hdc, x + 1, y + 1, lpString, c);
+}
 
-static void* sp_create(TRIBE_Panel_Screen_Overlay* /*panel*/, const void* /*user_init*/)
+static void render_player_name(TDrawArea* render_area, int id)
+{
+    TRIBE_Player* player = (*base_game)->world->players[id];
+    int color_id = player->color_table->vfptr->get_id(player->color_table) + 1;
+    const char* name = (player->name && player->name[0]) ? player->name : NULL;
+    char name_buf[64];
+    int name_len;
+    if (!name)
+    {
+        name_len = snprintf(name_buf, sizeof(name_buf), "Player %d", player->id);
+        name = name_buf;
+    }
+    else
+    {
+        name_len = (int)strlen(name);
+        if (name_len > 63) name_len = 63;
+    }
+
+    if (TDrawArea__GetDc(render_area, "sp_player_name"))
+    {
+        SetBkMode(render_area->DrawDc, TRANSPARENT);
+        HGDIOBJ old_font = SelectObject(render_area->DrawDc, sp_font());
+        UINT prev_align = SetTextAlign(render_area->DrawDc, TA_RIGHT);
+        TextOut_outline(render_area->DrawDc, render_area->Width-8, 2, name, name_len, get_player_color(color_id));
+        SetTextAlign(render_area->DrawDc, prev_align);
+        SelectObject(render_area->DrawDc, old_font);
+
+        TDrawArea__ReleaseDc(render_area, "sp_player_name");
+    }
+}
+
+static TDrawArea* create_player_name_draw_area(int id, TRIBE_Panel_Screen_Overlay* parent_panel)
+{
+    TDrawArea* render_area = (TDrawArea*)operator_new_internal(sizeof(TDrawArea));
+
+    char b[0x20];
+    snprintf(b, _countof(b), "Overlay Player Name %d", id);
+    TDrawArea__TDrawArea(render_area, b, 0);
+    TDrawArea__Init(render_area, parent_panel->render_area->DrawSystem, 200, 20, 0, 0);
+    TDrawArea__PtrClear(render_area, NULL, 1);
+    TDrawArea__SetTrans(render_area, 1, 1);
+    render_player_name(render_area, id);
+    return render_area;
+}
+
+static void draw_player_name(TDrawArea* dst, TDrawArea* src, int x, int cx, int y)
+{
+    RECT r = { src->Width - cx, 0, src->Width, src->Height };
+    TDrawArea__Copy(src, dst, x, y, &r, 1);
+}
+
+static void create_player_name_draw_areas(TRIBE_Panel_Screen_Overlay* panel, SpectatorUserData* sp_user_data)
+{
+    for (int i = 1; i < (*base_game)->world->player_num; i++)
+    {
+        if (!sp_user_data->player_name_draw_area[i])
+        {
+            if ((*base_game)->world->players[i])
+                sp_user_data->player_name_draw_area[i] = create_player_name_draw_area(i, panel);
+            else
+                sp_user_data->player_name_draw_area[i] = NULL;
+        }
+    }
+}
+
+static void delete_player_name_draw_areas(SpectatorUserData* sp_user_data)
+{
+    for (int i = 1; i < (*base_game)->world->player_num; i++)
+    {
+        if (sp_user_data->player_name_draw_area[i])
+        {
+            TDrawArea__destructor(sp_user_data->player_name_draw_area[i]);
+            operator_delete_internal(sp_user_data->player_name_draw_area[i]);
+            sp_user_data->player_name_draw_area[i] = NULL;
+        }
+    }
+}
+
+static void* sp_create(TRIBE_Panel_Screen_Overlay* panel, const void* /*user_init*/)
 {
     s_pal_cache.clear();  // palette may differ between games
     SpectatorUserData* d = new SpectatorUserData;
     d->had_content = false;
-    d->seen_view_generation = s_view_generation;
+    d->view_changed = true;
+    d->s_active = 0;
     d->last_draw_ms = 0;
+    memset(d->player_name_draw_area, 0, sizeof(d->player_name_draw_area));
+
+    for (auto it = s_views.begin(); it != s_views.end(); ++it)
+    {
+        d->views.emplace_back(*it, it->create ? it->create() : NULL);
+    }
+
     return d;
 }
 
-static void sp_destroy(TRIBE_Panel_Screen_Overlay* /*panel*/, void* user_data) { delete (SpectatorUserData*)user_data; }
+static void sp_destroy(TRIBE_Panel_Screen_Overlay* /*panel*/, void* user_data)
+{
+    SpectatorUserData* sp_user_data = (SpectatorUserData*)user_data;
+    delete_player_name_draw_areas(sp_user_data);
+
+    for (auto it = sp_user_data->views.begin(); it != sp_user_data->views.end(); ++it)
+    {
+        if (it->def.destroy) it->def.destroy(it->user_data);
+    }
+
+    delete (SpectatorUserData*)user_data;
+}
 
 static bool sp_need_redraw(TRIBE_Panel_Screen_Overlay* /*panel*/, void* user_data)
 {
-    if (!isRec() || s_views.empty()) return false;
     SpectatorUserData* d = (SpectatorUserData*)user_data;
+
+    if (!isRec() || d->views.empty()) return false;
     DWORD now = timeGetTime();
-    if (d->seen_view_generation != s_view_generation)
+    if (d->view_changed)
     {
-        d->seen_view_generation = s_view_generation;
+        d->view_changed = false;
         d->had_content = true;
         d->last_draw_ms = now;
         return true;
     }
     if (now - d->last_draw_ms < SP_REDRAW_MIN_MS) return false;
 
-    bool any   = s_views[s_active].need_redraw();
+    bool any   = d->views[d->s_active].def.need_redraw(d->views[d->s_active].user_data);
     bool needs = any || d->had_content;
     d->had_content = any;
     if (needs) d->last_draw_ms = now;
     return needs;
 }
 
-static panel_size sp_handle_size(TRIBE_Panel_Screen_Overlay* /*panel*/, void* /*user_data*/)
+static panel_size sp_handle_size(TRIBE_Panel_Screen_Overlay* panel, void* user_data)
 {
+    SpectatorUserData* sp_user_data = (SpectatorUserData*)user_data;
+
+    delete_player_name_draw_areas(sp_user_data);
+
     int active = active_player_count();
-    int h      = current_tab_h() + active * (current_cell_h() + SP_CELL_GAP);
+    int h      = current_tab_h() + active * (current_cell_h(sp_user_data) + SP_CELL_GAP);
 
     panel_size s;
     s.left_border_in = s.right_border_in = s.bottom_border_in = 0;
@@ -255,16 +358,17 @@ static panel_size sp_handle_size(TRIBE_Panel_Screen_Overlay* /*panel*/, void* /*
 }
 
 static void draw_player_stripe(TDrawArea* da, int col_x, int col_w, int cell_y, int cell_h,
-                                TRIBE_Player* player, int player_idx)
+                                TRIBE_Player* player)
 {
-    int color_id = player_color_id(player, player_idx);
+    int color_id = player->color_table->vfptr->get_id(player->color_table) + 1;
     TDrawArea__FillRect(da,
         col_x + col_w - STRIPE_W, cell_y,
         col_x + col_w,            cell_y + cell_h,
         pal_player(color_id));
 }
 
-static void draw_player_name(HDC hdc, int col_x, int col_w, int cell_y, int font_h,
+/*
+static void draw_player_name_old(HDC hdc, int col_x, int col_w, int cell_y, int font_h,
                               TRIBE_Player* player, int player_idx)
 {
     int color_id = player_color_id(player, player_idx);
@@ -300,39 +404,56 @@ static void draw_player_name(HDC hdc, int col_x, int col_w, int cell_y, int font
     if (bg.left  < left_x)  bg.left  = left_x;
     if (bg.right > right_x) bg.right = right_x;
     SetBkColor(hdc, RGB(0, 0, 0));
-    ExtTextOutA(hdc, text_x, text_y, ETO_OPAQUE | ETO_CLIPPED, &bg, name, name_len, NULL);
+    //ExtTextOutA(hdc, text_x, text_y, ETO_OPAQUE | ETO_CLIPPED, &bg, name, name_len, NULL);
+    TextOutA(hdc, text_x, text_y, name, name_len);
 }
+*/
 
-static RECT sp_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* /*panel*/, void* /*user_data*/,
+static RECT sp_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* panel, void* user_data,
                                        TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
 {
-    if (!isRec() || s_views.empty()) return *render_rect;
-    if (!*base_game || !(*base_game)->world)  return *render_rect;
+    SpectatorUserData* sp_user_data = (SpectatorUserData*)user_data;
+
+    RECT used_render_rect = {};
+
+    if (!isRec() || sp_user_data->views.empty()) return used_render_rect;
+    if (!*base_game || !(*base_game)->world)  return used_render_rect;
 
     int panel_w = render_rect->right;
     int pnum    = (*base_game)->world->player_num;
     int active  = pnum - 1;
-    if (active <= 0) return *render_rect;
+    if (active <= 0) return used_render_rect;
 
-    const SpectatorViewDef& view = s_views[s_active];
+    const SpectatorViewInstance& view = sp_user_data->views[sp_user_data->s_active];
     int tab_h     = current_tab_h();
     int lh        = label_h();
-    int cell_h    = lh + view.compact_h;
+    int cell_h    = lh + view.def.compact_h;
     int col_w     = sp_col_w(panel_w);
     int col_x     = panel_w - col_w;
     int cell_step = cell_h + SP_CELL_GAP;
     int content_x = col_x;
     int content_w = col_w - STRIPE_W;
 
-    if (view.begin_frame) view.begin_frame();
+    if (view.def.begin_frame) view.def.begin_frame(view.user_data);
 
     int tab_w = (col_w < SP_TAB_W) ? col_w : SP_TAB_W;
     int tab_x = col_x + col_w - tab_w;
 
+    create_player_name_draw_areas(panel, sp_user_data);
+
+    // TDrawArea::Copy can only be used on an unlocked surface
+    for (int i = 1; i < pnum; i++)
+    {
+        int cell_y = tab_h + (i - 1) * cell_step;
+        draw_player_name(render_area, sp_user_data->player_name_draw_area[i], col_x, col_w, cell_y);
+    }
+
+    int render_w = 100; // TODO: max player name text width
+
     if (TDrawArea__Lock(render_area, "sp_slp", 1))
     {
         TDrawArea__SetClipRect(render_area, NULL);
-        draw_tab_bg(render_area, tab_x, tab_w, 0, tab_h);
+        draw_tab_bg(render_area, tab_x, tab_w, 0, tab_h, sp_user_data);
 
         for (int i = 1; i < pnum; i++)
         {
@@ -343,14 +464,15 @@ static RECT sp_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* /*panel*/, voi
             // Stripe spans label + content rows; view content clip is set after.
             RECT full_cell = { col_x, cell_y, col_x + col_w, cell_y + cell_h };
             TDrawArea__SetClipRect(render_area, &full_cell);
-            draw_player_stripe(render_area, col_x, col_w, cell_y, cell_h, player, i);
+            draw_player_stripe(render_area, col_x, col_w, cell_y, cell_h, player);
 
             RECT view_cell = { content_x, cell_y + lh,
                                content_x + content_w, cell_y + cell_h };
             TDrawArea__SetClipRect(render_area, &view_cell);
-            view.render(render_area, clip_region, player, i,
+            render_w = max(render_w,
+                view.def.render(render_area, clip_region, player,
                         content_x, cell_y + lh, content_w,
-                        SP_COMPACT, SP_PASS_SLP);
+                        SP_COMPACT, SP_PASS_SLP, view.user_data));
         }
         TDrawArea__SetClipRect(render_area, NULL);
         TDrawArea__Unlock(render_area, "sp_slp");
@@ -364,7 +486,7 @@ static RECT sp_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* /*panel*/, voi
         SelectClipRgn(hdc, clip_region);
         HGDIOBJ old_font = SelectObject(hdc, sp_font());
 
-        draw_tab_text(hdc, tab_x, tab_w, 0, tab_h);
+        draw_tab_text(hdc, tab_x, tab_w, 0, tab_h, sp_user_data);
 
         int font_h = sp_font_h();
         for (int i = 1; i < pnum; i++)
@@ -373,11 +495,10 @@ static RECT sp_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* /*panel*/, voi
             if (!player) continue;
             int cell_y = tab_h + (i - 1) * cell_step;
 
-            draw_player_name(hdc, col_x, col_w, cell_y, font_h, player, i);
-
-            view.render(render_area, clip_region, player, i,
+            render_w = max(render_w,
+                view.def.render(render_area, clip_region, player,
                         content_x, cell_y + lh, content_w,
-                        SP_COMPACT, SP_PASS_GDI);
+                        SP_COMPACT, SP_PASS_GDI, view.user_data));
         }
 
         SelectObject(hdc, old_font);
@@ -385,18 +506,26 @@ static RECT sp_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* /*panel*/, voi
         TDrawArea__ReleaseDc(render_area, "sp_gdi");
     }
 
-    return *render_rect;
+    used_render_rect.left = render_rect->right - (render_w + panel_w - (content_x + content_w));
+    used_render_rect.top = render_rect->top;
+    used_render_rect.right = render_rect->right;
+    used_render_rect.bottom = render_rect->bottom;
+
+    return used_render_rect;
 }
 
-static void sp_handle_hotkey(TRIBE_Panel_Screen_Overlay* panel, void* /*user_data*/, int hotkey)
+static void sp_handle_hotkey(TRIBE_Panel_Screen_Overlay* panel, void* user_data, int hotkey)
 {
+    SpectatorUserData* sp_user_data = (SpectatorUserData*)user_data;
     switch (hotkey)
     {
     case 0x63:  // F8 – toggle spectator overlay on/off
         panel->vfptr->set_active((TPanel*)panel, panel->active ? 0 : 1);
         break;
     case 0x64:  // Alt+Q – cycle to next view
-        spectator_next_view();
+        spectator_next_view(sp_user_data);
+        break;
+    default:
         break;
     }
 }

@@ -6,9 +6,9 @@ static const int ATTR_FOOD     = 0;
 static const int ATTR_CARBON   = 1;
 static const int ATTR_ORE      = 2;
 static const int ATTR_NOVA     = 3;
-static const int ATTR_POP_ROOM = 4;   // free pop slots (cap - current)
-static const int ATTR_CIV_POP  = 11;  // civilian pop count
-static const int ATTR_MIL_POP  = 12;  // military pop count
+static const int ATTR_POP_ROOM = 4;   // population headroom
+static const int ATTR_CUR_POP  = 11;  // current population
+static const int ATTR_POP_CAP  = 32;  // population cap
 
 // Inline layout: [icon][value] × 5, left-to-right. Pop is wider for "cur/cap".
 static const int ICON_W      = 24;
@@ -35,27 +35,44 @@ static const int RES_SLP_ID    = 50731;
 static const int RES_POP_FRAME = 5;   // objpaneldraw treats 5 as "other".
 
 static const ResInfo RES[4] = {
-    { "F", RGB( 60, 200,  70), ATTR_FOOD,   2 },
     { "C", RGB(200, 140,  45), ATTR_CARBON, 0 },
-    { "O", RGB(180, 180, 190), ATTR_ORE,    1 },
+    { "F", RGB( 60, 200,  70), ATTR_FOOD,   2 },
     { "N", RGB( 90, 150, 230), ATTR_NOVA,   3 },
+    { "O", RGB(180, 180, 190), ATTR_ORE,    1 },
 };
 static const COLORREF POP_COLOR = RGB(255, 215, 80);
 
-static TShape s_res_shp        = {};
-static bool   s_res_shp_tried  = false;
-static bool   s_res_shp_loaded = false;
-
-static TShape* res_icons_slp()
+struct ResourcesOverlayUserData
 {
-    if (!s_res_shp_tried)
-    {
-        s_res_shp_tried = true;
-        char fname[] = "interfac.drs";
-        TShape__TShape(&s_res_shp, fname, RES_SLP_ID);
-        s_res_shp_loaded = s_res_shp.Is_Loaded && s_res_shp.Num_Shapes > 0;
-    }
-    return s_res_shp_loaded ? &s_res_shp : NULL;
+    TShape* s_res_shp;
+    bool s_res_shp_loaded;
+};
+
+static TShape* res_icons_slp(ResourcesOverlayUserData* res_user_data)
+{
+    return res_user_data->s_res_shp_loaded ? res_user_data->s_res_shp : NULL;
+}
+
+static void* res_create()
+{
+    ResourcesOverlayUserData* res_user_data = new ResourcesOverlayUserData;
+
+    res_user_data->s_res_shp = (TShape*)operator_new_internal(sizeof(TShape));
+    TShape__TShape(res_user_data->s_res_shp, "", RES_SLP_ID);
+    res_user_data->s_res_shp_loaded =
+        res_user_data->s_res_shp->Is_Loaded && res_user_data->s_res_shp->Num_Shapes > 0;
+
+    return res_user_data;
+}
+
+static void res_destroy(void* user_data)
+{
+    ResourcesOverlayUserData* res_user_data = (ResourcesOverlayUserData*)user_data;
+
+    TShape__destructor(res_user_data->s_res_shp);
+    operator_delete_internal(res_user_data->s_res_shp);
+
+    delete res_user_data;
 }
 
 static void draw_res_value(HDC hdc, int item_x, int y, int val_w, int font_h,
@@ -66,21 +83,25 @@ static void draw_res_value(HDC hdc, int item_x, int y, int val_w, int font_h,
     int tx = item_x + ICON_W + ICON_GAP;
     int ty = y + (ICON_H - font_h) / 2;
     if (ty < y) ty = y;
-    RECT clip = { tx, y, tx + val_w, y + ICON_H };
-    ExtTextOutA(hdc, tx, ty, ETO_CLIPPED, &clip, value, value_len, NULL);
+    //RECT clip = { tx, y, tx + val_w, y + ICON_H };
+    //ExtTextOutA(hdc, tx, ty, ETO_CLIPPED, &clip, value, value_len, NULL);
+    TextOutA(hdc, tx, ty, value, value_len);
 }
 
-static bool res_need_redraw()
+static bool res_need_redraw(void* /* user_data */)
 {
     return true;  // resources change every tick; container gates on isRec()
 }
 
-static void res_render(TDrawArea* da, HRGN /*clip*/,
-                       TRIBE_Player* player, int /*player_idx*/,
+static int res_render(TDrawArea* da, HRGN /*clip*/,
+                       TRIBE_Player* player,
                        int x, int y, int w,
-                       SpectatorLayout /*layout*/, SpectatorPass pass)
+                       SpectatorLayout /*layout*/, SpectatorPass pass,
+                       void* user_data)
 {
-    if (!player || !player->attributes) return;
+    ResourcesOverlayUserData* res_user_data = (ResourcesOverlayUserData*)user_data;
+
+    if (!player || !player->attributes) return 0;
 
     int cx_base = x + w - RES_STRIP_W;
     if (cx_base < x) cx_base = x;
@@ -97,8 +118,8 @@ static void res_render(TDrawArea* da, HRGN /*clip*/,
             TDrawArea__FillRect(da, item_x[i], y, item_x[i] + ITEM_W, y + ICON_H, pi_black);
         TDrawArea__FillRect(da, item_x[4], y, item_x[4] + ITEM_W_POP, y + ICON_H, pi_black);
 
-        TShape* shp = res_icons_slp();
-        if (!shp) return;  // GDI pass draws the letter fallback
+        TShape* shp = res_icons_slp(res_user_data);
+        if (!shp) return 0;  // GDI pass draws the letter fallback
         int iy = y + ICON_DROP_Y;
         for (int i = 0; i < 4; i++)
         {
@@ -108,13 +129,15 @@ static void res_render(TDrawArea* da, HRGN /*clip*/,
         }
         if (RES_POP_FRAME >= 0 && RES_POP_FRAME < shp->Num_Shapes)
             TShape__shape_draw(shp, da, item_x[4], iy, RES_POP_FRAME, NULL);
-        return;
+        return 0;
     }
 
     HDC hdc = da->DrawDc;
-    if (!hdc) return;
+    if (!hdc) return 0;
     int font_h = sp_font_h();
-    bool has_icons = res_icons_slp() != NULL;
+    bool has_icons = res_icons_slp(res_user_data) != NULL;
+
+    UINT prev_align = SetTextAlign(hdc, TA_RIGHT);
 
     for (int i = 0; i < 4; i++)
     {
@@ -129,25 +152,31 @@ static void res_render(TDrawArea* da, HRGN /*clip*/,
         if (!has_icons)
         {
             SetTextColor(hdc, RES[i].color);
-            RECT rletter = { item_x[i], y, item_x[i] + ICON_W, y + ICON_H };
-            ExtTextOutA(hdc, item_x[i] + ICON_W / 2 - 4, y + (ICON_H - font_h) / 2,
-                        ETO_CLIPPED, &rletter, RES[i].letter, 1, NULL);
+            //RECT rletter = { item_x[i], y, item_x[i] + ICON_W, y + ICON_H };
+            //ExtTextOutA(hdc, item_x[i] + ICON_W / 2 - 4, y + (ICON_H - font_h) / 2,
+            //            ETO_CLIPPED, &rletter, RES[i].letter, 1, NULL);
+            TextOutA(hdc, item_x[i] + ICON_W / 2 - 4, y + (ICON_H - font_h) / 2, RES[i].letter, 1);
         }
-        draw_res_value(hdc, item_x[i], y, VAL_W, font_h, RES[i].color, buf, len);
+        draw_res_value(hdc, item_x[i] + VAL_W, y, VAL_W, font_h, RES[i].color, buf, len);
     }
 
-    int pop_cur = (int)(player->attributes[ATTR_CIV_POP] + player->attributes[ATTR_MIL_POP]);
-    int pop_cap = (int)(pop_cur + player->attributes[ATTR_POP_ROOM]);
+    int pop_cur = (int)(player->attributes[ATTR_CUR_POP]);
+    int pop_cap = (int)(min(pop_cur + player->attributes[ATTR_POP_ROOM], player->attributes[ATTR_POP_CAP]));
     char buf[16];
     int len = snprintf(buf, sizeof(buf), "%d/%d", pop_cur, pop_cap);
     if (!has_icons)
     {
         SetTextColor(hdc, POP_COLOR);
-        RECT rletter = { item_x[4], y, item_x[4] + ICON_W, y + ICON_H };
-        ExtTextOutA(hdc, item_x[4] + ICON_W / 2 - 4, y + (ICON_H - font_h) / 2,
-                    ETO_CLIPPED, &rletter, "P", 1, NULL);
+        //RECT rletter = { item_x[4], y, item_x[4] + ICON_W, y + ICON_H };
+        //ExtTextOutA(hdc, item_x[4] + ICON_W / 2 - 4, y + (ICON_H - font_h) / 2,
+        //            ETO_CLIPPED, &rletter, "P", 1, NULL);
+        TextOutA(hdc, item_x[4] + ICON_W / 2 - 4, y + (ICON_H - font_h) / 2, "P", 1);
     }
-    draw_res_value(hdc, item_x[4], y, VAL_W_POP, font_h, POP_COLOR, buf, len);
+    draw_res_value(hdc, item_x[4] + VAL_W_POP, y, VAL_W_POP, font_h, POP_COLOR, buf, len);
+
+    SetTextAlign(hdc, prev_align);
+
+    return 4 * (ITEM_W + ITEM_GAP) + (ITEM_W_POP + ITEM_GAP);
 }
 
 static const SpectatorViewDef s_res_view_def = {
@@ -156,7 +185,9 @@ static const SpectatorViewDef s_res_view_def = {
     ROW_H_RES,
     res_render,
     res_need_redraw,
-    NULL
+    NULL,
+    res_create,
+    res_destroy,
 };
 
 void register_resources_spectator_view()

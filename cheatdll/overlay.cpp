@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "overlay.h"
 
+static const int SCREEN_OVERLAY_TRANS_COLOR = 252;
+
 int (__fastcall* const nullsub_33)() = (int(__fastcall* const)())0x00408B20;
 int (__fastcall* const nullsub_32)() = (int(__fastcall* const)())0x00408B10;
 int (__fastcall* const nullsub_22)() = (int(__fastcall* const)())0x00408B40;
@@ -136,10 +138,11 @@ void TRIBE_Panel_Screen_Overlay__create_image_buffer(TRIBE_Panel_Screen_Overlay*
     {
         this_->ImageBuffer = (TDrawArea*)operator_new_internal(sizeof(TDrawArea));
 
-        char b[0x40];
-        snprintf(b, _countof(b), "overlay draw area %x", this_);
+        char b[0x20];
+        snprintf(b, _countof(b), "Overlay Buffer %p", this_);
         TDrawArea__TDrawArea(this_->ImageBuffer, b, 0);
         TDrawArea__Init(this_->ImageBuffer, this_->render_area->DrawSystem, this_->pnl_wid - 1, this_->pnl_hgt - 1, 0, 0);
+        TDrawArea__SetTrans(this_->ImageBuffer, 1, SCREEN_OVERLAY_TRANS_COLOR);
     }
 
     if (!this_->image_clip_region)
@@ -173,8 +176,31 @@ void __fastcall TRIBE_Panel_Screen_Overlay__get_true_render_rect(TRIBE_Panel_Scr
 {
     UNREFERENCED_PARAMETER(dummy);
 
+    TRIBE_Panel_Screen_Overlay__create_image_buffer(this_);
+
     if (this_->ImageBuffer && this_->render_area && this_->visible && this_->active)
+    {
+        if (this_->need_restore)
+        {
+            TDrawArea__PtrClear(this_->ImageBuffer, &this_->ImageRect, SCREEN_OVERLAY_TRANS_COLOR);
+            this_->UsedImageRect = this_->user_callbacks.render_to_image_buffer(
+                this_,
+                this_->user_data,
+                this_->ImageBuffer,
+                &this_->ImageRect,
+                this_->image_clip_region);
+
+            this_->UsedScreenRect = {
+                this_->render_rect.left + this_->UsedImageRect.left,
+                this_->render_rect.top + this_->UsedImageRect.top,
+                this_->render_rect.left + this_->UsedImageRect.right,
+                this_->render_rect.top + this_->UsedImageRect.bottom
+            };
+
+            this_->need_restore = 0;
+        }
         *drawRect = this_->UsedScreenRect;
+    }
     else
         *drawRect = this_->render_rect;
 }
@@ -197,37 +223,13 @@ void __fastcall TRIBE_Panel_Screen_Overlay__draw(TRIBE_Panel_Screen_Overlay* thi
     if (!this_->render_area || !this_->visible || !this_->active)
         return;
 
-    TRIBE_Panel_Screen_Overlay__create_image_buffer(this_);
-
     ++this_->display_changed_count;
     this_->vfptr->draw_setup((TPanel*)this_, 0);
 
-    if (this_->need_restore)
-    {
-        TDrawArea__PtrClear(this_->ImageBuffer, &this_->ImageRect, 1);
-        this_->UsedImageRect = this_->user_callbacks.render_to_image_buffer(
-            this_,
-            this_->user_data,
-            this_->ImageBuffer,
-            &this_->ImageRect,
-            this_->image_clip_region);
-
-        this_->UsedScreenRect = {
-            this_->render_rect.left + this_->UsedImageRect.left,
-            this_->render_rect.top + this_->UsedImageRect.top,
-            this_->render_rect.left + this_->UsedImageRect.right,
-            this_->render_rect.top + this_->UsedImageRect.bottom
-        };
-    }
-
-    TDrawArea__SetTrans(this_->ImageBuffer, 1, 1);
     TDrawArea__Copy(this_->ImageBuffer, this_->render_area, this_->UsedScreenRect.left, this_->UsedScreenRect.top, &this_->UsedImageRect, 1);
-    TDrawArea__SetTrans(this_->ImageBuffer, 0, 1);
 
-    this_->need_restore = 0;
     this_->vfptr->draw_finish((TPanel*)this_);
 }
-
 
 int __fastcall TRIBE_Panel_Screen_Overlay__handle_idle(TRIBE_Panel_Screen_Overlay* this_)
 {
@@ -287,6 +289,10 @@ struct overlay_data
 {
     TRIBE_Panel_Screen_Overlay_User_Callbacks user_callbacks;
     const void* user_init;
+
+    overlay_data(const TRIBE_Panel_Screen_Overlay_User_Callbacks& user_callbacks_t, const void* user_init_t) :
+        user_callbacks(user_callbacks_t), user_init(user_init_t) {
+    };
 };
 
 std::vector<TRIBE_Panel_Screen_Overlay*> created_overlays;
@@ -381,8 +387,7 @@ __declspec(naked) void on_game_screen_handle_size() //004F6A42
 
 void register_screen_overlay(const TRIBE_Panel_Screen_Overlay_User_Callbacks& user_callbacks, const void* user_init)
 {
-    overlay_data d = { user_callbacks , user_init };
-    registered_overlays.emplace_back(d);
+    registered_overlays.emplace_back(user_callbacks, user_init);
 }
 
 #pragma optimize( "s", on )
