@@ -75,7 +75,7 @@ static void res_destroy(void* user_data)
     delete res_user_data;
 }
 
-static void draw_res_value(HDC hdc, int item_x, int y, int val_w, int font_h,
+static void draw_res_value(HDC hdc, int item_x, int y, int /* val_w */, int font_h,
                             COLORREF text_color,
                             const char* value, int value_len)
 {

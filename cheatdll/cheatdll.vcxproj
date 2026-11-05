@@ -392,6 +392,7 @@
     <ClInclude Include="tribe_command_ef.h" />
     <ClInclude Include="triggerdesc.h" />
     <ClInclude Include="trigger_unit.h" />
+    <ClInclude Include="units_overlay.h" />
     <ClInclude Include="unit_master.h" />
     <ClInclude Include="utf8.h" />
     <ClInclude Include="versionselect.h" />
@@ -599,6 +600,7 @@
     <ClCompile Include="tribe_command_ef.cpp" />
     <ClCompile Include="triggerdesc.cpp" />
     <ClCompile Include="trigger_unit.cpp" />
+    <ClCompile Include="units_overlay.cpp" />
     <ClCompile Include="unit_master.cpp" />
     <ClCompile Include="utf8.cpp" />
     <ClCompile Include="versionselect.cpp" />

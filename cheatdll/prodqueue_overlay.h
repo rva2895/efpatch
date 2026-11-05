@@ -20,6 +20,26 @@ struct TechEntry
     __int16 icon;       // frame index into iconsTechPtr SLP
 };
 
+static const int ICON_SIZE = 36;
+static const int COUNT_H = 14;
+static const int BAR_H = 5;
+static const int MARGIN_R = 8;
+static const int ROW_H = ICON_SIZE + COUNT_H + BAR_H;
+static const int ROW_GAP = 2;
+static const int TECH_ROW_Y = ROW_H + ROW_GAP;
+static const int PANEL_H = TECH_ROW_Y + ROW_H + 2;
+
+// Compact (spectator) layout.
+static const int ICON_SIZE_C = 24;
+static const int COUNT_H_C = 14;
+static const int COUNT_H_C_LARGE = 18;       // cd.largeText path
+static const int BAR_H_C = 4;
+// SLPs render at their native ~36 px from (cx, row_y) regardless of icon_size,
+// so the strip-below must sit at row_y + 36, not row_y + icon_size.
+static const int SLP_NATIVE_H = 36;
+// Allocate the largeText height so the bar never clips on toggle.
+static const int ROW_H_COMPACT = SLP_NATIVE_H + COUNT_H_C_LARGE + BAR_H_C;
+
 // Populate |entries| from a specific player's production queues.
 bool collect_prodqueue_for_player(TRIBE_Player* player, std::vector<PQEntry>& entries);
 

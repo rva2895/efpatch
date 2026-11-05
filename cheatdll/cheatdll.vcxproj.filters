@@ -621,6 +621,9 @@
     <ClInclude Include="databank.h">
       <Filter>Заголовочные файлы\ui</Filter>
     </ClInclude>
+    <ClInclude Include="units_overlay.h">
+      <Filter>Заголовочные файлы\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ai.cpp">
@@ -1182,6 +1185,9 @@
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
     <ClCompile Include="databank.cpp">
+      <Filter>Файлы исходного кода\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="units_overlay.cpp">
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
   </ItemGroup>

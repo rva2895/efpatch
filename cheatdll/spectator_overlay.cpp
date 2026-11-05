@@ -208,30 +208,17 @@ void TextOut_outline(HDC hdc, int x, int y, LPCSTR lpString, int c, COLORREF col
     TextOutA(hdc, x + 1, y + 1, lpString, c);
 }
 
-static void render_player_name(TDrawArea* render_area, int id)
+static void render_player_name(TDrawArea* render_area, int id, const char* name)
 {
     TRIBE_Player* player = (*base_game)->world->players[id];
     int color_id = player->color_table->vfptr->get_id(player->color_table) + 1;
-    const char* name = (player->name && player->name[0]) ? player->name : NULL;
-    char name_buf[64];
-    int name_len;
-    if (!name)
-    {
-        name_len = snprintf(name_buf, sizeof(name_buf), "Player %d", player->id);
-        name = name_buf;
-    }
-    else
-    {
-        name_len = (int)strlen(name);
-        if (name_len > 63) name_len = 63;
-    }
 
     if (TDrawArea__GetDc(render_area, "sp_player_name"))
     {
         SetBkMode(render_area->DrawDc, TRANSPARENT);
         HGDIOBJ old_font = SelectObject(render_area->DrawDc, sp_font());
         UINT prev_align = SetTextAlign(render_area->DrawDc, TA_RIGHT);
-        TextOut_outline(render_area->DrawDc, render_area->Width-8, 2, name, name_len, get_player_color(color_id));
+        TextOut_outline(render_area->DrawDc, render_area->Width-8, 2, name, strlen(name), get_player_color(color_id));
         SetTextAlign(render_area->DrawDc, prev_align);
         SelectObject(render_area->DrawDc, old_font);
 
@@ -239,17 +226,40 @@ static void render_player_name(TDrawArea* render_area, int id)
     }
 }
 
+static int get_player_name_and_calc_width(int id, char* name_buf, size_t name_buf_size, TDrawArea* render_area)
+{
+    TRIBE_Player* player = (*base_game)->world->players[id];
+    const char* name = (player->name && player->name[0]) ? player->name : NULL;
+    int name_len;
+    if (!name)
+        snprintf(name_buf, name_buf_size, "Player %d", player->id);
+    else
+        strlcpy(name_buf, name, name_buf_size);
+
+    if (TDrawArea__GetDc(render_area, "sp_player_name_parent"))
+    {
+        SIZE sz;
+        GetTextExtentPoint32A(render_area->DrawDc, name_buf, strlen(name_buf), &sz);
+
+        TDrawArea__ReleaseDc(render_area, "sp_player_name_parent");
+
+        return sz.cx;
+    }
+
+    return 0;
+}
+
 static TDrawArea* create_player_name_draw_area(int id, TRIBE_Panel_Screen_Overlay* parent_panel)
 {
     TDrawArea* render_area = (TDrawArea*)operator_new_internal(sizeof(TDrawArea));
 
-    char b[0x20];
+    char b[0x40];
     snprintf(b, _countof(b), "Overlay Player Name %d", id);
     TDrawArea__TDrawArea(render_area, b, 0);
-    TDrawArea__Init(render_area, parent_panel->render_area->DrawSystem, 200, 20, 0, 0);
+    TDrawArea__Init(render_area, parent_panel->render_area->DrawSystem, get_player_name_and_calc_width(id, b, _countof(b), parent_panel->render_area), cd.largeText ? 22 : 18, 0, 0);
     TDrawArea__PtrClear(render_area, NULL, 1);
     TDrawArea__SetTrans(render_area, 1, 1);
-    render_player_name(render_area, id);
+    render_player_name(render_area, id, b);
     return render_area;
 }
 
@@ -259,8 +269,9 @@ static void draw_player_name(TDrawArea* dst, TDrawArea* src, int x, int cx, int 
     TDrawArea__Copy(src, dst, x, y, &r, 1);
 }
 
-static void create_player_name_draw_areas(TRIBE_Panel_Screen_Overlay* panel, SpectatorUserData* sp_user_data)
+static int create_player_name_draw_areas(TRIBE_Panel_Screen_Overlay* panel, SpectatorUserData* sp_user_data)
 {
+    int max_width = 0;
     for (int i = 1; i < (*base_game)->world->player_num; i++)
     {
         if (!sp_user_data->player_name_draw_area[i])
@@ -270,7 +281,10 @@ static void create_player_name_draw_areas(TRIBE_Panel_Screen_Overlay* panel, Spe
             else
                 sp_user_data->player_name_draw_area[i] = NULL;
         }
+        if (sp_user_data->player_name_draw_area[i] && sp_user_data->player_name_draw_area[i]->Width > max_width)
+            max_width = sp_user_data->player_name_draw_area[i]->Width;
     }
+    return max_width;
 }
 
 static void delete_player_name_draw_areas(SpectatorUserData* sp_user_data)
@@ -439,7 +453,7 @@ static RECT sp_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* panel, void* u
     int tab_w = (col_w < SP_TAB_W) ? col_w : SP_TAB_W;
     int tab_x = col_x + col_w - tab_w;
 
-    create_player_name_draw_areas(panel, sp_user_data);
+    int render_w = max(SP_TAB_W, create_player_name_draw_areas(panel, sp_user_data));
 
     // TDrawArea::Copy can only be used on an unlocked surface
     for (int i = 1; i < pnum; i++)
@@ -447,8 +461,6 @@ static RECT sp_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* panel, void* u
         int cell_y = tab_h + (i - 1) * cell_step;
         draw_player_name(render_area, sp_user_data->player_name_draw_area[i], col_x, col_w, cell_y);
     }
-
-    int render_w = 100; // TODO: max player name text width
 
     if (TDrawArea__Lock(render_area, "sp_slp", 1))
     {

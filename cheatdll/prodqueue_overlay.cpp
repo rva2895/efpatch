@@ -4,26 +4,6 @@
 #include "consts.h"
 #include "rec.h"
 
-static const int ICON_SIZE   = 36;
-static const int COUNT_H     = 14;
-static const int BAR_H       = 5;
-static const int MARGIN_R    = 8;
-static const int ROW_H       = ICON_SIZE + COUNT_H + BAR_H;
-static const int ROW_GAP     = 2;
-static const int TECH_ROW_Y  = ROW_H + ROW_GAP;
-static const int PANEL_H     = TECH_ROW_Y + ROW_H + 2;
-
-// Compact (spectator) layout.
-static const int ICON_SIZE_C     = 24;
-static const int COUNT_H_C       = 14;
-static const int COUNT_H_C_LARGE = 18;       // cd.largeText path
-static const int BAR_H_C         = 4;
-// SLPs render at their native ~36 px from (cx, row_y) regardless of icon_size,
-// so the strip-below must sit at row_y + 36, not row_y + icon_size.
-static const int SLP_NATIVE_H    = 36;
-// Allocate the largeText height so the bar never clips on toggle.
-static const int ROW_H_COMPACT   = SLP_NATIVE_H + COUNT_H_C_LARGE + BAR_H_C;
-
 static HBRUSH s_br_bg       = NULL;
 static HBRUSH s_br_bar_bg   = NULL;
 static HBRUSH s_br_bar_fg   = NULL;
@@ -40,7 +20,7 @@ static void ensure_brushes()
     s_br_icon     = CreateSolidBrush(RGB( 60,  60,  80));
 }
 
-static TShape* resolve_unit_slp(TRIBE_Player* player)
+TShape* resolve_unit_slp(TRIBE_Player* player)
 {
     if (!iconsUnitPtr) return NULL;
     int civ = player ? player->culture : 0;
@@ -163,17 +143,17 @@ bool collect_techqueue(std::vector<TechEntry>& entries)
     return collect_techqueue_for_player((TRIBE_Player*)RGE_Base_Game__get_player(*base_game), entries);
 }
 
-static inline int pq_count_h(int icon_size)
+inline int pq_count_h(int icon_size)
 {
     return (icon_size <= 24) ? (cd.largeText ? COUNT_H_C_LARGE : COUNT_H_C) : COUNT_H;
 }
-static inline int pq_bar_h(int icon_size) { return (icon_size <= 24) ? BAR_H_C : BAR_H; }
+inline int pq_bar_h(int icon_size) { return (icon_size <= 24) ? BAR_H_C : BAR_H; }
 // Cell step ≥ native SLP width + 8 px gutter so icons don't bleed into neighbours.
-static inline int pq_cell_step(int icon_size) { return max(icon_size, 36) + 8; }
+inline int pq_cell_step(int icon_size) { return max(icon_size, 36) + 8; }
 
 void draw_prodqueue_overlay_pass(TDrawArea* da, int cell_x, int cell_w,
                                   const std::vector<PQEntry>& entries,
-                                  HRGN clip_region, TRIBE_Player* player, int row_y,
+                                  HRGN /* clip_region */, TRIBE_Player* player, int row_y,
                                   int icon_size, bool right_align,
                                   SpectatorPass pass)
 {
@@ -259,7 +239,7 @@ void draw_prodqueue_overlay_pass(TDrawArea* da, int cell_x, int cell_w,
 
 void draw_techqueue_overlay_pass(TDrawArea* da, int cell_x, int cell_w,
                                   const std::vector<TechEntry>& entries,
-                                  HRGN clip_region, TRIBE_Player* player, int row_y,
+                                  HRGN /* clip_region */, TRIBE_Player* player, int row_y,
                                   int icon_size, bool right_align,
                                   SpectatorPass pass)
 {
@@ -420,18 +400,18 @@ void draw_techqueue_overlay(TDrawArea* da, int cell_x, int cell_w,
 
 struct PQUserData { bool had_queue; };
 
-static void* pq_create(TRIBE_Panel_Screen_Overlay* panel, const void* user_init)
+static void* pq_create(TRIBE_Panel_Screen_Overlay* /* panel */, const void* /* user_init */)
 {
     PQUserData* d = new PQUserData;
     d->had_queue = false;
     return d;
 }
-static void pq_destroy(TRIBE_Panel_Screen_Overlay* panel, void* user_data)
+static void pq_destroy(TRIBE_Panel_Screen_Overlay* /* panel */, void* user_data)
 {
     delete (PQUserData*)user_data;
 }
 
-static bool pq_need_redraw(TRIBE_Panel_Screen_Overlay* panel, void* user_data)
+static bool pq_need_redraw(TRIBE_Panel_Screen_Overlay* /* panel */, void* user_data)
 {
     PQUserData* d = (PQUserData*)user_data;
     if (isRec())
@@ -448,7 +428,7 @@ static bool pq_need_redraw(TRIBE_Panel_Screen_Overlay* panel, void* user_data)
     return needs;
 }
 
-static panel_size pq_handle_size(TRIBE_Panel_Screen_Overlay* panel, void* user_data)
+static panel_size pq_handle_size(TRIBE_Panel_Screen_Overlay* /* panel */, void* /* user_data */)
 {
     panel_size s;
     s.left_border_in = s.right_border_in = s.bottom_border_in = 0;
@@ -459,7 +439,7 @@ static panel_size pq_handle_size(TRIBE_Panel_Screen_Overlay* panel, void* user_d
     return s;
 }
 
-static RECT pq_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* panel, void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
+static RECT pq_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* /* panel */, void* /* user_data */, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
 {
     RECT used_render_rect = {};
 

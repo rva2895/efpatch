@@ -88,6 +88,7 @@
 #include "spectator_overlay.h"
 #include "prodqueue_overlay.h"
 #include "resources_overlay.h"
+#include "units_overlay.h"
 #include "menu.h"
 #include "localisation.h"
 #include "video.h"
@@ -290,6 +291,7 @@ void setHooksCC()
     register_prodqueue_overlay();
     register_spectator_overlay();
     register_queue_spectator_view();
+    register_units_spectator_view();
     register_resources_spectator_view();
 
     //setStatusScreenHooks();
