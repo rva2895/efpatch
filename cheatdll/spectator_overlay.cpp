@@ -136,6 +136,7 @@ static const DWORD SP_REDRAW_MIN_MS = 100;
 
 struct SpectatorUserData
 {
+    bool enabled;
     bool had_content;
     bool view_changed;
     DWORD last_draw_ms;
@@ -315,10 +316,22 @@ static void* sp_create(TRIBE_Panel_Screen_Overlay* panel, const void* /*user_ini
         d->views.emplace_back(*it, it->create ? it->create() : NULL);
     }
 
+    d->enabled = isRec();
+
+    if (d->enabled)
+    {
+        int current_person = (*base_game)->player_game_info->current_person;
+        panel->vfptr->set_active((TPanel*)panel, current_person != -1 ? (*base_game)->player_game_info->people_info[current_person]->spectator_overlay_enabled : 0);
+    }
+    else
+    {
+        panel->vfptr->set_active((TPanel*)panel, 0);
+    }
+
     return d;
 }
 
-static void sp_destroy(TRIBE_Panel_Screen_Overlay* /*panel*/, void* user_data)
+static void sp_destroy(TRIBE_Panel_Screen_Overlay* panel, void* user_data)
 {
     SpectatorUserData* sp_user_data = (SpectatorUserData*)user_data;
     delete_player_name_draw_areas(sp_user_data);
@@ -328,6 +341,15 @@ static void sp_destroy(TRIBE_Panel_Screen_Overlay* /*panel*/, void* user_data)
         if (it->def.destroy) it->def.destroy(it->user_data);
     }
 
+    if (sp_user_data->enabled)
+    {
+        int current_person = (*base_game)->player_game_info->current_person;
+        if (current_person != -1)
+        {
+            (*base_game)->player_game_info->people_info[current_person]->spectator_overlay_enabled = panel->active;
+        }
+    }
+
     delete (SpectatorUserData*)user_data;
 }
 
@@ -335,7 +357,7 @@ static bool sp_need_redraw(TRIBE_Panel_Screen_Overlay* /*panel*/, void* user_dat
 {
     SpectatorUserData* d = (SpectatorUserData*)user_data;
 
-    if (!isRec() || d->views.empty()) return false;
+    if (!d->enabled || d->views.empty()) return false;
     DWORD now = timeGetTime();
     if (d->view_changed)
     {
@@ -430,7 +452,7 @@ static RECT sp_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* panel, void* u
 
     RECT used_render_rect = {};
 
-    if (!isRec() || sp_user_data->views.empty()) return used_render_rect;
+    if (!sp_user_data->enabled || sp_user_data->views.empty()) return used_render_rect;
     if (!*base_game || !(*base_game)->world)  return used_render_rect;
 
     int panel_w = render_rect->right;
@@ -529,13 +551,16 @@ static RECT sp_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* panel, void* u
 static void sp_handle_hotkey(TRIBE_Panel_Screen_Overlay* panel, void* user_data, int hotkey)
 {
     SpectatorUserData* sp_user_data = (SpectatorUserData*)user_data;
+
+    if (!sp_user_data->enabled) return;
+
     switch (hotkey)
     {
     case 0x63:  // F8 – toggle spectator overlay on/off
         panel->vfptr->set_active((TPanel*)panel, panel->active ? 0 : 1);
         break;
     case 0x64:  // Alt+Q – cycle to next view
-        spectator_next_view(sp_user_data);
+        if (panel->active) spectator_next_view(sp_user_data);
         break;
     default:
         break;

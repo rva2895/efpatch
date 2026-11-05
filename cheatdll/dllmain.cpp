@@ -148,6 +148,7 @@
 #include "mousewheel.h"
 #include "utf8.h"
 #include "databank.h"
+#include "personinfo.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -286,6 +287,8 @@ void setHooksCC()
 
     if (cd.keydown)
         setHotkeyHooks();
+
+    setPersonInfoHooks();
 
     setOverlayHooks();
     register_prodqueue_overlay();

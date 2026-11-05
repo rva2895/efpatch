@@ -398,23 +398,51 @@ void draw_techqueue_overlay(TDrawArea* da, int cell_x, int cell_w,
 
 // Live overlay: local player's queue, non-spectator games only.
 
-struct PQUserData { bool had_queue; };
+struct PQUserData
+{
+    bool enabled;
+    bool had_queue;
+};
 
-static void* pq_create(TRIBE_Panel_Screen_Overlay* /* panel */, const void* /* user_init */)
+static void* pq_create(TRIBE_Panel_Screen_Overlay* panel, const void* /* user_init */)
 {
     PQUserData* d = new PQUserData;
     d->had_queue = false;
+    d->enabled = !isRec();
+
+    if (d->enabled)
+    {
+        int current_person = (*base_game)->player_game_info->current_person;
+        panel->vfptr->set_active((TPanel*)panel, current_person != -1 ? (*base_game)->player_game_info->people_info[current_person]->queue_overlay_enabled : 0);
+    }
+    else
+    {
+        panel->vfptr->set_active((TPanel*)panel, 0);
+    }
+
     return d;
 }
-static void pq_destroy(TRIBE_Panel_Screen_Overlay* /* panel */, void* user_data)
+
+static void pq_destroy(TRIBE_Panel_Screen_Overlay* panel, void* user_data)
 {
+    PQUserData* d = (PQUserData*)user_data;
+
+    if (d->enabled)
+    {
+        int current_person = (*base_game)->player_game_info->current_person;
+        if (current_person != -1)
+        {
+            (*base_game)->player_game_info->people_info[current_person]->queue_overlay_enabled = panel->active;
+        }
+    }
+
     delete (PQUserData*)user_data;
 }
 
 static bool pq_need_redraw(TRIBE_Panel_Screen_Overlay* /* panel */, void* user_data)
 {
     PQUserData* d = (PQUserData*)user_data;
-    if (isRec())
+    if (!d->enabled)
     {
         bool was = d->had_queue;
         d->had_queue = false;
@@ -439,11 +467,13 @@ static panel_size pq_handle_size(TRIBE_Panel_Screen_Overlay* /* panel */, void* 
     return s;
 }
 
-static RECT pq_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* /* panel */, void* /* user_data */, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
+static RECT pq_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* /* panel */, void* user_data, TDrawArea* render_area, RECT* render_rect, HRGN clip_region)
 {
+    PQUserData* d = (PQUserData*)user_data;
+
     RECT used_render_rect = {};
 
-    if (isRec()) return used_render_rect;
+    if (!d->enabled) return used_render_rect;
 
     int panel_w = render_rect->right;
     TRIBE_Player* player = (TRIBE_Player*)RGE_Base_Game__get_player(*base_game);
@@ -474,8 +504,11 @@ static RECT pq_render_to_image_buffer(TRIBE_Panel_Screen_Overlay* /* panel */, v
     return used_render_rect;
 }
 
-static void pq_handle_hotkey(TRIBE_Panel_Screen_Overlay* panel, void* /*user_data*/, int hotkey)
+static void pq_handle_hotkey(TRIBE_Panel_Screen_Overlay* panel, void* user_data, int hotkey)
 {
+    PQUserData* d = (PQUserData*)user_data;
+    if (!d->enabled) return;
+
     if (hotkey == 0x63)  // F8: toggle live overlay
         panel->vfptr->set_active((TPanel*)panel, panel->active ? 0 : 1);
 }

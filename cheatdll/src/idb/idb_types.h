@@ -17280,6 +17280,10 @@ struct RGE_Person_Info
   unsigned __int8 score_flag;
   unsigned __int8 time_flag;
   unsigned __int8 showed_difficulty_dialog;
+
+  //Person Info Extra
+  unsigned __int8 queue_overlay_enabled;
+  unsigned __int8 spectator_overlay_enabled;
 };
 #pragma pack(pop)
 

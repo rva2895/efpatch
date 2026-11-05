@@ -283,6 +283,7 @@
     <ClInclude Include="loadfilelist.h" />
     <ClInclude Include="mousewheel.h" />
     <ClInclude Include="mpsetupscreen.h" />
+    <ClInclude Include="personinfo.h" />
     <ClInclude Include="setup.h" />
     <ClInclude Include="sleepingobjects.h" />
     <ClInclude Include="tabstop.h" />
@@ -488,6 +489,7 @@
     <ClCompile Include="loadfilelist.cpp" />
     <ClCompile Include="mousewheel.cpp" />
     <ClCompile Include="mpsetupscreen.cpp" />
+    <ClCompile Include="personinfo.cpp" />
     <ClCompile Include="setup.cpp" />
     <ClCompile Include="sleepingobjects.cpp" />
     <ClCompile Include="tabstop.cpp" />

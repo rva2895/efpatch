@@ -35,9 +35,9 @@ static const int RES_SLP_ID    = 50731;
 static const int RES_POP_FRAME = 5;   // objpaneldraw treats 5 as "other".
 
 static const ResInfo RES[4] = {
-    { "C", RGB(200, 140,  45), ATTR_CARBON, 0 },
-    { "F", RGB( 60, 200,  70), ATTR_FOOD,   2 },
-    { "N", RGB( 90, 150, 230), ATTR_NOVA,   3 },
+    { "C", RGB(90, 150, 230), ATTR_CARBON, 0 },
+    { "F", RGB(200, 140,  45), ATTR_FOOD,   2 },
+    { "N", RGB(60, 200,  70), ATTR_NOVA,   3 },
     { "O", RGB(180, 180, 190), ATTR_ORE,    1 },
 };
 static const COLORREF POP_COLOR = RGB(255, 215, 80);
