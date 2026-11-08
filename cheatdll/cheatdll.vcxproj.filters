@@ -627,6 +627,9 @@
     <ClInclude Include="personinfo.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
+    <ClInclude Include="mods.h">
+      <Filter>Заголовочные файлы\misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ai.cpp">
@@ -1194,6 +1197,9 @@
       <Filter>Файлы исходного кода\ui</Filter>
     </ClCompile>
     <ClCompile Include="personinfo.cpp">
+      <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="mods.cpp">
       <Filter>Файлы исходного кода\misc</Filter>
     </ClCompile>
   </ItemGroup>

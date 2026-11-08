@@ -7,6 +7,7 @@
 #include "palette.h"
 #include "localisation.h"
 #include "textrender.h"
+#include "moddialog.h"
 
 #include <process.h>
 #include <CommCtrl.h>
@@ -21,13 +22,9 @@ bool display_modes_enumerated = false;
 void processIDOK(HWND hWnd)
 {
     wchar_t buf[0x100];
-    GetDlgItemText(hWnd, IDC_EDIT_DSH_NBUFS, buf, _countof(buf));
-    swscanf_s(buf, L"%d", &cd.nBufs);
-    GetDlgItemText(hWnd, IDC_EDIT_DSH_DELAY, buf, _countof(buf));
-    swscanf_s(buf, L"%d", &cd.timeout);
 
     cd.useFPS = IsDlgButtonChecked(hWnd, IDC_CHECK_FPS);
-    cd.useDShook = IsDlgButtonChecked(hWnd, IDC_CHECK_DSH);
+    cd.useDShook = 0;
     cd.askAtStartup = !IsDlgButtonChecked(hWnd, IDC_CHECK_ALWAYSRUN);
     cd.unlockResources = IsDlgButtonChecked(hWnd, IDC_CHECK_UNLOCKRES);
     cd.unlockObjects = IsDlgButtonChecked(hWnd, IDC_CHECK_UNLOCKOBJECTS);
@@ -88,8 +85,6 @@ void readSettingsToDialog(HWND hWnd)
 
     CheckDlgButton(hWnd, IDC_CHECK_FPS, cd.useFPS);
 
-    CheckDlgButton(hWnd, IDC_CHECK_DSH, cd.useDShook);
-
     CheckDlgButton(hWnd, IDC_CHECK_ALWAYSRUN, !cd.askAtStartup);
     CheckDlgButton(hWnd, IDC_CHECK_UNLOCKRES, cd.unlockResources);
     CheckDlgButton(hWnd, IDC_CHECK_UNLOCKOBJECTS, cd.unlockObjects);
@@ -127,10 +122,6 @@ void readSettingsToDialog(HWND hWnd)
         CheckDlgButton(hWnd, IDC_RADIO_EDITOR_LIST_2, BST_UNCHECKED);
     }
 
-    _snwprintf(buf, _countof(buf), L"%d", cd.nBufs);
-    SetDlgItemText(hWnd, IDC_EDIT_DSH_NBUFS, buf);
-    _snwprintf(buf, _countof(buf), L"%d", cd.timeout);
-    SetDlgItemText(hWnd, IDC_EDIT_DSH_DELAY, buf);
     _snwprintf(buf, _countof(buf), L"%d", cd.editorAutosaveInterval);
     SetDlgItemText(hWnd, IDC_EDIT_EDITORAUTO, buf);
 
@@ -145,10 +136,6 @@ void readSettingsToDialog(HWND hWnd)
     CheckDlgButton(hWnd, IDC_CHECK_LARGETEXT, cd.largeText);
     CheckDlgButton(hWnd, IDC_CHECK_MASTER_VOLUME, cd.delinkVolume);
     CheckDlgButton(hWnd, IDC_CHECK_KEYDOWN, cd.keydown);
-
-    EnableWindow(GetDlgItem(hWnd, IDC_CHECK_DSH), FALSE);
-    EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_NBUFS), FALSE);
-    EnableWindow(GetDlgItem(hWnd, IDC_EDIT_DSH_DELAY), FALSE);
 
     if (!check_dwrite_available())
     {
@@ -168,6 +155,24 @@ void readSettingsToDialog(HWND hWnd)
         if (languages[i].second == cd.lang)
             SendMessage(GetDlgItem(hWnd, IDC_COMBO_LANG), CB_SETCURSEL, cur_sel, 0);
     }
+
+    // Build "<mod 1>, <mod 2>, ..." from cd.mods, or "<None>" if empty.
+    std::wstring text;
+    if (cd.mods.empty())
+    {
+        text = L"<None>";
+    }
+    else
+    {
+        for (size_t i = 0; i < cd.mods.size(); ++i)
+        {
+            if (i > 0)
+                text += L", ";
+            text += cd.mods[i];
+        }
+    }
+
+    SetDlgItemTextW(hWnd, IDC_STATIC_MODLIST, text.c_str());
 }
 
 void processDefaults(HWND hWnd)
@@ -314,6 +319,9 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
             case IDC_BUTTON_DEFAULT: //defaults
                 processDefaults(hWndDlg);
                 return TRUE;
+            case IDC_BUTTON_MODS:
+                launchModDialog(hWndDlg);
+                return TRUE;
             case IDC_CHECK_EDITORAUTO:
                 EnableWindow(GetDlgItem(hWndDlg, IDC_EDIT_EDITORAUTO),
                     IsDlgButtonChecked(hWndDlg, IDC_CHECK_EDITORAUTO));
@@ -352,6 +360,9 @@ BOOL CALLBACK ConfigDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lP
                 break;
             }
         }
+        break;
+    case WM_APP_UPDATE_SETTINGS:
+        readSettingsToDialog(hWndDlg);
         break;
     default:
         break;

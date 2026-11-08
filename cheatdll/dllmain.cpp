@@ -149,6 +149,7 @@
 #include "utf8.h"
 #include "databank.h"
 #include "personinfo.h"
+#include "mods.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -528,6 +529,10 @@ void setHooksEF()
     setSleepingObjectsHooks();
 
     install_language(cd.lang);
+
+#ifndef TARGET_VOOBLY
+    setModsHooks();
+#endif
 
     /*
 #ifdef TARGET_VOOBLY

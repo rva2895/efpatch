@@ -42,8 +42,7 @@ extern const CONFIG_DATA cd_default =
     0,   //chat box
     0,   //fog of war
     0,   //object unlock
-    0,   //mod count
-    NULL,//mods
+    {},  //mods
     L"en" //lang
 };
 
@@ -192,6 +191,46 @@ void regGet(CONFIG_DATA* cd)
             query_reg_option(hKey, L"Unlock Objects", cd->unlockObjects, cd_default.unlockObjects);
 
 #ifndef TARGET_VOOBLY
+            DWORD modsSize = 0;
+            DWORD modsType = 0;
+            LONG rc = RegQueryValueEx(hKey, L"Mods", 0, &modsType, NULL, &modsSize);
+
+            if (rc == ERROR_FILE_NOT_FOUND || modsSize == 0 || modsType != REG_MULTI_SZ)
+            {
+                cd->mods = cd_default.mods;
+            }
+            else if (rc != ERROR_SUCCESS)
+            {
+                log("Failed to query Mods value, keeping current mods list");
+                // leave cd->mods as-is
+            }
+            else
+            {
+                std::vector<wchar_t> buffer(modsSize / sizeof(wchar_t) + 1, L'\0');
+                DWORD readSize = (DWORD)(buffer.size() * sizeof(wchar_t));
+                if (RegQueryValueEx(hKey, L"Mods", 0, &modsType,
+                    (BYTE*)buffer.data(), &readSize) == ERROR_SUCCESS &&
+                    modsType == REG_MULTI_SZ)
+                {
+                    size_t wcount = readSize / sizeof(wchar_t);
+                    std::vector<std::wstring> modsList;
+                    size_t pos = 0;
+                    while (pos < wcount && buffer[pos] != L'\0')
+                    {
+                        size_t end = pos;
+                        while (end < wcount && buffer[end] != L'\0')
+                            end++;
+                        modsList.emplace_back(buffer.data() + pos, end - pos);
+                        pos = end + 1;
+                    }
+                    cd->mods = std::move(modsList);
+                }
+            }
+#else
+            cd->mods = cd_default.mods;
+#endif
+
+#ifndef TARGET_VOOBLY
             wchar_t language[0x20];
             DWORD size = sizeof(language);
             DWORD type;
@@ -282,6 +321,43 @@ void regSet(const CONFIG_DATA* cd)
         set_reg_option(hKey, L"Alternative Chat Box", cd->chatBox, REG_DWORD);
         set_reg_option(hKey, L"Alternative Fog of War", cd->fog, REG_DWORD);
         set_reg_option(hKey, L"Unlock Objects", cd->unlockObjects, REG_DWORD);
+
+#ifndef TARGET_VOOBLY
+        // Write Mods (REG_MULTI_SZ)
+        if (!cd->mods.empty())
+        {
+            // Calculate total size: sum of lengths + number of strings * null terminators + final double null
+            DWORD totalSize = 0;
+            for (const auto& str : cd->mods)
+            {
+                totalSize += (str.length() + 1) * sizeof(wchar_t);
+            }
+            totalSize += sizeof(wchar_t); // Final null terminator for the multi-string
+
+            std::vector<wchar_t> buffer;
+            buffer.reserve(totalSize / sizeof(wchar_t));
+
+            for (const auto& str : cd->mods)
+            {
+                buffer.insert(buffer.end(), str.begin(), str.end());
+                buffer.push_back(L'\0');
+            }
+            buffer.push_back(L'\0'); // Double null terminator
+
+            RegSetValueEx(
+                hKey,
+                L"Mods",
+                0,
+                REG_MULTI_SZ,
+                (BYTE*)buffer.data(),
+                totalSize);
+        }
+        else
+        {
+            // If mods are empty, delete the key to avoid storing an empty multi-sz
+            RegDeleteValue(hKey, L"Mods");
+        }
+#endif
 
 #ifndef TARGET_VOOBLY
         DWORD type = REG_SZ;

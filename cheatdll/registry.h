@@ -37,8 +37,7 @@ struct CONFIG_DATA
     int chatBox;
     int fog;
     int unlockObjects;
-    int modCount;
-    char** mods;
+    std::vector<std::wstring> mods;
 
     std::wstring lang;
 };

@@ -111,6 +111,7 @@ extern RGE_Airspace_Manager** const OBSystem_Air;
 
 extern HINSTANCE* const hInstance_dll;
 
+extern void* (__cdecl* const malloc_internal)(size_t Size);
 extern void* (__cdecl* const calloc_internal)(size_t number, size_t size);
 extern void* (__cdecl* const operator_new_internal)(size_t size);
 extern void (__cdecl* const operator_delete_internal)(void* ptr);

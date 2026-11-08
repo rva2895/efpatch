@@ -314,6 +314,9 @@ void __stdcall findfirst_callback(
     }
 }
 
+void* (__cdecl* const malloc_internal)(size_t Size) =
+    (void* (__cdecl* const) (size_t))0x0063328C;
+
 void* (__cdecl* const calloc_internal)(size_t number, size_t size) =
     (void* (__cdecl* const) (size_t, size_t))0x00632D33;
 
