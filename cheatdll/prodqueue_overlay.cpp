@@ -509,8 +509,15 @@ static void pq_handle_hotkey(TRIBE_Panel_Screen_Overlay* panel, void* user_data,
     PQUserData* d = (PQUserData*)user_data;
     if (!d->enabled) return;
 
-    if (hotkey == 0x63)  // F8: toggle live overlay
+    switch (hotkey)
+    {
+    case 0x63:  // F8: toggle live overlay
         panel->vfptr->set_active((TPanel*)panel, panel->active ? 0 : 1);
+        panel->vfptr->set_redraw((TPanel*)panel->parent_panel, 1);
+        break;
+    default:
+        break;
+    }
 }
 
 void register_prodqueue_overlay()
@@ -611,7 +618,7 @@ static int queue_render(TDrawArea* da, HRGN clip,
 }
 
 static const SpectatorViewDef s_queue_view_def = {
-    "Production",
+    1554,
     PANEL_H,
     ROW_H_COMPACT,
     queue_render,

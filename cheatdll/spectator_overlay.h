@@ -10,7 +10,8 @@ enum SpectatorLayout { SP_FULL = 0, SP_COMPACT = 1 };
 enum SpectatorPass { SP_PASS_SLP = 0, SP_PASS_GDI = 1 };
 
 struct SpectatorViewDef {
-    const char* label;
+    //const char* label;
+    int         label_string_id;
     int         full_h;
     int         compact_h;
 
@@ -31,10 +32,11 @@ struct SpectatorViewDef {
 
 struct SpectatorViewInstance {
     SpectatorViewDef def;
+    std::string label;
     void* user_data;
 
     SpectatorViewInstance(const SpectatorViewDef& def_t, void* user_data_t) :
-        def(def_t), user_data(user_data_t) {
+        def(def_t), user_data(user_data_t), label(get_string(def_t.label_string_id)) {
     };
 };
 

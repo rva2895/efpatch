@@ -528,12 +528,14 @@ HRESULT DWriteProcessText(
             }
         };
 
+    /*
     if (true)
     {
         log("*** BEGIN TIMING");
-        log("%s [%d, %d, %d, %d]", WideToUTF8_c_str(text), x, y, cx, cy);
+        log("%s [%d, %d, %d, %d]", WideToUTF8(std::wstring(text)), x, y, cx, cy);
         do_timing = true;
     }
+    */
 
     report_time("timing start");
 
@@ -640,6 +642,15 @@ HRESULT DWriteProcessText(
 #ifdef EFPATCH_ENABLE_TIMING
     report_time("BitBlt dc_main -> dc_dwrite_target");
 #endif // EFPATCH_ENABLE_TIMING
+
+    /*
+    RECT layout_rect2;
+    layout_rect2.left = x + floor(tm.left);
+    layout_rect2.top = y + floor(tm.top);
+    layout_rect2.right = x + ceil(tm.left + tm.width);
+    layout_rect2.bottom = y + ceil(tm.top + tm.height);
+    FillRect(dc_dwrite_target, &layout_rect2, CreateSolidBrush(RGB(0, 0, 0)));
+    */
 
     hr = DWriteDrawText(pTextLayout, x, y, right_align_fix, color);
 

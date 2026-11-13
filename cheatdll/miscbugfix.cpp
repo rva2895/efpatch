@@ -725,6 +725,37 @@ void __fastcall TRIBE_Building_Object__cancel_build_exception(TRIBE_Building_Obj
         TRIBE_Building_Object__cancel_build(obj);
 }
 
+bool __fastcall cross_check_info_check_range(int rangeX, int rangeY)
+{
+    return (rangeX >= 3 || rangeY >= 3);
+}
+
+__declspec(naked) void cross_check_info_fix() //004E00E6
+{
+    __asm
+    {
+        jle     cross_check_info_loop_exit //004E00EC
+        push    eax
+        push    edx
+        push    ecx
+        mov     ecx, ebp
+        mov     edx, edi
+        call    cross_check_info_check_range
+        pop     ecx
+        pop     edx
+        test    al, al
+        pop     eax
+        jz      cross_check_info_loop_exit
+        mov     eax, 004DFFA8h
+        jmp     eax
+
+cross_check_info_loop_exit:
+        cmp     eax, 0FFFFFFFFh
+        mov     eax, 004E00EFh
+        jmp     eax
+    }
+}
+
 #pragma optimize( "s", on )
 void setMiscBugfixHooks(int ver)
 {
@@ -895,5 +926,8 @@ void setMiscBugfixHooks(int ver)
 
     //watching player dropdown
     setHook((void*)0x00502C34, on_setup_replay_controls_player_drop);
+
+    //cross check info loop fix
+    //setHook((void*)0x004E00E6, cross_check_info_fix);
 }
 #pragma optimize( "", on )

@@ -204,7 +204,7 @@ static int units_render(TDrawArea* da, HRGN clip,
 }
 
 static const SpectatorViewDef s_units_view_def = {
-    "Units",
+    1555,
     114,
     ROW_H_RES,
     units_render,

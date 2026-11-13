@@ -180,7 +180,7 @@ static int res_render(TDrawArea* da, HRGN /*clip*/,
 }
 
 static const SpectatorViewDef s_res_view_def = {
-    "Resources",
+    1556,
     ROW_H_RES,
     ROW_H_RES,
     res_render,
