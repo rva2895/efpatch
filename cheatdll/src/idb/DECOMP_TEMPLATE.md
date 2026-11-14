@@ -145,6 +145,58 @@ no pseudocode restatements of the function body:
   `(__int64)` casts; the asm (`call __ftol` = float→int32 via the CRT
   helper) is authoritative — use `(int)` plus explicit narrowing, never
   `(__int64)`, unless the asm actually shows a 64-bit `fistp`.
+- Allocation size verification (hard stop): every operator_new /
+  operator_new_internal literal size must be mechanically verified as
+  sizeof(allocated type) — recursive struct walk over idb_types.h with
+  pack-capped x86 rules (member align = min(natural, pack); struct
+  align = max member align, capped; size rounded to struct align).
+  A mismatch, or an unverifiable allocation (unresolved embedded types),
+  is a HARD STOP: Information Request, no code — keeping the unverified
+  literal is not permitted. Runtime-size allocations (arrays sized by
+  parameters) are exempt from sizeof but must match the original's
+  allocation expression.
+- Structured-I/O size verification (hard stop): every rge_read /
+  rge_write / fread / fwrite-style size argument (the 3rd parameter)
+  must be written as sizeof(target) — sizeof of the exact destination
+  expression, never a numeric literal — so the transferred width is
+  mechanically type-checked against the target (single-element arrays
+  use the element expression, e.g. arr[0], not the whole-array sizeof).
+  Format-driven readers (fscanf) carry widths in the conversion string
+  instead — audit every conversion against its target. Value-sized
+  transfers (length-prefixed strings) pass the length variable, not a
+  size. A width that intentionally differs from the target's sizeof
+  (partial-field or deliberate-overwrite transfers) is a DEVIATION and
+  follows the deviation protocol (see its bullet below): the literal
+  stays, an asm-cited comment goes at the call, and the deviation must
+  be presented as a clearly-flagged item in the review artifact —
+  target expression, literal width, the sizeof it replaces, and the
+  asm evidence — with explicit owner approval obtained BEFORE the code
+  is written. Writing a deviation into a file without that approval is
+  a gate violation. An unverified width — a bare literal without the
+  asm citation and approval, or a sizeof that disagrees with the
+  asm-pushed size — is a HARD STOP: Information Request, no code.
+- Numeric conversion verification: every hex-to-decimal (and reverse)
+  conversion cited in output or ledger must be recomputed mechanically
+  before use — an arithmetic slip here can manufacture phantom blockers
+  or hide real ones. Prefer scripted conversion over mental arithmetic
+  for any constant that gates a decision.
+- Pointer arithmetic elimination (hard stop): `pointer += constant`,
+  `pointer -= constant`, and `pointer + constant` expressions in the
+  decompilation must be converted to indexed array access, with every
+  byte offset verified against the element size and the containing
+  struct layout. `pointer += constant` statements must never appear in
+  output code. An offset that cannot be verified against the layout is
+  a hard stop: Information Request, no code.
+- Deviation presentation protocol: whenever a reconstruction must
+  deviate from a mechanical form this template mandates (sizeof widths,
+  indexed access, faithful operator order, any literal the rules would
+  otherwise rewrite), the deviation is not an implementation detail —
+  it is a review item. Present each deviation explicitly in the review
+  artifact: what the mechanical form would be, what the binary actually
+  does, the asm evidence, and why the deviation is required. Explicit
+  owner approval must be obtained before the deviating code is written.
+  Silent deviations — however well-commented in the code — are gate
+  violations.
 - Do not "improve" the algorithm. Faithful reconstruction, not refactoring.
 - Residual judgment calls that are legal under the gate (naming choices,
   comment placement, whether an equivalence is trivial) are marked

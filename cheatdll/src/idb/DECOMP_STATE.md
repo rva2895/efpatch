@@ -226,6 +226,21 @@ authoritative.)
   process: comment out, never delete); the now-dead writeByte 0x54B3E9
   (dead since the gbg_get_civ_override hook) retired the same way.
   medic_worker @0x54BA2B remains live (target not replaced).
+- RGE_Map::set_map_visible @ 0x00490650 [0x490650,0x49065A) +
+  set_map_fog @ 0x00490660 [0x490660,0x49066A) — owner-approved
+  2026-11-14. Gate PASSED ×2. Fields: map_visible_flag/fog_flag
+  unsigned __int8 (idb_types.h:2927-2928). Writer scan 1 overlap each
+  = dead profiler table (functionlist.cpp:2159-2160). WRITTEN:
+  src/engine/map/RGE_Map.cpp + install_map.cpp wiring + vcxproj.
+  Post-write verification: RGE_Map 2 defs / 2 refs identical.
+- RGE_Map::clear_map @ 0x00490670 [0x490670,0x4906D0) — owner-approved
+  2026-11-14. Gate PASSED. Pure forwarder composition: new_map (replaced
+  — routes through the hook), set_terrain (idb_functions.h:1997,
+  0x00495F80 — signature matches arg-for-arg incl. int→i16 narrowing),
+  reset_object_count (:6003, 0x61B4D0), reset_player_visible_maps
+  (:6038, 0x61CFF0). Writer scan 0 overlaps; address grep = dead
+  profiler table (functionlist.cpp:2161). WRITTEN + post-write
+  verification: RGE_Map 4 defs / 4 refs identical.
 - RGE_Master_Static_Object::modify @ 0x0048D800 [0x48D800,0x48D8D0),
   modify_delta @ 0x0048D8D0 [0x48D8D0,0x48D9C0), modify_percent @
   0x0048D9C0 [0x48D9C0,0x48DAA4) + jump tables to 0x48DADE —
@@ -241,6 +256,149 @@ authoritative.)
   derived-side); Moving::modify delegates to Animated; primary
   dispatch is the vtable slot in RGE_Master_Static_Object__vftable —
   the entry hook covers all virtual traffic.
+- RGE_Master_Static_Object::check_placement @ 0x0048E180
+  [0x48E180,0x48EA40) — owner-approved 2026-11-14 after a three-round
+  verification plus one owner-triggered post-write re-verification pass
+  (C2108 report). The largest function: ~430 pseudocode lines, ~190 asm.
+  Gate PASSED; all six phases instruction-level decoded: bounds (7);
+  center-tile terrain (raw position tile, i16-truncated, asm loc_48E2C4);
+  terrain-requirement scans as a unified perimeter walk over a scan
+  rectangle that DEGENERATES to the position tile when the center gate
+  (center_tile_req1/2 >= 0) is active, else the box perimeter (the
+  originally written box-edge scan in both modes was structurally wrong,
+  caught by the re-verification, corrected on approval); per-tile
+  passability/visibility/flatness; visibility accumulation (5); object
+  collision scan (6 + obstructionObject).
+  RETRACTIONS banked from the re-verification: (a) passability is
+  <= 0.05f, not < — test ah,41h = C0|C3; the "asm C0 idiom -> <" ruling
+  was a misdecode; same for the phase-6 radius_z <= 0 gate; the true
+  C0-only (<) idioms are the phase-1 left<0 / top<0 bounds and the AABB
+  fabs tests (0x48E96A/0x48E981); (b) the phase-3 terrain_type == 0xFFFF
+  compare is asm-present but DEAD (byte terrain_type <= 255 can never
+  equal i16 0xFFFF) — the pseudocode correctly omits it, superseding the
+  "decompiler-dropped" claim; (c) the reported-object walk-order judgment
+  call is RETIRED — the replacement matches the original's row-major
+  nesting exactly. Additional re-verification corrections (owner-approved,
+  applied): diagonal RHS is int math on ftol(top) (a float `rx - top`
+  diverges for fractional row); elevation_flag==3 window [corner-1,
+  corner+1] from map[ftol(bottom)][ftol(left)].height computed pre-loop,
+  applied only on the left column or bottom row (the first written form
+  was a provable no-op); phase-6 header: selected radius_x/y <= 0 -> 0
+  gate, scan rect = +-8 tiles around the raw position clamped to the map
+  (NOT the placement box — the earlier "verified" box walk was a
+  misdecode), group 27 persistently WRITES this->radius_z = 1.0 (real
+  field store, asm 0x48E7FD — gameplay-visible side effect, present in
+  the original). PROVEN: phase-4 walk bounds are gate-independent
+  (ftol(left/right/top/bottom) into var_30/var_34/var_1C/var_40, asm
+  0x48E268-0x48E2A0; the center-gate branches touch only the phase-3
+  registers var_18/3C/44). Stack-slot reuse map (IDA naming trap):
+  [esp+58h+construction_radius_flag] = left float -> terrain_req_found
+  -> visibility_found -> phase-6 row counter — the apparent "flag gate"
+  at loc_48E543 is the written `if (!terrain_req_found) return 1;`.
+  Callees grounded: world->terrains (RGE_Game_World), map_row_offset
+  (0xBF18 in RGE_Map), prog_mode @+0x1DC, player->visible @+0x88,
+  base_game prog-mode compare == 7, get_visible call at 0x48E658 (routes
+  through our hook). Installer: 32 hooks for the class (defs/refs
+  verified identical; the earlier "total 24" was a stale count).
+- RGE_Master_Static_Object::draw @ 0x0048ED70
+  [0x48ED70,0x48EF30) — owner-approved + written 2026-11-14. 448 bytes,
+  __thiscall, 8 stack args, void. Selection-outline renderer: sprite
+  null-guard -> RGE_Sprite__draw(facet, frame, x, y, sx = x, sy = y,
+  player_color, render_area, min_draw_level 0x0A, debugColumn 0) ->
+  when draw_frame != 0: project the outline rectangle corners
+  (+/-outline_radius_x @196, +/-outline_radius_y @200; y negated on
+  corners 1 and 4 exactly as the original) via RGE_Map::get_point on
+  (*base_game)->world->map, then two DClipInfo_List::AddGDINode nodes
+  into SDI_List: +1-offset pass with DrawColor 0 (shadow outline),
+  exact pass with frame_color; GDI_Type 1, DrawLevel 0x0B, Object_ID
+  = *SDI_Object_ID both passes. Field groundings: outline_radius_x/y
+  @196/200 and RGE_Base_Game::world @0x420 mechanically verified by
+  the struct walker calibrated on recyclable@188 / struct total 0xD0 /
+  prog_mode@476; world->map @0x34 hand-counted = asm [ecx+34h].
+  Callee prototypes all pre-exist: RGE_Sprite__draw (idb_functions
+  .h:3759), RGE_Map__get_point (:2000), DClipInfo_List__AddGDINode
+  (:5922); SDI_List/SDI_Object_ID pre-exist in common.h:117/124.
+  Documented restructure: the original reuses the facet/frame/
+  player_color/render_area/x/y param stack slots as get_point out
+  buffers; replacement uses dedicated locals (params consumed before
+  reuse -> identical behavior). Vtable note: the Master_Action_Object
+  and Master_Animated_Object vftables point AT 0x48ED70 (they inherit
+  base draw), so the entry hook covers their dispatch too. WRITTEN +
+  post-write verification (33 defs/refs identical).
+- RGE_Master_Static_Object::setup @ 0x0048BED0
+  [0x48BED0,0x48C223) — owner-approved + written 2026-11-14. 818 bytes,
+  __thiscall, 1 stack arg (retn 4), returns 1. Template applier: ~60
+  field copies from other_object (master_type forced to 10 = static),
+  the id->copy_id->base_id triple from one source read, 3-element
+  attribute arrays, deep-copied damage-sprite table (calloc(count, 8)
+  — sizeof(RGE_Damage_Sprite_Info) = ptr(4) + u8 + u8 rounded to
+  alignment 4 = 8, asm stride shl eax,3 verified), getstring-duplicated
+  name/gbg_name2 (gbg guarded on source non-null, name unconditional).
+  Copied-offset SET audited instruction-by-instruction (the compiler
+  scheduled copies out of source order — sets reconcile exactly).
+  RESTRUCTURE documented: delta-pointer attribute walk -> indexed
+  copies; damage-loop i16 counter vs u8 count <= 255 -> int loop.
+  CENSUS CORRECTIONS (mechanical walker, calibrated on recyclable@188/
+  total 0xD0/prog_mode@476): selected_sound@72, created_sound@76,
+  death_sound@80, damage_sound@84, death_spawn_obj_id@88 (word),
+  sort_number@90 (byte), can_be_built_on@91, attribute_rot@144,
+  multiple_attribute_mod@148, attribute_flag@152, map_color@160,
+  attack_reaction@161, convert_terrain_flag@162, object_flags@172,
+  help_string_id@176, help_page_id@180, hotkey_id@184; available@98 /
+  disabled@99 are real fields (the mid-audit "padding @99" alarm was a
+  census misread). getstring prototype idb_functions.h:2281
+  (__fastcall char**/char*). Caller note: derived constructors
+  (Animated/Action/Moving) call all four setups — hook covers base
+  address; derived setup overrides are separate functions. WRITTEN +
+  post-write verification (34 defs/refs identical).
+  TEMPLATE AMENDMENT (owner-triggered 2026-11-14, setup2 review): the
+  sizeof discipline covered allocation sizes only; structured-I/O size
+  arguments (the 3rd parameter of rge_read/rge_write) had no rule and
+  were written as literals on the read side. New template rule (both
+  directions, hard stop): rge_read/rge_write size arguments must be
+  sizeof(target expression); fscanf carries widths in the conversion
+  string (audited against targets); value-sized transfers pass the
+  length variable; a deviating width keeps the literal WITH an asm-
+  cited comment at the call; an unverified width is a HARD STOP
+  (applied: setup2's deliberate 2-byte damage_percent spill, asm
+  0x48C622-0x48C643). Write side was already sizeof-form in the owned
+  save/small_save hooks (verified by tree-wide grep). setup2_new
+  retro-fixed: 77 read widths converted to sizeof, 1 documented
+  exemption.
+  AMENDMENT 2 (same review, owner-directed): deviations from mandated
+  mechanical forms are now a formal class — each must be presented as
+  a clearly-flagged review item (mechanical form vs binary behavior vs
+  asm evidence) and receive explicit owner approval BEFORE the code is
+  written; silent deviations are gate violations. Retroactive status:
+  the setup2 spill was presented in the setup2 review round and
+  approved with the function — it satisfies the new protocol.
+- RGE_Master_Static_Object::setup4 @ 0x0048CDF0
+  [0x48CDF0,0x48D200) — owner-approved + written 2026-11-14 (with the
+  sizeof correction applied pre-write). 1040 bytes, __thiscall, 4
+  stack args, returns 1. Cross-reference loader: stream-reads
+  id/copy_id/base_id/object_group (group 3->2 fixup), then
+  list[copy_id] — UNCONDITIONAL sign-extended index, no negative guard
+  (faithful; the asm re-loads list[copy_id] per copy, a compiler
+  artifact the other-local replaces). Template SUBSET copy when the
+  referenced master exists: 54 scalars + 3-array attribute loop +
+  damage deep-copy + name/gbg getstrings; NOT copied: hp, los,
+  obj_max, radius_x, radius_y, hotkey_id. The 10-read tail is
+  UNCONDITIONAL (runs on the null-reference path too) and overwrites
+  several copied fields (available, disabled, attribute_max_amount,
+  attribute_amount_held[0] only — later write wins, code order
+  replicates). sprites/sounds params unreferenced by the original
+  (kept for ABI). Copied-offset set audited vs asm: identical. All
+  widths sizeof(target) per the structured-I/O rule. WRITTEN +
+  post-write verification (37 defs/refs identical).
+- CLASS COMPLETE: RGE_Master_Static_Object — 37 hooks, every owned
+  function in [0x48B8B0,0x48EF50): getters/string-id family, power,
+  ctor/dtor family, setups x4, make_new_obj/make_new_master, copy
+  pair, modify trio, save pair, check_placement, make_available,
+  alignment pair, draw, help pair, calc_base_damage_ability. File:
+  cheatdll/src/engine/object/RGE_Master_Static_Object.cpp (vcxproj
+  entry present). In-game validation still owed: unit placement
+  returns, DAT/binary/text loads, civ-suffix strings, selection
+  outlines (draw), tech help screens.
   SEH SWEEP (2026-11-14, protocol-level check across all 27 hooks):
   exactly two functions carry hidden frame SEH — make_new_master and
   make_new_obj (both folds applied on approval); all others clean.
@@ -326,6 +484,38 @@ authoritative.)
   Master_Combat_Object etc. vftables (DATA XREFs), entry hook covers
   all dispatch. WRITTEN + post-write verification; installer gained
   one setHook call.
+- RGE_Visible_Map::get_visible @ 0x00615430 [0x615430,0x615468) —
+  owner-approved 2026-11-14. Gate PASSED. Small bit-test getter:
+  unified_map_offsets[map_row][map_col] → mutualVisibleMask bit → 15,
+  explored bit → 128, else 0. Grounding: unified_map_offsets = EXISTING
+  project constant (test.cpp:1386, .data:007A1CBC — extern-declared in
+  the replacement); player @+8 (RGE_Visible_Map @idb_types.h:1318);
+  mutualVisibleMask @+0x130 / mutualExploredMask @+0x12C (RGE_Player,
+  asm-verified). asm decode: neg/sbb/and-0x80 idiom = the != 0 ? 128 : 0
+  form. Writer scan pending-not-needed (0 overlaps expected — visibility
+  region untouched by patches per census). WRITTEN: src/engine/map/
+  RGE_Visible_Map.cpp + install_map.cpp wiring + vcxproj. Advances the
+  deferred check_placement loop: its inlined get_visible now has a
+  replacement to call (fold decision resolved: constant, not replicate).
+- RGE_Tile detector/visibility family batch (owner-approved
+  2026-11-14; NEW SUBSYSTEM map/ ratified by owner): has_enemy_detector
+  @ 0x0048F810 [0x48F810,0x48F8BC), is_detector @ 0x0048F8C0
+  [0x48F8C0,0x48F966), is_powered @ 0x0048F970 [0x48F970,0x48FA34),
+  is_shielded @ 0x0048FA40 [0x48FA40,0x48FAE6). Gate PASSED ×4.
+  Callees grounded: RGE_Base_Game__get_player_by_id (idb_functions.h
+  :690, 0x00428790), numberPlayers (:752, 0x0042C420), isAlly =
+  RGE_PlayerVtbl slot (idb_types.h:7128), place_holder1/2/3 =
+  RGE_Tile u8 fields (:4185-4187), RGE_Base_Game::gbg_unknown_mask
+  (:1699). Semantics: has_enemy_detector = (~ally_mask & ph3);
+  is_detector/is_shielded = (ally_mask & phX); is_powered = self bit
+  (1<<(player_id-1)) + flag-gated ally fallback. Writer scan 0
+  overlaps ×4. WRITTEN: src/engine/map/RGE_Tile.cpp +
+  install_map.cpp + install_engine.cpp wiring + vcxproj.
+  Post-write verification: RGE_Tile 4 defs / 4 refs identical; tree
+  total 36 defs / 35 hook refs + install_map/install_object plain
+  calls, 0 missing/extra/dupes. NOTE: aipower.cpp:22 isPlacePowered
+  is a direct by-address CALLER of is_powered (0x48F970) — not a
+  patch; post-hook it routes to the replacement with a matching ABI.
 - RGE_Master_Static_Object::alignment @ 0x0048EA60
   [0x48EA60,0x48EC06) + alignment_box @ 0x0048EC10
   [0x48EC10,0x48ED66) — owner-approved 2026-11-14. Gate PASSED ×2.
@@ -344,3 +534,50 @@ authoritative.)
   Writer scan 0 overlaps ×2; address grep = dead profiler table
   (functionlist.cpp:2141-2142). WRITTEN + post-write verification;
   installer gained two setHook calls.
+- RGE_Master_Static_Object::check_placement @ 0x0048E180
+  [0x48E180,0x48EA40) DEFERRED as a dedicated multi-phase loop
+  (owner-directed 2026-11-14). Evidence banked: full pseudocode
+  (.c:157782-158213) — 6 phases: bounds (return 7), center-tile
+  terrain req (return 1), 4 directional terrain edge-scan loops with
+  i16 wraparound indices and 32-byte RGE_Tile strides (return 1),
+  per-tile passability (terrains[terrain_type] <= 0.050000001 →
+  return 2), visibility via INLINED get_visible body + elevation_flag
+  1/2/3 variants (return 3), visibility accumulation (return 5), and
+  the object collision scan (return 6; cell walk byte@+13 =
+  occupancy, RGE_Static_Object** @+7; ignore_obj; object_state < 7;
+  can_be_built_on; AABB vs radii; object_group 27 / 31+7 / temple
+  variants; obstructionObject output). Callees to ground: RGE_Tile
+  struct offsets (terrain_type/tile_type/height - byte@+13, stride
+  32), RGE_Visible_Map::get_visible INLINED (not exported in
+  idb_functions; body decision pending - new constant vs replicate),
+  base_game->prog_mode (RGE_Base_Game @16814). New callees:
+  RGE_Visible_Map__get_visible exists in lst @0x615430 (proc) but is
+  NOT exported in idb_functions.h.
+  VERIFICATION ROUND 2 (2026-11-14): get_visible body banked (lst
+  :894642-894668, small bit-test; replacement written - the fold
+  decision is resolved: call the replacement). Phase 2 CORRECTED
+  via asm (loc_48E2C4): the center-tile read is
+  map_row_offset[(int16)(int)row][(int16)(int)col].terrain_type - the
+  RAW position tile i16-truncated (an earlier draft truncated the
+  left-edge-derived index instead - wrong tile). Phases 1/2/4/5/6
+  verified. Phase 3 OPEN: the four directional terrain-scan loops are
+  IDA-variable-reuse garbled in pseudocode (one guard decodes as
+  trivially true); two asm segments unpulled (0x48E318-0x48E350,
+  0x48E3D6-0x48E432); a register-tracked decode of the loop block is
+  required before the scan ranges can be stated.
+- RGE_Map RMM loader pair (owner-approved 2026-11-14; CORRECTED
+  entry): data_load_random_map @ 0x00490580 [0x490580,0x4905E0) and
+  load_random_map @ 0x004905E0 [0x4905E0,0x490650) allocate
+  RGE_RMM_Database_Controller with literal 0x58AC = 22700. Mechanical
+  sizeof walk of idb_types.h:6076-6100 computes 22700 - VERIFIED
+  MATCH. CORRECTION of an earlier claim: 0x58AC was misconverted as
+  "22732", manufacturing a phantom 32-byte layout drift; the type
+  library was never in conflict. Embedded Info structs in the walk:
+  Land 5176, Terrain 5948, Object 7532, Elevation 3968, Map_Data 8.
+  WRITTEN with sizeof(RGE_RMM_Database_Controller) allocations +
+  post-write verification (RGE_Map.cpp: 6 defs / 6 refs). LESSON
+  recorded in the template: verify all hex-to-decimal conversions;
+  an arithmetic slip here manufactured a phantom blocker and nearly
+  mislabeled a verified pair as a type-library defect.
+  make_new_obj/make_new_master use verified sizeofs (180/208) and are
+  unaffected.

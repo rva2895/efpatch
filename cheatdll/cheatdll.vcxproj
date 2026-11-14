@@ -620,6 +620,10 @@
     <ClCompile Include="src\engine\object\RGE_Static_Object.cpp" />
     <ClCompile Include="src\engine\object\install_object.cpp" />
     <ClCompile Include="src\engine\install_engine.cpp" />
+    <ClCompile Include="src\engine\map\RGE_Tile.cpp" />
+    <ClCompile Include="src\engine\map\install_map.cpp" />
+    <ClCompile Include="src\engine\map\RGE_Map.cpp" />
+    <ClCompile Include="src\engine\map\RGE_Visible_Map.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res.rc" />

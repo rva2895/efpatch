@@ -111,6 +111,26 @@ extern RGE_Airspace_Manager** const OBSystem_Air;
 
 extern HINSTANCE* const hInstance_dll;
 
+extern int* const VIEW_MAP_CheckVis;
+extern int* const VIEW_TileFoggedMask;
+extern int* const VIEW_TileVisibleMask;;
+extern DClipInfo_List** SDI_List;
+
+extern int** const unified_map_offsets;
+extern int* const map_current_x;
+extern int* const map_current_y;
+
+extern int* const SDI_Draw_Level;
+extern int* const SDI_Object_ID;
+extern int* const SDI_Capture_Info;
+
+extern int* const Global_Draw_Flags;
+extern int* const VIEW_map_scr_x_offset;
+extern int* const VIEW_map_scr_y_offset;
+
+extern int* const UC_Target_Obj;
+extern int* const UC_Save_Last_Obj;
+
 extern void* (__cdecl* const malloc_internal)(size_t Size);
 extern void* (__cdecl* const calloc_internal)(size_t number, size_t size);
 extern void* (__cdecl* const operator_new_internal)(size_t size);
