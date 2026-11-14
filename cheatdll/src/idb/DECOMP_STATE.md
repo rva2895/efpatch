@@ -1,6 +1,7 @@
 # DECOMP_STATE — session state for the decompilation workflow
 
-Read this file FIRST, at session start. Companion to DECOMP_TEMPLATE.md.
+Read this file FIRST, at session start. Companions: DECOMP_TEMPLATE.md
+(workflow rules) and DECOMP_HIERARCHY.md (verified class hierarchy).
 
 Rules:
 - Entries here are LEADS, never grounding. Anything used in code must be
@@ -71,7 +72,7 @@ Rules:
   decompiled source translate to `(*base_game)->field`, with fields
   grounded via `RGE_Base_Game` (the repo's static type). Both structs are
   fully defined (idb_types.h:16758-16876 and :17448-17619; identical
-  prefix, `world` at :16827/:17517 — see Verified type hierarchy). A
+  prefix, `world` at :16827/:17517 — see DECOMP_HIERARCHY.md). A
   decompiled access to a TRIBE_Game-only field (beyond RGE_Base_Game's
   body) cannot compile through the repo typing → Information Request.
 - 2026-11-14: The functionlist.cpp profiler is effectively dead code:
@@ -90,23 +91,15 @@ Rules:
   60 MISSILE, 70 COMBAT, 80 BUILDING. Corroborated by raw-value usage
   in advcheat.cpp:77 (>=70) and advtriggereffect.cpp:415-426. IDA did
   not export this enum (unknown enums export as int typedefs).
+   Registry now canonical in DECOMP_HIERARCHY.md.
 
 ## Verified type hierarchy
 
-Relations verified by mechanical comparison of field/slot sequences
-(vfptr-normalized: the vfptr field's named vtable type legitimately
-differs per class). Re-verify after any idb_types.h regeneration.
-Verified-unrelated verdicts are recorded here too — they justify future
-cast hard stops.
-
-- RGE_Base_Game ⊂ TRIBE_Game — derived extends by 53 fields
-  (117 base + 53 = 170); vtbls 99/99 slots, names identical in order.
-  Evidence: struct prefix idb_types.h:16759-16876 vs :17449-17619;
-  vtbl slot names :16887-16985 vs :17627-17725. Verified 2026-11-14.
-  Runtime note: the base_game global is IDB-typed `TRIBE_Game*`
-  (battlegrounds_x2.c:43930) — IDA's own runtime-type evidence for
-  base→derived access on this chain; repo slot type `RGE_Base_Game**`
-  (common.h:102).
+MOVED 2026-11-15: all class-relationship facts (the master-object
+family tree, the runtime-side tree, per-edge evidence tables, and the
+base_game ⊂ TRIBE_Game relation) now live in DECOMP_HIERARCHY.md.
+Future verified relations and verified-unrelated verdicts are recorded
+THERE, not here.
 
 ## Open suspicions
 
@@ -588,6 +581,104 @@ authoritative.)
   (*base_game)->field; ground: world @0x420, map @0x34, tasks
   @0x18C). WRITTEN + post-write verification (sweep = 0 bare / 11
   canonical sites).
+- RGE_Master_Animated_Object::make_new_obj/make_new_master/copy_obj
+  [0x488870,0x4889C0+copy_obj tail] — owner-approved + written
+  2026-11-14 (the installer hooks were initially misplaced into the
+  Missile installer by an anchoring slip — caught and corrected
+  before verification). make_new_obj @0x488870 (0xD0 bytes, SEH
+  chunk 0x642090 = operator_delete frees the runtime allocation):
+  recyclable -> recycle path -> guarded vtable dispatch (slot @0x74)
+  -> return; else operator_new(0xB8) + RGE_Animated_Object runtime
+  ctor (do_setup = 1, idb constant @538 -> 0x004A0540).
+  ALLOCATION VERIFIED: sizeof(RGE_Animated_Object) = 184 = 0xB8
+  (walker 148 + hand-resolved LOS_ExploreInfo ei = 36: ptr +
+  typedef-int + 7 ints; LOSLastActions = typedef int per
+  idb_types.h:1418). make_new_master @0x488940 (0xB0 bytes, SEH
+  chunk 0x6420B0: operator_delete on the allocation + a destructor-
+  chained secondary entry folding into the same filter):
+  operator_new(0xD4) — sizeof(RGE_Master_Animated_Object) = 212 =
+  0xD4 walker-verified — base Static COPY-CTOR with do_setup = 0,
+  Animated vfptr, base Static SETUP (template copy from this),
+  master_type = 20, then the Animated extension copy
+  speed = this->speed. BASE-POINTER CORRECTION: the IDA renderings
+  v2[1].vfptr = LODWORD(this->speed) (make_new_master) and
+  LODWORD(this->speed) = source[1].vfptr (copy_obj) are the
+  Animated extension field @208 mis-typed through the base pointer
+  — corrected to named speed accesses per the base-pointer rule.
+  copy_obj: base Static copy_obj + speed copy, no SEH (plain
+  function), retn 8. Runtime ctor constant: RGE_Animated_Object__
+  RGE_Animated_Object (idb_functions.h:538). Caller coverage: the
+  Doppleganger make_new_master calls Animated ctor1 + setup
+  (do_setup = 0 + explicit setup) — the Animated hooks cover its
+  loading traffic. Scope note: the Animated MODIFY override
+  @0x4889E0 (flag == 5 -> speed = amount) was captured in the same
+  pull — future modify-override family. WRITTEN + post-write
+  verification (12 defs/refs identical; installer corrected;
+  collision sweep: functionlist.cpp table references the addresses
+  but is a DEAD module per owner disposition — no active collision).
+  [0x48B390,0x48B6xx] — owner-approved + written 2026-11-14 (the
+  trio needed TWO review rounds: the first presentation blocked
+  make_new_obj on the allocation hard stop; the owner asked for the
+  blocking problem re-laid-out and the walk re-verified).
+  make_new_obj @0x48B390 (0xD0 bytes, SEH fold 0x642350): recycle
+  path (recyclable -> recycle_object_in_to_game -> guarded vtable
+  dispatch slot @0x74 -> return) else operator_new(0x13C) + the
+  RUNTIME RGE_Moving_Object ctor (do_setup = 1). ALLOCATION
+  VERIFIED after re-walk: sizeof(RGE_Moving_Object) = 316 = 0x13C
+  — sequential hand-walk over idb_types.h:6690-6767; the FIRST
+  attempt (walker 288 + ei 36 = 324) was INVALID ARITHMETIC: the
+  walker skips unresolved fields without advancing the offset,
+  shifting all subsequent fields — bolting the size at the end
+  double-counts. Corrected sequential walk lands exactly on 316.
+  Runtime ctor constant: RGE_Moving_Object__RGE_Moving_Object
+  (idb_functions.h:2122 -> 0x004A0540).
+  make_new_master @0x48B5B0 (0xB0 bytes, SEH fold 0x642370):
+  operator_new(0x104) (sizeof walker-verified), base ANIMATED
+  ctor1 (idb constant @1808 -> 0x488540, unhooked — executes the
+  original base construction faithfully), the five m* defaults
+  INLINE (asm 0x48B5F3-0x48B620, offsets 0xF0-0x100), Moving vfptr,
+  then the DERIVED setup (Moving::setup — template copy from this,
+  overwrites the m* defaults and sets master_type = 30). No
+  master_type store in the factory. Write-time self-catch: a
+  spurious this_->vfptr store was drafted and removed (the asm
+  stores only new_master's vfptr).
+  copy_obj @0x48B660 (~0x40 bytes, no SEH): base ANIMATED
+  copy_obj (idb constant @1820 -> 0x4889C0, HOOKED — routes into
+  our replacement per the routing ruling: Static copy + speed
+  copy), then the eight Moving extension copies via the source
+  re-typed Moving* (source[1].* offsets 212-236 walker-confirmed:
+  move_sprite/run_sprite/turn_speed/size_class/obj_trail_id/
+  obj_trail_options/obj_trail_spacing/move_algorithem).
+  WRITTEN + post-write verification (Moving file now 12 defs/refs
+  identical; CRT sweep 0; pointer-walk 0; literal sweep 0).
+- SESSION CLOSEOUT (2026-11-14): 7 master-class files
+  (Static/Animated/Moving/Action/Combat/Doppleganger/Missile),
+  89 hooks total (Static 37, Animated 12, Moving 12, Action 9,
+  Combat 9, Doppleganger 5, Missile 5) — every master-class setup,
+  constructor, destructor, deleting-destructor, make_new_obj,
+  make_new_master, and copy_obj in the hierarchy owned and
+  hook-routed. PENDING SCOPE (not yet decoded): the make_new_obj/
+  make_new_master/copy_obj families for Action [0x487FA0/0x488070/
+  0x4881F0], Combat [0x489680/0x489750/0x4897C0], Doppleganger
+  [0x48A510/0x48A5F0/0x48A660], Missile [0x48A960/0x48AA30/
+  0x48AAF0] — 12 functions, same ladder pattern expected; Building
+  (80)/Combat (70) subclass scope confirmation; the derived modify
+  overrides (Animated modify @0x4889E0 flag==5 -> speed captured;
+  Moving modify/modify_delta/modify_percent @0x48B6E0/0x48B710/
+  0x48B740 flag==6 -> turn_speed captured in pulls); the runtime-
+  side classes (RGE_Moving_Object etc. — RGE_Static_Object 0xB4 and
+  RGE_Animated_Object 0xB8 already walker-verified; RGE_Moving_
+  Object walk was CORRECTED to 316 = 0x13C this session). BUILD
+  VALIDATION: owner-reported builds green after each correction
+  pass; quick tests reveal no discrepancy as of the destructor
+  family write. Protocol additions this session: structured-I/O
+  sizeof rule, base-pointer derived-field correction, re-typed
+  pseudocode request, redundant-guard elimination, deviation
+  presentation protocol, cross-class cast rule, C2177 note, CRT
+  _internal rule, base_game deref rule, constructor structural
+  audit — all in DECOMP_TEMPLATE.md.
+  WRITTEN + post-write verification (Moving file now 12 defs/refs
+  identical; CRT sweep 0; pointer-walk 0; literal sweep 0).
 - DERIVED DESTRUCTOR FAMILY (owner-approved + written 2026-11-14):
   6 destructors + 5 vector_deleting + 1 scalar_deleting (Moving has
   no vector_deleting export; its vftable uses the scalar variant)
@@ -725,9 +816,63 @@ authoritative.)
   Animated::setup2/3/4 (also hooked) perform the identical extension
   op — behaviorally equivalent entry points; Doppleganger ctors call
   the Animated SETUPS explicitly while Moving/Action/Combat ctors use
-   the do_setup-gated ctor chain. WRITTEN + post-write verification
-  (7 defs/refs identical in the class file; installer gained 3 hooks;
-  no literal-width I/O; pointer-walk clean; 3 SEH folds present).
+   canonical sites).
+- FUNCTIONLIST.CPP DISPOSITION (owner-directed: ignored as a collision
+  source): functionlist.cpp is a DEAD EXPERIMENTAL PROFILING MODULE —
+  setFunctionListHooks() is never called (dllmain:364 commented), its
+  installation loop body is commented out, and the FUNCTION_HOOK
+  call-count/total-time machinery is inert. Its `function_addresses[]`
+  table INCLUDES every master-class address we hook (incl. 0x488870/
+  0x488940/0x4889C0) — data only, no active writer. Not a collision.
+- DEDUCED MASTER CLASS HIERARCHY (owner-requested write; evidence =
+  the ctor/setup/dtor base-call chains + vftable stores + master_type
+  discriminants, all asm-verified per class; flattened struct prefixes
+  mirror base layouts, walker-calibrated; sizes = operator_new vs
+  walker totals):
+  SUPERSEDED 2026-11-15: the canonical, evidence-tabled tree now lives
+  in DECOMP_HIERARCHY.md. The PENDING CONFIRMATION note below is
+  RESOLVED by the TRIBE_ discovery (see the scope-update entry) — kept
+  for history:
+  RGE_Master_Static_Object (10, BASE) — 0xD0
+  <- RGE_Master_Animated_Object (20) — 0xD4 (+speed@208)
+  <- RGE_Master_Moving_Object (30) — 0x104 (+move_sprite@212,
+     run_sprite@216, turn_speed@220, size_class@224, obj_trail_id@226,
+     obj_trail_options@228, obj_trail_spacing@232, move_algorithem@236,
+     mTurnRadius@240, mTurnRadiusSpeed@244, mMaxYawMoving@248,
+     mStationaryYawRevTime@252, mMaxYawStationary@256)
+  <- RGE_Master_Action_Object (40) — 0x12C (+tasks@260, default_task
+     @264, search_radius@268, work_rate@272, gbg_work_rate_2@276,
+     drop_site@280, backup_drop_site@282, task_by_group@284,
+     command_sound@288, move_sound@292, run_pattern@296, gap@297-299)
+  <- RGE_Master_Combat_Object (50, COMBAT_BASE) — 0x17C (+fight_sprite
+     @300, base_armor@304, armor_num@306, armor@308, weapon_num@312,
+     weapon@316, defense_terrain_bonus@320, weapon_range@324,
+     area_effect_range@328, area_effect_level@332, speed_of_attack@336,
+     missile_id@340, base_hit_chance@342, break_off_combat@344,
+     fire_missile_at_frame@346, weapon_offset_x/y/z@348/352/356,
+     minimum_weapon_range@360, orig_armor@364, orig_weapon@366,
+     orig_weapon_range@368, orig_speed_of_attack@372,
+     missed_missile_spread@376)
+  <- RGE_Master_Missile_Object (60) — 0x188 (+missile_type@380,
+     targetting_type@381, missile_hit_info@382, missile_die_info@383,
+     area_effect_specials@384, ballistics_ratio@388)
+  SIDE BRANCH: RGE_Master_Doppleganger_Object (25) <- Animated — 0xD4,
+  no extra fields (vfptr swap only; ctor3 forces recyclable = 1,
+  ctor4 forces fog_flag = 3).
+  PENDING CONFIRMATION: master_type 70 (Combat) and 80 (Building)
+  subclasses of Combat_Base — no separate setup/ctor exports found;
+  Building/Combat masters likely construct via the Combat chain with
+  the discriminant set by callers. Trees as runtime-side analogs:
+  RGE_Static_Object (0xB4) <- RGE_Animated_Object (0xB8) <- ... (the
+  runtime RGE_Missile_Object allocates 0x18C per Missile
+  make_new_obj) — runtime-side decode pending.
+  CHAIN EVIDENCE PER LEVEL: ctorN calls base ctorN(do_setup=0);
+  setupN calls base setupN; dtor calls/chains base dtor (Combat's is
+  a call with frees, the rest tail-jmp or call); each level stores
+  its own vftable after the base construction; SEH unwind funclets
+  jump to the IMMEDIATE BASE's destructor (ladder: Animated -> Static,
+  Moving -> Animated, Action -> Moving, Combat -> Action, Missile ->
+  Combat, Doppleganger -> Animated).
 - COMPILE-DRIVEN CORRECTION PASS (owner-reported MSVC errors
   2026-11-14): (1) CROSS-CLASS CASTS — the flattened derived structs
   are unrelated C++ types; every cross-class base call needed an
@@ -964,3 +1109,397 @@ authoritative.)
   mislabeled a verified pair as a type-library defect.
   make_new_obj/make_new_master use verified sizeofs (180/208) and are
   unaffected.
+- FACTORY/COPY TRIOS ×4 (owner-approved + written 2026-11-14): 12 hooks
+  — make_new_obj/make_new_master/copy_obj for Action [0x487FA0/0x488070/
+  0x4881F0], Combat [0x489680/0x489750/0x4897C0], Doppleganger
+  [0x48A510/0x48A5F0/0x48A660], Missile [0x48A960/0x48AA30/0x48AAF0].
+  Ladder decoded per trio (all ranges from proc/endp; SEH chunks
+  0x641FD0/0x641FF0, 0x642150/0x642170, 0x6421F0/0x642210, 0x642290/
+  0x6422B0 — operator_delete folds, the make_new_master chunks carry the
+  destructor-chained secondary entry jmping the IMMEDIATE base's dtor:
+  Action->Moving, Combat->Action, Doppleganger->Animated,
+  Missile->Combat):
+  * make_new_obj ×3 (Action/Combat/Missile): recyclable @0xBC ->
+    recycle_object_in_to_game(owner->world @0x8C, master_type @+4) ->
+    guarded dispatch slot @0x74 (idb_types.h:3960 = RGE_Static_ObjectVtbl
+    member 29); else operator_new + runtime ctor(do_setup=1). ALLOCATIONS
+    MECHANICALLY WALKED: RGE_Action_Object 324 = 0x144 (idb_types.h
+    :7423-7501; ei@144=36; BVector=12 :1757-1762), RGE_Combat_Object
+    380 = 0x17C (:7318-7406; Action prefix 324 + VUR_Ptrs[9]=36 + tail),
+    RGE_Missile_Object 396 = 0x18C (:20935-21027). Runtime ctors:
+    idb_functions.h:107/:1069/:2059 (tobj param of the Missile ctor is
+    Combat-typed -> this_ cast).
+  * DOPPLEGANGER DELTA: make_new_obj recycle dispatch is SLOT @0x370 —
+    recycle_in_to_game_2 = member 220 of RGE_Doppleganger_ObjectVtbl
+    (idb_types.h:21758; 21758-21538 = 220 entries -> 0x370), 7-arg
+    signature incl. obj_to_dopple; the pseudocode's "vfptr[1].play_
+    unload_sound" was an IDA offset artifact. RGE_Doppleganger_Object
+    allocation 220 = 0xDC walked (:21470-21530). Reusable base->derived
+    cast evidence: the type-25 recycle pool + the @0x370 dispatch only
+    resolving through the Doppleganger vtbl.
+  * make_new_master shapes SPLIT: Action = base Moving COPY-CTOR
+    (do_setup=0) + Action vfptr + base MOVING setup (NOT Action::setup —
+    asm 0x4880C2; the setTurnRadiusOffTurnSpeed dispatch therefore fires
+    with the Action vfptr already stored) + master_type = 40 + ELEVEN
+    extension copies (offsets 260-296, gbg from source work_rate, tasks
+    LAST). Combat/Missile = base COPY-CTOR + vfptr + DERIVED setup (the
+    setup does everything; NO master_type store, NO copies in the
+    factory); Missile adds master_type = 60 + six extension copies
+    (380-384 bytes, 388 dword). Doppleganger = Animated COPY-CTOR +
+    vfptr + Animated setup + master_type = 25 + fog_flag = 3.
+  * copy_obj: Action = base Moving copy_obj + TEN copies (asm order;
+    gbg from source work_rate; drop_site AND backup_drop_site as
+    SEPARATE word moves 0x488230-0x488245 — the pseudocode's single
+    dword read was an IDA merge; NO run_pattern copy; tasks LAST @260).
+    Combat = base Action copy_obj + 22-field extension: tables freed
+    (free_internal) + reallocated (calloc_internal(count, sizeof
+    RGE_Armor_Weapon_Info)) + memcpy deep copies; missile_id is a WORD
+    move (0x4898F7 — pseudocode's float rendering was a mis-typing);
+    area_effect_level BYTE stored out of order after the weapon offsets
+    (0x489951). Doppleganger = PURE FORWARDER (call Animated copy_obj +
+    retn 4, no tail-jmp). Missile = base Combat copy_obj + six copies —
+    missile_type..missile_die_info as FOUR SEPARATE byte moves
+    (0x48AAFE-0x48AB28; the pseudocode's dword merge of object_flags
+    was an IDA artifact), area_effect_specials byte, ballistics_ratio
+    dword. Base-pointer source re-typings presented per rule (Action
+    src offsets 52-84; Combat 92-168; Missile 344/176/180).
+  Caller topology: Combat copy_obj is called by the Missile copy_obj
+  AND by TRIBE_Master_Combat_Object__copy_obj (lst :233544) — the
+  TRIBE_ subclass tier calls into the RGE_ implementations (see the
+  scope entry below). WRITTEN + post-write verification incl. the new
+  compile gate (see the gate entry): 6/6 TUs 0 errors; installer
+  hooks +3 per file (totals: Action 12, Combat 12, Doppleganger 8,
+  Missile 8).
+- DERIVED MODIFY OVERRIDES (owner-approved + written 2026-11-14): 4
+  hooks — Animated modify @0x4889E0 [0x4889E0,0x488A00) flag==5 ->
+  speed @0xD0=208 (else base Static modify, hooked-routed); Moving
+  modify/modify_delta/modify_percent @0x48B6E0/0x48B710/0x48B740
+  [..,0x48B700)/[..,0x48B736)/[..,0x48B766) flag==6 -> turn_speed
+  @0xDC=220 (set/add/multiply; else base Animated calls — modify_delta
+  @0x488A10 and modify_percent @0x488A40 remain UNHOOKED, execute the
+  originals). All four plain functions, retn 8, no SEH. UNOWNED SIBLINGS
+  flagged: Animated modify_delta/modify_percent; Action modify trio
+  (@0x488290/0x4882D0/0x488320 — flag 13 -> work_rate+gbg, flag 23 ->
+  search_radius); Combat modify trio (@0x4899B0/0x488DC0/0x488EE0 —
+  switch over armor/weapon indices); Missile modify family (@0x48AB50+,
+  flag 19 -> targetting_type). WRITTEN + compile gate (Animated 13,
+  Moving 15 hooks).
+- COMPILE-GATE FINDING + PROTOCOL AMENDMENTS (2026-11-14, owner-
+  approved): the uncommitted Animated/Moving factory trios postdated the
+  last green build and carried SEVEN latent type errors — Animated cpp
+  228 C2664 (uncast dispatch this_), 236/276 C2440 (runtime-ctor return
+  + result assignment across unrelated types); Moving cpp 318/326/369
+  same shapes + 398 C2664 (copy_obj source cast at the wrong level —
+  the base constant's param 2 is already RGE_Master_Static_Object*).
+  All 7 fixed with explicit C-style casts (approved, applied).
+  REPRODUCED with a single-TU gate (vcvars64 + cl /c /std:c++17 /W3
+  /EHsc /I cheatdll): the four committed class files compile 0 errors,
+  the working tree reproduced exactly the 7 errors pre-fix. Template
+  amended: (1) post-write checklist += COMPILE GATE — every touched TU
+  must compile 0 errors before a WRITTEN status; (2) cross-class cast
+  rule extended to RESULT ASSIGNMENTS (C2440) and EVERY function-pointer
+  argument position, incl. the explicit this argument of vtable-slot
+  calls. The closeout's "builds green" horizon is hereby corrected:
+  green through the destructor-family write only.
+- SCOPE UPDATE — MASTER-TYPE 70/80 CONFIRMED AS FULL CLASSES
+  (2026-11-14, supersedes the closeout's "PENDING CONFIRMATION" and the
+  derived-family note "no separate setup/ctor exports found"): the
+  subclasses were missed on NAMING — they are exported under the TRIBE_
+  prefix. TRIBE_Master_Building_Object (80): 22 exports @0x5C6A30-
+  0x5C8000 (idb_functions.h:5098-5119: scalar_deleting_dtor, ctor2/3/4,
+  setup×4, dtor, copy_obj, modify×3, small_save, save, make_new_obj2
+  with an extra uID param, make_new_obj, make_new_master, draw,
+  alignment, check_placement, check_placement_for_units); struct
+  idb_types.h:14163, Vtbl :15842. TRIBE_Master_Combat_Object (70): 20
+  exports @0x5C8340-0x5C92E0 (:5120-5139, + create_task_list); struct
+  :15690, Vtbl :15998. Their copy_obj/modify call INTO the RGE_ Combat
+  implementations (lst :233544/:233685) — the ladder continues one more
+  level (~42 more hooks of future scope). Owner corrected
+  idb_functions.h:5120 in place (IDA had typed the Combat-class
+  copy-ctor with Building parameters).
+  HOOK TOTALS after this session: Static 37, Animated 13, Moving 15,
+  Action 12, Combat 12, Doppleganger 8, Missile 8 = 105 hooks.
+- MODIFY + SAVE FAMILIES (owner-approved + written 2026-11-14): 23
+  hooks — the entire remaining derived-override surface of the RGE_
+  7-class tree. MODIFY (11): Action modify/modify_delta/modify_percent
+  @0x488290/0x4882D0/0x488320 (flag 13 -> work_rate + gbg from the SAME
+  amount — asm fst/fstp single computation stored twice; flag 23 ->
+  search_radius; default -> Moving); Animated modify_delta/modify_percent
+  @0x488A10/0x488A40 (flag 5 -> speed); Combat
+  modify/modify_delta/modify_percent @0x4899B0/0x489B10/0x489D20
+  (switches restored from jump tables off_489AD4/off_489CDC/off_489F90 —
+  the tables sit in inter-function gaps outside the replaced ranges);
+  Missile modify trio @0x48AB50/0x48AB80/0x48ABB0 (flag 19 ->
+  targetting_type as a BYTE store of ftol — asm mov [esi+17Dh], al; base
+  Combat call UNCONDITIONAL, no else). COMBAT TRIO SEMANTICS (all
+  asm-decoded): modify = SET forms (floats take the raw amount dword;
+  i16 fields take ftol's low word; flags 8/9 = armor/weapon
+  INDEXED by BYTE1(ftol amount), guard idx < (i16)count, value =
+  (u16)(u8)amount); modify_delta flags 8/9 SEARCH by .type == BYTE1 then
+  value += (u8) (16-bit add; not-found -> return); i16 deltas are
+  16-bit adds of ftol's low word; flag 18 is a SET in delta too
+  (asm mov 0x489C8A); modify_percent flags 8/9 = by-TYPE search then
+  value = (i16)(int)(BYTE0·0.01f·old + 0.5f) — flt_6565FC =
+  float32(0.01) (.c:154917), const_f_half = 0.5f; the i16 percent fields
+  use the RAW amount as multiplier (asm 0x489E96 fmul [esp+amount] —
+  no 0.01f) with +0.5f rounding; all operand ranges exact in double
+  arithmetic. SAVE/SMALL_SAVE (12): every derived class's pair —
+  Action @0x488370/0x4883B0 (sound ids via RGE_Sound::id @+0xC into
+  __int16 locals — low-word-only stream writes, Static precedent),
+  Animated @0x488A70/0x488AA0 (speed w4), Moving @0x48B770/0x48B7A0
+  (sprite ids via RGE_Sprite::id @+0x82 prepared BEFORE the base call;
+  13 writes incl. the five m* floats), Combat @0x489FE0/0x48A0E0
+  (small_save table guards = COUNT > 0 only; save table guards =
+  POINTER-only; area_effect_level written out of order after the
+  weapon offsets (asm 0x48A214); weapon_range written twice in
+  small_save (asm 0x48A0A5); fight id written late (w2 0x48A243)),
+  Doppleganger @0x48A670/0x48A680 (pure forwarders), Missile
+  @0x48ABE0/0x48AC10 (six extension writes, all sizeof-exact). All
+  rge_write widths sizeof-form (id locals via __int16; tables via
+  count * sizeof(RGE_Armor_Weapon_Info)) — zero deviations. Stale
+  comments in Moving modify_delta/percent ("@0x488A10/40 remains
+  UNHOOKED") updated to HOOKED per this batch. Collision audit: 0
+  active writers ×23 (dead profiler table only). WRITTEN + post-write
+  verification incl. the compile gate: 7/7 TUs 0 errors; defs/refs
+  Action 17 / Animated 17 / Moving 17 / Combat 17 / Doppleganger 10 /
+  Missile 13 (+ Static 37) = 128 hooks total.
+  REMAINING MASTER-FAMILY SCOPE: the TRIBE_Master_Building/Combat tier
+  (42 exports) — next batch. Optional leftovers: the five derived ctor1
+  copy-constructors (deliberately unhooked; they execute originals
+  inside our factories).
+- TRIBE MASTER-COMBAT TIER (owner-approved + written 2026-11-14/15):
+  NEW CLASS FILE src/engine/object/TRIBE_Master_Combat_Object.{h,cpp}
+  + install_object.cpp wiring + vcxproj/.filters entries. 19 of 20
+  exports owned (ctor1/scalar_dtor/ctor2-4/setup x4/dtor/create_task_
+  list/copy_obj/modify trio/small_save/save/make_new_obj/make_new_
+  master); check_placement @0x005C92E0 DEFERRED to its own dedicated
+  loop (large multi-phase shared implementation — Building's
+  check_placement calls it twice, asm XREFs +6A/+483), per the RGE
+  check_placement precedent. STRUCTURAL FOUNDATION: TRIBE_Master_
+  Combat_Object = flattened RGE_Master_Combat_Object mirror (all 380
+  bytes, offsets identical) + Combat(70) extension @398-452
+  (build_inventory[3] @380, build_pts_required @398, id_of_building_obj
+  @400, button_location @402, orig_pierce_armor @404, rear/flank
+  attack modifiers @408/412, tribe_unit_type @416, volley block
+  @420-447, special_attack_flag/hero_flag @448/449, garrison_sprite
+  @452); sizeof = 456 = 0x1CC (matches make_new_master's
+  operator_new(0x1C8)); every offset double-confirmed by the class's
+  own asm copy block (0x18E-0x1C4) and by setup4/copy_obj's v7[1]/v7[2]
+  base-pointer arithmetic. Runtime class TRIBE_Combat_Object
+  (idb_types.h:16322) = RGE_Combat_Object 380 prefix + the 70-tier
+  runtime extension -> 452 = 0x1C4 (matches make_new_obj). Vftables:
+  .rdata:0066738C (class) / 00667414 (TRIBE_Task_List, stored by
+  create_task_list after the RGE_Task_List ctor, idb_functions.h:4915).
+  DELTAS vs the RGE_ ladder: make_new_obj has NO RECYCLE PATH (Combat
+  70 runtime objects never recycle; direct operator_new + TRIBE_
+  Combat_Object__TRIBE_Combat_Object do_setup=1, idb_functions.h:3982);
+  make_new_master = base RGE Combat ctor1(do_setup=0) + TRIBE vfptr +
+  DERIVED setup (no master_type store — the setup does it), Combat-like
+  shape. MODIFY FLAG NAMESPACE (new tier-local set, restored from jump
+  tables off_5C8D80/off_5C8DA0 over flag-100): 'd'=100 all-inventory
+  (selector -1), 'e'=101 build_pts_required, 'f'=102 volley_fire_amount,
+  'g'/'h'/'i'/'j'=103/104/105/106 inventory by type 0/1/3/2, 'k'=107
+  max_attacks_in_volley; default -> base RGE Combat modify (hooked ->
+  routes). setup3's dead-store chain kept verbatim (conditional
+  special_attack_flag store then unconditional zero, asm 0x5C88A5-
+  0x4888C0); setup3 RE-DERIVES orig_armor after the base setup3 (start
+  0, type==4, NO fallback — overwrites the base's -1/base_armor
+  derivation, faithful); orig_pierce_armor = -1 -> max type==3 ->
+  fallback base_armor. save writes the garrison id as a FULL 4-BYTE
+  sign-extended int (unlike the low-word id locals elsewhere).
+  PROTOCOL: the owner-directed loop-bound rule entered the template
+  ("magic loop counters over declared arrays" — hard stop on bare
+  literals; _countof(array) with size_t counters is the mandated form,
+  refined same session from an interim macro per owner direction). The
+  batch initially shipped `i < 3` loops over build_inventory[3] and six
+  same-class forward-reference errors (ctor/scalar-dtor calls to
+  replacement functions defined later in the file, plus one missing
+  DWORD dummy) — all fixed pre-gate: loops converted to _countof, the
+  ctor/scalar-dtor internal calls moved to the idb constants (hooked ->
+  routes, per the HOOK-ROUTING RULING and the shipped ctor precedent).
+  WRITTEN + post-write verification: compile gate 8/8 TUs 0 errors
+  0 warnings on the new TU; defs/refs TRIBE 19/19; total hooks 147
+  (Static 37, Animated 17, Moving 17, Action 17, Combat 17,
+  Doppleganger 10, Missile 13, TRIBE_Master_Combat 19); CRT/base_game/
+  pointer-walk sweeps clean. SWEEP FINDING RESOLVED (owner-approved
+  retro-fit 2026-11-15): the 8 pre-rule `i < 3` literal loop bounds in
+  RGE_Master_Static_Object.cpp (copy_vars x3 + save/small_save/copy_
+  obj/setup2/setup3/setup4 attribute-array loops) converted to
+  _countof(this_->attribute_type_held / _amount_held / _flag) with
+  size_t counters; Static re-gated 0 errors (its 11 C4244s are
+  pre-existing approved x87/ftol forms, untouched); tree-wide sweep of
+  src/engine confirms zero literal loop bounds remain.
+  NEXT: check_placement @0x5C92E0 dedicated loop; TRIBE_Master_Building_
+  Object (22 exports — its make_new_master calls the TRIBE Combat
+  copy-ctor, asm XREF 0x5C8340: Building extends THIS tier).
+- TRIBE MASTER-BUILDING TIER (owner-approved + written 2026-11-15):
+  NEW CLASS FILE src/engine/object/TRIBE_Master_Building_Object.{h,cpp}
+  + install_object.cpp wiring + vcxproj/.filters entries. 18 of 22
+  exports owned (scalar_dtor/ctor2-4/setup x4/dtor/copy_obj/modify trio/
+  small_save/save/make_new_obj2/make_new_obj/make_new_master); DEFERRED
+  to a dedicated loop: draw @0x005C7880 (688 bytes), alignment
+  @0x005C7B30, check_placement @0x005C7B50 (1200 bytes — calls
+  TRIBE_Master_Combat_Object__check_placement twice, +6A/+483),
+  check_placement_for_units @0x005C8000 — plus the TRIBE Master Combat
+  check_placement @0x005C92E0 itself. STRUCTURAL FOUNDATION:
+  TRIBE_Master_Building_Object = the TRIBE_Master_Combat_Object mirror
+  (all 456 bytes, field-identical through garrison_sprite @452) +
+  Building(80) extension @456-551 (construction_sound/sprite/snow_
+  sprite @456/460/464, building_connect_flag/facet @468/470,
+  build_and_go_away @472, on_build_make_obj/tile/overlay/tech @474-481,
+  can_burn @482, linked_id[4]/linked_x[4]/linked_y[4] @484/492/508,
+  construction_id/open_close_id/open_close_sound @524/526/528,
+  garrison_units/heal_rate/repair_rate @532/536/540, salvage_id @544,
+  pillage_attr[6] @546); sizeof = 552 = 0x228 (matches make_new_master
+  operator_new 0x228, asm 0x5C7810-region); every offset double-
+  confirmed by setup4/copy_obj's v6[2].* arithmetic (416 + Static
+  offsets: undead_sprite->460, los->468/470, obj_max->472/474,
+  radius_x/y->476-482, button_pict region->508, construction_radius_x/
+  y->524/526/528, death_sprite->456, elevation_flag->532, movement_
+  type->536, attribute_type_held[1]->540, attribute_amount_held[0]->
+  544). Runtime class TRIBE_Building_Object (idb_types.h:9724-9881) =
+  TRIBE_Combat_Object 452 prefix + Building runtime extension (burning/
+  production-queue/garrison-linked/gather-point/wonder/gate block) ->
+  632 = 0x278 (matches BOTH factories' operator_new 0x278); runtime
+  ctors idb_functions.h:3907 (0x005531A0, 8 args incl. uID) and :3911
+  (0x00553410, 7 args). Vftable .rdata:00667280. LADDER: ctor2/3/4 ->
+  base TRIBE Master Combat ctorN(do_setup=0) -> Building vfptr ->
+  derived setupN (SEH funclets jmp TRIBE_Master_Combat_Object__
+  destructor, chunks 0x6465E0/0x646600/0x646620); make_new_obj/
+  make_new_obj2 have NO RECYCLE PATH, direct operator_new(0x278) +
+  runtime ctor do_setup=1 (make_new_obj uses ctor2 — no uID;
+  make_new_obj2 uses ctor1 — with uID; they SHARE one compiler-merged
+  SEH handler label 0x64664B); make_new_master = base TRIBE Combat
+  ctor1(do_setup=0) + Building vfptr + DERIVED setup (no master_type
+  store). MODIFY ASYMMETRY: modify/delta handle flags 17
+  (building_facet set/add) and 108 (garrison_heal_rate set/add);
+  percent handles ONLY 108 (multiply) — no facet case. save writes FOUR
+  id locals (construction/snow sprites, construction/open_close sounds,
+  __int16 low-word form); linked triplets stream id-w2/x-w4/y-w4 per
+  element; _countof applied to linked_id and pillage_attr loops per the
+  loop-bound rule. Collision audit: 0 active writers x18 (dead
+  profiler table only). WRITTEN + post-write verification: compile gate
+  9/9 TUs 0 errors (Static's 11 C4244s = pre-existing approved x87
+  forms); defs/refs Building 18/18; total hooks 165 (Static 37,
+  Animated 17, Moving 17, Action 17, Combat 17, Doppleganger 10,
+  Missile 13, TRIBE_Master_Combat 19, TRIBE_Master_Building 18);
+  CRT/base_game/pointer-walk/literal-bound sweeps clean.
+  REMAINING MASTER-FAMILY SCOPE: the five large gameplay functions
+  (Building draw/alignment/check_placement/check_placement_for_units +
+  TRIBE Master Combat check_placement) — dedicated decode loop; then
+  the master-family project is COMPLETE (all 9 tiers). Beyond it:
+  runtime TRIBE_ classes' methods, Production_Queue_Record, and the
+  five derived ctor1 copy-constructors (optional).
+- TRIBE MASTER-COMBAT check_placement (owner-directed dedicated loop,
+  WRITTEN 2026-11-15): @0x005C92E0 [0x5C92E0,0x5C976F) — the 20th of
+  20 TRIBE_Master_Combat exports now owned. FULL ASM PASS
+  0x5C92E0-0x5C976F vs pseudocode: phase-faithful. NEW GROUNDINGS:
+  base_game->master_obj_id @+0x428 (i16, movsx); prog_mode @+0x1DC ==
+  7 re-confirmed; tile walk count @tile+13 / object array @tile+20
+  (tile.Object_List named field, per the RGE round's precedent);
+  fly-over = BOTH movement_type @+120 == 1 -> |dx| < other radius_x
+  @+60 + my x-radius AND other radius_y @+64 + my y-radius > |dy| ->
+  return 6; desolid_flag @+565 (TRIBE_Building_Object runtime) skips
+  Building blockers with group not in {34,36}; check_movible 1 skips
+  type 70, 2 skips type 70 with speed @+180 > 0; radius_z @+68
+  substitution: group 27 OR (rz==0 && type==80 && id@24 != 50) ->
+  1.0; block x-test strict < (C0-only, asm 0x5C9677), y-test 0x41
+  (C0|C3, asm 0x5C968E) — both strict; canPlayerObjectBeEntered
+  (:4033, 0x55EA20) -> return 9; RGE_Game_World__object (:6086)
+  re-fetch under prog_mode==7. CASTS fixed at gate: world
+  TRIBE_World*/RGE_Game_World* dual-naming, get_player
+  RGE_Player*/TRIBE_Player* dual-naming, speed via
+  (TRIBE_Combat_Object*)obj guarded by master_type==70 (factory
+  identity = runtime evidence). Building alignment @0x005C7B30 ALSO
+  WRITTEN (pure forwarder, center_flag forced 1, asm verified).
+  HOOK TOTALS: TRIBE_Master_Combat 20/20 (check_placement installed
+  @0x5C92E0); Building alignment +1 = 19; grand total 166.
+  HOOK TOTALS (verified 2026-11-15, scripted count): Static 37, Animated 17,
+  Moving 17, Action 17, Combat 17, Doppleganger 10, Missile 13,
+  TRIBE_Master_Combat 20, TRIBE_Master_Building 19 = 167 master-family
+  hooks (all compile-gated 0 errors, x86 toolset). NON-master-family
+  hooks in src/engine (map subsystem etc.) are tracked separately.
+  NEXT: Building check_placement @0x5C7B50 + check_placement_for_units
+  @0x5C8000 + draw @0x5C7880 (the three remaining Building gameplay
+  functions). ALSO QUEUED: TRIBE_Master_Tree_Object decode (6 exports
+  @0x5C9780+, child of Static, master_type 15 — see DECOMP_HIERARCHY.md
+  tree-note correction); then the master-family project is COMPLETE
+  (all 10 tiers). Beyond it: runtime TRIBE_ classes' methods,
+  Production_Queue_Record, and the five derived ctor1 copy-constructors
+  (optional).
+- COLLISION-AUDIT FAILURE + FIX (owner-reported 2026-11-15:
+  "TRIBE_Master_Building_Object__setup4_new breaks game state
+  consistency test / crashes later during reading; commenting out its
+  installation fixes the crash"): ROOT CAUSE — the bldg_heal_rate
+  patch (bldg_heal_rate_save.cpp) hooks TWO MID-FUNCTION points:
+  0x005C750D (Building small_save tail — naked stub writes
+  garrison_heal_rate w4, unconditional) and 0x005C72AF (Building
+  setup4 tail — naked stub reads garrison_heal_rate w4 gated on
+  current_save_game_version >= 3, casts.cpp:15). The patch EXTENDS the
+  Building(80) master stream format (v>=3 DATs carry 4 extra bytes per
+  Building master in the xref section). My audit greped only the 18
+  ENTRY address literals — both mid-function targets were invisible —
+  so setup4_new silently dropped the 4 heal_rate bytes and the DAT
+  stream desynced (crash downstream). FIX: bake-ins applied —
+  setup4_new now does the version-gated heal_rate read after the facet
+  read; small_save_new does the unconditional heal_rate write after
+  the facet write; both patch call sites retired (commented in place
+  in bldg_heal_rate_save.cpp per the retirement rule). METHOD CORRECTED
+  (template amended, protocol step 3b): collision audit must extract
+  targets from EVERY writer call site repo-wide (incl. naked
+  mid-function stubs) and range-test against EVERY owned [proc, endp).
+  CORRECTED-AUDIT RESULTS (scripted, repo-wide): 5 additional
+  mid-function collisions found, all currently DEAD (silently
+  reverted) under my hooks — pending owner-approved bake-ins:
+  0x0048E2F5 in RGE check_placement (terrain.cpp:1454,
+  shipyard_center_tile_req), 0x0048C1F4 in Static setup (aiunitline.cpp
+  :114, on_static_object_setup), 0x0048D13B in Static setup4
+  (aiunitline.cpp:115, on_static_object_setup4), 0x0048C45F in Static
+  setup2 (minimap.cpp:64, grey_load_dat_unit), 0x0061543A in
+  RGE_Visible_Map::get_visible (mapsize.cpp:1763 — writeDword mapptr:
+  the big-map patch redirects get_visible's visibility-array base; my
+  get_visible_new reads the original unified_map_offsets base). GATE
+  TOOLSET CORRECTED: the compile gate now runs the x86 cross-compiler
+  (HostX64\x86) — the project is Win32; the earlier x64-toolset gate
+  rejected bldg_heal_rate_save.cpp's __asm. 9/9 TUs 0 errors under x86.
+- PATCH BAKE-INS ROUND 2 (owner-directed 2026-11-15, after the
+  corrected audit surfaced 5 dead patches): (1) aiunitline.cpp:114/
+  115 (0x0048C1F4 in Static setup, 0x0048D13B in Static setup4) —
+  BAKED into RGE_Master_Static_Object__setup_new / __setup4_new:
+  AI-unit-line masters copy unit_line/min_tech_level from the source
+  (the ONLY patch addition - the stub REPLAYS the original name handling:
+  name = 0 then the getstring duplicate, resume 0x48C1FD / 0x48D144,
+  so the name stays getstring-duplicated; CORRECTION 2026-11-15: the
+  first bake-in wrongly dropped the name getstring, caught by
+  re-verification, restored); gbg_name2
+  handling continues (patch resume 0x48C1FD / 0x48D144); (2)
+  minimap.cpp:64 (0x0048C45F in Static setup2) — BAKED into
+  RGE_Master_Static_Object__setup2_new: carbon-rock masters
+  (is_carbon_rock, minimap.cpp:5 — id list) get map_draw_level = 0
+  after the stream read; (3) terrain.cpp:1454 (0x0048E2F5 in RGE
+  check_placement phase 2 — replaced `cmp cx, si` + two jz) — BAKED
+  into RGE_Master_Static_Object__check_placement_new: the center-tile
+  terrain match routes through check_center_tile(center_tile_req1,
+  center_tile_req2, tile_terrain)
+  (terrain.cpp:1067 — new-terrain-aware, version-gated).
+  ARG-ORDER CORRECTION (owner testing caught the logic wrong, same
+  day): the baked call had cct1/this_tile swapped —
+  check_center_tile(tile, req2, req1) — from decoding the stub's
+  pushes first-pushed=first-param, backwards for __stdcall (the
+  stub's pushes: ecx=tile FIRST, eax=req2, esi=req1 LAST; __stdcall
+  takes the LAST-pushed as the FIRST parameter). The swap broke the
+  v>=6 water-pair branch — it tested (tile, req2) against the pair
+  instead of (req1, req2), rejecting shipyard-on-water placement (the
+  exact feature the patch ships); v<6 is commutative equality so it
+  was identical under both orders, which is why inspection alone
+  missed it. Fixed to (req1, req2, tile).
+  (4) MAP_SIZE (mapsize.cpp:1763, writeDword 0x0061543A in get_visible) — NOT
+  baked (owner: barely functional); RGE_Visible_Map__get_visible_new
+  carries a // MAP_SIZE marker at the unified_map_offsets access
+  (mapptr starts at 0x7A1CBC = the unified_map_offsets base — same
+  default behavior; diverges only after the big-map re-point at
+  mapsize.cpp:1681). All four patch call sites retired (commented in
+  place). Template step 3b refined: bake-in is the DEFAULT
+  disposition; the only waiver is owner-directed with the //
+  <PATCH_ID> marker convention; the scan is scripted. GATE: 9/9 TUs
+  0 errors under x86.

@@ -8,6 +8,8 @@ void install_RGE_Master_Action_Object();
 void install_RGE_Master_Combat_Object();
 void install_RGE_Master_Doppleganger_Object();
 void install_RGE_Master_Missile_Object();
+void install_TRIBE_Master_Combat_Object();
+void install_TRIBE_Master_Building_Object();
 
 void install_object()
 {
@@ -19,4 +21,6 @@ void install_object()
     install_RGE_Master_Combat_Object();
     install_RGE_Master_Doppleganger_Object();
     install_RGE_Master_Missile_Object();
+    install_TRIBE_Master_Combat_Object();
+    install_TRIBE_Master_Building_Object();
 }

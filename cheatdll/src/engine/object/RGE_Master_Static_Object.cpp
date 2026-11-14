@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "RGE_Master_Static_Object.h"
 
+// Baked-in patch helpers (collision audit 2026-11-15):
+// check_center_tile — terrain.cpp:1067 (__stdcall); is_carbon_rock —
+// minimap.cpp:5 (__fastcall).
+extern bool __stdcall check_center_tile(short check_center_tile_1, short check_center_tile_2, short this_tile);
+extern bool __fastcall is_carbon_rock(short id);
+
 // Replacement for RGE_Master_Static_Object::get_sprite
 // Original: RGE_Master_Static_Object__get_sprite @ 0x0048B8B0 (idb_functions.h:1895)
 // ABI: __thiscall — this_ in ECX, obj as first stack argument, RGE_Sprite* in EAX.
@@ -505,14 +511,14 @@ void __fastcall RGE_Master_Static_Object__copy_vars_new(RGE_Master_Static_Object
     this_->fog_flag = source->fog_flag;
     this_->terrain = source->terrain;
     this_->movement_type = source->movement_type;
-    for (int i = 0; i < 3; ++i)
+    for (size_t i = 0; i < _countof(this_->attribute_type_held); ++i)
         this_->attribute_type_held[i] = source->attribute_type_held[i];
-    for (int i = 0; i < 3; ++i)
+    for (size_t i = 0; i < _countof(this_->attribute_amount_held); ++i)
         this_->attribute_amount_held[i] = source->attribute_amount_held[i];
     this_->attribute_max_amount = source->attribute_max_amount;
     this_->attribute_rot = source->attribute_rot;
     this_->multiple_attribute_mod = source->multiple_attribute_mod;
-    for (int i = 0; i < 3; ++i)
+    for (size_t i = 0; i < _countof(this_->attribute_flag); ++i)
         this_->attribute_flag[i] = source->attribute_flag[i];
     this_->area_effect_object_level = source->area_effect_object_level;
     this_->combat_level = source->combat_level;
@@ -584,6 +590,14 @@ void __fastcall RGE_Master_Static_Object__copy_obj_new(RGE_Master_Static_Object*
         this_->damage_sprites = 0;
     }
 
+    // BAKED-IN PATCH (aiunitline.cpp:114, hook point 0x0048C1F4 — mid-name-block):
+    // AI-unit-line masters copy unit_line/min_tech_level from the source (patch
+    // additions). The stub then REPLAYS the original name handling — name = 0
+    // followed by the getstring duplicate (jmp 0x48C1FD: mov edx,[edi+8] / call
+    // getstring) — so the name IS still getstring-duplicated; only the two
+    // field copies are added. Stub: on_static_object_setup.
+    this_->unit_line = source->unit_line;
+    this_->min_tech_level = source->min_tech_level;
     this_->name = 0;
     getstring(&this_->name, source->name);
     this_->gbg_name2 = 0;
@@ -736,7 +750,7 @@ void __fastcall RGE_Master_Static_Object__save_new(RGE_Master_Static_Object* thi
     rge_write(outfile, &this_->outline_radius_x, sizeof(this_->outline_radius_x));
     rge_write(outfile, &this_->outline_radius_y, sizeof(this_->outline_radius_y));
     rge_write(outfile, &this_->outline_radius_z, sizeof(this_->outline_radius_z));
-    for (int i = 0; i < 3; ++i)
+    for (size_t i = 0; i < _countof(this_->attribute_type_held); ++i)
     {
         rge_write(outfile, &this_->attribute_type_held[i], sizeof(this_->attribute_type_held[i]));
         rge_write(outfile, &this_->attribute_amount_held[i], sizeof(this_->attribute_amount_held[i]));
@@ -1057,7 +1071,16 @@ unsigned __int8 __fastcall RGE_Master_Static_Object__check_placement_new(
         // phase 2: the center-tile terrain requirement
         // center tile = i16-truncated raw position (asm loc_48E2C4)
         RGE_Tile& center = map->map_row_offset[(__int16)(int)row][(__int16)(int)col];
-        if (center.terrain_type != this_->center_tile_req1 && center.terrain_type != this_->center_tile_req2)
+        // BAKED-IN PATCH (terrain.cpp:1454, hook point 0x0048E2F5 — the
+        // center-tile terrain comparison `cmp cx, si` + the two jz): the
+        // center tile is matched through check_center_tile (terrain.cpp:
+        // 1067 — new-terrain-aware: water-pair equivalences, version-gated)
+        // instead of the plain req1/req2 equality. Stub:
+        // shipyard_center_tile_req. Arg order per the stub's pushes
+        // (ecx=tile pushed first, eax=req2, esi=req1 pushed last — __stdcall
+        // takes the LAST-pushed as the first parameter):
+        // (center_tile_req1, center_tile_req2, tile terrain).
+        if (!check_center_tile(this_->center_tile_req1, this_->center_tile_req2, center.terrain_type))
             return 1;
         scan_row0 = (__int16)(int)row;
         scan_row1 = scan_row0;
@@ -1399,7 +1422,7 @@ int __fastcall RGE_Master_Static_Object__setup_new(
     this_->obstruction_type = other_object->obstruction_type;
     this_->obstruction_class = other_object->obstruction_class;
     this_->object_flags = other_object->object_flags;
-    for (int i = 0; i < 3; ++i)
+    for (size_t i = 0; i < _countof(this_->attribute_type_held); ++i)
     {
         this_->attribute_type_held[i] = other_object->attribute_type_held[i];
         this_->attribute_amount_held[i] = other_object->attribute_amount_held[i];
@@ -1505,6 +1528,12 @@ int __fastcall RGE_Master_Static_Object__setup2_new(
     rge_read(infile, &this_->combat_level, sizeof(this_->combat_level));
     rge_read(infile, &this_->select_level, sizeof(this_->select_level));
     rge_read(infile, &this_->map_draw_level, sizeof(this_->map_draw_level));
+    // BAKED-IN PATCH (minimap.cpp:64, hook point 0x0048C45F — the
+    // unit_level read setup): carbon-rock masters get map_draw_level = 0
+    // (stub grey_load_dat_unit; helper is_carbon_rock, minimap.cpp:5 —
+    // reads this->id @24). Stub: grey_load_dat_unit.
+    if (is_carbon_rock(this_->id))
+        this_->map_draw_level = 0;
     rge_read(infile, &this_->unit_level, sizeof(this_->unit_level));
     rge_read(infile, &this_->multiple_attribute_mod, sizeof(this_->multiple_attribute_mod));
     rge_read(infile, &this_->map_color, sizeof(this_->map_color));
@@ -1524,7 +1553,7 @@ int __fastcall RGE_Master_Static_Object__setup2_new(
     rge_read(infile, &this_->outline_radius_x, sizeof(this_->outline_radius_x));
     rge_read(infile, &this_->outline_radius_y, sizeof(this_->outline_radius_y));
     rge_read(infile, &this_->outline_radius_z, sizeof(this_->outline_radius_z));
-    for (int i = 0; i < 3; ++i)
+    for (size_t i = 0; i < _countof(this_->attribute_type_held); ++i)
     {
         rge_read(infile, &this_->attribute_type_held[i], sizeof(this_->attribute_type_held[i]));
         rge_read(infile, &this_->attribute_amount_held[i], sizeof(this_->attribute_amount_held[i]));
@@ -1689,7 +1718,7 @@ int __fastcall RGE_Master_Static_Object__setup3_new(
         &this_->outline_radius_z);
     if (this_->object_group == 3)
         this_->object_group = 2;
-    for (int i = 0; i < 3; ++i)
+    for (size_t i = 0; i < _countof(this_->attribute_type_held); ++i)
     {
         fscanf_internal(infile, "%hd %f %hd", &this_->attribute_type_held[i], &this_->attribute_amount_held[i], &attr_flag_s);
         this_->attribute_flag[i] = (unsigned __int8)attr_flag_s;
@@ -1881,7 +1910,7 @@ int __fastcall RGE_Master_Static_Object__setup4_new(
         this_->obstruction_type = other->obstruction_type;
         this_->obstruction_class = other->obstruction_class;
         this_->object_flags = other->object_flags;
-        for (int i = 0; i < 3; ++i)
+        for (size_t i = 0; i < _countof(this_->attribute_type_held); ++i)
         {
             this_->attribute_type_held[i] = other->attribute_type_held[i];
             this_->attribute_amount_held[i] = other->attribute_amount_held[i];
@@ -1902,6 +1931,14 @@ int __fastcall RGE_Master_Static_Object__setup4_new(
         {
             this_->damage_sprites = 0;
         }
+        // BAKED-IN PATCH (aiunitline.cpp:115, hook point 0x0048D13B — mid-name-block):
+        // AI-unit-line masters copy unit_line/min_tech_level from the source (patch
+        // additions). The stub then REPLAYS the original name handling — name = 0
+        // followed by the getstring duplicate (jmp 0x48D144: mov edx,[edi+8] / call
+        // getstring) — so the name IS still getstring-duplicated; only the two
+        // field copies are added. Stub: on_static_object_setup4.
+        this_->unit_line = other->unit_line;
+        this_->min_tech_level = other->min_tech_level;
         this_->name = 0;
         getstring(&this_->name, other->name);
         this_->gbg_name2 = 0;

@@ -426,6 +426,487 @@ void* __fastcall RGE_Master_Combat_Object__vector_deleting_destructor_new(
     return this_;
 }
 
+// Replacement for RGE_Master_Combat_Object::make_new_obj
+// Original: RGE_Master_Combat_Object__make_new_obj @ 0x00489680
+// (idb_functions.h:1837). ABI: __thiscall — this_ in ECX, 4 stack args
+// (retn 10h), RGE_Static_Object* result.
+// Same factory ladder: recyclable @188 (asm 0x48969E), recycle via
+// owner->world @0x8C (asm 0x4896AB), guarded dispatch slot @0x74 (asm
+// 0x4896D2), else operator_new(0x17C) + the RGE_Combat_Object runtime
+// ctor (do_setup = 1; asm 0x48971D).
+// ALLOCATION VERIFIED: sizeof(RGE_Combat_Object) = 380 = 0x17C —
+// sequential walk over idb_types.h:7318-7406 (the RGE_Action_Object
+// prefix through Selected_Group_Info = 324; combat tail VUR_Ptrs[9] x4
+// = 36 @324, Unified_Map_Value @360, Multi_Unified_Points/Large_Object_
+// Radius @364-365, attack_count @368, attack_timer @372, four u8 @376).
+// SEH fold per the make_new_obj precedent (FUNCTION CHUNK 0x642150,
+// same operator_delete shape).
+RGE_Static_Object* __fastcall RGE_Master_Combat_Object__make_new_obj_new(
+    RGE_Master_Combat_Object* this_, DWORD dummy,
+    RGE_Player* owner, float x, float y, float z)
+{
+    RGE_Static_Object* result = 0;
+    RGE_Combat_Object* new_obj = 0;
+    __try
+    {
+        if (this_->recyclable)
+        {
+            RGE_Static_Object* recycled =
+                RGE_Game_World__recycle_object_in_to_game(owner->world, this_->master_type);
+            if (recycled)
+            {
+                recycled->vfptr->recycle_in_to_game(recycled, (RGE_Master_Static_Object*)this_, owner, x, y, z);
+                result = recycled;
+            }
+        }
+        if (!result)
+        {
+            new_obj = (RGE_Combat_Object*)operator_new_internal(sizeof(RGE_Combat_Object));
+            if (new_obj)
+                result = (RGE_Static_Object*)RGE_Combat_Object__RGE_Combat_Object(new_obj, this_, owner, x, y, z, 1);
+        }
+    }
+    __except (operator_delete_internal(new_obj), EXCEPTION_CONTINUE_SEARCH)
+    {
+    }
+    return result;
+}
+
+// Replacement for RGE_Master_Combat_Object::make_new_master
+// Original: RGE_Master_Combat_Object__make_new_master @ 0x00489750
+// (idb_functions.h:1838). ABI: __thiscall — this_ in ECX, no stack args,
+// RGE_Master_Static_Object* result.
+// Master-template factory: operator_new(0x17C) — sizeof(RGE_Master_
+// Combat_Object) = 380 = 0x17C walker-verified — null-checked, then the
+// base Action COPY-CTOR with do_setup = 0 (asm 0x48978B), the Combat
+// vfptr store (asm 0x489798), and the DERIVED setup (Combat::setup —
+// asm 0x48979E; hooked -> routes into our replacement; it sets
+// master_type = 50 and copies/deep-copies the whole Combat extension
+// from this). NO master_type store and NO extension copies here (the
+// asm has none between the vfptr store and the return).
+// SEH fold per the make_new_master precedent (FUNCTION CHUNK 0x642170;
+// its second entry 0x64217B jmps RGE_Master_Action_Object__destructor —
+// the immediate base level; folds into the same filter).
+RGE_Master_Static_Object* __fastcall RGE_Master_Combat_Object__make_new_master_new(
+    RGE_Master_Combat_Object* this_)
+{
+    RGE_Master_Combat_Object* new_master =
+        (RGE_Master_Combat_Object*)operator_new_internal(sizeof(RGE_Master_Combat_Object));
+    RGE_Master_Static_Object* result = 0;
+    __try
+    {
+        if (new_master)
+        {
+            RGE_Master_Action_Object__RGE_Master_Action_Object(
+                (RGE_Master_Action_Object*)new_master, (RGE_Master_Action_Object*)this_, 0);
+            new_master->vfptr = rge_master_combat_object_vftable;
+            RGE_Master_Combat_Object__setup(new_master, this_);
+            result = (RGE_Master_Static_Object*)new_master;
+        }
+    }
+    __except (operator_delete_internal(new_master), EXCEPTION_CONTINUE_SEARCH)
+    {
+    }
+    return result;
+}
+
+// Replacement for RGE_Master_Combat_Object::copy_obj
+// Original: RGE_Master_Combat_Object__copy_obj @ 0x004897C0
+// (idb_functions.h:1839). ABI: __thiscall — this_ in ECX, 1 stack arg
+// (retn 4), void return. No SEH frame (plain function).
+// Base Action copy_obj call (idb constant -> our hooked Action copy_obj
+// replacement per the HOOK-ROUTING RULING; the asm's own XREF shows the
+// Missile tier calls through here too), then the Combat extension:
+// BASE-POINTER CORRECTION per the template rule — the IDA renderings
+// read source through RGE_Master_Static_Object* (source[1].button_pict/
+// portrait_pict/center_tile_req1/available/tile_req1/construction_
+// radius_y/elevation_flag/movement_type/attribute_amount_held[0..2]/
+// attribute_max_amount/attribute_rot/multiple_attribute_mod/attribute_
+// type_held[1]/attribute_flag/combat_level/map_draw_level/map_color/
+// damage_sprites/occlusion_flag at Static offsets 92/96/104/98/100/112/
+// 116/120/128/132/136/140/144/148/152/124/156/160/164/168 and on) —
+// the byte offsets land on the Combat extension fields @300-376
+// (walker-confirmed), so the source is re-typed RGE_Master_Combat_
+// Object*. WIDTH RESOLUTIONS from the asm: missile_id is a WORD move
+// (0x4898F7-0x4898FE; the pseudocode's float rendering was a
+// mis-typing), area_effect_level is a BYTE move stored out of order
+// after the weapon offsets (asm 0x489951), and the Armor/Weapon tables
+// are freed + reallocated + deep-copied (free_internal /
+// calloc_internal(count, sizeof(RGE_Armor_Weapon_Info) = 4) / memcpy —
+// the asm bulk copy is the qmemcpy intrinsic, rep movsd + zero-tail
+// movsb, 0x489817-0x489849 and 0x489884-0x4898B6).
+void __fastcall RGE_Master_Combat_Object__copy_obj_new(
+    RGE_Master_Combat_Object* this_, DWORD dummy,
+    RGE_Master_Static_Object* source)
+{
+    RGE_Master_Action_Object__copy_obj((RGE_Master_Action_Object*)this_, source);
+    RGE_Master_Combat_Object* src = (RGE_Master_Combat_Object*)source;
+    this_->fight_sprite = src->fight_sprite;
+    this_->base_armor = src->base_armor;
+    this_->weapon_num = src->weapon_num;
+    if (this_->weapon)
+    {
+        free_internal(this_->weapon);
+    }
+    if (this_->weapon_num <= 0)
+    {
+        this_->weapon = 0;
+    }
+    else
+    {
+        this_->weapon = (RGE_Armor_Weapon_Info*)calloc_internal(this_->weapon_num, sizeof(RGE_Armor_Weapon_Info));
+        memcpy(this_->weapon, src->weapon, this_->weapon_num * sizeof(RGE_Armor_Weapon_Info));
+    }
+    this_->armor_num = src->armor_num;
+    if (this_->armor)
+    {
+        free_internal(this_->armor);
+    }
+    if (this_->armor_num <= 0)
+    {
+        this_->armor = 0;
+    }
+    else
+    {
+        this_->armor = (RGE_Armor_Weapon_Info*)calloc_internal(this_->armor_num, sizeof(RGE_Armor_Weapon_Info));
+        memcpy(this_->armor, src->armor, this_->armor_num * sizeof(RGE_Armor_Weapon_Info));
+    }
+    this_->defense_terrain_bonus = src->defense_terrain_bonus;
+    this_->weapon_range = src->weapon_range;
+    this_->area_effect_range = src->area_effect_range;
+    this_->speed_of_attack = src->speed_of_attack;
+    this_->missile_id = src->missile_id;
+    this_->base_hit_chance = src->base_hit_chance;
+    this_->break_off_combat = src->break_off_combat;
+    this_->fire_missile_at_frame = src->fire_missile_at_frame;
+    this_->weapon_offset_x = src->weapon_offset_x;
+    this_->weapon_offset_y = src->weapon_offset_y;
+    this_->weapon_offset_z = src->weapon_offset_z;
+    // asm stores area_effect_level here, after the weapon offsets
+    // (0x489951), out of the pseudocode's listed order
+    this_->area_effect_level = src->area_effect_level;
+    this_->minimum_weapon_range = src->minimum_weapon_range;
+    this_->orig_armor = src->orig_armor;
+    this_->orig_weapon = src->orig_weapon;
+    this_->orig_weapon_range = src->orig_weapon_range;
+    this_->orig_speed_of_attack = src->orig_speed_of_attack;
+    this_->missed_missile_spread = src->missed_missile_spread;
+}
+
+// Replacement for RGE_Master_Combat_Object::modify
+// Original: @ 0x004899B0 (idb_functions.h:1840). __thiscall, retn 8,
+// void. No SEH frame (plain function). Switch restored from the jump
+// table off_489AD4 (@0x489AD4, 15 entries over flag-8, flags 8..22;
+// 13/14/17/19/21 -> default). All int conversions are __ftol (template
+// rule); float fields take the raw amount dword; i16 fields take ftol's
+// LOW WORD as a SET.
+void __fastcall RGE_Master_Combat_Object__modify_new(
+    RGE_Master_Combat_Object* this_, DWORD dummy,
+    float amount, unsigned __int8 flag)
+{
+    switch (flag)
+    {
+    case 8:
+    {
+        int packed = (int)amount;
+        if (this_->armor)
+        {
+            unsigned int index = (unsigned int)((packed >> 8) & 0xFF); // asm 0x4899E4 mov cl,ah
+            if ((int)index < (int)this_->armor_num)                    // asm 0x489A23 cmp/jge
+                this_->armor[index].value = (unsigned __int16)(unsigned __int8)packed; // 0x489A2B-0x489A31
+        }
+        break;
+    }
+    case 9:
+    {
+        int packed = (int)amount;
+        if (this_->weapon)
+        {
+            unsigned int index = (unsigned int)((packed >> 8) & 0xFF); // asm 0x489A0E
+            if ((int)index < (int)this_->weapon_num)
+                this_->weapon[index].value = (unsigned __int16)(unsigned __int8)packed; // 0x489A31 shape
+        }
+        break;
+    }
+    case 10:
+        this_->speed_of_attack = amount;  // raw dword, asm 0x489A37-0x489A3D
+        break;
+    case 11:
+        this_->base_hit_chance = (__int16)(int)amount;  // ftol + word store, asm 0x489A47-0x489A50
+        break;
+    case 12:
+        this_->weapon_range = amount;  // asm 0x489A54-0x489A5B
+        break;
+    case 15:
+        this_->base_armor = (__int16)(int)amount;  // asm 0x489A69-0x489A72
+        break;
+    case 16:
+        this_->missile_id = (__int16)(int)amount;  // asm 0x489A7D-0x489A86
+        break;
+    case 18:
+        this_->defense_terrain_bonus = (__int16)(int)amount;  // asm 0x489A91-0x489A9A
+        break;
+    case 20:
+        this_->minimum_weapon_range = amount;  // asm 0x489AA5-0x489AA9
+        break;
+    case 22:
+        this_->area_effect_range = amount;  // asm 0x489AB3-0x489AB7
+        break;
+    default:
+        RGE_Master_Action_Object__modify((RGE_Master_Action_Object*)this_, amount, flag);  // asm 0x489AC9
+        break;
+    }
+}
+
+// Replacement for RGE_Master_Combat_Object::modify_delta
+// Original: @ 0x00489B10 (idb_functions.h:1841). Same ABI. Switch from
+// off_489CDC (@0x489CDC, 17 entries over flag-6). Flags 8/9 SEARCH the
+// table by .type == BYTE1(ftol amount) (asm 0x489B6C loop, movsx type vs
+// zero-extended byte; not-found -> function return 0x489B81), then
+// value += (u8)BYTE0 (16-bit add, asm 0x489BDC-0x489BE7). Flag 18 is a
+// SET (mov, asm 0x489C8A) — NOT an add. i16 adds are 16-bit adds of
+// ftol's low word (asm 0x489C2E/0x489C5C/0x489C73).
+void __fastcall RGE_Master_Combat_Object__modify_delta_new(
+    RGE_Master_Combat_Object* this_, DWORD dummy,
+    float amount, unsigned __int8 flag)
+{
+    switch (flag)
+    {
+    case 6:
+        this_->turn_speed = amount + this_->turn_speed;  // asm 0x489BF7-0x489C01
+        break;
+    case 8:
+    {
+        int packed = (int)amount;
+        RGE_Armor_Weapon_Info* table = this_->armor;
+        if (table && this_->armor_num > 0)
+        {
+            unsigned __int8 type = (unsigned __int8)((packed >> 8) & 0xFF);
+            for (int i = 0; i < this_->armor_num; ++i)
+            {
+                if (table[i].type == type)
+                {
+                    table[i].value = (__int16)(table[i].value + (unsigned __int8)packed);
+                    break;
+                }
+            }
+        }
+        break;
+    }
+    case 9:
+    {
+        int packed = (int)amount;
+        RGE_Armor_Weapon_Info* table = this_->weapon;
+        if (table && this_->weapon_num > 0)
+        {
+            unsigned __int8 type = (unsigned __int8)((packed >> 8) & 0xFF);
+            for (int i = 0; i < this_->weapon_num; ++i)
+            {
+                if (table[i].type == type)
+                {
+                    table[i].value = (__int16)(table[i].value + (unsigned __int8)packed);
+                    break;
+                }
+            }
+        }
+        break;
+    }
+    case 10:
+        this_->speed_of_attack = amount + this_->speed_of_attack;  // asm 0x489C0E-0x489C19
+        break;
+    case 11:
+        this_->base_hit_chance = (__int16)(this_->base_hit_chance + (__int16)(int)amount);  // asm 0x489C25-0x489C2E
+        break;
+    case 12:
+        this_->weapon_range = amount + this_->weapon_range;  // asm 0x489C3C-0x489C47
+        break;
+    case 15:
+        this_->base_armor = (__int16)(this_->base_armor + (__int16)(int)amount);  // asm 0x489C53-0x489C5C
+        break;
+    case 16:
+        this_->missile_id = (__int16)(this_->missile_id + (__int16)(int)amount);  // asm 0x489C6A-0x489C73
+        break;
+    case 18:
+        this_->defense_terrain_bonus = (__int16)(int)amount;  // SET — asm 0x489C81-0x489C8A
+        break;
+    case 20:
+        this_->minimum_weapon_range = amount + this_->minimum_weapon_range;  // asm 0x489C98-0x489CA3
+        break;
+    case 22:
+        this_->area_effect_range = amount + this_->area_effect_range;  // asm 0x489CAF-0x489CBA
+        break;
+    default:
+        RGE_Master_Action_Object__modify_delta((RGE_Master_Action_Object*)this_, amount, flag);  // asm 0x489CCE
+        break;
+    }
+}
+
+// Replacement for RGE_Master_Combat_Object::modify_percent
+// Original: @ 0x00489D20 (idb_functions.h:1842). Same ABI. Switch from
+// off_489F90 (@0x489F90, 17 entries over flag-6). Flags 8/9: by-TYPE
+// search, then value = (i16)(int)(BYTE0(ftol a) * 0.01f * old + 0.5f) —
+// x87 sequence fild/fmul flt_6565FC/fild/fmulp/fadd const_f_half/ftol/
+// word store (asm 0x489DA3-0x489E4F; flt_6565FC = float32(0.01) per the
+// pseudocode rendering 0.0099999998, const_f_half = 0.5f; all operands
+// exact in double). The i16 fields use the RAW amount as the multiplier
+// (asm 0x489E96 fmul [esp+amount] — no 0.01f factor), with +0.5f
+// rounding.
+void __fastcall RGE_Master_Combat_Object__modify_percent_new(
+    RGE_Master_Combat_Object* this_, DWORD dummy,
+    float amount, unsigned __int8 flag)
+{
+    switch (flag)
+    {
+    case 6:
+        this_->turn_speed = amount * this_->turn_speed;  // asm 0x489E59-0x489E64
+        break;
+    case 8:
+    {
+        int packed = (int)amount;
+        RGE_Armor_Weapon_Info* table = this_->armor;
+        if (table && this_->armor_num > 0)
+        {
+            unsigned __int8 type = (unsigned __int8)((packed >> 8) & 0xFF);
+            for (int i = 0; i < this_->armor_num; ++i)
+            {
+                if (table[i].type == type)
+                {
+                    double percent = (double)(unsigned __int8)packed * 0.01f;
+                    double old = (double)table[i].value;
+                    table[i].value = (__int16)(int)(percent * old + 0.5f);
+                    break;
+                }
+            }
+        }
+        break;
+    }
+    case 9:
+    {
+        int packed = (int)amount;
+        RGE_Armor_Weapon_Info* table = this_->weapon;
+        if (table && this_->weapon_num > 0)
+        {
+            unsigned __int8 type = (unsigned __int8)((packed >> 8) & 0xFF);
+            for (int i = 0; i < this_->weapon_num; ++i)
+            {
+                if (table[i].type == type)
+                {
+                    double percent = (double)(unsigned __int8)packed * 0.01f;
+                    double old = (double)table[i].value;
+                    table[i].value = (__int16)(int)(percent * old + 0.5f);
+                    break;
+                }
+            }
+        }
+        break;
+    }
+    case 10:
+        this_->speed_of_attack = amount * this_->speed_of_attack;  // asm 0x489E70-0x489E7B
+        break;
+    case 11:
+        this_->base_hit_chance = (__int16)(int)((double)this_->base_hit_chance * amount + 0.5f);  // asm 0x489E87-0x489EA5
+        break;
+    case 12:
+        this_->weapon_range = amount * this_->weapon_range;  // asm 0x489EB3-0x489EBE
+        break;
+    case 15:
+        this_->base_armor = (__int16)(int)((double)this_->base_armor * amount + 0.5f);  // asm 0x489ECA-0x489EE8
+        break;
+    case 16:
+        this_->missile_id = (__int16)(int)((double)this_->missile_id * amount + 0.5f);  // asm 0x489EF6-0x489F14
+        break;
+    case 18:
+        this_->defense_terrain_bonus = (__int16)(int)((double)this_->defense_terrain_bonus * amount + 0.5f);  // asm 0x489F22-0x489F40
+        break;
+    case 20:
+        this_->minimum_weapon_range = amount * this_->minimum_weapon_range;  // asm 0x489F4E-0x489F59
+        break;
+    case 22:
+        this_->area_effect_range = amount * this_->area_effect_range;  // asm 0x489F65-0x489F70
+        break;
+    default:
+        RGE_Master_Action_Object__modify_percent((RGE_Master_Action_Object*)this_, amount, flag);  // asm 0x489F84
+        break;
+    }
+}
+
+// Replacement for RGE_Master_Combat_Object::small_save
+// Original: @ 0x00489FE0 (idb_functions.h:1843). __thiscall, 1 stack arg
+// (retn 4), void. No SEH. Base Action small_save (hooked -> routes),
+// then: base_armor w2, weapon_num w2, WEAPON TABLE if weapon_num > 0
+// (SIGNED count guard, asm 0x48A012 jle; size = count*4, asm movsx+shl 2),
+// armor_num w2, ARMOR TABLE if armor_num > 0, speed_of_attack w4,
+// weapon_range w4, base_hit_chance w2, missile_id w2,
+// defense_terrain_bonus w2, weapon_range w4 AGAIN (asm 0x48A0A5 —
+// later-write-wins), area_effect_range w4, minimum_weapon_range w4.
+// NOTE: the table guards are COUNT-only here — no pointer check (the
+// original would stream from a null pointer on count>0/null, faithful).
+void __fastcall RGE_Master_Combat_Object__small_save_new(
+    RGE_Master_Combat_Object* this_, DWORD dummy, int outfile)
+{
+    RGE_Master_Action_Object__small_save((RGE_Master_Action_Object*)this_, outfile);
+    rge_write(outfile, &this_->base_armor, sizeof(this_->base_armor));
+    rge_write(outfile, &this_->weapon_num, sizeof(this_->weapon_num));
+    if (this_->weapon_num > 0)
+        rge_write(outfile, this_->weapon, this_->weapon_num * sizeof(RGE_Armor_Weapon_Info));
+    rge_write(outfile, &this_->armor_num, sizeof(this_->armor_num));
+    if (this_->armor_num > 0)
+        rge_write(outfile, this_->armor, this_->armor_num * sizeof(RGE_Armor_Weapon_Info));
+    rge_write(outfile, &this_->speed_of_attack, sizeof(this_->speed_of_attack));
+    rge_write(outfile, &this_->weapon_range, sizeof(this_->weapon_range));
+    rge_write(outfile, &this_->base_hit_chance, sizeof(this_->base_hit_chance));
+    rge_write(outfile, &this_->missile_id, sizeof(this_->missile_id));
+    rge_write(outfile, &this_->defense_terrain_bonus, sizeof(this_->defense_terrain_bonus));
+    rge_write(outfile, &this_->weapon_range, sizeof(this_->weapon_range));
+    rge_write(outfile, &this_->area_effect_range, sizeof(this_->area_effect_range));
+    rge_write(outfile, &this_->minimum_weapon_range, sizeof(this_->minimum_weapon_range));
+}
+
+// Replacement for RGE_Master_Combat_Object::save
+// Original: @ 0x0048A0E0 (idb_functions.h:1844). Same ABI. Base Action
+// save, then fight_sprite @300 -> RGE_Sprite::id @+0x82 (asm 0x48A0F9)
+// or -1 (asm 0x48A500), written late (w2 at 0x48A243). Table guards are
+// POINTER-only here (asm 0x48A134/0x48A15D jz — no count guard).
+// 24 writes in asm order; area_effect_level lands AFTER the weapon
+// offsets (asm 0x48A214).
+void __fastcall RGE_Master_Combat_Object__save_new(
+    RGE_Master_Combat_Object* this_, DWORD dummy, int outfile)
+{
+    __int16 fight_id = -1;
+    RGE_Master_Action_Object__save((RGE_Master_Action_Object*)this_, outfile);
+    if (this_->fight_sprite)
+        fight_id = this_->fight_sprite->id;
+    else
+        fight_id = -1;
+    rge_write(outfile, &this_->base_armor, sizeof(this_->base_armor));
+    rge_write(outfile, &this_->weapon_num, sizeof(this_->weapon_num));
+    if (this_->weapon)
+        rge_write(outfile, this_->weapon, this_->weapon_num * sizeof(RGE_Armor_Weapon_Info));
+    rge_write(outfile, &this_->armor_num, sizeof(this_->armor_num));
+    if (this_->armor)
+        rge_write(outfile, this_->armor, this_->armor_num * sizeof(RGE_Armor_Weapon_Info));
+    rge_write(outfile, &this_->defense_terrain_bonus, sizeof(this_->defense_terrain_bonus));
+    rge_write(outfile, &this_->weapon_range, sizeof(this_->weapon_range));
+    rge_write(outfile, &this_->area_effect_range, sizeof(this_->area_effect_range));
+    rge_write(outfile, &this_->speed_of_attack, sizeof(this_->speed_of_attack));
+    rge_write(outfile, &this_->missile_id, sizeof(this_->missile_id));
+    rge_write(outfile, &this_->base_hit_chance, sizeof(this_->base_hit_chance));
+    rge_write(outfile, &this_->break_off_combat, sizeof(this_->break_off_combat));
+    rge_write(outfile, &this_->fire_missile_at_frame, sizeof(this_->fire_missile_at_frame));
+    rge_write(outfile, &this_->weapon_offset_x, sizeof(this_->weapon_offset_x));
+    rge_write(outfile, &this_->weapon_offset_y, sizeof(this_->weapon_offset_y));
+    rge_write(outfile, &this_->weapon_offset_z, sizeof(this_->weapon_offset_z));
+    // asm stores area_effect_level here, after the weapon offsets (0x48A214)
+    rge_write(outfile, &this_->area_effect_level, sizeof(this_->area_effect_level));
+    rge_write(outfile, &this_->minimum_weapon_range, sizeof(this_->minimum_weapon_range));
+    rge_write(outfile, &this_->missed_missile_spread, sizeof(this_->missed_missile_spread));
+    rge_write(outfile, &fight_id, sizeof(fight_id));
+    rge_write(outfile, &this_->orig_armor, sizeof(this_->orig_armor));
+    rge_write(outfile, &this_->orig_weapon, sizeof(this_->orig_weapon));
+    rge_write(outfile, &this_->orig_weapon_range, sizeof(this_->orig_weapon_range));
+    rge_write(outfile, &this_->orig_speed_of_attack, sizeof(this_->orig_speed_of_attack));
+}
+
 void install_RGE_Master_Combat_Object()
 {
     setHook((void*)0x00488D30, RGE_Master_Combat_Object__setup_new);
@@ -437,4 +918,12 @@ void install_RGE_Master_Combat_Object()
     setHook((void*)0x00488CB0, RGE_Master_Combat_Object__RGE_Master_Combat_Object4_new);
     setHook((void*)0x00489630, RGE_Master_Combat_Object__destructor_new);
     setHook((void*)0x00488BA0, RGE_Master_Combat_Object__vector_deleting_destructor_new);
+    setHook((void*)0x00489680, RGE_Master_Combat_Object__make_new_obj_new);
+    setHook((void*)0x00489750, RGE_Master_Combat_Object__make_new_master_new);
+    setHook((void*)0x004897C0, RGE_Master_Combat_Object__copy_obj_new);
+    setHook((void*)0x004899B0, RGE_Master_Combat_Object__modify_new);
+    setHook((void*)0x00489B10, RGE_Master_Combat_Object__modify_delta_new);
+    setHook((void*)0x00489D20, RGE_Master_Combat_Object__modify_percent_new);
+    setHook((void*)0x00489FE0, RGE_Master_Combat_Object__small_save_new);
+    setHook((void*)0x0048A0E0, RGE_Master_Combat_Object__save_new);
 }

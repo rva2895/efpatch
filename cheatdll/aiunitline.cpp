@@ -111,7 +111,11 @@ void setAIUnitlineHooks()
     setHook((void*)0x00575ED0, on_ai_build_wall);
     setHook((void*)0x005773FF, on_ai_train);
 
-    setHook((void*)0x0048C1F4, on_static_object_setup);
-    setHook((void*)0x0048D13B, on_static_object_setup4);
+    // retired 2026-11-15: baked into RGE_Master_Static_Object__setup_new
+    // (src/engine/object/RGE_Master_Static_Object.cpp), see 0x0048C1F4.
+    // setHook((void*)0x0048C1F4, on_static_object_setup);
+    // retired 2026-11-15: baked into RGE_Master_Static_Object__setup4_new
+    // (same file), see 0x0048D13B.
+    // setHook((void*)0x0048D13B, on_static_object_setup4);
 }
 #pragma optimize( "", on )
