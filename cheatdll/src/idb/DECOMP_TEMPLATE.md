@@ -118,6 +118,18 @@ no pseudocode restatements of the function body:
   lookup protocol; a data symbol absent from both is a refusal trigger.
 - Magic numbers: name them only if self-evident from provided context;
   otherwise leave the value with a comment. Do not invent meanings.
+- Magic loop counters over declared arrays (hard stop): a loop bound
+  over a struct array member must be derived from the declared type —
+  `_countof(array)` (MSVC, stdlib.h; loop counters typed size_t to keep
+  the comparison unsigned-clean) — never a bare numeric literal, and no
+  bespoke macros or local-constant substitutes. The dimension comes
+  verbatim from the provided type definition, so the derived form is
+  grounded (no invention). A hardcoded literal count in replacement
+  code is a violation, and failing to convert it before the code is
+  written is a HARD STOP: Information Request, no code. (Owner-directed
+  amendment 2026-11-14 after the TRIBE_Master_Combat_Object batch
+  drafted `i < 3` loops over build_inventory[3]; refined to _countof
+  syntax per owner direction — supersedes the interim macro form.)
 - Local variables: rename to meaningful names based on usage. Remove
   v1..vN naming wherever purpose is clear.
 - Remove IDA's artificial casts and intermediate variables where they only
@@ -197,7 +209,16 @@ no pseudocode restatements of the function body:
   constant declares Moving-typed). Every cross-class
   base call must carry an explicit C-style cast of each derived-typed
   argument to the constant's parameter pointer type; static_cast would
-  reject unrelated types, so the C-style form is required.
+  reject unrelated types, so the C-style form is required. The rule
+  binds EVERY cross-type pointer site, not only call arguments:
+  (a) RESULT ASSIGNMENTS and initializations of a base-typed variable
+  from a derived-typed value are the same conversion and need the same
+  explicit cast (MSVC C2440 — caught at the Animated/Moving factory
+  trios' `result = new_master` / runtime-ctor returns, 2026-11-14);
+  (b) vtable-slot calls cast the explicit `this` argument to the slot's
+  declared first-parameter type, and any argument wider than the base
+  type (e.g. a Master_Static_Object* parameter fed from a derived
+  this_) exactly like idb-constant calls.
   Compatibility:
   cast only to types whose accessed fields lie within the real
   object's layout prefix — each flattened struct mirrors its base
@@ -306,8 +327,19 @@ no pseudocode restatements of the function body:
   cast) — re-run it after EVERY batch insert, including destructor
   batches (the Animated destructor insertion postdated the original
   cast sweep and shipped one uncased base call, caught by the owner).
-  A WRITTEN ledger
+  For constructor replacements: the structural audit — each ctor
+  carries its class vfptr store, the do_setup guard, and the do_setup
+  body sequenced after the guard (script: per-ctor body extraction +
+  membership checks; a first-version probe that searched 'setup'
+  matched the guard's own 'do_setup' substring — probe after the
+  guard text). A WRITTEN ledger
   status may only be recorded after this check passes.
+- Compile gate (hard requirement): after every batch write, each
+   touched translation unit must pass a syntax-only compile (vcvars +
+   `cl /c /std:c++17`, 0 errors) before the WRITTEN status is recorded
+   — the defs/refs sweep does not catch type errors (the Animated/
+   Moving factory trios shipped 7 latent C2664/C2440 sites on
+   2026-11-14, caught by the gate).
 
 ## Deliverable (file layout and installers)
 1. Cleaned function(s) go to `cheatdll/src/engine/<subsystem>/<class_name>.cpp`.
@@ -438,6 +470,7 @@ Protocol:
    `48B8|48B9` for get_sprite). This catches table-driven patches,
    macro-hidden targets, and mechanisms the per-site writer greps miss.
    Every hit outside the IDB exports must be individually dispositioned.
+   3b. Writer-target enumeration against FULL ranges (mandatory, scripted): extract the target address from EVERY writer call site in the repository - all Layer-1/2 names AND this project's __declspec(naked) mid-function hook stubs (the patch style hooks function INTERIORS, e.g. bldg_heal_rate_save.cpp) - and test each target against EVERY owned [proc, endp) range. Entry-address literal greps DO NOT catch interior targets: the 2026-11-15 Building batch shipped two such misses (0x005C750D inside small_save, 0x005C72AF inside setup4 - the bldg_heal_rate save-format hooks) that silently reverted a shipped stream-format extension and crashed master reading. A colliding patch's behavior must be BAKED into the replacement (owner-approved) and the patch call site retired - a replacement silently reverts the patch and desyncs whatever state the patch changed. Bake-in is the DEFAULT disposition for every colliding patch; the only waiver is owner-directed, and the affected replacement lines then carry a // <PATCH_ID> marker comment (e.g. // MAP_SIZE in RGE_Visible_Map__get_visible_new) so the revert stays visible at the code site. The scan is scripted: extract targets from all writer call sites, range-test against every owned [proc, endp), report.
 4. Literal-address overlaps are verdicts. Dynamic/computed targets
    (variables, trampoline bases, GetProcAddress results) cannot be proven
    disjoint → list them for manual review instead of clearing them.
@@ -586,17 +619,17 @@ Lookup protocol:
    in the pseudocode is a refusal trigger unless pasted into {{TYPES}}.
 11. Cast-compatibility protocol: for every cast between distinct struct
    pointer types, establish the relationship before accepting it:
-   * Check the hierarchy store (DECOMP_STATE.md, "Verified type
-     hierarchy") for the pair; a stored verified relation — or a stored
-     verified-unrelated verdict — applies directly.
+   * Check the hierarchy store (DECOMP_HIERARCHY.md) for the pair; a
+     stored verified relation - or a stored verified-unrelated verdict -
+     applies directly.
    * Otherwise verify by layout prefix: the narrower struct's field
      sequence (name, type, order — normalize the vfptr field, whose named
      vtable type legitimately differs per class) must be an exact prefix
      of the wider struct's. Cross-check the vtbl structs: slot names in
      order must match as a prefix. Cite both line ranges.
-   * Record newly verified relations as proposed hierarchy-store entries
-     (constraint 9). Entries rot if the headers regenerate; keep the
-     re-verify hint.
+   * Record newly verified relations in DECOMP_HIERARCHY.md (proposed in
+     the conversation, written on owner approval). Entries rot if the
+     headers regenerate; keep the re-verify hint.
    * Base→derived casts additionally require runtime-type evidence that
      the instance really is the derived type (IDA's own typing of the
      object, a constructor's vfptr assignment in battlegrounds_x2.lst,

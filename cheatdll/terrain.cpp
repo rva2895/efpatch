@@ -1451,7 +1451,10 @@ void setExtraTerrainHooks()
     setHook((void*)0x005856DE, onResourceFound_carbon);
     setHook((void*)0x005C7E2C, onCheckPlacement_carbon);
 
-    setHook((void*)0x0048E2F5, shipyard_center_tile_req);
+    // retired 2026-11-15: baked into RGE_Master_Static_Object__check_
+    // placement_new (src/engine/object/RGE_Master_Static_Object.cpp),
+    // see 0x0048E2F5.
+    // setHook((void*)0x0048E2F5, shipyard_center_tile_req);
 }
 
 void setExtraTerrainHooks_CC()

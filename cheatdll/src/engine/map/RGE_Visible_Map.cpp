@@ -12,7 +12,7 @@ extern int** const unified_map_offsets;
 
 int __fastcall RGE_Visible_Map__get_visible_new(RGE_Visible_Map* this_, DWORD dummy, int map_col, int map_row)
 {
-    const int visibility = unified_map_offsets[map_row][map_col];
+    const int visibility = unified_map_offsets[map_row][map_col];  // MAP_SIZE
     if (this_->player->mutualVisibleMask & visibility)
         return 15;
     return (visibility & this_->player->mutualExploredMask) != 0 ? 128 : 0;

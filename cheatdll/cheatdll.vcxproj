@@ -623,6 +623,8 @@
     <ClCompile Include="src\engine\object\RGE_Master_Combat_Object.cpp" />
     <ClCompile Include="src\engine\object\RGE_Master_Doppleganger_Object.cpp" />
     <ClCompile Include="src\engine\object\RGE_Master_Missile_Object.cpp" />
+    <ClCompile Include="src\engine\object\TRIBE_Master_Combat_Object.cpp" />
+    <ClCompile Include="src\engine\object\TRIBE_Master_Building_Object.cpp" />
     <ClCompile Include="src\engine\object\RGE_Static_Object.cpp" />
     <ClCompile Include="src\engine\object\install_object.cpp" />
     <ClCompile Include="src\engine\install_engine.cpp" />

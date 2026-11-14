@@ -61,7 +61,9 @@ not_grey:
 #pragma optimize( "s", on )
 void setMinimapHooks()
 {
-    setHook((void*)0x0048C45F, grey_load_dat_unit);
+    // retired 2026-11-15: baked into RGE_Master_Static_Object__setup2_new
+    // (src/engine/object/RGE_Master_Static_Object.cpp), see 0x0048C45F.
+    // setHook((void*)0x0048C45F, grey_load_dat_unit);
     setHook((void*)0x0042E072, grey_load_dat_color);
 }
 #pragma optimize( "", on )
