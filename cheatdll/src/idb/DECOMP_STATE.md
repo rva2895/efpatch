@@ -399,6 +399,389 @@ authoritative.)
   entry present). In-game validation still owed: unit placement
   returns, DAT/binary/text loads, civ-suffix strings, selection
   outlines (draw), tech help screens.
+- HOOK-ROUTING RULING (owner-corrected 2026-11-14, Animated review):
+  setHook patches function entries IN PLACE (5-byte jmp rel32) — there
+  is no trampoline. The idb_functions constants hold the entry
+  addresses themselves, so calling through an idb constant at runtime
+  executes the patch and reaches the replacement: NO divergence, one
+  extra jmp. Calling the _new replacement directly is behaviorally
+  identical. Precondition: entries must be hooked with the jmp form
+  (setHook), not call-form (setHookCall) — a call-form patch at a
+  function entry would return into mid-function bytes. Consequence:
+  base-class calls in derived replacements may faithfully use the idb
+  constants (the asm's actual call targets) without cross-file extern
+  declarations of _new functions. Retroactive: check_placement's
+  get_visible_new fold is behaviorally identical under this analysis
+  (left as written, owner-informed).
+- TEMPLATE AMENDMENT (owner-directed 2026-11-14, Animated/Moving
+  review): base-pointer indexed field access (the v6[1].field pattern)
+  is IDA's rendering of a derived-class field it cannot type. New rule:
+  compute the byte offset (N*sizeof(base) + offsetof(field, base)),
+  match it to a named field of the derived struct via the mechanical
+  walker, rewrite as the named field, present the mapping in the
+  review artifact; HARD STOP when no sane expression can be deduced.
+  Never transcribe the expression literally; never guess unconfirmed
+  names. Companion rule: re-typed pseudocode requests — for tricky
+  cases, request an updated dump from the owner with the suspected
+  mis-typed variables, their current types, and the deduced real
+  types. First application: Moving::setup4's v6[1].* accesses (pending
+  decode; the 8 mappings are single-step and setup2-width-corroborated,
+  so manual correction is in protocol — any ambiguity escalates to the
+  re-typed pseudocode request).
+- RGE_Master_Animated_Object::setup/setup2/setup3/setup4
+  [0x488760,0x488859) — owner-approved + written 2026-11-14. NEW CLASS
+  FILE: src/engine/object/RGE_Master_Animated_Object.{h,cpp} +
+  install_object.cpp wiring + vcxproj ClCompile entry. Four thin
+  derived overrides (0x30/0x40/0x50/0x40 bytes): base Static setup
+  call -> master_type = RGE_MASTER_TYPE_ANIMATED (0x14, owner enum) ->
+  the SINGLE Animated extension op -> return 1. Extension field:
+  float speed @208 (flattened struct mirrors the base layout through
+  outline_radius_z @204 then speed; total 0xD4, consistent with
+  Doppleganger masters allocating 0xD4). Base calls route through the
+  idb constants per the HOOK-ROUTING RULING (no cross-file externs of
+  _new functions). setup3's extension read is fscanf "%f"; the others
+  rge_read 4 bytes; setup copies speed from other_object. Caller
+  coverage: RGE_Master_Doppleganger_Object derives from Animated (no
+  extra master fields, vfptr swap only) and its constructors call
+  these Animated setups — hooks cover Doppleganger loading traffic.
+  WRITTEN + post-write verification (4 defs/refs identical in the new
+  file; install wiring + vcxproj resolved; no literal-width I/O; no
+  pointer arithmetic). Post-write verification ALSO includes the
+  return-type inventory sweep: every replacement's declared return is
+  compared against its idb prototype's return (setups = int, ctors =
+  the owning class pointer, destructors = void, make_new_obj =
+  RGE_Static_Object*, make_new_master = RGE_Master_Static_Object*).
+  First run caught: Missile ctor3/ctor4 declared `int` instead of
+  RGE_Master_Missile_Object* — fixed; all other returns verified
+  against their idb prototypes (setups int x15, ctors class-pointer
+  x10, Static inventory int/u8/void/void*/RGE_Sprite*/RGE_Static_
+  Object*/RGE_Master_Static_Object*).
+- RGE_Master_Moving_Object::setup/setup2/setup3/setup4
+  [0x48AFE0,0x48B380) — owner-approved + written 2026-11-14. NEW CLASS
+  FILE: src/engine/object/RGE_Master_Moving_Object.{h,cpp} + wiring +
+  vcxproj entry. Derived overrides (0xB0/0x120/0xF0/0xE0 bytes): base
+  Animated call (idb constants per the HOOK-ROUTING RULING) ->
+  master_type = RGE_MASTER_TYPE_MOVING (0x1E) -> Moving extension
+  block + turn-radius initialization + the virtual dispatch
+  vfptr->setTurnRadiusOffTurnSpeed (slot 0x64 = vtbl entry 25,
+  position-verified idb_types.h:14962+25=14987). Extension fields
+  walker-confirmed (calibrated on master_type@4/selected_sound@72/
+  outline@196-204/speed@208): move_sprite@212, run_sprite@216,
+  turn_speed@220, size_class@224, obj_trail_id@226, obj_trail_options
+  @228, obj_trail_spacing@232, move_algorithem@236, mTurnRadius@240,
+  mTurnRadiusSpeed@244, mMaximumYawPerSecondMoving@248,
+  mStationaryYawRevolutionTime@252, mMaximumYawPerSecondStationary
+  @256; total 0x104. FLT_MAX constant = SINGLE_MAXIMUM_VALUE
+  (3.4028235e38f). setup2/setup3 param-slot reuse (sounds slot ->
+  move_sprite ix, sprites slot -> run_sprite ix; setup3 also infile ->
+  move ix, in_id -> size_class, sprites -> obj_trail_options, sounds
+  -> move_algorithem) — named locals in the replacements. setup4:
+  list[copy_id] re-typed per the base-pointer rule (v6[1].* = the
+  referenced master's Moving extension fields @212-236, walker-
+  confirmed; presented mapping in the review round), unconditional
+  index (faithful), and the final turn_speed stream read OVERWRITES
+  the copied value (later write wins). setup2 streams all five m*
+  floats (no FLT_MAX init on that path). First exercise of the
+  base-pointer derived-field correction rule — all 8 mappings
+  single-step, walker-confirmed, presented above; no re-typed
+  pseudocode request needed. WRITTEN + post-write verification
+  (4 defs/refs identical; wiring resolved; no literal-width I/O).
+- RGE_Master_Action_Object::setup/setup2/setup3/setup4
+  [0x487B50,0x487F2C) — owner-approved + written 2026-11-14. NEW CLASS
+  FILE: src/engine/object/RGE_Master_Action_Object.{h,cpp} + wiring +
+  vcxproj entry. Derived overrides (0xB0/0x110/0x120/0x100 bytes): base
+  Moving call (idb constants per the HOOK-ROUTING RULING) -> master_type
+  = RGE_MASTER_TYPE_ACTION (0x28) -> the Action extension block + the
+  task-list machinery. Extension fields walker-confirmed (20 targets,
+  calibrated; total 0x12C): tasks@260, default_task@264,
+  search_radius@268, work_rate@272, gbg_work_rate_2@276, drop_site@280,
+  backup_drop_site@282, task_by_group@284, command_sound@288,
+  move_sound@292, run_pattern@296. NEW GROUNDINGS: world->tasks @396
+  (asm +0x18C + corrected-walker adjacency — the earlier Game_World
+  walk was shifted by the unresolved eSaveLoadModes_e typedef); RGE_
+  Task_List = {vfptr@0, RGE_Task** list@4, __int16 list_num@8};
+  RGE_Task.is_default @+4 (u8). setup3's default-task search: the
+  exhausted-loop path returns 1 EXPLICITLY (asm 0x487E0F — the
+  pseudocode's bare return; was a rendering); RESTRUCTURE documented:
+  the list_num <= 0 guard (asm 0x487DF0-0x487DF6) collapses into the
+  loop condition (provable — same path set), per the redundant-guard
+  elimination rule. setup2/setup3 IDA "possibly undefined" args were
+  tracking artifacts — the asm forwards the real sounds/in_id; setup2's
+  two sound indices resolve against the SOUNDS array for both (asm ebp
+  both); setup3's %hd scratches are the in_id/sprites/infile/sounds
+  param slots (named locals in the replacement). setup4: list[copy_id]
+  re-typed per the base-pointer rule (v6[1].* = Action extension
+  @264-296, walker-confirmed; mapping presented in the review round),
+  unconditional index (faithful); tasks = world->tasks[id] OVERWRITES
+  the base-copied value, and the stream tail re-reads search_radius/
+  work_rate with gbg mirroring again — later-write-wins order
+  replicated. Protocol notes: first redundant-guard collapse under the
+  new rule (setup3, RESTRUCTURE comment with asm addresses); pointer-
+  walk check clean. Owner catch during review: the presented setup3
+  walked a pointer (task_ptr) — replaced with indexed access before
+  write, and the pointer rule now binds output code explicitly.
+   WRITTEN + post-write verification (4 defs/refs identical; wiring
+  resolved; no literal-width I/O; pointer-walk clean; guard scan
+  clean).
+- RGE_Master_Action_Object::RGE_Master_Action_Object2/3/4
+  [0x4879E0,0x487B44) — owner-approved + written 2026-11-14. Derived
+  constructor trio (0x70/0x80/0x80 bytes incl. SEH frames). The
+  CLEANEST tier: NO inline initialization (the Action extension has no
+  ctor defaults — the setups set everything incl. the tasks binding).
+  Body: base Moving ctorN with do_setup = 0 (idb constants -> our
+  Moving ctor replacements per the HOOK-ROUTING RULING), Action vfptr
+  store (rge_master_action_object_vftable = 0x0065ADFC, cpp-local
+  typed constant), if (do_setup) the derived setup (Action::setupN —
+  load-bearing guard, no collapse). SEH fold: unwind chunks
+  0x641F50/0x641F70/0x641F90 = mov ecx, [ebp-10h] / jmp RGE_Master_
+  MOVING_Object__destructor — the immediate base level, continuing the
+  ladder (Static <- Animated <- Moving <- Action unwinds). Caller
+  coverage: Player__load_master_object/load_object + the Combat ctor
+  chain. PROTOCOL NOTE: the pointer-walk grep matched ++index (the
+  int loop counter in setup3's default-task search) — verification
+  refined: each ++X match is type-checked (pointer-typed increment =
+  violation; int counter = fine). WRITTEN + post-write verification
+  (7 defs/refs identical; installer gained 3 hooks; no literal-width
+  I/O; pointer-walk clean after type-check; 3 SEH folds present).
+- RGE_Master_Combat_Object::setup/setup2/setup3/setup4
+  [0x488D30,0x489630) — owner-approved + written 2026-11-14. NEW CLASS
+  FILE: src/engine/object/RGE_Master_Combat_Object.{h,cpp} + wiring +
+  vcxproj entry. Combat_Base tier (master_type = RGE_MASTER_TYPE_
+  COMBAT_BASE, 0x32): base Action call -> the Combat extension
+  (extension offsets 300-376 walker-confirmed, 36 targets total with
+  the base chain calibrations; total 0x17C): fight_sprite@300,
+  base_armor@304, armor_num@306, armor@308, weapon_num@312,
+  weapon@316, defense_terrain_bonus@320, weapon_range@324,
+  area_effect_range@328, area_effect_level@332, speed_of_attack@336,
+  missile_id@340, base_hit_chance@342, break_off_combat@344,
+  fire_missile_at_frame@346, weapon_offset_x/y/z@348/352/356,
+  minimum_weapon_range@360, orig_armor@364, orig_weapon@366,
+  orig_weapon_range@368, orig_speed_of_attack@372,
+  missed_missile_spread@376. NEW TYPE VERIFIED:
+  RGE_Armor_Weapon_Info = {i16 type@0, i16 value@2} — size 4,
+  calloc(count, 4) verified; setup's table deep-copy is the qmemcpy
+  intrinsic (rep movsd + tail movsb) -> memcpy in the replacement;
+  setup2/setup4 use BULK rge_read (count * sizeof(element)). setup3:
+  18-conversion fscanf (%hd scratches = the in_id/infile/sounds param
+  slots + one local — named locals in the replacement), the two
+  "%hd %hd" table read loops, and the orig_* DERIVATION chains in
+  indexed form: orig_armor = max value among type==4 armors from -1
+  falling back to base_armor then max over all values; orig_weapon =
+  max among type==4||3 weapons from 0 (loop-invariant null check
+  hoisted) falling back to max over all values. setup4: 20-field
+  v6[1] batch re-typed per the base-pointer rule (mapping presented
+  in the review round), NO table copies (tables stream-read fresh),
+  tail re-reads weapon_range twice + overwrites base_armor/copy
+  values — later-write-wins replicated. IDA "v10 possibly undefined"
+  base-call arg = tracking artifact (asm forwards the real param).
+  WRITTEN + post-write verification (4 defs/refs identical; wiring
+  resolved; no literal-width I/O; pointer-walk clean after type-check;
+  3 SEH folds present).
+- BASE_GAME PATTERN FIX (owner-reported, Action cpp line 71): the
+  three task-binding sites in Action setup2/3/4 used bare
+  base_game->world (double-pointer through the ** const) instead of
+  the canonical (*base_game)->world->tasks[id]; all three fixed + the
+  Action comment updated. Tree-wide sweep added to the protocol:
+  lookbehind grep (?<!\*\))base_game-> — residual hits are
+  violations; one Static comment rephrased to keep the sweep at zero.
+  Template rule added: base_game double-pointer deref (canonical
+  (*base_game)->field; ground: world @0x420, map @0x34, tasks
+  @0x18C). WRITTEN + post-write verification (sweep = 0 bare / 11
+  canonical sites).
+- DERIVED DESTRUCTOR FAMILY (owner-approved + written 2026-11-14):
+  6 destructors + 5 vector_deleting + 1 scalar_deleting (Moving has
+  no vector_deleting export; its vftable uses the scalar variant)
+  across the six derived class files — 12 hooks (each class file +2:
+  Animated/Moving/Action/Combat 9 hooks each; Doppleganger/Missile 5
+  hooks each). Plain destructors: vfptr store then base destructor
+  call (idb constants -> hooked replacements per the routing ruling);
+  no dummy param (no stack args, per the Static destructor
+  precedent). Combat destructor: vfptr FIRST (asm order), then
+  weapon/armor frees via free_internal (heap pairing per the CRT
+  rule — the game frees these tables with its own free; allocations
+  are calloc_internal), pointers zeroed, then the base Action
+  destructor (called, not tail-jmp). Deleting-destructors: identical
+  bodies — own destructor_new call (same class, no cast),
+  operator_delete_internal on flags & 1, return this (the asm calls
+  the game's operator_delete; the wrapper is the game-side deleter
+  per the Static scalar_deleting precedent). SEH unwind funclets from
+  the ctor rounds jmp into these destructors — hooked, the exception
+  path routes through the replacements too. WRITTEN + post-write
+  verification: defs/refs 37/9/9/9/9/5/5 (all matching per file);
+  bare CRT 0 (free_internal present in Combat); pointer-walk 0 real
+  (the alignment_new float accumulator remains the sole known benign
+  grep match); base_game sweep 0 bare.
+  PASS 2 (owner-reported, Animated cpp line 183): the destructor
+  family was inserted AFTER the cross-class cast sweep, so Animated
+  destructor_new's base call (RGE_Master_Static_Object__destructor)
+  shipped uncased — fixed + all six files re-swept (0 uncased). The
+  post-write checklist now enumerates the cast re-sweep explicitly:
+  it must re-run after EVERY batch insert, not only once per file.
+- RGE_Master_Doppleganger_Object::Object2/3/4
+  [0x48A370,0x48A4FC) and RGE_Master_Missile_Object::Object2/3/4
+  [0x48A6B0,0x48A9xx) — owner-approved + written 2026-11-14. TWO NEW
+  CLASS FILES (RGE_Master_Doppleganger_Object.{h,cpp},
+  RGE_Master_Missile_Object.{h,cpp}) + wiring + 2 vcxproj entries.
+  MASTER-CONSTRUCTION PROJECT COMPLETE (see below).
+  Doppleganger trio (25): base ANIMATED ctorN(do_setup=0) -> vfptr
+  swap (rge_master_doppleganger_object_vftable = 0x0065B100) ->
+  if (do_setup) { Animated::setupN; master_type = DOPPELGANGER };
+  ctor3 adds recyclable = 1 (@188, asm 0x48A454); ctor4 adds
+  fog_flag = 3 (@117, asm 0x48A4E4). Doppleganger masters = Animated
+  masters with a vfptr swap, no extra fields (0xD4). SEH unwind ->
+  ANIMATED destructor (chunks 0x642190/0x6421B0/0x6421D0 confirmed).
+  Missile trio (60): base COMBAT ctorN(do_setup=0) -> vfptr
+  (rge_master_missile_object_vftable = 0x0065B1FC) -> if (do_setup)
+  { Combat::setupN; master_type = MISSILE; extension op }. Missile
+  extension fields walker-confirmed (total 0x188): missile_type@380,
+  targetting_type@381, missile_hit_info@382, missile_die_info@383,
+  area_effect_specials@384, ballistics_ratio@388 (float). ctor2: six
+  sizeof-form reads. ctor3: recyclable = 1 + fscanf "%hd x5 %f" (the
+  %hd scratches = the do_setup/sprites/in_id/sounds/infile param
+  slots — named locals; byte-narrowed). ctor4: list[copy_id] re-typed
+  per the base-pointer rule (v7[1].object_flags bytes @552-555 ->
+  missile_type/targetting/hit/die; help_string_id byte @556 ->
+  area_effect_specials; help_page_id @560 -> ballistics_ratio);
+  unconditional index (faithful); tail rge_read OVERWRITES
+  targetting_type (later write wins). SEH unwind -> COMBAT destructor
+  (chunks 0x642230/0x642250/0x642270). WRITTEN + post-write
+  verification (3 defs/refs identical per file; wiring + 2 vcxproj
+  entries resolved; no literal-width I/O; pointer-walk clean; 3 SEH
+  folds per file).
+- MASTER-CONSTRUCTION PROJECT COMPLETE: 7 class files
+  (Static/Animated/Moving/Action/Combat/Doppleganger/Missile),
+  20 setup hooks + 21 constructor hooks = 41 derived-family hooks
+  plus the Static class's own 37 = the full master construction,
+  DAT-load (binary + text + xref), and setup traffic of every master
+  type in the game (10/15/20/25/30/40/50/60 and the Combat-subclass
+  70/80 masters) routes through owned, hook-routed replacements.
+  Remaining known-unowned master-family territory: the derived
+  DESTRUCTORS (thin vfptr-store + base-call pairs, pattern
+  established), make_new_obj/make_new_master overrides, copy_obj/
+  copy_vars, and the Missile/Building ctor-level extension reads that
+  live in constructors rather than setups (e.g. Missile_Object2's
+  reads are inside the ctor — covered above; Building ctors pending
+  scope).
+- RGE_Master_Combat_Object::RGE_Master_Combat_Object2/3/4
+  [0x488BC0,0x488D24) — owner-approved + written 2026-11-14. Derived
+  constructor trio (0x70/0x80/0x80 bytes incl. SEH frames). The ladder
+  holds exactly: NO inline initialization (the Armor/Weapon tables and
+  scalars are the setups' job). Body: base Action ctorN with
+  do_setup = 0 (idb constants -> our Action ctor replacements per the
+  HOOK-ROUTING RULING), Combat vfptr store (rge_master_combat_object_
+  vftable = 0x0065AFF8, cpp-local typed constant), if (do_setup) the
+  derived setup (Combat::setupN — loads the Armor/Weapon tables and
+  the scalar block). SEH fold: unwind chunks 0x6420F0/0x642110/
+  0x642130 = mov ecx, [ebp-10h] / jmp RGE_Master_ACTION_Object__
+  destructor — the immediate base level, ladder complete (Static <-
+  Animated <- Moving <- Action <- Combat unwinds). if (do_setup)
+  load-bearing (no collapse). Caller coverage: RGE_Master_Missile_
+  Object2/3/4 and Player__load_master_object/load_object — the
+  Missile tier routes through these hooks. Pointer-walk grep matched
+  4 (the setup3 int loop counters ++i/j/k/m — type-checked fine).
+  WRITTEN + post-write verification (7 defs/refs identical; installer
+  gained 3 hooks; no literal-width I/O; 3 SEH folds present).
+- RGE_Master_Moving_Object::RGE_Master_Moving_Object2/3/4
+  [0x48AE10,0x48AFD5) — owner-approved + written 2026-11-14. Derived
+  constructor trio (0x90/0xA0/0xA0 bytes incl. SEH frames). PATTERN
+  DELTA vs Animated ctors: the five m* yaw defaults are initialized
+  INLINE in the ctor (FLT_MAX x3 on mTurnRadiusSpeed/mMaxMoving/
+  mMaxStationary @244/248/256, zeros on mTurnRadius/mStationaryYaw-
+  RevolutionTime @240/252 — asm order F4/F8/100 then F0/FC), and the
+  do_setup body calls the DERIVED setup (Moving::setupN — which
+  re-reads all five m* floats from the stream, overwriting the
+  defaults); NO master_type store in the ctors (the derived setups
+  set it). Body: base Animated ctorN with do_setup = 0 (idb constants
+  -> our Animated ctor replacements per the HOOK-ROUTING RULING),
+  Moving vfptr store (rge_master_moving_object_vftable = 0x0065B304,
+  cpp-local typed constant). SEH fold: unwind chunks 0x6422F0/
+  0x642310/0x642330 = mov ecx, [ebp-10h] / jmp RGE_Master_ANIMATED_
+  Object__destructor — the IMMEDIATE BASE's destructor level (the
+  Animated dtor stores the Animated vfptr then chains to Static;
+  contrast Animated ctors, whose unwind jumped straight to Static).
+  Caller coverage: RGE_Master_Player__load_master_object/load_object
+  call Moving ctor2/ctor3 directly (player-unit load path); Action
+  ctor chain builds on these. WRITTEN + post-write verification
+  (7 defs/refs identical in the class file; installer gained 3 hooks;
+  no literal-width I/O; pointer-walk clean; 3 SEH folds present).
+- RGE_Master_Animated_Object::RGE_Master_Animated_Object2/3/4
+  [0x4885C0,0x48875A) — owner-approved + written 2026-11-14. Derived
+  constructor trio (0x80/0x90/0x90 bytes incl. SEH frames), __thiscall,
+  4/5/5 stack args, return this. THE SEH FOLD FAMILY BEGINS: every
+  derived master ctor carries an MSVC ctor-unwind frame; funclet =
+  mov ecx, [ebp-10h] / jmp RGE_Master_Static_Object__destructor
+  (chunks 0x642030/0x642050/0x642070 — the Animated sub-object adds no
+  resources beyond the Static destructor's frees); handler = standard
+  __CxxFrameHandler dispatch, unwind-only scope. Folded per the
+  make_new_obj pattern: __except (RGE_Master_Static_Object__destructor
+  (this_), EXCEPTION_CONTINUE_SEARCH). Body: base Static ctorN with
+  do_setup = 0 (idb constants -> hooked replacements), Animated vfptr
+  store (rge_master_animated_object_vftable = 0x0065AF00, cpp-local
+  typed constant per the Static precedent), if (do_setup) { Static
+  setupN + the speed extension read (setup2/setup4: rge_read 4;
+  setup3: fscanf "%f") + master_type = RGE_MASTER_TYPE_ANIMATED } —
+  the extension op is INLINED in the ctors (the asm calls Static
+  setupN directly, not Animated::setupN — faithful form kept). Note
+  Animated::setup2/3/4 (also hooked) perform the identical extension
+  op — behaviorally equivalent entry points; Doppleganger ctors call
+  the Animated SETUPS explicitly while Moving/Action/Combat ctors use
+   the do_setup-gated ctor chain. WRITTEN + post-write verification
+  (7 defs/refs identical in the class file; installer gained 3 hooks;
+  no literal-width I/O; pointer-walk clean; 3 SEH folds present).
+- COMPILE-DRIVEN CORRECTION PASS (owner-reported MSVC errors
+  2026-11-14): (1) CROSS-CLASS CASTS — the flattened derived structs
+  are unrelated C++ types; every cross-class base call needed an
+  explicit C-style cast of this_ to the idb constant's parameter type
+  (static_cast would reject unrelated types; C-style reinterpret
+  semantics required). 60 sites cast across the six derived class
+  files (Animated 13, Moving 10, Action 10, Combat 10, Doppleganger
+  9, Missile 8 + 1 restored — see (3)); all casts derived-to-ancestor,
+  layout-safe per the walker-calibrated prefix mirroring. Template
+  rule added (explicit casts required; compatible-type caution;
+  C2177 literal-range note). (2) FLT_MAX — the literal 3.4028235e38f
+  exceeds FLT_MAX (3.40282346638e38) and MSVC rejects it (C2177);
+  18 literals in Moving replaced with FLT_MAX. (3) SELF-CAUGHT during
+  the cast pass: Missile ctor4 was MISSING its Combat::setup4 call
+  (dropped at write time — the decode had it, the write lost it);
+  restored with cast (the asm-vs-code call-set comparison this implies
+  is now part of the ctor decode checklist). Post-fix verification:
+  zero uncased cross-class calls in all six files; zero oversized
+  literals; Missile setup4 present with cast.
+  PASS 2 (owner-reported line 23): the other_object ARGUMENT of the
+  base template-setup calls is also derived-typed — 4 more casts
+  (Animated setup -> Static*, Moving setup -> Animated*, Action setup
+  -> Moving*, Combat setup -> Action*); residual grep hit at
+  Static_Object.cpp:312 verified compliant (same-class call, params
+  already Static-typed). Cast sweep now covers every derived-typed
+  argument position (this_ + other_object); infile/sprites/sounds/
+  list are base-typed and pass uncast.
+  PASS 4 (owner-reported): Missile ctor4 was MISSING the vfptr store
+  AND the if (do_setup) guard — the do_setup body ran unconditionally
+  and the vfptr stayed at the Combat vftable (wrong virtual dispatch
+  for Missile masters). Restored per the approved structure; then a
+  STRUCTURAL AUDIT of all 22 derived+base constructors across the
+  seven class files (vfptr store present, do_setup guard present,
+  body sequenced after the guard) — 22/22 PASS; special stores
+  spot-checked for brace nesting (Doppleganger ctor3 recyclable /
+  ctor4 fog_flag; Missile ctor3 recyclable+master_type / ctor4
+  master_type — all inside their guards). Constructor structural
+  audit script added to the post-write verification protocol.
+  PASS 3 (owner-reported): CRT calls must use the *_internal wrappers
+  (common.h:134-151) — bare calloc/fscanf pair DLL-heap/DLL-stdio
+  state against game code that frees with the game's _free (confirmed:
+  Combat destructor asm frees the tables with the game's free). Fixed
+  tree-wide: calloc x14 (Combat 6, Static 8) and fscanf x11 (Static 5,
+  Animated 4 incl. 2 comment mentions, Action/Missile/Moving/Combat 1
+  each) -> calloc_internal/fscanf_internal. memcpy: no _internal
+  wrapper exists; kept bare (heap-neutral byte copy, no CRT state) —
+  documented exception per the new rule. Also fixed in this round:
+  Combat setup2 read-consistency — the asm reads missed_missile_spread
+  (@0x178, 4 bytes) after minimum_weapon_range and BEFORE the
+  fight_sprite index; the pseudocode DROPPED that read entirely and
+  misplaced orig_speed_of_attack at the tail (my written code
+  followed the pseudocode = stream desync). Corrected tail order per
+  asm 0x489073-0x4890E6: min_range, missed_missile_spread, fight_ix,
+  orig_armor, orig_weapon, orig_weapon_range, orig_speed_of_attack.
   SEH SWEEP (2026-11-14, protocol-level check across all 27 hooks):
   exactly two functions carry hidden frame SEH — make_new_master and
   make_new_obj (both folds applied on approval); all others clean.

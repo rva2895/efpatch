@@ -134,6 +134,18 @@ no pseudocode restatements of the function body:
   become indexed loops over the actual element type when the element
   layout is verified from the header (offset + stride vs the struct
   definition) — per-element equivalence is exact.
+- Redundant-guard elimination: when a guard is provably subsumed by a
+  later condition — an outer `if (count > 0)` around a loop whose own
+  condition `i < count` already fails for count <= 0, a repeated test,
+  or a bounds test the index arithmetic implies — write the collapsed
+  form (loop condition only), mark it with a RESTRUCTURE comment
+  citing the equivalence (guard condition vs loop/body condition truth
+  table, with the asm address of the original guard), and list the
+  collapse in the review artifact. When the collapse is not provable,
+  keep the original guard. Verification protocol: after drafting, and
+  again at post-write, re-scan every new loop and conditional for
+  guards subsumed by their own body conditions and report each collapse
+  (or state that none was found).
 - Inlined-function detection: when a body contains a block whose semantics
   match another known function (a destructor's frees inlined into a
   scalar-deleting destructor; `repne scasb` = strlen), prefer a call to
@@ -175,6 +187,45 @@ no pseudocode restatements of the function body:
   a gate violation. An unverified width — a bare literal without the
   asm citation and approval, or a sizeof that disagrees with the
   asm-pushed size — is a HARD STOP: Information Request, no code.
+- Cross-class base calls (explicit casts required): the flattened
+  derived structs are unrelated C++ types — no declared inheritance —
+  so a call through a base-class idb constant rejects the implicit
+  derived-to-base pointer conversion (MSVC C2664) — for EVERY
+  derived-typed argument, not just this_: forwarded pointers such as
+  other_object need the same treatment (caught at Action setup, line
+  23: the second argument other_object is Action-typed where the
+  constant declares Moving-typed). Every cross-class
+  base call must carry an explicit C-style cast of each derived-typed
+  argument to the constant's parameter pointer type; static_cast would
+  reject unrelated types, so the C-style form is required.
+  Compatibility:
+  cast only to types whose accessed fields lie within the real
+  object's layout prefix — each flattened struct mirrors its base
+  prefix exactly (walker-calibrated), so a derived-to-ancestor cast is
+  layout-safe for the ancestor's fields. Deeper casts (base ->
+  derived, or sideways) require the access-offset proof per the
+  base-pointer rule. Floating literals beyond the type range (e.g.
+  3.4028235e38 > FLT_MAX) are rejected by MSVC (C2177) — use FLT_MAX
+  or an exactly-representable literal.
+- CRT calls via *_internal wrappers (hard stop for bare CRT): the
+  common.h/cpp wrapper family (malloc/calloc/operator_new/operator_
+  delete/free/read/write/fopen/fscanf/fread/fwrite/fgets_internal...)
+  routes CRT through the GAME's runtime — required because game code
+  frees what replacements allocate (heap pairing; e.g. the Combat
+  destructor frees the Armor/Weapon tables with the game's _free) and
+  because FILE* handles carry the game's stdio state. Bare calloc/
+  fscanf/malloc/free calls in replacements are violations. memcpy is
+  the documented exception: no _internal wrapper exists and a copy is
+  heap-neutral (safe on game-heap memory). Post-write sweep: bare
+  calloc(/fscanf(/malloc(/free( must be 0.
+- base_game double-pointer deref: the base_game global is declared
+  RGE_Base_Game** const (common.cpp:7); IDB types it TRIBE_Game*. The
+  canonical access form is (*base_game)->field — a bare
+  base_game->field is a double-pointer bug (reads the pointer-slot
+  region of the Game struct as if it were the Game pointer). Verified
+  ground: (*base_game)->world @0x420, world->map @0x34, world->tasks
+  @0x18C. Post-write sweep: grep for base_game-> not preceded by *)
+  (lookbehind `(?<!\*\))base_game->`) — any hit is a violation.
 - Numeric conversion verification: every hex-to-decimal (and reverse)
   conversion cited in output or ledger must be recomputed mechanically
   before use — an arithmetic slip here can manufacture phantom blockers
@@ -185,8 +236,14 @@ no pseudocode restatements of the function body:
   decompilation must be converted to indexed array access, with every
   byte offset verified against the element size and the containing
   struct layout. `pointer += constant` statements must never appear in
-  output code. An offset that cannot be verified against the layout is
-  a hard stop: Information Request, no code.
+  output code. This binds the replacement code too: output must not
+  introduce walked pointers — no `++p` / `p += n` / saved-and-
+  incremented pointer variables; all array iteration is by index over
+  the verified element type (`arr[index]`). An offset that cannot be
+  verified against the layout is a hard stop: Information Request, no
+  code. Post-write verification includes a pointer-walk pattern check
+  (increments and constant-arithmetic on pointer variables) alongside
+  the defs/refs count.
 - Deviation presentation protocol: whenever a reconstruction must
   deviate from a mechanical form this template mandates (sizeof widths,
   indexed access, faithful operator order, any literal the rules would
@@ -197,6 +254,39 @@ no pseudocode restatements of the function body:
   owner approval must be obtained before the deviating code is written.
   Silent deviations — however well-commented in the code — are gate
   violations.
+- Base-pointer derived-field correction (the v6[1].field pattern): IDA
+  pseudocode that indexes a base-typed pointer (v6[N].field) is its
+  rendering of an access to a field of a DERIVED class — IDA lacks the
+  class hierarchy and falls back to stepping the pointer by the base
+  size. Never transcribe the expression literally (it computes
+  v6 + N*sizeof(base) + offsetof(field), an address in the derived
+  extension region the base type cannot name). Instead: compute the
+  target byte offset (N * sizeof(base) + offsetof(field within the
+  base)), locate the matching field in the derived struct via the
+  mechanical walker over idb_types.h, and rewrite the access as that
+  named field. Present the mapping (original pseudocode expression ->
+  byte offset -> derived field name) in the review artifact. If the
+  offset cannot be matched to a named field of a known derived struct
+  at the right width — i.e., no sane expression can be deduced — it is
+  a HARD STOP: Information Request, no code. Do not guess names the
+  walker does not confirm, and do not accept a field on semantic
+  plausibility alone. When the correction chain is non-trivial
+  (multiple interacting mis-typed expressions), prefer the re-typed
+  pseudocode request (see its rule) over manual rewriting.
+- Re-typed pseudocode requests: IDA recalibrates pseudocode well when
+  variable types are set manually. When a case is tricky — ambiguous
+  base-pointer corrections, interacting mis-typed variables, artifact
+  chains (param slots reused as unrelated locals, pointers typed as
+  integers driving arithmetic, byte fields indexed with word reads) —
+  do not fight the rendering: issue an Information Request asking the
+  owner for an updated pseudocode dump, stating the suspicions
+  concretely: which variables are incorrectly typed, their current IDA
+  types, and the deduced real types, each with its evidence. Prefer
+  this over manual reinterpretation whenever the manual chain runs
+  longer than a couple of steps or its result gates a semantic
+  decision. A manual reinterpretation may still be used when it is
+  short, mechanical, and walker-confirmed — it must be presented in
+  the review artifact either way.
 - Do not "improve" the algorithm. Faithful reconstruction, not refactoring.
 - Residual judgment calls that are legal under the gate (naming choices,
   comment placement, whether an equivalence is trivial) are marked
@@ -204,8 +294,20 @@ no pseudocode restatements of the function body:
   semantics.
 - Post-write verification: after every batch write, re-scan the written
   file — every installer reference must resolve to a definition in the
-  same file, and vice versa; report the counts. A WRITTEN ledger status
-  may only be recorded after this check passes.
+  same file, and vice versa; report the counts. Also re-run the
+  pointer-walk pattern check (type-checked: pointer-typed increments are
+  violations, int loop counters are fine), the redundant-guard scan (see
+  their rules), and the return-type inventory sweep — every
+  replacement's declared return compared against its idb prototype's
+  return (setups = int, ctors = the owning class pointer, destructors =
+  void, make_new_obj = RGE_Static_Object*, make_new_master =
+  RGE_Master_Static_Object*) — and report the results. Also re-run the
+  cross-class cast sweep (every base-class call carries an explicit
+  cast) — re-run it after EVERY batch insert, including destructor
+  batches (the Animated destructor insertion postdated the original
+  cast sweep and shipped one uncased base call, caught by the owner).
+  A WRITTEN ledger
+  status may only be recorded after this check passes.
 
 ## Deliverable (file layout and installers)
 1. Cleaned function(s) go to `cheatdll/src/engine/<subsystem>/<class_name>.cpp`.

@@ -14,7 +14,7 @@ RGE_Sprite* __fastcall RGE_Master_Static_Object__get_sprite_new(RGE_Master_Stati
     if (obj
         && get_object_civ(this_) != obj->vfptr->gbg_get_civ_override(obj)   // IDA: BYTE1(this->object_flags)
         && this_->master_type <= RGE_MASTER_TYPE_COMBAT                      // IDA: <= 0x46u — combat bound, excludes building
-        && (world = (*base_game)->world) != 0                                                 // IDA: base_game->world; slot deref, common.cpp:7
+        && (world = (*base_game)->world) != 0                                                 // IDA: TRIBE_Game* slot deref (double-pointer through the ** const)
         && (master_obj = world->master_players[obj->vfptr->gbg_get_civ_override(obj)]->master_objects[this_->copy_id]) != 0)
     {
         result = master_obj->sprite;
@@ -1324,7 +1324,7 @@ void __fastcall RGE_Master_Static_Object__draw_new(
 // attribute_flag (offsets 122/128/152); rewritten as equivalent indexed
 // copies. The damage loop's i16 counter against a u8 count (<= 255) is
 // equivalent to a plain int loop — documented.
-// ALLOCATION VERIFIED: calloc(count, 8) — sizeof(RGE_Damage_Sprite_Info)
+// ALLOCATION VERIFIED: calloc_internal(count, 8) — sizeof(RGE_Damage_Sprite_Info)
 // = ptr(4) + u8 + u8 rounded to the struct's pointer alignment 4 = 8,
 // matching the asm stride (shl eax,3; fields @+0/+4/+5).
 int __fastcall RGE_Master_Static_Object__setup_new(
@@ -1408,7 +1408,7 @@ int __fastcall RGE_Master_Static_Object__setup_new(
     this_->damage_sprite_num = other_object->damage_sprite_num;
     if (this_->damage_sprite_num)
     {
-        this_->damage_sprites = (RGE_Damage_Sprite_Info*)calloc(this_->damage_sprite_num, sizeof(RGE_Damage_Sprite_Info));
+        this_->damage_sprites = (RGE_Damage_Sprite_Info*)calloc_internal(this_->damage_sprite_num, sizeof(RGE_Damage_Sprite_Info));
         for (int i = 0; i < this_->damage_sprite_num; ++i)
         {
             this_->damage_sprites[i].sprite = other_object->damage_sprites[i].sprite;
@@ -1435,8 +1435,8 @@ int __fastcall RGE_Master_Static_Object__setup_new(
 // record (~70 reads audited in order against the asm, 0x48C230-0x48C840;
 // every offset/size matches the walker-verified struct), the
 // object_group == 3 -> 2 fixup, attribute arrays, damage-sprite table
-// (calloc(count, 8) — sizeof(RGE_Damage_Sprite_Info) == 8 verified in
-// the setup round), length-prefixed name strings (calloc(len, 1) equals
+// (calloc_internal(count, 8) — sizeof(RGE_Damage_Sprite_Info) == 8 verified in
+// the setup round), length-prefixed name strings (calloc_internal(len, 1) equals
 // the read length), and negative-guarded sprite/sound index resolution.
 // Asm-confirmed subtleties preserved: (1) the FIRST read's destination
 // is the name length — the original stashes it in the infile param slot
@@ -1533,7 +1533,7 @@ int __fastcall RGE_Master_Static_Object__setup2_new(
     rge_read(infile, &this_->damage_sprite_num, sizeof(this_->damage_sprite_num));
     if (this_->damage_sprite_num)
     {
-        this_->damage_sprites = (RGE_Damage_Sprite_Info*)calloc(this_->damage_sprite_num, sizeof(RGE_Damage_Sprite_Info));
+        this_->damage_sprites = (RGE_Damage_Sprite_Info*)calloc_internal(this_->damage_sprite_num, sizeof(RGE_Damage_Sprite_Info));
         for (int i = 0; i < this_->damage_sprite_num; ++i)
         {
             __int16 damage_sprite_ix;
@@ -1559,7 +1559,7 @@ int __fastcall RGE_Master_Static_Object__setup2_new(
     }
     else
     {
-        this_->name = (char*)calloc(name_len, 1);
+        this_->name = (char*)calloc_internal(name_len, 1);
         rge_read(infile, this_->name, name_len);
     }
     __int16 gbg_len = 0;
@@ -1570,7 +1570,7 @@ int __fastcall RGE_Master_Static_Object__setup2_new(
     }
     else
     {
-        this_->gbg_name2 = (char*)calloc(gbg_len, 1);
+        this_->gbg_name2 = (char*)calloc_internal(gbg_len, 1);
         rge_read(infile, this_->gbg_name2, gbg_len);
     }
     rge_read(infile, &this_->unit_line, sizeof(this_->unit_line));
@@ -1594,7 +1594,7 @@ int __fastcall RGE_Master_Static_Object__setup2_new(
 // (always 1). Text-format loader: one 56-conversion fscanf (arg list
 // audited push-by-push against the asm, 0x48C840-0x48CDF0 — exact match),
 // the object_group == 3 -> 2 fixup, attribute loop via "%hd %f %hd",
-// damage table via "%hd" count + "%hd %hd %hd" rows into calloc(count, 8)
+// damage table via "%hd" count + "%hd %hd %hd" rows into calloc_internal(count, 8)
 // (sizeof(RGE_Damage_Sprite_Info) == 8 verified in the setup round), a
 // 9-conversion second fscanf ("%hd" x8 + "%u"), the scratch->field
 // cascade (every assignment byte-verified), outline-radius zero
@@ -1627,7 +1627,7 @@ int __fastcall RGE_Master_Static_Object__setup3_new(
     __int16 dmg_ix; __int16 dmg_count; __int16 selected_sound_ix; __int16 death_sound_ix;
     __int16 attack_s; __int16 convert_s; __int16 damage_sound_ix; __int16 occlusion_s;
     __int16 obstruction_type_s; __int16 obstruction_class_s;
-    fscanf(
+    fscanf_internal(
         infile,
         "%s %s %hd %hd %hd %hd %hd %hd %hd %hd %hd %hd %hd %f %hd %f %f %f %hd %hd %hd %hd %hd %hd %hd %hd %hd %hd %hd %f %f "
         "%hd %hd %hd %hd %hd %hd %f %f %hd %hd %hd %hd %hd %hd %d %d %d %hd %hd %hd %hd %hd %f %f %f",
@@ -1691,17 +1691,17 @@ int __fastcall RGE_Master_Static_Object__setup3_new(
         this_->object_group = 2;
     for (int i = 0; i < 3; ++i)
     {
-        fscanf(infile, "%hd %f %hd", &this_->attribute_type_held[i], &this_->attribute_amount_held[i], &attr_flag_s);
+        fscanf_internal(infile, "%hd %f %hd", &this_->attribute_type_held[i], &this_->attribute_amount_held[i], &attr_flag_s);
         this_->attribute_flag[i] = (unsigned __int8)attr_flag_s;
     }
-    fscanf(infile, "%hd", &dmg_count);
+    fscanf_internal(infile, "%hd", &dmg_count);
     this_->damage_sprite_num = (unsigned __int8)dmg_count;
     if (this_->damage_sprite_num)
     {
-        this_->damage_sprites = (RGE_Damage_Sprite_Info*)calloc(this_->damage_sprite_num, sizeof(RGE_Damage_Sprite_Info));
+        this_->damage_sprites = (RGE_Damage_Sprite_Info*)calloc_internal(this_->damage_sprite_num, sizeof(RGE_Damage_Sprite_Info));
         for (int i = 0; i < this_->damage_sprite_num; ++i)
         {
-            fscanf(infile, "%hd %hd %hd", &dmg_ix, &dmg_percent_s, &dmg_flag_s);
+            fscanf_internal(infile, "%hd %hd %hd", &dmg_ix, &dmg_percent_s, &dmg_flag_s);
             this_->damage_sprites[i].sprite = (dmg_ix < 0) ? 0 : sprites[dmg_ix];
             this_->damage_sprites[i].damage_percent = (unsigned __int8)dmg_percent_s;
             this_->damage_sprites[i].flag = (unsigned __int8)dmg_flag_s;
@@ -1711,7 +1711,7 @@ int __fastcall RGE_Master_Static_Object__setup3_new(
     {
         this_->damage_sprites = 0;
     }
-    fscanf(
+    fscanf_internal(
         infile,
         "%hd %hd %hd %hd %hd %hd %hd %hd %u",
         &selected_sound_ix,
@@ -1794,7 +1794,7 @@ int __fastcall RGE_Master_Static_Object__setup3_new(
 // (UNCONDITIONAL sign-extended index, no negative guard — faithful to
 // the original) and, when the referenced master exists, copies the
 // template SUBSET: 54 scalar fields + the 3-element attribute arrays +
-// a deep-copied damage-sprite table (calloc(count, 8),
+// a deep-copied damage-sprite table (calloc_internal(count, 8),
 // sizeof(RGE_Damage_Sprite_Info) == 8 verified in the setup round) +
 // getstring-duplicated name/gbg_name2. Notably NOT copied: hp, los,
 // obj_max, radius_x, radius_y, hotkey_id — those stream-read in the
@@ -1890,7 +1890,7 @@ int __fastcall RGE_Master_Static_Object__setup4_new(
         this_->damage_sprite_num = other->damage_sprite_num;
         if (this_->damage_sprite_num)
         {
-            this_->damage_sprites = (RGE_Damage_Sprite_Info*)calloc(this_->damage_sprite_num, sizeof(RGE_Damage_Sprite_Info));
+            this_->damage_sprites = (RGE_Damage_Sprite_Info*)calloc_internal(this_->damage_sprite_num, sizeof(RGE_Damage_Sprite_Info));
             for (int i = 0; i < this_->damage_sprite_num; ++i)
             {
                 this_->damage_sprites[i].sprite = other->damage_sprites[i].sprite;

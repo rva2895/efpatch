@@ -89,7 +89,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";_DEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;$(SolutionDir)\cheatdll;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -115,7 +115,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;$(SolutionDir)\cheatdll;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -150,7 +150,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;TARGET_VOOBLY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;$(SolutionDir)\cheatdll;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -185,7 +185,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;EFPATCH_CURRENT_CONFIG="$(ConfigurationName)";NDEBUG;_WINDOWS;_USRDLL;CHEATDLL_EXPORTS;TARGET_VOOBLY;VOOBLY_EF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DoctorDumpSDK\include;%Cpp libs%\zlib;%Cpp libs%\CImg;%Cpp libs%\zlib\contrib\minizip;$(SolutionDir)\cheatdll;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -617,6 +617,12 @@
     <ClCompile Include="worlddump.cpp" />
     <ClCompile Include="zannfort.cpp" />
     <ClCompile Include="src\engine\object\RGE_Master_Static_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Master_Animated_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Master_Moving_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Master_Action_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Master_Combat_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Master_Doppleganger_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Master_Missile_Object.cpp" />
     <ClCompile Include="src\engine\object\RGE_Static_Object.cpp" />
     <ClCompile Include="src\engine\object\install_object.cpp" />
     <ClCompile Include="src\engine\install_engine.cpp" />
