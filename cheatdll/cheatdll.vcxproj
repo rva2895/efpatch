@@ -279,6 +279,7 @@
     <ClInclude Include="gaiatechtree.h" />
     <ClInclude Include="gamemode.h" />
     <ClInclude Include="gamespeed.h" />
+    <ClInclude Include="install_engine.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="loadfilelist.h" />
     <ClInclude Include="mods.h" />
@@ -615,6 +616,10 @@
     <ClCompile Include="wndproc.cpp" />
     <ClCompile Include="worlddump.cpp" />
     <ClCompile Include="zannfort.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Master_Static_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Static_Object.cpp" />
+    <ClCompile Include="src\engine\object\install_object.cpp" />
+    <ClCompile Include="src\engine\install_engine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res.rc" />

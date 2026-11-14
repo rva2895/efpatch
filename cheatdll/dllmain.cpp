@@ -150,6 +150,7 @@
 #include "databank.h"
 #include "personinfo.h"
 #include "mods.h"
+#include "install_engine.h"
 #ifdef TARGET_VOOBLY
 #include "legacypatch.h"
 #include "iuserpatch.h"
@@ -759,6 +760,10 @@ void initialSetup()
     //map redraw interval
     writeDword(0x004F2F1D, 100);
 #endif
+
+    log("Installing decomp...");
+    install_engine();
+    log("Decomp installed");
 
     log("Initial setup complete, returning");
 
