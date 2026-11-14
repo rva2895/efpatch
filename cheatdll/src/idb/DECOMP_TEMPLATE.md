@@ -124,11 +124,36 @@ no pseudocode restatements of the function body:
   satisfy the decompiler; keep them if they preserve semantics.
 - Restore switch statements where the decompiler emitted if-chains or jump
   tables, if the asm (battlegrounds_x2.lst) confirms the table structure.
+- Readability restructures are permitted when semantic equivalence is
+  provable — pure function of the same inputs, with exhaustive case
+  analysis or exact path mapping as the proof (e.g. collapsing compiler
+  subtraction chains into a set-membership switch, hoisting a pure
+  conditionally-recomputed helper). Summarize the proof in a RESTRUCTURE
+  comment in the code. When in doubt, keep the decompiler's structure.
+  Pointer-arithmetic element walks (e.g. `p = &arr->value; p += 2`)
+  become indexed loops over the actual element type when the element
+  layout is verified from the header (offset + stride vs the struct
+  definition) — per-element equivalence is exact.
+- Inlined-function detection: when a body contains a block whose semantics
+  match another known function (a destructor's frees inlined into a
+  scalar-deleting destructor; `repne scasb` = strlen), prefer a call to
+  that function's replacement or idb_functions constant over duplicating
+  the logic — provided equivalence is proven and the callee is grounded.
+  Record recognized inlined occurrences in the output (they often mark
+  fold candidates).
+- Conversion-type correction: IDA may render `__ftol` conversions as
+  `(__int64)` casts; the asm (`call __ftol` = float→int32 via the CRT
+  helper) is authoritative — use `(int)` plus explicit narrowing, never
+  `(__int64)`, unless the asm actually shows a 64-bit `fistp`.
 - Do not "improve" the algorithm. Faithful reconstruction, not refactoring.
 - Residual judgment calls that are legal under the gate (naming choices,
   comment placement, whether an equivalence is trivial) are marked
   `// ??? <reason>` and listed in the output — but these must never touch
   semantics.
+- Post-write verification: after every batch write, re-scan the written
+  file — every installer reference must resolve to a definition in the
+  same file, and vice versa; report the counts. A WRITTEN ledger status
+  may only be recorded after this check passes.
 
 ## Deliverable (file layout and installers)
 1. Cleaned function(s) go to `cheatdll/src/engine/<subsystem>/<class_name>.cpp`.
@@ -296,6 +321,14 @@ replacement it writes into dead code — and state why no bake-in exists.
 Every applied bake-in is listed in the output as a table row: patch site →
 bytes → lst line → mapped statement → transformed statement → status.
 
+Retirement of folded patches: when a patch is baked into a replacement,
+the original patch call site is COMMENTED OUT in place — never deleted —
+with a reason line: `// retired <date>: baked into <replacement function>
+(<source path>), see <original address>`. Already-dead comment lines stay
+as they are. Thunk definitions whose references are all retired remain
+defined (unreferenced is harmless); only their call sites are retired.
+Patches that do not overlap replaced functions stay untouched and active.
+
 ## Required output when the gate passes
 All of the following is delivered in the conversation for review — nothing
 is written to the repository without approval (constraint 9):
@@ -421,6 +454,12 @@ Lookup protocol:
    (e.g. `^struct Name\s*\{`) over the whole file, untruncated, and cite
    the pattern used. A partial mention sample is never evidence of
    absence.
+13. Call-site context: when a parameter's purpose is unclear — or naming
+   would otherwise stay mechanical (a2, v3) — examine the function's call
+   sites (lst XREFs, surrounding caller asm, or project-source callers)
+   to infer semantics before settling names. Cite the call sites. The
+   inferred meaning is reported in the output and proposed for the state
+   file as verified context — never invented beyond what the sites show.
 
 ### Session state file
 `cheatdll/src/idb/DECOMP_STATE.md` — read it FIRST, at session start. It

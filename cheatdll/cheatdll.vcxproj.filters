@@ -630,6 +630,9 @@
     <ClInclude Include="mods.h">
       <Filter>Заголовочные файлы\misc</Filter>
     </ClInclude>
+    <ClInclude Include="install_engine.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ai.cpp">
@@ -1201,6 +1204,18 @@
     </ClCompile>
     <ClCompile Include="mods.cpp">
       <Filter>Файлы исходного кода\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\object\RGE_Master_Static_Object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\object\RGE_Static_Object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\object\install_object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\install_engine.cpp">
+      <Filter>Файлы исходного кода</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

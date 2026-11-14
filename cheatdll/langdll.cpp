@@ -264,45 +264,64 @@ _not_temple_2:
 #pragma optimize( "s", on )
 void setLangDllHooks()
 {
-    writeDword(0x0048BB21, 6);        //worker names, worker name offset nearby
-    writeDword(0x0048BC21, 6);
+    // retired 2026-11-14: worker string-table base/stride baked into
+    // RGE_Master_Static_Object__get_string_id_new / get_string_id2_new
+    // (src/engine/object/RGE_Master_Static_Object.cpp), see 0x0048BB21/0x0048BC21
+    //writeDword(0x0048BB21, 6);        //worker names, worker name offset nearby
+    //writeDword(0x0048BC21, 6);
 
-    //worker names
-    writeDword(0x0048BB26, 34600 + 0x10000);
-    writeDword(0x0048BC26, 34600 + 0x10000 + 1000);
+    ////worker names
+    //writeDword(0x0048BB26, 34600 + 0x10000);
+    //writeDword(0x0048BC26, 34600 + 0x10000 + 1000);
 
-    writeDword(0x0048BB21, 9);
-    writeDword(0x0048BC21, 9);
+    //writeDword(0x0048BB21, 9);
+    //writeDword(0x0048BC21, 9);
 
-    //cargo names
-    writeDword(0x0048BB9C, 34421 + 0x10000);
-    writeDword(0x0048BC97, 34421 + 0x10000 + 1000);
+    ////cargo names
+    // retired 2026-11-14: cargo base + id==931 condition baked into the same
+    // replacements (get_string_id_new / get_string_id2_new), see 0x0048BB9C/
+    // 0x0048BC97 and 0x0048BB76/0x0048BC71
+    //writeDword(0x0048BB9C, 34421 + 0x10000);
+    //writeDword(0x0048BC97, 34421 + 0x10000 + 1000);
 
-    //commander names
-    writeDword(0x0048BB6E, 34401 + 0x10000);
-    writeDword(0x0048BC69, 34401 + 0x10000 + 1000);
+    ////commander names
+    // retired 2026-11-14: commander base baked into the same replacements,
+    // see 0x0048BB6E/0x0048BC69
+    //writeDword(0x0048BB6E, 34401 + 0x10000);
+    //writeDword(0x0048BC69, 34401 + 0x10000 + 1000);
 
-    //temple names
-    writeDword(0x0048BBCA, 34381 + 0x10000); //34441 -> 34381
-    writeDword(0x0048BCC6, 34381 + 0x10000 + 1000);
+    ////temple names
+    // retired 2026-11-14: temple base baked into the same replacements,
+    // see 0x0048BBCA/0x0048BCC6
+    //writeDword(0x0048BBCA, 34381 + 0x10000); //34441 -> 34381
+    //writeDword(0x0048BCC6, 34381 + 0x10000 + 1000);
 
-    setHook((void*)0x0048BB12, langdll_1);
-    setHook((void*)0x0048BB62, langdll_2);
-    setHook((void*)0x0048BB90, langdll_3);
-    setHook((void*)0x0048BBBE, langdll_4);
+    // retired 2026-11-14: suffix-parse hooks folded into
+    // sprite_name_civ_index() used by the string-id replacements,
+    // see 0x0048BB12/62/90/BE
+    //setHook((void*)0x0048BB12, langdll_1);
+    //setHook((void*)0x0048BB62, langdll_2);
+    //setHook((void*)0x0048BB90, langdll_3);
+    //setHook((void*)0x0048BBBE, langdll_4);
 
-    setHook((void*)0x0048BC12, langdll_1_1);
-    setHook((void*)0x0048BC5D, langdll_2_1);
-    setHook((void*)0x0048BC8B, langdll_3_1);
-    setHook((void*)0x0048BCBA, langdll_4_1);
+    // retired 2026-11-14: same fold, twin addresses, see 0x0048BC12/5D/8B/BA
+    //setHook((void*)0x0048BC12, langdll_1_1);
+    //setHook((void*)0x0048BC5D, langdll_2_1);
+    //setHook((void*)0x0048BC8B, langdll_3_1);
+    //setHook((void*)0x0048BCBA, langdll_4_1);
 
-    setHook((void*)0x0048BB76, cargoTrader_langdll_1);
-    setHook((void*)0x0048BC71, cargoTrader_langdll_2);
+    // retired 2026-11-14: cargo id==931 condition folded into the string-id
+    // replacements, see 0x0048BB76/0x0048BC71
+    //setHook((void*)0x0048BB76, cargoTrader_langdll_1);
+    //setHook((void*)0x0048BC71, cargoTrader_langdll_2);
 
     //setHook((void*)0x0048BC9F, jedi_temple_id_1);
     //setHook((void*)0x0048BBA4, jedi_temple_id_2);
 
-    setHook((void*)0x0054BA2B, medic_worker);
-    writeByte(0x0054B3E9, CIV_COUNT + 1);            //wrong icon (civ > 8) fix
+    setHook((void*)0x0054BA2B, medic_worker);        // KEEP — live, target not replaced
+    // retired 2026-11-14: RGE_Static_Object::gbg_get_civ_override is hooked;
+    // original body is dead and the replacement already applies CIV_COUNT + 1
+    // (src/engine/object/RGE_Static_Object.cpp), see 0x0054B3E9
+    //writeByte(0x0054B3E9, CIV_COUNT + 1);            //wrong icon (civ > 8) fix
 }
 #pragma optimize( "", on )
