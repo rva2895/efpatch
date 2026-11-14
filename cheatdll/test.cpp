@@ -1378,26 +1378,6 @@ TMousePointer** const MouseSystem = (TMousePointer** const)0x006ACCF0;
 
 int* const dword_7A1C64 = (int* const)0x007A1C64;
 
-int* const VIEW_MAP_CheckVis = (int* const)0x007A1C6C;
-int* const VIEW_TileFoggedMask = (int* const)0x007A1C40;
-int* const VIEW_TileVisibleMask = (int* const)0x007A1C44;
-DClipInfo_List** SDI_List = (DClipInfo_List**)0x0077FA74;
-
-int** const unified_map_offsets = (int** const)0x007A1CBC;
-int* const map_current_x = (int* const)0x006ACCE4;
-int* const map_current_y = (int* const)0x006ACCE8;
-
-int* const SDI_Draw_Level = (int* const)0x0077FA68;
-int* const SDI_Object_ID = (int* const)0x0077FA6C;
-int* const SDI_Capture_Info = (int* const)0x0077FA70;
-
-int* const Global_Draw_Flags = (int* const)0x0077FA60;
-int* const VIEW_map_scr_x_offset = (int* const)0x007A1C50;
-int* const VIEW_map_scr_y_offset = (int* const)0x007A1C54;
-
-int* const UC_Target_Obj = (int* const)0x007A1C88;
-int* const UC_Save_Last_Obj = (int* const)0x0069B830;
-
 int* const dword_7A1C7C = (int* const)0x007A1C7C;
 int* const dword_7A1C80 = (int* const)0x007A1C80;
 int* const dword_7A1C84 = (int* const)0x007A1C84;
