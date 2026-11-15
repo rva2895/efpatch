@@ -14,6 +14,10 @@ TChat** const tchat = (TChat** const)0x006A35D8;
 RGE_Obstruction_Manager** const OBSystem_Land = (RGE_Obstruction_Manager** const)0x006ACCDC;
 RGE_Airspace_Manager** const OBSystem_Air = (RGE_Airspace_Manager** const)0x006ACCE0;
 
+ObsRecord* const obSystemCollisions = (ObsRecord* const)0x006AD0C4;
+int* const numberObSystemCollisions = (int* const)0x006AD570;
+int* const numberObSystemIntersections = (int* const)0x006AD574;
+
 HINSTANCE* const hInstance_dll = (HINSTANCE* const)0x0078F81C;
 
 int* const VIEW_MAP_CheckVis = (int* const)0x007A1C6C;

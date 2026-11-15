@@ -189,6 +189,52 @@ no pseudocode restatements of the function body:
   `(__int64)` casts; the asm (`call __ftol` = floatв†’int32 via the CRT
   helper) is authoritative вЂ” use `(int)` plus explicit narrowing, never
   `(__int64)`, unless the asm actually shows a 64-bit `fistp`.
+- FLOAT PRECISION VERIFICATION (mandatory from 2026-11-16, owner-directed
+   after the check_placement desync; THE rule class behind several
+   desyncs): the original binary computes float arithmetic on the x87
+   stack at 53-bit (double) intermediates (MSVC CRT control word) -
+   differences, sums, products, quotients, and sqrt results stay
+   UNROUNDED on the register stack until an `fst`/`fstp m32` store or a
+   comparison consumes them. Rules:
+   (a) Any arithmetic result that feeds a COMPARISON must be computed in
+       double intermediates - the asm compares the unrounded 53-bit
+       value; a float-rounded operand can flip the comparison. (This
+       supersedes the "single + - * is float-safe" shorthand: that held
+       only for stored RESULTS, not for comparison-consumed
+       intermediates.)
+   (b) Direct loaded-float vs loaded-float/constant comparisons
+       (fld/fcomp m32 shapes, no intervening arithmetic) are bit-safe in
+       float form.
+   (c) Division and sqrt ALWAYS need double intermediates (inexact
+       operations: the 53-bit rounding followed by an m32 rounding is a
+       double-rounding vs the single SSE rounding).
+   (d) A single + - * whose result is only STORED (fstp m32) is
+       float-safe (two float operands produce an exact 53-bit
+       product/sum/difference; the store rounding is the only effective
+       one).
+   (e) REPLICATE STORE-ROUNDS: when the original rounds an intermediate
+       to float via an m32 store and later consumes the rounded value
+       (e.g. the check_placement/incrementWaypoint arg_24 |dy|:
+       0x5C94E6/0x5C9658 fst, compared at 0x5C952D/0x5C9688), the
+       replacement must keep that value float - writing double there is
+       a NEW divergence. Read the operand PRECISION per side before
+       writing a comparison.
+   (f) (int)/__ftol conversions consume the 53-bit operand: the feeding
+       arithmetic must be double, e.g. (int)((double)x - 8.0).
+   (g) The project compiles /arch:SSE2 + /fp:fast: float expressions
+       emit SSE (24-bit rounding per op), double expressions emit
+       double ops (bit-identical to x87 PC53). /fp:fast licenses
+       reassociation - keep expression trees small and explicit;
+       contractually pinned association requires /fp:precise (an
+       owner-level project decision: changes all shipped codegen).
+   Post-write sweep: for every float comparison and every (int)
+   conversion in the written function, trace the asm operand - if the
+   operand is an x87 stack value with arithmetic upstream, the written
+   form must be double; if it is a direct memory load, float is
+   bit-safe. Store-and-read diff blindness note: this class is
+   invisible to the store diff and the compile gate (check_placement
+   desynced with a faithful control flow); only this operand-precision
+   trace catches it.
 - Allocation size verification (hard stop): every operator_new /
   operator_new_internal literal size must be mechanically verified as
   sizeof(allocated type) вЂ” recursive struct walk over idb_types.h with
@@ -390,6 +436,20 @@ no pseudocode restatements of the function body:
    patch region, and the following original store fell out of the
    transcription. Manual reading is insufficient; this diff is
    scripted.
+- Exit-path inventory (mandatory from 2026-11-16, owner-directed after
+   the missile_move desync): after drafting and again post-write,
+   enumerate the asm range's return sites (address + returned
+   value/register) and diff against the written function's return
+   statements — every asm return site must be accounted for by a
+   written return, and every written return must trace to at least
+   one asm return site (mapping, not counting: a single C return
+   legitimately compiles to multiple asm sites — missile_move's one
+   written return maps to the 0x49C015/0x49C01E value-split pair). Covers the control-flow class the
+   store-and-read diff cannot see: an invented early-return on an
+   unexercised branch (missile_move shipped `return 0` on the OOB
+   path where the original fell through to the shared teleport tail -
+   asm loc_49BFE7 joins loc_49BFF1, exactly two return sites, both
+   after the teleport). Script it alongside the store diff.
 
 ## Deliverable (file layout and installers)
 1. Cleaned function(s) go to `cheatdll/src/engine/<subsystem>/<class_name>.cpp`.
@@ -522,6 +582,18 @@ Protocol:
    Every hit outside the IDB exports must be individually dispositioned.
    3b. Writer-target enumeration against FULL ranges (mandatory, scripted): extract the target address from EVERY writer call site in the repository - all Layer-1/2 names AND this project's __declspec(naked) mid-function hook stubs (the patch style hooks function INTERIORS, e.g. bldg_heal_rate_save.cpp) - and test each target against EVERY owned [proc, endp) range. Entry-address literal greps DO NOT catch interior targets: the 2026-11-15 Building batch shipped two such misses (0x005C750D inside small_save, 0x005C72AF inside setup4 - the bldg_heal_rate save-format hooks) that silently reverted a shipped stream-format extension and crashed master reading. A colliding patch's behavior must be BAKED into the replacement (owner-approved) and the patch call site retired - a replacement silently reverts the patch and desyncs whatever state the patch changed. Bake-in is the DEFAULT disposition for every colliding patch; the only waiver is owner-directed, and the affected replacement lines then carry a // <PATCH_ID> marker comment (e.g. // MAP_SIZE in RGE_Visible_Map__get_visible_new) so the revert stays visible at the code site. The scan is scripted: extract targets from all writer call sites, range-test against every owned [proc, endp), report. MAP_SIZE EXCEPTION (owner-directed 2026-11-15): mapsize.cpp patches are NEVER baked regardless of the default rule - the replacement keeps the original's table/address access (e.g. unified_map_offsets), the affected replacement lines carry the // MAP_SIZE marker documenting the intentional divergence when the big-map mod re-points the patched locations, and the colliding mapsize.cpp call sites are retired in place (commented, dead-after-hook) with the not-baked reason.
   BAKE MANDATORY PER FAMILY (owner directive 2026-11-15): every
+  STORE-AND-READ DIFF LIMITATION (owner-reported desync 2026-11-15,
+  Animated setup bootstrap): the offset-level diff cannot catch an
+  INVENTED store that targets an offset the asm also legitimately
+  stores - the offsets match while the VALUE/SOURCE diverges. For
+  bootstrap/registration blocks (create-X + select-Y + register-Y
+  sequences), diff the written block against the asm at INSTRUCTION
+  level before writing: determine per call result whether it is
+  STORED to a field or PASSED to the next call. Pattern-matching
+  familiar idioms across similar-looking blocks without the asm pass
+  is prohibited - the Animated setup/ctor bootstrap invented
+  `sprite = get_sprite(...)` where the asm passes the result directly
+  to new_sprite (the field stays 0).
   colliding patch EXCEPT mapsize.cpp patches MUST be baked into the
   replacement - there is no waiver for non-mapsize families. Entry-form
   mid-function hooks fold the handler semantics (the naked stub is read,
@@ -666,6 +738,19 @@ Lookup protocol:
    `.text:00XXXXXX` prefixed lines between the function's `proc near` and
    `endp` lines. This is the source for gate checks 4вЂ“6, switch-table
    restoration, and the collision range. Cite line numbers.
+   A function whose decode record flags its asm pass as OWED is
+   decode-incomplete: it may not be presented as ready nor recorded
+   WRITTEN (owner-directed 2026-11-16 after the missile_move desync).
+   Batch entries record per-function asm-pass status.
+   DESYNC REPORT SEMANTICS (owner-directed 2026-11-16): "function X
+   desyncs" is a BISECTION VERDICT - the owner has already proven that
+   uninstalling X's hook eliminates the desync. It is NOT an invitation
+   to investigate callers, dependencies, or the patch ecosystem: the
+   divergence is inside X's replacement. The workflow is a strict
+   instruction-level re-verification of X alone against its own asm
+   range (gates, operand order, float precision forms, exit paths,
+   store/read sets, ABI), treating every prior verification pass of X
+   as suspect.
 8. Citation: every name, prototype, field, or global taken from these
    files must be cited in the output as `<file>:LINE`. Uncited references
    are treated as invented.
@@ -737,3 +822,13 @@ checks effectively require it and will refuse without it.}}
 {{OVERRIDE lines, if any вЂ” e.g. `OVERRIDE: accept low confidence on
 field +0x1C width` or `OVERRIDE: apply bake-in of patch at <file:line>`.
 Everything not explicitly overridden stays gated.}}
+
+## Session continuity (owner-directed 2026-11-15)
+
+Assume sufficient context for every task, always. Work autonomously
+through decodes, verification passes, gates, and ledgers without
+stopping at internal checkpoints; the only stop is a protocol gate
+(batch approval before writing, deviation sign-offs, hard stops).
+The owner will explicitly request a session close when the context is
+running out - never preemptively wrap up, truncate a batch, or defer
+work citing context.

@@ -878,7 +878,9 @@ void setCastHooks()
     setHook((void*)0x004449C3, getDamageGetUnit);
 
     setHook((void*)0x0044B7E2, speed1);
-    setHook((void*)0x004A28C0, speed2);
+    // retired 2026-11-16: baked into RGE_Moving_Object__maximumSpeed_new
+    // (src/engine/object/RGE_Moving_Object.cpp), see 0x004A28C0
+    // setHook((void*)0x004A28C0, speed2);
     setHook((void*)0x004A3EAD, speed3);
     setHook((void*)0x004A6250, speed4);
 

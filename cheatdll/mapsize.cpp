@@ -1744,10 +1744,17 @@ void setMapSizeHooks(int ver)
     // 0x46FF43 in the Dopple ctor_read)
     //writeDword(0x46FCC4, (DWORD)mapptr);
     //writeDword(0x46FF43, (DWORD)mapptr);
-    writeDword(0x4701A7, (DWORD)mapptr);
-    writeDword(0x47026F, (DWORD)mapptr);
-    writeDword(0x4702CE, (DWORD)mapptr);
-    writeDword(0x47046B, (DWORD)mapptr);
+    // retired 2026-11-15: NOT baked (owner-directed MAP_SIZE rule) - the
+    // RGE_Doppleganger runtime method replacements keep the original's
+    // unified_map_offsets base with // MAP_SIZE markers at the accesses
+    // (src/engine/object/RGE_Doppleganger_Object.cpp); after hooking
+    // these disp32 writes are dead code (targets 0x4701A7 in
+    // recycle_in_to_game, 0x47026F in setup, 0x4702CE in setup_read,
+    // 0x47046B in update)
+    //writeDword(0x4701A7, (DWORD)mapptr);
+    //writeDword(0x47026F, (DWORD)mapptr);
+    //writeDword(0x4702CE, (DWORD)mapptr);
+    //writeDword(0x47046B, (DWORD)mapptr);
     writeDword(0x55079D, (DWORD)mapptr);
     writeDword(0x5508C8, (DWORD)mapptr);
     writeDword(0x55094A, (DWORD)mapptr);
