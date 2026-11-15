@@ -635,6 +635,7 @@
     <ClCompile Include="src\engine\object\TRIBE_Combat_Object.cpp" />
     <ClCompile Include="src\engine\object\TRIBE_Building_Object.cpp" />
     <ClCompile Include="src\engine\object\RGE_Missile_Object.cpp" />
+    <ClCompile Include="src\engine\object\TRIBE_Tree_Object.cpp" />
     <ClCompile Include="src\engine\object\install_object.cpp" />
     <ClCompile Include="src\engine\install_engine.cpp" />
     <ClCompile Include="src\engine\map\RGE_Tile.cpp" />

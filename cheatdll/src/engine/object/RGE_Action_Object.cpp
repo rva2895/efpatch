@@ -172,6 +172,28 @@ void __fastcall RGE_Action_Object__recycle_in_to_game_new(
     this_->waiting = 0;                                              // asm 0x408DD3
 }
 
+// ============ RUNTIME METHODS (batch M2) ============
+
+// Replacement for RGE_Action_Object::get_Selected_Groups. Original:
+// @ 0x00408C30 (idb_functions.h:117). Decode (.c:51455-51457):
+// return Selected_Group_Info (__int16 @+0x142 = 322).
+__int16 __fastcall RGE_Action_Object__get_Selected_Groups_new(RGE_Action_Object* this_, DWORD dummy)
+{
+    return this_->Selected_Group_Info;
+}
+
+// Replacement for RGE_Static_Object::set_Selected_Groups (the IDA
+// name is Static-named but the idb prototype's this_ is
+// RGE_Action_Object* and the body operates on the Action object;
+// the vftable slot served is the Action tier's). Original:
+// @ 0x00408C40. Range [0x408C40, 0x408C50). Decode (.c:51461-51463):
+// Selected_Group_Info @+0x142 (322) = new_groups.
+void __fastcall RGE_Static_Object__set_Selected_Groups_new(
+    RGE_Action_Object* this_, DWORD dummy, __int16 new_groups)
+{
+    this_->Selected_Group_Info = new_groups;
+}
+
 void install_RGE_Action_Object()
 {
     setHook((void*)0x00408980, RGE_Action_Object__RGE_Action_Object_new);
@@ -180,4 +202,6 @@ void install_RGE_Action_Object()
     setHook((void*)0x00408D20, RGE_Action_Object__destructor_new);
     setHook((void*)0x00408D90, RGE_Action_Object__recycle_out_of_game_new);
     setHook((void*)0x00408DB0, RGE_Action_Object__recycle_in_to_game_new);
+    setHook((void*)0x00408C30, RGE_Action_Object__get_Selected_Groups_new);
+    setHook((void*)0x00408C40, RGE_Static_Object__set_Selected_Groups_new);
 }

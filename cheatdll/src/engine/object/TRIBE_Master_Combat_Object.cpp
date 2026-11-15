@@ -836,6 +836,22 @@ RGE_Master_Static_Object* __fastcall TRIBE_Master_Combat_Object__make_new_master
 //              canPlayerObjectBeEntered (:4033, obj, get_player
 //              (:689), master_obj_id, 0) == 1 -> return 9; blocker
 //              can_be_built_on == 0 -> return 6; else continue scanning.
+// DESYNC FIX #6 (2026-11-16, owner bisect: uninstalling this hook
+//              eliminates the desync): the first write computed the
+//              fly-over/AABB comparisons and the scan rectangle in float
+//              form - the original keeps the differences and radius sums
+//              at x87 53-bit (fld/fsub/fadd/fchs on the register stack;
+//              the comparisons consume UNROUNDED values), with ONE
+//              deliberate exception: |dy| is float-rounded by the arg_24
+//              m32 store (0x5C94E6 fst / 0x5C9658 fst) and the y-tests
+//              compare the 53-bit y-sum against that rounded value.
+//              Written bit-exactly: double intermediates for dx and the
+//              two radius sums, dy kept as a float (store-round), rect via
+//              (int)((double)x -+ 8.0). Direct float-vs-constant gates
+//              (radii/speed/rz) are bit-safe and untouched. Exit-path
+//              inventory re-run: 4 asm return sites (0x5C9394 = 0,
+//              0x5C974C = base_result, 0x5C975A = 9, 0x5C9766 = 6) all
+//              mapped to the written returns.
 unsigned __int8 __fastcall TRIBE_Master_Combat_Object__check_placement_new(
     TRIBE_Master_Combat_Object* this_, DWORD dummy,
     RGE_Player* player, float x, float y, int* obstructionObject,
@@ -867,10 +883,13 @@ unsigned __int8 __fastcall TRIBE_Master_Combat_Object__check_placement_new(
     if (x_radius <= 0.0f && y_radius <= 0.0f)
         return 0;
 
-    __int16 col_lo = (__int16)(int)(x - 8.0f);
-    __int16 row_lo = (__int16)(int)(y - 8.0f);
-    __int16 col_hi = (__int16)(int)(x + 8.0f);
-    __int16 row_hi = (__int16)(int)(y + 8.0f);
+    // asm 0x5C9397-0x5C93DF: fld x / fsub|fadd flt_657DC0 / __ftol - the
+    // truncation consumes the 53-bit difference; the float form rounded it
+    // to 24-bit first (DESYNC FIX #6). Double form = bit-exact.
+    __int16 col_lo = (__int16)(int)((double)x - 8.0);
+    __int16 row_lo = (__int16)(int)((double)y - 8.0);
+    __int16 col_hi = (__int16)(int)((double)x + 8.0);
+    __int16 row_hi = (__int16)(int)((double)y + 8.0);
     if (col_lo < 0)
         col_lo = 0;
     if (col_hi >= map->map_width)
@@ -905,11 +924,20 @@ unsigned __int8 __fastcall TRIBE_Master_Combat_Object__check_placement_new(
                 int blocker_is_enterable = 0;
                 if (master->movement_type == 1 && this_->movement_type == 1)
                 {
-                    float dx = obj->world_x - x;
-                    float dy = obj->world_y - y;
-                    if (dy < 0.0f) dy = -dy;
-                    if (dx < 0.0f) dx = -dx;
-                    if (dx < master->radius_x + x_radius && master->radius_y + y_radius > dy)
+                    // asm 0x5C94CE-0x5C9536: dx stays unrounded on the x87
+                    // stack; dy is float-rounded by the arg_24 m32 store
+                    // (0x5C94E6 fst, negate 0x5C94F7-0x5C94FD) - the two
+                    // compare sides have DIFFERENT precisions in the
+                    // original (DESYNC FIX #6 float-form fix).
+                    double dx = (double)obj->world_x - (double)x;        // the unrounded st0 value
+                    double dy_raw = (double)obj->world_y - (double)y;
+                    float dy = (float)dy_raw;                            // asm 0x5C94E6 fst m32 (rounds)
+                    if (dy_raw < 0.0)
+                        dy = -dy;                                        // asm 0x5C94F7-0x5C94FD (negates the stored copy)
+                    if (dx < 0.0)
+                        dx = -dx;                                        // asm 0x5C950E fchs on the raw st0
+                    if (dx < (double)master->radius_x + (double)x_radius
+                        && (double)master->radius_y + (double)y_radius > (double)dy)   // asm 0x5C9512/0x5C9529 53-bit sums, 0x5C9518/0x5C952D compares
                         return 6;
                     continue;
                 }
@@ -939,11 +967,19 @@ unsigned __int8 __fastcall TRIBE_Master_Combat_Object__check_placement_new(
                     rz = 1.0f;
                 if (orx > 0.0f && ory > 0.0f && rz > 0.0f && this_->radius_z > 0.0f)
                 {
-                    float dx = obj->world_x - x;
-                    float dy = obj->world_y - y;
-                    if (dy < 0.0f) dy = -dy;
-                    if (dx < 0.0f) dx = -dx;
-                    if (dx < orx + x_radius && ory + y_radius > dy)
+                    // asm 0x5C9631-0x5C968E: dx unrounded on the x87 stack
+                    // (0x5C9667 fchs); dy float-rounded via the arg_24 m32
+                    // store (0x5C9658 fst, negate 0x5C9663-0x5C9665) -
+                    // different precisions per side (DESYNC FIX #6).
+                    double dx = (double)obj->world_x - (double)x;
+                    double dy_raw = (double)obj->world_y - (double)y;
+                    float dy = (float)dy_raw;                    // asm 0x5C9658 fst m32
+                    if (dy_raw < 0.0)
+                        dy = -dy;                                // asm 0x5C9663-0x5C9665
+                    if (dx < 0.0)
+                        dx = -dx;                                // asm 0x5C9667 fchs
+                    if (dx < (double)orx + (double)x_radius
+                        && (double)ory + (double)y_radius > (double)dy)   // asm 0x5C9676/0x5C9684 sums, 0x5C9678/0x5C9688 compares
                     {
                         if (obstructionObject)
                             *obstructionObject = obj->id;

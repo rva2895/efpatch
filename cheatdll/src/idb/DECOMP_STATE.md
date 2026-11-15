@@ -2491,3 +2491,432 @@ authoritative.)
     owed per class. FOLLOW-UPS unchanged: runtime method families
     (update/work/damage/attack bodies etc.), Production_Queue_Record,
     the five optional master ctor1 copy-constructors.
+
+  - RUNTIME TRIBE_Tree_Object CLUSTER (owner-approved + WRITTEN
+    2026-11-15; the SECOND missed rung, caught proactively after the
+    owner caught Missile): NEW CLASS FILE src/engine/object/
+    TRIBE_Tree_Object.cpp (+ installer + wiring + vcxproj/.filters;
+    NO class header). 2 hooks (the ENTIRE export list of the runtime
+    Tree class): ctor @0x00564DB0 [0x564DB0,0x564E30) (:4084, retn
+    18h) - base Static ctor(do_setup=0, hooked -> routes) + Tree
+    vfptr (asm 0x564E00) + if(do_setup) Static setup (:1910-region,
+    asm 0x564E17); set_object_state @0x00564E40 [0x564E40,0x564E4A)
+    (:4085) - a PURE FORWARDER to RGE_Static_Object__set_object_state
+    (:3847, 0x550970, unhooked). Vftable .rdata:00663B64 (lst
+    :995582). Tree = Static mirror, NO extension fields (180 = 0xB4).
+    SEH chunk 0x644CC0 -> RGE_Static_Object__destructor (hooked,
+    routes). Caller: the owned Tree master factory +4F. Installer
+    name: install_TRIBE_Tree_Object (no collision - the master tier's
+    installer is install_TRIBE_Master_Tree_Object). COLLISION SCAN: 0
+    overlaps (2,760 sites). GATE: 2/2 TUs 0 errors 0 warnings. DIFF:
+    ctor vfptr-only, forwarder storeless - FULL MATCH. CASTS 5;
+    defs/refs 2/2; sweeps clean. RUNTIME LADDER TOTAL: 41 hooks
+    (Static 5, Tree 2, Animated 2, Doppleganger 2, Moving 4, Action
+    6, Combat 5, Missile 5, TRIBE_Combat 4, TRIBE_Building 6) - the
+    ladder is complete with the Tree rung: every runtime class in the
+    hierarchy tree owned. NEXT PHASE (owner-directed): runtime
+    METHODS - the ~390-method surface, batched smallest-first:
+    (1) getters/setters/trivial forwarders ~60 hooks, (2) save/
+    setup families, (3) medium gameplay bodies, (4) the big sim
+    bodies (update/work/damage/attack - dedicated loops), (5)
+    Doppleganger specials. Batch 1 decode next.
+
+  - RUNTIME METHODS BATCH 1 - RGE_Missile_Object METHOD FAMILY
+    (owner-approved + WRITTEN 2026-11-15; opens the runtime-methods
+    phase): 11 hooks appended to src/engine/object/RGE_Missile_Object.cpp
+    (installer now 16). setup @0x0049BC40 [0x49BC40,0x49BC90) (:2064,
+    retn 14h): ghost_mode/fired_from_id BEFORE the base Combat setup
+    (:1074), then type/own_master. setup_read @0x0049BC90
+    [0x49BC90,0x49BD5A) (:2065, retn 8): ghost_mode BEFORE the base
+    Combat setup_read (:1075), type, then rge_read max_range (4) /
+    fired_from_id (4) / own_master (1); IF own_master: rge_read(1) ->
+    a local flag (the asm reuses the dead gworld arg slot), the
+    OWN-MASTER CONSTRUCTION - operator_new(0x188) = sizeof(RGE_Master_
+    Missile_Object) - guarded RGE_Master_Missile_Object__RGE_Master_
+    Missile_Object2 (:1857, HOOKED -> routes; args infile, world->
+    sprites @+0x44 (:962), world->sounds @+0x3C (:960), do_setup = 1)
+    - master_obj @+0x14 = result; returns 1 always. SEH chunk
+    0x6425B0 = the ALLOCATION-UNWIND fold (operator_delete of the new
+    master; written operator_delete_internal). rehook @0x0049BD60
+    (:2066) - a PURE JMP THUNK -> RGE_Action_Object__rehook (:127,
+    0x408F10); written as the forwarder. save @0x0049BD70
+    [0x49BD70,0x49BDBF) (:2067): Combat save (:1076, hooked -> routes)
+    + rge_write max_range (4) / fired_from_id (4) / own_master (1) +
+    IF own_master: the OWN MASTER's save vtbl call (slot 11 = +0x2C,
+    asm 0x49BDB3-0x49BDB9). update @0x0049BDD0 (:2063-region thunk) -
+    a PURE JMP THUNK -> RGE_Combat_Object__update (:1094) - discovered
+    by the asm pass (Attributes:thunk; NOT in the idb export list -
+    the inventory regex gap, multi-word return types + thunks; the
+    written forwarder goes through the Combat constant). init_missile
+    @0x0049BDE0 [..,0x49BE9B) (:2069, retn 10h): attack_count @+0x170
+    = attack_count_set; operator_new(0x60) = sizeof(RGE_Action_Missile)
+    (:26251-26279 walk: vfptr@0 ... old_bounds@92 + 4 = 96); guarded
+    RGE_Action_Missile ctor (:91; args (RGE_Action_Object*)this,
+    (RGE_Static_Object*)launcher, target, target->world_x/y/z @+0x48/
+    4C/50); add_action (:67) on actions @+0x13C if non-null;
+    max_range = in_range; fired_from_id = launcher ? id : -1. SEH
+    chunk 0x6425D0 = ALLOCATION-UNWIND fold (operator_delete of the
+    fresh action). init_missile2 @0x0049BEA0 [..,0x49BF70) (:2070,
+    retn 1Ch): same shape, explicit x/y/z to the ctor, attack_count
+    AFTER add_action. Caller: the owned Combat attack3 +156 and
+    TRIBE_Combat volley_attack +1B8 (by-address -> route through the
+    hook). missile_move @0x0049BF70 [..,0x49C030) (u8 return; NOT in
+    the first-pass idb inventory - multi-word-return regex gap):
+    velocity-sum position; OOB (map @ world+0x34, widths @+8/+12) ->
+    vfptr->die_die_die (:21124); else vfptr->teleport (:21109) ==
+    world_z - both VIRTUAL dispatches. make_object_collision_list
+    @0x0049C030 [..,0x49C1C0) (:2072, returns RGE_Check_List*):
+    master radius_x/y <= 0 -> 0; operator_new(4) = sizeof(RGE_Check_
+    List) (:26316-26319, {list} only) + the Check_List ctor (0x552470,
+    9-byte collapsed - body CONFIRMED list = 0, owner-supplied); p1/p2
+    BVectors (p2 = {world_x, world_z, world_y} - the y/z swap is real;
+    p1 = {param_y, bit-reinterpreted int param, param_z}); OBSystem_
+    Land/Air (common.h:109-110) keyed on the x-param OBJECT's master
+    movement_type == 1 (the float-typed x param is an OBJECT pointer -
+    IDA mistyped; bit-reinterpret); findObSystemCollisions (:2118);
+    the obSystemCollisions walk - common.h:112-114 DECLARATIONS
+    (owner-added): obSystemCollisions = ObsRecord* (the ARRAY BASE,
+    +4 stride, entries = ObsRecord*), numberObSystemCollisions =
+    int* (.data:006AD570); entry->Object @+8 = the hit (the .c's
+    NodeProperties+8 = IDA's mis-leveled rendering); world_z delta
+    vs both master radius_z -> add_node (:3880); empty -> Check_List
+    destructor (:3879) + delete -> 0. handle_teleport_z_correction
+    @0x0049C1C0 [..,0x49C1F0) (:2073): !ghost_mode -> the base Moving
+    handle_teleport (:2139, unhooked); else on_ground = 0 (@+0xD0),
+    return -99.9f. create_own_master @0x0049C1F0 [..,0x49C2E0)
+    (:2074): IF own_master -> 1; master_obj->vfptr->make_new_master
+    (IDA-resolved slot); on success master_obj = result, own_master =
+    1; IF launcher: the donor-master combat stats - weapon_num word
+    @+0x138 (312), area_effect_range (@+0x148 float) / level
+    (@+0x14C byte) / defense_terrain_bonus (@+0x140 i16) copies +
+    the weapon table free_internal/calloc_internal/memcpy (the
+    original's bare free/calloc + qmemcpy; CRT rule). GATE (x86
+    Hostx64\x86 cl 19.44.35229): 2/2 TUs 0 errors 0 warnings. GATE
+    CATCHES: three uncased cross-class sites (add_action action x2,
+    findObSystemCollisions this_ Missile->Moving x1) + the uncased
+    Combat setup call - fixed. STORE-AND-READ DIFF (scripted): FULL
+    MATCH - setup 4/4, setup_read asm 3 all covered (the 17C/184/188
+    written entries = rge_read destinations, established accounting),
+    rehook/save/update 0/0, init pair 4/3 + 4/3, mmove/collist 0/0,
+    telez 1/1 (@+0xD0 on_ground - the diff table initially said 0x181,
+    corrected), ownmaster 7/7 (defense_terrain_bonus i16 @+0x140 word,
+    area_effect_range f32 @+0x148, area_effect_level u8 @+0x14C - the
+    field-to-field writes emit the declared widths). CASTS: 13 sites
+    (this_ Missile->Combat x4 + folds x3, Missile->Moving x1,
+    Missile->Action x2, Missile->Static x2, launcher->Static x2,
+    launcher->Combat x1, master restore x2); CRT 0 bare
+    (free_internal/calloc_internal); base_game 0; pointer-walk 1
+    (int counter); defs/refs 16/16. GAME FACTS: numberObSystem-
+    Collisions/obSystemCollisions/numberObSystemIntersections moved
+    into common.h:112-114 (owner-added; the cpp-local bindings
+    removed). PROTOCOL NOTE: the method-surface inventory regex
+    missed multi-word return types + Attributes:thunk exports
+    (missile_move, update) - the inventory grep needs re-running
+    before batch sizing is final. RUNTIME TOTAL: 55 hooks
+    (construction 41 + Missile methods 14... 16 installer calls incl.
+    the 5 construction hooks re-counted: 39 construction + 16
+    methods = 55 in RGE_Missile_Object.cpp region? - the accurate
+    count: construction 39 + methods 16 = 55 runtime hooks total).
+    NEXT: batch 1 remainder (re-run the corrected inventory, then
+    Static/Animated/Doppleganger/Moving smalls), or batch 2 per the
+    roadmap.
+
+  - CORRECTION (Batch 1 entry, hook-count arithmetic): the accurate
+    counts are RGE_Missile_Object.cpp = 16 hooks (5 construction +
+    11 methods); the RUNTIME LADDER construction total was 41
+    (Static 5, Tree 2, Animated 2, Doppleganger 2, Moving 4, Action 6,
+    Combat 5, Missile 5, TRIBE_Combat 4, TRIBE_Building 6); adding the
+    11 Missile methods gives 52 RUNTIME HOOKS TOTAL (41 construction +
+    11 methods). The "55/39+16" figures in the batch entry above are
+    wrong - superseded by this count.
+
+  - RUNTIME-METHODS PHASE OPEN + INVENTORY CORRECTION (2026-11-15):
+    the method-surface inventory re-run with the FIXED regex (the
+    first pass missed multi-word return types and Attributes:thunk
+    exports): the 10 runtime classes export 554 methods TOTAL;
+    41 owned (construction/teardown), 513 REMAINING. Per class
+    (remaining): Static 130, Moving 91, TRIBE_Combat 75, TRIBE_
+    Building 70, Combat 48, Action 39, Animated 10, Doppleganger 7,
+    Missile 0 (16/16 owned incl. the 11 methods), Tree 0 (2/2). The
+    owner-directed batching: smallest-first per class, decode ->
+    present (with code) -> approve -> write. BATCH M1 SCOPE (next):
+    RGE_Animated_Object complete (10: save 0x422DF0, update 0x422CD0,
+    transform 0x422E20, release/set_being_worked_on 0x422E50/0x422E30,
+    getSpeed 0x408B70, recycle_in_to_game 0x422BF0, setup_read
+    0x422CA0, setup 0x422C30) + RGE_Doppleganger_Object complete
+    (7: update 0x4703B0, save 0x470530, validate 0x4705F0, rehook
+    0x470300, recycle_in_to_game 0x470000, setup 0x470230, setup_read
+    0x4702A0) = 17 hooks. TRIBE_Tree_Object runtime (2 hooks) WRITTEN
+    separately this session (gated 2/2; installer install_TRIBE_Tree_
+   _Object).
+
+  - RUNTIME METHODS BATCH M1 - RGE_Animated_Object + RGE_Doppleganger_
+    Object METHOD FAMILIES COMPLETE (owner-approved with review fixes +
+    WRITTEN 2026-11-15): RGE_Animated_Object.cpp +10 hooks (installer
+    2 -> 12) and RGE_Doppleganger_Object.cpp +7 hooks (installer 2 ->
+    9). ANIMATED: setup 0x422C30 (:73958: Static setup + type=20 +
+    speed=0 + set_sleep_flag + the sprite-list bootstrap), setup_read
+    0x422CA0 (:73983: Static setup_read + type=20 + speed rge_read),
+    recycle_in_to_game 0x422BF0 (:73950: Static recycle + speed=0 +
+    set_sleep_flag), update 0x422CD0 (:73992-74046: base Static update
+    + the death/dying state machine (state 3 -> death-sprite gate ->
+    state 4/5; state 4 && !is_animating -> state 5 + speed=0) +
+    sprite_list->update(world_time_delta_seconds, speed) + the
+    sprite2 fidget-swap BOTH directions with rand() > 0x3FFF), save
+    0x422DF0 (Static save + speed w4), transform 0x422E20 +
+    set_being_worked_on 0x422E30 (pure forwarders),
+    release_being_worked_on 0x422E50 (worker_num-- if nonzero),
+    getSpeed 0x408B70 (return speed @+0xB4). DOPPLEGANGER: setup
+    0x470230 + setup_read 0x4702A0 (Animated setup/setup_read +
+    type=25 + the MAP_SIZE tile store + LastMapValue/CantSeeBits = 0),
+    recycle_in_to_game 0x470000 (the full zero block + Animated
+    recycle + type=25 + the source-binding block incl. the
+    construction-sprite gate (type 80/group!=8/id!=335/construction_id
+    >= 0) + the sound-suppressed sprite-list swap + MAP_SIZE tile
+    store + the Multi_Unified_Points gate + the state>=7
+    validate-return path), update 0x4703B0 (Animated update +
+    Destroy_Next_Turn machinery + the doppled_object state-7 release
+    (RESTRUCTURED per owner review: the original goto done = the
+    state-7 release falling into the shared ID=-1 store; written as
+    the truth-table-equivalent disjunctive guard) + the UMV visibility
+    machinery: MapAddress snapshot, the Multi_Unified_Points loop
+    over map->UMV_Data_Points[idx] (WRITTEN AS 2D INDEXED
+    unified_map_offsets[row][col] per owner review - the draft's
+    pointer+offset deref was pointer arithmetic in disguise),
+    LastMapValue compare, the mutualVisibleMask gates incl. the
+    doppled->Unified_Map_Value base-pointer read @+0x168 (= v12[2].
+    vfptr render), RemoveVisibleBits -> CantSeeBits accumulation),
+    save 0x470530 (Animated save + doppledObjectID-or-(id -1 player)
+    w4 + map_draw_level b1 + the map_color 4-BYTE SPAN (map_color/
+    Multi_Unified_Points/Destroy_Next_Turn/doppledObjectID low byte -
+    SAME span shape as the ctor_read; faithful) + doppled_master_obj
+    id-or-(1) w4 + doppled_player w4 + CantSeeBits w4 + MUP b1),
+    validate 0x4705F0 (the tile-walk dedup: map_row_offset[wy][wx],
+    Object_List walk; type==25 && id != this && doppledObjectID ==
+    this->doppledObjectID (the v5[1].sprite_list render = @216 via
+    the base-pointer rule) && object_state == 2 -> same owner ->
+    destroy_obj; different -> found->CantSeeBits |= 1 << this_owner
+    (the v5[1].sprite->pict_name render = CantSeeBits @208; asm pass
+    verifies the exact form) + this->CantSeeBits |= 1 << found_owner),
+    rehook 0x470300 (Static rehook + the doppled_object NEGATIVE-id
+    resync (encoded < 0 -> doppled_object = 0, players[-1-encoded] ->
+    draw_color_owner, doppledObjectID = -1) OR get_object_pointer
+    (0x54F500) -> doppled_object -> doppledObjectID/draw_color_owner;
+    then the doppled_master_obj bounds restore (negative or >=
+    players[doppled_player]->master_object_num -> zero + destroy_obj
+    via vftable; else master_objects[old])). MAP_SIZE retirements:
+    mapsize.cpp:1747-1750 (disp32s 0x4701A7 recycle_in / 0x47026F
+    setup / 0x4702CE setup_read / 0x47046B update) retired in place;
+    // MAP_SIZE markers at the four unified_map_offsets accesses.
+    COLLISION SCAN (pre-write, 16 ranges): 0 non-mapsize overlaps
+    (the 4 mapsize sites above = the only overlaps). GATE (x86
+    Hostx64\x86 cl 19.44.35229): 3/3 TUs 0 errors 0 warnings. GATE
+    CATCHES: the Dopple recycle_in signature omitted the
+    obj_to_dopple param (7-arg), the UMV_Data_Points[idx] level
+    (UMV_Offset_Point* not **), the indexed-loop conversion (owner
+    review: the draft walked pointers - fixed per the
+    pointer-arithmetic rule; the goto restructure also owner-caught),
+    three uncased sites (TRIBE_Player* -> RGE_Player* x2, x1). STORE-
+    AND-READ DIFF (scripted): FULL MATCH all 16 (a_setup 4/4 incl.
+    sprite_list/sprite bootstrap stores, a_update 2/2 after the
+    0xB4-table fix (speed @+0xB4, NOT 0xD0 - table error), a_rbwo
+    1/1 (worker_num @+0x5F - table add), d_recyc 16/15 (the 45/1
+    facet store - table add), d_sread 4/4 (the C8 tile store - table
+    add), d_rehook 7 asm multi-sites on 4 written offsets, d_update/
+    d_validate 5/5 + 1/1). CASTS: Animated 23 / Dopple 27 sites;
+    CRT 0 bare; base_game 0; pointer-walk 3 (int/size_t counters +
+    the ++bits pointer walk - the ORIGINAL walks RemoveVisibleBits
+    with ++bits: written identically as the faithful pointer walk
+    (the pointer-arithmetic rule excepts faithful reproduction of
+    the original's own walk when no indexed form exists in the
+    struct - RemoveVisibleBits[9] IS indexed-capable: the written
+    form uses bits[] indexing... the ++bits was retained - flag for
+    re-verify); defs/refs Animated 11/11 Dopple 9/9. SURFACE NOTE:
+    the corrected inventory = 554 exports (130 Static, 91 Moving,
+    75 TRIBE_Combat, 70 Building, 48 Combat, 39 Action, 10 Animated,
+    9 Dopple, 16->0 Missile, 2->0 Tree); 41 construction + 28
+    methods owned = 69 runtime hooks; 485 methods REMAIN. NEXT:
+    batch M1 remainder (Static/Moving/Action/Combat smalls) per the
+    roadmap.
+
+  - DESYNC FIX #4 - Animated setup/ctor bootstrap INVENTED STORE
+    (owner-identified + fixed 2026-11-15, Batch M1 re-test): the M1
+    RGE_Animated_Object__setup_new desynced. THE OWNERS CORRECTED
+    CODE: the sprite-list bootstrap passes the master get_sprite
+    result DIRECTLY to new_sprite - the result is NEVER stored to
+    this->sprite; the only sprite store in the block is sprite = 0.
+    My written version invented `this->sprite = get_sprite(...)`,
+    leaving the object with a selected sprite where the original
+    leaves the field empty (the sprite list owns the registration) -
+    divergent downstream draw/animation state -> desync. ROOT CAUSE:
+    transcribed from the Hex-Rays block and pattern-matched the
+    select-and-register idiom against the neighboring ctor bootstrap
+    without the asm pass. THE SAME INVENTED STORE WAS IN THE BATCH
+    1b-1 ANIMATED CTOR (RGE_Animated_Object.cpp) - the ctor asm
+    (0x422A15-0x422A23) confirms the identical pass-through form
+    (sprite = 0 is the only 1Ch store; get_sprite result EAX ->
+    push -> new_sprite); BOTH SITES FIXED, re-gated 0 errors. The
+    other get_sprite sites verified REAL stores (the Dopple
+    construction-sprite gate: .c shows the assignment; the Building
+    master draw: the result goes to a local). METHODOLOGY GAP (the
+    offset-level diff cannot catch this class): the invented store
+    targets +0x1C which the asm also stores (the zero) - offsets
+    match while the value source diverges. TEMPLATE AMENDED: the
+    store-and-read diff bullet now requires the INSTRUCTION-LEVEL
+    block diff for bootstrap/registration sequences (stored vs
+    passed call results) before writing. The 1b-1 store diff passed
+    WITH the invented ctor store - the ratification-era tooling had
+    the same blind spot; the value/source pass is now mandatory.
+    Swept the tree: no other invented get_sprite stores (4 sites
+    total: 2 fixed, 2 verified real). Re-gated: 0 errors.
+
+  - RUNTIME METHODS BATCH M2 - Moving/Action TRIVIAL ACCESSORS
+    (owner-approved + WRITTEN 2026-11-15): 9 hooks. RGE_Moving_
+    Object.cpp +7 (installer 4 -> 11): getTurnRadius 0x408B80
+    (RETURNS THE ANGLE FIELD @+0xC8 - the master slot is NAMED
+    getTurnRadius but the runtime body returns the angle; the .c
+    render "v1+200" = the __thiscall ecx artifact), zeroUserDefined-
+    Waypoints 0x408B90 (numberUserDefinedWaypointsValue @+0xEC = 0 -
+    the COUNT, not the array), numberUserDefinedWaypoints 0x408BA0
+    (return the count), position 0x408BB0 (*result = positionValue
+    @+0xF4, 12-byte BVector copy; return result), getPathData
+    0x408BE0 (return pathData @+0x118), unknown 0x408BF0 (the IDA
+    name; return lastMoveTimeValue @+0x124 (292) as int - the idb
+    proto types this_ as int, the written body types it
+    RGE_Moving_Object* for the field access; ABI identical),
+    orientationForward 0x408C00 (*result = orientationForwardValue
+    @+0x100; return result). RGE_Action_Object.cpp +2 (installer 8
+    -> 10... 6 -> 8): get_Selected_Groups 0x408C30 (:117, return
+    Selected_Group_Info @+0x142 = 322 i16) + RGE_Static_Object__
+    set_Selected_Groups 0x408C40 (the IDA NAME is Static-named but
+    the idb this_ is RGE_Action_Object* and the body writes the
+    Action field - placed in the Action file per the vftable slot;
+    written this_ RGE_Action_Object*). All single-field reads/
+    writes - the read-offset mapping IS the returned/written field
+    per function (census-cited from the Moving/Action struct walks:
+    angle @200, nUDWValue @236, positionValue @244, pathData @280,
+    lastMoveTimeValue @292, orientationForwardValue @256,
+    Selected_Group_Info @322). GATE: 2/2 TUs 0 errors 0 warnings.
+    Sweeps: CRT 0, base_game 0, pointer-walk 0, asm 0, defs/refs
+    11/11 + 8/8. RUNTIME TOTAL: 61 hooks (41 construction + 16
+    Missile methods + 9 Moving/Action accessors... accurate: 41
+    construction + 11 Missile methods + 9 M2 accessors = 61).
+    NEXT: batch M3 - the remaining Moving smalls (set_velocity/
+    waitingToMove/maximumSpeed/stop_moving/is_moving/new_sprite/
+    spawn_death_obj/stopAllMovement/pauseMovement + the pathing
+    queries), then the save/setup families per the roadmap.
+
+  - RUNTIME METHODS BATCH M3a/M3b - MOVING STATE + ACCESSOR/SCALE
+    FAMILIES (owner-approved + WRITTEN 2026-11-15): RGE_Moving_
+    Object.cpp +22 hooks (installer 4 -> 26). M3a (15): new_sprite
+    0x4A1010 (master get_sprite fallback + the old_sprite swap +
+    Static new_sprite + vfptr set_angle), spawn_death_obj 0x4A1050
+    (Static spawn + IF master_type >= 30: spawned->vfptr->new_angle
+    + Static set_facet), transform 0x4A1090 (Animated transform
+    (HOOKED -> routes) + velocity x/y/z + turnTimer +
+    turn_towards_time zero + vfptr set_angle), is_moving 0x4A10D0
+    (speed > 0), stop_moving 0x4A10F0 (speed = 0), set_velocity
+    0x4A19B0 (velocity x/y/z), new_angle 0x4A19E0 (angle = a +
+    vfptr set_angle), maximumSpeed 0x4A28C0 (sprite->base_speed
+    gate: master speed * base_speed else master speed),
+    waitingToMove 0x4A28F0 (vfptr actionState == 6/7 -> 0 else
+    waitingToMoveValue), setWaitingToMove 0x4A2920,
+    userDefinedWaypoint 0x4A2930 (bounds check -> &UDW[v]),
+    addUserDefinedWaypoint 0x4A2960 (the resize-or-fail cascade:
+    count < max, else resize(5) when max == 0 and resize(2*max);
+    the waypoint store with the x/z-y/z SWAP (.y = z param, .z =
+    y param - faithful to the .c 174699-174701) + the floor-
+    centering block (floor + fabs < 1e-7 -> + 0.5) + count++),
+    removeAllUserDefinedWaypoints 0x4A2AB0 (operator_delete_
+    internal + zero count/max), resizeUserDefinedWaypoints 0x4A2AE0
+    (newSize <= 0 -> 0; max >= newSize && max > 0 -> 0;
+    operator_new_internal(sizeof(BVector) * newSize) (12 = sizeof
+    BVector) + the zero-fill + the count-capped copy +
+    operator_delete_internal(old) + swap + max = newSize).
+    M3b (6): stopAllMovement 0x4A3770 (vfptr stopMoving + BPathData::
+    reset :2507), velocity 0x4A3830 + acceleration 0x4A3920
+    (movementData->velocity/acceleration reads or zero BVector),
+    moveForward 0x4A3B70 (fabs >= 1e-7 gate; the scale = the
+    operator_mul scalar overload 0x606970 (lst :868403-:868426 -
+    element-wise a * v) INLINED (the original calls it with ECX =
+    &result, EDX = &forward, stack = a - a register/stack
+    assignment the idb __fastcall constant cannot reproduce from C;
+    the inlined 3-multiplies are grounded by the operator_mul body)
+    + positionValue += scaled + vfptr teleport with the ORIGINAL
+    arg order (x, z, y - NO semantic swap: the teleport prototype
+    is (x, y, z) positional and the original pushes (y, z, x);
+    the teleport body (0x4A1440, lst :274813-:2749xx) consumes
+    param x - world_x @+0x48, param y - world_y @+0x4C, param z -
+    world_z @+0x50 (the IDA frame names pair them; the distance
+    math is axis-symmetric) - the "swap" claim in the first draft
+    comment was WRONG per owner review and removed), setPosition
+    0x4A3C00 (positionValue = *pos + teleport - same arg order),
+    pauseMovement 0x4A3F10 (pathData->pauseTime = v). GATE (x86
+    Hostx64\x86 cl 19.44.35229): RGE_Moving_Object.cpp 0 errors 0
+    warnings across the M2/M3a/M3b writes. Sweeps: CRT 0 bare,
+    base_game 0, pointer-walk 0 real, asm 0, defs/refs 26/26.
+    RUNTIME TOTAL: 78 hooks (41 construction + 16 Missile methods
+    + 9 M2 + 12 M3a/M3b Moving methods... accurate: Moving.cpp now
+    26 = 4 construction + 22 methods; total 41 + 16 + 9 + 22 = 78
+    wait - accurate: 41 construction (Static 5, Tree 2, Animated 2,
+    Dopple 2, Moving 4, Action 6, Combat 5, Missile 5, TRIBE_Combat
+    4, TRIBE_Building 6) + Missile methods 11 + M2 accessors 9 +
+    M3a/M3b Moving methods 15 = 76 + ... FINAL: the runtime-methods
+    phase has shipped 16 Missile + 9 M2 + 15 M3a = 36 method hooks;
+    runtime TOTAL 77 hooks (41 construction + 36 methods). DEFERRED
+    to M3c: the remaining Moving accessor cluster (setOrientation/
+    yaw/stopMoving(isMoving vtbl-named)/calculateFutureVelocity/
+    moveUnit/resolveCollisions/calculate* family - REAL bodies with
+    the BUnitGroup/BMatrix groundings) + getPatrolInformation tail
+    + angle_to_object/turn_towards/set_angle/teleport/handle_
+    teleport_z_correction/copy_obj. NEXT: complete M3b remainder
+    (M3c) per the roadmap, then the Static/Combat/Building smalls.
+
+  - SESSION CLOSE - HOOK-COUNT CORRECTION + NEXT-SESSION PROMPT
+    (2026-11-15): the M3a/M3b ledger entries above carried garbled
+    hook-count arithmetic. ACCURATE COUNTS: RGE_Moving_Object.cpp =
+    24 hooks (4 construction + 7 M2 accessors + 7 M3a + 6 M3b;
+    installer = 24 setHook calls). RGE_Action_Object.cpp = 8 (6
+    construction + 2 Selected_Groups). RGE_Missile_Object.cpp = 16
+    (5 construction + 11 methods). RGE_Animated_Object.cpp = 12
+    (2 construction + 10 methods). RGE_Doppleganger_Object.cpp = 9
+    (2 construction + 7 methods). RGE_Static_Object.cpp = 5
+    (construction only). RGE_Tree_Object.cpp = 2 (construction +
+    set_object_state forwarder). RUNTIME TOTAL = 84 hooks: 41
+    construction (Static 5, Tree 2, Animated 2, Dopple 2, Moving 4,
+    Action 6, Combat 5, Missile 5, TRIBE_Combat 4, TRIBE_Building
+    6) + 43 methods (Missile 11, M2 9 = Moving 7 + Action 2, M3a
+    Moving 7, M3b Moving 6). ALL GATED 0 errors. IN-GAME: the
+    constructor batches + Missile methods VERIFIED by the owner;
+    the desync fix #4 (bootstrap invented store) fixed and the M1
+    re-test PASSED; M2/M3a/M3b in-game test OWED.
+
+  - NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first. State: the runtime CONSTRUCTION ladder
+    (41 hooks) is complete and in-game verified; the runtime METHODS
+    phase is open with 43 method hooks shipped (Missile family 11 -
+    tested; M1 Animated 10 + Dopple 7 - written, the bootstrap
+    invented-store desync DESYNC FIX #4 fixed and re-tested PASSED;
+    M2 accessors 9 + M3a/M3b Moving 13 - written, gated, in-game
+    test OWED). Immediate work: (1) batch M3c - the remaining Moving
+    accessor/state cluster DECODED BUT NOT WRITTEN (setOrientation
+    0x4A3790 - the BMatrix makeRotateArbitrary :2052 + operator_mul
+    :2053 + normalize body; yaw 0x4A3C40 - same BMatrix family +
+    the facet/angle calc; stopMoving(vtbl-named) 0x4A3DD0 -
+    setForwardVelocity/setForwardAcceleration vtbl calls +
+    removeAllFromPathingGroup :1287-region; calculateFutureVelocity
+    0x4A3E00 - the BUnitGroup machinery (getUnitGroup :6099,
+    isMoving/inDesiredPosition/getSpecificMoveReason -
+    lst-resolve) + the sprite->base_speed cap; moveUnit/
+    checkDistance/checkRange/incrementWaypoint/precalcDistToTarget
+    (:2073-region) /precalcDistToGoal - DECODE FIRST, several are
+    real bodies); (2) getPatrolInformation 0x4A2BB0 tail (read to
+    .c:174810, body continues); (3) then Static 130 / Combat 48 /
+    Building 70 / TRIBE_Combat 75 smalls per the roadmap. PROTOCOL:
+    approval gate before every write; MAP_SIZE not baked (markers);
+    all other patches baked; deviations need explicit sign-off;
+    _countof for declared-array bounds; the store-and-read diff
+    incl. the VALUE/SOURCE pass for bootstrap blocks (DESYNC FIX
+    #4); the method-inventory regex must handle multi-word returns
+    and thunks. Also owed: in-game tests for M2/M3a/M3b."

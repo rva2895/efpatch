@@ -45,8 +45,8 @@ RGE_Animated_Object* __fastcall RGE_Animated_Object__RGE_Animated_Object_new(
                 this_->sprite_list = this_->vfptr->create_sprite_list(this_);   // slot +0x2A8
                 this_->sprite = 0;                                // asm 0x422A15
                 RGE_Master_Animated_Object* master = this_->master_obj;
-                this_->sprite = master->vfptr->get_sprite(master, (RGE_Static_Object*)this_);   // master vtbl slot +4
-                this_->vfptr->new_sprite(this_, this_->sprite);   // slot +0xB0
+                RGE_Sprite* new_sprite = master->vfptr->get_sprite(master, (RGE_Static_Object*)this_);   // asm 0x422A1D — master vtbl slot +4; result NOT stored (passes to new_sprite)
+                this_->vfptr->new_sprite(this_, new_sprite);      // asm 0x422A23 — slot +0xB0
             }
         }
         result = this_;
@@ -75,8 +75,163 @@ void* __fastcall RGE_Animated_Object__vector_deleting_destructor_new(
     return this_;
 }
 
+// ============ RUNTIME METHODS (batch M1) ============
+
+// Replacement for RGE_Animated_Object::setup. Original: @ 0x00422C30
+// (idb_functions.h:548). Range [0x422C30, 0x422CA0), returns int (1).
+// Decode (.c:73958-73980): Static setup (:1910-region) + type=20 +
+// speed=0 + set_sleep_flag(0) + the sprite-list bootstrap (same as the
+// ctor's; create_sprite_list -> master get_sprite -> new_sprite).
+int __fastcall RGE_Animated_Object__setup_new(
+    RGE_Animated_Object* this_, DWORD dummy,
+    RGE_Master_Animated_Object* tobj, RGE_Player* obj_owner,
+    float x, float y, float z)
+{
+    RGE_Static_Object__setup((RGE_Static_Object*)this_,
+        (RGE_Master_Static_Object*)tobj, obj_owner, x, y, z);
+    this_->type = 20;                                // .c:73966
+    this_->speed = 0.0f;                             // .c:73967
+    RGE_Static_Object__set_sleep_flag((RGE_Static_Object*)this_, 0);   // .c:73968
+    if (this_->sprite_list == 0)                     // .c:73969
+    {
+        this_->sprite_list = this_->vfptr->create_sprite_list(this_);   // .c:73971
+        RGE_Master_Animated_Object* master = this_->master_obj;         // .c:73972
+        this_->sprite = 0;                                           // .c:73974
+        RGE_Sprite* new_sprite = master->vfptr->get_sprite(master, (RGE_Static_Object*)this_);   // .c:73976
+        this_->vfptr->new_sprite(this_, new_sprite);                 // .c:73977
+    }
+    return 1;
+}
+
+// Replacement for RGE_Animated_Object::setup_read. Original:
+// @ 0x00422CA0 (idb_functions.h:549). Range [0x422CA0, 0x422CD0),
+// returns int (1). Decode (.c:73983-73989): Static setup_read +
+// type=20 + speed rge_read(4).
+int __fastcall RGE_Animated_Object__setup_read_new(
+    RGE_Animated_Object* this_, DWORD dummy, int infile, RGE_Game_World* gworld)
+{
+    RGE_Static_Object__setup_read((RGE_Static_Object*)this_, infile, gworld);   // .c:73985
+    this_->type = 20;                                // .c:73986
+    rge_read(infile, &this_->speed, sizeof(this_->speed));   // .c:73987
+    return 1;
+}
+
+// Replacement for RGE_Animated_Object::recycle_in_to_game. Original:
+// @ 0x00422BF0 (idb_functions.h:546-region). Range [0x422BF0,
+// 0x422C30). Decode (.c:73950-73955): Static recycle + speed=0 +
+// set_sleep_flag(0).
+void __fastcall RGE_Animated_Object__recycle_in_to_game_new(
+    RGE_Animated_Object* this_, DWORD dummy,
+    RGE_Master_Static_Object* tobj, RGE_Player* obj_owner,
+    float x, float y, float z)
+{
+    RGE_Static_Object__recycle_in_to_game((RGE_Static_Object*)this_, tobj, obj_owner, x, y, z);   // .c:73952
+    this_->speed = 0.0f;                             // .c:73953
+    RGE_Static_Object__set_sleep_flag((RGE_Static_Object*)this_, 0);   // .c:73954
+}
+
+// Replacement for RGE_Animated_Object::update. Original: @ 0x00422CD0
+// (idb_functions.h:550-region). Range [0x422CD0, 0x422DF0), u8 return.
+// Decode (.c:73992-74046): base Static update; state==3 -> the master
+// death-sprite gate -> set_object_state(4/5); state==4 && !is_animating
+// -> state=5 + speed=0; sprite_list->update(world_time_delta_seconds,
+// speed); the sprite2 fidget-swap BOTH directions with rand() > 0x3FFF.
+unsigned __int8 __fastcall RGE_Animated_Object__update_new(RGE_Animated_Object* this_, DWORD dummy)
+{
+    unsigned __int8 result = RGE_Static_Object__update((RGE_Static_Object*)this_);   // .c:74002
+    if (this_->object_state == 3)                    // .c:74003
+    {
+        if (this_->master_obj->vfptr->get_death_sprite(this_->master_obj, (RGE_Static_Object*)this_) != 0)   // .c:74005
+            this_->vfptr->set_object_state(this_, 4);   // .c:74006
+        else
+            this_->vfptr->set_object_state(this_, 5);   // .c:74008
+    }
+    else if (this_->object_state == 4                // .c:74010
+        && this_->sprite_list->vfptr->is_animating(this_->sprite_list, this_->sprite) == 0)
+    {
+        this_->object_state = 5;                     // .c:74012
+        this_->speed = 0.0f;                         // .c:74013
+    }
+    this_->sprite_list->vfptr->update(this_->sprite_list,
+        this_->owner->world->world_time_delta_seconds,   // .c:74017 (TRIBE_World :988)
+        this_->speed);                               // .c:74015-0x49C1-analog
+    if (this_->master_obj->vfptr->get_sprite2(this_->master_obj, (RGE_Static_Object*)this_) != 0)   // .c:74019
+    {
+        if (this_->sprite == this_->master_obj->vfptr->get_sprite2(this_->master_obj, (RGE_Static_Object*)this_))   // .c:74022
+        {
+            if (this_->sprite_list->vfptr->looped(this_->sprite_list, this_->sprite) && rand() > 0x3FFF)   // .c:74024
+                this_->vfptr->new_sprite(this_,
+                    this_->master_obj->vfptr->get_sprite2(this_->master_obj, (RGE_Static_Object*)this_));   // .c:74027
+        }
+        else if (this_->sprite == this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object*)this_))   // .c:74035
+        {
+            if (this_->sprite_list->vfptr->looped(this_->sprite_list, this_->sprite) && rand() > 0x3FFF)   // .c:74037
+                this_->vfptr->new_sprite(this_,
+                    this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object*)this_));   // .c:74041
+        }
+    }
+    return result;
+}
+
+// Replacement for RGE_Animated_Object::save. Original: @ 0x00422DF0
+// (idb_functions.h). Range [0x422DF0, 0x422E20). Decode (.c:74049-
+// 74053): Static save + speed rge_write(4).
+void __fastcall RGE_Animated_Object__save_new(
+    RGE_Animated_Object* this_, DWORD dummy, int outfile)
+{
+    RGE_Static_Object__save((RGE_Static_Object*)this_, outfile);   // .c:74051
+    rge_write(outfile, &this_->speed, sizeof(this_->speed));   // .c:74052
+}
+
+// Replacement for RGE_Animated_Object::transform. Original:
+// @ 0x00422E20. Range [0x422E20, 0x422E30). PURE FORWARDER (.c:74056-
+// 74059).
+void __fastcall RGE_Animated_Object__transform_new(
+    RGE_Animated_Object* this_, DWORD dummy, RGE_Master_Static_Object* obj)
+{
+    RGE_Static_Object__transform((RGE_Static_Object*)this_, obj);
+}
+
+// Replacement for RGE_Animated_Object::set_being_worked_on. Original:
+// @ 0x00422E30. Range [0x422E30, 0x422E50). PURE FORWARDER (.c:74062-
+// 74065).
+void __fastcall RGE_Animated_Object__set_being_worked_on_new(
+    RGE_Animated_Object* this_, DWORD dummy, RGE_Action_Object* work_obj,
+    __int16 action_type, unsigned __int8 attack_flag)
+{
+    RGE_Static_Object__set_being_worked_on((RGE_Static_Object*)this_, work_obj, action_type, attack_flag);
+}
+
+// Replacement for RGE_Animated_Object::release_being_worked_on.
+// Original: @ 0x00422E50. Range [0x422E50, 0x422E60). Decode
+// (.c:74068-74075): worker_num-- if nonzero.
+void __fastcall RGE_Animated_Object__release_being_worked_on_new(
+    RGE_Animated_Object* this_, DWORD dummy, RGE_Static_Object* caller)
+{
+    unsigned __int8 count = this_->worker_num;
+    if (count != 0)
+        this_->worker_num = count - 1;
+}
+
+// Replacement for RGE_Animated_Object::getSpeed. Original: @ 0x00408B70
+// (idb_functions.h). Range [0x408B70, 0x408B80). PURE GETTER (.c:
+// 51396-region: return speed @+0xB4).
+float __fastcall RGE_Animated_Object__getSpeed_new(RGE_Animated_Object* this_, DWORD dummy)
+{
+    return this_->speed;
+}
+
 void install_RGE_Animated_Object()
 {
     setHook((void*)0x00422980, RGE_Animated_Object__RGE_Animated_Object_new);
     setHook((void*)0x0046FE70, RGE_Animated_Object__vector_deleting_destructor_new);
+    setHook((void*)0x00422C30, RGE_Animated_Object__setup_new);
+    setHook((void*)0x00422CA0, RGE_Animated_Object__setup_read_new);
+    setHook((void*)0x00422BF0, RGE_Animated_Object__recycle_in_to_game_new);
+    setHook((void*)0x00422CD0, RGE_Animated_Object__update_new);
+    setHook((void*)0x00422DF0, RGE_Animated_Object__save_new);
+    setHook((void*)0x00422E20, RGE_Animated_Object__transform_new);
+    setHook((void*)0x00422E30, RGE_Animated_Object__set_being_worked_on_new);
+    setHook((void*)0x00422E50, RGE_Animated_Object__release_being_worked_on_new);
+    setHook((void*)0x00408B70, RGE_Animated_Object__getSpeed_new);
 }

@@ -1235,6 +1235,9 @@
     <ClCompile Include="src\engine\object\RGE_Missile_Object.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine\object\TRIBE_Tree_Object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
     <ClCompile Include="src\engine\object\install_object.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>

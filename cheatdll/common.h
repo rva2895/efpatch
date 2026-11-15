@@ -109,6 +109,10 @@ extern TChat** const tchat;
 extern RGE_Obstruction_Manager** const OBSystem_Land;
 extern RGE_Airspace_Manager** const OBSystem_Air;
 
+extern ObsRecord* const obSystemCollisions;
+extern int* const numberObSystemCollisions;
+extern int* const numberObSystemIntersections;
+
 extern HINSTANCE* const hInstance_dll;
 
 extern int* const VIEW_MAP_CheckVis;
