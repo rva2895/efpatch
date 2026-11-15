@@ -1727,3 +1727,767 @@ authoritative.)
    RGE_Master_Static_Object__check_placement_new (the grandbase) NOT
    re-walked this round (predates this session; triple-verified with
    an owner re-verification round) — available on request.
+ - RUNTIME RGE_Static_Object CONSTRUCTION/TEARDOWN CLUSTER — RUNTIME
+   LADDER BATCH 1 OPENS (owner-approved + WRITTEN 2026-11-15): 4 hooks
+   added to src/engine/object/RGE_Static_Object.cpp (ctor @0x0054B2E0
+   [..,0x54B366), ctor_read @0x0054B600 [..,0x54B66F), destructor
+   @0x0054B680 [..,0x54B86A), recycle_out_of_game @0x0054C0A0
+   [..,0x54C293); prototypes idb_functions.h:3774/:3787/:3788/:3802).
+   BAKE-IN INVENTORY (8 patches, all folded, call sites retired):
+   casts.cpp UNIT_EXTRA scheme — the patch stores a UNIT_EXTRA* across
+   damaged_lately_timer's upper 3 bytes + the padding byte @+0x87
+   (getUnitExtra/addUnitExtra/removeUnitExtra, casts.cpp:763-849;
+   createUnitExtra mallocs patch-side); ctor + ctor_read bake in the
+   unit_constructor_asm_fix dword-clears (casts.cpp:897/898, 18 bytes
+   over the original byte-stores at +0x84/85/86); destructor + recycle
+   bake in removeUnitExtra (casts.cpp:895/896 entry hooks — non-
+   destructive prologue replays; the patch's bare malloc/free pairing
+   stays INSIDE casts.cpp, keeping the engine TU CRT-clean).
+   los.cpp scheme — ei.theObj (the LOS_ExploreInfo lead pointer
+   @+0x90, repurposed as UNIT_LOS_DATA*) nulled in both ctors and
+   freed via delete_unit_los_data (los.cpp:6) in dtor/recycle
+   (los.cpp:1023-1026; all four stubs are non-destructive prologue
+   replays). NEW GROUNDINGS: runtime Static vftable 0x00662C8C
+   (lst :994791); RGE_Static_ObjectVtbl exit_obj @+0x154 = index 85;
+   RGE_PlayerVtbl add_attribute_num @+0x80 = index 32, removeObject
+   @+0x124 = index 73; RGE_New_Object_List = {List @0,
+   Number_of_objects @4, ListSize, GrowSize, DeletingAll};
+   RGE_Obstruction_ManagerVtbl RemoveObjectObstruction @+0x2C = index
+   11, DeleteObList @+0x40 = index 16 (the Airspace twin slot-
+   identical); RGE_Tile::ObjectDeleteLock @+0xF; OBSystem_Land/Air =
+   common.h:109-110 (pointer-to-slot). DECODE NOTES: the recycle's
+   faithful differences vs the destructor (delete_list DIRECT call vs
+   vfptr[0](1); NO pathing-group free, NO mMaximumPathingGroupSize
+   clear, NO mGroupID/BUnitGroup removal; the mROOAlreadyCalled gate
+   only on the destructor's Remove call; master_obj = 0 at recycle
+   end but not at destructor end; the non-recyclable and recycle-
+   failed self-destruct paths call vfptr[0](1)). GATE SELF-CATCH:
+   two world dual-naming casts (TRIBE_World* -> RGE_Game_World*)
+   added at gate (the getUnitGroup + recycle calls), matching the
+   Combat(70) precedent. CASTS.CPP PRE-EXISTING ERRORS surfaced by
+   the gate (2x C2664 modf(float*) at casts.cpp:62/:85 — float intp
+   should be double; PRE-EXISTING, unrelated to the retirements;
+   casts.cpp IS in the vcxproj (:435) — FIXED same session with owner
+   approval: #include <cmath> added to casts.cpp (:3 — the C++
+   modf(float, float*)/abs(float) overloads resolve; zero semantic
+   change); casts.cpp re-gated 0 errors 0 warnings). IDB REGEN ROT SWEEP
+   (owner regenerated idb_types.h, 37,047 -> 37,087 lines:
+   damaged_lately_timer int -> u8 + unit_extra_padding_1..4 named in
+   ALL 10 runtime structs; masters/vtbls untouched; layouts byte-
+   identical; all cited offsets hold; line citations shifted +4 per
+   edited struct in file order — Static runtime :1438 SAME,
+   New_Object_List :4197, PlayerVtbl :7125, managers
+   :5820/:5868/:9943/:10146, Missile runtime :20961, Doppleganger
+   runtime :21500, Tree runtime :21925). WRITTEN + post-write
+   verification: x86 gate 0 errors 0 warnings (RGE_Static_Object.cpp
+   + los.cpp; casts.cpp excluded pending the owner's modf decision);
+   defs/refs 5/5 (+ the existing gbg_get_civ_override pair);
+   installer 5 hooks; base_game 0 bare / 4 canonical; CRT 0;
+   pointer-walk 0; retirements verified (0 active cluster sites;
+   los.cpp's 3 unrelated hooks still active). RUNTIME LADDER
+   EVIDENCE: pending (the runtime ctor base-call chains are Batch 1b
+   scope with the derived runtime ctor trios).
+ - DESYNC FIX #2 — runtime RGE_Static_Object ctor/ctor_read dropped
+   store (owner-reported desync 2026-11-15, ROOT-CAUSED + fixed):
+   both ctors DROPPED the mROOAlreadyCalled = 0 store — asm 0x54B327
+   (ctor) / 0x54B64A (ctor_read): mov [esi+8Ch], al — the store
+   immediately AFTER the writeData patch region, part of the ORIGINAL
+   body (not patch code). Garbage mROO suppresses the destructor's
+   RemoveObjectObstruction gate (mROOAlreadyCalled == 0 required) ->
+   stale obstruction state -> simulation divergence -> desync. FIX:
+   the store restored in both ctors (after the patch-clear block, the
+   asm position). ALSO: the destructor's los bake-in free moved AFTER
+   remove_visible_resource (the los hook @0x54B691 sits after the
+   vfptr store AND the remove_visible_resource call in the patched
+   flow — the first written position ran it first). Re-gated x86
+   0 errors 0 warnings. PROTOCOL HARDENING (proposed): post-write
+   verification for construction/teardown replacements must include
+   a MECHANICAL store-list diff — enumerate every mov [reg+disp]
+   store in the asm range and check each against the written
+   function; the manual full-asm pass dropped this store because the
+   patched flow interleaves patch stores with original stores, and
+   attention anchored on the patch region.
+   RATIFIED same session: the store-list diff is now a mandatory
+   protocol step (DECOMP_TEMPLATE.md, Cleanup rules, after the
+   compile-gate bullet). RETROACTIVE PROOF on the runtime Static
+   cluster (scripted byte-granularity diff: asm mov [reg+disp]
+   stores width-expanded, plus the baked patch/los stores, vs the
+   written functions' field-write coverage): ctor 69/69 bytes FULL
+   MATCH, ctor_read 69/69 FULL MATCH, destructor 44/44 FULL MATCH,
+   recycle_out_of_game 32/32 FULL MATCH — and on the PRE-fix written
+   ctors the diff flags exactly the shipped hole (0x8C missing from
+   both) — the failure class is now mechanically detected.
+   DESYNC PERSISTED post-fix; TRAMPOLINE EXPERIMENT (owner-approved):
+   destructor_new runs removeUnitExtra + los-free + the ORIGINAL body
+   via a code-copied trampoline. TWO DEFECTS FOUND: (1) the experiment
+   double-called remove_visible_resource (my explicit call + the
+   original body's) — owner caught, commented mine; (2) OWNER
+   DIAGNOSIS: the trampoline's xor ebx, ebx ran BEFORE push ebx, so
+   the body's epilogue (pop ebx) restored 0 into the CALLER's EBX —
+   callee-saved trash, illegal, desync. MECHANISM fully mapped: the
+   original establishes ebx = 0 MID-FUNCTION via the los stub's xor
+   at 0x0054B694, while the prologue's push ebx (0x0054B681) saves
+   the caller's value for the epilogue's pop (0x0054B869; epilogue
+   re-verified: pop edi/esi/ebx/ecx, retn, 4 pops, NO pop ebp — the
+   refund path's ebp push/pop is internally balanced at
+   0x54B6A0/0x54B702). TRAMPOLINE v3 FIX: xor ebx, ebx MOVED AFTER
+   the three register saves (51 53 56 8B CE 31 DB + jmp 0x0054B685) —
+   caller's ecx/ebx/esi saved with incoming values and restored by
+   the body's own pops; ebx = 0 for the body only. Re-gated x86
+   0 errors 0 warnings. PROTOCOL NOTE (new rule class): hook
+   replacements folding mid-function stubs must replicate the stubs'
+   REGISTER-MODIFICATION effects, not just their memory effects —
+   the store diff does not cover register-lifecycle deltas (ebx = a
+   live zero-constant for the body here; resolved - see DESYNC FIX #3
+   below).
+ - RUNTIME RGE_Animated_Object CONSTRUCTION/DESTRUCTION CLUSTER —
+   RUNTIME LADDER BATCH 1b-1 (owner-approved + WRITTEN 2026-11-15):
+   NEW CLASS FILE src/engine/object/RGE_Animated_Object.cpp (+ installer
+   + install_object.cpp wiring + vcxproj/.filters; NO class header —
+   the runtime cpps stand on stdafx alone, matching the runtime Static
+   precedent). 2 hooks: ctor @0x00422980 [0x422980,0x422A3D) (lst
+   :62193/:62283, retn 18h; prototype :538) + vector_deleting_
+   destructor @0x0046FE70 [0x46FE70,0x46FE8B) (lst :189152/:189171,
+   retn 4; prototype :1481). STRUCTURAL FINDING: the runtime Animated
+   class has NO destructor body of its own - the vdel calls
+   j_RGE_Static_Object__destructor (the thunk -> the HOOKED runtime
+   Static destructor, routes into destructor_new), then flags & 1 ->
+   operator_delete, return this. CTOR DECODE: base Static runtime
+   ctor(do_setup=0, hooked -> routes) + Animated vfptr (0x006566A0,
+   lst :987149) + if(do_setup): the RUNTIME Static setup(tobj,
+   obj_owner, x, y, z), type @+0x5E = 0x14 (the RUNTIME object's tier
+   mirror - idb field `type` @94, distinct from master_type @+4 on
+   masters), speed @+0xB4 = 0 (the Animated extension field,
+   idb_types.h:16113; runtime size 184 = 0xB8), set_sleep_flag(0)
+   (:3891), and the sprite-list bootstrap: if sprite_list @+0x24 == 0
+   -> sprite_list = vfptr->create_sprite_list (RGE_Static_ObjectVtbl
+   slot +0x2A8 = index 170, idb_types.h:4105; slot arithmetic
+   NOTE: post-regen index = member line - struct line - 2), sprite =
+   0, master->vfptr->get_sprite(master, (RGE_Static_Object*)this)
+   (MASTER Animated vtbl slot +4 = index 1, :15926 - the master-side
+   polymorphic sprite getter), vfptr->new_sprite(this, sprite)
+   (runtime vtbl slot +0xB0 = index 44). SEH fold: chunk 0x640F70 =
+   mov ecx, [ebp-10h] / jmp RGE_Static_Object__destructor (the
+   HOOKED runtime Static destructor). GATE SELF-CATCH: the full
+   cross-class cast set (this_ is the DERIVED Animated runtime type
+   here - 6 (RGE_Static_Object*) casts incl. the SEH fold's
+   destructor call + 2 (RGE_Master_Static_Object*) tobj casts) -
+   caught by the gate, fixed, re-gated clean. Collision audit:
+   writer scan + address-bytes grep over both ranges = 0 overlaps,
+ 0 hits (the j_ thunk @0x422B60 sits outside both ranges and routes
+   into the owned Static destructor - beneficial). WRITTEN +
+   post-write verification: x86 gate 0 errors 0 warnings; defs/refs
+   2/2; installer 2 hooks; CRT 0; pointer-walk 0; base_game 0.
+   RUNTIME LADDER: Animated's destruction terminates at the base
+   (no derived cleanup exists); the ladder evidence for the
+   hierarchy file (runtime Animated ctor -> Static runtime ctor,
+   do_setup = 0). NEXT: Doppleganger runtime cluster (ctor
+   @0x0046FBF0 + ctor_read @0x0046FE90; destruction = the SHARED
+   Animated vdel slot per lst :189154 - already owned), then Moving
+   /Action/Combat/TRIBE_Combat/TRIBE_Building runtime clusters.
+   DESYNC FIX #3 — FINAL ROOT CAUSE (owner-identified 2026-11-15,
+   fixed + gated): the destructor AND recycle obstruction gates read
+   master_obj->hp — MISLABELED FIELD. The asm reads fld dword ptr
+   [eax+44h] with eax = master_obj: 0x44 = 68 DECIMAL = radius_z
+   (radius_x @60, radius_y @64, radius_z @68); hp lives at 50 decimal
+   (0x32). ROOT CAUSE of the mislabel: hex/decimal struct-table
+   confusion during the first decode pass, then anchored by a
+   semantically-plausible narrative ("hp > 0 = alive -> remove
+   obstruction") that four review passes confirmed the gate STRUCTURE
+   (test ah,41h = skip when <= — correct) without re-checking WHICH
+   FIELD the fcomp reads. WHY THE STORE DIFF MISSED IT: the field is
+   a READ, not a store — the store-list diff has no read coverage.
+   BOTH SITES FIXED (destructor :239 — owner had already corrected
+   that site themselves; recycle :382 — fixed this round) + the two
+   header comments. TRAMPOLINE EXPERIMENT VERDICT: worked exactly as
+   designed — prepends + original body = clean, my C body = desync —
+   isolating the C body, and the residual bug is now this field
+   mislabel (the v2 experiment's double remove_visible_resource call
+   and the EBX trash were separate experiment artifacts, both
+   resolved). DIAGNOSTIC TRAMPOLINE REMOVED (owner-approved) — the
+   pure C body (with radius_z) is the ship. STORE-AND-READ DIFF
+   RATIFIED into DECOMP_TEMPLATE.md (the store-list bullet extended
+   with read-offset-to-census-field mapping coverage). NEXT: owner
+   re-test of the pure C body; then Batch 1b (derived runtime
+   ctor/destructor trios) under the extended diff protocol.
+ - BATCH 1b-2 DECODE STATE (Doppleganger + Moving runtime clusters —
+   FULLY DECODED, NOT YET WRITTEN; the new session writes from this
+   record). COLLISION AUDIT FOUND THE MISSED PATCHES: mapsize.cpp
+   :1739 writeDword(0x46FCC4, (DWORD)mapptr) = the disp32 of
+   `mov ecx, unified_map_offsets[edi*4]` inside the Dopple runtime
+   CTOR; :1740 writeDword(0x46FF43, ...) = the same disp32 replace
+   inside the Dopple ctor_read (`mov edx, unified_map_offsets[ebx*4]`)
+   — THE MAP_SIZE PATCH retargets the dopple tile-row table base from
+   unified_map_offsets (0x7A1CBC) to mapptr (the big-map base) when
+   the big-map mod is active. THE DRAFT HARDCODED unified_map_offsets
+   -> wrong table under the big-map -> THE DESYNC. PROPOSED FIX
+   (pending owner decision): bake in via `extern int* mapptr;`
+   (mapsize.cpp:238 — int* mapptr = (int*)0x7A1CBC = unified_map_
+   offsets' address by default; :1680-1682 re-points it for the
+   big-map) and read the row as mapptr[ftol(y)], tile = mapptr[row]
+   + ftol(x)*4; retire the 2 writeDword call sites. (Alternative:
+   the // MAP_SIZE waiver like get_visible — NOT recommended here:
+   the dopple tile on the wrong table is functional divergence.)
+   === DOPPLEGANGER RUNTIME (2 hooks proposed) ===
+   CTOR RGE_Doppleganger_Object__RGE_Doppleganger_Object @0x0046FBF0
+   [0x46FBF0,0x46FE66) (lst :188929/:189143, retn 1Ch = 7 stack args:
+   tobj, obj_owner, x, y, z, do_setup, obj_to_dopple; prototype
+   idb_functions.h:1480; caller: RGE_Master_Doppleganger_Object__
+   make_new_obj+AA). SEH chunk 0x641CD0 = jmp j_RGE_Static_Object__
+   destructor. BODY: base RGE_Animated_Object__RGE_Animated_Object
+   (0x422980 — NOW HOOKED, routes) with do_setup = 0; vfptr =
+   RGE_Doppleganger_Object__vftable @0x0065A2C0 (lst :989403); the
+   UNCONDITIONAL dopple-extension zero block: doppled_object
+   (@+0xB8) = 0, draw_color_owner (@+0xBC) = 0, doppled_master_obj
+   (@+0xC0) = 0, doppled_player (@+0xC4) = 0, MapAddress (@+0xC8)
+   = 0, LastMapValue (@+0xCC) = 0, CantSeeBits (@+0xD0) = 0,
+   map_draw_level (@+0xD4) = 0, map_color (@+0xD5) = 0,
+   Destroy_Next_Turn (@+0xD7) = 0, Multi_Unified_Points (@+0xD6)
+   = 0, doppledObjectID (@+0xD8, int) = -1 (store order per asm
+   0x46FC43-0x46FC89: B8/BC/C0/C4/C8/CC/D0 dwords, D4/D5 bytes,
+   D8 = -1 dword, D6/D7 bytes). IF do_setup: RGE_Animated_Object__
+   setup (:548, 0x422C30 — runtime Animated setup, base call via the
+   idb constant); type @+0x5E = 0x19 (25 — the DOPPLEGANGER runtime
+   tier mirror); LastMapValue = 0; CantSeeBits = 0; MapAddress =
+   mapptr[ftol(y)] + ftol(x)*4 (THE BAKED PATCH SITE — asm
+   0x46FCC1-0x46FCD7: ftol(x) -> eax, ftol(y) -> edi, row =
+   table[edi], tile = row + eax*4). THEN unconditional:
+   doppled_object = obj_to_dopple (asm 0x46FCE3). IF obj_to_dopple:
+   draw_color_owner = src->owner (@+0x18); doppled_player =
+   src->owner->id (@+0xA0); doppledObjectID = src->id (@+0x10);
+   sprite = src->sprite (@+0x1C); THE GATE: if src->master_obj->
+   master_type == 80 && master_obj->object_group != 8 &&
+   master_obj->id != 335 && master_obj->construction_id (@+0x20C =
+   524, word, signed cmp > 0): sprite = owner->master_objects
+   (@+0x74)[master_type] ->vfptr->get_sprite(that master, src)
+   (master vtbl slot +4), swap flag dl = 1. THEN the sound/temp
+   block (asm 0x46FD54-0x46FDA1): old = temp_disable_sound_playing
+   (a u8 GLOBAL — extern needed; declared in the game/patch — grep
+   its definition); temp_disable_sound_playing = 1; src_list =
+   src->sprite_list (@+0x24); if src_list != 0 AND swap flag == 0:
+   temp = RGE_Active_Sprite_List__copy_sprite_list(src_list);
+   this_->sprite_list->use_sprite_list(temp) — else:
+   this_->sprite_list->delete_list() (NO null guard in the asm —
+   faithful); if this_->sprite != 0: this_->sprite_list->
+   add_sprite(this_->sprite, 0, 0, 0, 0); restore
+   temp_disable_sound_playing = old. THEN: this_->selected @+0x45
+   = src->selected (@+0x45); RGE_Static_Object__get_animation_frame
+   (src) (:3853, 0x5513A0) -> RGE_Static_Object__set_animation_frame
+   (this, frame) (:3852, 0x551380); draw_color_owner = src->owner
+   (asm 0x46FDC4); map_draw_level = src->master_obj->map_draw_level
+   (@+0x9E = 158); if map_draw_level == 3: map_color =
+   src->master_obj->map_color (@+0xA0 = 160) else 0 (asm
+   0x46FDD3-0x46FE16 hmm 0x46FDD6: mov cl, [edx+9Eh] = @158; store
+   D4; cmp 3; D5 = master+0xA0 if ==3 else 0); Multi_Unified_
+   Points = src->[+0x16C = 364] (byte; ONLY if src->master_obj->
+   master_type >= 50 — asm jb skips); if src->object_state >= 7:
+   doppled_object = 0 AND doppledObjectID = -1 (the source-died
+   binding release). IF obj_to_dopple == 0 (the no-source path,
+   asm 0x46FE2E): doppledObjectID = -1, draw_color_owner = 0,
+   doppled_player = 0, RGE_Static_Object__destroy_obj(this)
+   (:3843, 0x5506B0 — SELF-DESTRUCT). THEN validate():
+   RGE_Doppleganger_Object__validate (:1489, 0x4705F0). RETURN this.
+   CTOR_READ RGE_Doppleganger_Object__RGE_Doppleganger_Object_read
+   @0x0046FE90 [0x46FE90,0x46FFF4) (lst :189180/:189291, retn 0Ch =
+   3 stack args: infile, gworld, do_setup; prototype :1482; callers
+   RGE_Object_List__load / RGE_Player_Object_List__Load). SEH chunk
+   0x641CF0 = jmp j_RGE_Static_Object__destructor. BODY: base
+   RGE_Animated_Object__RGE_Animated_Object_read (0x422B70 — grep
+   the idb constant line; NOT hooked) with do_setup = 0; vfptr =
+   Dopple vftable; the SAME unconditional zero block; if do_setup:
+   RGE_Animated_Object__setup_read (grep idb line, 0x422CA0-ish) +
+   type = 0x19 + tile from the LOADED world_y/world_x (@+0x4C/
+   @+0x48) via mapptr (THE BAKED PATCH SITE — asm 0x46FF35-0x46FF5B
+   — disp32 writeDword at 0x46FF43). THEN the UNCONDITIONAL
+   rge_read stream sequence (rge_read = __fastcall(infile, buffer,
+   size), idb_functions.h:3003): (4) -> doppled_object;
+   (1) -> map_draw_level; doppledObjectID = -1 (asm 0x46FF7E);
+   (4) -> &map_color (CROSS-FIELD: map_color @D5 +
+   Multi_Unified_Points @D6 + Destroy_Next_Turn @D7 +
+   doppledObjectID low byte @D8 — the doppledObjectID reads
+   0xFFFFFFxx after — FLAG AS THE DELIBERATE SPAN, deviation
+   protocol); (4) -> doppled_master_obj (@+0xC0); (4) ->
+   doppled_player (@+0xC4..C7); (4) -> CantSeeBits (@+0xD0..D3);
+   (1) -> Multi_Unified_Points (@+0xD6). retn.
+   DOPPLE EXTENSION FIELD MAP (idb_types.h :21545-21567, post-regen;
+   runtime size 220 = 0xDC = Animated 0xB8 + the 36-byte dopple
+   extension @0xB8-0xDB): doppled_object @0xB8 (RGE_Static_Object*),
+   draw_color_owner @0xBC (RGE_Player*), doppled_master_obj @0xC0
+   (RGE_Master_Static_Object*), doppled_player @0xC4 (int),
+   MapAddress @0xC8 (unsigned int*), LastMapValue @0xCC (unsigned
+   int), CantSeeBits @0xD0 (unsigned int), map_draw_level @0xD4
+   (u8), map_color @0xD5 (u8), Multi_Unified_Points @0xD6 (u8),
+   Destroy_Next_Turn @0xD7 (u8), doppledObjectID @0xD8 (int).
+   === MOVING RUNTIME (4 hooks proposed) ===
+   CTOR RGE_Moving_Object__RGE_Moving_Object @0x004A0540
+   [0x4A0540,0x4A0691) (lst :273287/:273391, retn 18h = 6 stack
+   args; prototype :2122; callers RGE_Action_Object__RGE_Action_
+   Object+3D (the runtime ladder) + make_new_obj). SEH chunk
+   0x6426F0 = jmp j_RGE_Static_Object__destructor. BODY: base
+   RGE_Animated_Object__RGE_Animated_Object (HOOKED, routes,
+   do_setup = 0); `or eax, -1`; THE MOVING EXTENSION INIT BLOCK
+   (all fields census-cited idb_types.h :6747-:6775): trail_
+   remainder (@+0xB8) = 0, velocity_x (@+0xBC) = 0, velocity_y
+   (@+0xC0) = 0, velocity_z (@+0xC4) = 0, angle (@+0xC8) = 0,
+   turn_towards_time (@+0xCC) = 0, on_ground (@+0xD0, u8) = 0,
+   turnTimer (@+0xD4) = 0, continueCounter (@+0xD8) = 0,
+   currentTerrainException1 (@+0xDC) = -1, currentTerrainException2
+   (@+0xE0) = -1, waitingToMoveValue (@+0xE4, u8) = 0,
+   numberWaitDelays (@+0xE5, u8) = 0, userDefinedWaypoints
+   (@+0xE8) = 0, positionValue (@+0xF4, BVector = {float x, y, z},
+   idb_types.h :1761-1765) = {0, 0, 0}, orientationForwardValue
+   (@+0x100) = {1.0, 0, 0}, orientationRightValue (@+0x10C) =
+   {0, 0, -1.0}, pathData (@+0x118) = 0, mFuturePathData
+   (@+0x11C) = 0, movementData (@+0x120) = 0, lastMoveTimeValue
+   (@+0x124) = 0, mHasSubstitutePosition (@+0x128) = 0,
+   mSubstitutePosition (@+0x12C) = {0, 0, 0},
+   mConsecutiveSubstituteCount (@+0x138) = 0; vfptr =
+   RGE_Moving_Object__vftable @0x0065BE14 (lst :990431);
+   RGE_Moving_Object__initMovementData (idb_functions.h:2208,
+   0x4A6A70); if do_setup: RGE_Moving_Object__setup (:2127,
+   0x4A0940). RETURN this. (NOT stored by the ctor: numberUser-
+   DefinedWaypointsValue @+0xEC, maximumNumberUserDefinedWaypoints
+   Value @+0xF0 — the asm leaves them.) VDEL
+   RGE_Moving_Object__vector_deleting_destructor @0x004A06A0
+   [0x4A06A0,0x4A06BB) (lst :273400/:273418, retn 4; prototype
+   :2123): RGE_Moving_Object__destructor (:2125, 0x4A0800 — IN
+   BATCH, hook-routed) + flags & 1 -> operator_delete + return
+   this. CTOR_READ RGE_Moving_Object__RGE_Moving_Object_read
+   @0x004A06C0 [0x4A06C0,0x4A07F1) (lst :273427/:273515, retn 0Ch
+   = 3 stack args: infile, gworld, do_setup; prototype :2128):
+   SEH chunk 0x642710 (jmp j_RGE_Static_Object__destructor); base
+   RGE_Animated_Object__RGE_Animated_Object_read (0x422B70, do_
+   setup = 0); the SAME extension init block (or eax, -1 first);
+   vfptr; initMovementData; if do_setup: RGE_Moving_Object__
+   setup_read (:2128, 0x4A0A40). RETURN this. DESTRUCTOR
+   RGE_Moving_Object__destructor @0x004A0800 [0x4A0800,0x4A084E)
+   (lst :273524/:273555), void, __thiscall. SEH chunk 0x642730
+   (jmp j_RGE_Static_Object__destructor — the throw-during-
+   destruction unwind: the fold form = __except(base destructor,
+   EXCEPTION_CONTINUE_SEARCH) per the ctor-fold precedent). BODY:
+   vfptr = Moving vftable (0x0065BE14); RGE_Moving_Object__
+   initMovementData (RESETS the movement data — NOT a free: the
+   runtime Moving holds no heap of its own); RGE_Static_Object__
+   destructor ((RGE_Static_Object*)this_ — HOOKED, routes). NO
+   frees. CALLER: RGE_Action_Object__destructor+4F (the runtime
+   ladder). COLLISION SCAN: 0 writer overlaps + 0 address hits
+   over all 6 ranges (the Animated vdel @0x46FE70 is OUTSIDE the
+   Dopple ranges and already owned). BOTH CLASSES TEST PENDING
+   (write, gate, owner re-test) — then the ladder continues:
+   Action/Combat/TRIBE_Combat/TRIBE_Building runtime clusters.
+
+  - BATCH 1b-2 WRITTEN (owner-approved + WRITTEN 2026-11-15): 6 hooks -
+    Doppleganger runtime ctor @0x0046FBF0 [0x46FBF0,0x46FE66) + ctor_read
+    @0x0046FE90 [0x46FE90,0x46FFF4) -> NEW CLASS FILE src/engine/object/
+    RGE_Doppleganger_Object.cpp; Moving runtime ctor @0x004A0540
+    [0x4A0540,0x4A0691), vdel @0x004A06A0 [0x4A06A0,0x4A06BB), ctor_read
+    @0x004A06C0 [0x4A06C0,0x4A07F1), destructor @0x004A0800
+    [0x4A0800,0x4A084E) -> NEW CLASS FILE src/engine/object/RGE_Moving_
+    Object.cpp; NO class headers (runtime cpps stand on stdafx, per the
+    runtime Animated precedent); install_object.cpp wiring (runtime family
+    grouped Static -> Animated -> Doppleganger -> Moving) + vcxproj/
+    .filters entries. Vftables: Dopple runtime 0x0065A2C0 (lst :989403),
+    Moving runtime 0x0065BE14 (lst :990431), cpp-local typed constants;
+    new binding: temp_disable_sound_playing = static char* const
+    @0x0077FA90 (lst :1105298; .c:44143) - cpp-local, no common.h entry.
+    MOVES: Moving vdel calls RGE_Moving_Object__destructor DIRECTLY (hook-
+    routed into destructor_new); Moving destructor = vfptr + initMovementData
+    (a RESET, not a free - no heap of its own) + runtime Static destructor;
+    Moving ctor/ctor_read store the vfptr AFTER the extension init block
+    (asm 0x4A0654/0x4A07C3) and leave numberUserDefinedWaypointsValue @0xEC
+    + maximumNumberUserDefinedWaypointsValue @0xF0 UNSTORED (faithful);
+    Dopple ctor_read zero block has NO draw_color_owner store (asm 0x46FED8-
+    0x46FF15); Dopple ctor/ctor_read zero-block store order B8/BC/C0/C4/C8/
+    CC/D0 dwords, D4/D5 bytes, D8=-1, D6/D7 bytes replicated exactly.
+    MAP_SIZE DISPOSITION REVERSED (owner 2026-11-15, supersedes the decode
+    entry's mapptr bake-in proposal): mapsize patches are NEVER baked - the
+    Dopple replacements keep the original's unified_map_offsets access with
+    // MAP_SIZE markers (the get_visible precedent); mapsize.cpp:1739/1740
+    (disp32s 0x46FCC4 / 0x46FF43) retired in place with the not-baked
+    reason; TEMPLATE AMENDED (step 3b): MAP_SIZE exception codified. Big-map
+    dopple divergence intentionally not carried.
+    DECODE-STATE CORRECTION: the decode record's "selected @+0x45" was a
+    field-name mislabel - offset 0x45 = facet (idb_types.h:1460; selected
+    @0x46); the pseudocode/asm agreed on offset, written as facet.
+    GATE (x86 Hostx64\x86 cl 19.44.35229): 4/4 TUs 0 errors 0 warnings
+    (Dopple cpp, Moving cpp, install_object.cpp, mapsize.cpp). GATE CATCH:
+    draw_color_owner = src->owner needed the TRIBE_Player* -> RGE_Player*
+    dual-naming cast (C2440; Combat(70) get_player precedent).
+    DEVIATION APPLIED (decode-record approved, flagged at the call): the
+    ctor_read 4-byte rge_read at &map_color spans D5/D6/D7/D8 -
+    doppledObjectID reads 0xFFFFFFxx after (asm 0x46FF91-0x46FF9B);
+    sizeof(&map_color) would be 1.
+    STORE-AND-READ DIFF (scripted, byte-granularity): FULL MATCH all six -
+    ASM-NOT-COVERED 0 and WRITTEN-NOT-IN-ASM 0 per function (dopple_ctor
+    17/16 sites-fields, dopple_ctor_read 15/13 incl. the [ebp+0] = +0xD0
+    alias resolution, moving_ctor 33/33, moving_ctor_read 33/33, vdel 0/0,
+    destructor 1/1 vfptr-only); read census mapping complete (0x10 id, 0x14
+    master_obj, 0x18 owner, 0x1C sprite, 0x24 sprite_list, 0x04 master_type,
+    0x1E object_group word, 0x18 id word (master), 0x45 facet, 0x58
+    object_state, 0x74 master_objects, 0x9E map_draw_level, 0xA0 map_color /
+    id@160 (TRIBE_Player), 0xB8/0xC0 dopple ext, 0x16C Multi_Unified_Points
+    (RGE_Combat_Object :7411 - the base-pointer v20[2].gbg_civ_override =
+    2*0xB4+0x4 resolution), 0x20C construction_id (= v10[2].
+    construction_radius_x = 2*0xD0+0x6C, Building tier @524), 0x4C/0x48
+    world_y/world_x (ctor_read flds)). REGISTER-LIFECYCLE CHECK: 0 asm/
+    naked/trampoline constructs in both files - nothing trampoline-style
+    exists; the originals' mid-function ebx=0 idiom (0x46FC1A/0x4A056A/
+    0x4A06E2) is compiler-internal to the replaced bodies, nothing to
+    replicate. CASTS: 13 (Dopple) / 6 (Moving), every base-call argument
+    position cased; structural audit 4/4 construction functions (vfptr +
+    do_setup guard + body after guard); return types match prototypes x6;
+    CRT 0; base_game 0 bare; pointer-walk 0; literal loop bounds 0.
+    COLLISION RE-SCAN (scripted step 3b): 2,740 writer sites, the only 6
+    range overlaps = this batch's own installer hooks; functionlist.cpp
+    table hits = dead profiler data (standing disposition). defs/refs 2/2
+    + 4/4; installer 2 + 4 hooks (runtime ladder total now 13: Static 5,
+    Animated 2, Doppleganger 2, Moving 4). BOTH CLASSES TEST PENDING
+    (owner in-game re-test). NEXT: Action runtime cluster decode -> present
+    -> approve -> write; then Combat / TRIBE_Combat / TRIBE_Building.
+
+  - RUNTIME RGE_Action_Object CONSTRUCTION/TEARDOWN CLUSTER - RUNTIME
+    LADDER BATCH 1b-3 (owner-approved + WRITTEN 2026-11-15): NEW CLASS
+    FILE src/engine/object/RGE_Action_Object.cpp (+ installer + install_
+    object.cpp wiring + vcxproj/.filters; NO class header - runtime cpps
+    stand on stdafx). 6 hooks: ctor @0x00408980 [0x408980,0x408A2B)
+    (:107), vdel @0x00408C50 [..,0x408C6B) (:119), ctor_read @0x00408C70
+    [..,0x408D1B) (:120), destructor @0x00408D20 [..,0x408D83) (:121),
+    recycle_out_of_game @0x00408D90 [..,0x408DAA) (:122),
+    recycle_in_to_game @0x00408DB0 [..,0x408DDB) (:123). Vftable
+    .rdata:00654E54 (lst :986405), cpp-local constant. DECODE: base
+    Moving ctor/ctor_read(do_setup=0, hooked -> routes) + Action vfptr +
+    if(do_setup): the MOVING setup/setup_read (idb constants :2127/:2128 -
+    the asm calls Moving's setups directly, Animated-ctor shape), type
+    @+0x5E = 40 (0x28), waiting @+0x140 = 0, actions @+0x13C =
+    vfptr->create_action_list (slot +0x3B0, member :11834), command_flag
+    @+0x141 = 0, Selected_Group_Info @+0x142 (word) = 0; ctor_read
+    streams (1)->waiting, (1)->command_flag, (2)->Selected_Group_Info
+    (all sizeof-exact) then RGE_Action_List__load (:59, 0x4063B0);
+    destructor: vfptr + if(actions) vfptr->__vecDelDtor(actions, 1)
+    (RGE_Action_List vtbl slot 0, :15046; Action_List vftable
+    .rdata:00654AE0 lst :986295) + actions = 0 + RGE_Moving_Object__
+    destructor (hooked -> routes); recycle_out: if(actions)
+    RGE_Action_List__delete_list (:62, 0x4064C0 - delete_list, NOT the
+    deleting destructor; list object stays allocated) +
+    RGE_Static_Object__recycle_out_of_game (:3802, hooked -> routes),
+    NO actions=0 store; recycle_in: base Moving recycle (:2126, 0x4A0850,
+    NOT hooked) + waiting = 0. LADDER EVIDENCE (runtime side now fully
+    verified): all three Action SEH chunks (0x640A30/A50/A70) jmp
+    RGE_Moving_Object__destructor - the IMMEDIATE base (hooked, routes);
+    Action -> Moving -> Static complete. Caller coverage: ctor <-
+    RGE_Combat_Object__RGE_Combat_Object+3D + Action make_new_obj;
+    ctor_read <- Combat runtime read +2B + Object_List__load; destructor
+    <- vdel + Combat destructor +86; recycle_out <- Missile/Building
+    recycles call UP into it; recycle_in <- Combat recycle_in_to_game+55.
+    EXTENSION MAP: actions@316(0x13C), waiting@320(0x140),
+    command_flag@321(0x141), Selected_Group_Info@322(0x142, i16);
+    sizeof 324 = 0x144 (:7433-7518). GATE (x86 Hostx64\x86 cl
+    19.44.35229): 2/2 TUs 0 errors 0 warnings. STORE-AND-READ DIFF
+    (scripted): FULL MATCH - ctor 6/6, vdel 0/0, destructor 2/2,
+    recycle_out 0/0, recycle_in 1/1; ctor_read's 0x140/141/142 are
+    rge_read-mediated (lea edx forms), read inventory 000/140/141/142
+    (dopple ctor_read precedent). CASTS 10 sites (this_ Action->Moving x7,
+    Action->Static x1, tobj Master_Action->Master_Moving x2), every
+    base-call position cased; CRT 0; base_game 0; pointer-walk 0; loops 0;
+    asm/trampoline 0 (register-lifecycle check clean); defs/refs 6/6;
+    structural audit pass; return types match prototypes x6. COLLISION
+    RE-SCAN: 2,746 writer sites, only overlaps = this batch's own
+    installer hooks. Runtime ladder total now 19 hooks (Static 5,
+    Animated 2, Doppleganger 2, Moving 4, Action 6). DEVIATION-APPROVAL
+    RULE AMENDED (owner-directed, TEMPLATE amended): decode-record flags
+    and batch write orders are NOT deviation approval - every future
+    discrepancy needs explicit per-item owner sign-off (the dopple
+    ctor_read 4-byte span was individually CONFIRMED by the owner
+    2026-11-15, kept binary-stream-faithful). NEXT: Combat runtime
+    cluster decode -> present (with code) -> approve -> write; then
+    TRIBE_Combat / TRIBE_Building.
+
+  - RUNTIME RGE_Combat_Object CONSTRUCTION/TEARDOWN CLUSTER - RUNTIME
+    LADDER BATCH 1b-4 (owner-approved + WRITTEN 2026-11-15): NEW CLASS
+    FILE src/engine/object/RGE_Combat_Object.cpp (+ installer +
+    install_object.cpp wiring + vcxproj/.filters; NO class header). 5
+    hooks: ctor @0x00443990 [0x443990,0x443A74) (:1069), SCALAR deleting
+    destructor @0x00443A80 [..,0x443A9B) (:1070 - the Combat runtime
+    vftable slots the scalar variant at slot 0, lst :117479; NO
+    vector_deleting export), ctor_read @0x00443AA0 [..,0x443B02)
+    (:1071), destructor @0x00443B10 [..,0x443BAB) (:1072),
+    recycle_in_to_game @0x00443BB0 [..,0x443C13) (:1073; vftable-slotted
+    by BOTH Combat and Missile vftables, lst :117635/:117636 - the hook
+    covers Missile's dispatch). NO recycle_out_of_game export (inherits
+    Action's slot). Vftable .rdata:00657544 (lst :987552). DECODE: base
+    Action ctor/ctor_read(do_setup=0, hooked -> routes) + Combat vfptr +
+    if(do_setup) ctor: extension init (VUR_Ptrs[9] @+0x144 rep-stosd x9,
+    MUP @+0x16C, UMV @+0x168, LOR @+0x16D, formation_id/row/col
+    @+0x179/17A/17B, attack_count @+0x170 - ALL BEFORE the setup call),
+    Action setup (:124), type @+0x5E = 50 (0x32), attack_timer @+0x174 =
+    0, capture_flag @+0x178 = 0; ctor_read: DERIVED Combat setup_read
+    (:1075, unhooked); destructor: vfptr + the VISIBLE-UNIT
+    DEREGISTRATION - if ((int)id @+0x10 >= 0) signed test/jl ->
+    Visible_Unit_Manager__Update_Unit_Info (:5928, 0x614840; manager
+    read from game slot 0x007A1CB8; args: id, owner->id @0xA0,
+    ftol(world_x @0x48), ftol(world_y @0x4C), LOR byte @0x16D,
+    master object_group movsx word @0x1E, UMV, 0, &VUR_Ptrs) -> Action
+    destructor (hooked -> routes); recycle_in: extension init WITHOUT
+    attack_count, Action recycle (:123, hooked -> routes), attack_timer
+    = 0, NO type store. NEW BINDING: game_visible_unit_manager =
+    cpp-local pointer-to-slot @0x007A1CB8 (lst :1106232; .c:44329; no
+    common.h entry). LADDER EVIDENCE: all three SEH chunks
+    (0x641490/B0/D0) jmp RGE_Action_Object__destructor - the IMMEDIATE
+    base (hooked, routes); Combat -> Action -> Moving -> Static complete
+    on the runtime side. Callers: ctor <- Combat make_new_obj +
+    Missile runtime ctor +3D; ctor_read <- Missile runtime read +2B +
+    Object_List__load; destructor <- scalar + Missile destructor +63;
+    recycle_in <- Action recycle_in ladder. EXTENSION MAP: VUR_Ptrs[9]
+    @324(0x144), Unified_Map_Value@360(0x168), Multi_Unified_Points
+    @364(0x16C), Large_Object_Radius@365(0x16D), attack_count@368
+    (0x170), attack_timer@372(0x174), capture_flag@376(0x178),
+    formation_id/row/col@377/378/379; sizeof 380 = 0x17C (:7324-7419).
+    MAP_SIZE COLLISION FOUND BY THE SCRIPTED SCAN (step 3b): mapsize.cpp
+    :1787 writeDword(0x443B7A, (DWORD)mapptr_2) - the disp32 of the
+    destructor's manager-slot read. DISPOSITION per the MAP_SIZE rule:
+    NOT baked; the replacement reads the original game slot with a
+    // MAP_SIZE marker; mapsize.cpp:1787 retired in place (siblings
+    1788-1793 target unowned functions - untouched). NOTE: setMapSizeHooks
+    (mapsize.cpp:1669) mallocs the three-table mirror block (mapptr_2/
+    mapptr/mapptr_3 = base/+1/+2) UNCONDITIONALLY at install
+    (:1680-1682) and re-points every game disp32 reading the 0x7A1CB8/
+    CBC/CC0 table family. GATE (x86 Hostx64\x86 cl 19.44.35229): 3/3
+    TUs 0 errors 0 warnings. STORE-AND-READ DIFF (scripted): FULL MATCH
+    all five (ctor 20/20 incl. VUR x9, scalar 0/0, ctor_read 1/1,
+    destructor 1/1, recycle_in 16/16); read census 010 id, 014
+    master_obj, 018 owner, 01E object_group word, 0A0 player id, 144
+    VUR base, 168 UMV, 16D LOR, 48/4C world flds. CASTS 8 sites (this_
+    Combat->Action x6, tobj Master_Combat->Master_Action x2), every
+    base-call position cased; _countof loops x2 (no literal bounds);
+    pointer-walk 0 real (2 hits = size_t loop counters, type-checked);
+    CRT 0; base_game 0; asm/trampoline 0; defs/refs 5/5; structural
+    audit pass; return types x5. Runtime ladder total now 24 hooks
+    (Static 5, Animated 2, Doppleganger 2, Moving 4, Action 6,
+    Combat 5). NEXT: TRIBE_Combat runtime cluster decode -> present
+    (with code) -> approve -> write; then TRIBE_Building - the ladder
+    completes.
+
+  - RUNTIME TRIBE_Combat_Object CONSTRUCTION/TEARDOWN CLUSTER - RUNTIME
+    LADDER BATCH 1b-5 (owner-approved + WRITTEN 2026-11-15): NEW CLASS
+    FILE src/engine/object/TRIBE_Combat_Object.cpp (+ installer +
+    install_object.cpp wiring + vcxproj/.filters; NO class header). 4
+    hooks: ctor @0x00559E00 [0x559E00,0x559F00) (:3982), vdel
+    @0x00559F10 [..,0x559F2B) (:3983; vftable slot 0 - the TRIBE tier
+    uses the VECTOR variant, contrast Combat's scalar), ctor_read =
+    TRIBE_Combat_Object3 @0x00559F30 [..,0x55A03B) (:3984 - the IDA
+    numbered name IS the ctor_read), destructor @0x0055A040
+    [..,0x55A105) (:3985). NO recycle exports - the tier's vftables
+    inherit Combat's recycle_in slot (already hooked). Vftable
+    .rdata:006635B0 (lst :995245). DECODE: base Combat ctor/ctor_read
+    (do_setup=0, hooked -> routes) + the TRIBE_Combat(70) extension
+    init (asm order: town_bell_target_id/type/action/id2 @+0x194/198/
+    19C/1A0 = -1, decay_timer @+0x188 WORD = 0, town_bell_target_x/y
+    @+0x1A4/1A8 = -1.0f, raider_build_countdown @+0x18C, inside_
+    garrison_count @+0x190 byte, town_bell_flag @+0x191 byte,
+    num_builders/healers/own_master @+0x1AC/1AD/1AE bytes,
+    current_volley_fire_amount @+0x1B0, next_volley @+0x1B4 byte,
+    using_special_attack_animation @+0x1B5 byte, locked_down_count
+    @+0x1B8 = 0) + vfptr AFTER the field block (asm 0x559EBA/0x559FD9)
+    + attr_amt[6] @+0x17C cleared (3 dword stores via ecx=esi+17Ch) +
+    if(do_setup) the DERIVED setup/setup_read (:3986/:3987, same-class
+    calls). user_released @444 + berserker_timer @448 NOT stored
+    (faithful); sizeof 452 = 0x1C4 (:16346-16461). CTOR3 EXTRA: the
+    own-master speed resync - if own_master @+0x1AE != 0 && master
+    object_group word @+0x1E == 35 -> master_obj->speed @+0xD0 =
+    owner->master_objects[id]->speed (asm 0x559FFC-0x55A021; the
+    pseudocode's master_objects[id][1].vfptr rendering = +0xD0 = the
+    master speed field, base-pointer rule). DESTRUCTOR: vfptr + the
+    OWN-MASTER TEARDOWN - if own_master: own = master_obj; own_master
+    = 0; master_obj = owner->master_objects[own->id] (RESTORED to the
+    player's base master); if (own != 0) own->vfptr->__vecDelDtor
+    (own, 1) (TRIBE_Master_Combat vtbl slot 5 = +0x14 - the own master
+    is DELETED) - then the population-counter block: if vfptr->
+    gbg_isCivilianUnit (slot 9 = +0x24, :16477) owner->attributes[37]
+    -= 1.0f (attributes @+0xAC, [37] = +0x94); else if vfptr->
+    gbg_isMilitaryUnit (slot 8 = +0x20, :16476; slot arithmetic =
+    member line - struct line - 2) owner->attributes[40] -= 1.0f
+    ([40] = +0xA0) - then Combat destructor (hooked -> routes).
+    LADDER EVIDENCE: all three SEH chunks (0x6449B0/D0/F0) jmp
+    RGE_Combat_Object__destructor - the IMMEDIATE base (hooked,
+    routes); TRIBE_Combat -> Combat -> Action -> Moving -> Static
+    complete. Callers: ctor <- TRIBE_Building runtime ctors +3E +
+    TRIBE_Master_Combat make_new_master; ctor3 <- TRIBE_Building read
+    +2D + TRIBE_Object_List__Load; destructor <- vdel + TRIBE_Building
+    destructor +24C. GATE (x86 Hostx64\x86 cl 19.44.35229): 2/2 TUs
+    0 errors 0 warnings. GATE CATCH: the destructor's master restore
+    store (master_obj = owner->master_objects[own->id]) shipped
+    uncased - C2440, fixed (cross-class cast rule). STORE-AND-READ
+    DIFF (scripted): FULL MATCH all four (ctor 21/24, vdel 0/0, ctor3
+    22/24, dtor 3/3; attr_amt dword asm stores covered by the i16
+    word-pair writes; ctor3's 0D0/4 = the MASTER-object speed store,
+    covered by master->speed = own->speed; the 1F0 read = the ecx
+    alias artifact resolving to owner->master_objects @+0x74). CASTS
+    8 sites (this_ TRIBE_Combat->Combat x5 incl. folds, tobj
+    TRIBE_Master_Combat->Master_Combat x2, the master_objects element
+    x1); _countof loops x2; pointer-walk 0 real (size_t counters);
+    CRT 0; base_game 0; asm/trampoline 0; defs/refs 4/4; structural
+    audit pass; return types x4. Runtime ladder total now 28 hooks
+    (Static 5, Animated 2, Doppleganger 2, Moving 4, Action 6,
+    Combat 5, TRIBE_Combat 4). NEXT: TRIBE_Building runtime cluster
+    decode -> present (with code) -> approve -> write - THE LADDER
+    COMPLETES.
+
+  - RUNTIME TRIBE_Building_Object CONSTRUCTION/TEARDOWN CLUSTER -
+    RUNTIME LADDER BATCH 1b-6 - THE RUNTIME LADDER IS COMPLETE
+    (owner-approved + WRITTEN 2026-11-15): NEW CLASS FILE src/engine/
+    object/TRIBE_Building_Object.cpp (+ installer + install_object.cpp
+    wiring + vcxproj/.filters; NO class header). 6 hooks: ctor1 (uID
+    form) @0x005531A0 [0x5531A0,0x5533C7) (:3907, retn 1Ch = 7 stack
+    args), SCALAR deleting destructor @0x005533F0 [..,0x55340B) (:3910,
+    vftable slot 0), ctor2 @0x00553410 [..,0x553633) (:3911), ctor3
+    (ctor_read) @0x00553640 [..,0x553823) (:3912), destructor
+    @0x00553830 [..,0x553A92) (:3913), recycle_out_of_game @0x00553AA0
+    [..,0x553C37) (:3914). Vftable .rdata:00663110 (lst :994974). NO
+    recycle_in export (inherits Combat's hooked slot); ctor1 caller =
+    make_new_obj2 (the uID factory), ctor2 caller = make_new_obj,
+    ctor3 caller = TRIBE_Object_List__Load +6D. DECODE: base TRIBE_
+    Combat ctor/ctor3 (do_setup=0, hooked -> routes) + the Building(80)
+    extension init in asm order (34 field stores, census-cited
+    idb_types.h :9857-9899: save_damage_percent @+0x1CC,
+    captured_unit_count @+0x1CD, extra_actions @+0x1D0, research_
+    actions @+0x1D4, villager_count @+0x1D8, linked_owner @+0x1DC,
+    production_queue @+0x1F4 + size/count/total_units WORDs @+0x1F8/
+    FA/FC + enabled byte @+0x1FE = 1 + actions @+0x200 + change_flag/
+    auto_paused bytes @+0x204/05 + need_attr WORD @+0x206 = -1,
+    relic_count/specific/raider_transform @+0x208/0C/10, wonder_node
+    @+0x22C, default_frame/desolid_flag bytes @+0x234/35, pending_order
+    @+0x238, snow_flag byte @+0x23C, mEndpoint1/2 BVectors @+0x240-
+    0x25B, mGateLocked @+0x258, mFirstUpdate @+0x25C = 1, mCloseTimer
+    @+0x260, building_terrain_type byte @+0x264 = 0xFF, semi_asleep
+    byte @+0x265, unique_build_id @+0x268 (ctor1 = uID, ctor2 = -1,
+    ctor3 NOT STORED), DoppleInstalled @+0x270) + vfptr AFTER the field
+    block + linked_child[4] @+0x1E0 clear + the gather-point block
+    (@+0x214/18/1C/20 = 0, target @+0x224 = -1, target_master WORD
+    @+0x228 = -1) + if(do_setup) the derived setup/setup_read (:3915/
+    :3916) + ctor1/ctor2 ONLY: the Monument task set (master id 276 =
+    Monument, owner-supplied: word @+0x18 == 0x114 -> set_task(master->
+    default_task @+0x108), :139) + the dopple-install tail (gate:
+    object_group word @+0x1E not 34/36, desolid_flag @+0x235 = 0,
+    object_flags byte @+0xAC bit 4 clear, linked_owner @+0x1DC == 0 or
+    group == 8 -> DoppleInstalled @+0x270 = add_doppleganger_check
+    (:1492) on owner->doppleganger_creator @+0x90 with the tile from
+    unified_map_offsets - THREE MAP_SIZE disp32s, see below). DESTRUCTOR
+    (the biggest): vfptr + remove_doppleganger_check (:1493) + IF
+    semi_asleep: RemoveObject (:1125) on owner->visible_object_updator
+    @+0x94 + the linked_child sweep (child->linked_owner = 0) + the
+    linked-owner back-link removal (search linked_child[0..3], null the
+    slot) + extra/research/production_queue_actions vecDelDtor x3
+    (RGE_Action_List vtbl slot 0) + empty_production_queue (:3957) +
+    production_queue free_internal (asm call _free; CRT rule) + the
+    wonder-node removal (find_by_id (:2288) == this -> remove_node
+    (:2287) on world->wonders @+0x2C0) + THE FARM TERRAIN-DECAY GATE
+    (master id 357 Depleted Farm or 50 Farm (owner-supplied
+    designations) -> change_terrain(27) (:3961) when game_state @+0x29
+    == 0 and, for Farms, get_terrain (:1994) not in the skip set) + the
+    mROO/tile/linked-owner clear_map_area_reference block (:1954,
+    radius_x/y @+0x3C/0x40, flt_654978 = float32 0.01) + the snow
+    removal (remove_sprite :564 of master->snow_sprite @+0x1D0) +
+    TRIBE_Combat destructor (hooked -> routes). RECYCLE: delete_list
+    forms (:62, NOT vecDelDtor - the key destructor/recycle asymmetry)
+    + empty_production_queue + pq free + THE QUEUE-STATE RESET BLOCK
+    (size/count/total = 0, enabled = 1, flags = 0, need_attr = -1) +
+    wonder removal + the Farm gate + endpoint/gate/timer/terrain resets
+    (snow_flag read SAVED before the resets, asm 0x553BEE) + snow
+    removal + the Action recycle (:122 - HOOKED -> routes; the `actions`
+    list cleanup lives there). LADDER EVIDENCE: all four SEH chunks
+    (0x6448F0/10/30/50) jmp TRIBE_Combat_Object__destructor - the
+    IMMEDIATE base (hooked, routes); the FULL runtime ladder verified:
+    TRIBE_Building -> TRIBE_Combat -> Combat -> Action -> Moving ->
+    Static. COLLISIONS (scripted scan, 5): mapsize.cpp:1749/1750/1751
+    (disp32s 0x553396/0x553602/0x5537F2 - the dopple-tile table base in
+    all three ctors) -> NOT baked per the MAP_SIZE rule; // MAP_SIZE
+    markers at the unified_map_offsets accesses; call sites retired.
+    terrain_gen.cpp:270/271 (setHook onFarmDead2 @0x553BB7 in recycle,
+    onFarmDead3 @0x5539C8 in destructor - ENTRY-form mid-function
+    hooks) -> BAKED per the mandatory-bake rule: both stubs replay the
+    cmp and extend the Farm-decay skip set {8, 31} with terrain 228 -
+    the written gates carry `&& terrain != 228` with // FARM_DEAD
+    markers; call sites retired. BAKE RULE AMENDED (owner directive):
+    all patches EXCEPT mapsize.cpp MUST be baked - no waiver for
+    non-mapsize families (template step 3b amended). GAME FACTS
+    UPDATED (owner-supplied): master_id registry 50 = Farm,
+    357 = Depleted Farm, 276 = Monument (the ctor task set), 335 =
+    Shield Generator (the dopple construction-sprite exclusion);
+    magic-constant registry: master-50 entry CONFIRMED with all its
+    gates, farm-decay terrain set {8, 31, 228} + revert 27 recorded
+    UNKNOWN per-value. GATE (x86 Hostx64\x86 cl 19.44.35229): 4/4 TUs
+    0 errors 0 warnings. STORE-AND-READ DIFF (scripted): FULL MATCH -
+    ctor1 47/47, scalar 0/0, ctor2 47/47, ctor3 46/46 (no 268),
+    recycle 20/20; dtor 9 asm stores all covered + the indexed
+    linked_owner->linked_child[index] store hand-verified (regex limit).
+    CASTS 17 sites; _countof loops x5 + the size_t linked-owner search
+    (the hardcoded-4 draft violation caught by the owner, corrected;
+    template clarified: the rule binds all loop forms at draft stage);
+    CRT 0 bare (free_internal x2); base_game 0; pointer-walk 0 real;
+    defs/refs 6/6; structural audit pass; return types x6. Runtime
+    ladder total now 34 hooks (Static 5, Animated 2, Doppleganger 2,
+    Moving 4, Action 6, Combat 5, TRIBE_Combat 4, TRIBE_Building 6).
+    THE RUNTIME-SIDE LADDER PROJECT IS COMPLETE: every runtime class
+    construction/teardown path in the hierarchy (DECOMP_HIERARCHY.md
+    runtime tree) is owned and hook-routed. In-game validation owed per
+    class. FOLLOW-UPS: the remaining runtime method families (update/
+    work/damage/attack bodies etc. - large surface), Production_Queue_
+    Record, and the five derived master ctor1 copy-constructors
+    (optional).
+
+  - RUNTIME RGE_Missile_Object CONSTRUCTION/TEARDOWN CLUSTER - RUNTIME
+    LADDER BATCH 1b-7 (owner-caught omission + approved + WRITTEN
+    2026-11-15; CORRECTS the 1b-6 entry's premature ladder-complete
+    claim): NEW CLASS FILE src/engine/object/RGE_Missile_Object.cpp
+    (+ installer + install_object.cpp wiring + vcxproj/.filters; NO
+    class header). 5 hooks: ctor @0x0049BA40 [0x49BA40,0x49BAE6)
+    (:2059), SCALAR deleting destructor @0x0049BAF0 [..,0x49BB0B)
+    (:2060, vftable slot 0), ctor_read @0x0049BB10 [..,0x49BB76)
+    (:2061), destructor @0x0049BB80 [..,0x49BBF7) (:2062),
+    recycle_out_of_game @0x0049BC00 [..,0x49BC3A) (:2063). Vftable
+    .rdata:0065B808 (lst :990078). The Missile tier is the SIBLING of
+    TRIBE_Combat under Combat_Base (396 = 0x18C; max_range @+0x17C
+    where TRIBE_Combat has attr_amt[6] - the recorded sibling
+    disproof). DECODE: base Combat ctor/ctor_read (do_setup=0, hooked
+    -> routes) + Missile vfptr + IF do_setup ctor: ghost_mode @+0x180
+    (byte) = 1, fired_from_id @+0x184 = -1, Combat setup (:1074,
+    unhooked), own_master @+0x188 (byte) = 0, type @+0x5E = 60 -
+    STORED TWICE inside the branch (asm 0x49BAC6 + 0x49BAC9, the
+    original's inner + outer source lines; written faithfully as two
+    stores) and once on the else path (0x49BACE); ctor_read: type = 60
+    UNCONDITIONALLY after the guard (asm 0x49BB63; max_range/
+    fired_from_id/own_master streaming + the own-master construction
+    live in the unhooked derived setup_read); destructor: vfptr + the
+    OWN-MASTER teardown (own_master gate @+0x188; own = master_obj;
+    own_master = 0; master_obj = owner->master_objects[own->id];
+    if (own != 0) own->vfptr->__vecDelDtor(own, 1) - RGE_Master_Missile
+    vtbl slot 5 = +0x14) + Combat destructor (hooked -> routes);
+    recycle_out: the SAME own-master teardown with NO vfptr store ->
+    the Action recycle (:122 - HOOKED -> routes; skips the Combat
+    level, which has no own recycle). NO recycle_in export (the Combat
+    recycle_in hook covers Missile's vftable dispatch - recorded at
+    1b-4). Missile extension fields: max_range @380, ghost_mode @384
+    (0x180), fired_from_id @388 (0x184), own_master @392 (0x188);
+    sizeof 396 = 0x18C. LADDER EVIDENCE: all three SEH chunks
+    (0x642550/70/90) jmp RGE_Combat_Object__destructor - the IMMEDIATE
+    base (hooked, routes). Callers: ctor <- Missile make_new_obj;
+    ctor_read <- Object_List__load + Player_Object_List__Load.
+    COLLISION SCAN: 0 overlaps (2,755 sites; dead profiler table +
+    objpanel comment only). GATE (x86 Hostx64\x86 cl 19.44.35229):
+    2/2 TUs 0 errors 0 warnings. GATE CATCH: the Combat setup call
+    shipped uncased (this_ Missile* -> Combat*, C2664) - fixed.
+    STORE-AND-READ DIFF (scripted): FULL MATCH all five (ctor 5/5 incl.
+    the triple 5E store sites, scalar 0/0, read 2/2, dtor 3/3, recycle
+    2/2). CASTS 10 sites (this_ Missile->Combat x4 incl. folds +
+    setup, ->Action x1, master restore/lookup Missile-master casts x2);
+    CRT 0; base_game 0; pointer-walk 0; loops 0; asm/trampoline 0;
+    defs/refs 5/5; structural audit pass; return types x5. RUNTIME
+    LADDER TOTAL: 39 hooks (Static 5, Animated 2, Doppleganger 2,
+    Moving 4, Action 6, Combat 5, Missile 5, TRIBE_Combat 4,
+    TRIBE_Building 6) - the ladder is NOW complete: every runtime
+    class in the DECOMP_HIERARCHY.md tree has its
+    construction/teardown owned and hook-routed, all eight SEH-chunk
+    rungs verified to the immediate hooked base. In-game validation
+    owed per class. FOLLOW-UPS unchanged: runtime method families
+    (update/work/damage/attack bodies etc.), Production_Queue_Record,
+    the five optional master ctor1 copy-constructors.

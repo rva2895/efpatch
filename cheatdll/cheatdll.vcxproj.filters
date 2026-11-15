@@ -1211,6 +1211,30 @@
     <ClCompile Include="src\engine\object\RGE_Static_Object.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine\object\RGE_Animated_Object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\object\RGE_Doppleganger_Object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\object\RGE_Moving_Object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\object\RGE_Action_Object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\object\RGE_Combat_Object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\object\TRIBE_Combat_Object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\object\TRIBE_Building_Object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\object\RGE_Missile_Object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
     <ClCompile Include="src\engine\object\install_object.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>

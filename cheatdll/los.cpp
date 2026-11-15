@@ -1020,10 +1020,16 @@ __declspec(naked) void visible_map_reveal_terrain_sq_4() //00615E91
 #pragma optimize( "s", on )
 void setLOSHooks()
 {
-    setHook((void*)0x0054B33F, los_constructor_default);
-    setHook((void*)0x0054B61D, los_constructor_read);
-    setHook((void*)0x0054B691, los_destructor);
-    setHook((void*)0x0054C0A7, los_recycle_out);
+    // retired 2026-11-15: the ei.theObj lifecycle is baked into the runtime
+    // RGE_Static_Object replacements (src/engine/object/RGE_Static_Object.cpp):
+    //   0x0054B33F ctor        -> ei.theObj = 0 folded into RGE_Static_Object__RGE_Static_Object_new
+    //   0x0054B61D ctor_read   -> folded into RGE_Static_Object__RGE_Static_Object_read_new
+    //   0x0054B691 destructor  -> delete_unit_los_data folded into RGE_Static_Object__destructor_new
+    //   0x0054C0A7 recycle_out -> folded into RGE_Static_Object__recycle_out_of_game_new
+    // setHook((void*)0x0054B33F, los_constructor_default);
+    // setHook((void*)0x0054B61D, los_constructor_read);
+    // setHook((void*)0x0054B691, los_destructor);
+    // setHook((void*)0x0054C0A7, los_recycle_out);
     setHook((void*)0x0054C7C2, los_read_save);
     setHook((void*)0x0054F766, los_write_save);
     setHook((void*)0x0054F757, los_write_save_this_fix);

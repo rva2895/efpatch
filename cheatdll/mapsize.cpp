@@ -1736,8 +1736,14 @@ void setMapSizeHooks(int ver)
     writeDword(0x456566, (DWORD)mapptr);
 
     writeDword(0x456CBD, (DWORD)mapptr);
-    writeDword(0x46FCC4, (DWORD)mapptr);
-    writeDword(0x46FF43, (DWORD)mapptr);
+    // retired 2026-11-15: NOT baked (owner-directed MAP_SIZE rule) - the
+    // Dopple runtime ctor/ctor_read replacements keep the original's
+    // unified_map_offsets base with a // MAP_SIZE marker at the access
+    // (src/engine/object/RGE_Doppleganger_Object.cpp); after hooking these
+    // disp32 writes are dead code (targets 0x46FCC4 in the Dopple ctor,
+    // 0x46FF43 in the Dopple ctor_read)
+    //writeDword(0x46FCC4, (DWORD)mapptr);
+    //writeDword(0x46FF43, (DWORD)mapptr);
     writeDword(0x4701A7, (DWORD)mapptr);
     writeDword(0x47026F, (DWORD)mapptr);
     writeDword(0x4702CE, (DWORD)mapptr);
@@ -1746,9 +1752,15 @@ void setMapSizeHooks(int ver)
     writeDword(0x5508C8, (DWORD)mapptr);
     writeDword(0x55094A, (DWORD)mapptr);
 
-    writeDword(0x553396, (DWORD)mapptr);
-    writeDword(0x553602, (DWORD)mapptr);
-    writeDword(0x5537F2, (DWORD)mapptr);
+    // retired 2026-11-15: NOT baked (owner-directed MAP_SIZE rule) - the
+    // TRIBE_Building runtime ctor replacements keep the original's
+    // unified_map_offsets base with a // MAP_SIZE marker at the dopple
+    // tile computation (src/engine/object/TRIBE_Building_Object.cpp);
+    // after hooking these disp32 writes are dead code (targets 0x553396
+    // in ctor1, 0x553602 in ctor2, 0x5537F2 in ctor3)
+    //writeDword(0x553396, (DWORD)mapptr);
+    //writeDword(0x553602, (DWORD)mapptr);
+    //writeDword(0x5537F2, (DWORD)mapptr);
     writeDword(0x555DCF, (DWORD)mapptr);
     writeDword(0x556468, (DWORD)mapptr);
     writeDword(0x5F9825, (DWORD)mapptr);
@@ -1778,7 +1790,13 @@ void setMapSizeHooks(int ver)
 
     writeDword(0x419FA8, (DWORD)mapptr_2);
     writeDword(0x41A027, (DWORD)mapptr_2);
-    writeDword(0x443B7A, (DWORD)mapptr_2);
+    // retired 2026-11-15: NOT baked (owner-directed MAP_SIZE rule) - the
+    // Combat runtime destructor replacement keeps the original game-slot
+    // read of VisibleUnitManager (0x007A1CB8) with a // MAP_SIZE marker
+    // (src/engine/object/RGE_Combat_Object.cpp); after hooking this
+    // disp32 write is dead code (target 0x443B7A in RGE_Combat_Object__
+    // destructor)
+    //writeDword(0x443B7A, (DWORD)mapptr_2);
     writeDword(0x443E62, (DWORD)mapptr_2);
     writeDword(0x443EC5, (DWORD)mapptr_2);
     writeDword(0x444D81, (DWORD)mapptr_2);
