@@ -1,7 +1,8 @@
 # DECOMP_STATE — session state for the decompilation workflow
 
 Read this file FIRST, at session start. Companions: DECOMP_TEMPLATE.md
-(workflow rules) and DECOMP_HIERARCHY.md (verified class hierarchy).
+(workflow rules), DECOMP_HIERARCHY.md (verified class hierarchy), and
+DECOMP_GAME_FACTS.md (owner-supplied game-level semantics).
 
 Rules:
 - Entries here are LEADS, never grounding. Anything used in code must be
@@ -1503,3 +1504,226 @@ authoritative.)
   disposition; the only waiver is owner-directed with the //
   <PATCH_ID> marker convention; the scan is scripted. GATE: 9/9 TUs
   0 errors under x86.
+ - TRIBE MASTER-BUILDING check_placement (owner-approved + WRITTEN
+   2026-11-15): @0x005C7B50 [0x5C7B50,0x5C7FDF) (lst :763746/:764208,
+   retn 30h). Building 20/22 exports owned; grand total 168 hooks.
+   FULL ASM PASS vs pseudocode (.c:391470-391705): phase-faithful.
+   Decode: group 34/36 (Undeployed Cannon/Cannon) full-arg forward to
+   the base; base pre-pass with can_be_built_on_flag=0,
+   check_objects=OUR check_movible_objects, check_movible=0 (push
+   order 0x5C7B96-0x5C7BBA — IDA frame labels arg_24/check_objects
+   swapped vs the prototype; push order decides); the ORIGINAL
+   check_objects gates the +-8.0 tile scan (flt_657DC0 = 8.0, lst
+   :987837; row-major, 32B tiles, TileObject_Count @13, Object_List
+   @20) with gates: id-50 master (moving speed@208 never blocks;
+   semantics UNKNOWN — see DECOMP_GAME_FACTS.md registry),
+   Gate(8)-vs-own-Wall(6) same-owner, desolid TRIBE_Building_Object
+   blockers (mutual allies AND gameType==6 pass; asm 0x5C7D88-0x5C7DFD
+   owner-id ladder), can_be_built_on==1 skip, group-31 terrain gate
+   (BAKED-IN PATCH), rz substitution (type-80 id!=50 / Fish 23 /
+   Shore Fish 25 -> 1.0), blocker gate rz>0 || id==50 || Fruit Bush
+   27, AABB strict < / > (test ah,1 / test ah,41h) ->
+   obstruction=obj->id, return 6. NEW GROUNDINGS: TRIBE_Player/
+   RGE_Player prefix identity through id @160 (idb_types.h:699-783 vs
+   :3668-3747) + vtbl slot-9 isAlly parity (:7128/:1102, both +0x24);
+   RGE_Tile.terrain_type @+5 as the group-31 gate input (jump table
+   byte_5C7FEC/off_5C7FE4 byte-verified = {10,13,17,18,19,20,21}, lst
+   :764212-764217); obj+40 = obj->tile (RGE_Static_Object @1450).
+   COLLISION (step-3b scripted scan): terrain.cpp:1452 setHook
+   0x005C7E2C (onCheckPlacement_carbon) hooks the group-31 switch
+   decode MID-FUNCTION — BAKED IN (owner-approved): the replacement
+   calls checkCarbonTerrainBuildingBlock (terrain.cpp:1026,
+   version-gated: legacy set below DAT v9, isCarbon at v9+); patch
+   call site retired (commented in place). RE-RUN AUDIT (carbon-
+   family lens): draw [0x5C7880,0x5C7B23) + check_placement_for_units
+   [0x5C8000,0x5C832F) -> 0 collisions, 0 naked-stub hits.
+   NEW FILE: DECOMP_GAME_FACTS.md (owner-supplied object_group
+   registry 0-64 + magic-constant findings registry, owner-directed;
+   companion-list edits in STATE/TEMPLATE/HIERARCHY). WRITTEN +
+   post-write verification: x86 compile gate 2/2 TUs 0 errors
+   0 warnings (TRIBE_Master_Building_Object.cpp + terrain.cpp);
+   defs/refs 20/20; bare base_game 0; pointer-walk 0 (indexed
+   obj_list[i]); no real literal loop bounds. NEXT: check_placement_
+   for_units @0x5C8000 (direct caller TRIBE_Action_Build__set_state
+   +58D, lst :599063), draw @0x5C7880; then TRIBE_Master_Tree_Object
+   enumeration+decode — master-family COMPLETE (10 tiers).
+ - TRIBE MASTER-BUILDING check_placement_for_units (owner-approved +
+   WRITTEN 2026-11-15): @0x005C8000 [0x5C8000,0x5C832F) (lst
+   :764224/:764524, retn 14h = 5 stack args). Building 21/22 exports
+   owned; grand total 169 hooks. FULL ASM PASS vs pseudocode
+   (.c:391707-391858): faithful everywhere (the (__int64) renders =
+   the known __ftol artifact). Standalone scan — NO base call, NO
+   early exit: +-8.0 rectangle over the placed object's OWN
+   radius_x/radius_y (no construction-radius branch); per object:
+   ignore_obj/ignore_obj2/state<7 gates; id-50 master moving-skip
+   (same as check_placement); desolid TRIBE_Building_Object gate
+   SIMPLER than check_placement — no group 34/36 exclusion, mutual
+   allies alone pass, NO gameType call (asm 0x5C8160-0x5C81A3);
+   can_be_built_on==1 skip; blocker gate written as a POSITIVE WRAP
+   (orx>0 && ory>0 && (rz>0 || id==50 || Fruit Bush 27)) — restructure
+   of the asm skip-chain 0x5C81B6-0x5C81FA, NaN-faithful, matches the
+   shipped RGE/Combat scan house form; AABB |dx| < radius_x &&
+   |dy| < radius_y, both STRICT < (test ah,1, asm 0x5C823E/0x5C8251).
+   Collision action: obj->vfptr->get_target_obj(obj) (RGE_Static_
+   ObjectVtbl slot 82 = +0x148, idb_types.h:4013; hand-counted vs the
+   recycle_in_to_game @0x74 = index-29 calibration) != ignore_obj AND
+   master_type >= 30 AND object_state == 2 -> RGE_Moving_Object__
+   evacuate_area (idb_functions.h:2209, 0x004A6BA0, UNHOOKED = the
+   asm's direct call; x1=(col-rx)-2.0 [flt_6552F4 = 2.0, lst
+   :986657], y1=(row-ry)-1.0, x2=(rx+col)+1.0, y2=(ry+row)+1.0 —
+   push order + float left-association asm-exact); found=1 and the
+   scan CONTINUES (several units can evacuate); result =
+   found ? 6 : 0. NEW GROUNDINGS: RGE_Static_ObjectVtbl slot 82
+   get_target_obj; RGE_Moving_Object__evacuate_area prototype.
+   Collision audit: 0 (this session's scripted 3-range re-run +
+   naked-stub census + address grep — dead profiler table only,
+   functionlist.cpp:5393). WRITTEN + post-write verification: x86
+   compile gate 0 errors 0 warnings; defs/refs 2/2; installer 21
+   hooks; bare base_game 0; pointer-walk 0; no literal loop bounds;
+   u8 return vs prototype. NEXT: draw @0x5C7880 (the last Building
+   export); then TRIBE_Master_Tree_Object enumeration+decode —
+   master-family COMPLETE (10 tiers).
+ - TRIBE MASTER-BUILDING draw (owner-approved + WRITTEN 2026-11-15):
+   @0x005C7880 [0x5C7880,0x5C7B23) (lst :763432/:763711, retn 20h = 8
+   stack args, void). BUILDING TIER COMPLETE — 22/22 exports owned;
+   grand total 170 hooks. FULL ASM PASS vs pseudocode (.c:391315-391461).
+   STRUCTURAL FINDING: Building draw takes its sprite POLYMORPHICALLY —
+   this->vfptr->get_sprite(this, 0) (vtbl slot 1 = +0x04, pushed 0 =
+   null RGE_Static_Object*) — unlike the Static base draw's direct
+   this_->sprite field read; the slot is the construction-aware sprite
+   selector. Master-side vtbl ordering VERIFIED CONSISTENT: Building
+   vtbl (idb_types.h:15842-15879) mirrors the base master vtbl
+   (:3579-3608) slot-for-slot (slot 0 do_i_care_about_power, slot 1
+   get_sprite) — a separate family from the runtime-side RGE_Static_
+   ObjectVtbl ordering (:3929; slot-29 recycle_in_to_game @0x74
+   calibration). Decode: facet selection (building_connect_flag @468
+   -> (facet param != 0) ? facet - 1 : 2, else building_facet @470);
+   RGE_Sprite__draw(facet_sel, frame, x, y, x, y, color, area, 0xA, 0);
+   CONNECTED-NEIGHBOR OVERLAY gated on on_build_make_obj @474 !=
+   0xFFFF && sprite->draw_list_num @66 > 1 — walks sprite->draw_list
+   @68 as RGE_Picture_List entries (idb_types.h:6356-6363: sprite @4,
+   offset_x @8, offset_y @10, stride sizeof = 16 asm-calibrated; the
+   RGE_Sprite fields :2989-2990 hand-walk-calibrated on id @130
+   :3001): per entry skip self-reference, skip offset_y == 0
+   (offset_x NOT tested), SDI_Draw_Line = saved + offset_y
+   (repo constant test.cpp:1418 = .data:0077FA64, lst :1105270 —
+   extern int* const pattern per the unified_map_offsets precedent),
+   draw the neighbor with the SAME selected facet (entry->facet @12
+   unused by the asm); the global restores on every exit path that
+   entered the loop (0x5C79B4-79B8); count <= 1 exits before any
+   modification. TWO RESTRUCTURES documented: dead count <= 0
+   re-guard collapsed (0x5C7920-7929; count > 1 implies count > 0);
+   the asm's per-iteration computed-entry-address test
+   (0x5C793F-794A) = the compiler's partial hoist of the null-
+   draw_list guard, hoisted to a single entries null-check (the i > 0
+   in-loop deref with a null table is UB in the original; identical
+   exit path through the restore). Outline pass = the Static base
+   draw's verbatim shape: 4 get_point corners (+rx,-ry)/(+rx,+ry)/
+   (-rx,+ry)/(-rx,-ry) on (*base_game)->world->map, two AddGDINode
+   passes (+1 offsets/DrawColor 0/SortLine y+1, then exact/
+   frame_color/SortLine y; GDI_Type 1, DrawLevel 0x0B). Param-slot
+   reuse -> dedicated locals per the Static draw precedent. Collision
+   audit: 0 (session 3-range re-run; functionlist.cpp:5390 dead-table
+   footnote only). WRITTEN + post-write verification: x86 compile gate
+   0 errors 0 warnings; defs/refs 2/2; installer 22 hooks (COMPLETE);
+   base_game sweep 0 bare / 1 canonical code site; pointer-walk 0;
+   SDI_Draw_Line extern + 3 code uses. NEXT: TRIBE_Master_Tree_Object
+   enumeration + decode (6 exports @0x5C9780+, child of Static,
+   master_type 15 — DECOMP_HIERARCHY.md tree note) — then the
+   master-family project is COMPLETE (all 10 tiers).
+ - TRIBE MASTER-TREE TIER — MASTER-FAMILY PROJECT COMPLETE (owner-
+   approved + WRITTEN 2026-11-15): NEW CLASS FILE src/engine/object/
+   TRIBE_Master_Tree_Object.{h,cpp} + install_object.cpp wiring +
+   vcxproj/.filters entries. 6/6 exports owned (scalar_dtor/ctor2-4/
+   make_new_obj/make_new_master — exactly the full IDB export list,
+   extents lst :766699-:767049; NO setup/copy/modify/save overrides —
+   the tier inherits Static's, so the Static hooks cover that
+   dispatch): the THINNEST tier. Shapes: scalar deleting dtor =
+   Static destructor call (the asm's j_ thunk 0x5C97A0 -> our idb
+   constant 0x0048D200 :1914, hook-routed) + flags&1 ->
+   operator_delete_internal, returns this (void*, :5140); ctor2/3/4 =
+   base Static ctorN(do_setup=0) + Tree vfptr (0x006674A4) +
+   if(do_setup) STATIC setupN (the asm calls the base setups directly
+   — the Animated-ctor shape) + master_type = RGE_MASTER_TYPE_TREE
+   (15, byte @+4); SEH folds -> Static destructor (chunks
+   0x646780/A0/C0 — the immediate base, ladder verified); make_new_obj
+   = NO recycle path, operator_new_internal(sizeof(TRIBE_Tree_Object))
+   + runtime TRIBE_Tree_Object ctor1 (:4084, 0x00564DB0, tobj = this
+   master, do_setup = 1); make_new_master = operator_new_internal(
+   sizeof(TRIBE_Master_Tree_Object)) + Static COPY-CTOR(do_setup=0) +
+   vfptr + Static setup + master_type = 15 AFTER the setup (asm
+   0x5C9A03 — later store wins; differs from Combat/Building whose
+   derived setups store it themselves). SIZEOF VERIFICATIONS:
+   TRIBE_Tree_Object = RGE_Static_Object mirror (idb_types.h
+   :21889-21940 vs :1438-1488) = 180 = 0xB4; TRIBE_Master_Tree_Object
+   = Static master mirror ending at outline_radius_z, no extension
+   (:22170-22250) = 208 = 0xD0 (the identical walk verified at 208 in
+   the Static round). Caller coverage: ctor2/3/4 <- TRIBE_Master_
+   Player__load_master_object/load_object + TRIBE_Player__load_master_
+   object (the Tree DAT-load paths, lst :766729/:766795/:766866);
+   dtor/factories vftable-dispatched. GATE SELF-CATCH: make_new_
+   master's setup call shipped with this_ casted but new_master
+   uncast — C2664 at the gate, fixed (both args casted per the
+   cross-class rule), re-gated clean. Collision audit: 0 overlaps x6
+   (scripted writer scan + address grep — dead profiler table only,
+   functionlist.cpp:5414-5421 incl. the j_ thunk entry 0x5C97A0).
+   WRITTEN + post-write verification: x86 compile gate 0 errors
+   0 warnings on BOTH touched TUs (Tree cpp + install_object.cpp);
+   defs/refs 6/6 (+3 benign comment mentions: the routing note and
+   the two operator_new sizeof notes); installer 6 hooks; all 12
+   Static-family calls casted (1 continuation-line form enumerated);
+   return types match prototypes (void* / class-ptr x3 /
+   RGE_Static_Object* / RGE_Master_Static_Object*); base_game 0;
+   pointer-walk 0. HOOK TOTALS (2026-11-15): Static 37, Tree 6,
+   Animated 17, Moving 17, Action 17, Combat 17, Doppleganger 10,
+   Missile 13, TRIBE_Master_Combat 20, TRIBE_Master_Building 22 =
+   176 master-family hooks. MASTER-FAMILY PROJECT COMPLETE — all 10
+   tiers owned and hook-routed. Beyond it (per the ledger): runtime
+   TRIBE_ classes' methods, Production_Queue_Record, the five derived
+   ctor1 copy-constructors (optional), and the runtime-side
+   TRIBE_Tree_Object (:4084) with the runtime tree decode.
+ - DESYNC FIX — TRIBE_Master_Building_Object::check_placement_new
+   desolid gate (owner-reported desync 2026-11-15, ROOT-CAUSED +
+   fixed): the written desolid gate carried an INVENTED
+   `gameType != 6` disjunct — a decode-time conflation of the desolid
+   block (0x5C7D34-0x5C7D88, which contains NO gameType call) with
+   the adjacent own-moving gate's gameType test (0x5C7DD3). TRUE asm
+   semantics: desolid Building(80) blockers (group not 34/36) are
+   SKIPPED unless player and owner are mutual allies; allies FALL
+   THROUGH into the own-moving gate (D88) and the rest of the
+   blocking pipeline (typically state != 2 there, so they reach
+   can_be_built_on/group-31/rz/AABB and CAN block). The written code
+   skipped allied desolid blockers whenever gameType != 6 (every
+   standard game) -> placement decisions diverged from the original
+   -> desync. FIX: the gameType disjunct removed; allies fall through
+   (the sequential own-moving gate preserves the D88 flow — verified
+   path-for-path, including ally-failure -> owner-id checks). Header
+   comments corrected. Re-gated x86 0 errors 0 warnings.
+   COMBAT(70) check_placement_new FULL RE-WALK (owner-directed, same
+   session; asm 0x5C92E0-0x5C976F vs the written replacement,
+   gate-by-gate): FAITHFUL — no divergence. Verified: the base
+   pre-pass passes can_be_built_on_flag THROUGH (not 0) and zeroes
+   check_objects/check_movible (asm push order 0x5C92FB-0x5C9328);
+   the scan gate = check_objects (+28); the radii-zero gate returns 0;
+   the group-27 radius_z STORE (0x5C9429: mov dword [edi+44h], 1.0)
+   is asm-real — a persistent write, faithful in the replacement;
+   the !can_be_built_on_flag && radius_z <= 0 -> base_result gate;
+   the fly-over branch (both movement_type @+120 == 1 -> AABB vs
+   master radii only -> return 6 / continue) precedes the
+   blocker_is_enterable setup (ebp = 0 per object at loop top, set at
+   0x5C9547); can_be_built_on == 1 -> blocker_is_enterable; THE
+   DESOLID SKIP HERE IS UNCONDITIONAL (no ally check — type 80, group
+   not 34/36, desolid -> continue, 0x5C9564-0x5C956C) — legitimately
+   different from the Building tier's ally-gated version;
+   check_movible 1/2 gates (type 70; type 70 + runtime speed @180
+   > 0 via TRIBE_Combat_Object — guard = master_type == 70); rz
+   substitution (group 27 OR rz==0 && type 80 && id != 50 -> 1.0
+   local); blocker gate orx/ory/rz/this->radius_z all > 0; AABB
+   strict; obstruction write; prog_mode @+0x1DC == 7 ->
+   RGE_Game_World__object re-fetch -> master_obj_id @+0x428 != -1 ->
+   runtime master_type >= 70 -> canPlayerObjectBeEntered(runtime,
+   get_player(*base_game), master_obj_id, 0) == 1 -> return 9;
+   blocker_is_enterable == 0 -> return 6 else continue.
+   RGE_Master_Static_Object__check_placement_new (the grandbase) NOT
+   re-walked this round (predates this session; triple-verified with
+   an owner re-verification round) — available on request.

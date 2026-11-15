@@ -661,6 +661,9 @@ hierarchy, open suspicions, and the function ledger. Rules:
   (constraint 9).
 * Every entry must carry its citation and a re-verify hint — entries rot;
   the hint is the invalidation mechanism.
+* Companion: `cheatdll/src/idb/DECOMP_GAME_FACTS.md` — owner-supplied
+  game-level semantics (object_group registry, magic-constant findings
+  registry). Context for naming/comments only; never grounding.
 
 ### IDA pseudocode
 {{PSEUDOCODE — optional: if omitted, the agent pulls the body from

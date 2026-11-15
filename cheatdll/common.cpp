@@ -28,10 +28,15 @@ int* const map_current_y = (int* const)0x006ACCE8;
 int* const SDI_Draw_Level = (int* const)0x0077FA68;
 int* const SDI_Object_ID = (int* const)0x0077FA6C;
 int* const SDI_Capture_Info = (int* const)0x0077FA70;
+int* const SDI_Draw_Line = (int* const)0x0077FA64;
 
-int* const Global_Draw_Flags = (int* const)0x0077FA60;
+bool* const VIEW_Enable_Occlusion = (bool* const)0x007A1C48;
+bool* const VIEW_Object_Occludes_Others = (bool* const)0x007A1C49;
+int* const VIEW_Occlusion_Color = (int* const)0x007A1C4C;
 int* const VIEW_map_scr_x_offset = (int* const)0x007A1C50;
 int* const VIEW_map_scr_y_offset = (int* const)0x007A1C54;
+
+int* const Global_Draw_Flags = (int* const)0x0077FA60;
 
 int* const UC_Target_Obj = (int* const)0x007A1C88;
 int* const UC_Save_Last_Obj = (int* const)0x0069B830;

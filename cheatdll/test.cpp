@@ -1412,11 +1412,6 @@ void(__cdecl* ASMSetStaticClipMask)(int, int, int) =
 void(__cdecl* ASMSpecialDraw_Sprite)(int, int, int, int, int, int, int, int) =
 (void(__cdecl*)(int, int, int, int, int, int, int, int))0x006531E0;
 
-bool* const VIEW_Enable_Occlusion = (bool* const)0x007A1C48;
-bool* const VIEW_Object_Occludes_Others = (bool* const)0x007A1C49;
-
-int* const SDI_Draw_Line = (int* const)0x0077FA64;
-int* const VIEW_Occlusion_Color = (int* const)0x007A1C4C;
 */
 
 /*

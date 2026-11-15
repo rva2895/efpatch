@@ -1241,6 +1241,9 @@
     <ClCompile Include="src\engine\object\TRIBE_Master_Building_Object.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine\object\TRIBE_Master_Tree_Object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
     <ClCompile Include="src\engine\map\RGE_Tile.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
