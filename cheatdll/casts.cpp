@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "casts.h"
+#include <cmath>   // modf/abs float overloads (hp-drain handlers below)
 
 //TODO:
 //         1: process getDamage funcion [done?]
@@ -892,10 +893,16 @@ void setCastHooks()
 
     writeData(0x0069E564, "VER 9.9", 8);
 
-    setHook((void*)0x0054B680, unit_remove_unit_extra_destructor);
-    setHook((void*)0x0054C0A0, unit_remove_unit_extra_recycle_out);
-    writeData(0x0054B315, unit_constructor_asm_fix, 18);
-    writeData(0x0054B638, unit_constructor_asm_fix, 18);
+    // retired 2026-11-15: the UNIT_EXTRA lifecycle is baked into the runtime
+    // RGE_Static_Object replacements (src/engine/object/RGE_Static_Object.cpp):
+    //   0x0054B680 destructor  -> removeUnitExtra folded into RGE_Static_Object__destructor_new
+    //   0x0054C0A0 recycle_out -> removeUnitExtra folded into RGE_Static_Object__recycle_out_of_game_new
+    //   0x0054B315 ctor        -> the unit_constructor_asm_fix dword-clears folded into RGE_Static_Object__RGE_Static_Object_new
+    //   0x0054B638 ctor_read   -> folded into RGE_Static_Object__RGE_Static_Object_read_new
+    // setHook((void*)0x0054B680, unit_remove_unit_extra_destructor);
+    // setHook((void*)0x0054C0A0, unit_remove_unit_extra_recycle_out);
+    // writeData(0x0054B315, unit_constructor_asm_fix, 18);
+    // writeData(0x0054B638, unit_constructor_asm_fix, 18);
 
     setHook((void*)0x0054EF00, processUnitHook);
 

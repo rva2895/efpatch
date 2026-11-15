@@ -267,8 +267,15 @@ void setTerrainGenHooks(int ver)
         setHook((void*)0x00557DAA, onFarmTerrain);
         setHook((void*)0x005FD0F3, onFarmPick);
         setHook((void*)0x00557C4E, onFarmDead1);
-        setHook((void*)0x00553BB7, onFarmDead2);
-        setHook((void*)0x005539C8, onFarmDead3);
+        // retired 2026-11-15: baked into the TRIBE_Building runtime
+        // destructor/recycle replacements (the onFarmDead2/3 skip-set
+        // extension, terrain 228 added to {8, 31} - see the // FARM_DEAD
+        // markers in src/engine/object/TRIBE_Building_Object.cpp); after
+        // hooking the destructor/recycle entries these mid-function
+        // setHooks are dead code (targets 0x00553BB7 in recycle_out_of_
+        // game, 0x005539C8 in destructor)
+        //setHook((void*)0x00553BB7, onFarmDead2);
+        //setHook((void*)0x005539C8, onFarmDead3);
 
         setHook((void*)0x00557DE5, onFoundationTerrain);
     }

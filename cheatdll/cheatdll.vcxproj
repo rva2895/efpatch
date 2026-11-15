@@ -627,6 +627,14 @@
     <ClCompile Include="src\engine\object\TRIBE_Master_Building_Object.cpp" />
     <ClCompile Include="src\engine\object\TRIBE_Master_Tree_Object.cpp" />
     <ClCompile Include="src\engine\object\RGE_Static_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Animated_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Doppleganger_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Moving_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Action_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Combat_Object.cpp" />
+    <ClCompile Include="src\engine\object\TRIBE_Combat_Object.cpp" />
+    <ClCompile Include="src\engine\object\TRIBE_Building_Object.cpp" />
+    <ClCompile Include="src\engine\object\RGE_Missile_Object.cpp" />
     <ClCompile Include="src\engine\object\install_object.cpp" />
     <ClCompile Include="src\engine\install_engine.cpp" />
     <ClCompile Include="src\engine\map\RGE_Tile.cpp" />
