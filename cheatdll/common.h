@@ -123,10 +123,15 @@ extern int* const map_current_y;
 extern int* const SDI_Draw_Level;
 extern int* const SDI_Object_ID;
 extern int* const SDI_Capture_Info;
+extern int* const SDI_Draw_Line;
 
-extern int* const Global_Draw_Flags;
+extern bool* const VIEW_Enable_Occlusion;
+extern bool* const VIEW_Object_Occludes_Others;
+extern int* const VIEW_Occlusion_Color;
 extern int* const VIEW_map_scr_x_offset;
 extern int* const VIEW_map_scr_y_offset;
+
+extern int* const Global_Draw_Flags;
 
 extern int* const UC_Target_Obj;
 extern int* const UC_Save_Last_Obj;

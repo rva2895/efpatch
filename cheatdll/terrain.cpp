@@ -1449,7 +1449,9 @@ void setExtraTerrainHooks()
     setHook((void*)0x005006F4, terrain_sound_fix);
 
     setHook((void*)0x005856DE, onResourceFound_carbon);
-    setHook((void*)0x005C7E2C, onCheckPlacement_carbon);
+    // retired 2026-11-15: baked into TRIBE_Master_Building_Object__check_placement_new
+    // (src/engine/object/TRIBE_Master_Building_Object.cpp), see 0x005C7E2C
+    // setHook((void*)0x005C7E2C, onCheckPlacement_carbon);
 
     // retired 2026-11-15: baked into RGE_Master_Static_Object__check_
     // placement_new (src/engine/object/RGE_Master_Static_Object.cpp),

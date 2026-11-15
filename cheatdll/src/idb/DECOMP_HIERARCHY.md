@@ -1,7 +1,8 @@
 # DECOMP_HIERARCHY — verified class hierarchy for the master-object family
 
-Companion to DECOMP_STATE.md (session state) and DECOMP_TEMPLATE.md
-(workflow rules). This file holds the structural class-relationship
+Companion to DECOMP_STATE.md (session state), DECOMP_TEMPLATE.md
+(workflow rules), and DECOMP_GAME_FACTS.md (game-level semantics).
+This file holds the structural class-relationship
 facts: derivation trees, per-tier layout identities, and the per-edge
 evidence that grounds them.
 
@@ -17,6 +18,7 @@ Rules (same as the state file):
 
 ```
 RGE_Master_Static_Object   (10, 208 = 0xD0)
+├─ TRIBE_Master_Tree_Object   (15, 208 = 0xD0, +0 — Static mirror)
 └─ RGE_Master_Animated_Object   (20, 212 = 0xD4)
    ├─ RGE_Master_Doppleganger_Object   (25, 212 = 0xD4, +0)
    └─ RGE_Master_Moving_Object   (30, 260 = 0x104)
@@ -27,15 +29,25 @@ RGE_Master_Static_Object   (10, 208 = 0xD0)
                └─ TRIBE_Master_Building_Object   (80 BUILDING, 552 = 0x228)
 ```
 
-- TREE (15): TRIBE_Master_Tree_Object EXISTS (discovered 2026-11-15 in
-  the check_placement asm neighborhood, 0x5C9780+). 6 exports
-  (scalar_deleting_destructor 0x5C9780, ctor2/3/4 0x5C97B0/0x5C9830/
-  0x5C98B0, make_new_obj 0x5C9930, make_new_master 0x5C99B0);
-  struct idb_types.h:22170, Vtbl :22254. Child of Static (ctorN calls
-  RGE_Master_Static_Object ctorN, master_type = 15 per the pseudocode).
-  NOT YET OWNED — unenumerated beyond the 6 above; next-session scope.
-  The earlier "TREE has NO exported class" note was WRONG (the class
-  was missed because it carries the TRIBE_ prefix like Combat/Building).
+- TREE (15): TRIBE_Master_Tree_Object — OWNED 2026-11-15. Exactly 6
+  exports in [0x5C9780, 0x5C9A20) (scalar_deleting_destructor,
+  ctor2/3/4, make_new_obj, make_new_master — idb_functions.h:5140-5145;
+  extents lst :766699/:766717, :766728/:766785, :766794/:766856,
+  :766865/:766927, :766936/:766992, :767001/:767049); struct
+  idb_types.h:22170 (Static master mirror, 208 = 0xD0), Vtbl :22254
+  (.rdata:006674A4), runtime struct :21889 (RGE_Static_Object mirror,
+  180 = 0xB4). Child of Static: ctorN calls RGE_Master_Static_Object
+  ctorN(do_setup=0) + Tree vfptr + if(do_setup) STATIC setupN (Tree
+  has NO setup/copy/modify/save overrides — inherits Static's) +
+  master_type = 15; SEH funclets jmp RGE_Master_Static_Object__
+  destructor (chunks 0x646780/A0/C0); make_new_master = Static
+  copy-ctor(do_setup=0) + vfptr + Static setup + master_type = 15
+  AFTER the setup (the Static setup sets 10, Tree overrides — asm
+  0x5C9A03); make_new_obj has NO recycle path, allocates 0xB4 and
+  calls the runtime TRIBE_Tree_Object ctor1 (idb_functions.h:4084,
+  0x00564DB0, tobj = the Tree master). The earlier "TREE has NO
+  exported class" note was WRONG (the class was missed because it
+  carries the TRIBE_ prefix like Combat/Building).
 - Master_type values are discriminant REGISTRY values, not depth
   indicators: Missile (60) sits numerically between Combat_Base (50)
   and Combat (70) but is a SIBLING side branch, not a chain link
@@ -74,6 +86,7 @@ Every edge is verified by FOUR evidence classes:
 
 | child (master_type) | child ctors (hooked) | base ctor called | SEH funclet jmp target | extension (offsets) |
 |---|---|---|---|---|
+| Tree (15) | 0x5C97B0/0x5C9830/0x5C98B0 | RGE_Master_Static_Object ctorN | chunks 0x646780/A0/C0 -> RGE_Master_Static_Object__destructor | +0 (Static mirror 208 = 0xD0; no overrides beyond the 6 owned exports — inherits Static's setups/copy/modify/save) |
 | Animated (20) | 0x4885C0/0x488640/0x4886D0 (ctor1 0x488520) | RGE_Master_Static_Object ctorN | chunks 0x642030/50/70 -> RGE_Master_Static_Object__destructor | +4: speed @208 |
 | Doppleganger (25) | 0x48A370/0x48A3F0/0x48A480 | Animated ctorN | 0x642190/0x6421B0/0x6421D0 -> RGE_Master_Animated_Object__destructor | +0 (vfptr swap; dopple state lives in the runtime class) |
 | Moving (30) | 0x48AE10/0x48AEA0/0x48AF40 | Animated ctorN | 0x6422F0/10/30 -> RGE_Master_Animated_Object__destructor | +48: move_sprite@212, run_sprite@216, turn_speed@220, size_class@224, obj_trail_id/options/spacing@226-235, move_algorithem@236, m* yaw block@240-259 |
@@ -102,6 +115,7 @@ extends the Combat(70) tier.
 | tier | vftable (.rdata) | master struct @idb_types.h | runtime struct @idb_types.h |
 |---|---|---|---|
 | Static | 0x0065B40C | :1203 | :1438 |
+| Tree | 0x006674A4 | :22170 | :21889 |
 | Animated | 0x0065AF00 | :14875 | :16039 |
 | Doppleganger | 0x0065B100 | :21766 | :21468 |
 | Moving | 0x0065B304 | :11025 | :6690 |
@@ -120,8 +134,8 @@ Doppleganger -> RGE_Doppleganger_Object).
 
 ## master_type discriminant registry (owner-supplied)
 
-10 STATIC, 15 TREE (TRIBE_Master_Tree_Object, 6+ exports — see the
-tree note above), 20 ANIMATED, 25 DOPPLEGANGER,
+10 STATIC, 15 TREE (TRIBE_Master_Tree_Object — exactly 6 exports,
+OWNED; see the tree note above), 20 ANIMATED, 25 DOPPLEGANGER,
 30 MOVING, 40 ACTION, 50 COMBAT_BASE, 60 MISSILE, 70 COMBAT,
 80 BUILDING. Enum RGE_MASTER_TYPE lives in
 src/engine/object/RGE_Master_Static_Object.h (IDA did not export it).

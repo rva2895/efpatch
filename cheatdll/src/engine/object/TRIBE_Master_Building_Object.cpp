@@ -6,6 +6,15 @@
 // with a garrison_heal_rate field, version-gated on the read side.
 extern int current_save_game_version;
 
+// Group-31 terrain gate helper from the onCheckPlacement_carbon patch
+// (terrain.cpp:1026, __fastcall): version-gated - the legacy terrain set
+// {10,13,17,18,19,20,21} below DAT v9, isCarbon(terrain) at v9+.
+extern bool __fastcall checkCarbonTerrainBuildingBlock(unsigned __int8 terrain);
+
+// Sort-line scratch global used by the sprite draw path
+// (.data:0077FA64; repo constant: test.cpp:1418).
+extern int* const SDI_Draw_Line;
+
 // .rdata vftable of TRIBE_Master_Building_Object
 // (battlegrounds_x2.lst: .rdata:00667280 TRIBE_Master_Building_Object__vftable)
 static TRIBE_Master_Building_ObjectVtbl* const tribe_master_building_object_vftable =
@@ -663,16 +672,511 @@ unsigned __int8 __fastcall TRIBE_Master_Building_Object__alignment_new(
     return RGE_Master_Static_Object__alignment((RGE_Master_Static_Object*)this_, col, row, world, 1);
 }
 
-// NOTE: the three remaining large gameplay functions are intentionally
-// NOT replaced yet — each is a dedicated multi-phase decode (per the RGE
-// check_placement precedent) and they cross-call:
-//   draw                              @ 0x005C7880
-//   check_placement                   @ 0x005C7B50  (calls TRIBE_Master_
-//                                       Combat_Object__check_placement
-//                                       twice, +6A/+483)
-//   check_placement_for_units         @ 0x005C8000
-// TRIBE_Master_Combat_Object::check_placement @ 0x005C92E0 (the shared
-// implementation) IS owned — see the TRIBE_Master_Combat_Object.cpp.
+// Replacement for TRIBE_Master_Building_Object::check_placement
+// Original: TRIBE_Master_Building_Object__check_placement @ 0x005C7B50
+// (idb_functions.h:5118). Range [0x5C7B50, 0x5C7FDF) (lst :763746 proc /
+// :764208 endp, retn 30h = 12 stack args). ABI: __thiscall - this_ in ECX,
+// unsigned __int8 result. Virtual: entry in
+// .rdata:TRIBE_Master_Building_Object__vftable (lst :763747 DATA XREF);
+// no direct callers in the lst - the entry hook covers all dispatch.
+// Decode (asm 0x5C7B50-0x5C7FDE vs pseudocode .c:391470-391705,
+// instruction-level, every gate reconciled):
+//   - object_group 34/36 (Undeployed Cannon / Cannon) -> full-argument
+//     forward to the base TRIBE_Master_Combat_Object__check_placement
+//     (tail 0x5C7F99): cannons run the Combat(70) placement rules
+//     entirely.
+//   - else base pre-pass (asm push order 0x5C7B96-0x5C7BBA): original
+//     player/col/row/obstructionObject/check_vis/check_flat/check_overlay/
+//     construction_radius_flag, can_be_built_on_flag = 0,
+//     check_objects = OUR check_movible_objects, ignore_obj, 0. Non-zero
+//     result returns directly. (IDA's frame labels arg_24/check_objects
+//     are swapped vs the prototype; the push order decides: +28 =
+//     check_objects, +2C = ignore_obj, +30 = check_movible_objects.)
+//   - when the ORIGINAL check_objects (+28) is set: one extra +-8.0 tile
+//     object scan (flt_657DC0 = 8.0, lst :987837; __ftol conversions and
+//     i16-truncated clamps 0x5C7BF5-0x5C7C7C; row-major over
+//     map_row_offset, 32-byte tiles, TileObject_Count @13, Object_List
+//     @20): ignore_obj / object_state >= 7 gates; id-50 master gate
+//     (semantics not yet supplied — DECOMP_GAME_FACTS.md; moving units
+//     with speed @208 never block); Gate(8)-vs-own-Wall(6) units;
+//     desolid TRIBE_Master_Building_Object blockers (skipped unless
+//     mutual allies; allies fall into the own-moving gate); own moving
+//     state-2 units (skipped unless
+//     not-mutual-allies OR gameType 6, AND owner id non-zero and !=
+//     player id, asm 0x5C7D88-0x5C7DFD); can_be_built_on == 1 skips;
+//     group-31 terrain gate (BAKED-IN PATCH, below); radius_z
+//     substitution (type-80 id!=50 / Fish 23 / Shore Fish 25 -> 1.0,
+//     0x5C7E49-0x5C7E86); gate orx > 0 && ory > 0 && (rz > 0 ||
+//     id == 50 || Fruit Bush group 27, asm 0x5C7EBB-0x5C7EC6); AABB
+//     |dx| < orx + x_radius && ory + y_radius > |dy| (strict < / >,
+//     test ah,1 / test ah,41h at 0x5C7EE2/0x5C7F08/0x5C7F21) ->
+//     *obstructionObject = obj->id, return 6. All exhausted paths return
+//     the base result (0 at every reachable point; asm xor al,al at
+//     0x5C7F77).
+// BAKED-IN PATCH (terrain.cpp:1452, hook point 0x005C7E2C - the group-31
+// switch decode at 0x5C7E29-0x5C7E42): the patched binary routes the
+// terrain gate through checkCarbonTerrainBuildingBlock (terrain.cpp:1026;
+// version-gated: legacy set {10,13,17,18,19,20,21} below DAT v9 - exactly
+// the original jump table byte_5C7FEC/off_5C7FE4 - and isCarbon at v9+).
+// The replacement calls the helper directly: identical behavior on every
+// DAT version. The patch call site is retired in terrain.cpp.
+unsigned __int8 __fastcall TRIBE_Master_Building_Object__check_placement_new(
+    TRIBE_Master_Building_Object* this_, DWORD dummy,
+    RGE_Player* player, float col, float row, int* obstructionObject,
+    unsigned __int8 check_vis, unsigned __int8 check_flat,
+    unsigned __int8 check_overlay, unsigned __int8 construction_radius_flag,
+    unsigned __int8 can_be_built_on_flag, unsigned __int8 check_objects,
+    RGE_Static_Object* ignore_obj, unsigned __int8 check_movible_objects)
+{
+    RGE_Map* map = player->world->map;   // RGE_Player::world @140 (0x8C), RGE_Game_World::map @52 (0x34)
+
+    // Groups 34/36 (Undeployed Cannon / Cannon): cannons use the base
+    // Combat placement rules entirely — full-argument forward
+    // (asm 0x5C7B76/0x5C7B80 -> 0x5C7F99, all 12 stack args verbatim).
+    if (this_->object_group == 34 || this_->object_group == 36)
+    {
+        return TRIBE_Master_Combat_Object__check_placement(
+            (TRIBE_Master_Combat_Object*)this_, player, col, row,
+            obstructionObject, check_vis, check_flat, check_overlay,
+            construction_radius_flag, can_be_built_on_flag, check_objects,
+            ignore_obj, check_movible_objects);
+    }
+
+    // Base pre-pass (asm push order 0x5C7B96-0x5C7BBA): the base runs
+    // with can_be_built_on_flag = 0, check_objects = OUR
+    // check_movible_objects, check_movible_objects = 0.
+    unsigned __int8 base_result = TRIBE_Master_Combat_Object__check_placement(
+        (TRIBE_Master_Combat_Object*)this_, player, col, row,
+        obstructionObject, check_vis, check_flat, check_overlay,
+        construction_radius_flag, 0, check_movible_objects, ignore_obj, 0);
+    if (base_result)
+        return base_result;
+    if (!check_objects)   // the ORIGINAL check_objects (+28 byte, asm 0x5C7BC7)
+        return base_result;
+
+    float x_radius;
+    float y_radius;
+    if (construction_radius_flag)
+    {
+        x_radius = this_->construction_radius_x;   // @108 (0x6C)
+        y_radius = this_->construction_radius_y;   // @112 (0x70)
+    }
+    else
+    {
+        x_radius = this_->radius_x;                // @60 (0x3C)
+        y_radius = this_->radius_y;                // @64 (0x40)
+    }
+
+    // Scan rectangle +-8.0 tiles (flt_657DC0 = 8.0, lst :987837);
+    // __ftol float->int32 + i16 truncation (asm 0x5C7BF5-0x5C7C44).
+    __int16 scan_col0 = (__int16)(int)(col - 8.0f);
+    __int16 scan_row0 = (__int16)(int)(row - 8.0f);
+    __int16 scan_col1 = (__int16)(int)(col + 8.0f);
+    __int16 scan_row1 = (__int16)(int)(row + 8.0f);
+    if (scan_col0 < 0)                          // test bx,bx / jge idiom
+        scan_col0 = 0;
+    if (scan_col1 >= map->map_width)            // movsx di vs [map+8]
+        scan_col1 = map->map_width - 1;
+    if (scan_row0 < 0)
+        scan_row0 = 0;
+    if (scan_row1 >= map->map_height)           // vs [map+0xC]
+        scan_row1 = map->map_height - 1;
+    if (scan_row0 > scan_row1)                  // cmp si / jg -> return 0
+        return base_result;
+
+    for (__int16 ry = scan_row0; ry <= scan_row1; ++ry)
+    {
+        for (__int16 rx = scan_col0; rx <= scan_col1; ++rx)
+        {
+            const RGE_Tile& tile = map->map_row_offset[ry][rx];
+            if (!tile.TileObject_Count)
+                continue;
+            RGE_Static_Object** obj_list = tile.Object_List;
+            for (int i = 0; i < tile.TileObject_Count; ++i)
+            {
+                RGE_Static_Object* obj = obj_list[i];
+                if (obj == ignore_obj)
+                    continue;
+                if (obj->object_state >= 7)     // @88, byte
+                    continue;
+                TRIBE_Master_Combat_Object* master =
+                    (TRIBE_Master_Combat_Object*)obj->master_obj;   // @20
+                // Id-50 master (semantics not yet supplied —
+                // DECOMP_GAME_FACTS.md): moving units never block
+                // placement. Runtime-type evidence: master_type >= 30 ->
+                // the Animated-extension speed @208 exists in every tier
+                // from Moving up (flattened structs mirror their base
+                // prefix; walker-calibrated).
+                if (this_->id == 50
+                    && master->master_type >= RGE_MASTER_TYPE_MOVING
+                    && master->speed > 0.0f)
+                    continue;
+                // Gate (8) placement: the player's own Wall (6) segments
+                // never block — gates are built over walls.
+                // (owner/player dual typing: identical field prefixes;
+                // identity compare only.)
+                if (this_->object_group == 8
+                    && master->object_group == 6
+                    && obj->owner == (TRIBE_Player*)player)
+                    continue;
+                // Desolid Building(80) blockers (group not 34/36):
+                // skipped unless player and owner are mutual allies;
+                // allies fall through into the own-moving gate below.
+                // (NO gameType gate here — the gameType call at
+                // 0x5C7DD3 belongs to the own-moving gate.)
+                // Runtime-type evidence: master_type == 80 ->
+                // TRIBE_Building_Object (factory identity,
+                // DECOMP_HIERARCHY.md); desolid_flag @565.
+                if (master->master_type == RGE_MASTER_TYPE_BUILDING
+                    && master->object_group != 34
+                    && master->object_group != 36
+                    && ((TRIBE_Building_Object*)obj)->desolid_flag)
+                {
+                    if (!player->vfptr->isAlly(player, obj->owner->id)          // vtbl slot 9 (+0x24), idb_types.h:7128
+                        || !obj->owner->vfptr->isAlly(obj->owner, player->id))  // TRIBE_PlayerVtbl slot 9 (+0x24), idb_types.h:1102
+                    {
+                        continue;
+                    }
+                }
+                // Own moving units (state 2): skipped unless not-mutual-
+                // allies OR gameType 6, AND the owner is a real other
+                // player (asm 0x5C7D88-0x5C7DFD).
+                if (master->master_type >= RGE_MASTER_TYPE_MOVING
+                    && obj->object_state == 2
+                    && master->speed > 0.0f)
+                {
+                    if (player->vfptr->isAlly(player, obj->owner->id)
+                        && obj->owner->vfptr->isAlly(obj->owner, player->id)
+                        && TRIBE_Game__gameType((TRIBE_Game*)*base_game) != 6)
+                    {
+                        continue;
+                    }
+                    if (obj->owner->id == 0 || obj->owner->id == player->id)
+                        continue;
+                }
+                if (master->can_be_built_on == 1)   // @91
+                    continue;
+                // Tree/Carbon (31) blockers: terrain-gated.
+                // BAKED: onCheckPlacement_carbon (terrain.cpp:1452) @ 0x005C7E2C -
+                // the patched binary replaces the terrain_type switch
+                // (jump table byte_5C7FEC/off_5C7FE4) with
+                // checkCarbonTerrainBuildingBlock (terrain.cpp:1026):
+                // legacy set {10,13,17,18,19,20,21} below DAT v9,
+                // isCarbon at v9+.
+                if (master->object_group == 31
+                    && obj->object_state > 2
+                    && obj->tile                                    // @40
+                    && !checkCarbonTerrainBuildingBlock(obj->tile->terrain_type))   // @5
+                {
+                    continue;
+                }
+                float rz = master->radius_z;        // @68 (0x44)
+                const float orx = master->radius_x; // @60 (0x3C)
+                const float ory = master->radius_y; // @64 (0x40)
+                const __int16 grp = master->object_group;
+                // Fish (23) / Shore Fish (25): rz forced to 1.0 so
+                // zero-radius fish still block placement.
+                if (rz == 0.0f
+                    && ((master->master_type == RGE_MASTER_TYPE_BUILDING && master->id != 50)
+                        || grp == 23
+                        || grp == 25))
+                {
+                    rz = 1.0f;                      // asm 0x5C7E80 fld const_f_one
+                }
+                // Fruit Bush (27) blockers bypass the rz > 0 test
+                // (id-50 master too).
+                if (orx > 0.0f && ory > 0.0f        // test ah,41h (strict >)
+                    && (rz > 0.0f || master->id == 50 || grp == 27))
+                {
+                    float dx = obj->world_x - col;  // @72
+                    float dy = obj->world_y - row;  // @76
+                    if (dy < 0.0f) dy = -dy;        // test ah,1
+                    if (dx < 0.0f) dx = -dx;
+                    if (dx < orx + x_radius && ory + y_radius > dy)
+                    {
+                        if (obstructionObject)
+                            *obstructionObject = obj->id;   // @16
+                        return 6;
+                    }
+                }
+            }
+        }
+    }
+    return base_result;   // asm xor al,al at 0x5C7F77; base_result is 0 on every reachable path
+}
+
+// Replacement for TRIBE_Master_Building_Object::check_placement_for_units
+// Original: @ 0x005C8000 (idb_functions.h:5119). Range [0x5C8000, 0x5C832F)
+// (lst :764224 proc / :764524 endp, retn 14h = 5 stack args). ABI:
+// __thiscall - this_ in ECX, unsigned __int8 result. Direct caller:
+// TRIBE_Action_Build__set_state+58D (lst :764225, call site :599063).
+// Decode (asm 0x5C8000-0x5C832E vs pseudocode .c:391707-391858,
+// instruction-level): +-8.0 scan rectangle (flt_657DC0 = 8.0, __ftol + i16
+// truncation/clamps 0x5C8039-0x5C80B5) using the placed object's OWN
+// radius_x/radius_y (no construction-radius branch). Per object:
+// ignore_obj / ignore_obj2 / object_state >= 7 gates; id-50 master gate
+// (semantics not yet supplied - DECOMP_GAME_FACTS.md; moving units with
+// speed @208 never block); desolid TRIBE_Building_Object gate (SIMPLER
+// than check_placement: no group 34/36 exclusion, mutual allies alone
+// pass - no gameType call, asm 0x5C8160-0x5C81A3); can_be_built_on == 1
+// skips; blocker gate orx > 0 && ory > 0 && (rz > 0 || id == 50 ||
+// Fruit Bush group 27) as a positive wrap (asm skip-chain 0x5C81B6-
+// 0x5C81FA, truth-table-equivalent restructure; see the shipped RGE /
+// Combat scan forms); AABB |obj->world_x - col| < radius_x &&
+// |obj->world_y - row| < radius_y (both strict <, test ah,1 at
+// 0x5C823E/0x5C8251). NO early exit: a collision sets the found flag and
+// the scan runs to completion (several units can be affected); result =
+// found ? 6 : 0. Collision action (asm 0x5C8256-0x5C82C7):
+// obj->vfptr->get_target_obj(obj) (RGE_Static_ObjectVtbl slot 82 =
+// +0x148, idb_types.h:4013) != ignore_obj AND master_type >= 30 AND
+// object_state == 2 -> RGE_Moving_Object::evacuate_area(obj,
+// (int)(col - radius_x - 2.0), (int)(row - radius_y - 1.0),
+// (int)(radius_x + col + 1.0), (int)(radius_y + row + 1.0))
+// (idb_functions.h:2209 @ 0x004A6BA0, unhooked - the asm's direct call;
+// flt_6552F4 = 2.0, lst :986657; arg order verified against the asm push
+// order, float left-association (a + b) + 1.0 preserved).
+// Runtime-type evidence: master_type >= 30 -> the runtime object is
+// RGE_Moving_Object or a derived tier (flat structs mirror their base
+// prefix; walker-calibrated) - the evacuate_area cast.
+unsigned __int8 __fastcall TRIBE_Master_Building_Object__check_placement_for_units_new(
+    TRIBE_Master_Building_Object* this_, DWORD dummy,
+    RGE_Player* player, float col, float row,
+    RGE_Static_Object* ignore_obj, RGE_Static_Object* ignore_obj2)
+{
+    RGE_Map* map = player->world->map;   // RGE_Player::world @140 (0x8C), RGE_Game_World::map @52 (0x34)
+
+    const float radius_x = this_->radius_x;   // @60 (0x3C)
+    const float radius_y = this_->radius_y;   // @64 (0x40)
+
+    // Scan rectangle +-8.0 tiles; __ftol float->int32 + i16 truncation
+    // (asm 0x5C8039-0x5C8077), clamps identical to check_placement.
+    __int16 scan_col0 = (__int16)(int)(col - 8.0f);
+    __int16 scan_row0 = (__int16)(int)(row - 8.0f);
+    __int16 scan_col1 = (__int16)(int)(col + 8.0f);
+    __int16 scan_row1 = (__int16)(int)(row + 8.0f);
+    if (scan_col0 < 0)
+        scan_col0 = 0;
+    if (scan_col1 >= map->map_width)
+        scan_col1 = map->map_width - 1;
+    if (scan_row0 < 0)
+        scan_row0 = 0;
+    if (scan_row1 >= map->map_height)
+        scan_row1 = map->map_height - 1;
+    if (scan_row0 > scan_row1)                  // cmp si,ax / jg -> return 0
+        return 0;
+
+    unsigned __int8 found = 0;                  // var_29
+    for (__int16 ry = scan_row0; ry <= scan_row1; ++ry)
+    {
+        for (__int16 rx = scan_col0; rx <= scan_col1; ++rx)
+        {
+            const RGE_Tile& tile = map->map_row_offset[ry][rx];
+            if (!tile.TileObject_Count)
+                continue;
+            RGE_Static_Object** obj_list = tile.Object_List;
+            for (int i = 0; i < tile.TileObject_Count; ++i)
+            {
+                RGE_Static_Object* obj = obj_list[i];
+                if (obj == ignore_obj || obj == ignore_obj2)
+                    continue;
+                if (obj->object_state >= 7)     // @88, byte
+                    continue;
+                TRIBE_Master_Combat_Object* master =
+                    (TRIBE_Master_Combat_Object*)obj->master_obj;   // @20
+                // Id-50 master (semantics not yet supplied - DECOMP_GAME_
+                // FACTS.md): moving units never block. Runtime-type
+                // evidence: master_type >= 30 -> the Animated-extension
+                // speed @208 exists in every tier from Moving up.
+                if (this_->id == 50
+                    && master->master_type >= RGE_MASTER_TYPE_MOVING
+                    && master->speed > 0.0f)
+                    continue;
+                // Desolid Building(80) blockers: mutual allies may place
+                // over them (simpler than check_placement - no group
+                // 34/36 exclusion, no gameType gate). Runtime-type
+                // evidence: master_type == 80 -> TRIBE_Building_Object
+                // (factory identity); desolid_flag @565.
+                if (master->master_type == RGE_MASTER_TYPE_BUILDING
+                    && ((TRIBE_Building_Object*)obj)->desolid_flag)
+                {
+                    if (player->vfptr->isAlly(player, obj->owner->id)          // vtbl slot 9 (+0x24), idb_types.h:7128
+                        && obj->owner->vfptr->isAlly(obj->owner, player->id))  // TRIBE_PlayerVtbl slot 9 (+0x24), idb_types.h:1102
+                    {
+                        continue;
+                    }
+                }
+                if (master->can_be_built_on == 1)   // @91
+                    continue;
+                // Blocker gate (positive wrap of the asm skip-chain
+                // 0x5C81B6-0x5C81FA): Fruit Bush (27) bypasses the
+                // rz > 0 test (id-50 master too).
+                if (master->radius_x > 0.0f          // test ah,41h (strict >)
+                    && master->radius_y > 0.0f
+                    && (master->radius_z > 0.0f || master->id == 50
+                        || master->object_group == 27))
+                {
+                    float dx = obj->world_x - col;   // @72
+                    float dy = obj->world_y - row;   // @76
+                    if (dy < 0.0f) dy = -dy;         // test ah,1
+                    if (dx < 0.0f) dx = -dx;
+                    if (dx < radius_x && dy < radius_y)   // both strict <
+                    {
+                        if (obj->vfptr->get_target_obj(obj) != ignore_obj   // slot 82 (+0x148), idb_types.h:4013
+                            && master->master_type >= RGE_MASTER_TYPE_MOVING
+                            && obj->object_state == 2)
+                        {
+                            // Runtime-type evidence: master_type >= 30 ->
+                            // RGE_Moving_Object or derived (prefix-
+                            // mirrored flat structs).
+                            RGE_Moving_Object__evacuate_area(
+                                (RGE_Moving_Object*)obj,
+                                (int)(col - radius_x - 2.0f),   // flt_6552F4 = 2.0
+                                (int)(row - radius_y - 1.0f),
+                                (int)(radius_x + col + 1.0f),
+                                (int)(radius_y + row + 1.0f));
+                        }
+                        found = 1;   // asm 0x5C82CC; NO early exit
+                    }
+                }
+            }
+        }
+    }
+    return found ? 6 : 0;   // asm 0x5C8312-0x5C8323 / xor al,al at 0x5C8329
+}
+
+// Replacement for TRIBE_Master_Building_Object::draw
+// Original: TRIBE_Master_Building_Object__draw @ 0x005C7880
+// (idb_functions.h:5116). Range [0x5C7880, 0x5C7B23) (lst :763432 proc /
+// :763711 endp, retn 20h = 8 stack args), void result. ABI: __thiscall -
+// this_ in ECX. Virtual: entry in .rdata:TRIBE_Master_Building_Object__
+// vftable (lst :763433 DATA XREF).
+// Decode (asm 0x5C7880-0x5C7B22 vs pseudocode .c:391315-391461,
+// instruction-level):
+//   1. sprite = this->vfptr->get_sprite(this, 0) - the Building vtbl
+//      slot 1 (+0x04, idb_types.h:15845; the pushed 0 is a null
+//      RGE_Static_Object*). POLYMORPHIC sprite selection (buildings
+//      under construction render the construction sprite) - unlike the
+//      Static base draw, which reads this_->sprite directly.
+//   2. facet selection (asm 0x5C78A0-0x5C78C1): building_connect_flag
+//      (@468) set -> (facet param != 0) ? facet - 1 : 2; else
+//      building_facet (@470).
+//   3. RGE_Sprite__draw(sprite, facet_sel, frame, x, y, sx = x, sy = y,
+//      player_color, render_area, min_draw_level 0x0A, debugColumn 0).
+//   4. Connected-neighbor overlay (asm 0x5C78FE-0x5C79B8), gated on
+//      on_build_make_obj (@474) != 0xFFFF and sprite->draw_list_num
+//      (@66) > 1: walk sprite->draw_list (@68) - an array of
+//      RGE_Picture_List (idb_types.h:6356-6363; sprite @4, offset_x @8,
+//      offset_y @10, stride sizeof = 16, asm-calibrated). Per entry:
+//      skip entry->sprite == self (asm 0x5C7950); skip offset_y == 0
+//      (asm 0x5C7955; offset_x is NOT tested); then
+//      SDI_Draw_Line = saved + offset_y (asm 0x5C795D-0x5C7969 - the
+//      repo constant test.cpp:1418 = .data:0077FA64, lst :1105270) and
+//      RGE_Sprite__draw(entry->sprite, facet_sel, frame, x + offset_x,
+//      y + offset_y, same sx/sy, player_color, render_area, 0x0A, 0)
+//      (entry->facet @12 is unused by the asm). The global is restored
+//      to the saved value on every exit path that entered the loop
+//      (asm 0x5C79B4-0x5C79B8); the count <= 1 path exits before any
+//      modification (asm 0x5C790E).
+//      RESTRUCTURES (documented): the asm re-checks count <= 0 after
+//      count > 1 already gated the block (0x5C7920-0x5C7929) - dead
+//      guard, collapsed per the redundant-guard rule (count > 1
+//      implies count > 0); the asm tests the computed entry ADDRESS
+//      each iteration (0x5C793F-0x5C794A) - the compiler's partial
+//      hoist of the null-draw_list guard - hoisted here to a single
+//      entries null-check (identical exit path through the restore;
+//      the in-loop deref at i > 0 with a null table is UB in the
+//      original).
+//   5. draw_frame != 0: selection-outline pass identical to the Static
+//      base draw - project the rectangle corners (+rx,-ry), (+rx,+ry),
+//      (-rx,+ry), (-rx,-ry) (radius_x/radius_y @60/64) through
+//      RGE_Map::get_point on (*base_game)->world->map, then two
+//      DClipInfo_List::AddGDINode outline nodes into SDI_List: a +1
+//      offset pass with DrawColor 0 and SortLine y + 1, then the exact
+//      pass with frame_color and SortLine y; GDI_Type 1, DrawLevel
+//      0x0B, Object_ID = *SDI_Object_ID on both.
+//   RESTRUCTURE (documented, Static draw precedent): the original
+//   reuses the facet/frame/draw_frame/player_color/render_area/x/y
+//   param stack slots as the get_point out buffers; the replacement
+//   uses dedicated locals (params consumed before reuse - identical
+//   behavior).
+void __fastcall TRIBE_Master_Building_Object__draw_new(
+    TRIBE_Master_Building_Object* this_, DWORD dummy,
+    TDrawArea* render_area, __int16 x, __int16 y, RGE_Color_Table* player_color,
+    int facet, int frame, int draw_frame, unsigned __int8 frame_color)
+{
+    RGE_Sprite* sprite = this_->vfptr->get_sprite(this_, 0);   // vtbl slot 1 (+0x04), idb_types.h:15845
+    if (!sprite)
+        return;
+
+    int facet_sel = this_->building_facet;                     // @470 (0x1D6)
+    if (this_->building_connect_flag)                          // @468 (0x1D4)
+    {
+        if (facet)
+            facet_sel = facet - 1;
+        else
+            facet_sel = 2;                                     // asm 0x5C78B9
+    }
+
+    RGE_Sprite__draw(sprite, facet_sel, frame, x, y, x, y, player_color, render_area, 0x0A, 0);
+
+    // Connected-neighbor overlay (asm 0x5C78FE-0x5C79B8).
+    if (this_->on_build_make_obj != -1)                        // @474, word vs 0xFFFF (asm 0x5C78F0)
+    {
+        if (sprite->draw_list_num > 1)                         // @66 (asm 0x5C7902-0x5C7906)
+        {
+            const int saved_draw_line = *SDI_Draw_Line;        // asm 0x5C7914-0x5C791A
+            RGE_Picture_List* entries = sprite->draw_list;     // @68
+            // The asm tests the computed entry address per iteration
+            // (0x5C793F-0x5C794A) - the compiler's partial hoist of the
+            // null-draw_list guard; hoisted here (identical exit path
+            // through the restore; an in-loop deref at i > 0 with a
+            // null table is UB in the original).
+            if (entries)
+            {
+                for (int i = 0; i < sprite->draw_list_num; ++i)
+                {
+                    const RGE_Picture_List& entry = entries[i];
+                    if (entry.sprite == sprite)                // self-reference skip (asm 0x5C7950)
+                        continue;
+                    if (entry.offset_y == 0)                   // asm 0x5C7955
+                        continue;
+                    *SDI_Draw_Line = saved_draw_line + entry.offset_y;   // asm 0x5C795D-0x5C7969
+                    RGE_Sprite__draw(entry.sprite, facet_sel, frame,
+                        x + entry.offset_x, y + entry.offset_y,
+                        x + entry.offset_x, y + entry.offset_y,
+                        player_color, render_area, 0x0A, 0);   // asm 0x5C7961-0x5C798C
+                }
+            }
+            *SDI_Draw_Line = saved_draw_line;                  // restore (asm 0x5C79B4-0x5C79B8)
+        }
+    }
+
+    if (draw_frame)                                            // asm 0x5C79BE-0x5C79C4
+    {
+        RGE_Map* map = (*base_game)->world->map;               // world @0x420, map @0x34
+        const float outline_rx = this_->radius_x;              // @60 (0x3C)
+        const float outline_ry = this_->radius_y;              // @64 (0x40)
+        __int16 c1x; __int16 c1y;
+        __int16 c2x; __int16 c2y;
+        __int16 c3x; __int16 c3y;
+        __int16 c4x; __int16 c4y;
+        RGE_Map__get_point(map, &c1x, &c1y,  outline_rx, -outline_ry, 0.0f, x, y);
+        RGE_Map__get_point(map, &c2x, &c2y,  outline_rx,  outline_ry, 0.0f, x, y);
+        RGE_Map__get_point(map, &c3x, &c3y, -outline_rx,  outline_ry, 0.0f, x, y);
+        RGE_Map__get_point(map, &c4x, &c4y, -outline_rx, -outline_ry, 0.0f, x, y);
+        DClipInfo_List__AddGDINode(*SDI_List, 1, y + 1,
+            c1x + 1, c1y + 1, c2x + 1, c2y + 1, c3x + 1, c3y + 1, c4x + 1, c4y + 1,
+            0x0B, 0, *SDI_Object_ID);
+        DClipInfo_List__AddGDINode(*SDI_List, 1, y,
+            c1x, c1y, c2x, c2y, c3x, c3y, c4x, c4y,
+            0x0B, frame_color, *SDI_Object_ID);
+    }
+}
+
+// BUILDING TIER COMPLETE: all 22 exports of TRIBE_Master_Building_Object
+// are owned and hook-routed. The shared base implementation
+// TRIBE_Master_Combat_Object::check_placement @ 0x005C92E0 is owned in
+// TRIBE_Master_Combat_Object.cpp.
 
 void install_TRIBE_Master_Building_Object()
 {
@@ -692,7 +1196,10 @@ void install_TRIBE_Master_Building_Object()
     setHook((void*)0x005C74F0, TRIBE_Master_Building_Object__small_save_new);
     setHook((void*)0x005C7520, TRIBE_Master_Building_Object__save_new);
     setHook((void*)0x005C7B30, TRIBE_Master_Building_Object__alignment_new);
+    setHook((void*)0x005C7B50, TRIBE_Master_Building_Object__check_placement_new);
+    setHook((void*)0x005C8000, TRIBE_Master_Building_Object__check_placement_for_units_new);
     setHook((void*)0x005C7710, TRIBE_Master_Building_Object__make_new_obj2_new);
     setHook((void*)0x005C7790, TRIBE_Master_Building_Object__make_new_obj_new);
     setHook((void*)0x005C7810, TRIBE_Master_Building_Object__make_new_master_new);
+    setHook((void*)0x005C7880, TRIBE_Master_Building_Object__draw_new);
 }
