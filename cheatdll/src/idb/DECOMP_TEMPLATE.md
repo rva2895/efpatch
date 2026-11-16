@@ -46,6 +46,51 @@ Self-check before producing code, in order:
    no code.
 If any check fails в†’ Information Request. Do not write the function.
 
+## Prototype / type-definition suspicion gate (owner-directed 2026-11-16)
+
+The IDB prototypes and type definitions are usually accurate but
+occasionally wrong - a single session caught four prototype mistakes
+plus the BVector field-name swap (BPath__nextPatrolWaypoint: a phantom
+second argument; BPath__waypoint: the out-copy buffer declared "int"
+and the index unnamed; RGE_Moving_Object::moveUnit: a trailing
+by-value BVector where the binary passes a pointer;
+RGE_Missile_Object::make_object_collision_list: an object pointer
+typed float and a float typed int). The following are POINTS OF
+EXTREME SUSPICION - each is a HARD STOP: Information Request, the
+owner corrects the IDB and regenerates, the decode restarts from the
+regenerated files. Never write a replacement that needs a pun, a
+guessed signature, or a dead store to live with a suspect prototype;
+never resolve a contradiction by trusting either side - present it.
+
+Red flags (each observed this session):
+1. A parameter consumed through a pun or exclusively as another type
+   (*(float*)&int_param; a float param dereferenced as an object
+   pointer: LODWORD(x) + 20 -> master_obj -> movement_type).
+2. The retn immediate contradicts the declared stack-argument byte
+   total (moveUnit: retn 0xC = 12 bytes vs a by-value-BVector
+   prototype implying 20).
+3. A "swap" (y/z, x/z, argument order) only explainable by misnamed
+   fields or parameters (the BVector .y/.z; the
+   make_object_collision_list p1 assignment pattern).
+4. The .c argument rendering vs the instruction stream: resolve the
+   parameter order via the ABI (right-to-left pushes, last push =
+   param1) and the callee's own consumption; a mismatch with the
+   declared prototype is a prototype suspect.
+5. A phantom or extra parameter (nextPatrolWaypoint's "modifyPath" -
+   the leftover-slot rendering; retn 4 proves one stack argument).
+6. An out-parameter declared as a scalar but written larger
+   (BPath__waypoint's "int wpIndex": 12 bytes copied into it).
+7. A caller whose push/argument construction contradicts the
+   prototype (make_object_collision_list's caller passes an object
+   pointer and position floats).
+
+Resolution protocol: present the contradiction with addresses (the
+body's consumption sites, a caller's pushes, the retn immediate, the
+regenerated rendering), state the deduced true signature/definition,
+and request the owner correct the IDB; after the fix + regeneration,
+restart the decode from the regenerated files. Approved corrections
+become state-file entries.
+
 ## Hard constraints (do not violate)
 1. The function's external signature is FIXED: use the prototype given below
    exactly (rendered compilable per the project's conventions; the original
@@ -227,6 +272,32 @@ no pseudocode restatements of the function body:
        reassociation - keep expression trees small and explicit;
        contractually pinned association requires /fp:precise (an
        owner-level project decision: changes all shipped codegen).
+   (h) FLOAT-RETURNING REPLACEMENTS ARE DOUBLE-RETURNING (owner-directed
+       2026-11-16, the st0 call-boundary corollary): the original game
+       consumes game-float-function returns DIRECTLY off st0 at full
+       x87 precision - frequently with NO intermediate store (chains
+       like call; fsub range; fsub 0.1; fstp - one rounding at the
+       end, or a pure passthrough: call; retn). A float-typed return
+       in a replacement forces an fstp m32 at the call boundary - a
+       24-bit truncation the original never performed; ULP deltas
+       flip downstream gates (the incrementWaypoint desync class).
+       ALL float-returning game-function prototypes are
+       double-returning in idb_functions.h (86 defs, verified
+       2026-11-16); every replacement with a float return declares
+       double. float and double both return in st0: the declaration
+       change is binary-equivalent for the untouched callee binaries;
+       it removes the compiler-inserted rounding in OUR callees and
+       callers. Per-site discipline: capture 53-bit where the
+       original consumed st0 in a chain; round to float immediately
+       (explicit (float)) where the original did fstp m32 - cite the
+       fstp address at the cast. IDB RESIDUAL: the vtbl slot
+       declarations in idb_types.h still type these slots float
+       (getSpeed/getTurnRadius/maximumSpeed/handle_teleport_z_
+       correction/calculateFutureVelocity across the runtime vtbls);
+       no owned code dispatches them today - any future replacement
+       calling one of those slots must request the slot re-typing
+       from the owner first (a stale float slot would reintroduce the
+       call-boundary rounding).
    Post-write sweep: for every float comparison and every (int)
    conversion in the written function, trace the asm operand - if the
    operand is an x87 stack value with arithmetic upstream, the written
@@ -752,8 +823,12 @@ Lookup protocol:
    store/read sets, ABI), treating every prior verification pass of X
    as suspect.
 8. Citation: every name, prototype, field, or global taken from these
-   files must be cited in the output as `<file>:LINE`. Uncited references
-   are treated as invented.
+   files must be cited by its ADDRESS (and the enclosing function name) —
+   e.g. `setPosition @ 0x4A3C00`, `the store at 0x54F98F`. Line numbers
+   into battlegrounds_x2.c/.lst are NOT stable citations: the owner
+   regenerates both files (line numbers shift, pseudocode re-renders with
+   corrected type names), so line-only citations rot (owner-directed
+   2026-11-16). Pull function bodies by NAME/address; cite addresses.
 9. The functions file writes `this_` explicitly as the first parameter
    of __thiscall pointers; when emitting C++ member-syntax or thiscall
    calls, that parameter is the hidden `this` вЂ” do not treat it as an

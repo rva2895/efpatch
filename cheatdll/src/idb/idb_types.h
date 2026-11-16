@@ -1761,8 +1761,8 @@ struct QuadrantLog
 struct BVector
 {
   float x;
-  float y;
   float z;
+  float y;
 };
 #pragma pack(pop)
 

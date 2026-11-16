@@ -395,22 +395,30 @@ unsigned __int8 __fastcall RGE_Missile_Object__missile_move_new(RGE_Missile_Obje
 }
 
 // Replacement for RGE_Missile_Object::make_object_collision_list.
-// Original: @ 0x0049C030 (idb_functions.h:2072). Range [0x49C030,
-// 0x49C1C0) (lst region; returns RGE_Check_List*).
-// Decode (.c 169743-169809; asm 0x49C092 shows the Check_List ctor
-// call): master radius_x/radius_y <= 0 -> return 0; operator_new(4) =
-// sizeof(RGE_Check_List) (:26316-26319, {list} only) + the Check_List
-// ctor (0x552470, 9 bytes - owner-confirmed body: list = 0); the p1/p2
-// BVectors built from this_->world_x/y/z (asm resolves IDA's scrambled
-// param naming); OBSystem_Land/Air (common.h:109-110) keyed on the
-// LAUNCHER object's master movement_type == 1 (arg +0x14 -> master_obj,
-// +120 -> movement_type); findObSystemCollisions (:2118); the
-// obSystemCollisions walk (.data:006AD0C4, +4 stride, NodeProperties+8
-// -> the object; world_z delta vs both master radius_z) -> add_node
+// Original: @ 0x0049C030 (idb_functions.h:2072 - the prototype
+// owner-corrected 2026-11-16: the first parameter is the TARGET OBJECT
+// pointer, the last three are the missile's PRE-MOVE position). Range
+// [0x49C030, 0x49C1C0) (retn 10h), returns RGE_Check_List*.
+// Decode (regenerated .c :169745-169807): master radius_x/radius_y
+// <= 0 -> return 0; operator_new(4) = sizeof(RGE_Check_List)
+// (:26316-26319, {list} only) + the Check_List ctor (0x552470, 9 bytes
+// - owner-confirmed body: list = 0); p2 = the POST-move this->world_x/
+// world_z/world_y (the caller's missile_move has already advanced the
+// missile - .c:50555 before the call at :50585); p1 = the PRE-move
+// position snapshot the caller passes (.c:50446-50451: world_x/
+// world_y/world_z snapshotted before missile_move); OBSystem_Land/Air
+// (common.h:109-110) keyed on the TARGET object's master
+// movement_type == 1 (target_obj->master_obj @+0x14, +120 ->
+// movement_type) - the collision domain of the TARGET;
+// findObSystemCollisions (:2118) over the p1<->p2 segment = the
+// distance the missile traveled this tick; the obSystemCollisions
+// walk (common.h:112-114, +4 stride, NodeProperties+8 -> the object;
+// the world_z delta within both master radius_z bands) -> add_node
 // (:3880); empty -> Check_List destructor (:3879) + delete, return 0.
-// NOTE: numberObSystemCollisions = .data:006AD570.
 RGE_Check_List* __fastcall RGE_Missile_Object__make_object_collision_list_new(
-    RGE_Missile_Object* this_, DWORD dummy, float x, float y, float z, int launcher_obj)
+    RGE_Missile_Object* this_, DWORD dummy,
+    RGE_Static_Object* target_obj,
+    float old_x, float old_y, float old_z)
 {
     if (this_->master_obj->radius_x <= 0.0f || this_->master_obj->radius_y <= 0.0f)
         return 0;                                         // asm radius gate
@@ -419,17 +427,16 @@ RGE_Check_List* __fastcall RGE_Missile_Object__make_object_collision_list_new(
         list->list = 0;                                   // Check_List ctor 0x552470 (OVERRIDE: owner-confirmed body)
     BVector p1;
     BVector p2;
-    p2.x = this_->world_x;                                // asm 0x49C09D-0x49C0A8 (@+0x48)
-    p2.y = this_->world_z;                                // asm 0x49C0AC-0x49C0C7 (@+0x50 - the y/z swap is real)
-    p2.z = this_->world_y;                                // asm 0x5537CB-analog (@+0x4C)
-    p1.x = y;                                             // asm 0x49C0A0-0x49C0B3 (raw dword store)
-    p1.y = *(float*)&launcher_obj;                        // asm 0x49C0A4-0x49C0BB (raw dword store from the int param)
-    p1.z = z;                                             // asm 0x49C0DE
-    RGE_Static_Object* ref_obj = (RGE_Static_Object*)*(DWORD*)&x;   // asm 0x49BDA0-analog: x param is an OBJECT pointer
+    p2.x = this_->world_x;                                // asm 0x49C09D-0x49C0A8 (@+0x48; the post-move x)
+    p2.z = this_->world_z;                                // asm 0x49C0AC-0x49C0C7 (offset4 = .z; the post-move height)
+    p2.y = this_->world_y;                                // asm 0x5537CB-analog (offset8 = .y; the post-move row)
+    p1.x = old_x;                                         // asm 0x49C0A0-0x49C0B3 (offset0 = .x; the pre-move x)
+    p1.z = old_z;                                         // asm 0x49C0A4-0x49C0BB (offset4 = .z; the pre-move height)
+    p1.y = old_y;                                         // asm 0x49C0DE (offset8 = .y; the pre-move row)
     void* ob_system = (void*)*OBSystem_Land;              // common.h:109 (asm 0x49C0BF loads the slot dword)
-    if (ref_obj != 0)                                     // asm 0x49C0C5-0x49C0E2
+    if (target_obj != 0)                                  // asm 0x49C0C5-0x49C0E2
     {
-        if (ref_obj->master_obj->movement_type == 1)      // asm 0x49C0E4-0x49C0EB (master @+0x14, movement_type byte @+0x78)
+        if (target_obj->master_obj->movement_type == 1)   // asm 0x49C0E4-0x49C0EB (master @+0x14, movement_type byte @+0x78)
             ob_system = (void*)*OBSystem_Air;             // common.h:110 (asm 0x49C0ED)
     }
     findObSystemCollisions(ob_system, (RGE_Moving_Object*)this_, &p1, &p2, 0, 0, 0, 1.0f);   // :2118 (asm 0x49C0F3-0x49C107)
@@ -461,18 +468,26 @@ RGE_Check_List* __fastcall RGE_Missile_Object__make_object_collision_list_new(
 
 // Replacement for RGE_Missile_Object::handle_teleport_z_correction.
 // Original: @ 0x0049C1C0 (idb_functions.h:2073). Range [0x49C1C0,
-// 0x49C1F0), returns float.
+// 0x49C1F0), returns double.
 // Decode (.c 169813-169819): IF !ghost_mode: the base Moving
 // handle_teleport_z_correction (:2139, unhooked); ELSE on_ground = 0
 // and return -99.9f (the .c's -99.900002 = float32 -99.9).
-float __fastcall RGE_Missile_Object__handle_teleport_z_correction_new(
+// DOUBLE RETURN (FLOAT PRECISION corollary (h)): ghost path is
+// fld ds:flt_65BBE4 (= float32 -99.9, .rdata:0065BBE4); retn 4 (asm
+// 0x49C1D1-0x49C1D7) - the m32 constant loads exact, so return -99.9f
+// (float literal kept deliberately: (double)(float)-99.9 is exact; a
+// bare double literal -99.9 would be a different value). Non-ghost
+// path is the tail call + retn 4 (asm 0x49C1DF-0x49C1E4) - st0
+// passthrough of the unhooked original; the double-typed idb constant
+// captures the 53-bit st0 (the st0-boundary fix).
+double __fastcall RGE_Missile_Object__handle_teleport_z_correction_new(
     RGE_Missile_Object* this_, DWORD dummy, float ground_z)
 {
     if (this_->ghost_mode == 0)
         return RGE_Moving_Object__handle_teleport_z_correction(
             (RGE_Moving_Object*)this_, ground_z);        // :2139
     this_->on_ground = 0;
-    return -99.9f;
+    return -99.9f;                                       // asm fld ds:flt_65BBE4 (0x49C1D1) - float32 constant, exact as double
 }
 
 // Replacement for RGE_Missile_Object::create_own_master. Original:
