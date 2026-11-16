@@ -15,10 +15,11 @@ Rules:
 
 ## Verified environment facts
 
-- Reference file sizes (2026-11-14): idb_types.h 37,047 lines;
-  idb_functions.h 6,415 lines (6,403 definitions); battlegrounds_x2.c
-  15,217,425 bytes / 464,838 lines; battlegrounds_x2.lst 64,337,921 bytes /
-  1,111,401 lines; common.h 109 lines; common.cpp 314 lines.
+- Reference file sizes (2026-11-16, after the BVector-correction regen):
+  idb_types.h 37,087 lines; idb_functions.h 6,415 lines (6,403
+  definitions); battlegrounds_x2.c 15,215,288 bytes / 464,785 lines;
+  battlegrounds_x2.lst 64,357,608 bytes / 1,111,934 lines; common.h 109
+  lines; common.cpp 314 lines.
   Re-verify: `(Get-Content <file> | Measure-Object -Line).Lines`
 - idb_functions.h address-literal lookups are unique: an address like
   `0x00401970` matches exactly one line (verified 2026-11-14).
@@ -2920,3 +2921,405 @@ authoritative.)
     incl. the VALUE/SOURCE pass for bootstrap blocks (DESYNC FIX
     #4); the method-inventory regex must handle multi-word returns
     and thunks. Also owed: in-game tests for M2/M3a/M3b."
+
+  - DESYNC FIX #5 - missile_move invented OOB early-return (owner bisect
+    + approved + fixed + CONFIRMED FIXED IN-GAME 2026-11-16): the shipped
+    missile_move_new invented `return 0` on the out-of-bounds path - the
+    original (asm 0x49BF70-0x49C023, full asm pass now done; the first
+    decode shipped with its header flagging "asm pass owed" and it was
+    never executed) has NO else: die_die_die (slot +0xE4, asm 0x49BFEB)
+    falls through to the teleport + comparison on every path (loc_49BFE7
+    joins loc_49BFF1; teleport slot +0xA8 args (nx, ny, nz) identity
+    order; return = fcomp world_z @+0x50, test ah,40h = the C3-only
+    equality idiom, SSE sete result-identical incl. NaN). The invented
+    return skipped the teleport (stale world_x/y/z + tile state ->
+    simulation divergence) and hard-coded the caller's
+    (RGE_Action_Missile__update+39B) result. Why the nets missed it: the
+    owed asm pass; the store-and-read diff is 0/0-blind to control flow;
+    the compile gate accepts valid-but-wrong C++; the in-game Missile
+    test passed because the OOB path never fired there. PROTOCOL
+    (owner-approved, TEMPLATE amended): (1) owed-asm-pass blocks WRITTEN
+    (protocol step 7); (2) Exit-path inventory added (return-site
+    mapping; caught this class on its origin case - the missile_move
+    exit paths 0x49C015 = 1 / 0x49C01E = 0, both after the teleport).
+    GATE 0 errors 0 warnings; defs/refs 16/16. Re-verify:
+    missile_move_new carries the single tail return; the OOB branch
+    falls through.
+
+  - DESYNC FIX #6 - TRIBE_Master_Combat_Object__check_placement_new
+    float precision (owner bisect + approved + fixed + CONFIRMED FIXED
+    IN-GAME 2026-11-16): uninstalling the hook eliminated the desync;
+    the instruction-level re-walk found the control flow/operands/
+    fields/exit paths FAITHFUL - the divergence was the FLOAT PRECISION
+    CLASS: the original runs the fly-over and AABB comparisons on x87
+    53-bit intermediates (unrounded differences, unrounded radius sums:
+    0x5C94CE-0x5C9536 fly-over, 0x5C9631-0x5C968E AABB) while the
+    written code rounded everything to 24-bit first, AND the scan
+    rectangle truncated a float-rounded (x -+ 8.0) instead of the
+    53-bit difference (0x5C9397-0x5C93DF). Bit-exact forms applied:
+    dx as double intermediates (the x87 st0 value), the radius sums as
+    53-bit doubles, and - the load-bearing asymmetry - |dy| kept FLOAT
+    because the original itself store-rounds it via the arg_24 m32 fst
+    (0x5C94E6/0x5C9658) before the y-compare (0x5C952D/0x5C9688).
+    Direct float-vs-constant gates untouched (fld/fcomp m32 both sides
+    = bit-safe). RULE REFINED (TEMPLATE amended 2026-11-16, owner-
+    directed: the FLOAT PRECISION VERIFICATION bullet): comparisons
+    consuming arithmetic results need double intermediates; only direct
+    loaded-float compares are float-safe; replicate m32 store-rounds;
+    (int) conversions consume 53-bit operands. Same-class sites flagged
+    in the RGE Static and Building check_placements (sibling scans) -
+    actioned only on owner bisect reports. GATE 0 errors 0 warnings;
+    defs/refs 1/1; exit paths 4/4 mapped (0x5C9394 = 0, 0x5C974C =
+    base_result, 0x5C975A = 9, 0x5C9766 = 6). Re-verify:
+    TRIBE_Master_Combat_Object.cpp fly-over/AABB blocks carry the
+    double/float asymmetric forms with asm addresses 0x5C94CE-0x5C9536 /
+    0x5C9631-0x5C9688; rect via (int)((double)x -+ 8.0).
+
+  - BVECTOR FIELD-NAME CORRECTION (owner investigation + idb fix +
+    regen + repo audit 2026-11-16): the BVector definition
+    (idb_types.h:1761) was {x, y, z} with the .y/.z NAMES swapped
+    relative to their semantics - the true layout is {x, z, y}: offset
+    +4 = z (the vertical/height axis), offset +8 = y (the second
+    horizontal/row axis). VERIFICATION CHAIN: upVector @0x6AD128 =
+    {0, 1.0@+4, 0} = the yaw rotation axis (vertical at +4); the Moving
+    ctor's orientationRightValue inits its -1 at offset +8 (a
+    horizontal axis); the owner's re-typed BMotion::updateMovement dump
+    pairs buffer.z(offset8) <- world_y and buffer.y(offset4) <- 0 (the
+    zeroed vertical) for a planar vector, and its planar distance norm
+    excludes offset +4; radius_z = the blocking height;
+    handle_teleport_z_correction = the height fixer. Owner fixed the
+    header ({x, z, y}, idb_types.h:1761-1766) and regenerated .c/.lst
+    (markers shifted - missile_move .c :169717 -> :169714,
+    incrementWaypoint :175706 -> :175691, check_placement(70)
+    :392521 -> :392468; line-only citations are stale, addresses
+    remain valid; the citation protocol now mandates address +
+    function-name citations - TEMPLATE step 8 amended). CONSEQUENCES:
+    (1) every "y/z swap" observed at the teleport call sites
+    (setPosition/moveForward/incrementWaypoint/addUserDefinedWaypoint/
+    make_object_collision_list p1/p2) was the naming artifact - in TRUE
+    names all sites pass (x, y, z) identity; (2) the teleport body's
+    consumption is param1->world_x @0x48, param2->world_y @0x4C,
+    param3->world_z @0x50 (RGE_Static_Object__teleport 0x54F983-
+    0x54F99A; the Moving wrapper passes its params through verbatim,
+    0x4A16D2-0x4A16D7) - identity in true names; (3) the REVOKED M3b
+    verdict RESTORES: moveForward_new/setPosition_new are correct as
+    shipped (their pre-regeneration compiled offsets matched the
+    original under the OLD header). HEADER-RENAME CODE AUDIT (8 sites
+    fixed, 2 TUs gated 0 errors 0 warnings): the rename moved which
+    offset .y/.z resolve to (.y: 4->8, .z: 8->4), breaking 8 shipped
+    accesses - orientationRightValue init x2 (RGE_Moving_Object.cpp
+    ctor/ctor_read: the -1 back to offset8/.y), addUserDefinedWaypoint
+    store + floor-centering x3 (offset8/.y), both teleport arg lists ->
+    identity (moveForward_new/setPosition_new). SAFE sites (paired
+    zero/same-name copies - offset-preserving under either naming):
+    positionValue/mSubstitutePosition/orientationForward/mEndpoint1-2
+    zeros, the velocity/acceleration/position getters, the resize copy,
+    the moveForward component adds. incrementWaypoint gate-min
+    CORRECTION (the regenerated .c + the ebp-corrected asm walk agree):
+    the min is a dedicated local (the compiler reuses the dead
+    path-argument slot for it), seeded on BOTH branches (obj:
+    distance-range-0.1; no-obj: wd-range-0.1 - the first draft's "dead
+    store" was WRONG), min-updated over the gate children, zeroed by
+    flags&4 - withdrawing the out3.x-alias form and the "undefined
+    pre-value" analysis. NAMING RULE (TEMPLATE): BVector members are
+    .x/.z/.y in offset order - decodes name offset +4 .z and offset +8
+    .y. Re-verify: idb_types.h:1761-1766; RGE_Moving_Object.cpp
+    :66-67/145-146/436-444/590-609; RGE_Missile_Object.cpp:422-427.
+
+  - SPEED2 BAKE - maximumSpeed_new amendment (owner bisect-era finding +
+    approved + fixed 2026-11-16): the corrected step-3b writer scan
+    (2,795 sites vs ALL owned ranges) surfaced casts.cpp:881
+    setHook(0x004A28C0, speed2) - an ENTRY collision with the M3a-owned
+    maximumSpeed_new that the M3a-range scan missed (no writer-target
+    scan recorded for those ranges; gap closed). Install order
+    (setCastHooks dllmain.cpp:451 < install_engine dllmain.cpp:765) had
+    our hook overwriting speed2's E9 = the speed modifier dead in
+    shipping builds. BAKED: maximumSpeed_new fetches getSpeedModifier
+    ((RGE_Static_Object*)this_) (casts.cpp:140, __stdcall, raw float
+    bits in eax; extern cpp-local in RGE_Moving_Object.cpp)
+    unconditionally before the gate and multiplies it into master->speed
+    BEFORE base_speed (left-assoc = the stub's fmul order, x87 PC53 =
+    double rounding; written as (double)-intermediates + one float
+    conversion); the stub's double-zero fcomp gate is result-identical
+    to a float compare incl. NaN. Bits->float via a 4-byte memcpy
+    (own-instance presentation). Behavior: bit-identical to the
+    pre-amendment build for units without speedReductionEnabled (x1.0f
+    is exact); patch-faithful for reduced units. casts.cpp:881 retired
+    in place (0 active sites; marker present). // SPEED_MOD markers at
+    the affected lines. Same-scan dispositions: core.cpp:1429
+    writeDword(0x46FE74) = a j_-thunk bypass to the hooked Static
+    destructor itself (0x46FE78 + 0x000DB808 = 0x54B680) -
+    behaviorally a no-op, nothing to bake (retirement optional);
+    casts.cpp:882 speed3 + core.cpp:1393 writeByte(0x004A3E59, 0x16) =
+    the M3c calculateFutureVelocity folds (baked there). GATE 2/2 TUs
+    0 errors 0 warnings; defs/refs 1/1. Re-verify: grep casts.cpp for
+    active 'setHook(0x004A28C0' (= 0); the // SPEED_MOD markers in
+    RGE_Moving_Object.cpp.
+
+  - OWNER RULING (2026-11-15): the *(float*)&launcher_obj bit-
+    reinterpret at RGE_Missile_Object.cpp:413 was an instance-specific
+    one-off decision - it does NOT establish a reusable precedent;
+    every future punned-conversion instance is presented and approved
+    individually (deviations-never-inherit). First application of the
+    rule: the maximumSpeed SPEED2 bake used a memcpy conversion instead
+    of citing that precedent.
+
+  - RUNTIME METHODS BATCH M3c - Moving pathing/state methods (owner-
+    approved + WRITTEN 2026-11-16): 11 hooks appended to RGE_Moving_
+    Object.cpp (installer 31 -> 42). getPatrolInformation 0x4A2BB0
+    (SEH allocation-unwind fold; the J1 0-init), setOrientation 0x4A3790
+    + yaw 0x4A3C40 (the two full-3D normalizes + the facet/angle calc +
+    the setOrientation vtbl pass), stopMoving 0x4A3DD0 (the three vtbl
+    gates + removeAllFromPathingGroup), calculateFutureVelocity
+    0x4A3E00 (BAKED: the speed3 modifier fold + the single
+    getSpecificMoveReason call - core.cpp:1393's writeByte and
+    casts.cpp:882's speed3 entry hook folded, call sites retired),
+    precalcDistToTarget 0x4A3F40 / precalcDistToGoal 0x4A4000 (the
+    gate-8 linked-child prefix loops, J3), incrementWaypoint 0x4A40A0
+    (the linear block's identity teleport (x, y, z), the four
+    bounds-fixup waypoint calls targeting buffer3, the patrol branch,
+    the gate-min as a dedicated local seeded on both branches - the
+    regenerated .c's patha; the first draft's out3.x-alias and "dead
+    seed" readings withdrawn), checkDistance 0x4A4460 (the linked-path
+    type machine), checkRange 0x4A45A0, moveUnit 0x4A4650 (the 4th
+    argument is a POINTER - retn 0xC = 12 bytes; the .x/.y compares vs
+    dbl_654DC0; the idb constant's trailing by-value BVector is an
+    artifact). ALL float arithmetic feeding comparisons written in
+    double intermediates per the FLOAT PRECISION rule; direct
+    loaded-float gates stay float. BVector members use the corrected
+    {x, z, y} names throughout. ALSO WRITTEN: make_object_collision_
+    list_new signature corrected to the owner-fixed prototype
+    (target_obj, old_x, old_y, old_z - the pre-move position snapshot;
+    p1/p2 = the traveled segment; the target_obj domain selection) -
+    the puns removed. COLLISION SCAN: 0 non-self overlaps (the
+    SPEED2/writeByte bakes are IN the code; casts.cpp:881/882 +
+    core.cpp:1393 retired). GATE 0 errors 0 warnings (RGE_Moving_
+    Object.cpp + RGE_Missile_Object.cpp). defs/refs: Moving 42/42,
+    Missile 16/16; exit paths mapped per function; base_game 0 bare;
+    CRT 0; pointer-walk 0 real. Re-verify: the 42 Moving _new
+    definitions + the 42 installer hooks; the 16 Missile defs/refs;
+    the double/float asymmetric forms at the flagged sites.
+
+  - PROTOTYPE CORRECTION #4 - make_object_collision_list (owner-
+    investigated + corrected 2026-11-16): the last parameter is a
+    FLOAT (the pre-move z), not an int; the first is an OBJECT POINTER
+    (the target), not a float. Caught by the body-vs-prototype
+    contradictions (the raw-dword pun store, the float param
+    dereferenced as an object pointer) + the caller construction
+    (.c:50446-50451 the pre-move position snapshot, :50555 missile_move,
+    :50585 the call with this->target_obj). Template amended: the
+    Prototype / type-definition suspicion gate (red flags: puns,
+    retn-vs-arg-byte mismatches, swaps, .c-vs-push-order
+    contradictions, phantom params, oversized out-params,
+    contradicting callers - each a HARD STOP until the owner corrects
+    the IDB; resolution = present the contradiction with addresses,
+    restart from the regenerated files). Citation policy amended
+    (TEMPLATE step 8): address + function-name citations mandatory;
+    line-only citations dropped (the .c/.lst regens shift lines).
+
+  - DESYNC FIX #5 - missile_move invented OOB early-return (owner bisect
+    + approved + fixed + CONFIRMED FIXED IN-GAME 2026-11-16): the shipped
+    missile_move_new invented `return 0` on the out-of-bounds path - the
+    original (0x49BF70-0x49C023, full asm pass; the first decode shipped
+    with "asm pass owed" in its header and it was never executed) has NO
+    else: die_die_die (slot +0xE4, asm 0x49BFEB) falls through to the
+    teleport + comparison on every path (loc_49BFE7 joins loc_49BFF1;
+    teleport slot +0xA8 args (nx, ny, nz) identity order; return = fcomp
+    world_z @+0x50, test ah,40h = the C3-only equality idiom, SSE sete
+    result-identical incl. NaN). The invented return skipped the
+    teleport (stale world_x/y/z + tile state -> divergence) and
+    hard-coded the caller's (RGE_Action_Missile__update+39B) result.
+    Why the nets missed it: the owed asm pass; the store-and-read diff
+    is 0/0-blind to control flow; the compile gate accepts
+    valid-but-wrong C++; the in-game Missile test passed because the
+    OOB path never fired there. PROTOCOL (owner-approved, TEMPLATE
+    amended): (1) owed-asm-pass blocks WRITTEN (step 7); (2) Exit-path
+    inventory added (the return-site mapping; caught this class on its
+    origin case - the exit paths 0x49C015 = 1 / 0x49C01E = 0, both
+    after the teleport). GATE 0 errors 0 warnings; defs/refs 16/16.
+    Re-verify: missile_move_new carries the single tail return; the OOB
+    branch falls through.
+
+  - DESYNC FIX #6 - TRIBE_Master_Combat_Object__check_placement_new
+    float precision (owner bisect + approved + fixed + CONFIRMED FIXED
+    IN-GAME 2026-11-16): uninstalling the hook eliminated the desync;
+    the instruction-level re-walk found the control flow/operands/
+    fields/exit paths FAITHFUL - the divergence was the FLOAT PRECISION
+    CLASS: the original runs the fly-over and AABB comparisons on x87
+    53-bit intermediates (0x5C94CE-0x5C9536 fly-over, 0x5C9631-0x5C968E
+    AABB) while the written code rounded everything to 24-bit first,
+    AND the scan rectangle truncated a float-rounded (x -+ 8.0) instead
+    of the 53-bit difference (0x5C9397-0x5C93DF). Bit-exact forms
+    applied: dx as double intermediates, the radius sums as 53-bit
+    doubles, |dy| kept FLOAT (the original's own arg_24 m32 store-round,
+    0x5C94E6/0x5C9658), rect via (int)((double)x -+ 8.0). Direct
+    float-vs-constant gates untouched (bit-safe). RULE (TEMPLATE
+    amended: the FLOAT PRECISION VERIFICATION bullet): comparisons
+    consuming arithmetic results need double intermediates; direct
+    loaded-float compares stay float; replicate m32 store-rounds; (int)
+    conversions consume 53-bit operands. Same-class sites flagged in
+    the RGE Static and Building check_placements (sibling scans) -
+    actioned only on owner bisect reports. GATE 0 errors 0 warnings;
+    defs/refs 1/1; exit paths 4/4 mapped (0x5C9394 = 0, 0x5C974C =
+    base_result, 0x5C975A = 9, 0x5C9766 = 6). Re-verify:
+    TRIBE_Master_Combat_Object.cpp fly-over/AABB blocks carry the
+    double/float asymmetric forms; rect via (int)((double)x -+ 8.0).
+
+  - M3c CORRECTIONS - precalcDistToGoal + incrementWaypoint (owner
+    bisect + approved + fixed 2026-11-16): both desynced under the
+    corrected-BVector header. (1) precalcDistToGoal_new: the applied
+    batch carried the pre-correction draft name wp1->z (offset4, the
+    height) where the regenerated .c (:175686-175688) reads ->y
+    (offset8) - the distance_to_position y-arg received the waypoint's
+    height, so the "distance to goal" was measured against (wp.x,
+    height, 0). FIXED: wp1->y. (2) incrementWaypoint_new: the inner
+    state-gate tested wpHeight (the linear block's leftover waypoint
+    height, ~0 for ground waypoints) where the true operand is wd (the
+    gate distance - distance_to_position to waypoint-1) - loc_4A439F
+    per the regenerated .c (:175805-175838: if (v24 >= 1e-7)
+    waypoint--, state=2). The pre-regeneration dump's v26 "wpHeight
+    test" was the derailed-stack-tracking artifact (the teleport
+    signature is now known, the tracking completes). FIXED: the inner
+    gate tests wd; the wpHeight local and the J5 undefined-read flag
+    WITHDRAWN (the height value is teleport-param3-only). ALSO FOUND,
+    same class: moveUnit_new's compares were last->z/a4->z (offset4)
+    where the original compares offset8 (.y per the regenerated .c
+    :175986-175988) - FIXED in the same pass (found proactively, not
+    bisected). ROOT CAUSE: the batch application carried the
+    pre-BVector-correction draft names for the functions not re-derived
+    from the regenerated .c. LESSON (owner-directed): batch applications
+    must re-grep EVERY BVector member access against the regenerated .c
+    rendering before the gate. GATE 0 errors 0 warnings; defs 42
+    unchanged. Re-verify: grep RGE_Moving_Object.cpp for wpHeight/wpZ
+    (= the correction comments only); precalcDistToGoal reads wp1->y;
+    incrementWaypoint's inner gate tests wd.
+
+  - FLOAT ST0-BOUNDARY MECHANISM + PROJECT-WIDE DECLARATION CHANGE
+    (STAGED 2026-11-16): the remaining incrementWaypoint desync (post
+    wd-fix) = the x87-st0 call-boundary rounding: the original consumes
+    game-float-function returns DIRECTLY off st0 at 53-bit (the seed
+    chain: call distance_to_object; fsub range; fsub 0.1; fstp patha -
+    no intermediate store) while our /arch:SSE2-compiled replacements
+    round the callee's st0 to 24-bit at the call boundary (fstp m32
+    forced by the float-typed declarations) before the chain -> ULP
+    divergences flip the 1e-7/1.0/radius gates -> desync (chain-heavy
+    functions only: precalcDistToGoal was cured by the .y fix - its
+    float pipeline is a single-value passthrough; moveUnit's compares
+    are bit-exact doubles). FIX (owner-directed, STAGED): the project-
+    wide declaration change - ALL float-returning game-function
+    prototypes in idb_functions.h (86) -> double-returning (the owner
+    provides the updated header + the regenerated .c/.lst at the next
+    session start); the 7 float-returning replacements -> double-
+    returning (getSpeed_new, handle_teleport_z_correction_new,
+    getTurnRadius_new, maximumSpeed_new, calculateFutureVelocity_new,
+    precalcDistToTarget_new, precalcDistToGoal_new); the TEMPLATE
+    corollary (h) to the FLOAT PRECISION rule: float-returning
+    replacements are double-returning (the original game consumes
+    returned st0 at full x87 precision; a float-typed return truncates
+    at the 24-bit boundary), and the per-site discipline: capture
+    53-bit where the original consumed st0 in a chain; round to float
+    immediately where the original did fstp m32. RESIDUAL: the 80->53->24
+    double-rounding anomaly at the original's store-first sites
+    (2^-29/capture - negligible; both patched peers identical; vs
+    base-game peers extremely rare). ABI NOTE: float/double returns are
+    both st0 - the declaration change is binary-equivalent for the
+    untouched callee binaries. BINARY-EQUIVALENCE VERIFIED:
+    calculateFutureVelocity's cap-return path leaves st0 = the 53-bit
+    cap unrounded (asm 0x4A3EE6 -> retn); precalcDistToGoal is a pure
+    st0 passthrough (call distance_to_position; retn). Re-verify: the
+    updated idb_functions.h; the 7 double-returning signatures.
+
+  - NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first - NOTE: .c/.lst were REGENERATED twice (the
+    BVector rename + the prototype corrections): the ledger's LINE
+    citations are stale - cite addresses + function names; the .lst
+    stack labels are now RELIABLE (the teleport signature is known, the
+    tracking completes). State: the M3c batch (11 Moving pathing/state
+    hooks, installer 42) is written + gated + the desync corrections
+    applied; the BVector struct is CORRECTED ({x, z, y} - offset4 = z
+    the vertical, offset8 = y the row); four prototype corrections are
+    in (nextPatrolWaypoint 1-arg; BPath__waypoint (path, BVector* out,
+    int index); moveUnit's 4th arg = BVector*; make_object_collision_
+    list (target_obj, old_x, old_y, old_z)). IMMEDIATE WORK: (1) I
+    provide the updated idb_functions.h with ALL float-returning
+    prototypes changed to double-returning (86) - verify the sweep,
+    then convert the 7 float-returning replacements to double-
+    returning (getSpeed_new, handle_teleport_z_correction_new,
+    getTurnRadius_new, maximumSpeed_new, calculateFutureVelocity_new,
+    precalcDistToTarget_new, precalcDistToGoal_new) + add the TEMPLATE
+    FLOAT PRECISION corollary (h): float-returning replacements are
+    double-returning (the game consumes returned st0 at full x87
+    precision; a float-typed return truncates at the 24-bit boundary)
+    + full-tree re-gate + the precision sweeps. (2) The in-game test
+    build owes: M2/M3a/M3b, missile_move (FIX #5 re-test), the M3c
+    batch, incrementWaypoint + precalcDistToGoal (the desync re-tests),
+    maximumSpeed, make_object_collision_list, the 8 BVector-audit
+    sites. (3) Then the roadmap: the runtime-methods inventory re-count
+    (the pre-regeneration counts are stale), the remaining methods
+    smallest-first per class, doIntelligentMovementUpdate (the huge
+    unowned caller - its future bake inventory: speed4 @0x4A6250,
+    checkAcceleration_patch @0x4A6569, isMoving_v2 @0x4A3D90), the
+    sibling float-precision sites (RGE Static / Building
+    check_placements - on bisect reports only), the five derived ctor1
+    copy-constructors. PROTOCOL: the prototype/type suspicion gate
+    (HARD STOP on puns/order/retn mismatches - the owner corrects the
+    IDB, the decode restarts from the regenerated files); address +
+    function-name citations only; the FLOAT PRECISION rules (a)-(g) +
+    the st0-boundary corollary (h); the exit-path inventory; owed-asm-
+    pass blocks WRITTEN; the desync reports are bisect verdicts
+    (re-verify the named function alone); the approval gate before
+    every write."
+
+  - FLOAT ST0-BOUNDARY FIX APPLIED (owner-directed, staged plan executed
+    2026-11-16; prompt items (1) and (2) of the NEXT SESSION block above
+    are COMPLETE - item (3), the roadmap, is unchanged): the regenerated
+    idb_functions.h verified - 86 double-returning defs, 0
+    float-returning defs, 6,415 lines unchanged (in-place renames). All
+    four prototype corrections confirmed in (moveUnit's 4th arg =
+    BVector* corrected by the owner mid-session; moveUnit_new's
+    signature matches). The 7 float-returning replacements converted to
+    double-returning, each with a fresh asm pass: getSpeed (Animated,
+    @0x00408B70) and getTurnRadius (@0x00408B80) = pure fld m32 exits -
+    bit-identical; RGE_Missile_Object__handle_teleport_z_correction
+    (@0x0049C1C0) = fld ds:flt_65BBE4 (.rdata:0065BBE4 = float32 -99.9,
+    the written -99.9f kept deliberately - exact widening) + the
+    non-ghost tail-call st0 passthrough 0x49C1DF-0x49C1E4;
+    RGE_Moving_Object__maximumSpeed (@0x004A28C0) = the original's fmul
+    retns leave st0 UNROUNDED (0x4A28DA-0x4A28E3 gate path,
+    0x4A28E7-0x4A28ED pure load) - both (float) casts removed;
+    calculateFutureVelocity (@0x004A3E00) = cap path jz 0x4A3EE6 falls
+    through to retn 0x4A3F0C with the 53-bit cap unrounded (return cap;)
+    while target STAYS float (fstp m32 @0x4A3E20, rule (e));
+    precalcDistToTarget (@0x004A3F40) = ALL exits reload var_4 m32
+    (0x4A3FE7/0x4A3FF1) - float result kept, the first distance now an
+    explicit (float) citing fstp @0x4A3F82; precalcDistToGoal
+    (@0x004A4000) = pure st0 passthrough (call distance_to_position
+    0x4A4081; retn 0x4A408C, no store) - THE boundary site. The
+    incrementWaypoint wd site: fstp var_28 @0x4A4265 immediately after
+    the distance_to_position call, both consumers reload the m32
+    (fld @0x4A4329 seed, fld @0x4A439F gate) - the float local is
+    FAITHFUL, now an explicit (float) cast with the fstp citation.
+    The other double-constant call sites (minDist/cd/d chains in
+    incrementWaypoint/checkDistance/checkRange) already matched the
+    discipline (chain in double, one store-round) - untouched.
+    TEMPLATE corollary (h) WRITTEN (FLOAT PRECISION rules): plus the
+    IDB RESIDUAL note - the runtime vtbl slot declarations in
+    idb_types.h still type these slots float (no owned dispatchers
+    today; slot re-typing requested for the next IDB pass). FULL-TREE
+    RE-GATE: 0 errors / 28 TUs (26 engine TUs + stdafx.cpp + hunt.cpp)
+    under x86 HostX64\x86 cl. Sweeps: return-type inventory 68 defs in
+    the 3 touched TUs, 0 mismatches (1 documented UNKNOWN: unknown_new
+    @0x00408BF0 - the IDA-named M2 accessor, absent from idb_functions.h
+    per the M2 note); defs/refs Moving 42/42, Missile 16/16, Animated
+    11/11 - NOTE: the session-close arithmetic's "Animated = 12" is
+    STALE (the file is 11/11, matching the M1 entry's own write-time
+    verification) - feeds the planned inventory re-count. Store-and-read
+    diff: no store deltas (conversions only). Warnings: the 11
+    pre-existing Static C4244s unchanged (alignment accumulators + ftol
+    loop bounds); hunt.cpp:75 = the sole legacy-tree narrowing (legacy
+    diagnostics TU, report-only); hunt.cpp:135 = pre-existing CRT sqrt.
+    IN-GAME: the owner reports tests against the current tree (incl.
+    this batch) OK. Re-verify: the 7 double signatures in the cpps;
+    grep idb_functions.h '^float \(' (= 0); corollary (h) in
+    DECOMP_TEMPLATE.md.

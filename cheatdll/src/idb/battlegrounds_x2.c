@@ -124,7 +124,7 @@ char __cdecl nullsub_27();
 int __cdecl nullsub_24();
 unsigned __int8 __thiscall RGE_Static_Object::get_visibility(RGE_Static_Object *this, RGE_Player *player);
 int __stdcall nullsub_25(int a1);
-float __thiscall RGE_Static_Object::calc_attack_modifier(RGE_Static_Object *this, RGE_Static_Object *formal);
+double __thiscall RGE_Static_Object::calc_attack_modifier(RGE_Static_Object *this, RGE_Static_Object *formal);
 int nullsub_30();
 double __cdecl nullsub_31();
 char __stdcall nullsub_12(int a1);
@@ -136,8 +136,8 @@ int __stdcall nullsub_33(int a1, int a2, int a3);
 int __stdcall nullsub_15(int a1, int a2, int a3, int a4, int a5, int a6);
 int __stdcall nullsub_22(int a1, int a2, int a3, int a4, int a5);
 int __stdcall nullsub_46(int childNumber);
-float __thiscall RGE_Animated_Object::getSpeed(RGE_Animated_Object *this);
-float __cdecl RGE_Moving_Object::getTurnRadius(RGE_Moving_Object *this);
+double __thiscall RGE_Animated_Object::getSpeed(RGE_Animated_Object *this);
+double __thiscall RGE_Moving_Object::getTurnRadius(RGE_Moving_Object *this);
 void __thiscall RGE_Moving_Object::zeroUserDefinedWaypoints(RGE_Moving_Object *this);
 int __thiscall RGE_Moving_Object::numberUserDefinedWaypoints(RGE_Moving_Object *this);
 BVector *__thiscall RGE_Moving_Object::position(RGE_Moving_Object *this, BVector *result);
@@ -182,7 +182,7 @@ unsigned __int8 __thiscall RGE_Action_Object::is_idle(RGE_Action_Object *this);
 RGE_Static_Object *__thiscall RGE_Action_Object::get_target_obj(RGE_Action_Object *this);
 RGE_Task *__thiscall RGE_Action_Object::getTask(RGE_Action_Object *this, RGE_Static_Object *target, float targetX, float targetY, float targetZ, __int16 certain_action);
 unsigned __int8 __thiscall RGE_Action_Object::actionState(RGE_Action_Object *this);
-float __thiscall RGE_Action_Object::searchRadius(RGE_Action_Object *this);
+double __thiscall RGE_Action_Object::searchRadius(RGE_Action_Object *this);
 int __thiscall RGE_Action_Object::get_action_checksum(RGE_Action_Object *this);
 int __thiscall RGE_Action_Object::actionType(RGE_Action_Object *this);
 int __thiscall RGE_Action_Object::hasActionOfType(RGE_Action_Object *this, int type);
@@ -217,9 +217,9 @@ void __thiscall RGE_Action::set_target_obj(RGE_Action *this, RGE_Static_Object *
 void __thiscall RGE_Action::set_target_obj2(RGE_Action *this, RGE_Static_Object *new_obj);
 void __thiscall RGE_Action::copy_obj(RGE_Action *this, RGE_Master_Action_Object *source);
 void __thiscall RGE_Action::get_state_name(RGE_Action *this, char *state_name);
-float __thiscall RGE_Action::targetX(RGE_Action *this);
-float __thiscall RGE_Action::targetY(RGE_Action *this);
-float __thiscall RGE_Action::targetZ(RGE_Action *this);
+double __thiscall RGE_Action::targetX(RGE_Action *this);
+double __thiscall RGE_Action::targetY(RGE_Action *this);
+double __thiscall RGE_Action::targetZ(RGE_Action *this);
 void __thiscall RGE_Action::setSubAction(RGE_Action *this, unsigned __int8 v);
 int __thiscall RGE_Action::hasSubActionOfType(RGE_Action *this, int type);
 void __thiscall RGE_Action::add_sub_action(RGE_Action *this, RGE_Action *action, unsigned __int8 deleteList);
@@ -237,12 +237,12 @@ BaseItem *__thiscall BaseItem::BaseItem3(BaseItem *this, BaseItem *bi);
 int BaseItem::destructor(); // weak
 int __thiscall RGE_Map::get_map_height(RGE_Map *this);
 char *__thiscall BaseItem::name(BaseItem *this);
-float __thiscall BaseItem::x(BaseItem *this);
-float __thiscall BaseItem::y(BaseItem *this);
-float __thiscall BaseItem::z(BaseItem *this);
-float __thiscall BaseItem::xSize(BaseItem *this);
-float __thiscall BaseItem::ySize(BaseItem *this);
-float __thiscall BaseItem::zSize(BaseItem *this);
+double __thiscall BaseItem::x(BaseItem *this);
+double __thiscall BaseItem::y(BaseItem *this);
+double __thiscall BaseItem::z(BaseItem *this);
+double __thiscall BaseItem::xSize(BaseItem *this);
+double __thiscall BaseItem::ySize(BaseItem *this);
+double __thiscall BaseItem::zSize(BaseItem *this);
 int __thiscall BaseItem::skip(BaseItem *this);
 void __thiscall TRIBE_Trigger::set_description_display_order(TRIBE_Trigger *this, int order);
 void __thiscall RGE_Communications_Synchronize::SetStopOnFail(RGE_Communications_Synchronize *this, int Status);
@@ -507,7 +507,7 @@ void __cdecl nullsub_6(); // idb
 void __thiscall BestUnitToAttackStatistics::update(BestUnitToAttackStatistics *this, RGE_Static_Object *unit, TRIBE_Combat_Object *target, float targetDistance, int targetAttackCategory);
 void __thiscall BestUnitToAttackStatistics::calculateHeuristics(BestUnitToAttackStatistics *this, float *orderHistoryInfluences);
 void __thiscall BestUnitToAttackStatistics::sort(BestUnitToAttackStatistics *this, RGE_Static_Object *unit, bool buildingsLast);
-float __thiscall UnitAIModule::calculateAutoReactionDistance(UnitAIModule *this);
+double __thiscall UnitAIModule::calculateAutoReactionDistance(UnitAIModule *this);
 int __thiscall UnitAIModule::mostDangerousEnemy(UnitAIModule *this, float *threatSlot);
 int __thiscall UnitAIModule::weakestEnemy(UnitAIModule *this, float *threatSlot);
 int __thiscall UnitAIModule::closestAttacker(UnitAIModule *this, float *threatSlot);
@@ -587,7 +587,7 @@ int __stdcall nullsub_37(int a1, int a2, int a3, int a4, int a5, int a6, int a7,
 int __stdcall nullsub_38(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, int a12, int a13, int a14);
 double __stdcall nullsub_39(int a1, int a2, int a3);
 double __cdecl nullsub_28();
-float __thiscall RGE_Static_Object::calculateYawAngle(RGE_Static_Object *this, BVector *curOf, BVector *newOF, float interval, int *limitedAngle);
+double __thiscall RGE_Static_Object::calculateYawAngle(RGE_Static_Object *this, BVector *curOf, BVector *newOF, float interval, int *limitedAngle);
 signed int __cdecl nullsub_41();
 double __stdcall nullsub_29(int a1);
 int __stdcall nullsub_42(int a1, int a2, int a3);
@@ -787,7 +787,7 @@ int __thiscall RGE_Base_Game::AbortFullMapScreenShot(RGE_Base_Game *this);
 void __thiscall RGE_Base_Game::setRestoreGame(RGE_Base_Game *this, int val);
 void __thiscall RGE_Base_Game::setMpSaveLocal(RGE_Base_Game *this, int v);
 int __thiscall RGE_Base_Game::mpSaveLocal(RGE_Base_Game *this);
-float __thiscall RGE_Base_Game::version(RGE_Base_Game *this);
+double __thiscall RGE_Base_Game::version(RGE_Base_Game *this);
 int __thiscall RGE_Base_Game::scenarioGame(RGE_Base_Game *this);
 int __thiscall RGE_Base_Game::randomGame(RGE_Base_Game *this);
 int __thiscall RGE_Base_Game::campaignGame(RGE_Base_Game *this);
@@ -833,8 +833,8 @@ void __thiscall RGE_Base_Game::setMpGameSpeed(RGE_Base_Game *this, float new_gam
 void __thiscall RGE_Base_Game::set_game_speed(RGE_Base_Game *this, float val);
 void __thiscall RGE_Base_Game::lock_game_speed(RGE_Base_Game *this);
 void __thiscall RGE_Base_Game::lock_game_teams(RGE_Base_Game *this);
-float __thiscall RGE_Base_Game::get_game_speed(RGE_Base_Game *this);
-float __thiscall RGE_Base_Game::mpGameSpeed(RGE_Base_Game *this);
+double __thiscall RGE_Base_Game::get_game_speed(RGE_Base_Game *this);
+double __thiscall RGE_Base_Game::mpGameSpeed(RGE_Base_Game *this);
 void __thiscall RGE_Base_Game::unlock_game_speed(RGE_Base_Game *this);
 void __thiscall RGE_Base_Game::unlock_game_teams(RGE_Base_Game *this);
 unsigned __int8 __thiscall RGE_Base_Game::is_game_speed_locked(RGE_Base_Game *this);
@@ -1135,14 +1135,14 @@ int __thiscall RGE_Combat_Object::setup(RGE_Combat_Object *this, RGE_Master_Comb
 int __thiscall RGE_Combat_Object::setup_read(RGE_Combat_Object *this, int infile, RGE_Game_World *gworld);
 void __thiscall RGE_Combat_Object::save(RGE_Combat_Object *this, int outfile);
 void __thiscall RGE_Combat_Object::stop(RGE_Combat_Object *this);
-float __thiscall RGE_Combat_Object::calc_attack_modifier(RGE_Combat_Object *this, RGE_Static_Object *target);
+double __thiscall RGE_Combat_Object::calc_attack_modifier(RGE_Combat_Object *this, RGE_Static_Object *target);
 void __thiscall RGE_Combat_Object::transform(RGE_Combat_Object *this, RGE_Master_Static_Object *obj);
 unsigned __int8 __thiscall RGE_Combat_Object::area_attack(RGE_Combat_Object *this, float x, float y, float z, RGE_Combat_Object *attacker, RGE_Static_Object *ignore_object, RGE_Static_Object *target);
 unsigned __int8 __thiscall RGE_Combat_Object::attack4(RGE_Combat_Object *this, RGE_Static_Object *target, RGE_Combat_Object *attacker);
 unsigned __int8 __thiscall RGE_Combat_Object::attack3(RGE_Combat_Object *this, float target_x, float target_y, float target_z, RGE_Combat_Object *attacker);
 unsigned __int8 __thiscall RGE_Combat_Object::do_attack(RGE_Combat_Object *this, RGE_Static_Object *target, RGE_Combat_Object *attacker, float x, float y, float z, float damage_mod);
 void __thiscall RGE_Combat_Object::damage(RGE_Combat_Object *this, int weapon_num, RGE_Armor_Weapon_Info *damage, float attack_modifier, RGE_Player *attacking_player, RGE_Static_Object *attackingObject, int first_call);
-float __thiscall RGE_Combat_Object::calculateDamage(RGE_Combat_Object *this, int weapon_num, RGE_Armor_Weapon_Info *damage, float attack_modifier, RGE_Player *attacking_player, RGE_Static_Object *attackingObject);
+double __thiscall RGE_Combat_Object::calculateDamage(RGE_Combat_Object *this, int weapon_num, RGE_Armor_Weapon_Info *damage, float attack_modifier, RGE_Player *attacking_player, RGE_Static_Object *attackingObject);
 unsigned __int8 __thiscall RGE_Combat_Object::can_attack(RGE_Combat_Object *this);
 void __thiscall RGE_Combat_Object::reset_attack_timer(RGE_Combat_Object *this);
 void __thiscall RGE_Combat_Object::get_armor(RGE_Combat_Object *this, __int16 *cur_armor_in, __int16 *orig_armor_in);
@@ -1166,17 +1166,17 @@ int __thiscall RGE_Combat_Object::transport(RGE_Combat_Object *this, float tX, f
 int __thiscall RGE_Combat_Object::unload(RGE_Combat_Object *this, int unconditional, float x, float y, float z);
 int __thiscall RGE_Combat_Object::stopAction(RGE_Combat_Object *this);
 int __thiscall RGE_Combat_Object::pause(RGE_Combat_Object *this);
-float __thiscall RGE_Combat_Object::rateOfFire(RGE_Combat_Object *this);
-float __thiscall RGE_Combat_Object::damageCapability(RGE_Combat_Object *this, RGE_Static_Object *attackingUnit);
+double __thiscall RGE_Combat_Object::rateOfFire(RGE_Combat_Object *this);
+double __thiscall RGE_Combat_Object::damageCapability(RGE_Combat_Object *this, RGE_Static_Object *attackingUnit);
 int __thiscall RGE_Combat_Object::inAttackRange(RGE_Combat_Object *this, RGE_Static_Object *target, int *insideMinimum);
-float __thiscall RGE_Combat_Object::weaponRange(RGE_Combat_Object *this);
-float __thiscall RGE_Combat_Object::minimumWeaponRange(RGE_Combat_Object *this);
+double __thiscall RGE_Combat_Object::weaponRange(RGE_Combat_Object *this);
+double __thiscall RGE_Combat_Object::minimumWeaponRange(RGE_Combat_Object *this);
 int __thiscall RGE_Combat_Object::currentTargetID(RGE_Combat_Object *this);
 int __thiscall RGE_Combat_Object::currentTargetID2(RGE_Combat_Object *this);
-float __thiscall RGE_Combat_Object::currentTargetX(RGE_Combat_Object *this);
-float __thiscall RGE_Combat_Object::currentTargetY(RGE_Combat_Object *this);
-float __thiscall RGE_Combat_Object::currentTargetZ(RGE_Combat_Object *this);
-float __thiscall RGE_Combat_Object::teleport(RGE_Combat_Object *this, float x, float y, float z);
+double __thiscall RGE_Combat_Object::currentTargetX(RGE_Combat_Object *this);
+double __thiscall RGE_Combat_Object::currentTargetY(RGE_Combat_Object *this);
+double __thiscall RGE_Combat_Object::currentTargetZ(RGE_Combat_Object *this);
+double __thiscall RGE_Combat_Object::teleport(RGE_Combat_Object *this, float x, float y, float z);
 unsigned __int8 __thiscall RGE_Combat_Object::get_visibility(RGE_Combat_Object *this, RGE_Player *player);
 RGE_Visible_Object_Updator *__thiscall RGE_Visible_Object_Updator::RGE_Visible_Object_Updator(RGE_Visible_Object_Updator *this, RGE_Player *theOwner);
 void __thiscall RGE_Visible_Object_Updator::destructor(RGE_Visible_Object_Updator *this);
@@ -1749,25 +1749,25 @@ BVector *__thiscall BMotion::getOrientationUp(BMotion *this);
 BVector *__thiscall BMotion::getOrientationRight(BMotion *this);
 BVector *__thiscall BMotion::getVelocity(BMotion *this);
 void __thiscall BMotion::setVelocity(BMotion *this, BVector *v);
-float __thiscall BMotion::getVelocityForward(BMotion *this);
+double __thiscall BMotion::getVelocityForward(BMotion *this);
 void __thiscall BMotion::setVelocityForward(BMotion *this, float v);
 void __thiscall BMotion::setMaximumVelocityForward(BMotion *this, float v);
-float __thiscall BMotion::getVelocityUp(BMotion *this);
+double __thiscall BMotion::getVelocityUp(BMotion *this);
 void __thiscall BMotion::setVelocityUp(BMotion *this, float v);
-float __thiscall BMotion::getVelocityRight(BMotion *this);
+double __thiscall BMotion::getVelocityRight(BMotion *this);
 void __thiscall BMotion::setVelocityRight(BMotion *this, float v);
 BVector *__thiscall BMotion::getAcceleration(BMotion *this);
 void __thiscall BMotion::setAcceleration(BMotion *this, BVector *v);
-float __thiscall BMotion::getAccelerationForward(BMotion *this);
+double __thiscall BMotion::getAccelerationForward(BMotion *this);
 void __thiscall BMotion::setAccelerationForward(BMotion *this, float v);
-float __thiscall BMotion::getAccelerationUp(BMotion *this);
+double __thiscall BMotion::getAccelerationUp(BMotion *this);
 void __thiscall BMotion::setAccelerationUp(BMotion *this, float v);
-float __thiscall BMotion::getAccelerationRight(BMotion *this);
+double __thiscall BMotion::getAccelerationRight(BMotion *this);
 void __thiscall BMotion::setAccelerationRight(BMotion *this, float v);
-float __thiscall BMotion::getTurnRadius(BMotion *this);
-float __thiscall BMotion::getTurnRadiusSpeed(BMotion *this);
-float __thiscall BMotion::getMaximumYawPerSecondMoving(BMotion *this);
-float __thiscall BMotion::getMaximumYawPerSecondStationary(BMotion *this);
+double __thiscall BMotion::getTurnRadius(BMotion *this);
+double __thiscall BMotion::getTurnRadiusSpeed(BMotion *this);
+double __thiscall BMotion::getMaximumYawPerSecondMoving(BMotion *this);
+double __thiscall BMotion::getMaximumYawPerSecondStationary(BMotion *this);
 int __thiscall BMotion::getFlag(BMotion *this, int n);
 void __thiscall BMotion::setFlag(BMotion *this, int n, int v);
 void __thiscall BMotion::initFlags(BMotion *this, int v);
@@ -1783,7 +1783,7 @@ int __thiscall BUnitGroup::removeDifferentiatorGroup(BUnitGroup *this, int group
 int __thiscall BBitVector::isSet(BBitVector *this, int n);
 void __thiscall BBitVector::unset(BBitVector *this, int n);
 int __thiscall BUnitGroup::update(BUnitGroup *this);
-float __thiscall BVector::module(BVector *this);
+double __thiscall BVector::module(BVector *this);
 void __thiscall BUnitGroup::updateEnd(BUnitGroup *this);
 void __thiscall BUnitGroup::render(BUnitGroup *this);
 int __thiscall BUnitGroup::addUnit(BUnitGroup *this, int unitID, int targetUnitID);
@@ -1872,10 +1872,10 @@ int __thiscall InfluenceMap::maxValue(InfluenceMap *this);
 int __stdcall MyLoadStringA(HINSTANCE stringTable, int stringID, char *strBuffer, int strBufferLen);
 void __fastcall releaseStringBuffer();
 RGE_Master_Action_Object *__thiscall RGE_Master_Action_Object::RGE_Master_Action_Object(RGE_Master_Action_Object *this, RGE_Master_Action_Object *other_object, int do_setup);
-float __thiscall RGE_Master_Moving_Object::getTurnRadius(RGE_Master_Moving_Object *this);
-float __thiscall RGE_Master_Moving_Object::getTurnRadiusSpeed(RGE_Master_Moving_Object *this);
-float __thiscall RGE_Master_Moving_Object::getMaximumYawPerSecondMoving(RGE_Master_Moving_Object *this);
-float __thiscall RGE_Master_Moving_Object::getMaximumYawPerSecondStationary(RGE_Master_Moving_Object *this);
+double __thiscall RGE_Master_Moving_Object::getTurnRadius(RGE_Master_Moving_Object *this);
+double __thiscall RGE_Master_Moving_Object::getTurnRadiusSpeed(RGE_Master_Moving_Object *this);
+double __thiscall RGE_Master_Moving_Object::getMaximumYawPerSecondMoving(RGE_Master_Moving_Object *this);
+double __thiscall RGE_Master_Moving_Object::getMaximumYawPerSecondStationary(RGE_Master_Moving_Object *this);
 void *__thiscall RGE_Master_Action_Object::vector_deleting_destructor(RGE_Master_Action_Object *this, unsigned int flags);
 RGE_Master_Action_Object *__thiscall RGE_Master_Action_Object::RGE_Master_Action_Object2(RGE_Master_Action_Object *this, int infile, RGE_Sprite **sprites, RGE_Sound **sounds, int do_setup);
 RGE_Master_Action_Object *__thiscall RGE_Master_Action_Object::RGE_Master_Action_Object3(RGE_Master_Action_Object *this, _iobuf *infile, RGE_Sprite **sprites, RGE_Sound **sounds, __int16 in_id, int do_setup);
@@ -1973,9 +1973,9 @@ int __thiscall RGE_Master_Moving_Object::setup3(RGE_Master_Moving_Object *this, 
 int __thiscall RGE_Master_Moving_Object::setup4(RGE_Master_Moving_Object *this, int infile, RGE_Master_Static_Object **list, RGE_Sprite **sprites, RGE_Sound **sounds);
 void __thiscall RGE_Master_Moving_Object::destructor(RGE_Master_Moving_Object *this);
 RGE_Static_Object *__thiscall RGE_Master_Moving_Object::make_new_obj(RGE_Master_Moving_Object *this, RGE_Player *owner, float x, float y, float z);
-float __thiscall RGE_Master_Moving_Object::maximumSpeed(RGE_Master_Moving_Object *this, int terrainType);
-float __thiscall RGE_Master_Moving_Object::acceleration(RGE_Master_Moving_Object *this, int terrainType);
-float __thiscall RGE_Master_Moving_Object::deceleration(RGE_Master_Moving_Object *this, int terrainType);
+double __thiscall RGE_Master_Moving_Object::maximumSpeed(RGE_Master_Moving_Object *this, int terrainType);
+double __thiscall RGE_Master_Moving_Object::acceleration(RGE_Master_Moving_Object *this, int terrainType);
+double __thiscall RGE_Master_Moving_Object::deceleration(RGE_Master_Moving_Object *this, int terrainType);
 int __thiscall RGE_Master_Moving_Object::setTurnRadiusOffTurnSpeed(RGE_Master_Moving_Object *this);
 int __thiscall RGE_Master_Moving_Object::setTurnRadius(RGE_Master_Moving_Object *this, float tR, float tRSpeed);
 void __thiscall RGE_Master_Moving_Object::setStationaryYawRevolutionTime(RGE_Master_Moving_Object *this, float v);
@@ -2161,8 +2161,8 @@ void __thiscall RGE_Missile_Object::save(RGE_Missile_Object *this, int outfile);
 void __thiscall RGE_Missile_Object::init_missile(RGE_Missile_Object *this, RGE_Combat_Object *launcher, RGE_Static_Object *target, float in_range, int attack_count_set);
 void __thiscall RGE_Missile_Object::init_missile2(RGE_Missile_Object *this, RGE_Combat_Object *launcher, float x, float y, float z, float in_range, int attack_count_set, RGE_Static_Object *target);
 unsigned __int8 __thiscall RGE_Missile_Object::missile_move(RGE_Missile_Object *this);
-RGE_Check_List *__thiscall RGE_Missile_Object::make_object_collision_list(RGE_Missile_Object *this, float x, float y, float z, int);
-float __thiscall RGE_Missile_Object::handle_teleport_z_correction(RGE_Missile_Object *this, float ground_z);
+RGE_Check_List *__thiscall RGE_Missile_Object::make_object_collision_list(RGE_Missile_Object *this, RGE_Static_Object *target_obj, float old_x, float old_y, float old_z);
+double __thiscall RGE_Missile_Object::handle_teleport_z_correction(RGE_Missile_Object *this, float ground_z);
 int __thiscall RGE_Missile_Object::create_own_master(RGE_Missile_Object *this, RGE_Combat_Object *launcher);
 BMotion *__thiscall BMotion::BMotion(BMotion *this);
 void *__thiscall BMotion::vector_deleting_destructor(BMotion *this, unsigned int);
@@ -2180,7 +2180,7 @@ int __thiscall BMotion::onLastHighLevelWaypoint(BMotion *this);
 int __thiscall BMotion::update(BMotion *this, int doAvailablePathCheck, BUnitGroup *uG);
 void __thiscall BMotion::updateEnd(BMotion *this);
 int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, BUnitGroup *uG);
-float __thiscall BMotion::calculateYawAngle(BMotion *this, BVector *curOF, BVector *newOF, float interval, int limit);
+double __thiscall BMotion::calculateYawAngle(BMotion *this, BVector *curOF, BVector *newOF, float interval, int limit);
 int __thiscall BMotion::calculateReachedPoint(BMotion *this, BVector *point, BVector *pos1, BVector *pos2, BUnitGroup *uG);
 void __thiscall BMotion::yaw(BMotion *this, float v);
 void __thiscall BMotion::save(BMotion *this, int file);
@@ -2224,11 +2224,11 @@ RGE_Static_Object *__thiscall RGE_Moving_Object::spawn_death_obj(RGE_Moving_Obje
 void __thiscall RGE_Moving_Object::transform(RGE_Moving_Object *this, RGE_Master_Static_Object *obj);
 unsigned __int8 __thiscall RGE_Moving_Object::is_moving(RGE_Moving_Object *this);
 void __thiscall RGE_Moving_Object::stop_moving(RGE_Moving_Object *this);
-float __thiscall RGE_Moving_Object::angle_to_object(RGE_Moving_Object *this, RGE_Static_Object *to_object, float x, float y);
+double __thiscall RGE_Moving_Object::angle_to_object(RGE_Moving_Object *this, RGE_Static_Object *to_object, float x, float y);
 unsigned __int8 __thiscall RGE_Moving_Object::turn_towards(RGE_Moving_Object *this, RGE_Static_Object *obj, float x, float y);
 void __thiscall RGE_Moving_Object::set_angle(RGE_Moving_Object *this);
-float __thiscall RGE_Moving_Object::teleport(RGE_Moving_Object *this, float x, float y, float z);
-float __thiscall RGE_Moving_Object::handle_teleport_z_correction(RGE_Moving_Object *this, float ground_z);
+double __thiscall RGE_Moving_Object::teleport(RGE_Moving_Object *this, float x, float y, float z);
+double __thiscall RGE_Moving_Object::handle_teleport_z_correction(RGE_Moving_Object *this, float ground_z);
 void __thiscall RGE_Moving_Object::set_velocity(RGE_Moving_Object *this, float x, float y, float z);
 void __thiscall RGE_Moving_Object::new_angle(RGE_Moving_Object *this, float new_angle);
 unsigned __int8 __thiscall RGE_Moving_Object::update(RGE_Moving_Object *this);
@@ -2244,7 +2244,7 @@ int __thiscall RGE_Moving_Object::findFirstTerrainAlongExceptionPath(RGE_Moving_
 int __thiscall RGE_Moving_Object::canLinePath2(RGE_Moving_Object *this, XYPoint *s, XYPoint *d, float range, XYPoint *rPoint);
 int __thiscall RGE_Moving_Object::canLinePath(RGE_Moving_Object *this, int sX, int sY, int dX, int dY, float range);
 int __thiscall RGE_Moving_Object::firstTileAlongLine(RGE_Moving_Object *this, XYPoint *s, XYPoint *d, XYPoint *rPoint, int tType1, int tType2, int checkPassability);
-float __thiscall RGE_Moving_Object::maximumSpeed(RGE_Moving_Object *this);
+double __thiscall RGE_Moving_Object::maximumSpeed(RGE_Moving_Object *this);
 unsigned __int8 __thiscall RGE_Moving_Object::waitingToMove(RGE_Moving_Object *this);
 void __thiscall RGE_Moving_Object::setWaitingToMove(RGE_Moving_Object *this, unsigned __int8 w);
 BVector *__thiscall RGE_Moving_Object::userDefinedWaypoint(RGE_Moving_Object *this, int v);
@@ -2252,8 +2252,8 @@ int __thiscall RGE_Moving_Object::addUserDefinedWaypoint(RGE_Moving_Object *this
 void __thiscall RGE_Moving_Object::removeAllUserDefinedWaypoints(RGE_Moving_Object *this);
 int __thiscall RGE_Moving_Object::resizeUserDefinedWaypoints(RGE_Moving_Object *this, int newSize);
 BPath *__thiscall RGE_Moving_Object::getPatrolInformation(RGE_Moving_Object *this, int *currentWaypoint);
-float __thiscall RGE_Moving_Object::distanceToHighestLevelPath2(RGE_Moving_Object *this);
-float __thiscall RGE_Moving_Object::distanceToHighestLevelPath(RGE_Moving_Object *this, BVector point);
+double __thiscall RGE_Moving_Object::distanceToHighestLevelPath2(RGE_Moving_Object *this);
+double __thiscall RGE_Moving_Object::distanceToHighestLevelPath(RGE_Moving_Object *this, BVector point);
 BPath *__thiscall RGE_Moving_Object::findAvoidancePath(RGE_Moving_Object *this, XYZPoint *goalPoint, float aRange, int targetID);
 void __thiscall RGE_Moving_Object::copy_obj(RGE_Moving_Object *this, RGE_Master_Static_Object *source2);
 void __thiscall RGE_Moving_Object::rotate(RGE_Moving_Object *this, int amount);
@@ -2267,30 +2267,30 @@ BVector *__thiscall RGE_Moving_Object::velocity(RGE_Moving_Object *this, BVector
 void __thiscall RGE_Moving_Object::setVelocity(RGE_Moving_Object *this, BVector *v);
 BVector *__thiscall RGE_Moving_Object::acceleration(RGE_Moving_Object *this, BVector *result);
 void __thiscall RGE_Moving_Object::setAcceleration(RGE_Moving_Object *this, BVector *v);
-float __thiscall RGE_Moving_Object::forwardVelocity(RGE_Moving_Object *this);
+double __thiscall RGE_Moving_Object::forwardVelocity(RGE_Moving_Object *this);
 void __thiscall RGE_Moving_Object::setForwardVelocity(RGE_Moving_Object *this, float v);
-float __thiscall RGE_Moving_Object::forwardAcceleration(RGE_Moving_Object *this);
+double __thiscall RGE_Moving_Object::forwardAcceleration(RGE_Moving_Object *this);
 void __thiscall RGE_Moving_Object::setForwardAcceleration(RGE_Moving_Object *this, float v);
 void __thiscall RGE_Moving_Object::moveForward(RGE_Moving_Object *this, float v);
 void __thiscall RGE_Moving_Object::setPosition(RGE_Moving_Object *this, BVector *pos);
 void __thiscall RGE_Moving_Object::yaw(RGE_Moving_Object *this, float v);
 int __thiscall RGE_Moving_Object::isMoving(RGE_Moving_Object *this);
 void __thiscall RGE_Moving_Object::stopMoving(RGE_Moving_Object *this);
-float __thiscall RGE_Moving_Object::calculateFutureVelocity(RGE_Moving_Object *this, float currentVelocity, float acceleration, float secondsInTheFuture, BVector *futurePos);
+double __thiscall RGE_Moving_Object::calculateFutureVelocity(RGE_Moving_Object *this, float currentVelocity, float acceleration, float secondsInTheFuture, BVector *futurePos);
 void __thiscall RGE_Moving_Object::pauseMovement(RGE_Moving_Object *this, float v);
-float __thiscall RGE_Moving_Object::precalcDistToTarget(RGE_Moving_Object *this, RGE_Static_Object **targetObj);
-float __thiscall RGE_Moving_Object::precalcDistToGoal(RGE_Moving_Object *this, RGE_Static_Object *targetObj, float goal);
+double __thiscall RGE_Moving_Object::precalcDistToTarget(RGE_Moving_Object *this, RGE_Static_Object **targetObj);
+double __thiscall RGE_Moving_Object::precalcDistToGoal(RGE_Moving_Object *this, RGE_Static_Object *targetObj, float goal);
 unsigned __int8 __thiscall RGE_Moving_Object::incrementWaypoint(RGE_Moving_Object *this, BPath *path, RGE_Static_Object *obj);
 unsigned __int8 __thiscall RGE_Moving_Object::checkDistance(RGE_Moving_Object *this, float);
 unsigned __int8 __thiscall RGE_Moving_Object::checkRange(RGE_Moving_Object *this, RGE_Static_Object *obj);
 void __thiscall RGE_Moving_Object::moveUnit(RGE_Moving_Object *this, BVector *, float, BVector);
 int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object *this);
 int __thiscall RGE_Moving_Object::resolveCollisions(RGE_Moving_Object *this, BVector *newPosition);
-float __thiscall RGE_Moving_Object::calculateMaximumSpeed(RGE_Moving_Object *this, int terrainType);
+double __thiscall RGE_Moving_Object::calculateMaximumSpeed(RGE_Moving_Object *this, int terrainType);
 int __thiscall RGE_Moving_Object::calculateForward(RGE_Moving_Object *this, BVector *start, BVector *destination, BVector *newOF);
-float __thiscall RGE_Moving_Object::calculateYawAngle(RGE_Moving_Object *this, BVector *curOF, BVector *newOF, float interval, int *limitedAngle);
+double __thiscall RGE_Moving_Object::calculateYawAngle(RGE_Moving_Object *this, BVector *curOF, BVector *newOF, float interval, int *limitedAngle);
 int __thiscall RGE_Moving_Object::calculateReachedPoint(RGE_Moving_Object *this, BVector *point, BVector *pos1, BVector *pos2);
-float __thiscall RGE_Moving_Object::calculateTurnRadius(RGE_Moving_Object *this);
+double __thiscall RGE_Moving_Object::calculateTurnRadius(RGE_Moving_Object *this);
 int __thiscall RGE_Moving_Object::checkAcceleration(RGE_Moving_Object *this, BVector *point, int pointIsGoal, int limitedYawAngle);
 BVector *__thiscall RGE_Moving_Object::straightProjectedPosition(RGE_Moving_Object *this, BVector *result, BVector *newOF, float secondsInTheFuture);
 int __thiscall RGE_Moving_Object::onPatrol(RGE_Moving_Object *this);
@@ -2622,13 +2622,13 @@ void __thiscall BPathData::save(BPathData *this, int outfile);
 void __thiscall BPathData::load(BPathData *this, int infile);
 void __thiscall BPath::BPath(BPath *this, int newID);
 void __thiscall BPath::destructor(BPath *this);
-BVector *__thiscall BPath::waypoint(BPath *this, int wpIndex, int unk);
+BVector *__thiscall BPath::waypoint(BPath *this, BVector *outVector, int wpIndex);
 int __thiscall BPath::addWaypointAtStart(BPath *this, BVector *wp);
 int __thiscall BPath::addWaypointAtEnd(BPath *this, BVector *wp);
 int __thiscall BPath::removeWaypoint(BPath *this, BVector *wp);
 void __thiscall BPath::calculatePathLength(BPath *this);
-int __thiscall BPath::nextPatrolWaypoint(BPath *this, int currentWaypoint, int modifyPath);
-float __thiscall BPath::distanceFromPath(BPath *this, BVector point);
+int __thiscall BPath::nextPatrolWaypoint(BPath *this, int currentWaypoint);
+double __thiscall BPath::distanceFromPath(BPath *this, BVector point);
 int __thiscall BPath::ignoreUnitsContain(BPath *this, int unitID);
 int __thiscall BPath::setIgnoreUnits(BPath *this, int *units, int number);
 void __thiscall BPath::copyGameData(BPath *this, BPath *path);
@@ -2764,8 +2764,8 @@ void __thiscall RGE_Player::load_victory(RGE_Player *this, int infile, int *play
 void __thiscall RGE_Player::new_victory(RGE_Player *this);
 void __thiscall RGE_Player::update_object_count(RGE_Player *this, int obj_id, int count);
 void __thiscall RGE_Player::update_built_object_count(RGE_Player *this, int obj_id, int count);
-float __thiscall RGE_Player::getDebitAmount(RGE_Player *this, int resource);
-float __thiscall RGE_Player::getEscrowAmount(RGE_Player *this, int resource);
+double __thiscall RGE_Player::getDebitAmount(RGE_Player *this, int resource);
+double __thiscall RGE_Player::getEscrowAmount(RGE_Player *this, int resource);
 void __thiscall RGE_Player::setEscrowPercentage(RGE_Player *this, int resource, int percentage);
 void __thiscall RGE_Player::releaseEscrow(RGE_Player *this, int resource);
 void __thiscall RGE_Player::auto_scroll_to_location(RGE_Player *this, float target_x, float target_y);
@@ -3947,8 +3947,8 @@ RGE_Static_Object *__thiscall RGE_Static_Object::get_object_pointer(RGE_Static_O
 RGE_Sprite *__thiscall RGE_Static_Object::get_sprite_pointer(RGE_Static_Object *this, __int16 sprite_id);
 void __thiscall RGE_Static_Object::save(RGE_Static_Object *this, int outfile);
 void __thiscall RGE_Static_Object::teleport_off_map(RGE_Static_Object *this);
-float __thiscall RGE_Static_Object::teleport(RGE_Static_Object *this, float x, float y, float z);
-float __thiscall RGE_Static_Object::handle_teleport_z_correction(RGE_Static_Object *this, float ground_z);
+double __thiscall RGE_Static_Object::teleport(RGE_Static_Object *this, float x, float y, float z);
+double __thiscall RGE_Static_Object::handle_teleport_z_correction(RGE_Static_Object *this, float ground_z);
 void __thiscall RGE_Static_Object::new_sprite(RGE_Static_Object *this, RGE_Sprite *nsprite);
 void __thiscall RGE_Static_Object::add_overlay_sprite(RGE_Static_Object *this, RGE_Sprite *nsprite, unsigned __int8 order);
 void __thiscall RGE_Static_Object::remove_overlay_sprite(RGE_Static_Object *this, RGE_Sprite *nsprite);
@@ -3978,7 +3978,7 @@ LOSTBL *__thiscall RGE_Static_Object::get_los_table(RGE_Static_Object *this);
 int __thiscall RGE_Static_Object::explore_terrain(RGE_Static_Object *this, RGE_Player *whos, unsigned __int8 explore_type, int Override_LOS, int Square);
 void __thiscall RGE_Static_Object::unexplore_terrain(RGE_Static_Object *this, RGE_Player *whos, unsigned __int8 explore_type, int Override_LOS, int Square);
 void __thiscall RGE_Static_Object::damage(RGE_Static_Object *this, int weapon_num, RGE_Armor_Weapon_Info *damage, float attack_modifier, RGE_Player *attacking_player, RGE_Static_Object *attackingObject, int first_call);
-float __thiscall RGE_Static_Object::calculateDamage(RGE_Static_Object *this, int weapon_num, RGE_Armor_Weapon_Info *damage, float attack_modifier, RGE_Player *attacking_player, RGE_Static_Object *attackingObject);
+double __thiscall RGE_Static_Object::calculateDamage(RGE_Static_Object *this, int weapon_num, RGE_Armor_Weapon_Info *damage, float attack_modifier, RGE_Player *attacking_player, RGE_Static_Object *attackingObject);
 void __thiscall RGE_Static_Object::rotate(RGE_Static_Object *this, int amount);
 void __thiscall RGE_Static_Object::set_attribute(RGE_Static_Object *this, __int16 attr_type, float attr_amount);
 void __thiscall RGE_Static_Object::set_attribute_amount(RGE_Static_Object *this, float attr_amount, unsigned __int8 delta, unsigned __int8 check_max);
@@ -3986,9 +3986,9 @@ unsigned __int8 __thiscall RGE_Static_Object::heal(RGE_Static_Object *this, floa
 void __thiscall RGE_Static_Object::set_being_worked_on(RGE_Static_Object *this, RGE_Action_Object *work_obj, __int16 action_type, unsigned __int8 attack_flag);
 void __thiscall RGE_Static_Object::release_being_worked_on(RGE_Static_Object *this, RGE_Static_Object *caller);
 int __thiscall RGE_Static_Object::inRange(RGE_Static_Object *this, RGE_Static_Object *obj, float range);
-float __thiscall RGE_Static_Object::distance_to_object(RGE_Static_Object *this, RGE_Static_Object *obj);
-float __thiscall RGE_Static_Object::distance_to_object2(RGE_Static_Object *this, RGE_Static_Object *obj, float x, float y);
-float __thiscall RGE_Static_Object::distance_to_position(RGE_Static_Object *unit, float x, float y, float z);
+double __thiscall RGE_Static_Object::distance_to_object(RGE_Static_Object *this, RGE_Static_Object *obj);
+double __thiscall RGE_Static_Object::distance_to_object2(RGE_Static_Object *this, RGE_Static_Object *obj, float x, float y);
+double __thiscall RGE_Static_Object::distance_to_position(RGE_Static_Object *unit, float x, float y, float z);
 unsigned __int8 __thiscall RGE_Static_Object::hit_test(RGE_Static_Object *this, __int16 draw_x, __int16 draw_y, __int16 mouse_x, __int16 mouse_y, __int16 check_radius);
 unsigned __int8 __thiscall RGE_Static_Object::box_hit_test(RGE_Static_Object *this, __int16 draw_x, __int16 draw_y, __int16 start_x, __int16 start_y, __int16 end_x, __int16 end_y);
 void __thiscall RGE_Static_Object::set_location(RGE_Static_Object *this, float x, float y, float z);
@@ -4013,7 +4013,7 @@ void __thiscall RGE_Static_Object::set_facet(RGE_Static_Object *this, char new_f
 char __thiscall RGE_Static_Object::get_3d_sound_info(RGE_Static_Object *this, int *pan, int *volume);
 BVector *__thiscall RGE_Static_Object::position(RGE_Static_Object *this, BVector *result);
 void __thiscall RGE_Static_Object::setOrientation(RGE_Static_Object *this, BVector *f, BVector *u);
-float __thiscall RGE_Static_Object::searchRadius(RGE_Static_Object *this);
+double __thiscall RGE_Static_Object::searchRadius(RGE_Static_Object *this);
 int __thiscall RGE_Static_Object::isFlagSet(RGE_Static_Object *this, int n);
 int __thiscall RGE_Static_Object::garrisoned_count(RGE_Static_Object *this);
 int __fastcall RGE_Static_Object::get_group_number_mask(int group_num);
@@ -4067,7 +4067,7 @@ void __thiscall TRIBE_Building_Object::remove_obj(TRIBE_Building_Object *this, R
 int __thiscall TRIBE_Building_Object::unload_object(TRIBE_Building_Object *this, RGE_Static_Object *obj, float x, float y);
 void __thiscall TRIBE_Building_Object::notify_of_relation(TRIBE_Building_Object *this, int player_id, unsigned __int8 relation);
 RGE_Static_Object *__thiscall TRIBE_Building_Object::spawn_death_obj(TRIBE_Building_Object *this);
-float __thiscall TRIBE_Building_Object::teleport(TRIBE_Building_Object *this, float x, float y, float z);
+double __thiscall TRIBE_Building_Object::teleport(TRIBE_Building_Object *this, float x, float y, float z);
 unsigned __int8 __thiscall TRIBE_Building_Object::research_tech(TRIBE_Building_Object *this, int tech_id, int unique_id);
 void __thiscall TRIBE_Building_Object::add_to_production_queue(TRIBE_Building_Object *this, __int16 master_id, __int16 unit_count);
 void __thiscall TRIBE_Building_Object::remove_from_production_queue(TRIBE_Building_Object *this, __int16 master_id, __int16 unit_count);
@@ -4077,7 +4077,7 @@ void __thiscall TRIBE_Building_Object::advance_production_queue(TRIBE_Building_O
 void __thiscall TRIBE_Building_Object::empty_production_queue(TRIBE_Building_Object *this);
 void __thiscall TRIBE_Building_Object::update_production_queue(TRIBE_Building_Object *this);
 int __thiscall TRIBE_Building_Object::production_queue_status(TRIBE_Building_Object *this, __int16 *master_id, __int16 *progress);
-float __thiscall TRIBE_Building_Object::calc_attack_modifier(TRIBE_Building_Object *this, RGE_Static_Object *target);
+double __thiscall TRIBE_Building_Object::calc_attack_modifier(TRIBE_Building_Object *this, RGE_Static_Object *target);
 void __thiscall TRIBE_Building_Object::change_terrain(TRIBE_Building_Object *this, unsigned __int8 terrain_type);
 void __thiscall TRIBE_Building_Object::set_terrain(TRIBE_Building_Object *this, unsigned __int8 terrain_type);
 int __thiscall TRIBE_Building_Object::extra_arrow_count(TRIBE_Building_Object *this);
@@ -4094,7 +4094,7 @@ void __thiscall TRIBE_Building_Object::updateGate(TRIBE_Building_Object *this);
 void __thiscall TRIBE_Building_Object::findUnitsUnderGate(TRIBE_Building_Object *this, int *units, int *numberUnits, int maxNumberUnits, int *numberAlliedUnits);
 int __thiscall TRIBE_Building_Object::getLinkedChild(TRIBE_Building_Object *this, int childNumber);
 void __thiscall TRIBE_Building_Object::set_being_worked_on(TRIBE_Building_Object *this, RGE_Action_Object *work_obj, __int16 action_type, unsigned __int8 attack_flag);
-float __thiscall TRIBE_Building_Object::getTradeAmount(TRIBE_Building_Object *this, float pickupX, float pickupY, float workRate, float speed);
+double __thiscall TRIBE_Building_Object::getTradeAmount(TRIBE_Building_Object *this, float pickupX, float pickupY, float workRate, float speed);
 unsigned __int8 __thiscall TRIBE_Building_Object::get_unload_position(TRIBE_Building_Object *this, RGE_Master_Static_Object *unload_master, float *unload_x, float *unload_y);
 unsigned __int8 __thiscall TRIBE_Building_Object::find_unload_position(TRIBE_Building_Object *this, RGE_Master_Static_Object *unload_master, float test_pt_x, float test_pt_y, float object_radius_x, float object_radius_y, int *num_objects_on_tile, float *unload_x, float *unload_y);
 void __thiscall TRIBE_Building_Object::set_semi_asleep(TRIBE_Building_Object *this, unsigned __int8 val);
@@ -4117,7 +4117,7 @@ void __thiscall TRIBE_Combat_Object::set_object_state(TRIBE_Combat_Object *this,
 void __thiscall TRIBE_Combat_Object::cancel_object(TRIBE_Combat_Object *this);
 void __thiscall TRIBE_Combat_Object::damage(TRIBE_Combat_Object *this, int weapon_num, RGE_Armor_Weapon_Info *damage, float attack_modifier, RGE_Player *attacking_player, RGE_Static_Object *attackingObject, int first_call);
 void __thiscall TRIBE_Combat_Object::change_ownership(TRIBE_Combat_Object *this, RGE_Player *new_owner);
-float __thiscall TRIBE_Combat_Object::calc_attack_modifier(TRIBE_Combat_Object *this, RGE_Static_Object *target);
+double __thiscall TRIBE_Combat_Object::calc_attack_modifier(TRIBE_Combat_Object *this, RGE_Static_Object *target);
 unsigned __int8 __thiscall TRIBE_Combat_Object::attack2(TRIBE_Combat_Object *this, float target_x, float target_y, float target_z, RGE_Combat_Object *attacker);
 unsigned __int8 __thiscall TRIBE_Combat_Object::attack3(TRIBE_Combat_Object *this, RGE_Static_Object *target, RGE_Combat_Object *attacker);
 unsigned __int8 __thiscall TRIBE_Combat_Object::volley_attack(TRIBE_Combat_Object *this, float target_x, float target_y, float target_z, RGE_Combat_Object *attacker, float offset_x, float offset_y, float offset_z, RGE_Static_Object *target);
@@ -4149,7 +4149,7 @@ void __thiscall TRIBE_Combat_Object::do_convert(TRIBE_Combat_Object *this, RGE_S
 void __thiscall TRIBE_Combat_Object::do_special(TRIBE_Combat_Object *this, RGE_Static_Object *obj, unsigned __int8 cmd_action);
 int __thiscall TRIBE_Combat_Object::obj_attr_id(TRIBE_Combat_Object *this, int attr_id);
 void __thiscall TRIBE_Combat_Object::notify_of_relation(TRIBE_Combat_Object *this, int player_id, unsigned __int8 relation);
-float __thiscall TRIBE_Combat_Object::calc_volley_base_info(TRIBE_Combat_Object *this);
+double __thiscall TRIBE_Combat_Object::calc_volley_base_info(TRIBE_Combat_Object *this);
 int __thiscall TRIBE_Combat_Object::canPlayerObjectBeEntered(TRIBE_Combat_Object *this, TRIBE_Player *entering_player, int entering_object_master_id, int allow_ally);
 void __thiscall TRIBE_Combat_Object::add_obj(TRIBE_Combat_Object *this, RGE_Static_Object *target);
 void __thiscall TRIBE_Combat_Object::remove_obj(TRIBE_Combat_Object *this, RGE_Static_Object *target);
@@ -4165,7 +4165,7 @@ int __thiscall TRIBE_Combat_Object::get_own_master(TRIBE_Combat_Object *this);
 void __thiscall TRIBE_Combat_Object::unit_transform(TRIBE_Combat_Object *this, int transform_id);
 int __thiscall TRIBE_Combat_Object::lock_down(TRIBE_Combat_Object *this);
 int __thiscall TRIBE_Combat_Object::unlock_down(TRIBE_Combat_Object *this);
-float __thiscall TRIBE_Combat_Object::maximumSpeed(TRIBE_Combat_Object *this);
+double __thiscall TRIBE_Combat_Object::maximumSpeed(TRIBE_Combat_Object *this);
 void __thiscall TRIBE_Combat_Object::die_die_die(TRIBE_Combat_Object *this);
 int __thiscall TRIBE_Combat_Object::shepherd(TRIBE_Combat_Object *this, int targetID, int unconditional);
 void __thiscall TRIBE_Combat_Object::setUnitAIAction(TRIBE_Combat_Object *this, int actionType, RGE_Static_Object *obj, float x, float y, float z);
@@ -4728,7 +4728,7 @@ int __thiscall TribeInformationAIModule::setupLOSMap(TribeInformationAIModule *t
 int __thiscall TribeInformationAIModule::setupAttackMap(TribeInformationAIModule *this, int ownerID, int x, int y);
 void __thiscall TribeInformationAIModule::addResourceType(TribeInformationAIModule *this, int r, int t);
 int __thiscall TribeInformationAIModule::addResourceObject(TribeInformationAIModule *this, RGE_Static_Object *obj);
-float __thiscall TribeInformationAIModule::findClosestDropsite(TribeInformationAIModule *this, RGE_Static_Object *resourceObj, int countTownCenter, int *dropsiteID);
+double __thiscall TribeInformationAIModule::findClosestDropsite(TribeInformationAIModule *this, RGE_Static_Object *resourceObj, int countTownCenter, int *dropsiteID);
 RGE_Static_Object *__thiscall TribeInformationAIModule::findClosestReturnDropsite(TribeInformationAIModule *this, RGE_Static_Object *unitObj);
 void __thiscall TribeInformationAIModule::updateResourceDropsite(TribeInformationAIModule *this, int rType);
 void __thiscall TribeInformationAIModule::updateClosestResourceDropsite(TribeInformationAIModule *this, int rType);
@@ -5258,7 +5258,7 @@ void __thiscall TRIBE_Master_Building_Object::draw(TRIBE_Master_Building_Object 
 unsigned __int8 __thiscall TRIBE_Master_Building_Object::alignment(TRIBE_Master_Building_Object *this, float *col, float *row, RGE_Game_World *world, unsigned __int8 center_flag);
 unsigned __int8 __thiscall TRIBE_Master_Building_Object::check_placement(TRIBE_Master_Building_Object *this, RGE_Player *player, float col, float row, int *obstructionObject, unsigned __int8 check_vis, unsigned __int8 check_flat, unsigned __int8 check_overlay, unsigned __int8 construction_radius_flag, unsigned __int8 can_be_built_on_flag, unsigned __int8 check_objects, RGE_Static_Object *ignore_obj, unsigned __int8 check_movible_objects);
 unsigned __int8 __thiscall TRIBE_Master_Building_Object::check_placement_for_units(TRIBE_Master_Building_Object *this, RGE_Player *player, float col, float row, RGE_Static_Object *ignore_obj, RGE_Static_Object *ignore_obj2);
-TRIBE_Master_Building_Object *__thiscall TRIBE_Master_Combat_Object::TRIBE_Master_Combat_Object(TRIBE_Master_Building_Object *this, TRIBE_Master_Building_Object *other_object, int do_setup);
+TRIBE_Master_Combat_Object *__thiscall TRIBE_Master_Combat_Object::TRIBE_Master_Combat_Object(TRIBE_Master_Combat_Object *this, TRIBE_Master_Combat_Object *other_object, int do_setup);
 void *__thiscall TRIBE_Master_Combat_Object::scalar_deleting_destructor(TRIBE_Master_Combat_Object *this, unsigned int flags);
 TRIBE_Master_Combat_Object *__thiscall TRIBE_Master_Combat_Object::TRIBE_Master_Combat_Object2(TRIBE_Master_Combat_Object *this, int infile, RGE_Sprite **sprites, RGE_Sound **sounds, int do_setup);
 TRIBE_Master_Combat_Object *__thiscall TRIBE_Master_Combat_Object::TRIBE_Master_Combat_Object3(TRIBE_Master_Combat_Object *this, _iobuf *infile, RGE_Sprite **sprites, RGE_Sound **sounds, __int16 in_id, int do_setup);
@@ -5448,7 +5448,7 @@ int __thiscall TRIBE_Player::get_time_of_offboard_trade(TRIBE_Player *this, int 
 void __thiscall TRIBE_Player::get_results_of_offboard_trade(TRIBE_Player *this, int trade_route_being_used, RGE_Static_Object *obj);
 void __thiscall TRIBE_Player::set_objects_offboard_trade_route(TRIBE_Player *this, int trade_route, TRIBE_Combat_Object *obj);
 int __thiscall TRIBE_Player::determine_extinction(TRIBE_Player *this);
-float __thiscall TRIBE_Player::unit_pop_count(TRIBE_Player *this, int master_id);
+double __thiscall TRIBE_Player::unit_pop_count(TRIBE_Player *this, int master_id);
 int __thiscall TRIBE_Player::get_center_of_town_x(TRIBE_Player *this);
 int __thiscall TRIBE_Player::get_center_of_town_y(TRIBE_Player *this);
 int __thiscall TRIBE_Player::count_enemy_pop(TRIBE_Player *this);
@@ -5575,7 +5575,7 @@ int __thiscall Time_Line_Panel::set_time_slice_draw_data(Time_Line_Panel *this, 
 int __thiscall Time_Line_Panel::set_time_slice_special_events(Time_Line_Panel *this);
 int __thiscall Time_Line_Panel::set_special_events(Time_Line_Panel *this, Time_Slice_Special_Event *in_special_event_ptr);
 int __thiscall Time_Line_Panel::set_icon_location(Time_Line_Panel *this, Time_Slice_Special_Event *in_special_event_ptr);
-float __thiscall Time_Line_Panel::calculate_intermediate_Y_line(Time_Line_Panel *this, int in_y1, int in_y2, int adj_x_thickness, int intermediate_x_pos);
+double __thiscall Time_Line_Panel::calculate_intermediate_Y_line(Time_Line_Panel *this, int in_y1, int in_y2, int adj_x_thickness, int intermediate_x_pos);
 void __thiscall Time_Line_Panel::new_draw_timeline(Time_Line_Panel *this);
 void __thiscall Time_Line_Panel::new_draw_special_events(Time_Line_Panel *this);
 void __thiscall Time_Line_Panel::new_init_timeline(Time_Line_Panel *this);
@@ -5963,8 +5963,8 @@ BVector *__thiscall BVector::operator_plus(BVector *this, BVector *result, BVect
 BVector *__thiscall BVector::operator_minus(BVector *this, BVector *result, BVector *v);
 BVector *__thiscall BVector::operator_neg(BVector *this, BVector *result);
 BVector *__thiscall BVector::operator_mul(BVector *this, BVector *result, BVector *v);
-float __thiscall BVector::distanceToLineSegment(BVector *this, BVector *p1, BVector *p2, int *onSegment);
-float __thiscall BVector::angleBetweenVector(BVector *this, BVector *v);
+double __thiscall BVector::distanceToLineSegment(BVector *this, BVector *p1, BVector *p2, int *onSegment);
+double __thiscall BVector::angleBetweenVector(BVector *this, BVector *v);
 RGE_Victory_Conditions *__thiscall RGE_Victory_Conditions::RGE_Victory_Conditions2(RGE_Victory_Conditions *this, RGE_Player *in_player, int infile, int *player_id_hash, unsigned __int8 version_control);
 RGE_Victory_Conditions *__thiscall RGE_Victory_Conditions::RGE_Victory_Conditions(RGE_Victory_Conditions *this, RGE_Player *in_Player);
 void __thiscall RGE_Victory_Conditions::destructor(RGE_Victory_Conditions *this);
@@ -6118,7 +6118,7 @@ void __thiscall RGE_Visible_Map::save(RGE_Visible_Map *this, int outfile);
 int __thiscall RGE_Visible_Map::get_visible(RGE_Visible_Map *this, int map_col, int map_row);
 void __thiscall RGE_Visible_Map::set_all(RGE_Visible_Map *this, unsigned __int8 vis_flag);
 void __thiscall RGE_Visible_Map::explore_all(RGE_Visible_Map *this);
-float __thiscall RGE_Visible_Map::percentExplored(RGE_Visible_Map *this);
+double __thiscall RGE_Visible_Map::percentExplored(RGE_Visible_Map *this);
 LOSTBL *__thiscall RGE_Visible_Map::get_los_table(RGE_Visible_Map *this, int radius, int Square);
 int __thiscall RGE_Visible_Map::explore_terrain(RGE_Visible_Map *this, int tx, int ty, int radius, int Square, int UpdateMap, int id, LOS_ExploreInfo *ExpData);
 void __thiscall RGE_Visible_Map::unexplore_terrain(RGE_Visible_Map *this, int tx, int ty, int radius, int Square, int UpdateMap, int id, LOS_ExploreInfo *ExpData);
@@ -6276,7 +6276,7 @@ BUnitGroup *__thiscall RGE_Game_World::getUnitGroup(RGE_Game_World *this, int gr
 BUnitGroup *__thiscall RGE_Game_World::createUnitGroup(RGE_Game_World *this, int trackCreation);
 int __thiscall RGE_Game_World::destroyUnitGroup(RGE_Game_World *this, int groupID);
 int __thiscall RGE_Game_World::commonUnitGroupID(RGE_Game_World *this, int *units, int numberUnits);
-float __thiscall RGE_Game_World::getWorldTimeDeltaSeconds(RGE_Game_World *this);
+double __thiscall RGE_Game_World::getWorldTimeDeltaSeconds(RGE_Game_World *this);
 RGE_Zone_Map *__thiscall RGE_Zone_Map::RGE_Zone_Map2(RGE_Zone_Map *this, int infile, RGE_Map *new_map);
 RGE_Zone_Map *__thiscall RGE_Zone_Map::RGE_Zone_Map(RGE_Zone_Map *this, RGE_Map *new_map, float *new_terrain_rules, int new_terrain_rules_num);
 void __thiscall RGE_Zone_Map::destructor(RGE_Zone_Map *this);
@@ -46084,7 +46084,7 @@ LABEL_56:
           case 0u:
             if ( !this->target_obj
               || fabs(this->range) <= 0.0000001000000011686097
-              || RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) > (double)this->range )
+              || RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) > this->range )
             {
               return 0;
             }
@@ -47033,7 +47033,7 @@ void __thiscall RGE_Action_Enter::set_state(RGE_Action_Enter *this, unsigned __i
         }
       }
       if ( this->target_obj
-        && RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) <= (double)this->task->work_range
+        && RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) <= this->task->work_range
         && RGE_Action_Enter::enter_target(this) )
       {
         this->vfptr->set_state(this, 1u);
@@ -47191,7 +47191,7 @@ LABEL_21:
       switch ( this->sub_actions->vfptr->update(this->sub_actions) )
       {
         case 1u:
-          if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) > (double)this->task->work_range )
+          if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) > this->task->work_range )
             goto LABEL_25;
           if ( RGE_Action_Enter::enter_target(this) )
             this->vfptr->set_state(this, 1u);
@@ -50356,7 +50356,7 @@ unsigned __int8 __thiscall RGE_Action_Missile::update(RGE_Action_Missile *this)
   RGE_Game_World *v3; // ecx
   double v4; // st7
   float v5; // edx
-  int v6; // eax
+  float v6; // eax
   RGE_Static_Object *v7; // ecx
   RGE_Static_Object *v8; // ecx
   RGE_Missile_Object *v9; // eax
@@ -50418,12 +50418,12 @@ unsigned __int8 __thiscall RGE_Action_Missile::update(RGE_Action_Missile *this)
   float v66; // [esp+22h] [ebp-48h]
   unsigned __int8 v67; // [esp+39h] [ebp-31h]
   float v68; // [esp+3Ah] [ebp-30h]
-  float v69; // [esp+3Eh] [ebp-2Ch]
-  float v70; // [esp+3Eh] [ebp-2Ch]
+  float y; // [esp+3Eh] [ebp-2Ch]
+  float ya; // [esp+3Eh] [ebp-2Ch]
   float x; // [esp+42h] [ebp-28h]
-  float v72; // [esp+46h] [ebp-24h]
-  float v73; // [esp+46h] [ebp-24h]
-  float v74; // [esp+46h] [ebp-24h]
+  float z; // [esp+46h] [ebp-24h]
+  float zb; // [esp+46h] [ebp-24h]
+  float za; // [esp+46h] [ebp-24h]
   float v75; // [esp+4Ah] [ebp-20h]
   float v76; // [esp+4Ah] [ebp-20h]
   float v77; // [esp+4Eh] [ebp-1Ch]
@@ -50432,23 +50432,23 @@ unsigned __int8 __thiscall RGE_Action_Missile::update(RGE_Action_Missile *this)
   float tx; // [esp+52h] [ebp-18h] BYREF
   float ty; // [esp+56h] [ebp-14h] BYREF
   float tz; // [esp+5Ah] [ebp-10h] BYREF
-  int v83; // [esp+5Eh] [ebp-Ch]
-  float z; // [esp+62h] [ebp-8h]
-  float y; // [esp+66h] [ebp-4h]
+  float old_z; // [esp+5Eh] [ebp-Ch]
+  float old_y; // [esp+62h] [ebp-8h]
+  float old_x; // [esp+66h] [ebp-4h]
 
   x = 0.0;
-  v69 = 0.0;
+  y = 0.0;
   v2 = this->obj;
-  v72 = 0.0;
+  z = 0.0;
   v3 = (RGE_Game_World *)v2->owner->world;
   v77 = v3->world_time_delta_seconds;
   v4 = v77 * v2->master_obj->speed;
-  y = v2->world_x;
+  old_x = v2->world_x;
   v5 = v2->world_y;
-  v6 = LODWORD(v2->world_z);
-  z = v5;
+  v6 = v2->world_z;
+  old_y = v5;
   v68 = v4;
-  v83 = v6;
+  old_z = v6;
   if ( this->targetID != -1 && !RGE_Game_World::object(v3, this->targetID) )
     this->vfptr->set_target_obj(this, 0);
   if ( this->target2ID != -1 && !RGE_Game_World::object((RGE_Game_World *)this->obj->owner->world, this->target2ID) )
@@ -50481,22 +50481,22 @@ unsigned __int8 __thiscall RGE_Action_Missile::update(RGE_Action_Missile *this)
           RGE_Action_Missile::intercept(this, &tx, &ty, &tz);
           v11 = this->obj;
           v12 = tx - v11->world_x;
-          v70 = ty - v11->world_y;
+          ya = ty - v11->world_y;
           v13 = tz - v11->world_z;
           v75 = v13;
-          v73 = sqrt(v13 * v75 + v70 * v70 + v12 * v12);
-          this->distance = v73;
-          x = v12 / v73 * v68;
-          v69 = v70 / v73 * v68;
-          v72 = v75 / v73 * v68;
-          v66 = atan2(v69, x);
+          zb = sqrt(v13 * v75 + ya * ya + v12 * v12);
+          this->distance = zb;
+          x = v12 / zb * v68;
+          y = ya / zb * v68;
+          z = v75 / zb * v68;
+          v66 = atan2(y, x);
           ((void (__thiscall *)(RGE_Missile_Object *, _DWORD))v11->vfptr->new_angle)(v11, LODWORD(v66));
         }
         else
         {
           x = v68 * this->velocity_x;
-          v69 = v68 * this->velocity_y;
-          v72 = v68 * this->velocity_z;
+          y = v68 * this->velocity_y;
+          z = v68 * this->velocity_z;
         }
         v14 = v68 + this->timer;
         v15 = this->obj;
@@ -50508,16 +50508,16 @@ unsigned __int8 __thiscall RGE_Action_Missile::update(RGE_Action_Missile *this)
       else if ( v9->master_obj->missile_type == 3 )
       {
         x = this->velocity_x;
-        v69 = this->velocity_y;
-        v72 = this->velocity_z;
+        y = this->velocity_y;
+        z = this->velocity_z;
         this->distance = 0.0;
       }
     }
     else
     {
       x = v68 * this->velocity_x;
-      v69 = v68 * this->velocity_y;
-      v72 = v68 * this->velocity_z;
+      y = v68 * this->velocity_y;
+      z = v68 * this->velocity_z;
       v16 = v68 + this->timer;
       this->timer = v16;
       tz = this->distance - v68;
@@ -50529,22 +50529,22 @@ unsigned __int8 __thiscall RGE_Action_Missile::update(RGE_Action_Missile *this)
     if ( v17->master_obj[1].attribute_amount_held[0] != 0.0 )
     {
       v18 = v77 * this->ballistic_acceleration;
-      v72 = (v18 * 0.5 + this->ballistic_velocity) * v77 + v72;
+      z = (v18 * 0.5 + this->ballistic_velocity) * v77 + z;
       this->ballistic_velocity = v18 + this->ballistic_velocity;
     }
-    RGE_Moving_Object::set_velocity(v17, x, v69, v72);
+    RGE_Moving_Object::set_velocity(v17, x, y, z);
     v19 = this->obj;
     v20 = v19->sprite;
     v21 = v20->frame_num;
     if ( v21 > 1 && (v20->flag & 1) != 1 )
     {
       if ( v19->master_obj->missile_type )
-        v22 = sqrt(v69 * v69 + x * x);
+        v22 = sqrt(y * y + x * x);
       else
         v22 = v68;
       v23 = v19->sprite_list;
       LODWORD(tz) = v21;
-      v24 = (__int64)(atan2(v22, v72 * 0.5) * (double)v21 * 0.31830987);
+      v24 = (__int64)(atan2(v22, z * 0.5) * (double)v21 * 0.31830987);
       ((void (__fastcall *)(RGE_Active_Sprite_List *, _DWORD, RGE_Sprite *, _DWORD))v23->vfptr->set_frame)(
         v23,
         HIDWORD(v24),
@@ -50582,8 +50582,13 @@ unsigned __int8 __thiscall RGE_Action_Missile::update(RGE_Action_Missile *this)
       }
       goto LABEL_98;
     }
-    v29 = RGE_Missile_Object::make_object_collision_list(v26, *(float *)&this->target_obj, y, z, v83);
-    LODWORD(y) = v29;
+    v29 = RGE_Missile_Object::make_object_collision_list(
+            v26,
+            (RGE_Static_Object *)this->target_obj,
+            old_x,
+            old_y,
+            old_z);
+    LODWORD(old_x) = v29;
     if ( !v29 )
     {
 LABEL_98:
@@ -50617,13 +50622,13 @@ LABEL_107:
               v76 = v54->world_x;
               v57 = v76 - v50->world_x;
               v79 = v54->world_y;
-              v74 = v79 - v50->world_y;
+              za = v79 - v50->world_y;
               if ( v57 < 0.0 )
                 v57 = -v57;
-              if ( v74 < 0.0 )
-                v74 = -v74;
+              if ( za < 0.0 )
+                za = -za;
               v58 = v50->master_obj;
-              if ( v57 < v58->radius_x + v55->radius_x && v58->radius_y + v55->radius_y > v74 )
+              if ( v57 < v58->radius_x + v55->radius_x && v58->radius_y + v55->radius_y > za )
               {
                 v59 = this->target_obj2;
                 if ( v59 )
@@ -50683,7 +50688,7 @@ LABEL_95:
         RGE_Check_List::destructor(this->old_bounds);
         operator_delete(v49);
       }
-      *(float *)&this->old_bounds = y;
+      *(float *)&this->old_bounds = old_x;
       goto LABEL_98;
     }
     while ( 1 )
@@ -51076,14 +51081,14 @@ unsigned __int8 __thiscall RGE_Action_Move_To::update(RGE_Action_Move_To *this)
     case 3u:
       if ( this->target_obj )
       {
-        if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) > (double)this->range )
+        if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) > this->range )
           goto LABEL_14;
       }
       else if ( RGE_Static_Object::distance_to_position(
                   (RGE_Static_Object *)this->obj,
                   this->target_x,
                   this->target_y,
-                  this->target_z) > (double)this->range )
+                  this->target_z) > this->range )
       {
         goto LABEL_14;
       }
@@ -51321,7 +51326,7 @@ int __stdcall nullsub_25(int a1)
 }
 
 //----- (00408A90) --------------------------------------------------------
-float __thiscall RGE_Static_Object::calc_attack_modifier(RGE_Static_Object *this, RGE_Static_Object *formal)
+double __thiscall RGE_Static_Object::calc_attack_modifier(RGE_Static_Object *this, RGE_Static_Object *formal)
 {
   return 1.0;
 }
@@ -51393,19 +51398,16 @@ int __stdcall nullsub_46(int childNumber)
 }
 
 //----- (00408B70) --------------------------------------------------------
-float __thiscall RGE_Animated_Object::getSpeed(RGE_Animated_Object *this)
+double __thiscall RGE_Animated_Object::getSpeed(RGE_Animated_Object *this)
 {
   return this->speed;
 }
 
 //----- (00408B80) --------------------------------------------------------
-float __cdecl RGE_Moving_Object::getTurnRadius(RGE_Moving_Object *this)
+double __thiscall RGE_Moving_Object::getTurnRadius(RGE_Moving_Object *this)
 {
-  int v1; // ecx
-
-  return *(float *)(v1 + 200);
+  return this->angle;
 }
-// 408B80: variable 'v1' is possibly undefined
 
 //----- (00408B90) --------------------------------------------------------
 void __thiscall RGE_Moving_Object::zeroUserDefinedWaypoints(RGE_Moving_Object *this)
@@ -52335,7 +52337,7 @@ unsigned __int8 __thiscall RGE_Action_Object::actionState(RGE_Action_Object *thi
 }
 
 //----- (00409B70) --------------------------------------------------------
-float __thiscall RGE_Action_Object::searchRadius(RGE_Action_Object *this)
+double __thiscall RGE_Action_Object::searchRadius(RGE_Action_Object *this)
 {
   return this->master_obj->search_radius;
 }
@@ -52473,7 +52475,7 @@ void __thiscall RGE_Action_Object::setUnitAIAction(RGE_Action_Object *this, int 
     if ( obj )
     {
       UnitAIModule::setCurrentTarget2(this->unitAIValue, obj->id, obj->master_obj->object_group, x, y, z);
-      *(_QWORD *)&v12.y = *(_QWORD *)&obj->vfptr->position(obj, v14)->x;
+      *(_QWORD *)&v12.z = *(_QWORD *)&obj->vfptr->position(obj, v14)->x;
       LODWORD(v12.x) = obj->id;
       v10 = *(BVector *)((int (__thiscall *)(RGE_Action_Object *))this->vfptr->position)(this);
       UnitAIModule::addOrderToHistory(this->unitAIValue, v8, v9, v10, (int)v16, v12);
@@ -52485,7 +52487,7 @@ void __thiscall RGE_Action_Object::setUnitAIAction(RGE_Action_Object *this, int 
       *(float *)&v14[1] = z;
       *(float *)&v14[2] = y;
       v13.x = x;
-      *(_QWORD *)&v13.y = __PAIR64__(LODWORD(y), LODWORD(z));
+      *(_QWORD *)&v13.z = __PAIR64__(LODWORD(y), LODWORD(z));
       v11 = *this->vfptr->position(this, &z_position);
       UnitAIModule::addOrderToHistory(this->unitAIValue, v8, v9, v11, -1, v13);
     }
@@ -53468,19 +53470,19 @@ void __thiscall RGE_Action::get_state_name(RGE_Action *this, char *state_name)
 }
 
 //----- (0040B040) --------------------------------------------------------
-float __thiscall RGE_Action::targetX(RGE_Action *this)
+double __thiscall RGE_Action::targetX(RGE_Action *this)
 {
   return this->target_x;
 }
 
 //----- (0040B050) --------------------------------------------------------
-float __thiscall RGE_Action::targetY(RGE_Action *this)
+double __thiscall RGE_Action::targetY(RGE_Action *this)
 {
   return this->target_y;
 }
 
 //----- (0040B060) --------------------------------------------------------
-float __thiscall RGE_Action::targetZ(RGE_Action *this)
+double __thiscall RGE_Action::targetZ(RGE_Action *this)
 {
   return this->target_z;
 }
@@ -53681,37 +53683,37 @@ char *__thiscall BaseItem::name(BaseItem *this)
 }
 
 //----- (0040B390) --------------------------------------------------------
-float __thiscall BaseItem::x(BaseItem *this)
+double __thiscall BaseItem::x(BaseItem *this)
 {
   return this->xValue;
 }
 
 //----- (0040B3A0) --------------------------------------------------------
-float __thiscall BaseItem::y(BaseItem *this)
+double __thiscall BaseItem::y(BaseItem *this)
 {
   return this->yValue;
 }
 
 //----- (0040B3B0) --------------------------------------------------------
-float __thiscall BaseItem::z(BaseItem *this)
+double __thiscall BaseItem::z(BaseItem *this)
 {
   return this->zValue;
 }
 
 //----- (0040B3C0) --------------------------------------------------------
-float __thiscall BaseItem::xSize(BaseItem *this)
+double __thiscall BaseItem::xSize(BaseItem *this)
 {
   return this->xSizeValue;
 }
 
 //----- (0040B3D0) --------------------------------------------------------
-float __thiscall BaseItem::ySize(BaseItem *this)
+double __thiscall BaseItem::ySize(BaseItem *this)
 {
   return this->ySizeValue;
 }
 
 //----- (0040B3E0) --------------------------------------------------------
-float __thiscall BaseItem::zSize(BaseItem *this)
+double __thiscall BaseItem::zSize(BaseItem *this)
 {
   return this->zSizeValue;
 }
@@ -64879,22 +64881,22 @@ UnitAIModule *__thiscall UnitAIModule::UnitAIModule(UnitAIModule *this, RGE_Stat
   this->lastTargetValue = -1;
   this->lastTargetTypeValue = -1;
   this->mOrderHistory.mPosition.x = 0.0;
-  this->mOrderHistory.mPosition.y = 0.0;
   this->mOrderHistory.mPosition.z = 0.0;
+  this->mOrderHistory.mPosition.y = 0.0;
   this->mOrderHistory.mTargetPosition.x = 0.0;
-  this->mOrderHistory.mTargetPosition.y = 0.0;
   this->mOrderHistory.mTargetPosition.z = 0.0;
+  this->mOrderHistory.mTargetPosition.y = 0.0;
   this->mOrderHistory.mOrder = -1;
   this->mOrderHistory.mAction = -1;
   this->mOrderHistory.mTime = 0;
   this->mOrderHistory.mPosition.x = 0.0;
-  this->mOrderHistory.mPosition.y = 0.0;
   this->mOrderHistory.mPosition.z = 0.0;
+  this->mOrderHistory.mPosition.y = 0.0;
   this->mOrderHistory.mTargetID = -1;
   this->mOrderHistory.mTargetAttackCategory = -1;
   this->mOrderHistory.mTargetPosition.x = 0.0;
-  this->mOrderHistory.mTargetPosition.y = 0.0;
   this->mOrderHistory.mTargetPosition.z = 0.0;
+  this->mOrderHistory.mTargetPosition.y = 0.0;
   this->mOrderHistory.prev = &this->mOrderHistory;
   this->mOrderHistory.next = &this->mOrderHistory;
   this->mLastRetargetTime = rand() % 0x1F4u;
@@ -65347,22 +65349,22 @@ LABEL_20:
     if ( v17 )
     {
       v17->mPosition.x = 0.0;
-      v17->mPosition.y = 0.0;
       v17->mPosition.z = 0.0;
+      v17->mPosition.y = 0.0;
       v17->mTargetPosition.x = 0.0;
-      v17->mTargetPosition.y = 0.0;
       v17->mTargetPosition.z = 0.0;
+      v17->mTargetPosition.y = 0.0;
       v17->mOrder = -1;
       v17->mAction = -1;
       v17->mTime = 0;
       v17->mPosition.x = 0.0;
-      v17->mPosition.y = 0.0;
       v17->mPosition.z = 0.0;
+      v17->mPosition.y = 0.0;
       v17->mTargetID = -1;
       v17->mTargetAttackCategory = -1;
       v17->mTargetPosition.x = 0.0;
-      v17->mTargetPosition.y = 0.0;
       v17->mTargetPosition.z = 0.0;
+      v17->mTargetPosition.y = 0.0;
       v17->prev = v17;
       v17->next = v17;
       rge_read(v2, v17, 4u);
@@ -66368,7 +66370,7 @@ int __thiscall UnitAIModule::bestUnitToAttack(UnitAIModule *this, BVector refere
   ((void (__thiscall *)(UnitAIModule *, _DWORD, _DWORD, int))this->vfptr->search)(
     this,
     LODWORD(referencePosition.x),
-    LODWORD(referencePosition.z),
+    LODWORD(referencePosition.y),
     1);
   v11 = UnitAIModule::calculateAutoReactionDistance(this);
   v12 = this->currentTargetValue;
@@ -67492,7 +67494,7 @@ LABEL_15:
 }
 
 //----- (0041B800) --------------------------------------------------------
-float __thiscall UnitAIModule::calculateAutoReactionDistance(UnitAIModule *this)
+double __thiscall UnitAIModule::calculateAutoReactionDistance(UnitAIModule *this)
 {
   int v2; // esi
   int v3; // eax
@@ -69458,7 +69460,7 @@ LABEL_30:
                   (RGE_Static_Object *)this->objectValue,
                   v22,
                   v23,
-                  this->objectValue->world_z) >= (double)v24) )
+                  this->objectValue->world_z) >= v24) )
           {
             if ( ((int (__thiscall *)(RGE_Combat_Object *, int, int, int, _DWORD, int, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath_1)(
                    this->objectValue,
@@ -69772,7 +69774,7 @@ int __thiscall UnitAIModule::followObject(UnitAIModule *this, int targetID, floa
       this->currentTargetTypeValue = v13->master_obj->object_group;
     v14 = (RGE_Static_Object *)this->objectValue;
     this->desiredTargetDistanceValue = desiredDistance;
-    if ( RGE_Static_Object::distance_to_object(v14, v6) > (double)this->desiredTargetDistanceValue )
+    if ( RGE_Static_Object::distance_to_object(v14, v6) > this->desiredTargetDistanceValue )
       ((void (__thiscall *)(UnitAIModule *, int, _DWORD, int))this->vfptr->moveTo_2)(
         this,
         this->currentTargetValue,
@@ -73275,8 +73277,8 @@ int __thiscall UnitAIModule::restorePatrolInformation(UnitAIModule *this)
   float v14; // [esp-8h] [ebp-38h]
   float v15; // [esp+0h] [ebp-30h]
   float v16; // [esp+4h] [ebp-2Ch]
-  int wpIndex[2]; // [esp+14h] [ebp-1Ch] BYREF
-  int v18; // [esp+20h] [ebp-10h] BYREF
+  BVector wpIndex; // [esp+14h] [ebp-1Ch] BYREF
+  BVector outVector; // [esp+20h] [ebp-10h] BYREF
   int v19; // [esp+2Ch] [ebp-4h] BYREF
 
   if ( !this->mPatrolPath )
@@ -73286,9 +73288,9 @@ int __thiscall UnitAIModule::restorePatrolInformation(UnitAIModule *this)
   for ( i = 0; i < v3->waypointsCount; ++i )
   {
     v5 = this->objectValue->vfptr;
-    v16 = BPath::waypoint(v3, (int)wpIndex, i)->y;
-    v15 = BPath::waypoint(this->mPatrolPath, (int)&v18, i)->z;
-    v6 = BPath::waypoint(this->mPatrolPath, (int)&v19, i);
+    v16 = BPath::waypoint(v3, &wpIndex, i)->z;
+    v15 = BPath::waypoint(this->mPatrolPath, &outVector, i)->y;
+    v6 = BPath::waypoint(this->mPatrolPath, (BVector *)&v19, i);
     ((void (__thiscall *)(RGE_Combat_Object *, _DWORD, float, float))v5->addUserDefinedWaypoint)(
       this->objectValue,
       LODWORD(v6->x),
@@ -73299,9 +73301,9 @@ int __thiscall UnitAIModule::restorePatrolInformation(UnitAIModule *this)
   v7 = this->mPatrolPath;
   v8 = v7->waypointsCount;
   v9 = this->objectValue->vfptr;
-  v14 = BPath::waypoint(v7, (int)&v19, v8 - 1)->y;
-  v13 = BPath::waypoint(this->mPatrolPath, (int)&v18, v8 - 1)->z;
-  v10 = BPath::waypoint(this->mPatrolPath, (int)wpIndex, v8 - 1);
+  v14 = BPath::waypoint(v7, (BVector *)&v19, v8 - 1)->z;
+  v13 = BPath::waypoint(this->mPatrolPath, &outVector, v8 - 1)->y;
+  v10 = BPath::waypoint(this->mPatrolPath, &wpIndex, v8 - 1);
   ((void (__thiscall *)(RGE_Combat_Object *, _DWORD, float, float, _DWORD))v9->moveTo_3)(
     this->objectValue,
     LODWORD(v10->x),
@@ -73879,7 +73881,7 @@ double __cdecl nullsub_28()
 }
 
 //----- (00422AD0) --------------------------------------------------------
-float __thiscall RGE_Static_Object::calculateYawAngle(RGE_Static_Object *this, BVector *curOf, BVector *newOF, float interval, int *limitedAngle)
+double __thiscall RGE_Static_Object::calculateYawAngle(RGE_Static_Object *this, BVector *curOf, BVector *newOF, float interval, int *limitedAngle)
 {
   return 0.0;
 }
@@ -73909,8 +73911,8 @@ BVector *__thiscall RGE_Static_Object::straightProjectedPosition(RGE_Static_Obje
 
   v4 = result;
   result->x = 0.0;
-  result->y = 0.0;
   result->z = 0.0;
+  result->y = 0.0;
   return v4;
 }
 
@@ -73921,8 +73923,8 @@ BVector *__thiscall RGE_Static_Object::orientationForward(RGE_Static_Object *thi
 
   v2 = result;
   result->x = 0.0;
-  result->y = 0.0;
   result->z = 0.0;
+  result->y = 0.0;
   return v2;
 }
 
@@ -80881,7 +80883,7 @@ int __thiscall RGE_Base_Game::mpSaveLocal(RGE_Base_Game *this)
 }
 
 //----- (0042C290) --------------------------------------------------------
-float __thiscall RGE_Base_Game::version(RGE_Base_Game *this)
+double __thiscall RGE_Base_Game::version(RGE_Base_Game *this)
 {
   return this->rge_game_options.versionValue;
 }
@@ -81193,13 +81195,13 @@ void __thiscall RGE_Base_Game::lock_game_teams(RGE_Base_Game *this)
 }
 
 //----- (0042C6C0) --------------------------------------------------------
-float __thiscall RGE_Base_Game::get_game_speed(RGE_Base_Game *this)
+double __thiscall RGE_Base_Game::get_game_speed(RGE_Base_Game *this)
 {
   return this->game_speed;
 }
 
 //----- (0042C6D0) --------------------------------------------------------
-float __thiscall RGE_Base_Game::mpGameSpeed(RGE_Base_Game *this)
+double __thiscall RGE_Base_Game::mpGameSpeed(RGE_Base_Game *this)
 {
   return this->rge_game_options.gameSpeed;
 }
@@ -97957,7 +97959,7 @@ void __thiscall RGE_Combat_Object::stop(RGE_Combat_Object *this)
 }
 
 //----- (00443E10) --------------------------------------------------------
-float __thiscall RGE_Combat_Object::calc_attack_modifier(RGE_Combat_Object *this, RGE_Static_Object *target)
+double __thiscall RGE_Combat_Object::calc_attack_modifier(RGE_Combat_Object *this, RGE_Static_Object *target)
 {
   return 1.0;
 }
@@ -98516,7 +98518,7 @@ void __thiscall RGE_Combat_Object::damage(RGE_Combat_Object *this, int weapon_nu
 // 444862: variable 'v7' is possibly undefined
 
 //----- (004449C0) --------------------------------------------------------
-float __thiscall RGE_Combat_Object::calculateDamage(RGE_Combat_Object *this, int weapon_num, RGE_Armor_Weapon_Info *damage, float attack_modifier, RGE_Player *attacking_player, RGE_Static_Object *attackingObject)
+double __thiscall RGE_Combat_Object::calculateDamage(RGE_Combat_Object *this, int weapon_num, RGE_Armor_Weapon_Info *damage, float attack_modifier, RGE_Player *attacking_player, RGE_Static_Object *attackingObject)
 {
   RGE_Master_Combat_Object *v6; // edx
   RGE_Tile *v7; // eax
@@ -99532,13 +99534,13 @@ int __thiscall RGE_Combat_Object::pause(RGE_Combat_Object *this)
 }
 
 //----- (00445F50) --------------------------------------------------------
-float __thiscall RGE_Combat_Object::rateOfFire(RGE_Combat_Object *this)
+double __thiscall RGE_Combat_Object::rateOfFire(RGE_Combat_Object *this)
 {
   return this->master_obj->speed_of_attack;
 }
 
 //----- (00445F60) --------------------------------------------------------
-float __thiscall RGE_Combat_Object::damageCapability(RGE_Combat_Object *this, RGE_Static_Object *attackingUnit)
+double __thiscall RGE_Combat_Object::damageCapability(RGE_Combat_Object *this, RGE_Static_Object *attackingUnit)
 {
   UnitAIModule *v4; // eax
   double result; // st7
@@ -99615,13 +99617,13 @@ int __thiscall RGE_Combat_Object::inAttackRange(RGE_Combat_Object *this, RGE_Sta
 }
 
 //----- (00446090) --------------------------------------------------------
-float __thiscall RGE_Combat_Object::weaponRange(RGE_Combat_Object *this)
+double __thiscall RGE_Combat_Object::weaponRange(RGE_Combat_Object *this)
 {
   return this->master_obj->weapon_range;
 }
 
 //----- (004460A0) --------------------------------------------------------
-float __thiscall RGE_Combat_Object::minimumWeaponRange(RGE_Combat_Object *this)
+double __thiscall RGE_Combat_Object::minimumWeaponRange(RGE_Combat_Object *this)
 {
   return this->master_obj->minimum_weapon_range;
 }
@@ -99657,7 +99659,7 @@ int __thiscall RGE_Combat_Object::currentTargetID2(RGE_Combat_Object *this)
 }
 
 //----- (00446150) --------------------------------------------------------
-float __thiscall RGE_Combat_Object::currentTargetX(RGE_Combat_Object *this)
+double __thiscall RGE_Combat_Object::currentTargetX(RGE_Combat_Object *this)
 {
   RGE_Action *v2; // eax
 
@@ -99668,7 +99670,7 @@ float __thiscall RGE_Combat_Object::currentTargetX(RGE_Combat_Object *this)
 }
 
 //----- (00446180) --------------------------------------------------------
-float __thiscall RGE_Combat_Object::currentTargetY(RGE_Combat_Object *this)
+double __thiscall RGE_Combat_Object::currentTargetY(RGE_Combat_Object *this)
 {
   RGE_Action *v2; // eax
 
@@ -99679,7 +99681,7 @@ float __thiscall RGE_Combat_Object::currentTargetY(RGE_Combat_Object *this)
 }
 
 //----- (004461B0) --------------------------------------------------------
-float __thiscall RGE_Combat_Object::currentTargetZ(RGE_Combat_Object *this)
+double __thiscall RGE_Combat_Object::currentTargetZ(RGE_Combat_Object *this)
 {
   RGE_Action *v2; // eax
 
@@ -99690,7 +99692,7 @@ float __thiscall RGE_Combat_Object::currentTargetZ(RGE_Combat_Object *this)
 }
 
 //----- (004461E0) --------------------------------------------------------
-float __thiscall RGE_Combat_Object::teleport(RGE_Combat_Object *this, float x, float y, float z)
+double __thiscall RGE_Combat_Object::teleport(RGE_Combat_Object *this, float x, float y, float z)
 {
   int v5; // edi
   int v6; // ebp
@@ -104999,7 +105001,7 @@ LABEL_16:
       v15->mDifferentiatorID = dword_6A8698;
       v17 = 0;
       v52 = v15->vfptr->getPosition(v15)->x;
-      z[0] = v15->vfptr->getPosition(v15)->z;
+      z[0] = v15->vfptr->getPosition(v15)->y;
       if ( order->location_num )
       {
         v18 = order->y;
@@ -108071,7 +108073,7 @@ int __fastcall sub_44FA70(int a1, int a2, float a3, float a4, int a5, int a6, in
   v14 = flt_6A6E9C;
   v15 = &vec;
   vec.x = *(float *)a1 - v35 - a4;
-  vec.z = *(float *)(a1 + 8) - v35 - a4;
+  vec.y = *(float *)(a1 + 8) - v35 - a4;
   do
   {
     v16 = a3 + v12->x;
@@ -108080,7 +108082,7 @@ int __fastcall sub_44FA70(int a1, int a2, float a3, float a4, int a5, int a6, in
     v12 = v15;
     *v14 = v16;
     v14 = &v15[1].x;
-    v15->z = *(float *)(a1 + 8) - v35 - a4;
+    v15->y = *(float *)(a1 + 8) - v35 - a4;
   }
   while ( a4 + *(float *)a2 >= v35 + v15->x && (int)v15 < (int)&unk_6A8684 );
   if ( v13 < 512 )
@@ -108143,8 +108145,8 @@ int __fastcall sub_44FA70(int a1, int a2, float a3, float a4, int a5, int a6, in
         v24 = dword_6A8694;
         v27 = v25 < dword_6A8694;
         v26[-1].x = a9 + v26[-1].x;
-        v26[-1].y = a10 + v26[-1].y;
-        v26[-1].z = a11 + v26[-1].z;
+        v26[-1].z = a10 + v26[-1].z;
+        v26[-1].y = a11 + v26[-1].y;
       }
       while ( v27 );
     }
@@ -108153,7 +108155,7 @@ int __fastcall sub_44FA70(int a1, int a2, float a3, float a4, int a5, int a6, in
   if ( a5 && v24 > 0 )
   {
     v29 = 1;
-    v30 = &vec.z;
+    v30 = &vec.y;
     do
     {
       if ( (*(int (__thiscall **)(int, _DWORD, _DWORD, int, int))(*(_DWORD *)v28 + 412))(
@@ -108521,7 +108523,7 @@ void __thiscall BDifferentiator::groupUnits(BDifferentiator *this, RGE_Obj_Info 
       {
         if ( targetX == -1.0 )
           goto LABEL_66;
-        v45 = v41->vfptr->position(v41, (BVector *)&v100.y)->y;
+        v45 = v41->vfptr->position(v41, (BVector *)&v100.z)->z;
         if ( RGE_Static_Object::distance_to_position(v41, targetX, targetZ, v45) > (double)*(float *)&oIDa )
           goto LABEL_66;
       }
@@ -108600,12 +108602,12 @@ LABEL_66:
                     {
                       v81 = ((int (__thiscall *)(RGE_Static_Object *, float *, int))v57->vfptr->position)(
                               v57,
-                              &result.z,
+                              &result.y,
                               v81);
                       v61 = (BVector *)((int (__thiscall *)(RGE_Static_Object *))v52->vfptr->position)(v52);
                       BVector::operator_minus(v61, &result, &v);
                       v.x = 0.0;
-                      if ( v95->mFormationInfluenceDistance >= sqrt(v102 * v102 + v.y * v.y) )
+                      if ( v95->mFormationInfluenceDistance >= sqrt(v102 * v102 + v.z * v.z) )
                         ++v53;
                     }
                   }
@@ -108666,11 +108668,11 @@ LABEL_66:
                   || (v99 = v65->vfptr->maximumSpeed(v65),
                       fabs(v99 - ((double (__thiscall *)(RGE_Static_Object *))v69->vfptr->maximumSpeed)(v69)) <= flt_68D2AC) )
                 {
-                  v81 = ((int (__thiscall *)(RGE_Static_Object *, float *, int))v69->vfptr->position)(v69, &v.z, v81);
+                  v81 = ((int (__thiscall *)(RGE_Static_Object *, float *, int))v69->vfptr->position)(v69, &v.y, v81);
                   v73 = (BVector *)((int (__thiscall *)(RGE_Static_Object *))v65->vfptr->position)(v65);
-                  BVector::operator_minus(v73, (BVector *)&v104.z, (BVector *)&v100.z);
-                  v100.z = 0.0;
-                  if ( v95->mFormationInfluenceDistance >= sqrt(v100.y * v100.y + v101 * v101) )
+                  BVector::operator_minus(v73, (BVector *)&v104.y, (BVector *)&v100.y);
+                  v100.y = 0.0;
+                  if ( v95->mFormationInfluenceDistance >= sqrt(v100.z * v100.z + v101 * v101) )
                   {
                     v74 = (BUnitGroupVtbl *)v69->id;
                     ++v64;
@@ -108865,12 +108867,12 @@ void __thiscall BDifferentiator::groupAIUnits(BDifferentiator *this, ManagedArra
                         v16 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *v41);
                         v31 = ((int (__thiscall *)(RGE_Static_Object *, float *, int))v16->vfptr->position)(
                                 v16,
-                                &v48.z,
+                                &v48.y,
                                 v31);
                         v17 = (BVector *)((int (__thiscall *)(RGE_Static_Object *))v14->vfptr->position)(v14);
                         BVector::operator_minus(v17, &result, &v);
                         v.x = 0.0;
-                        if ( sqrt(v.y * v.y + v44 * v44) <= formDistance )
+                        if ( sqrt(v.z * v.z + v44 * v44) <= formDistance )
                         {
                           v18 = RGE_Static_Object::lookupZone(v14, (__int64)v16->world_x, (__int64)v16->world_y);
                           if ( v18 == RGE_Static_Object::currentZone(v14) )
@@ -108926,7 +108928,7 @@ void __thiscall BDifferentiator::groupAIUnits(BDifferentiator *this, ManagedArra
                     v24 = (BVector *)(*(int (__thiscall **)(int))(*(_DWORD *)oID + 684))(oID);
                     BVector::operator_minus(v24, &v48, &v46);
                     v46.x = 0.0;
-                    if ( sqrt(v46.y * v46.y + v.z * v.z) <= formDistance && RGE_Static_Object::currentZone(v23) == v43 )
+                    if ( sqrt(v46.z * v46.z + v.y * v.y) <= formDistance && RGE_Static_Object::currentZone(v23) == v43 )
                     {
                       v25 = v23->id;
                       ++v20;
@@ -109176,8 +109178,8 @@ void __thiscall BContextAnalyzer::createSimpleAttackPlan(BContextAnalyzer *this,
               }
             }
             v66.x = 0.0;
-            v66.y = 0.0;
             v66.z = 0.0;
+            v66.y = 0.0;
             if ( numberUnits == uG->mNumberUnits )
             {
               if ( path )
@@ -109185,13 +109187,13 @@ void __thiscall BContextAnalyzer::createSimpleAttackPlan(BContextAnalyzer *this,
                 v14 = path->waypointsCount;
                 v68 = &path->waypoints->x;
                 v70 = (BContextPlanElement *)&v68[3 * v14];
-                v15 = &v70[-1].mOffset.y;
-                v66 = *(BVector *)&v70[-1].mOffset.y;
+                v15 = &v70[-1].mOffset.z;
+                v66 = *(BVector *)&v70[-1].mOffset.z;
                 if ( v66.x >= (double)v73[0] )
                 {
                   do
                   {
-                    if ( v66.x > (double)v75[0] || v66.z < (double)v74 || v66.z > (double)v76 )
+                    if ( v66.x > (double)v75[0] || v66.y < (double)v74 || v66.y > (double)v76 )
                       break;
                     v16 = &v68[3 * v14 - 6];
                     v17 = 0;
@@ -109211,11 +109213,11 @@ void __thiscall BContextAnalyzer::createSimpleAttackPlan(BContextAnalyzer *this,
                       if ( *(float *)&v70[-1].mDepth >= (double)v70[-1].mOffset.x )
                         ++v17;
                       else
-                        v66.z = v66.z + 1.0;
+                        v66.y = v66.y + 1.0;
                     }
                     else
                     {
-                      v66.z = v66.z - 1.0;
+                      v66.y = v66.y - 1.0;
                     }
                   }
                   while ( v17 != 2 && v66.x >= (double)v73[0] );
@@ -109236,9 +109238,9 @@ void __thiscall BContextAnalyzer::createSimpleAttackPlan(BContextAnalyzer *this,
                 {
                   v19 = (float *)v18->vfptr->position(v18, &result);
                   v66.x = v66.x + *v19;
-                  v66.y = v66.y + v19[1];
+                  v66.z = v66.z + v19[1];
                   ++v62;
-                  v66.z = v66.z + v19[2];
+                  v66.y = v66.y + v19[2];
                 }
                 ++v8;
                 --v9;
@@ -109246,8 +109248,8 @@ void __thiscall BContextAnalyzer::createSimpleAttackPlan(BContextAnalyzer *this,
               while ( v9 );
               v20 = (double)v62;
               v66.x = v66.x / v20;
-              v66.y = 0.0 / v20;
-              v66.z = v66.z / v20;
+              v66.z = 0.0 / v20;
+              v66.y = v66.y / v20;
             }
             qmemcpy(dword_6A4780, units, 4 * ((unsigned int)(4 * numberUnits) >> 2));
             v21 = numberUnits + 1;
@@ -109273,8 +109275,8 @@ void __thiscall BContextAnalyzer::createSimpleAttackPlan(BContextAnalyzer *this,
               v21,
               (int)&v80,
               result.x,
-              result.y,
               result.z,
+              result.y,
               0);
             v22 = dword_6A8694;
             v23 = -1;
@@ -109286,7 +109288,7 @@ void __thiscall BContextAnalyzer::createSimpleAttackPlan(BContextAnalyzer *this,
               do
               {
                 BVector::operator_minus(&v66, &result, v25);
-                v26 = sqrt(result.y * result.y + result.z * result.z + result.x * result.x);
+                v26 = sqrt(result.z * result.z + result.y * result.y + result.x * result.x);
                 if ( v26 < v63 )
                 {
                   v63 = v26;
@@ -109329,26 +109331,26 @@ void __thiscall BContextAnalyzer::createSimpleAttackPlan(BContextAnalyzer *this,
                   || (v34 || sub_450BC0((int)plan, 5)) && sub_450BC0((int)plan, 2 * plan->mMaximumNumberElements) )
                 {
                   v35 = *(&vec.x + 3 * v27);
-                  result.y = *(float *)(v29 + 4);
+                  result.z = *(float *)(v29 + 4);
                   v36 = *(float *)(v29 + 8);
                   v37 = plan->mPlan;
                   v38 = *v33;
                   v39 = v33[1];
-                  result.z = v36;
+                  result.y = v36;
                   v40 = v33[2];
                   v41 = &v37[plan->mNumberElements];
                   v41->mUnitID2 = (int)v68;
                   v41->mUnitID1 = -1;
                   v41->mType = 0;
                   v41->mPoint.x = v35;
-                  v42 = result.y;
+                  v42 = result.z;
                   v41->mDepth = 0;
-                  v41->mPoint.y = v42;
-                  v41->mPoint.z = result.z;
+                  v41->mPoint.z = v42;
+                  v41->mPoint.y = result.y;
                   v27 = v64;
                   v41->mOffset.x = v38;
-                  v41->mOffset.y = v39;
-                  v41->mOffset.z = v40;
+                  v41->mOffset.z = v39;
+                  v41->mOffset.y = v40;
                   ++plan->mNumberElements;
                 }
                 v22 = dword_6A8694;
@@ -109386,12 +109388,12 @@ void __thiscall BContextAnalyzer::createSimpleAttackPlan(BContextAnalyzer *this,
                                              LODWORD(v71),
                                              &v78);
                           BVector::operator_minus(v46, &result, (BVector *)(v45 + 12));
-                          result.y = 0.0;
+                          result.z = 0.0;
                           v77 = result.x * result.x;
-                          if ( sqrt(result.z * result.z + v77) < v72 )
+                          if ( sqrt(result.y * result.y + v77) < v72 )
                           {
                             v43 = v44;
-                            v72 = sqrt(result.z * result.z + v77);
+                            v72 = sqrt(result.y * result.y + v77);
                           }
                         }
                         ++v44;
@@ -109423,8 +109425,8 @@ void __thiscall BContextAnalyzer::createSimpleAttackPlan(BContextAnalyzer *this,
 LABEL_78:
                   v51 = targetObj->vfptr;
                   result.x = 0.0;
-                  result.y = 0.0;
                   result.z = 0.0;
+                  result.y = 0.0;
                   v52 = (int)v51->position(targetObj, &v78);
                   v53 = targetObj->id;
                   v54 = (float *)v52;
@@ -109442,13 +109444,13 @@ LABEL_78:
                     v59->mPoint.x = v56;
                     v59->mType = 0;
                     v59->mDepth = 0;
-                    v59->mPoint.y = v57;
+                    v59->mPoint.z = v57;
                     v59->mOffset.x = result.x;
-                    v60 = result.y;
-                    v59->mPoint.z = v58;
+                    v60 = result.z;
+                    v59->mPoint.y = v58;
                     v47 = v68;
-                    v59->mOffset.y = v60;
-                    v59->mOffset.z = result.z;
+                    v59->mOffset.z = v60;
+                    v59->mOffset.y = result.y;
                     ++plan->mNumberElements;
                   }
                 }
@@ -109598,8 +109600,8 @@ void __thiscall BContextAnalyzer::createFormationAttackPlan(BContextAnalyzer *th
   v10 = uG2->mDesiredSpacing * (double)v86->mMaximumWidth;
   v98[1] = 0.0;
   v91.x = 0.0;
-  v91.y = 0.0;
   v91.z = 0.0;
+  v91.y = 0.0;
   v79 = v10 * 0.5;
   v11 = uG2->mDesiredSpacing * 0.5;
   v98[2] = v79;
@@ -109616,7 +109618,7 @@ void __thiscall BContextAnalyzer::createFormationAttackPlan(BContextAnalyzer *th
   v91 = rads[-1];
   while ( v91.x >= (double)v97[0] )
   {
-    if ( v91.x > (double)v98[0] || v91.z < (double)v || v91.z > (double)v79 )
+    if ( v91.x > (double)v98[0] || v91.y < (double)v || v91.y > (double)v79 )
       break;
     v15 = *v14;
     v16 = 3 * v12 - 6;
@@ -109635,16 +109637,16 @@ void __thiscall BContextAnalyzer::createFormationAttackPlan(BContextAnalyzer *th
     }
     v91.x = v20;
 LABEL_17:
-    if ( rads[-1].z > (double)rads[-2].z )
+    if ( rads[-1].y > (double)rads[-2].y )
     {
-      v21 = v91.z - 1.0;
+      v21 = v91.y - 1.0;
 LABEL_21:
-      v91.z = v21;
+      v91.y = v21;
       continue;
     }
-    if ( rads[-1].z < (double)rads[-2].z )
+    if ( rads[-1].y < (double)rads[-2].y )
     {
-      v21 = v91.z + 1.0;
+      v21 = v91.y + 1.0;
       goto LABEL_21;
     }
   }
@@ -109674,8 +109676,8 @@ LABEL_24:
   {
     curOF.x = 1.0;
     byte_6A8690 |= 1u;
-    curOF.y = 0.0;
     curOF.z = 0.0;
+    curOF.y = 0.0;
     atexit(nullsub_9);
   }
   v31 = v86->mAboutFaced;
@@ -109686,8 +109688,8 @@ LABEL_24:
   {
     axis.x = 0.0;
     byte_6A8690 |= 2u;
-    axis.y = 1.0;
-    axis.z = 0.0;
+    axis.z = 1.0;
+    axis.y = 0.0;
     atexit(nullsub_8);
   }
   v32 = uG2->vfptr->getOrientationForward(uG2);
@@ -109697,7 +109699,7 @@ LABEL_24:
   v34 = uG1->mNumberUnits;
   radsc = uG1->mDesiredSpacing;
   v35 = uG2->vfptr->getPosition(uG2);
-  sub_44FA70((int)v97, (int)v98, radsc, range, v92, (int)dword_6A4780, v34 + v33, (int)&v101, v35->x, v35->y, v35->z, 1);
+  sub_44FA70((int)v97, (int)v98, radsc, range, v92, (int)dword_6A4780, v34 + v33, (int)&v101, v35->x, v35->z, v35->y, 1);
   v36 = dword_6A8694;
   v37 = -1;
   v38 = 0;
@@ -109708,7 +109710,7 @@ LABEL_24:
     do
     {
       BVector::operator_minus(&v91, &result, va);
-      v39 = sqrt(result.y * result.y + result.z * result.z + result.x * result.x);
+      v39 = sqrt(result.z * result.z + result.y * result.y + result.x * result.x);
       if ( v39 < v80 )
       {
         v80 = v39;
@@ -109743,26 +109745,26 @@ LABEL_24:
         || (v45 || sub_450BC0((int)plan, 5)) && sub_450BC0((int)plan, 2 * plan->mMaximumNumberElements) )
       {
         v46 = v44->x;
-        v47 = v44->y;
-        v99 = LODWORD(v44->z);
+        v47 = v44->z;
+        v99 = LODWORD(v44->y);
         v48 = *(float *)v42;
-        result.y = *(float *)(v42 + 4);
+        result.z = *(float *)(v42 + 4);
         v49 = *(float *)(v42 + 8);
         v50 = plan->mPlan;
-        result.z = v49;
+        result.y = v49;
         v51 = &v50[plan->mNumberElements];
         v51->mUnitID2 = v87;
         v51->mUnitID1 = -1;
         v51->mType = 0;
         v51->mPoint.x = v48;
-        v52 = result.y;
+        v52 = result.z;
         v51->mDepth = 0;
-        v51->mPoint.y = v52;
-        v51->mPoint.z = result.z;
+        v51->mPoint.z = v52;
+        v51->mPoint.y = result.y;
         v51->mOffset.x = v46;
         v53 = v99;
-        v51->mOffset.y = v47;
-        LODWORD(v51->mOffset.z) = v53;
+        v51->mOffset.z = v47;
+        LODWORD(v51->mOffset.y) = v53;
         ++plan->mNumberElements;
       }
       v36 = dword_6A8694;
@@ -109799,12 +109801,12 @@ LABEL_24:
             {
               v59 = v56->vfptr->position(v56, &v100);
               BVector::operator_minus(v59, &result, (BVector *)(v58 + 12));
-              result.y = 0.0;
+              result.z = 0.0;
               v96 = result.x * result.x;
-              if ( sqrt(result.z * result.z + v96) < v95 )
+              if ( sqrt(result.y * result.y + v96) < v95 )
               {
                 v93 = v57;
-                v95 = sqrt(result.z * result.z + v96);
+                v95 = sqrt(result.y * result.y + v96);
               }
               v56 = v94;
             }
@@ -109840,8 +109842,8 @@ LABEL_74:
           v66 = uG2->mID;
           v67 = uG2->vfptr;
           result.x = 0.0;
-          result.y = 0.0;
           result.z = 0.0;
+          result.y = 0.0;
           v93 = v66;
           v68 = v67->getPosition(uG2);
           v69 = plan->mMaximumNumberElements;
@@ -109850,21 +109852,21 @@ LABEL_74:
             || (v69 || sub_450BC0((int)plan, 5)) && sub_450BC0((int)plan, 2 * plan->mMaximumNumberElements) )
           {
             v70 = v68->x;
-            v71 = v68->y;
-            v72 = v68->z;
+            v71 = v68->z;
+            v72 = v68->y;
             v73 = &plan->mPlan[plan->mNumberElements];
             v73->mUnitID1 = v92;
             v73->mUnitID2 = v93;
             v73->mType = 0;
             v73->mDepth = 0;
             v73->mPoint.x = v70;
-            v73->mPoint.y = v71;
+            v73->mPoint.z = v71;
             v73->mOffset.x = result.x;
-            v74 = result.y;
-            v73->mPoint.z = v72;
+            v74 = result.z;
+            v73->mPoint.y = v72;
             v62 = radsa;
-            v73->mOffset.y = v74;
-            v73->mOffset.z = result.z;
+            v73->mOffset.z = v74;
+            v73->mOffset.y = result.y;
             ++plan->mNumberElements;
           }
         }
@@ -141440,18 +141442,18 @@ LABEL_38:
         {
           memset(dword_6AC3AC, 0, 0xC8u);
           v.x = 0.0;
-          v.y = 0.0;
           v.z = 0.0;
+          v.y = 0.0;
           v87.x = 0.0;
-          v87.y = 0.0;
-          v87.z = -1.0;
+          v87.z = 0.0;
+          v87.y = -1.0;
           v32 = (v31 != 1) - 1;
           BVector::operator_mul2(&v87, &v80, v30->mDesiredSpacing);
           if ( staggered == 1 )
           {
             v80.x = v80.x + v80.x;
-            v80.y = v80.y + v80.y;
             v80.z = v80.z + v80.z;
+            v80.y = v80.y + v80.y;
           }
           if ( v77 > 0.0000001 && v68 > 0.0000001 && v74->mDesiredSpacing > (double)v68 )
             v77 = v74->mDesiredSpacing - v68 + v77;
@@ -141484,16 +141486,16 @@ LABEL_38:
                 v37 = BVector::operator_div(&v80, &v89, 4.0);
 LABEL_81:
                 result.x = result.x - v37->x;
-                result.y = result.y - v37->y;
-                v39 = result.z - v37->z;
+                result.z = result.z - v37->z;
+                v39 = result.y - v37->y;
                 goto LABEL_82;
               }
               v38 = BVector::operator_div(&v80, &v88, 4.0);
               result.x = result.x + v38->x;
-              result.y = result.y + v38->y;
-              v39 = result.z + v38->z;
+              result.z = result.z + v38->z;
+              v39 = result.y + v38->y;
 LABEL_82:
-              result.z = v39;
+              result.y = v39;
 LABEL_83:
               v42 = this->mLines;
               v43 = &v42[v73];
@@ -141539,7 +141541,7 @@ LABEL_83:
                   this->mSlots[v49].mOffset = result;
                   if ( flanked == 1 )
                   {
-                    v50 = &this->mSlots[v49].mOffset.z;
+                    v50 = &this->mSlots[v49].mOffset.y;
                     v51 = 5.0 * 0.5 - (5.0 - 3.0) * (double)v78 * 0.5 / (double)v85;
                     if ( *v50 >= 0.0 )
                       *v50 = v51 + *v50;
@@ -141548,12 +141550,12 @@ LABEL_83:
                   }
                   v52 = this->mSlots;
                   v52[v49].mDesiredTransformPosition.x = 0.0;
-                  v52[v49].mDesiredTransformPosition.y = 0.0;
                   v52[v49].mDesiredTransformPosition.z = 0.0;
+                  v52[v49].mDesiredTransformPosition.y = 0.0;
                   v53 = this->mSlots;
                   v53[v49].mTransformPosition.x = 0.0;
-                  v53[v49].mTransformPosition.y = 0.0;
                   v53[v49].mTransformPosition.z = 0.0;
+                  v53[v49].mTransformPosition.y = 0.0;
                   this->mSlots[v49].mTime = base_game->world->world_time;
                   this->mSlots[v49].mState = 0;
                   this->mSlots[v49].mDepth = v78;
@@ -141575,8 +141577,8 @@ LABEL_83:
                   ++v49;
                   ++v76;
                   result.x = result.x - v80.x;
-                  result.y = result.y - v80.y;
                   result.z = result.z - v80.z;
+                  result.y = result.y - v80.y;
                   if ( v32 > -1 )
                   {
                     ++dword_6AC3AC[v32];
@@ -141723,12 +141725,12 @@ int __thiscall BFormation::createBox(BFormation *this, BUnitGroup *uG)
   v4 = uG->mDesiredSpacing * -0.5;
   v5 = this->mMaximumNumberSlots;
   v6 = 0;
-  min.y = 0.0;
-  max.y = 0.0;
+  min.z = 0.0;
+  max.z = 0.0;
   min.x = v4;
-  min.z = v4;
+  min.y = v4;
   max.x = uG->mDesiredSpacing * 0.5;
-  max.z = max.x;
+  max.y = max.x;
   if ( v5 > 0 )
   {
     v7 = 0;
@@ -141764,20 +141766,20 @@ int __thiscall BFormation::createBox(BFormation *this, BUnitGroup *uG)
             if ( this->mNumberSlots )
             {
               min.x = min.x - v2->mDesiredSpacing;
-              min.z = min.z - v2->mDesiredSpacing;
+              min.y = min.y - v2->mDesiredSpacing;
               max.x = v2->mDesiredSpacing + max.x;
-              v12 = v2->mDesiredSpacing + max.z;
+              v12 = v2->mDesiredSpacing + max.y;
             }
             else
             {
               if ( v9->mNumberUnits == 1 )
               {
                 positions.x = 0.0;
-                positions.y = 0.0;
                 positions.z = 0.0;
-                min.z = 0.0;
+                positions.y = 0.0;
+                min.y = 0.0;
                 min.x = 0.0;
-                max.z = 0.0;
+                max.y = 0.0;
                 max.x = 0.0;
 LABEL_21:
                 v13 = 0;
@@ -141791,16 +141793,16 @@ LABEL_21:
                     this->mSlots[v14].mUnitID = -1;
                     v15 = &this->mSlots[v14].mOffset;
                     v15->x = v29->x;
-                    v15->y = v29->y;
                     v15->z = v29->z;
+                    v15->y = v29->y;
                     v16 = this->mSlots;
                     v16[v14].mDesiredTransformPosition.x = 0.0;
-                    v16[v14].mDesiredTransformPosition.y = 0.0;
                     v16[v14].mDesiredTransformPosition.z = 0.0;
+                    v16[v14].mDesiredTransformPosition.y = 0.0;
                     v17 = this->mSlots;
                     v17[v14].mTransformPosition.x = 0.0;
-                    v17[v14].mTransformPosition.y = 0.0;
                     v17[v14].mTransformPosition.z = 0.0;
+                    v17[v14].mTransformPosition.y = 0.0;
                     this->mSlots[v14].mTime = base_game->world->world_time;
                     this->mSlots[v14].mState = 0;
                     this->mSlots[v14].mDepth = 0;
@@ -141818,11 +141820,11 @@ LABEL_21:
                 goto LABEL_26;
               }
               min.x = v2->mDesiredSpacing * -0.5;
-              min.z = min.x;
+              min.y = min.x;
               v12 = v2->mDesiredSpacing * 0.5;
               max.x = v12;
             }
-            max.z = v12;
+            max.y = v12;
             BFormation::pickBoxPositions(this, v2, v9->mNumberUnits, &positions, 40, &min, &max, v2->mDesiredSpacing);
             goto LABEL_21;
           }
@@ -141942,16 +141944,16 @@ int __thiscall BFormation::createFromPlan(BFormation *this, BUnitGroup *uG, BCon
         this->mSlots[v4].mUnitID = LODWORD(v9[-1].x);
         v11 = &this->mSlots[v4].mOffset;
         v11->x = v9[1].x;
-        v11->y = v9[1].y;
         v11->z = v9[1].z;
+        v11->y = v9[1].y;
         v12 = &this->mSlots[v4].mDesiredTransformPosition;
         v12->x = v9->x;
-        v12->y = v9->y;
         v12->z = v9->z;
+        v12->y = v9->y;
         v13 = &this->mSlots[v4].mTransformPosition;
         v13->x = v9->x;
-        v13->y = v9->y;
         v13->z = v9->z;
+        v13->y = v9->y;
         this->mSlots[v4].mPositionTransformed = 1;
         this->mSlots[v4].mTime = base_game->world->world_time;
         this->mSlots[v4].mState = 0;
@@ -142039,17 +142041,17 @@ int __thiscall BFormation::createHorde(BFormation *this, BUnitGroup *uG)
         v22 = ((int (__thiscall *)(BUnitGroup *, float *, int))uG->vfptr->getPosition)(uG, v21, v22);
         v10 = (BVector *)((int (__thiscall *)(RGE_Static_Object *))v9->vfptr->position)(v9);
         this->mSlots[v4].mOffset = *BVector::operator_minus(v10, &result, &v);
-        v21 = &result.z;
+        v21 = &result.y;
         v11 = (float *)((int (__thiscall *)(RGE_Static_Object *))v9->vfptr->position)(v9);
         v12 = &this->mSlots[v4].mDesiredTransformPosition;
         v12->x = *v11;
-        v12->y = v11[1];
-        v12->z = v11[2];
+        v12->z = v11[1];
+        v12->y = v11[2];
         v13 = v9->vfptr->position(v9, &v26);
         v14 = &this->mSlots[v4].mTransformPosition;
         v14->x = v13->x;
-        v14->y = v13->y;
         v14->z = v13->z;
+        v14->y = v13->y;
         this->mSlots[v4].mPositionTransformed = 1;
         this->mSlots[v4].mTime = base_game->world->world_time;
         this->mSlots[v4].mState = 0;
@@ -142073,13 +142075,13 @@ int __thiscall BFormation::createHorde(BFormation *this, BUnitGroup *uG)
     v18 = this->mSlots;
     v19 = sqrt(
             v18[v4].mOffset.x * v18[v4].mOffset.x
-          + v18[v4].mOffset.y * v18[v4].mOffset.y
-          + v18[v4].mOffset.z * v18[v4].mOffset.z);
+          + v18[v4].mOffset.z * v18[v4].mOffset.z
+          + v18[v4].mOffset.y * v18[v4].mOffset.y);
     if ( v19 > 5.0 )
     {
       v18[v4].mOffset.x = 5.0 / v19 * v18[v4].mOffset.x;
-      v18[v4].mOffset.y = 5.0 / v19 * v18[v4].mOffset.y;
       v18[v4].mOffset.z = 5.0 / v19 * v18[v4].mOffset.z;
+      v18[v4].mOffset.y = 5.0 / v19 * v18[v4].mOffset.y;
     }
     ++v17;
   }
@@ -142170,7 +142172,7 @@ int __thiscall BFormation::createUserDefinedFormation(BFormation *this, BUnitGro
         v35 = ((int (__thiscall *)(BUnitGroup *, float *, int))uG->vfptr->getPosition)(uG, v34, v35);
         v10 = (BVector *)((int (__thiscall *)(RGE_Static_Object *))v9->vfptr->position)(v9);
         *(BVector *)((char *)&this->mSlots->mOffset + v4) = *BVector::operator_minus(v10, &result, &v);
-        v34 = &result.z;
+        v34 = &result.y;
         v11 = (_DWORD *)((int (__thiscall *)(RGE_Static_Object *))v9->vfptr->position)(v9);
         v12 = (_DWORD *)((char *)&this->mSlots->mDesiredTransformPosition.x + v4);
         *v12 = *v11;
@@ -142179,8 +142181,8 @@ int __thiscall BFormation::createUserDefinedFormation(BFormation *this, BUnitGro
         v13 = v9->vfptr->position(v9, &v39);
         v14 = (_DWORD *)((char *)&this->mSlots->mTransformPosition.x + v4);
         *v14 = LODWORD(v13->x);
-        v14[1] = LODWORD(v13->y);
-        v14[2] = LODWORD(v13->z);
+        v14[1] = LODWORD(v13->z);
+        v14[2] = LODWORD(v13->y);
         *(int *)((char *)&this->mSlots->mPositionTransformed + v4) = 1;
         *(unsigned int *)((char *)&this->mSlots->mTime + v4) = base_game->world->world_time;
         *(int *)((char *)&this->mSlots->mState + v4) = 0;
@@ -142234,8 +142236,8 @@ int __thiscall BFormation::createUserDefinedFormation(BFormation *this, BUnitGro
     do
     {
       v27 = this->mSlots;
-      v28 = v27[v26].mOffset.z;
-      v29 = v27[v26].mOffset.y;
+      v28 = v27[v26].mOffset.y;
+      v29 = v27[v26].mOffset.z;
       v30 = v27[v26].mOffset.x;
       v31 = &v27[v26].mOffset.x;
       v32 = sqrt(v30 * v30 + v29 * v29 + v28 * v28);
@@ -142385,11 +142387,11 @@ int __thiscall BFormation::createPhalanx(BFormation *this, BUnitGroup *uG, BForm
       }
       v.x = 0.0;
       a = uG->mDesiredSpacing;
-      v.y = 0.0;
       v.z = 0.0;
+      v.y = 0.0;
       v42.x = 0.0;
-      v42.y = 0.0;
-      v42.z = -1.0;
+      v42.z = 0.0;
+      v42.y = -1.0;
       BVector::operator_mul2(&v42, &v41, a);
       v30 = (float)(v32 / 2);
       v17 = BVector::operator_mul2(&v41, &v44, v30);
@@ -142398,8 +142400,8 @@ int __thiscall BFormation::createPhalanx(BFormation *this, BUnitGroup *uG, BForm
       {
         v18 = BVector::operator_div(&v41, &v45, 2.0);
         result.x = result.x - v18->x;
-        result.y = result.y - v18->y;
         result.z = result.z - v18->z;
+        result.y = result.y - v18->y;
       }
       v19 = 0;
       v37 = 0;
@@ -142453,12 +142455,12 @@ LABEL_36:
           this->mSlots[v20].mOffset = result;
           v23 = this->mSlots;
           v23[v20].mDesiredTransformPosition.x = 0.0;
-          v23[v20].mDesiredTransformPosition.y = 0.0;
           v23[v20].mDesiredTransformPosition.z = 0.0;
+          v23[v20].mDesiredTransformPosition.y = 0.0;
           v24 = this->mSlots;
           v24[v20].mTransformPosition.x = 0.0;
-          v24[v20].mTransformPosition.y = 0.0;
           v24[v20].mTransformPosition.z = 0.0;
+          v24[v20].mTransformPosition.y = 0.0;
           this->mSlots[v20].mTime = base_game->world->world_time;
           this->mSlots[v20].mState = 0;
           this->mSlots[v20].mDepth = v36;
@@ -142482,8 +142484,8 @@ LABEL_36:
           ++v19;
           ++v33;
           v37 = v19;
-          result.y = result.y - v41.y;
           result.z = result.z - v41.z;
+          result.y = result.y - v41.y;
         }
         while ( v19 < v32 );
       }
@@ -142717,8 +142719,8 @@ void __thiscall BFormation::assignUnitsGeneral(BFormation *this, BUnitGroup *uG)
                 BVector::operator_minus(&this->mSlots[numberInvalidUnits].mTransformPosition, &result, v9);
                 v10 = v8->id;
                 ++v2;
-                result.y = 0.0;
-                v11 = result.z * result.z + result.x * result.x;
+                result.z = 0.0;
+                v11 = result.y * result.y + result.x * result.x;
                 *v42++ = v10;
                 v37 = sqrt(v11) + v37;
                 if ( v41 == -1 )
@@ -142763,8 +142765,8 @@ void __thiscall BFormation::assignUnitsGeneral(BFormation *this, BUnitGroup *uG)
               {
                 v18 = v16->vfptr->position(v16, &v45);
                 BVector::operator_minus(&this->mSlots[v13].mTransformPosition, &result, v18);
-                result.y = 0.0;
-                v38 = sqrt(result.z * result.z + result.x * result.x) + v38;
+                result.z = 0.0;
+                v38 = sqrt(result.y * result.y + result.x * result.x) + v38;
                 if ( v29 == 1 )
                 {
                   v29 = 0;
@@ -143026,8 +143028,8 @@ int __thiscall BFormation::transform(BFormation *this, BUnitGroup *uG, int *assi
   if ( !this->mNumberSlots )
     return 1;
   v6 = this->mAboutFaced;
-  curOF.y = 0.0;
   curOF.z = 0.0;
+  curOF.y = 0.0;
   curOF.x = 1.0;
   if ( v6 )
     curOF.x = -1.0;
@@ -143047,8 +143049,8 @@ int __thiscall BFormation::transform(BFormation *this, BUnitGroup *uG, int *assi
   v10 = uG->vfptr->getOrientationForward(uG);
   this->mTransformOrientation.x = v10->x;
   v11 = this->mMaximumNumberSlots;
-  this->mTransformOrientation.y = v10->y;
   this->mTransformOrientation.z = v10->z;
+  this->mTransformOrientation.y = v10->y;
   v12 = 0;
   if ( v11 > 0 )
   {
@@ -143071,8 +143073,8 @@ int __thiscall BFormation::transform(BFormation *this, BUnitGroup *uG, int *assi
         v33 = 0;
         rPoint.x = v32->x;
         v34 = this->mNumberTransformedSlots;
-        rPoint.y = v32->y;
         rPoint.z = v32->z;
+        rPoint.y = v32->y;
         if ( v34 < this->mMaximumNumberSlots )
         {
           do
@@ -143111,8 +143113,8 @@ int __thiscall BFormation::transform(BFormation *this, BUnitGroup *uG, int *assi
         v43 = 0;
         rPoint.x = v42->x;
         v44 = this->mNumberTransformedSlots;
-        rPoint.y = v42->y;
         rPoint.z = v42->z;
+        rPoint.y = v42->y;
         if ( v44 < this->mMaximumNumberSlots )
         {
           do
@@ -143141,14 +143143,14 @@ int __thiscall BFormation::transform(BFormation *this, BUnitGroup *uG, int *assi
         if ( this->mNumberTransformedSlots >= this->mMaximumNumberSlots )
           break;
         rPoint.x = 0.0;
-        rPoint.y = 0.0;
         rPoint.z = 0.0;
+        rPoint.y = 0.0;
         rF.x = 0.0;
-        rF.y = 0.0;
         rF.z = 0.0;
+        rF.y = 0.0;
         rR.x = 0.0;
-        rR.y = 0.0;
         rR.z = 0.0;
+        rR.y = 0.0;
         a = 0.0;
         if ( v15 > 0 )
         {
@@ -143169,14 +143171,14 @@ int __thiscall BFormation::transform(BFormation *this, BUnitGroup *uG, int *assi
           v22 = uG->vfptr->getPosition(uG);
           v23 = BVector::operator_minus(v22, &result, v55);
           rPoint.x = v23->x;
-          rPoint.y = v23->y;
-          v24 = uG->vfptr;
           rPoint.z = v23->z;
+          v24 = uG->vfptr;
+          rPoint.y = v23->y;
           v25 = (float *)v24->getOrientationForward(uG);
           rF.x = *v25;
-          rF.y = v25[1];
+          rF.z = v25[1];
           v26 = uG->vfptr;
-          rF.z = v25[2];
+          rF.y = v25[2];
           rR = *v26->getOrientationRight(uG);
         }
         v27 = 0;
@@ -143246,8 +143248,8 @@ int __thiscall BFormation::transformPosition(BFormation *this, BUnitGroup *uG, B
   if ( v10->mPositionTransformed == 1 )
     return 1;
   v.x = 0.0;
-  v.y = 0.0;
   v.z = 0.0;
+  v.y = 0.0;
   if ( transformType == 2 || transformType == 3 )
     v = v10->mOffset;
   else
@@ -143262,13 +143264,13 @@ int __thiscall BFormation::transformPosition(BFormation *this, BUnitGroup *uG, B
   {
     if ( v12->x < 0.0 )
       v12->x = 0.0;
-    if ( v12->z < 0.0 )
-      v12->z = 0.0;
+    if ( v12->y < 0.0 )
+      v12->y = 0.0;
     v14 = (double)v13->map_width;
     if ( v14 <= v12->x )
       v12->x = v14 - 0.1;
-    if ( (double)v13->map_height <= v12->z )
-      v12->z = (double)v13->map_width - 0.1;
+    if ( (double)v13->map_height <= v12->y )
+      v12->y = (double)v13->map_width - 0.1;
   }
   v15 = &this->mSlots[v9].mTransformPosition;
   v16 = base_game->world->map;
@@ -143276,13 +143278,13 @@ int __thiscall BFormation::transformPosition(BFormation *this, BUnitGroup *uG, B
   {
     if ( v15->x < 0.0 )
       v15->x = 0.0;
-    if ( v15->z < 0.0 )
-      v15->z = 0.0;
+    if ( v15->y < 0.0 )
+      v15->y = 0.0;
     v17 = (double)v16->map_width;
     if ( v17 <= v15->x )
       v15->x = v17 - 0.1;
-    if ( (double)v16->map_height <= v15->z )
-      v15->z = (double)v16->map_width - 0.1;
+    if ( (double)v16->map_height <= v15->y )
+      v15->y = (double)v16->map_width - 0.1;
   }
   return 1;
 }
@@ -143555,14 +143557,13 @@ void __thiscall BFormation::render(BFormation *this, BUnitGroup *uG)
   RGE_Static_Object *v61; // [esp+70h] [ebp-74h]
   int v62; // [esp+78h] [ebp-6Ch]
   int v63; // [esp+80h] [ebp-64h]
-  int v64[3]; // [esp+84h] [ebp-60h] BYREF
-  int v65; // [esp+90h] [ebp-54h] BYREF
-  int v66; // [esp+9Ch] [ebp-48h] BYREF
-  int v67[3]; // [esp+A8h] [ebp-3Ch] BYREF
-  int v68; // [esp+B4h] [ebp-30h] BYREF
-  char v69[4]; // [esp+B8h] [ebp-2Ch] BYREF
-  int v70; // [esp+C0h] [ebp-24h] BYREF
-  int v71[3]; // [esp+CCh] [ebp-18h] BYREF
+  BVector v64; // [esp+84h] [ebp-60h] BYREF
+  BVector v65; // [esp+90h] [ebp-54h] BYREF
+  BVector v66; // [esp+9Ch] [ebp-48h] BYREF
+  BVector v67; // [esp+A8h] [ebp-3Ch] BYREF
+  BVector v68; // [esp+B4h] [ebp-30h] BYREF
+  BVector outVector; // [esp+C0h] [ebp-24h] BYREF
+  BVector v70; // [esp+CCh] [ebp-18h] BYREF
   int wpIndex[3]; // [esp+D8h] [ebp-Ch] BYREF
 
   v2 = groupDebugDisplay;
@@ -143605,11 +143606,11 @@ void __thiscall BFormation::render(BFormation *this, BUnitGroup *uG)
                   {
 LABEL_17:
                     v13 = *v8;
-                    v14 = ((int (__thiscall *)(RGE_Static_Object *, int *, _DWORD, _DWORD, _DWORD, int))v7->vfptr->position)(
+                    v14 = ((int (__thiscall *)(RGE_Static_Object *, BVector *, _DWORD, _DWORD, _DWORD, int))v7->vfptr->position)(
                             v7,
-                            &v70,
+                            &outVector,
                             LODWORD(v3->mSlots[v57].mTransformPosition.x),
-                            LODWORD(v3->mSlots[v57].mTransformPosition.z),
+                            LODWORD(v3->mSlots[v57].mTransformPosition.y),
                             (unsigned __int8)color_gray,
                             3);
                     v15 = (_DWORD *)((int (__thiscall *)(RGE_Static_Object *, BUnitGroup **, _DWORD))v7->vfptr->position)(
@@ -143650,10 +143651,10 @@ LABEL_16:
                             {
                               v32 = *v8;
                               v56 = (unsigned __int8)color_yellow;
-                              v53 = BPath::waypoint(v30, (int)&v68, v31)->z;
-                              v49 = BPath::waypoint(*(BPath **)(v29 + 16), (int)&v66, v31)->x;
-                              v45 = BPath::waypoint(*(BPath **)(v29 + 16), (int)v71, v31 - 1)->z;
-                              v33 = BPath::waypoint(*(BPath **)(v29 + 16), (int)v64, v31 - 1);
+                              v53 = BPath::waypoint(v30, &v68, v31)->y;
+                              v49 = BPath::waypoint(*(BPath **)(v29 + 16), &v66, v31)->x;
+                              v45 = BPath::waypoint(*(BPath **)(v29 + 16), &v70, v31 - 1)->y;
+                              v33 = BPath::waypoint(*(BPath **)(v29 + 16), &v64, v31 - 1);
                               (*(void (__thiscall **)(int *, _DWORD, float, float, float, int, int))(v32 + 116))(
                                 v8,
                                 LODWORD(v33->x),
@@ -143693,16 +143694,16 @@ LABEL_16:
                     }
 LABEL_46:
                     v38 = *v8;
-                    v39 = ((int (__thiscall *)(RGE_Static_Object *, int *, int, int, _DWORD, int))v7->vfptr->position)(
+                    v39 = ((int (__thiscall *)(RGE_Static_Object *, BVector *, int, int, _DWORD, int))v7->vfptr->position)(
                             v7,
                             &v65,
                             v62,
                             v63,
                             (unsigned __int8)color_red,
                             3);
-                    v40 = (_DWORD *)((int (__thiscall *)(RGE_Static_Object *, char *, _DWORD))v7->vfptr->position)(
+                    v40 = (_DWORD *)((int (__thiscall *)(RGE_Static_Object *, float *, _DWORD))v7->vfptr->position)(
                                       v7,
-                                      v69,
+                                      &v68.z,
                                       *(_DWORD *)(v39 + 8));
                     (*(void (__thiscall **)(int *, _DWORD))(v38 + 116))(v8, *v40);
                     v3 = this;
@@ -143715,16 +143716,16 @@ LABEL_46:
                     (*(void (__thiscall **)(int *, _DWORD, _DWORD, _DWORD, _DWORD, int, int))(*v8 + 116))(
                       v8,
                       LODWORD(v41),
-                      LODWORD(v16->mTransformPosition.z),
+                      LODWORD(v16->mTransformPosition.y),
                       LODWORD(v46),
-                      LODWORD(v16->mTransformPosition.z),
+                      LODWORD(v16->mTransformPosition.y),
                       v59,
                       3);
                     v17 = v3->mSlots;
                     v18 = v17[v57].mTransformPosition.x;
                     v19 = &v17[v57];
-                    v50 = v19->mTransformPosition.z + 0.15000001;
-                    v42 = v19->mTransformPosition.z - 0.15000001;
+                    v50 = v19->mTransformPosition.y + 0.15000001;
+                    v42 = v19->mTransformPosition.y - 0.15000001;
                     (*(void (__thiscall **)(int *, float, _DWORD, float, _DWORD, int, int))(*v8 + 116))(
                       v8,
                       COERCE_FLOAT(LODWORD(v18)),
@@ -143759,10 +143760,10 @@ LABEL_46:
               {
                 v24 = OBSystem_Land->vfptr;
                 v54 = (unsigned __int8)color_black;
-                v51 = BPath::waypoint(v22, (int)wpIndex, j)->z;
-                v47 = BPath::waypoint(i->path, (int)&v70, j)->x;
-                v43 = BPath::waypoint(i->path, (int)v67, j - 1)->z;
-                v25 = BPath::waypoint(i->path, (int)&v65, j - 1);
+                v51 = BPath::waypoint(v22, (BVector *)wpIndex, j)->y;
+                v47 = BPath::waypoint(i->path, &outVector, j)->x;
+                v43 = BPath::waypoint(i->path, &v67, j - 1)->y;
+                v25 = BPath::waypoint(i->path, &v65, j - 1);
                 ((void (__thiscall *)(RGE_Obstruction_Manager *, _DWORD, float, float, float, int, int))v24->AddDebugLine)(
                   OBSystem_Land,
                   LODWORD(v25->x),
@@ -143773,10 +143774,10 @@ LABEL_46:
                   3);
                 v26 = OBSystem_Air->vfptr;
                 v55 = (unsigned __int8)color_black;
-                v52 = BPath::waypoint(i->path, (int)v64, j)->z;
-                v48 = BPath::waypoint(i->path, (int)v71, j)->x;
-                v44 = BPath::waypoint(i->path, (int)&v66, j - 1)->z;
-                v27 = BPath::waypoint(i->path, (int)&v68, j - 1);
+                v52 = BPath::waypoint(i->path, &v64, j)->y;
+                v48 = BPath::waypoint(i->path, &v70, j)->x;
+                v44 = BPath::waypoint(i->path, &v66, j - 1)->y;
+                v27 = BPath::waypoint(i->path, &v68, j - 1);
                 ((void (__thiscall *)(RGE_Airspace_Manager *, _DWORD, float, float, float, int, int))v26->AddDebugLine)(
                   OBSystem_Air,
                   LODWORD(v27->x),
@@ -143922,9 +143923,9 @@ void __thiscall BFormation::renderOutline(BFormation *this, BUnitGroup *uG)
     --v7;
   }
   while ( v7 );
-  curOF.y = 0.0;
-  memset(v89, 0, sizeof(v89));
   curOF.z = 0.0;
+  memset(v89, 0, sizeof(v89));
+  curOF.y = 0.0;
   v8 = this->mNumberLines;
   curOF.x = 1.0;
   v79 = 0;
@@ -143955,8 +143956,8 @@ LABEL_28:
         v36 = v34->vfptr->position(v34, &v86);
         v37 = &v93[12 * v35 + 12 * v71];
         *(float *)v37 = v36->x;
-        v38 = v36->y;
-        v39 = v36->z;
+        v38 = v36->z;
+        v39 = v36->y;
         *((float *)v37 + 1) = v38;
         *((float *)v37 + 2) = v39;
         *v77 = v35 + 1;
@@ -144003,9 +144004,9 @@ LABEL_27:
       if ( ++v11 >= *(int *)((char *)&v10->mWidth + v9) - 1 )
         goto LABEL_28;
     }
-    v70 = ((int (__thiscall *)(RGE_Static_Object *, float *, int))v14->vfptr->position)(v14, &result.z, v70);
+    v70 = ((int (__thiscall *)(RGE_Static_Object *, float *, int))v14->vfptr->position)(v14, &result.y, v70);
     v20 = (BVector *)((int (__thiscall *)(RGE_Static_Object *))v19->vfptr->position)(v19);
-    BVector::operator_minus(v20, &result, (BVector *)&newOF.y);
+    BVector::operator_minus(v20, &result, (BVector *)&newOF.z);
     v81 = BMotion::calculateYawAngle((BMotion *)uG, &curOF, &newOF, 3.4028235e38, 0);
     if ( v11 )
     {
@@ -144019,8 +144020,8 @@ LABEL_25:
       v26 = v14->vfptr->position(v14, &v85);
       v27 = &v93[12 * v21 + 12 * v71];
       *(float *)v27 = v26->x;
-      v28 = v26->y;
-      v29 = v26->z;
+      v28 = v26->z;
+      v29 = v26->y;
       *((float *)v27 + 1) = v28;
       *((float *)v27 + 2) = v29;
     }
@@ -144030,8 +144031,8 @@ LABEL_25:
       v22 = v14->vfptr->position(v14, (BVector *)v88);
       v23 = &v93[12 * v21 + 12 * v71];
       *(float *)v23 = v22->x;
-      v24 = v22->y;
-      v25 = v22->z;
+      v24 = v22->z;
+      v25 = v22->y;
       *((float *)v23 + 1) = v24;
       *((float *)v23 + 2) = v25;
     }
@@ -144210,9 +144211,9 @@ int __thiscall BFormation::pickBoxPositions(BFormation *this, BUnitGroup *uG, in
   {
     v13 = (positionsa * 0.25 - v11) * 0.5;
     min->x = min->x - v13;
-    min->z = min->z - v13;
+    min->y = min->y - v13;
     max->x = v13 + max->x;
-    max->z = v13 + max->z;
+    max->y = v13 + max->y;
     *(float *)&numberUnitsa = positionsa / maxPositionsa;
   }
   switch ( numberUnits )
@@ -144220,105 +144221,105 @@ int __thiscall BFormation::pickBoxPositions(BFormation *this, BUnitGroup *uG, in
     case 1:
       positions->x = max->x;
       result = 1;
-      positions->z = (min->z + max->z) * 0.5;
+      positions->y = (min->y + max->y) * 0.5;
       break;
     case 2:
       positions->x = max->x;
-      positions->z = (max->z + min->z) * 0.5;
+      positions->y = (max->y + min->y) * 0.5;
       positions[1].x = min->x;
       result = 1;
-      positions[1].z = (max->z + min->z) * 0.5;
+      positions[1].y = (max->y + min->y) * 0.5;
       break;
     case 3:
       positions->x = max->x;
-      positions->z = min->z;
+      positions->y = min->y;
       positions[1].x = max->x;
-      positions[1].z = max->z;
+      positions[1].y = max->y;
       positions[2].x = min->x;
       result = 1;
-      positions[2].z = (max->z + min->z) * 0.5;
+      positions[2].y = (max->y + min->y) * 0.5;
       break;
     case 4:
       positions->x = max->x;
-      positions->z = min->z;
+      positions->y = min->y;
       positions[1].x = max->x;
-      positions[1].z = max->z;
+      positions[1].y = max->y;
       positions[2].x = min->x;
-      positions[2].z = min->z;
+      positions[2].y = min->y;
       positions[3].x = min->x;
-      positions[3].z = max->z;
+      positions[3].y = max->y;
       result = 1;
       break;
     case 5:
       positions->x = max->x;
-      positions->z = min->z;
+      positions->y = min->y;
       positions[1].x = max->x;
-      positions[1].z = (max->z + min->z) * 0.5;
+      positions[1].y = (max->y + min->y) * 0.5;
       positions[2].x = max->x;
-      positions[2].z = max->z;
+      positions[2].y = max->y;
       positions[3].x = min->x;
-      positions[3].z = min->z;
+      positions[3].y = min->y;
       positions[4].x = min->x;
-      positions[4].z = max->z;
+      positions[4].y = max->y;
       result = 1;
       break;
     case 6:
       positions->x = max->x;
-      positions->z = min->z;
+      positions->y = min->y;
       positions[1].x = max->x;
-      positions[1].z = (max->z + min->z) * 0.5;
+      positions[1].y = (max->y + min->y) * 0.5;
       positions[2].x = max->x;
-      positions[2].z = max->z;
+      positions[2].y = max->y;
       positions[3].x = min->x;
-      positions[3].z = min->z;
+      positions[3].y = min->y;
       positions[4].x = min->x;
-      positions[4].z = (max->z + min->z) * 0.5;
+      positions[4].y = (max->y + min->y) * 0.5;
       positions[5].x = min->x;
-      positions[5].z = max->z;
+      positions[5].y = max->y;
       result = 1;
       break;
     case 7:
       positions->x = max->x;
-      positions->z = min->z;
+      positions->y = min->y;
       positions[1].x = max->x;
-      positions[1].z = (max->z + min->z) * 0.5;
+      positions[1].y = (max->y + min->y) * 0.5;
       positions[2].x = max->x;
-      positions[2].z = max->z;
+      positions[2].y = max->y;
       positions[3].x = (min->x + max->x) * 0.5;
-      positions[3].z = min->z;
+      positions[3].y = min->y;
       positions[4].x = (min->x + max->x) * 0.5;
-      positions[4].z = max->z;
+      positions[4].y = max->y;
       positions[5].x = min->x;
-      positions[5].z = min->z;
+      positions[5].y = min->y;
       positions[6].x = min->x;
-      positions[6].z = max->z;
+      positions[6].y = max->y;
       result = 1;
       break;
     case 8:
       positions->x = max->x;
-      positions->z = min->z;
+      positions->y = min->y;
       positions[1].x = max->x;
-      positions[1].z = (max->z + min->z) * 0.5;
+      positions[1].y = (max->y + min->y) * 0.5;
       positions[2].x = max->x;
-      positions[2].z = max->z;
+      positions[2].y = max->y;
       positions[3].x = (min->x + max->x) * 0.5;
-      positions[3].z = min->z;
+      positions[3].y = min->y;
       positions[4].x = (min->x + max->x) * 0.5;
-      positions[4].z = max->z;
+      positions[4].y = max->y;
       positions[5].x = min->x;
-      positions[5].z = min->z;
+      positions[5].y = min->y;
       positions[6].x = min->x;
-      positions[6].z = (max->z + min->z) * 0.5;
+      positions[6].y = (max->y + min->y) * 0.5;
       positions[7].x = min->x;
-      positions[7].z = max->z;
+      positions[7].y = max->y;
       result = 1;
       break;
     default:
-      v15 = &positions->z;
+      v15 = &positions->y;
       positions->x = max->x;
       v16 = 0;
       maxPositionsb = 0;
-      positions->z = min->z;
+      positions->y = min->y;
       positionsb = 0.0;
       if ( numberUnits > 1 )
       {
@@ -144328,7 +144329,7 @@ int __thiscall BFormation::pickBoxPositions(BFormation *this, BUnitGroup *uG, in
           switch ( v16 )
           {
             case 0:
-              if ( *(float *)&numberUnitsa + *v15 < max->z )
+              if ( *(float *)&numberUnitsa + *v15 < max->y )
               {
                 v15[1] = max->x;
                 v15[3] = *(float *)&numberUnitsa + *v15;
@@ -144337,9 +144338,9 @@ int __thiscall BFormation::pickBoxPositions(BFormation *this, BUnitGroup *uG, in
               {
                 v16 = 1;
                 maxPositionsb = 1;
-                positionsb = max->z - (*(float *)&numberUnitsa - (max->z - *v15));
+                positionsb = max->y - (*(float *)&numberUnitsa - (max->y - *v15));
                 v15[1] = positionsb;
-                v15[3] = max->z;
+                v15[3] = max->y;
               }
               break;
             case 1:
@@ -144347,18 +144348,18 @@ int __thiscall BFormation::pickBoxPositions(BFormation *this, BUnitGroup *uG, in
               if ( v17 > min->x )
               {
                 v15[1] = v17;
-                v15[3] = max->z;
+                v15[3] = max->y;
               }
               else
               {
                 v16 = 2;
                 maxPositionsb = 2;
-                v15[3] = max->z - (*(float *)&numberUnitsa - (*(v15 - 2) - min->x));
+                v15[3] = max->y - (*(float *)&numberUnitsa - (*(v15 - 2) - min->x));
                 v15[1] = min->x;
               }
               break;
             case 2:
-              if ( *v15 - *(float *)&numberUnitsa > min->z )
+              if ( *v15 - *(float *)&numberUnitsa > min->y )
               {
                 v15[1] = min->x;
                 v15[3] = *v15 - *(float *)&numberUnitsa;
@@ -144367,7 +144368,7 @@ int __thiscall BFormation::pickBoxPositions(BFormation *this, BUnitGroup *uG, in
               {
                 v16 = 3;
                 v15[1] = positionsb;
-                v15[3] = min->z;
+                v15[3] = min->y;
                 maxPositionsb = 3;
               }
               break;
@@ -144376,20 +144377,20 @@ int __thiscall BFormation::pickBoxPositions(BFormation *this, BUnitGroup *uG, in
               if ( v18 > min->x )
               {
                 v15[1] = v18;
-                v15[3] = min->z;
+                v15[3] = min->y;
               }
               else
               {
                 v16 = 4;
                 v15[1] = max->x;
-                v15[3] = min->z;
+                v15[3] = min->y;
                 maxPositionsb = 4;
               }
               break;
             default:
               v15[1] = positions->x;
-              v15[2] = positions->y;
-              v15[3] = positions->z;
+              v15[2] = positions->z;
+              v15[3] = positions->y;
               v16 = maxPositionsb;
               break;
           }
@@ -144743,21 +144744,21 @@ int __thiscall BPointLine::findPointFromFront(BPointLine *this, BUnitGroup *uG, 
   float rFc; // [esp+3Ch] [ebp+10h]
 
   rPoint->x = 0.0;
-  rPoint->y = 0.0;
   rPoint->z = 0.0;
+  rPoint->y = 0.0;
   rF->x = 0.0;
-  rF->y = 0.0;
   rF->z = 0.0;
+  rF->y = 0.0;
   rR->x = 0.0;
-  rR->y = 0.0;
   rR->z = 0.0;
+  rR->y = 0.0;
   if ( this->mNumberPoints <= 1 )
     return 0;
   v8 = this->mPoints.next;
   BVector::operator_minus(&v8->next->mPoint, &result, &v8->mPoint);
-  result.y = 0.0;
+  result.z = 0.0;
   rFa = 0.0;
-  rPointa = sqrt(result.z * result.z + result.x * result.x);
+  rPointa = sqrt(result.y * result.y + result.x * result.x);
   if ( fabs(rPointa) < 0.0 )
     return 0;
   while ( 1 )
@@ -144772,10 +144773,10 @@ int __thiscall BPointLine::findPointFromFront(BPointLine *this, BUnitGroup *uG, 
     {
       v11 = BVector::operator_minus(v10, &v25, &v8->mPoint);
       result.x = v11->x;
-      result.y = v11->y;
-      v12 = v11->z;
-      result.y = 0.0;
-      result.z = v12;
+      result.z = v11->z;
+      v12 = v11->y;
+      result.z = 0.0;
+      result.y = v12;
       v13 = sqrt(v12 * v12 + result.x * result.x);
       rPointa = v13;
       if ( fabs(v13) >= 0.0 )
@@ -144786,46 +144787,46 @@ int __thiscall BPointLine::findPointFromFront(BPointLine *this, BUnitGroup *uG, 
   if ( distance <= 0.0 )
   {
     rPoint->x = v8->mPoint.x;
-    rPoint->y = v8->mPoint.y;
     rPoint->z = v8->mPoint.z;
+    rPoint->y = v8->mPoint.y;
   }
   else
   {
-    v15 = result.y;
+    v15 = result.z;
     v16 = (distance - rFa) / rPointa;
     rPoint->x = result.x;
-    v17 = result.z;
-    rPoint->y = v15;
-    rPoint->z = v17;
+    v17 = result.y;
+    rPoint->z = v15;
+    rPoint->y = v17;
     distancea = v16 * rPoint->x;
     rPoint->x = distancea;
-    rPointb = v16 * rPoint->y;
-    rPoint->y = rPointb;
-    v18 = v16 * rPoint->z;
-    rPoint->z = v18;
+    rPointb = v16 * rPoint->z;
+    rPoint->z = rPointb;
+    v18 = v16 * rPoint->y;
+    rPoint->y = v18;
     rPoint->x = distancea + v8->mPoint.x;
-    rPoint->y = rPointb + v8->mPoint.y;
-    rPoint->z = v18 + v8->mPoint.z;
+    rPoint->z = rPointb + v8->mPoint.z;
+    rPoint->y = v18 + v8->mPoint.y;
   }
   *rF = *BVector::operator_plus(&v8->mForward, &v25, &v8->prev->mForward);
   v19 = rF->x * 0.5;
-  distanceb = rF->y * 0.5;
-  v20 = rF->z * 0.5;
+  distanceb = rF->z * 0.5;
+  v20 = rF->y * 0.5;
   rPointc = v20;
   rFb = sqrt(v20 * rPointc + distanceb * distanceb + v19 * v19);
   rF->x = v19 / rFb;
-  rF->y = distanceb / rFb;
-  rF->z = rPointc / rFb;
+  rF->z = distanceb / rFb;
+  rF->y = rPointc / rFb;
   *rR = *BVector::operator_plus(&v8->mRight, &v25, &v8->prev->mRight);
   v14 = 1;
   v21 = rR->x * 0.5;
-  distancec = rR->y * 0.5;
-  v22 = rR->z * 0.5;
+  distancec = rR->z * 0.5;
+  v22 = rR->y * 0.5;
   rPointd = v22;
   rFc = sqrt(v22 * rPointd + distancec * distancec + v21 * v21);
   rR->x = v21 / rFc;
-  rR->y = distancec / rFc;
-  rR->z = rPointd / rFc;
+  rR->z = distancec / rFc;
+  rR->y = rPointd / rFc;
   return v14;
 }
 
@@ -144864,8 +144865,8 @@ int __thiscall BPointLine::addPointAtFront(BPointLine *this, BUnitGroup *uG, BVe
   *((BVector *)v7 + 1) = *f;
   *((BVector *)v7 + 2) = *u;
   *((_DWORD *)v7 + 9) = LODWORD(r->x);
-  *((_DWORD *)v7 + 10) = LODWORD(r->y);
-  v8 = r->z;
+  *((_DWORD *)v7 + 10) = LODWORD(r->z);
+  v8 = r->y;
   *((_DWORD *)v7 + 13) = &this->mPoints;
   *((float *)v7 + 11) = v8;
   *((_DWORD *)v7 + 12) = this->mPoints.next;
@@ -144880,15 +144881,15 @@ int __thiscall BPointLine::addPointAtFront(BPointLine *this, BUnitGroup *uG, BVe
   else
   {
     BVector::operator_minus((BVector *)v7, &result, *((BVector **)v7 + 12));
-    this->mLength = sqrt(result.z * result.z + result.y * result.y + result.x * result.x) + this->mLength;
+    this->mLength = sqrt(result.y * result.y + result.z * result.z + result.x * result.x) + this->mLength;
   }
   if ( this->mLength > (double)this->mDesiredLength && this->mNumberPoints > 1 )
   {
     v11 = this->mPoints.prev;
     BVector::operator_minus(&v11->mPoint, &result, &v11->prev->mPoint);
-    for ( pa = sqrt(result.y * result.y + result.z * result.z + result.x * result.x);
+    for ( pa = sqrt(result.z * result.z + result.y * result.y + result.x * result.x);
           this->mLength - pa > this->mDesiredLength;
-          pa = sqrt(result.y * result.y + result.z * result.z + result.x * result.x) )
+          pa = sqrt(result.z * result.z + result.y * result.y + result.x * result.x) )
     {
       if ( this->mNumberPoints <= 1 )
         break;
@@ -144963,17 +144964,17 @@ void __thiscall BPointLine::load(BPointLine *this, int file)
       if ( v7 )
       {
         v7->mPoint.x = 0.0;
-        v7->mPoint.y = 0.0;
         v7->mPoint.z = 0.0;
+        v7->mPoint.y = 0.0;
         v7->mForward.x = 0.0;
-        v7->mForward.y = 0.0;
         v7->mForward.z = 0.0;
+        v7->mForward.y = 0.0;
         v7->mUp.x = 0.0;
-        v7->mUp.y = 0.0;
         v7->mUp.z = 0.0;
+        v7->mUp.y = 0.0;
         v7->mRight.x = 0.0;
-        v7->mRight.y = 0.0;
         v7->mRight.z = 0.0;
+        v7->mRight.y = 0.0;
         v7->next = v7;
         v7->prev = v7;
         rge_read(file, v7, 0xCu);
@@ -145457,8 +145458,8 @@ BUnitGroup *__thiscall BUnitGroup::BUnitGroup(BUnitGroup *this)
   this->mFormationLockedType = 0;
   this->mGroupFlags.valueValue = 0;
   this->mCentroid.x = 0.0;
-  this->mCentroid.y = 0.0;
   this->mCentroid.z = 0.0;
+  this->mCentroid.y = 0.0;
   this->mDesiredHeight = 0.0;
   this->mLargestUnitRadius = 0.0;
   this->mSmallestUnitRadius = 0.0;
@@ -145489,26 +145490,26 @@ BUnitGroup *__thiscall BUnitGroup::BUnitGroup(BUnitGroup *this)
   this->mCurrentCommand = -1;
   BContextPlan::BContextPlan(&this->mCurrentAttackPlan);
   this->mCurrentTarget.mOriginalPosition.x = 0.0;
-  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mOriginalPosition.z = 0.0;
+  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mType = -1;
   this->mCurrentTarget.mTarget = -1;
   this->mCurrentTarget.mOriginalPosition.x = 0.0;
-  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mOriginalPosition.z = 0.0;
+  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mRange = 0.0;
   this->mCurrentTarget.mTargetRadius = 0.0;
   this->mAttackPlanType = 0;
   this->mIdleTimer = 0;
   this->mOrderQueue.mPoint.x = 0.0;
-  this->mOrderQueue.mPoint.y = 0.0;
   this->mOrderQueue.mPoint.z = 0.0;
+  this->mOrderQueue.mPoint.y = 0.0;
   this->mOrderQueue.mTargetID = -1;
   this->mOrderQueue.mCommand = -1;
   this->mOrderQueue.mParm = 0.0;
   this->mOrderQueue.mPoint.x = 0.0;
-  this->mOrderQueue.mPoint.y = 0.0;
   this->mOrderQueue.mPoint.z = 0.0;
+  this->mOrderQueue.mPoint.y = 0.0;
   this->mOrderQueue.mExecuteTime = 0;
   this->mOrderQueue.next = &this->mOrderQueue;
   this->mOrderQueue.prev = &this->mOrderQueue;
@@ -145549,10 +145550,10 @@ void __thiscall BMotion::setPosition(BMotion *this, BVector v)
   v3 = &this->mPosition;
   v2->mPosition.x = v.x;
   v3->mPosition.x = v.x;
-  v2->mPosition.y = v.y;
-  v3->mPosition.y = v.y;
   v2->mPosition.z = v.z;
   v3->mPosition.z = v.z;
+  v2->mPosition.y = v.y;
+  v3->mPosition.y = v.y;
 }
 
 //----- (0047DC30) --------------------------------------------------------
@@ -145586,15 +145587,15 @@ void __thiscall BMotion::setVelocity(BMotion *this, BVector *v)
 }
 
 //----- (0047DC90) --------------------------------------------------------
-float __thiscall BMotion::getVelocityForward(BMotion *this)
+double __thiscall BMotion::getVelocityForward(BMotion *this)
 {
-  return this->mVelocity.z;
+  return this->mVelocity.y;
 }
 
 //----- (0047DCA0) --------------------------------------------------------
 void __thiscall BMotion::setVelocityForward(BMotion *this, float v)
 {
-  this->mVelocity.z = v;
+  this->mVelocity.y = v;
 }
 
 //----- (0047DCB0) --------------------------------------------------------
@@ -145604,19 +145605,19 @@ void __thiscall BMotion::setMaximumVelocityForward(BMotion *this, float v)
 }
 
 //----- (0047DCC0) --------------------------------------------------------
-float __thiscall BMotion::getVelocityUp(BMotion *this)
+double __thiscall BMotion::getVelocityUp(BMotion *this)
 {
-  return this->mVelocity.y;
+  return this->mVelocity.z;
 }
 
 //----- (0047DCD0) --------------------------------------------------------
 void __thiscall BMotion::setVelocityUp(BMotion *this, float v)
 {
-  this->mVelocity.y = v;
+  this->mVelocity.z = v;
 }
 
 //----- (0047DCE0) --------------------------------------------------------
-float __thiscall BMotion::getVelocityRight(BMotion *this)
+double __thiscall BMotion::getVelocityRight(BMotion *this)
 {
   return this->mVelocity.x;
 }
@@ -145640,31 +145641,31 @@ void __thiscall BMotion::setAcceleration(BMotion *this, BVector *v)
 }
 
 //----- (0047DD30) --------------------------------------------------------
-float __thiscall BMotion::getAccelerationForward(BMotion *this)
+double __thiscall BMotion::getAccelerationForward(BMotion *this)
 {
-  return this->mAcceleration.z;
+  return this->mAcceleration.y;
 }
 
 //----- (0047DD40) --------------------------------------------------------
 void __thiscall BMotion::setAccelerationForward(BMotion *this, float v)
 {
-  this->mAcceleration.z = v;
+  this->mAcceleration.y = v;
 }
 
 //----- (0047DD50) --------------------------------------------------------
-float __thiscall BMotion::getAccelerationUp(BMotion *this)
+double __thiscall BMotion::getAccelerationUp(BMotion *this)
 {
-  return this->mAcceleration.y;
+  return this->mAcceleration.z;
 }
 
 //----- (0047DD60) --------------------------------------------------------
 void __thiscall BMotion::setAccelerationUp(BMotion *this, float v)
 {
-  this->mAcceleration.y = v;
+  this->mAcceleration.z = v;
 }
 
 //----- (0047DD70) --------------------------------------------------------
-float __thiscall BMotion::getAccelerationRight(BMotion *this)
+double __thiscall BMotion::getAccelerationRight(BMotion *this)
 {
   return this->mAcceleration.x;
 }
@@ -145676,25 +145677,25 @@ void __thiscall BMotion::setAccelerationRight(BMotion *this, float v)
 }
 
 //----- (0047DD90) --------------------------------------------------------
-float __thiscall BMotion::getTurnRadius(BMotion *this)
+double __thiscall BMotion::getTurnRadius(BMotion *this)
 {
   return this->mTurnRadius;
 }
 
 //----- (0047DDA0) --------------------------------------------------------
-float __thiscall BMotion::getTurnRadiusSpeed(BMotion *this)
+double __thiscall BMotion::getTurnRadiusSpeed(BMotion *this)
 {
   return this->mTurnRadiusSpeed;
 }
 
 //----- (0047DDB0) --------------------------------------------------------
-float __thiscall BMotion::getMaximumYawPerSecondMoving(BMotion *this)
+double __thiscall BMotion::getMaximumYawPerSecondMoving(BMotion *this)
 {
   return this->mMaximumYawPerSecondMoving;
 }
 
 //----- (0047DDC0) --------------------------------------------------------
-float __thiscall BMotion::getMaximumYawPerSecondStationary(BMotion *this)
+double __thiscall BMotion::getMaximumYawPerSecondStationary(BMotion *this)
 {
   return this->mMaximumYawPerSecondStationary;
 }
@@ -145734,8 +145735,8 @@ BVector *__thiscall BVector::BVector(BVector *this, float nx, float ny, float nz
 
   result = this;
   this->x = nx;
-  this->y = ny;
-  this->z = nz;
+  this->z = ny;
+  this->y = nz;
   return result;
 }
 
@@ -145852,7 +145853,7 @@ LABEL_8:
                 v7,
                 0,
                 LODWORD(this->mCurrentTarget.mOriginalPosition.x),
-                LODWORD(this->mCurrentTarget.mOriginalPosition.z),
+                LODWORD(this->mCurrentTarget.mOriginalPosition.y),
                 0);
           }
         }
@@ -145956,14 +145957,14 @@ LABEL_8:
       v32 = (BUnitGroup *)v24->vfptr;
       if ( v24 )
       {
-        if ( LODWORD(v24->mPosition.mOrientationForward.y) )
+        if ( LODWORD(v24->mPosition.mOrientationForward.z) )
         {
-          operator_delete((void *)LODWORD(v24->mPosition.mOrientationForward.y));
-          v24->mPosition.mOrientationForward.y = 0.0;
+          operator_delete((void *)LODWORD(v24->mPosition.mOrientationForward.z));
+          v24->mPosition.mOrientationForward.z = 0.0;
         }
-        v24->mPosition.mPosition.z = 0.0;
+        v24->mPosition.mPosition.y = 0.0;
         v24->mPosition.mOrientationForward.x = 0.0;
-        v24->mPosition.mOrientationUp.z = 0.0;
+        v24->mPosition.mOrientationUp.y = 0.0;
         operator_delete(v24);
         v25 = v32;
       }
@@ -146345,7 +146346,7 @@ int __thiscall BUnitGroup::update(BUnitGroup *this)
     {
       v6 = v4->vfptr->position(v4, (BVector *)v76);
       BVector::operator_minus(v6, &result, &this->mPosition.mPosition);
-      if ( sqrt(result.x * result.x + result.z * result.z + result.y * result.y) < v71 )
+      if ( sqrt(result.x * result.x + result.y * result.y + result.z * result.z) < v71 )
       {
         this->mPathUnit = v5;
         v71 = BVector::module(&result);
@@ -146384,9 +146385,9 @@ int __thiscall BUnitGroup::update(BUnitGroup *this)
     }
   }
   v.x = this->mPosition.mOrientationForward.x;
-  v.y = this->mPosition.mOrientationForward.y;
-  v10 = this->mFormationLocked;
   v.z = this->mPosition.mOrientationForward.z;
+  v10 = this->mFormationLocked;
+  v.y = this->mPosition.mOrientationForward.y;
   if ( v10 || (this->mGroupFlags.valueValue & 0x100) == 0 )
     BMotion::update((BMotion *)this, 1, this);
   else
@@ -146608,14 +146609,14 @@ LABEL_99:
                 v39->mPathID = -1;
                 v39->mReason = -1;
                 v39->mGoal.x = 0.0;
-                v39->mGoal.y = 0.0;
                 v39->mGoal.z = 0.0;
+                v39->mGoal.y = 0.0;
                 v39->mTimer = 0.0;
                 v39->mConsecutiveMoveFailures = 0;
                 v39->mDistance = 0.0;
                 v39->mLastPosition.x = 0.0;
-                v39->mLastPosition.y = 0.0;
                 v39->mLastPosition.z = 0.0;
+                v39->mLastPosition.y = 0.0;
 LABEL_115:
                 BUnitGroup::moveUnit(
                   this,
@@ -146638,14 +146639,14 @@ LABEL_115:
                 v44->mPathID = -1;
                 v44->mReason = -1;
                 v44->mGoal.x = 0.0;
-                v44->mGoal.y = 0.0;
                 v44->mGoal.z = 0.0;
+                v44->mGoal.y = 0.0;
                 v44->mTimer = 0.0;
                 v44->mConsecutiveMoveFailures = 0;
                 v44->mDistance = 0.0;
                 v44->mLastPosition.x = 0.0;
-                v44->mLastPosition.y = 0.0;
                 v44->mLastPosition.z = 0.0;
+                v44->mLastPosition.y = 0.0;
                 goto LABEL_115;
               }
             }
@@ -146726,12 +146727,12 @@ LABEL_116:
             ((void (__thiscall *)(RGE_Static_Object *, float *, char *))v50->vfptr->setMoveSprite)(v50, v66, v67);
             v67 = &v48[(unsigned int)this->mSpecificMoves + 36];
             v56 = (BVector *)((int (__thiscall *)(RGE_Static_Object *))v50->vfptr->position)(v50);
-            BVector::operator_minus(v56, &v77, (BVector *)&result.z);
+            BVector::operator_minus(v56, &v77, (BVector *)&result.y);
             v57 = this->mSpecificMoves;
-            result.z = 0.0;
-            v66 = &v77.z;
+            result.y = 0.0;
+            v66 = &v77.y;
             *(float *)((char *)&v57->mDistance + (_DWORD)v48) = *(float *)((char *)&v57->mDistance + (_DWORD)v48)
-                                                              - sqrt(v.x * v.x + result.y * result.y);
+                                                              - sqrt(v.x * v.x + result.z * result.z);
             v58 = (_DWORD *)((int (__thiscall *)(RGE_Static_Object *))v50->vfptr->position)(v50);
             v59 = &v48[(unsigned int)this->mSpecificMoves + 36];
             *(_DWORD *)v59 = *v58;
@@ -146778,9 +146779,9 @@ LABEL_116:
 // 68EDC0: using guessed type int dword_68EDC0;
 
 //----- (0047F250) --------------------------------------------------------
-float __thiscall BVector::module(BVector *this)
+double __thiscall BVector::module(BVector *this)
 {
-  return sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
+  return sqrt(this->x * this->x + this->z * this->z + this->y * this->y);
 }
 
 //----- (0047F280) --------------------------------------------------------
@@ -146820,11 +146821,11 @@ void __thiscall BUnitGroup::render(BUnitGroup *this)
     if ( groupDebugDisplay != 3 )
     {
       v2 = this->mPosition.mOrientationForward.x + this->mPosition.mPosition.x;
-      v3 = this->mPosition.mOrientationForward.z + this->mPosition.mPosition.z;
+      v3 = this->mPosition.mOrientationForward.y + this->mPosition.mPosition.y;
       ((void (__thiscall *)(RGE_Obstruction_Manager *, _DWORD, _DWORD, _DWORD, _DWORD, int, int))OBSystem_Land->vfptr->AddDebugLine)(
         OBSystem_Land,
         LODWORD(this->mPosition.mPosition.x),
-        LODWORD(this->mPosition.mPosition.z),
+        LODWORD(this->mPosition.mPosition.y),
         LODWORD(v2),
         LODWORD(v3),
         254,
@@ -146832,7 +146833,7 @@ void __thiscall BUnitGroup::render(BUnitGroup *this)
       ((void (__thiscall *)(RGE_Airspace_Manager *, _DWORD, _DWORD, _DWORD, _DWORD, int, int))OBSystem_Air->vfptr->AddDebugLine)(
         OBSystem_Air,
         LODWORD(this->mPosition.mPosition.x),
-        LODWORD(this->mPosition.mPosition.z),
+        LODWORD(this->mPosition.mPosition.y),
         LODWORD(v2),
         LODWORD(v3),
         254,
@@ -146905,14 +146906,14 @@ LABEL_11:
     v12->mPathID = -1;
     v12->mReason = -1;
     v12->mGoal.x = 0.0;
-    v12->mGoal.y = 0.0;
     v12->mGoal.z = 0.0;
+    v12->mGoal.y = 0.0;
     v12->mTimer = 0.0;
     v12->mConsecutiveMoveFailures = 0;
     v12->mDistance = 0.0;
     v12->mLastPosition.x = 0.0;
-    v12->mLastPosition.y = 0.0;
     v12->mLastPosition.z = 0.0;
+    v12->mLastPosition.y = 0.0;
     ++this->mNumberUnits;
     BUnitTypeStatisticManager::addUnit(&this->mUnitTypes, unitID, targetUnitID);
     v13 = v5[5];
@@ -146992,14 +146993,14 @@ int __thiscall BUnitGroup::removeUnit(BUnitGroup *this, int unitID)
   v14->mPathID = -1;
   v14->mReason = -1;
   v14->mGoal.x = 0.0;
-  v14->mGoal.y = 0.0;
   v14->mGoal.z = 0.0;
+  v14->mGoal.y = 0.0;
   v14->mTimer = 0.0;
   v14->mConsecutiveMoveFailures = 0;
   v14->mDistance = 0.0;
   v14->mLastPosition.x = 0.0;
-  v14->mLastPosition.y = 0.0;
   v14->mLastPosition.z = 0.0;
+  v14->mLastPosition.y = 0.0;
   --this->mNumberUnits;
   BUnitTypeStatisticManager::removeUnit(&this->mUnitTypes, this, unitID);
   this->mGroupFlags.valueValue |= 2u;
@@ -147063,14 +147064,14 @@ void __thiscall BUnitGroup::removeAllUnits(BUnitGroup *this)
       v9->mPathID = -1;
       v9->mReason = -1;
       v9->mGoal.x = 0.0;
-      v9->mGoal.y = 0.0;
       v9->mGoal.z = 0.0;
+      v9->mGoal.y = 0.0;
       v9->mTimer = 0.0;
       v9->mConsecutiveMoveFailures = 0;
       v9->mDistance = 0.0;
       v9->mLastPosition.x = 0.0;
-      v9->mLastPosition.y = 0.0;
       v9->mLastPosition.z = 0.0;
+      v9->mLastPosition.y = 0.0;
       ++v10;
     }
     while ( v2 < this->mNumberUnits );
@@ -147190,10 +147191,10 @@ LABEL_13:
             v15 = v10->vfptr->position(v10, &v19);
             BVector::operator_minus(point, &result, v15);
             *(float *)&typea = result.x * result.x;
-            if ( sqrt(result.z * result.z + result.y * result.y + *(float *)&typea) < v16 )
+            if ( sqrt(result.y * result.y + result.z * result.z + *(float *)&typea) < v16 )
             {
               v17 = this->mUnits[v8];
-              v16 = sqrt(result.y * result.y + result.z * result.z + *(float *)&typea);
+              v16 = sqrt(result.z * result.z + result.y * result.y + *(float *)&typea);
             }
           }
         }
@@ -147282,10 +147283,10 @@ LABEL_21:
               v18 = v11->vfptr->position(v11, &v24);
               BVector::operator_minus(point, &result, v18);
               v20 = result.x * result.x;
-              if ( sqrt(result.z * result.z + result.y * result.y + v20) < v21 )
+              if ( sqrt(result.y * result.y + result.z * result.z + v20) < v21 )
               {
                 v22 = this->mUnits[v9];
-                v21 = sqrt(result.y * result.y + result.z * result.z + v20);
+                v21 = sqrt(result.z * result.z + result.y * result.y + v20);
               }
             }
           }
@@ -147334,14 +147335,14 @@ int __thiscall BUnitGroup::setSpecificMove(BUnitGroup *this, int unitID, int pat
     v13->mPathID = -1;
     v13->mReason = -1;
     v13->mGoal.x = 0.0;
-    v13->mGoal.y = 0.0;
     v13->mGoal.z = 0.0;
+    v13->mGoal.y = 0.0;
     v13->mTimer = 0.0;
     v13->mConsecutiveMoveFailures = 0;
     v13->mDistance = 0.0;
     v13->mLastPosition.x = 0.0;
-    v13->mLastPosition.y = 0.0;
     v13->mLastPosition.z = 0.0;
+    v13->mLastPosition.y = 0.0;
   }
   else
   {
@@ -147356,8 +147357,8 @@ int __thiscall BUnitGroup::setSpecificMove(BUnitGroup *this, int unitID, int pat
     v16 = v12->vfptr->position(v12, &goal);
     v17 = &this->mSpecificMoves[v14].mLastPosition;
     v17->x = v16->x;
-    v17->y = v16->y;
     v17->z = v16->z;
+    v17->y = v16->y;
   }
   return 1;
 }
@@ -147446,8 +147447,8 @@ int __thiscall BUnitGroup::canMoveToAttack(BUnitGroup *this, int unitID, int tar
     *(float *)&oID = RGE_Static_Object::distance_to_position(
                        v4,
                        v12[v9].mTransformPosition.x,
-                       v12[v9].mTransformPosition.z,
-                       v12[v9].mTransformPosition.y);
+                       v12[v9].mTransformPosition.y,
+                       v12[v9].mTransformPosition.z);
     if ( this->mState == 2
       && *(float *)&oID - ((double (__thiscall *)(RGE_Static_Object *))unit->vfptr->damageCapability_1)(unit) > 2.5
       || this->mState == 1
@@ -147465,8 +147466,8 @@ int __thiscall BUnitGroup::canMoveToAttack(BUnitGroup *this, int unitID, int tar
   v14 = RGE_Static_Object::distance_to_position(
           unit,
           v12[v9].mTransformPosition.x,
-          v12[v9].mTransformPosition.z,
-          v12[v9].mTransformPosition.y);
+          v12[v9].mTransformPosition.y,
+          v12[v9].mTransformPosition.z);
   v15 = this->mState;
   *(float *)&oIDa = v14;
   if ( v15 == 2 && *(float *)&oIDa > 2.5 )
@@ -147553,8 +147554,8 @@ void __thiscall BUnitGroup::updateDesiredPositions(BUnitGroup *this, int newGive
       v3->mLines = 0;
       v3->mTransformType = 0;
       v3->mTransformOrientation.x = 1.0;
-      v3->mTransformOrientation.y = 0.0;
       v3->mTransformOrientation.z = 0.0;
+      v3->mTransformOrientation.y = 0.0;
     }
     else
     {
@@ -147593,7 +147594,7 @@ void __thiscall BUnitGroup::updateDesiredPositions(BUnitGroup *this, int newGive
         v10 = &v8->waypoints[v9 - 1];
       BVector::operator_minus(v10, &result, &this->mPosition.mPosition);
       v11 = this->mOwner;
-      result.y = 0.0;
+      result.z = 0.0;
       v12 = base_game->world->players[v11];
       v30 = (float)v12->mColumnToLineDistance;
       v31 = (float)v12->mMinColumnDistance;
@@ -147609,18 +147610,18 @@ void __thiscall BUnitGroup::updateDesiredPositions(BUnitGroup *this, int newGive
       }
       if ( this->mCurrentFormation->mType == 1 )
       {
-        if ( sqrt(result.x * result.x + result.y * result.y + result.z * result.z) < v30 )
+        if ( sqrt(result.x * result.x + result.z * result.z + result.y * result.y) < v30 )
         {
           v4 = 2;
           goto LABEL_34;
         }
       }
-      else if ( sqrt(result.x * result.x + result.y * result.y + result.z * result.z) < v31 )
+      else if ( sqrt(result.x * result.x + result.z * result.z + result.y * result.y) < v31 )
       {
         v4 = 2;
         goto LABEL_34;
       }
-      v14 = sqrt(result.x * result.x + result.y * result.y + result.z * result.z);
+      v14 = sqrt(result.x * result.x + result.z * result.z + result.y * result.y);
       if ( v14 > v31 && v14 > v30 )
 LABEL_33:
         v4 = 1;
@@ -147678,8 +147679,8 @@ LABEL_46:
     v19->mLines = 0;
     v19->mTransformType = 0;
     v19->mTransformOrientation.x = 1.0;
-    v19->mTransformOrientation.y = 0.0;
     v19->mTransformOrientation.z = 0.0;
+    v19->mTransformOrientation.y = 0.0;
   }
   else
   {
@@ -147801,8 +147802,8 @@ void __thiscall BUnitGroup::calculateMetrics(BUnitGroup *this, bool checkDistanc
 
   v3 = 0;
   this->mCentroid.x = 0.0;
-  this->mCentroid.y = 0.0;
   this->mCentroid.z = 0.0;
+  this->mCentroid.y = 0.0;
   v4 = this->mNumberUnits;
   v30 = 0;
   this->mDesiredHeight = 0.0;
@@ -147840,8 +147841,8 @@ LABEL_17:
           ++v30;
           v14 = (float *)v6->vfptr->position(v6, &v35);
           this->mCentroid.x = *v14 + this->mCentroid.x;
-          this->mCentroid.y = v14[1] + this->mCentroid.y;
-          this->mCentroid.z = v14[2] + this->mCentroid.z;
+          this->mCentroid.z = v14[1] + this->mCentroid.z;
+          this->mCentroid.y = v14[2] + this->mCentroid.y;
           v15 = v6->master_obj;
           v16 = v15->object_group;
           if ( v16 == 16 || v16 == 11 || v16 == 62 )
@@ -147911,8 +147912,8 @@ LABEL_17:
             || (v27 = &v9->mSlots[v11].mTransformPosition,
                 v18 = v6->vfptr->position(v6, &v34),
                 BVector::operator_minus(v18, &result, v27),
-                result.y = 0.0,
-                sqrt(result.z * result.z + result.x * result.x) <= 20.0) )
+                result.z = 0.0,
+                sqrt(result.y * result.y + result.x * result.x) <= 20.0) )
           {
 LABEL_16:
             v3 = v29;
@@ -147939,8 +147940,8 @@ LABEL_16:
     {
       v19 = (double)v30;
       this->mCentroid.x = this->mCentroid.x / v19;
-      this->mCentroid.y = this->mCentroid.y / v19;
       this->mCentroid.z = this->mCentroid.z / v19;
+      this->mCentroid.y = this->mCentroid.y / v19;
       this->mDesiredHeight = this->mDesiredHeight / v19;
     }
   }
@@ -148012,12 +148013,12 @@ void __thiscall BUnitGroup::setInitialPosition(BUnitGroup *this)
     {
       v5 = v4->vfptr->position(v4, &v19);
       BVector::operator_minus(v5, &result, &this->mCentroid);
-      result.y = 0.0;
+      result.z = 0.0;
       v16 = result.x * result.x;
-      if ( sqrt(result.z * result.z + v16) < i )
+      if ( sqrt(result.y * result.y + v16) < i )
       {
         v2 = this->mUnits[v3];
-        i = sqrt(result.z * result.z + v16);
+        i = sqrt(result.y * result.y + v16);
       }
     }
   }
@@ -148043,8 +148044,8 @@ void __thiscall BUnitGroup::setInitialPosition(BUnitGroup *this)
     ((void (__thiscall *)(BUnitGroup *, _DWORD, _DWORD, _DWORD))this->vfptr->setPosition)(
       this,
       LODWORD(this->mCentroid.x),
-      LODWORD(this->mCentroid.y),
-      LODWORD(this->mCentroid.z));
+      LODWORD(this->mCentroid.z),
+      LODWORD(this->mCentroid.y));
   }
   else
   {
@@ -148068,8 +148069,8 @@ void __thiscall BUnitGroup::setInitialPosition(BUnitGroup *this)
     ((void (__thiscall *)(BUnitGroup *, _DWORD, _DWORD, _DWORD))v11->setPosition)(
       this,
       LODWORD(v12->x),
-      LODWORD(v12->y),
-      LODWORD(v12->z));
+      LODWORD(v12->z),
+      LODWORD(v12->y));
   }
   BUnitGroup::setInitialOrientation(this);
   this->mGroupFlags.valueValue |= 0x400u;
@@ -148167,15 +148168,15 @@ void __thiscall BUnitGroup::movePositionToFront(BUnitGroup *this, float projecti
   v4 = 0;
   v14 = 3.4028235e38;
   v.x = this->mPosition.mOrientationForward.x;
-  v5 = this->mPosition.mOrientationForward.z;
-  v.y = this->mPosition.mOrientationForward.y;
-  v.z = v5;
+  v5 = this->mPosition.mOrientationForward.y;
+  v.z = this->mPosition.mOrientationForward.z;
+  v.y = v5;
   v6 = this->mNumberUnits;
-  v.y = v.y * projectionMagnitude;
   v.z = v.z * projectionMagnitude;
+  v.y = v.y * projectionMagnitude;
   v.x = v.x * projectionMagnitude + this->mPosition.mPosition.x;
-  v.y = v.y + this->mPosition.mPosition.y;
   v.z = v.z + this->mPosition.mPosition.z;
+  v.y = v.y + this->mPosition.mPosition.y;
   if ( v6 > 0 )
   {
     do
@@ -148185,12 +148186,12 @@ void __thiscall BUnitGroup::movePositionToFront(BUnitGroup *this, float projecti
       {
         v8 = v7->vfptr->position(v7, &v17);
         BVector::operator_minus(v8, &result, &v);
-        result.y = 0.0;
+        result.z = 0.0;
         projectionMagnitudea = result.x * result.x;
-        if ( sqrt(result.z * result.z + projectionMagnitudea) < v14 )
+        if ( sqrt(result.y * result.y + projectionMagnitudea) < v14 )
         {
           v3 = this->mUnits[v4];
-          v14 = sqrt(result.z * result.z + projectionMagnitudea);
+          v14 = sqrt(result.y * result.y + projectionMagnitudea);
         }
       }
       ++v4;
@@ -148220,8 +148221,8 @@ void __thiscall BUnitGroup::movePositionToFront(BUnitGroup *this, float projecti
     ((void (__thiscall *)(BUnitGroup *, _DWORD, _DWORD, _DWORD))this->vfptr->setPosition)(
       this,
       LODWORD(v13),
-      LODWORD(result.y),
-      LODWORD(result.z));
+      LODWORD(result.z),
+      LODWORD(result.y));
   }
 }
 
@@ -148291,15 +148292,15 @@ void __thiscall BUnitGroup::movePositionToFront2(BUnitGroup *this, float project
   v48 = 0.0;
   v50 = 0.0;
   v.x = this->mPosition.mOrientationForward.x;
-  v4 = this->mPosition.mOrientationForward.z;
-  v.y = this->mPosition.mOrientationForward.y;
-  v.z = v4;
+  v4 = this->mPosition.mOrientationForward.y;
+  v.z = this->mPosition.mOrientationForward.z;
+  v.y = v4;
   v5 = this->mNumberUnits;
-  v.y = v.y * projectionMagnitude;
   v.z = v.z * projectionMagnitude;
+  v.y = v.y * projectionMagnitude;
   v.x = v.x * projectionMagnitude + this->mPosition.mPosition.x;
-  v.y = v.y + this->mPosition.mPosition.y;
   v.z = v.z + this->mPosition.mPosition.z;
+  v.y = v.y + this->mPosition.mPosition.y;
   if ( v5 > 0 )
   {
     do
@@ -148329,8 +148330,8 @@ void __thiscall BUnitGroup::movePositionToFront2(BUnitGroup *this, float project
   else
   {
     v9 = this->mPosition.mPosition.x;
-    v10 = this->mPosition.mPosition.z;
-    v11 = this->mPosition.mPosition.y;
+    v10 = this->mPosition.mPosition.y;
+    v11 = this->mPosition.mPosition.z;
     v47 = v9;
     v51 = v10;
   }
@@ -148351,7 +148352,7 @@ void __thiscall BUnitGroup::movePositionToFront2(BUnitGroup *this, float project
   }
   else
   {
-    v34 = fabs(this->mPosition.mOrientationForward.z) <= fabs(this->mPosition.mOrientationForward.x);
+    v34 = fabs(this->mPosition.mOrientationForward.y) <= fabs(this->mPosition.mOrientationForward.x);
     v13 = 0;
     oID = -1;
     v36 = 3.4028235e38;
@@ -148365,7 +148366,7 @@ void __thiscall BUnitGroup::movePositionToFront2(BUnitGroup *this, float project
         if ( v15 )
         {
           if ( v34 )
-            v17 = v15->vfptr->position(v15, &v54)->z - v51;
+            v17 = v15->vfptr->position(v15, &v54)->y - v51;
           else
             v17 = v15->vfptr->position(v15, &v55)->x - v47;
           if ( fabs(v17) < this->mDesiredSpacing * 0.5 )
@@ -148375,12 +148376,12 @@ void __thiscall BUnitGroup::movePositionToFront2(BUnitGroup *this, float project
           }
           v18 = v16->vfptr->position(v16, &v56);
           BVector::operator_minus(v18, &result, &v);
-          result.y = 0.0;
+          result.z = 0.0;
           v37 = result.x * result.x;
-          if ( sqrt(result.z * result.z + v37) < v36 )
+          if ( sqrt(result.y * result.y + v37) < v36 )
           {
             oID = v16->id;
-            v36 = sqrt(result.z * result.z + v37);
+            v36 = sqrt(result.y * result.y + v37);
           }
         }
         ++v13;
@@ -148405,14 +148406,14 @@ void __thiscall BUnitGroup::movePositionToFront2(BUnitGroup *this, float project
         {
           v24 = v22->vfptr->position(v22, &v56);
           BVector::operator_minus(v24, &result, &v);
-          result.y = 0.0;
+          result.z = 0.0;
           v38 = result.x * result.x;
-          if ( sqrt(result.z * result.z + v38) < v40 )
+          if ( sqrt(result.y * result.y + v38) < v40 )
           {
             v20 = *v21;
-            v40 = sqrt(result.z * result.z + v38);
-            v43 = v23->vfptr->position(v23, &v55)->z - v51;
-            v39 = (v23->vfptr->position(v23, &v54)->z - v51) * v43;
+            v40 = sqrt(result.y * result.y + v38);
+            v43 = v23->vfptr->position(v23, &v55)->y - v51;
+            v39 = (v23->vfptr->position(v23, &v54)->y - v51) * v43;
             v44 = v23->vfptr->position(v23, &v57)->x - v47;
             v42 = sqrt((v23->vfptr->position(v23, &v58)->x - v47) * v44 + v39);
           }
@@ -148428,7 +148429,7 @@ void __thiscall BUnitGroup::movePositionToFront2(BUnitGroup *this, float project
     if ( !v25
       || (v27 = v25->vfptr->position(v25, &v58),
           BVector::operator_minus(v27, &result, &v),
-          v28 = sqrt(result.z * result.z + result.x * result.x),
+          v28 = sqrt(result.y * result.y + result.x * result.x),
           !v19)
       && v26->master_obj->radius_x + v26->master_obj->radius_x < v42
       && v28 > v36 )
@@ -148458,8 +148459,8 @@ void __thiscall BUnitGroup::movePositionToFront2(BUnitGroup *this, float project
       ((void (__thiscall *)(BUnitGroup *, _DWORD, _DWORD, _DWORD))v32->setPosition)(
         this,
         LODWORD(v33->x),
-        LODWORD(v33->y),
-        LODWORD(v33->z));
+        LODWORD(v33->z),
+        LODWORD(v33->y));
     }
   }
 }
@@ -148583,14 +148584,14 @@ LABEL_23:
             v17->mPathID = -1;
             v17->mReason = -1;
             v17->mGoal.x = 0.0;
-            v17->mGoal.y = 0.0;
             v17->mGoal.z = 0.0;
+            v17->mGoal.y = 0.0;
             v17->mTimer = 0.0;
             v17->mConsecutiveMoveFailures = 0;
             v17->mDistance = 0.0;
             v17->mLastPosition.x = 0.0;
-            v17->mLastPosition.y = 0.0;
             v17->mLastPosition.z = 0.0;
+            v17->mLastPosition.y = 0.0;
           }
           ++v15;
           ++xa;
@@ -148635,8 +148636,8 @@ int __thiscall BUnitGroup::commandMoveTo(BUnitGroup *this, RGE_Static_Object *ta
     this->mCurrentTarget.mType = -1;
     this->mCurrentTarget.mTarget = -1;
     this->mCurrentTarget.mOriginalPosition.x = 0.0;
-    this->mCurrentTarget.mOriginalPosition.y = 0.0;
     this->mCurrentTarget.mOriginalPosition.z = 0.0;
+    this->mCurrentTarget.mOriginalPosition.y = 0.0;
     this->mCurrentTarget.mRange = 0.0;
     this->mCurrentTarget.mTargetRadius = 0.0;
   }
@@ -148680,8 +148681,8 @@ int __thiscall BUnitGroup::commandMoveTo(BUnitGroup *this, RGE_Static_Object *ta
   }
   v16 = this->mDesiredHeight;
   v.x = x;
-  v.y = v16;
-  v.z = z;
+  v.z = v16;
+  v.y = z;
   BPath::addWaypointAtEnd(v14, &v);
   if ( patrol )
   {
@@ -148689,7 +148690,7 @@ int __thiscall BUnitGroup::commandMoveTo(BUnitGroup *this, RGE_Static_Object *ta
     if ( (_BYTE)a8 )
       v14->flags.valueValue |= 0x20u;
     BVector::operator_minus(&this->mPosition.mPosition, &result, &v);
-    if ( sqrt(result.z * result.z + result.x * result.x) < 5.0 )
+    if ( sqrt(result.y * result.y + result.x * result.x) < 5.0 )
     {
       v14->flags.valueValue &= 0xFFFFFFFD;
       goto LABEL_25;
@@ -148725,14 +148726,14 @@ LABEL_25:
         v19->mPathID = -1;
         v19->mReason = -1;
         v19->mGoal.x = 0.0;
-        v19->mGoal.y = 0.0;
         v19->mGoal.z = 0.0;
+        v19->mGoal.y = 0.0;
         v19->mTimer = 0.0;
         v19->mConsecutiveMoveFailures = 0;
         v19->mDistance = 0.0;
         v19->mLastPosition.x = 0.0;
-        v19->mLastPosition.y = 0.0;
         v19->mLastPosition.z = 0.0;
+        v19->mLastPosition.y = 0.0;
       }
       ++v17;
       ++v28;
@@ -148751,7 +148752,7 @@ LABEL_25:
         UnitAIModule::purgeNotifyQueue(v22, v20->world_time);
     }
   }
-  this->mCurrentTarget.mOriginalPosition.z = z;
+  this->mCurrentTarget.mOriginalPosition.y = z;
   v23 = this->mFormationLocked;
   this->mCurrentCommand = 1;
   this->mCurrentTarget.mOriginalPosition.x = x;
@@ -148791,8 +148792,8 @@ int __thiscall BUnitGroup::commandAddWaypoint(BUnitGroup *this, float x, float z
   this->mCurrentTarget.mType = -1;
   this->mCurrentTarget.mTarget = -1;
   this->mCurrentTarget.mOriginalPosition.x = 0.0;
-  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mOriginalPosition.z = 0.0;
+  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mRange = 0.0;
   this->mCurrentTarget.mTargetRadius = 0.0;
   BUnitGroup::readdRams(this, -1);
@@ -148804,8 +148805,8 @@ int __thiscall BUnitGroup::commandAddWaypoint(BUnitGroup *this, float x, float z
     && (result = BUnitGroup::resizeWaypoints(this, 2 * this->mMaximumNumberWaypoints)) != 0 )
   {
     this->mWaypoints[this->mNumberWaypoints].x = x;
-    this->mWaypoints[this->mNumberWaypoints].y = this->mDesiredHeight;
-    this->mWaypoints[this->mNumberWaypoints++].z = z;
+    this->mWaypoints[this->mNumberWaypoints].z = this->mDesiredHeight;
+    this->mWaypoints[this->mNumberWaypoints++].y = z;
     result = 1;
   }
   return result;
@@ -148825,8 +148826,8 @@ int __thiscall BUnitGroup::commandStop(BUnitGroup *this)
   this->mCurrentTarget.mType = -1;
   this->mCurrentTarget.mTarget = -1;
   this->mCurrentTarget.mOriginalPosition.x = 0.0;
-  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mOriginalPosition.z = 0.0;
+  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mRange = 0.0;
   this->mCurrentTarget.mTargetRadius = 0.0;
   BUnitGroup::readdRams(this, -1);
@@ -148850,14 +148851,14 @@ int __thiscall BUnitGroup::commandStop(BUnitGroup *this)
         v5->mPathID = -1;
         v5->mReason = -1;
         v5->mGoal.x = 0.0;
-        v5->mGoal.y = 0.0;
         v5->mGoal.z = 0.0;
+        v5->mGoal.y = 0.0;
         v5->mTimer = 0.0;
         v5->mConsecutiveMoveFailures = 0;
         v5->mDistance = 0.0;
         v5->mLastPosition.x = 0.0;
-        v5->mLastPosition.y = 0.0;
         v5->mLastPosition.z = 0.0;
+        v5->mLastPosition.y = 0.0;
       }
       ++v3;
       ++v7;
@@ -148899,8 +148900,8 @@ int __thiscall BUnitGroup::commandAttack(BUnitGroup *this, RGE_Static_Object *ta
   this->mCurrentTarget.mType = -1;
   this->mCurrentTarget.mTarget = -1;
   this->mCurrentTarget.mOriginalPosition.x = 0.0;
-  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mOriginalPosition.z = 0.0;
+  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mRange = 0.0;
   this->mCurrentTarget.mTargetRadius = 0.0;
   if ( v6->type == 80 )
@@ -148954,8 +148955,8 @@ int __thiscall BUnitGroup::commandAttack(BUnitGroup *this, RGE_Static_Object *ta
   this->mCurrentTarget.mTarget = v11;
   v12 = (float *)v6->vfptr->position(v6, &v15);
   this->mCurrentTarget.mOriginalPosition.x = *v12;
-  this->mCurrentTarget.mOriginalPosition.y = v12[1];
-  this->mCurrentTarget.mOriginalPosition.z = v12[2];
+  this->mCurrentTarget.mOriginalPosition.z = v12[1];
+  this->mCurrentTarget.mOriginalPosition.y = v12[2];
   this->mCurrentTarget.mRange = targetObja;
   this->mCurrentTarget.mTargetRadius = sqrt(
                                          v6->master_obj->radius_x * v6->master_obj->radius_x
@@ -148972,8 +148973,8 @@ int __thiscall BUnitGroup::commandAttack(BUnitGroup *this, RGE_Static_Object *ta
   this->mCurrentTarget.mType = -1;
   this->mCurrentTarget.mTarget = -1;
   this->mCurrentTarget.mOriginalPosition.x = 0.0;
-  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mOriginalPosition.z = 0.0;
+  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mRange = 0.0;
   this->mCurrentTarget.mTargetRadius = 0.0;
   return 0;
@@ -149006,8 +149007,8 @@ int __thiscall BUnitGroup::commandAboutFace(BUnitGroup *this)
   this->mCurrentTarget.mType = -1;
   this->mCurrentTarget.mTarget = -1;
   this->mCurrentTarget.mOriginalPosition.x = 0.0;
-  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mOriginalPosition.z = 0.0;
+  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mRange = 0.0;
   this->mCurrentTarget.mTargetRadius = 0.0;
   BUnitGroup::readdRams(this, -1);
@@ -149057,23 +149058,23 @@ int __thiscall BUnitGroup::commandAboutFace(BUnitGroup *this)
   {
     v7 = base_game->world;
     point.x = 0.0;
-    point.y = 0.0;
     point.z = 0.0;
+    point.y = 0.0;
     BUnitGroup::queueOrder(this, 10002, -1, 0.78539819, &point, v7->world_time);
     v8 = base_game->world;
     point.x = 0.0;
-    point.y = 0.0;
     point.z = 0.0;
+    point.y = 0.0;
     BUnitGroup::queueOrder(this, 10002, -1, 0.78539819, &point, v8->world_time + 1000);
     v9 = base_game->world;
     point.x = 0.0;
-    point.y = 0.0;
     point.z = 0.0;
+    point.y = 0.0;
     BUnitGroup::queueOrder(this, 10002, -1, 0.78539819, &point, v9->world_time + 2000);
     v10 = base_game->world;
     point.x = 0.0;
-    point.y = 0.0;
     point.z = 0.0;
+    point.y = 0.0;
     BUnitGroup::queueOrder(this, 10002, -1, 0.78539819, &point, v10->world_time + 3000);
     result = 1;
   }
@@ -149088,14 +149089,14 @@ void __thiscall BSpecificMove::clear(BSpecificMove *this)
   this->mPathID = -1;
   this->mReason = -1;
   this->mGoal.x = 0.0;
-  this->mGoal.y = 0.0;
   this->mGoal.z = 0.0;
+  this->mGoal.y = 0.0;
   this->mTimer = 0.0;
   this->mConsecutiveMoveFailures = 0;
   this->mDistance = 0.0;
   this->mLastPosition.x = 0.0;
-  this->mLastPosition.y = 0.0;
   this->mLastPosition.z = 0.0;
+  this->mLastPosition.y = 0.0;
 }
 
 //----- (00482410) --------------------------------------------------------
@@ -149119,8 +149120,8 @@ int __thiscall BUnitGroup::commandWheel(BUnitGroup *this, float angle)
   this->mCurrentTarget.mType = -1;
   this->mCurrentTarget.mTarget = -1;
   this->mCurrentTarget.mOriginalPosition.x = 0.0;
-  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mOriginalPosition.z = 0.0;
+  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mRange = 0.0;
   this->mCurrentTarget.mTargetRadius = 0.0;
   BUnitGroup::readdRams(this, -1);
@@ -149142,14 +149143,14 @@ int __thiscall BUnitGroup::commandWheel(BUnitGroup *this, float angle)
         v6->mPathID = -1;
         v6->mReason = -1;
         v6->mGoal.x = 0.0;
-        v6->mGoal.y = 0.0;
         v6->mGoal.z = 0.0;
+        v6->mGoal.y = 0.0;
         v6->mTimer = 0.0;
         v6->mConsecutiveMoveFailures = 0;
         v6->mDistance = 0.0;
         v6->mLastPosition.x = 0.0;
-        v6->mLastPosition.y = 0.0;
         v6->mLastPosition.z = 0.0;
+        v6->mLastPosition.y = 0.0;
       }
       ++v4;
       ++v15;
@@ -149204,8 +149205,8 @@ int __thiscall BUnitGroup::commandGeneral(BUnitGroup *this, int newCommand, RGE_
   this->mCurrentTarget.mType = -1;
   this->mCurrentTarget.mTarget = -1;
   this->mCurrentTarget.mOriginalPosition.x = 0.0;
-  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mOriginalPosition.z = 0.0;
+  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mRange = 0.0;
   this->mCurrentTarget.mTargetRadius = 0.0;
   BUnitGroup::readdRams(this, -1);
@@ -149220,10 +149221,10 @@ int __thiscall BUnitGroup::commandGeneral(BUnitGroup *this, int newCommand, RGE_
       this->mCurrentTarget.mType = 1;
       v9 = targetObj->vfptr->position(targetObj, v11);
       this->mCurrentTarget.mOriginalPosition.x = v9->x;
-      this->mCurrentTarget.mOriginalPosition.y = v9->y;
-      v10 = v9->z;
+      this->mCurrentTarget.mOriginalPosition.z = v9->z;
+      v10 = v9->y;
       this->mCurrentTarget.mRange = range + 2.0;
-      this->mCurrentTarget.mOriginalPosition.z = v10;
+      this->mCurrentTarget.mOriginalPosition.y = v10;
       this->mCurrentTarget.mTargetRadius = sqrt(
                                              targetObj->master_obj->radius_x * targetObj->master_obj->radius_x
                                            + targetObj->master_obj->radius_y * targetObj->master_obj->radius_y);
@@ -149233,12 +149234,12 @@ int __thiscall BUnitGroup::commandGeneral(BUnitGroup *this, int newCommand, RGE_
       this->mCurrentTarget.mType = -1;
       this->mCurrentTarget.mTarget = -1;
       this->mCurrentTarget.mOriginalPosition.x = 0.0;
-      this->mCurrentTarget.mOriginalPosition.y = 0.0;
       this->mCurrentTarget.mOriginalPosition.z = 0.0;
+      this->mCurrentTarget.mOriginalPosition.y = 0.0;
       this->mCurrentTarget.mRange = 0.0;
       this->mCurrentTarget.mTargetRadius = 0.0;
       this->mCurrentTarget.mOriginalPosition.x = x;
-      this->mCurrentTarget.mOriginalPosition.z = z;
+      this->mCurrentTarget.mOriginalPosition.y = z;
       this->mCurrentTarget.mRange = range;
     }
     this->mCurrentCommand = newCommand;
@@ -149478,8 +149479,8 @@ void __thiscall BUnitGroup::load(BUnitGroup *this, int file)
       v7->mLines = 0;
       v7->mTransformType = 0;
       v7->mTransformOrientation.x = 1.0;
-      v7->mTransformOrientation.y = 0.0;
       v7->mTransformOrientation.z = 0.0;
+      v7->mTransformOrientation.y = 0.0;
     }
     else
     {
@@ -149509,8 +149510,8 @@ void __thiscall BUnitGroup::load(BUnitGroup *this, int file)
       v8->mLines = 0;
       v8->mTransformType = 0;
       v8->mTransformOrientation.x = 1.0;
-      v8->mTransformOrientation.y = 0.0;
       v8->mTransformOrientation.z = 0.0;
+      v8->mTransformOrientation.y = 0.0;
     }
     else
     {
@@ -149594,14 +149595,14 @@ void __thiscall BUnitGroup::load(BUnitGroup *this, int file)
     if ( v12 )
     {
       v12->mPoint.x = 0.0;
-      v12->mPoint.y = 0.0;
       v12->mPoint.z = 0.0;
+      v12->mPoint.y = 0.0;
       v12->mTargetID = -1;
       v12->mCommand = -1;
       v12->mParm = 0.0;
       v12->mPoint.x = 0.0;
-      v12->mPoint.y = 0.0;
       v12->mPoint.z = 0.0;
+      v12->mPoint.y = 0.0;
       v12->mExecuteTime = 0;
       v12->next = v12;
       v12->prev = v12;
@@ -149769,8 +149770,8 @@ void __thiscall BUnitGroup::checkQueuedOrders(BUnitGroup *this)
                 this->mCurrentTarget.mType = -1;
                 this->mCurrentTarget.mTarget = -1;
                 this->mCurrentTarget.mOriginalPosition.x = 0.0;
-                this->mCurrentTarget.mOriginalPosition.y = 0.0;
                 this->mCurrentTarget.mOriginalPosition.z = 0.0;
+                this->mCurrentTarget.mOriginalPosition.y = 0.0;
                 this->mCurrentTarget.mRange = 0.0;
                 this->mCurrentTarget.mTargetRadius = 0.0;
                 BUnitGroup::readdRams(this, -1);
@@ -149792,14 +149793,14 @@ void __thiscall BUnitGroup::checkQueuedOrders(BUnitGroup *this)
                       v7->mPathID = -1;
                       v7->mReason = -1;
                       v7->mGoal.x = 0.0;
-                      v7->mGoal.y = 0.0;
                       v7->mGoal.z = 0.0;
+                      v7->mGoal.y = 0.0;
                       v7->mTimer = 0.0;
                       v7->mConsecutiveMoveFailures = 0;
                       v7->mDistance = 0.0;
                       v7->mLastPosition.x = 0.0;
-                      v7->mLastPosition.y = 0.0;
                       v7->mLastPosition.z = 0.0;
+                      v7->mLastPosition.y = 0.0;
                     }
                     ++v5;
                     ++v16;
@@ -149872,14 +149873,14 @@ int __thiscall BUnitGroup::queueOrder(BUnitGroup *this, int commandType, int tar
   if ( !v7 )
     return 0;
   v7->mPoint.x = 0.0;
-  v7->mPoint.y = 0.0;
   v7->mPoint.z = 0.0;
+  v7->mPoint.y = 0.0;
   v7->mTargetID = -1;
   v7->mCommand = -1;
   v7->mParm = 0.0;
   v7->mPoint.x = 0.0;
-  v7->mPoint.y = 0.0;
   v7->mPoint.z = 0.0;
+  v7->mPoint.y = 0.0;
   v7->mExecuteTime = 0;
   v7->next = v7;
   v7->prev = v7;
@@ -149887,10 +149888,10 @@ int __thiscall BUnitGroup::queueOrder(BUnitGroup *this, int commandType, int tar
   v7->mTargetID = targetID;
   v7->mParm = parm;
   v7->mPoint.x = point->x;
-  v7->mPoint.y = point->y;
-  v8 = point->z;
+  v7->mPoint.z = point->z;
+  v8 = point->y;
   v7->mExecuteTime = executeTime;
-  v7->mPoint.z = v8;
+  v7->mPoint.y = v8;
   v7->next = &this->mOrderQueue;
   v7->prev = this->mOrderQueue.prev;
   this->mOrderQueue.prev->next = v7;
@@ -149934,13 +149935,13 @@ void __thiscall BUnitGroup::sortClosestToFront(BUnitGroup *this, int *units, int
           {
             v8 = v7->vfptr->position(v7, &v13);
             BVector::operator_minus(v8, &result, &this->mPosition.mPosition);
-            result.y = 0.0;
+            result.z = 0.0;
             unitsa = result.x * result.x;
-            if ( sqrt(result.z * result.z + unitsa) < v10 )
+            if ( sqrt(result.y * result.y + unitsa) < v10 )
             {
               v4 = *v6;
               v3 = v5;
-              v10 = sqrt(result.z * result.z + unitsa);
+              v10 = sqrt(result.y * result.y + unitsa);
             }
           }
         }
@@ -150012,8 +150013,8 @@ void __thiscall BUnitGroup::createFormationFromPlan(BUnitGroup *this, BContextPl
       v6->mLines = 0;
       v6->mTransformType = 0;
       v6->mTransformOrientation.x = 1.0;
-      v6->mTransformOrientation.y = 0.0;
       v6->mTransformOrientation.z = 0.0;
+      v6->mTransformOrientation.y = 0.0;
     }
     else
     {
@@ -150081,15 +150082,15 @@ int __thiscall BUnitGroup::commandHorde(BUnitGroup *this, int newCommand, RGE_St
   int j; // [esp+2Ch] [ebp-68h]
   BVector result; // [esp+30h] [ebp-64h] BYREF
   BVector v28; // [esp+3Ch] [ebp-58h] BYREF
-  int wpIndex[3]; // [esp+48h] [ebp-4Ch] BYREF
+  BVector wpIndex; // [esp+48h] [ebp-4Ch] BYREF
   BPath ReturnPath; // [esp+54h] [ebp-40h] BYREF
   int v31; // [esp+90h] [ebp-4h]
 
   this->mCurrentTarget.mType = -1;
   this->mCurrentTarget.mTarget = -1;
   this->mCurrentTarget.mOriginalPosition.x = 0.0;
-  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mOriginalPosition.z = 0.0;
+  this->mCurrentTarget.mOriginalPosition.y = 0.0;
   this->mCurrentTarget.mRange = 0.0;
   this->mCurrentTarget.mTargetRadius = 0.0;
   BUnitGroup::readdRams(this, -1);
@@ -150109,7 +150110,7 @@ int __thiscall BUnitGroup::commandHorde(BUnitGroup *this, int newCommand, RGE_St
       {
         v12 = v10->vfptr->position(v10, &v28);
         BVector::operator_minus(v12, &result, &this->mPosition.mPosition);
-        if ( sqrt(result.y * result.y + result.z * result.z + result.x * result.x) < v25 )
+        if ( sqrt(result.z * result.z + result.y * result.y + result.x * result.x) < v25 )
         {
           this->mPathUnit = v11;
           v25 = BVector::module(&result);
@@ -150127,10 +150128,10 @@ int __thiscall BUnitGroup::commandHorde(BUnitGroup *this, int newCommand, RGE_St
       this->mCurrentTarget.mType = 1;
       v14 = targetObj->vfptr->position(targetObj, &v28);
       this->mCurrentTarget.mOriginalPosition.x = v14->x;
-      this->mCurrentTarget.mOriginalPosition.y = v14->y;
-      v15 = v14->z;
+      this->mCurrentTarget.mOriginalPosition.z = v14->z;
+      v15 = v14->y;
       this->mCurrentTarget.mRange = range + 2.0;
-      this->mCurrentTarget.mOriginalPosition.z = v15;
+      this->mCurrentTarget.mOriginalPosition.y = v15;
       this->mCurrentTarget.mTargetRadius = sqrt(
                                              targetObj->master_obj->radius_x * targetObj->master_obj->radius_x
                                            + targetObj->master_obj->radius_y * targetObj->master_obj->radius_y);
@@ -150140,12 +150141,12 @@ int __thiscall BUnitGroup::commandHorde(BUnitGroup *this, int newCommand, RGE_St
       this->mCurrentTarget.mType = -1;
       this->mCurrentTarget.mTarget = -1;
       this->mCurrentTarget.mOriginalPosition.x = 0.0;
-      this->mCurrentTarget.mOriginalPosition.y = 0.0;
       this->mCurrentTarget.mOriginalPosition.z = 0.0;
+      this->mCurrentTarget.mOriginalPosition.y = 0.0;
       this->mCurrentTarget.mRange = 0.0;
       this->mCurrentTarget.mTargetRadius = 0.0;
       this->mCurrentTarget.mOriginalPosition.x = x;
-      this->mCurrentTarget.mOriginalPosition.z = z;
+      this->mCurrentTarget.mOriginalPosition.y = z;
       this->mCurrentTarget.mRange = range;
       this->mCurrentTarget.mTargetRadius = 0.0;
     }
@@ -150200,7 +150201,7 @@ int __thiscall BUnitGroup::commandHorde(BUnitGroup *this, int newCommand, RGE_St
         {
           for ( k = v20 != (RGE_Static_Object *)this->mPathUnit; k < ReturnPath.waypointsCount; ++k )
           {
-            v23 = BPath::waypoint(&ReturnPath, (int)wpIndex, k);
+            v23 = BPath::waypoint(&ReturnPath, &wpIndex, k);
             BPath::addWaypointAtEnd(v21, v23);
           }
           if ( v21->waypointsCount <= 1 )
@@ -150341,7 +150342,7 @@ void __thiscall BUnitGroup::moveUnit(BUnitGroup *this, int unitID, int unitIndex
   BVector *v; // [esp+94h] [ebp-80h]
   int va; // [esp+94h] [ebp-80h]
   BVector v104; // [esp+98h] [ebp-7Ch] BYREF
-  BVector v105; // [esp+A4h] [ebp-70h] BYREF
+  BVector outVector; // [esp+A4h] [ebp-70h] BYREF
   float v106; // [esp+B0h] [ebp-64h]
   void *v107; // [esp+B4h] [ebp-60h] BYREF
   BVector v108; // [esp+B8h] [ebp-5Ch] BYREF
@@ -150349,10 +150350,9 @@ void __thiscall BUnitGroup::moveUnit(BUnitGroup *this, int unitID, int unitIndex
   BVector result; // [esp+D0h] [ebp-44h] BYREF
   float v111; // [esp+DCh] [ebp-38h]
   int v112; // [esp+E0h] [ebp-34h] BYREF
-  int v113[2]; // [esp+E4h] [ebp-30h] BYREF
-  char v114[4]; // [esp+ECh] [ebp-28h] BYREF
-  char v115[12]; // [esp+F0h] [ebp-24h] BYREF
-  BVector v116; // [esp+FCh] [ebp-18h] BYREF
+  BVector v113; // [esp+E4h] [ebp-30h] BYREF
+  char v114[12]; // [esp+F0h] [ebp-24h] BYREF
+  BVector v115; // [esp+FCh] [ebp-18h] BYREF
 
   v5 = RGE_Game_World::object((RGE_Game_World *)base_game->world, unitID);
   v6 = v5;
@@ -150360,15 +150360,15 @@ void __thiscall BUnitGroup::moveUnit(BUnitGroup *this, int unitID, int unitIndex
     return;
   v = &slot->mTransformPosition;
   v7 = v6->vfptr->position(v6, &v104);
-  BVector::operator_minus(&slot->mTransformPosition, (BVector *)&result.y, v7);
-  result.z = 0.0;
-  v8 = sqrt(v111 * v111 + result.y * result.y);
+  BVector::operator_minus(&slot->mTransformPosition, (BVector *)&result.z, v7);
+  result.y = 0.0;
+  v8 = sqrt(v111 * v111 + result.z * result.z);
   v106 = v8;
   if ( v8 <= 0.0000001 && slot->mState == 3 )
   {
     if ( unitIndex != -1 )
       this->mSpecificMoves[unitIndex].mConsecutiveMoveFailures = 0;
-    pos2b = slot->mTransformPosition.z;
+    pos2b = slot->mTransformPosition.y;
     v92 = slot->mTransformPosition.x;
     v9 = RGE_Static_Object::unitAI(v6);
     v9->statePositionXValue = v92;
@@ -150417,8 +150417,8 @@ void __thiscall BUnitGroup::moveUnit(BUnitGroup *this, int unitID, int unitIndex
         ((void (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, _DWORD))v6->vfptr->teleport)(
           v6,
           LODWORD(v->x),
-          LODWORD(slot->mTransformPosition.z),
-          LODWORD(slot->mTransformPosition.y));
+          LODWORD(slot->mTransformPosition.y),
+          LODWORD(slot->mTransformPosition.z));
         v6->vfptr->setOrientation(v6, &this->mPosition.mOrientationForward, &this->mPosition.mOrientationUp);
         v14 = 1;
       }
@@ -150454,7 +150454,7 @@ LABEL_33:
     v48 = v6->vfptr;
     v49 = ((int (__thiscall *)(RGE_Static_Object *, float *, BVector *, int *))v6->vfptr->position)(
             v6,
-            &v108.y,
+            &v108.z,
             v,
             v109);
     ((void (__thiscall *)(RGE_Static_Object *, int))v48->calculateForward)(v6, v49);
@@ -150463,20 +150463,20 @@ LABEL_33:
     if ( (v6->master_obj->object_flags & 2) != 0 )
       *(float *)&pos2a = *(float *)&pos2a * 100.0;
     v50 = v6->vfptr;
-    v51 = ((int (__thiscall *)(RGE_Static_Object *, float *, int *))v6->vfptr->orientationForward)(v6, &v108.y, v109);
+    v51 = ((int (__thiscall *)(RGE_Static_Object *, float *, int *))v6->vfptr->orientationForward)(v6, &v108.z, v109);
     v91 = ((double (__thiscall *)(RGE_Static_Object *, int))v50->calculateYawAngle)(v6, v51);
     ((void (__thiscall *)(RGE_Static_Object *, _DWORD))v6->vfptr->yaw)(v6, LODWORD(v91));
     v52 = v6->vfptr;
     v79 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world);
     ((void (__thiscall *)(RGE_Static_Object *, float *, float *, _DWORD))v52->straightProjectedPosition)(
       v6,
-      &v116.y,
-      &v108.z,
+      &v115.z,
+      &v108.y,
       LODWORD(v79));
     v53 = (BVector *)((int (__thiscall *)(RGE_Static_Object *, void **, float *, BUnitGroup *))v6->vfptr->position)(
                        v6,
                        &v107,
-                       &v116.y,
+                       &v115.z,
                        this);
     v54 = BMotion::calculateReachedPoint((BMotion *)this, v, v53, pos2a, (BUnitGroup *)&v112);
     slot->mState = v54;
@@ -150523,7 +150523,7 @@ LABEL_33:
         LODWORD(this->mMaximumVelocityForward));
       v6->vfptr->setMoveSprite(v6);
     }
-    pos2c = slot->mTransformPosition.z;
+    pos2c = slot->mTransformPosition.y;
     v97 = v->x;
     v59 = RGE_Static_Object::unitAI(v6);
     v59->statePositionXValue = v97;
@@ -150535,12 +150535,12 @@ LABEL_33:
     v19 = v18;
     if ( v18 )
     {
-      v20 = BPath::waypoint(v18, (int)&v105, v18->waypointsCount - 1);
+      v20 = BPath::waypoint(v18, &outVector, v18->waypointsCount - 1);
       BVector::operator_minus(v20, &v104, v);
       v21 = v19->waypointsCount;
       start = v6->vfptr->position(v6, &v104);
-      v22 = BPath::waypoint(v19, (int)v113, v21 - 1);
-      BVector::operator_minus(v22, &v105, start);
+      v22 = BPath::waypoint(v19, &v113, v21 - 1);
+      BVector::operator_minus(v22, &outVector, start);
     }
     v23 = RGE_Game_World::createPath((RGE_Game_World *)base_game->world);
     if ( !v23 )
@@ -150549,7 +150549,7 @@ LABEL_33:
     if ( ((int (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, int *, int))v6->vfptr->minimumWeaponRange)(
            v6,
            LODWORD(slot->mTransformPosition.x),
-           LODWORD(slot->mTransformPosition.z),
+           LODWORD(slot->mTransformPosition.y),
            this->mUnits,
            this->mNumberUnits) == 1 )
     {
@@ -150559,7 +150559,7 @@ LABEL_33:
       goal = this->mNumberUnits;
       obstruction_manager = this->mUnits;
       v60 = v25->radius_x;
-      v26 = v6->vfptr->position(v6, (BVector *)v113);
+      v26 = v6->vfptr->position(v6, &v113);
       v24 = findLowLevelPath(
               v107,
               v26,
@@ -150576,48 +150576,48 @@ LABEL_33:
               0,
               (int)starta);
     }
-    v105 = slot->mTransformPosition;
+    outVector = slot->mTransformPosition;
     if ( v24 != 1 )
     {
       v27 = this->vfptr;
       v104.x = 0.0;
-      v104.y = 0.0;
       v104.z = 0.0;
+      v104.y = 0.0;
       if ( v27->isMoving(this) || BMotion::isWaitingToMove((BMotion *)this) )
       {
         v104 = this->mPosition.mOrientationForward;
       }
       else
       {
-        v28 = v6->vfptr->position(v6, (BVector *)v113);
-        v104 = *BVector::operator_minus(&slot->mTransformPosition, &v116, v28);
+        v28 = v6->vfptr->position(v6, &v113);
+        v104 = *BVector::operator_minus(&slot->mTransformPosition, &v115, v28);
       }
       pos2 = 0;
       v93 = 0.0;
       va = 1;
-      v29 = sqrt(v104.z * v104.z + v104.x * v104.x);
+      v29 = sqrt(v104.y * v104.y + v104.x * v104.x);
       v104.x = v104.x / v29;
-      v104.y = 0.0 / v29;
-      v104.z = v104.z / v29;
+      v104.z = 0.0 / v29;
+      v104.y = v104.y / v29;
       while ( v24 != 1 )
       {
         startb = (float)va;
-        v30 = BVector::operator_mul2(&v104, &v116, startb);
-        v31 = (BVector *)((int (__thiscall *)(RGE_Static_Object *, char *, int *, BVector *))v6->vfptr->position)(
+        v30 = BVector::operator_mul2(&v104, &v115, startb);
+        v31 = (BVector *)((int (__thiscall *)(RGE_Static_Object *, char *, BVector *, BVector *))v6->vfptr->position)(
                            v6,
-                           v115,
-                           v113,
+                           v114,
+                           &v113,
                            v30);
         v32 = BVector::operator_plus(v31, (BVector *)v89, v90);
-        v105.z = v32->x;
-        v106 = v32->y;
+        outVector.y = v32->x;
+        v106 = v32->z;
         v33 = v6->vfptr;
-        v107 = (void *)LODWORD(v32->z);
+        v107 = (void *)LODWORD(v32->y);
         v90 = (BVector *)this->mNumberUnits;
         v89 = this->mUnits;
         if ( ((int (__thiscall *)(RGE_Static_Object *, _DWORD, void *))v33->minimumWeaponRange)(
                v6,
-               LODWORD(v105.z),
+               LODWORD(outVector.y),
                v107) )
         {
           v23->waypointsCount = 0;
@@ -150627,11 +150627,11 @@ LABEL_33:
           goala = this->mNumberUnits;
           obstruction_managera = this->mUnits;
           v61 = v34->radius_x;
-          v35 = v6->vfptr->position(v6, (BVector *)&v108.y);
+          v35 = v6->vfptr->position(v6, (BVector *)&v108.z);
           v24 = findLowLevelPath(
                   v107,
                   v35,
-                  &v105,
+                  &outVector,
                   v61,
                   0.0,
                   -1,
@@ -150656,15 +150656,15 @@ LABEL_33:
             if ( pos2 )
             {
               startd = (float)(int)pos2;
-              starte = BVector::operator_mul2(&v104, (BVector *)&v108.y, startd);
+              starte = BVector::operator_mul2(&v104, (BVector *)&v108.z, startd);
               v36 = (BVector *)((int (__thiscall *)(RGE_Static_Object *, BVector *, char *))v6->vfptr->position)(
                                  v6,
-                                 &v116,
-                                 v115);
+                                 &v115,
+                                 v114);
               v37 = BVector::operator_plus(v36, starte, (BVector *)v89);
-              v105.y = v37->x;
-              v105.z = v37->y;
-              v38 = v37->z;
+              outVector.z = v37->x;
+              outVector.y = v37->z;
+              v38 = v37->y;
               v23->waypointsCount = 0;
               v106 = v38;
               v39 = v6->master_obj;
@@ -150676,8 +150676,8 @@ LABEL_33:
               v24 = findLowLevelPath(
                       v107,
                       v40,
-                      (BVector *)&v108.z,
-                      COERCE_FLOAT((BVector *)&v105.y),
+                      (BVector *)&v108.y,
+                      COERCE_FLOAT((BVector *)&outVector.z),
                       v63,
                       0,
                       (int *)0xFFFFFFFF,
@@ -150693,14 +150693,14 @@ LABEL_33:
             {
               if ( v24 != 2 )
               {
-                v105.x = this->mPosition.mPosition.x;
-                v105.y = this->mPosition.mPosition.y;
+                outVector.x = this->mPosition.mPosition.x;
+                outVector.z = this->mPosition.mPosition.z;
                 v41 = v6->vfptr;
-                v105.z = this->mPosition.mPosition.z;
+                outVector.y = this->mPosition.mPosition.y;
                 if ( ((int (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, int *, int))v41->minimumWeaponRange)(
                        v6,
-                       LODWORD(v105.x),
-                       LODWORD(v105.z),
+                       LODWORD(outVector.x),
+                       LODWORD(outVector.y),
                        this->mUnits,
                        this->mNumberUnits) == 1 )
                 {
@@ -150711,11 +150711,11 @@ LABEL_33:
                   goalc = this->mNumberUnits;
                   obstruction_managerb = this->mUnits;
                   v62 = v42->radius_x;
-                  v43 = v6->vfptr->position(v6, (BVector *)&v108.y);
+                  v43 = v6->vfptr->position(v6, (BVector *)&v108.z);
                   v24 = findLowLevelPath(
                           v107,
                           v43,
-                          &v105,
+                          &outVector,
                           v62,
                           0.0,
                           -1,
@@ -150732,20 +150732,20 @@ LABEL_33:
               if ( v24 != 1 && v24 != 2 )
               {
                 v23->waypointsCount = 0;
-                v65 = (BVector *)(__int64)slot->mTransformPosition.z;
+                v65 = (BVector *)(__int64)slot->mTransformPosition.y;
                 v64 = (void *)(__int64)slot->mTransformPosition.x;
                 v44 = (__int64)*(float *)(((int (__fastcall *)(RGE_Static_Object *, _DWORD))v6->vfptr->position)(
                                             v6,
                                             (unsigned __int64)(__int64)slot->mTransformPosition.x >> 32)
                                         + 8);
-                v45 = *(float *)((int (__thiscall *)(RGE_Static_Object *, char *, _DWORD))v6->vfptr->position)(
+                v45 = *(float *)((int (__thiscall *)(RGE_Static_Object *, float *, _DWORD))v6->vfptr->position)(
                                   v6,
-                                  v114,
+                                  &v113.y,
                                   v44);
                 PathingSystem::findTilePath(
                   &pathSystem,
                   (__int64)v45,
-                  (int)&v108.y,
+                  (int)&v108.z,
                   (int)v64,
                   (int)v65,
                   (RGE_Moving_Object *)v6,
@@ -150759,7 +150759,7 @@ LABEL_33:
                 v46 = v23->waypointsCount;
                 if ( v46 <= 2 )
                   goto LABEL_81;
-                v105 = *BPath::waypoint(v23, (int)&v108.y, v46 - 1);
+                outVector = *BPath::waypoint(v23, (BVector *)&v108.z, v46 - 1);
               }
             }
           }
@@ -150769,10 +150769,10 @@ LABEL_33:
     }
     if ( !this->vfptr->isMoving(this) && !BMotion::isWaitingToMove((BMotion *)this) )
     {
-      v47 = BPath::waypoint(v23, (int)&v108.y, v23->waypointsCount - 1);
+      v47 = BPath::waypoint(v23, (BVector *)&v108.z, v23->waypointsCount - 1);
       BVector::operator_minus(&slot->mTransformPosition, &v104, v47);
-      v104.y = 0.0;
-      if ( sqrt(v104.x * v104.x + v104.z * v104.z) > v106 )
+      v104.z = 0.0;
+      if ( sqrt(v104.x * v104.x + v104.y * v104.y) > v106 )
       {
         v6->vfptr->stopMoving(v6);
         v6->vfptr->setFidgetSprite(v6);
@@ -150789,7 +150789,7 @@ LABEL_33:
            -1,
            0,
            0) == 1 )
-      BUnitGroup::setSpecificMove(this, v6->id, v23->idValue, 0, v105, 3.0, 3.0);
+      BUnitGroup::setSpecificMove(this, v6->id, v23->idValue, 0, outVector, 3.0, 3.0);
     else
 LABEL_81:
       RGE_Game_World::destroyPath2((RGE_Game_World *)base_game->world, v23);
@@ -150839,8 +150839,8 @@ int __thiscall BUnitGroup::updateMoveCommand(BUnitGroup *this, int *needToUpdate
     this->mCurrentTarget.mType = -1;
     this->mCurrentTarget.mTarget = -1;
     this->mCurrentTarget.mOriginalPosition.x = 0.0;
-    this->mCurrentTarget.mOriginalPosition.y = 0.0;
     this->mCurrentTarget.mOriginalPosition.z = 0.0;
+    this->mCurrentTarget.mOriginalPosition.y = 0.0;
     this->mCurrentTarget.mRange = 0.0;
     this->mCurrentTarget.mTargetRadius = 0.0;
   }
@@ -150904,15 +150904,15 @@ int __thiscall BUnitGroup::updateAttackCommandUnlocked(BUnitGroup *this, int *ne
 LABEL_9:
     v24 = this->mCurrentTarget.mRange;
     v5 = this->mCurrentTarget.mOriginalPosition.x;
-    result.y = this->mCurrentTarget.mOriginalPosition.y;
-    v6 = this->mCurrentTarget.mOriginalPosition.z;
+    result.z = this->mCurrentTarget.mOriginalPosition.z;
+    v6 = this->mCurrentTarget.mOriginalPosition.y;
     this->vfptr->stopAllMovement(this);
     this->mCurrentCommand = -1;
     this->mCurrentTarget.mType = -1;
     this->mCurrentTarget.mTarget = -1;
     this->mCurrentTarget.mOriginalPosition.x = 0.0;
-    this->mCurrentTarget.mOriginalPosition.y = 0.0;
     this->mCurrentTarget.mOriginalPosition.z = 0.0;
+    this->mCurrentTarget.mOriginalPosition.y = 0.0;
     this->mCurrentTarget.mRange = 0.0;
     this->mCurrentTarget.mTargetRadius = 0.0;
     BUnitGroup::commandMoveTo(this, 0, v5, v6, v24, 0, 1, 0);
@@ -150983,7 +150983,7 @@ LABEL_31:
   if ( this->mCurrentTarget.mType == 1
     && (v14 = v3->vfptr->position(v3, (BVector *)z),
         BVector::operator_minus(v14, &result, &this->mCurrentTarget.mOriginalPosition),
-        sqrt(result.z * result.z + result.x * result.x) > 1.0) )
+        sqrt(result.y * result.y + result.x * result.x) > 1.0) )
   {
     v15 = v3->vfptr->get_visibility(v3, (RGE_Player *)v27->owner);
     if ( v15 == 15 || v15 == 0x80 && v3->master_obj->fog_flag )
@@ -151002,7 +151002,7 @@ LABEL_31:
         this,
         0,
         this->mCurrentTarget.mOriginalPosition.x,
-        this->mCurrentTarget.mOriginalPosition.z,
+        this->mCurrentTarget.mOriginalPosition.y,
         0.0,
         0,
         1,
@@ -151023,8 +151023,8 @@ LABEL_31:
     if ( RGE_Static_Object::distance_to_position(
            v3,
            this->mPosition.mPosition.x,
-           this->mPosition.mPosition.z,
-           this->mPosition.mPosition.y) <= (double)this->mCurrentTarget.mRange )
+           this->mPosition.mPosition.y,
+           this->mPosition.mPosition.z) <= this->mCurrentTarget.mRange )
     {
       this->vfptr->stopAllMovement(this);
       this->mGroupFlags.valueValue |= 8u;
@@ -151129,8 +151129,8 @@ int __thiscall BUnitGroup::updateAttackCommandLocked(BUnitGroup *this, int *need
 
   if ( !this->mFormationLocked )
     return 1;
-  LODWORD(v64.y) = RGE_Game_World::object((RGE_Game_World *)base_game->world, *this->mUnits);
-  if ( !LODWORD(v64.y) )
+  LODWORD(v64.z) = RGE_Game_World::object((RGE_Game_World *)base_game->world, *this->mUnits);
+  if ( !LODWORD(v64.z) )
     return 0;
   v5 = 0;
   range = 0;
@@ -151154,8 +151154,8 @@ int __thiscall BUnitGroup::updateAttackCommandLocked(BUnitGroup *this, int *need
       v58 = RGE_Static_Object::distance_to_position(
               v5,
               this->mPosition.mPosition.x,
-              this->mPosition.mPosition.z,
-              this->mPosition.mPosition.y)
+              this->mPosition.mPosition.y,
+              this->mPosition.mPosition.z)
           - this->mDesiredSpacing * 0.5;
     }
     else if ( v6 && this->mCurrentTarget.mType == 2 )
@@ -151177,12 +151177,12 @@ int __thiscall BUnitGroup::updateAttackCommandLocked(BUnitGroup *this, int *need
         v15 = v6->vfptr->getPosition(v6);
       }
       v16 = BVector::operator_minus(v15, v55, v57);
-      v64.z = v16->x;
-      v17 = v16->y;
-      v18 = v16->z;
+      v64.y = v16->x;
+      v17 = v16->z;
+      v18 = v16->y;
       v.x = v17;
-      v.y = v18;
-      v58 = sqrt(v64.z * v64.z + v18 * v18);
+      v.z = v18;
+      v58 = sqrt(v64.y * v64.y + v18 * v18);
     }
     if ( !this->mAttackPlanType )
       v58 = v58 - 2.0;
@@ -151207,7 +151207,7 @@ int __thiscall BUnitGroup::updateAttackCommandLocked(BUnitGroup *this, int *need
             v29 = ((int (__thiscall *)(RGE_Static_Object *))v5->vfptr->position)(v5);
             v30 = (float *)((int (__thiscall *)(RGE_Static_Object *, float *, _DWORD))v5->vfptr->position)(
                              v5,
-                             &v.y,
+                             &v.z,
                              *(_DWORD *)(v29 + 8));
             BUnitGroup::commandAttack(this, v5, *v30, COERCE_FLOAT(&result));
             return 0;
@@ -151221,7 +151221,7 @@ int __thiscall BUnitGroup::updateAttackCommandLocked(BUnitGroup *this, int *need
               v33 = ((int (__thiscall *)(RGE_Static_Object *))v31->vfptr->position)(v31);
               v34 = (float *)((int (__thiscall *)(RGE_Static_Object *, float *, _DWORD))v32->vfptr->position)(
                                v32,
-                               &v.y,
+                               &v.z,
                                *(_DWORD *)(v33 + 8));
               BUnitGroup::commandAttack(this, v32, *v34, COERCE_FLOAT(&result));
               return 0;
@@ -151276,16 +151276,16 @@ LABEL_47:
       if ( v5 )
       {
         v26 = v5->vfptr->position(v5, (BVector *)&result);
-        BVector::operator_minus(v26, (BVector *)&v64.z, &this->mCurrentTarget.mOriginalPosition);
-        if ( sqrt(v.y * v.y + v64.z * v64.z) > 0.1 )
+        BVector::operator_minus(v26, (BVector *)&v64.y, &this->mCurrentTarget.mOriginalPosition);
+        if ( sqrt(v.z * v.z + v64.y * v64.y) > 0.1 )
         {
-          v27 = v5->vfptr->get_visibility(v5, *(RGE_Player **)(LODWORD(v64.y) + 24));
+          v27 = v5->vfptr->get_visibility(v5, *(RGE_Player **)(LODWORD(v64.z) + 24));
           if ( v27 == 15 || v27 == 0x80 && v5->master_obj->fog_flag )
           {
             v35 = ((int (__thiscall *)(RGE_Static_Object *))v5->vfptr->position)(v5);
             v36 = (float *)((int (__thiscall *)(RGE_Static_Object *, float *, _DWORD))v5->vfptr->position)(
                              v5,
-                             &v.y,
+                             &v.z,
                              *(_DWORD *)(v35 + 8));
             BUnitGroup::commandAttack(this, v5, *v36, COERCE_FLOAT(&result));
             v3 = 0;
@@ -151296,7 +151296,7 @@ LABEL_47:
               this,
               0,
               this->mCurrentTarget.mOriginalPosition.x,
-              this->mCurrentTarget.mOriginalPosition.z,
+              this->mCurrentTarget.mOriginalPosition.y,
               0.0,
               0,
               1,
@@ -151332,15 +151332,15 @@ LABEL_47:
       {
         v51 = this->vfptr;
         v52 = this->mCurrentTarget.mOriginalPosition.x;
-        v68 = this->mCurrentTarget.mOriginalPosition.y;
-        v53 = this->mCurrentTarget.mOriginalPosition.z;
+        v68 = this->mCurrentTarget.mOriginalPosition.z;
+        v53 = this->mCurrentTarget.mOriginalPosition.y;
         v51->stopAllMovement(this);
         this->mCurrentCommand = -1;
         this->mCurrentTarget.mType = -1;
         this->mCurrentTarget.mTarget = -1;
         this->mCurrentTarget.mOriginalPosition.x = 0.0;
-        this->mCurrentTarget.mOriginalPosition.y = 0.0;
         this->mCurrentTarget.mOriginalPosition.z = 0.0;
+        this->mCurrentTarget.mOriginalPosition.y = 0.0;
         this->mCurrentTarget.mRange = 0.0;
         this->mCurrentTarget.mTargetRadius = 0.0;
         BUnitGroup::commandMoveTo(this, 0, v52, v53, 0.0, 0, 1, 0);
@@ -151384,9 +151384,9 @@ LABEL_47:
                         if ( v48->vfptr->canAttackUnit(v48, range) )
                         {
                           v49 = v43->vfptr->position(v43, (BVector *)&result);
-                          BVector::operator_minus(&v41->mTransformPosition, (BVector *)&v64.z, v49);
+                          BVector::operator_minus(&v41->mTransformPosition, (BVector *)&v64.y, v49);
                           v.x = 0.0;
-                          v50 = sqrt(v.y * v.y + v64.z * v64.z);
+                          v50 = sqrt(v.z * v.z + v64.y * v64.y);
                           if ( v50 <= 1.0
                             || (needToUpdateDesiredPositionsa = v50,
                                 ((double (__thiscall *)(RGE_Static_Object *))v43->vfptr->damageCapability_1)(v43) > needToUpdateDesiredPositionsa) )
@@ -151422,15 +151422,15 @@ LABEL_47:
   {
     rangea = this->mCurrentTarget.mRange;
     v10 = this->mCurrentTarget.mOriginalPosition.x;
-    v.x = this->mCurrentTarget.mOriginalPosition.y;
-    v11 = this->mCurrentTarget.mOriginalPosition.z;
+    v.x = this->mCurrentTarget.mOriginalPosition.z;
+    v11 = this->mCurrentTarget.mOriginalPosition.y;
     this->vfptr->stopAllMovement(this);
     this->mCurrentCommand = -1;
     this->mCurrentTarget.mType = -1;
     this->mCurrentTarget.mTarget = -1;
     this->mCurrentTarget.mOriginalPosition.x = 0.0;
-    this->mCurrentTarget.mOriginalPosition.y = 0.0;
     this->mCurrentTarget.mOriginalPosition.z = 0.0;
+    this->mCurrentTarget.mOriginalPosition.y = 0.0;
     this->mCurrentTarget.mRange = 0.0;
     this->mCurrentTarget.mTargetRadius = 0.0;
     BUnitGroup::commandMoveTo(this, 0, v10, v11, rangea, 0, 1, 0);
@@ -151463,8 +151463,8 @@ LABEL_47:
     this->mCurrentTarget.mType = -1;
     this->mCurrentTarget.mTarget = -1;
     this->mCurrentTarget.mOriginalPosition.x = 0.0;
-    this->mCurrentTarget.mOriginalPosition.y = 0.0;
     this->mCurrentTarget.mOriginalPosition.z = 0.0;
+    this->mCurrentTarget.mOriginalPosition.y = 0.0;
     this->mCurrentTarget.mRange = 0.0;
     this->mCurrentTarget.mTargetRadius = 0.0;
     BUnitGroup::updateDesiredPositions(this, this->mFormationLockedType);
@@ -151496,7 +151496,7 @@ int __thiscall BUnitGroup::updateGeneralCommand(BUnitGroup *this, int *needToUpd
   v4 = RGE_Game_World::object((RGE_Game_World *)base_game->world, this->mCurrentTarget.mTarget);
   v5 = 0;
   if ( v4 )
-    v12 = RGE_Static_Object::distance_to_position(v4, this->mPosition.mPosition.x, this->mPosition.mPosition.z, 0.0);
+    v12 = RGE_Static_Object::distance_to_position(v4, this->mPosition.mPosition.x, this->mPosition.mPosition.y, 0.0);
   if ( this->vfptr->isMoving(this) != 1 || v4 && v12 <= (double)this->mCurrentTarget.mRange )
   {
     v11 = v2;
@@ -151544,8 +151544,8 @@ int __thiscall BUnitGroup::updateGeneralCommand(BUnitGroup *this, int *needToUpd
     this->mCurrentTarget.mType = -1;
     this->mCurrentTarget.mTarget = -1;
     this->mCurrentTarget.mOriginalPosition.x = 0.0;
-    this->mCurrentTarget.mOriginalPosition.y = 0.0;
     this->mCurrentTarget.mOriginalPosition.z = 0.0;
+    this->mCurrentTarget.mOriginalPosition.y = 0.0;
     this->mCurrentTarget.mRange = 0.0;
     this->mCurrentTarget.mTargetRadius = 0.0;
     this->mGroupFlags.valueValue &= 0xFFFFFFFB;
@@ -151989,8 +151989,8 @@ void __thiscall BUnitGroup::automaticMoveUnitsToDesiredPositions(BUnitGroup *thi
       v24 = 0;
       if ( formation->mNumberSlots > 0 )
       {
-        v8 = &v7->mTransformPosition.y;
-        v22 = (_DWORD *)&v7->mTransformPosition.y;
+        v8 = &v7->mTransformPosition.z;
+        v22 = (_DWORD *)&v7->mTransformPosition.z;
         do
         {
           if ( *((_DWORD *)v8 - 8) != -1 )
@@ -152179,7 +152179,7 @@ int __thiscall BUnitGroup::resizeUnits(BUnitGroup *this, int newSize)
       if ( v10 < v2 )
       {
         v15 = &v8[v10];
-        v16 = (int)&v21[v10].mGoal.z;
+        v16 = (int)&v21[v10].mGoal.y;
         v17 = newSize - v10;
         do
         {
@@ -152209,7 +152209,7 @@ int __thiscall BUnitGroup::resizeUnits(BUnitGroup *this, int newSize)
     }
     else
     {
-      v18 = (_DWORD *)&v21->mGoal.z;
+      v18 = (_DWORD *)&v21->mGoal.y;
       v19 = v8;
       do
       {
@@ -152299,8 +152299,8 @@ int __thiscall BUnitGroup::resizeWaypoints(BUnitGroup *this, int newSize)
         ++v8;
         ++v9;
         *v10 = LODWORD(v11->x);
-        v10[1] = LODWORD(v11->y);
-        v10[2] = LODWORD(v11->z);
+        v10[1] = LODWORD(v11->z);
+        v10[2] = LODWORD(v11->y);
       }
       while ( v8 < this->mNumberWaypoints );
       v2 = newSize;
@@ -153367,25 +153367,25 @@ RGE_Master_Action_Object *__thiscall RGE_Master_Action_Object::RGE_Master_Action
 // 65ADFC: using guessed type RGE_Master_Action_ObjectVtbl RGE_Master_Action_Object::vftable;
 
 //----- (00487980) --------------------------------------------------------
-float __thiscall RGE_Master_Moving_Object::getTurnRadius(RGE_Master_Moving_Object *this)
+double __thiscall RGE_Master_Moving_Object::getTurnRadius(RGE_Master_Moving_Object *this)
 {
   return this->mTurnRadius;
 }
 
 //----- (00487990) --------------------------------------------------------
-float __thiscall RGE_Master_Moving_Object::getTurnRadiusSpeed(RGE_Master_Moving_Object *this)
+double __thiscall RGE_Master_Moving_Object::getTurnRadiusSpeed(RGE_Master_Moving_Object *this)
 {
   return this->mTurnRadiusSpeed;
 }
 
 //----- (004879A0) --------------------------------------------------------
-float __thiscall RGE_Master_Moving_Object::getMaximumYawPerSecondMoving(RGE_Master_Moving_Object *this)
+double __thiscall RGE_Master_Moving_Object::getMaximumYawPerSecondMoving(RGE_Master_Moving_Object *this)
 {
   return this->mMaximumYawPerSecondMoving;
 }
 
 //----- (004879B0) --------------------------------------------------------
-float __thiscall RGE_Master_Moving_Object::getMaximumYawPerSecondStationary(RGE_Master_Moving_Object *this)
+double __thiscall RGE_Master_Moving_Object::getMaximumYawPerSecondStationary(RGE_Master_Moving_Object *this)
 {
   return this->mMaximumYawPerSecondStationary;
 }
@@ -155821,19 +155821,19 @@ RGE_Static_Object *__thiscall RGE_Master_Moving_Object::make_new_obj(RGE_Master_
 }
 
 //----- (0048B460) --------------------------------------------------------
-float __thiscall RGE_Master_Moving_Object::maximumSpeed(RGE_Master_Moving_Object *this, int terrainType)
+double __thiscall RGE_Master_Moving_Object::maximumSpeed(RGE_Master_Moving_Object *this, int terrainType)
 {
   return this->speed;
 }
 
 //----- (0048B470) --------------------------------------------------------
-float __thiscall RGE_Master_Moving_Object::acceleration(RGE_Master_Moving_Object *this, int terrainType)
+double __thiscall RGE_Master_Moving_Object::acceleration(RGE_Master_Moving_Object *this, int terrainType)
 {
   return 3.4028235e38;
 }
 
 //----- (0048B480) --------------------------------------------------------
-float __thiscall RGE_Master_Moving_Object::deceleration(RGE_Master_Moving_Object *this, int terrainType)
+double __thiscall RGE_Master_Moving_Object::deceleration(RGE_Master_Moving_Object *this, int terrainType)
 {
   return -3.4028235e38;
 }
@@ -166313,8 +166313,7 @@ unsigned __int8 __thiscall RGE_Map_Analysis::find_closest_pathable_point(RGE_Map
   unsigned __int8 v8; // bl
   BPath *v9; // esi
   int v10; // edi
-  float wpIndex[2]; // [esp+14h] [ebp-Ch] BYREF
-  float v14; // [esp+1Ch] [ebp-4h]
+  BVector wpIndex; // [esp+14h] [ebp-Ch] BYREF
   int dya; // [esp+30h] [ebp+10h]
 
   v7 = this;
@@ -166330,8 +166329,8 @@ unsigned __int8 __thiscall RGE_Map_Analysis::find_closest_pathable_point(RGE_Map
       dya = v10 - 1;
       while ( 1 )
       {
-        BPath::waypoint(v9, (int)wpIndex, dya);
-        if ( (*v7->mip_maps)[(__int64)wpIndex[0]][(__int64)v14].connection_flag )
+        BPath::waypoint(v9, &wpIndex, dya);
+        if ( (*v7->mip_maps)[(__int64)wpIndex.x][(__int64)wpIndex.y].connection_flag )
           break;
         --v10;
         --dya;
@@ -166343,8 +166342,8 @@ unsigned __int8 __thiscall RGE_Map_Analysis::find_closest_pathable_point(RGE_Map
         v7 = this;
       }
       v8 = 1;
-      *new_x = wpIndex[0];
-      *new_y = v14;
+      *new_x = wpIndex.x;
+      *new_y = wpIndex.y;
     }
   }
 LABEL_10:
@@ -166387,8 +166386,8 @@ unsigned __int8 __thiscall RGE_Map_Analysis::find_path(RGE_Map_Analysis *this, B
   BVector wp; // [esp+14h] [ebp-Ch] BYREF
 
   wp.x = 0.0;
-  wp.y = 0.0;
   wp.z = 0.0;
+  wp.y = 0.0;
   v12 = (__int64)sx;
   source_x = v12;
   v13 = (__int64)sy;
@@ -166454,13 +166453,13 @@ LABEL_21:
     if ( v21 == 1 && (*this->mip_maps)[v23][v24].connection_flag )
     {
       wp.x = dx;
-      wp.z = dy;
+      wp.y = dy;
     }
     else
     {
       RGE_Map_Analysis::find_closest_spot(this, v20, (int *)&ReturnPath, &waypoint_y, v23, v24);
       wp.x = (double)(int)ReturnPath + 0.5;
-      wp.z = (double)waypoint_y + 0.5;
+      wp.y = (double)waypoint_y + 0.5;
     }
     BPath::addWaypointAtStart(v22, &wp);
     RGE_Map_Analysis::estimate_waypoint(this, v20, (int *)&ReturnPath, &waypoint_y);
@@ -166485,7 +166484,7 @@ LABEL_21:
              this->last_waypoint_y) )
       {
         wp.x = (double)(int)ReturnPath + 0.5;
-        wp.z = (double)waypoint_y + 0.5;
+        wp.y = (double)waypoint_y + 0.5;
         BPath::addWaypointAtStart(v22, &wp);
         v27 = waypoint_y;
         this->last_waypoint_x = (int)ReturnPath;
@@ -166495,7 +166494,7 @@ LABEL_21:
     }
     while ( v20 );
     wp.x = sx;
-    wp.z = sy;
+    wp.y = sy;
     BPath::addWaypointAtStart(v22, &wp);
   }
   else
@@ -169352,8 +169351,8 @@ void __thiscall BMatrix::makeRotateArbitrary(BMatrix *this, const float rads, BV
   v3 = cos(rads);
   v4 = sin(rads);
   v5 = axis->x;
-  v6 = axis->y;
-  radsa = axis->z;
+  v6 = axis->z;
+  radsa = axis->y;
   this->m[0][3] = 0.0;
   this->m[1][3] = 0.0;
   this->m[2][3] = 0.0;
@@ -169380,8 +169379,8 @@ BVector *__thiscall BMatrix::operator_mul(BMatrix *this, BVector *result, BVecto
   BVector *v3; // eax
   _BYTE v4[12]; // [esp+0h] [ebp-Ch]
 
-  *(float *)v4 = this->m[0][1] * vec->y + this->m[0][2] * vec->z + vec->x * this->m[0][0];
-  *(float *)&v4[4] = this->m[1][1] * vec->y + this->m[1][0] * vec->x + this->m[1][2] * vec->z;
+  *(float *)v4 = this->m[0][1] * vec->z + this->m[0][2] * vec->y + vec->x * this->m[0][0];
+  *(float *)&v4[4] = this->m[1][1] * vec->z + this->m[1][0] * vec->x + this->m[1][2] * vec->y;
   v3 = result;
   *result = *(BVector *)v4;
   return v3;
@@ -169740,7 +169739,7 @@ unsigned __int8 __thiscall RGE_Missile_Object::missile_move(RGE_Missile_Object *
 }
 
 //----- (0049C030) --------------------------------------------------------
-RGE_Check_List *__thiscall RGE_Missile_Object::make_object_collision_list(RGE_Missile_Object *this, float x, float y, float z, int a5)
+RGE_Check_List *__thiscall RGE_Missile_Object::make_object_collision_list(RGE_Missile_Object *this, RGE_Static_Object *target_obj, float old_x, float old_y, float old_z)
 {
   RGE_Master_Missile_Object *v6; // ecx
   RGE_Check_List *v7; // eax
@@ -169768,15 +169767,15 @@ RGE_Check_List *__thiscall RGE_Missile_Object::make_object_collision_list(RGE_Mi
     v9 = 0;
   p2.x = this->world_x;
   v10 = this->world_z;
-  p1.x = y;
-  LODWORD(p1.y) = a5;
+  p1.x = old_x;
+  p1.z = old_z;
   v11 = OBSystem_Land;
-  p2.y = v10;
-  p2.z = this->world_y;
+  p2.z = v10;
+  p2.y = this->world_y;
   v19 = -1;
   v16 = v9;
-  p1.z = z;
-  if ( x != 0.0 && *(_BYTE *)(*(_DWORD *)(LODWORD(x) + 20) + 120) == 1 )
+  p1.y = old_y;
+  if ( target_obj && target_obj->master_obj->movement_type == 1 )
     v11 = OBSystem_Air;
   findObSystemCollisions(v11, (RGE_Moving_Object *)this, &p1, &p2, 0, 0, 0, 1.0);
   if ( numberObSystemCollisions > 0 )
@@ -169810,7 +169809,7 @@ RGE_Check_List *__thiscall RGE_Missile_Object::make_object_collision_list(RGE_Mi
 // 6AD0C4: using guessed type ObsRecord obSystemCollisions;
 
 //----- (0049C1C0) --------------------------------------------------------
-float __thiscall RGE_Missile_Object::handle_teleport_z_correction(RGE_Missile_Object *this, float ground_z)
+double __thiscall RGE_Missile_Object::handle_teleport_z_correction(RGE_Missile_Object *this, float ground_z)
 {
   if ( !this->ghost_mode )
     return RGE_Moving_Object::handle_teleport_z_correction((RGE_Moving_Object *)this, ground_z);
@@ -169864,29 +169863,29 @@ BMotion *__thiscall BMotion::BMotion(BMotion *this)
   BVector v6; // [esp-10h] [ebp-40h]
 
   this->mPosition.mPosition.x = 0.0;
-  this->mPosition.mPosition.y = 0.0;
   this->mPosition.mPosition.z = 0.0;
+  this->mPosition.mPosition.y = 0.0;
   BVector::BVector(&this->mPosition.mOrientationForward, 0.0, 0.0, 0.0);
   BVector::BVector(&this->mPosition.mOrientationUp, 0.0, 0.0, 0.0);
   BVector::BVector(&this->mPosition.mOrientationRight, 0.0, 0.0, 0.0);
   this->mNewPosition.mPosition.x = 0.0;
-  this->mNewPosition.mPosition.y = 0.0;
   this->mNewPosition.mPosition.z = 0.0;
+  this->mNewPosition.mPosition.y = 0.0;
   BVector::BVector(&this->mNewPosition.mOrientationForward, 0.0, 0.0, 0.0);
   BVector::BVector(&this->mNewPosition.mOrientationUp, 0.0, 0.0, 0.0);
   BVector::BVector(&this->mNewPosition.mOrientationRight, 0.0, 0.0, 0.0);
   this->mVelocity.x = 0.0;
-  this->mVelocity.y = 0.0;
   this->mVelocity.z = 0.0;
+  this->mVelocity.y = 0.0;
   this->mAcceleration.x = 0.0;
-  this->mAcceleration.y = 0.0;
   this->mAcceleration.z = 0.0;
+  this->mAcceleration.y = 0.0;
   this->mAngularVelocity.x = 0.0;
-  this->mAngularVelocity.y = 0.0;
   this->mAngularVelocity.z = 0.0;
+  this->mAngularVelocity.y = 0.0;
   this->mAngularAcceleration.x = 0.0;
-  this->mAngularAcceleration.y = 0.0;
   this->mAngularAcceleration.z = 0.0;
+  this->mAngularAcceleration.y = 0.0;
   this->mTurnRadius = 0.0;
   this->mTurnRadiusSpeed = 3.4028235e38;
   this->mMaximumYawPerSecondMoving = 3.4028235e38;
@@ -169905,9 +169904,9 @@ BMotion *__thiscall BMotion::BMotion(BMotion *this)
     v3 = 0;
   this->mPathData = v3;
   v6.x = 0.0;
-  *(_QWORD *)&v6.y = 1065353216i64;
+  *(_QWORD *)&v6.z = 1065353216i64;
   v5.x = 1.0;
-  *(_QWORD *)&v5.y = 0i64;
+  *(_QWORD *)&v5.z = 0i64;
   BMotion::setOrientation(this, v5, v6, 1);
   this->mMotionFlags.valueValue |= 2u;
   return this;
@@ -169973,73 +169972,73 @@ int __thiscall BMotion::setOrientation(BMotion *this, BVector forward, BVector u
   BMotionVtbl *v25; // eax
   BVector v; // [esp+0h] [ebp-Ch] BYREF
 
-  v5 = forward.z * up.z + forward.y * up.y + up.x * forward.x;
+  v5 = forward.y * up.y + forward.z * up.z + up.x * forward.x;
   if ( v5 < -0.050000001 || v5 > 0.050000001 )
     return 0;
   v = forward;
   forward = up;
   BVector::operator_mul(&forward, &up, &v);
-  v6 = sqrt(v.y * v.y + v.z * v.z + v.x * v.x);
+  v6 = sqrt(v.z * v.z + v.y * v.y + v.x * v.x);
   v.x = v.x / v6;
-  v.y = v.y / v6;
   v.z = v.z / v6;
-  v7 = sqrt(forward.y * forward.y + forward.z * forward.z + forward.x * forward.x);
+  v.y = v.y / v6;
+  v7 = sqrt(forward.z * forward.z + forward.y * forward.y + forward.x * forward.x);
   forward.x = forward.x / v7;
-  forward.y = forward.y / v7;
   forward.z = forward.z / v7;
-  v8 = sqrt(up.y * up.y + up.z * up.z + up.x * up.x);
+  forward.y = forward.y / v7;
+  v8 = sqrt(up.z * up.z + up.y * up.y + up.x * up.x);
   up.x = up.x / v8;
-  up.y = up.y / v8;
   up.z = up.z / v8;
+  up.y = up.y / v8;
   if ( immediate == 1 )
   {
     v9 = v.x;
-    v10 = v.y;
-    v11 = v.z;
+    v10 = v.z;
+    v11 = v.y;
     this->mNewPosition.mOrientationForward.x = v.x;
-    this->mNewPosition.mOrientationForward.y = v10;
-    this->mNewPosition.mOrientationForward.z = v11;
+    this->mNewPosition.mOrientationForward.z = v10;
+    this->mNewPosition.mOrientationForward.y = v11;
     this->mPosition.mOrientationForward.x = v9;
-    this->mPosition.mOrientationForward.y = v10;
-    v12 = forward.y;
-    this->mPosition.mOrientationForward.z = v11;
-    v13 = forward.z;
+    this->mPosition.mOrientationForward.z = v10;
+    v12 = forward.z;
+    this->mPosition.mOrientationForward.y = v11;
+    v13 = forward.y;
     v14 = forward.x;
     this->mNewPosition.mOrientationUp.x = forward.x;
-    this->mNewPosition.mOrientationUp.y = v12;
-    this->mNewPosition.mOrientationUp.z = v13;
+    this->mNewPosition.mOrientationUp.z = v12;
+    this->mNewPosition.mOrientationUp.y = v13;
     this->mPosition.mOrientationUp.x = v14;
     v15 = up.x;
-    this->mPosition.mOrientationUp.y = v12;
-    this->mPosition.mOrientationUp.z = v13;
-    v16 = up.z;
-    v17 = up.y;
+    this->mPosition.mOrientationUp.z = v12;
+    this->mPosition.mOrientationUp.y = v13;
+    v16 = up.y;
+    v17 = up.z;
     this->mNewPosition.mOrientationRight.x = v15;
-    this->mNewPosition.mOrientationRight.y = v17;
-    this->mNewPosition.mOrientationRight.z = v16;
+    this->mNewPosition.mOrientationRight.z = v17;
+    this->mNewPosition.mOrientationRight.y = v16;
     this->mPosition.mOrientationRight.x = v15;
-    this->mPosition.mOrientationRight.y = v17;
-    this->mPosition.mOrientationRight.z = v16;
+    this->mPosition.mOrientationRight.z = v17;
+    this->mPosition.mOrientationRight.y = v16;
     this->vfptr->setFlag(this, 0, 1);
   }
   else
   {
-    v19 = v.y;
+    v19 = v.z;
     this->mNewPosition.mOrientationForward.x = v.x;
-    v20 = v.z;
-    this->mNewPosition.mOrientationForward.y = v19;
-    this->mNewPosition.mOrientationForward.z = v20;
-    v21 = forward.y;
+    v20 = v.y;
+    this->mNewPosition.mOrientationForward.z = v19;
+    this->mNewPosition.mOrientationForward.y = v20;
+    v21 = forward.z;
     this->mNewPosition.mOrientationUp.x = forward.x;
-    v22 = forward.z;
-    this->mNewPosition.mOrientationUp.y = v21;
-    this->mNewPosition.mOrientationUp.z = v22;
-    v23 = up.y;
+    v22 = forward.y;
+    this->mNewPosition.mOrientationUp.z = v21;
+    this->mNewPosition.mOrientationUp.y = v22;
+    v23 = up.z;
     this->mNewPosition.mOrientationRight.x = up.x;
-    v24 = up.z;
-    this->mNewPosition.mOrientationRight.y = v23;
+    v24 = up.y;
+    this->mNewPosition.mOrientationRight.z = v23;
     v25 = this->vfptr;
-    this->mNewPosition.mOrientationRight.z = v24;
+    this->mNewPosition.mOrientationRight.y = v24;
     v25->setFlag(this, 0, 1);
   }
   return 1;
@@ -170074,8 +170073,8 @@ int __thiscall BMotion::isMoving(BMotion *this)
 {
   return sqrt(
            this->mVelocity.x * this->mVelocity.x
-         + this->mVelocity.y * this->mVelocity.y
-         + this->mVelocity.z * this->mVelocity.z) > 0.0;
+         + this->mVelocity.z * this->mVelocity.z
+         + this->mVelocity.y * this->mVelocity.y) > 0.0;
 }
 
 //----- (0049C830) --------------------------------------------------------
@@ -170210,17 +170209,17 @@ int __thiscall BMotion::update(BMotion *this, int doAvailablePathCheck, BUnitGro
   float uGc; // [esp+24h] [ebp+8h]
 
   BMotion::updateMovement(this, doAvailablePathCheck, uG);
-  this->mVelocity.z = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world)
-                    * this->mAcceleration.z
-                    + this->mVelocity.z;
-  v4 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world) * this->mVelocity.z;
+  this->mVelocity.y = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world)
+                    * this->mAcceleration.y
+                    + this->mVelocity.y;
+  v4 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world) * this->mVelocity.y;
   if ( fabs(v4) > 0.0000001000000011686097 )
   {
     uGa = v4;
     v5 = operator_mul(&result, uGa, &this->mNewPosition.mOrientationForward);
     this->mNewPosition.mPosition.x = v5->x + this->mNewPosition.mPosition.x;
-    this->mNewPosition.mPosition.y = v5->y + this->mNewPosition.mPosition.y;
     this->mNewPosition.mPosition.z = v5->z + this->mNewPosition.mPosition.z;
+    this->mNewPosition.mPosition.y = v5->y + this->mNewPosition.mPosition.y;
     this->vfptr->setFlag(this, 0, 1);
   }
   v6 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world) * this->mVelocity.x;
@@ -170229,18 +170228,18 @@ int __thiscall BMotion::update(BMotion *this, int doAvailablePathCheck, BUnitGro
     uGb = v6;
     v7 = operator_mul(&result, uGb, &this->mNewPosition.mOrientationRight);
     this->mNewPosition.mPosition.x = v7->x + this->mNewPosition.mPosition.x;
-    this->mNewPosition.mPosition.y = v7->y + this->mNewPosition.mPosition.y;
     this->mNewPosition.mPosition.z = v7->z + this->mNewPosition.mPosition.z;
+    this->mNewPosition.mPosition.y = v7->y + this->mNewPosition.mPosition.y;
     this->vfptr->setFlag(this, 0, 1);
   }
-  v8 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world) * this->mVelocity.y;
+  v8 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world) * this->mVelocity.z;
   if ( fabs(v8) > 0.0000001000000011686097 )
   {
     uGc = v8;
     v9 = operator_mul(&result, uGc, &this->mNewPosition.mOrientationUp);
     this->mNewPosition.mPosition.x = v9->x + this->mNewPosition.mPosition.x;
-    this->mNewPosition.mPosition.y = v9->y + this->mNewPosition.mPosition.y;
     this->mNewPosition.mPosition.z = v9->z + this->mNewPosition.mPosition.z;
+    this->mNewPosition.mPosition.y = v9->y + this->mNewPosition.mPosition.y;
     this->vfptr->setFlag(this, 0, 1);
   }
   v10 = 1;
@@ -170269,198 +170268,203 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
   int v12; // eax
   BMotionVtbl *v13; // edi
   BVector *v14; // eax
-  BPathData *v15; // edi
-  BPathData *v16; // ecx
-  int v17; // edx
-  RGE_Moving_Object *v18; // eax
-  double v19; // st7
-  float v20; // edx
-  int v21; // eax
-  BVector *v22; // eax
-  BPathData *v23; // edi
-  double v24; // st7
-  BPathData *v25; // eax
-  int v26; // ecx
-  BMotionVtbl *v27; // edi
-  BPathData *v28; // edx
-  BPathData *v29; // edi
-  int v30; // ecx
-  BPathData *v31; // ebp
-  BPathData *v32; // eax
-  BPath *v33; // ecx
-  BPathData *v34; // ebp
-  RGE_Player *v35; // edi
-  BPathData *v36; // ecx
-  BPathData *v37; // ebx
-  BPath *v38; // eax
-  RGE_Game_World *v39; // edi
-  int v40; // eax
-  BPathData *v41; // eax
-  BPath *v42; // edi
-  BVector *v43; // eax
-  BPosition *v44; // ebx
+  BVector *v15; // eax
+  BPathData *v16; // edi
+  BPathData *v17; // ecx
+  int v18; // edx
+  RGE_Moving_Object *v19; // eax
+  double v20; // st7
+  float v21; // edx
+  int v22; // eax
+  BVector *v23; // eax
+  BPathData *v24; // edi
+  double v25; // st7
+  BPathData *v26; // eax
+  int v27; // ecx
+  BMotionVtbl *v28; // edi
+  BVector *v29; // eax
+  BPathData *v30; // edx
+  BPathData *v31; // edi
+  int v32; // ecx
+  BPathData *v33; // ebp
+  BPathData *v34; // eax
+  BPath *v35; // ecx
+  BPathData *v36; // ebp
+  RGE_Player *v37; // edi
+  BPathData *v38; // ecx
+  BPathData *v39; // ebx
+  BPath *v40; // eax
+  RGE_Game_World *v41; // edi
+  int v42; // eax
+  BPathData *v43; // eax
+  BPath *v44; // edi
   BVector *v45; // eax
-  BPathData *v46; // edx
-  BPathData *v47; // eax
-  int v48; // eax
-  RGE_Static_Object *v49; // eax
-  RGE_Moving_Object *v50; // eax
-  BPathData *v51; // ecx
-  BVector *v52; // eax
-  int v53; // eax
+  BPosition *v46; // ebx
+  BVector *v47; // eax
+  BPathData *v48; // edx
+  BPathData *v49; // eax
+  int v50; // eax
+  RGE_Static_Object *v51; // eax
+  RGE_Moving_Object *v52; // eax
+  BPathData *v53; // ecx
   BVector *v54; // eax
   int v55; // eax
   BVector *v56; // eax
-  RGE_Moving_Object *v57; // eax
-  BUnitGroup *v58; // eax
-  TRIBE_World *v59; // ecx
-  int *v60; // eax
-  BVector *v61; // eax
-  int v62; // eax
-  int *v63; // eax
-  BVector *v64; // eax
-  RGE_Moving_Object *v65; // eax
-  BUnitGroup *v66; // eax
-  BVector *v67; // eax
-  BVector *v68; // eax
+  int v57; // eax
+  BVector *v58; // eax
+  RGE_Moving_Object *v59; // eax
+  BUnitGroup *v60; // eax
+  TRIBE_World *v61; // ecx
+  int *v62; // eax
+  BVector *v63; // eax
+  int v64; // eax
+  int *v65; // eax
+  BVector *v66; // eax
+  RGE_Moving_Object *v67; // eax
+  BUnitGroup *v68; // eax
   BVector *v69; // eax
-  int *v70; // eax
+  BVector *v70; // eax
   BVector *v71; // eax
-  BPathData *v72; // ecx
-  BPathData *v73; // ecx
-  BPathData *v74; // eax
-  BVector *v75; // eax
-  BVector *v76; // eax
-  long double v77; // st7
-  double v78; // st7
-  BVector *v79; // eax
-  BPathData *v80; // ecx
-  BVector *v81; // ebx
-  long double v82; // st7
-  long double v83; // st6
-  BUnitGroup *v84; // eax
-  BUnitGroup *v85; // edi
-  int v86; // ebx
-  RGE_Static_Object *v87; // eax
-  RGE_Moving_Object *v88; // edx
-  void *v89; // ecx
-  int v90; // eax
-  RGE_Static_Object *v91; // edi
-  BPath *v92; // eax
-  int v93; // eax
-  unsigned int v94; // ebx
-  _BOOL1 v95; // cc
-  BPathData *v96; // edi
-  BPathData *v97; // ebx
-  RGE_Static_Object *v98; // eax
-  BPathData *v99; // edi
-  BPathData *v100; // ebp
-  BPathData *v101; // ecx
-  BPath *v102; // eax
-  BVector *v103; // eax
-  BPathData *v104; // ecx
-  long double v105; // st7
-  double v106; // st7
-  BVector *v107; // edi
-  long double v108; // st4
-  long double v109; // st7
-  float v110; // [esp-18h] [ebp-2B4h]
-  float v111; // [esp-18h] [ebp-2B4h]
-  float v112; // [esp-14h] [ebp-2B0h]
-  float v113; // [esp-14h] [ebp-2B0h]
-  int v114; // [esp-14h] [ebp-2B0h]
-  int v115; // [esp-10h] [ebp-2ACh]
-  int v116; // [esp-10h] [ebp-2ACh]
-  int v117; // [esp-10h] [ebp-2ACh]
-  RGE_Moving_Object *v118; // [esp-Ch] [ebp-2A8h]
-  int v119; // [esp-8h] [ebp-2A4h]
-  float v120; // [esp-8h] [ebp-2A4h]
-  float v121; // [esp-4h] [ebp-2A0h]
-  int v122; // [esp-4h] [ebp-2A0h]
-  float dest_target_radius; // [esp+0h] [ebp-29Ch]
-  float v124; // [esp+4h] [ebp-298h]
-  int *v125; // [esp+4h] [ebp-298h]
-  RGE_Player *v126; // [esp+8h] [ebp-294h]
-  float *v127; // [esp+8h] [ebp-294h]
-  float *v128; // [esp+8h] [ebp-294h]
-  int v129; // [esp+8h] [ebp-294h]
-  int v130; // [esp+Ch] [ebp-290h]
-  BVector *aa; // [esp+10h] [ebp-28Ch]
-  int ab; // [esp+10h] [ebp-28Ch]
-  int ac; // [esp+10h] [ebp-28Ch]
-  BVector *ad; // [esp+10h] [ebp-28Ch]
-  float ae; // [esp+10h] [ebp-28Ch]
-  int a; // [esp+10h] [ebp-28Ch]
-  BVector *v137; // [esp+14h] [ebp-288h]
-  int v138; // [esp+18h] [ebp-284h]
-  bool rads; // [esp+24h] [ebp-278h]
-  float radsa; // [esp+24h] [ebp-278h]
-  float obstruction_manager; // [esp+28h] [ebp-274h]
-  RGE_Master_Moving_Object *obstruction_managera; // [esp+28h] [ebp-274h]
-  RGE_Airspace_Manager *obstruction_managerb; // [esp+28h] [ebp-274h]
-  void *obstruction_managerc; // [esp+28h] [ebp-274h]
-  int *obstruction_managerd; // [esp+28h] [ebp-274h]
-  ObsRecord *obstruction_managere; // [esp+28h] [ebp-274h]
-  float v147; // [esp+2Ch] [ebp-270h]
-  float v148; // [esp+30h] [ebp-26Ch]
-  BPathData *v149; // [esp+30h] [ebp-26Ch]
-  BPathData *v150; // [esp+30h] [ebp-26Ch]
-  int v151; // [esp+34h] [ebp-268h]
-  int v152; // [esp+34h] [ebp-268h]
-  int *v153; // [esp+38h] [ebp-264h]
-  float v154; // [esp+38h] [ebp-264h]
-  float v155; // [esp+38h] [ebp-264h]
-  float v156; // [esp+3Ch] [ebp-260h]
-  RGE_Player *v157; // [esp+40h] [ebp-25Ch]
-  BVector v158; // [esp+44h] [ebp-258h] BYREF
+  int *v72; // eax
+  BVector *v73; // eax
+  BPathData *v74; // ecx
+  BPathData *v75; // ecx
+  BPathData *v76; // eax
+  BVector *v77; // eax
+  BVector *v78; // eax
+  long double v79; // st7
+  double v80; // st7
+  BVector *v81; // eax
+  BPathData *v82; // ecx
+  BVector *v83; // ebx
+  long double v84; // st7
+  long double v85; // st6
+  BUnitGroup *v86; // eax
+  BUnitGroup *v87; // edi
+  int v88; // ebx
+  RGE_Static_Object *v89; // eax
+  RGE_Moving_Object *v90; // edx
+  void *v91; // ecx
+  int v92; // eax
+  RGE_Static_Object *v93; // edi
+  BPath *v94; // eax
+  int v95; // eax
+  unsigned int v96; // ebx
+  _BOOL1 v97; // cc
+  BPathData *v98; // edi
+  BPathData *v99; // ebx
+  RGE_Static_Object *v100; // eax
+  BPathData *v101; // edi
+  BPathData *v102; // ebp
+  BPathData *v103; // ecx
+  BPath *v104; // eax
+  BVector *v105; // eax
+  BPathData *v106; // ecx
+  long double v107; // st7
+  double v108; // st7
+  BVector *v109; // edi
+  long double v110; // st4
+  long double v111; // st7
+  float v112; // [esp-8h] [ebp-2A4h]
+  float v113; // [esp-8h] [ebp-2A4h]
+  float v114; // [esp-4h] [ebp-2A0h]
+  float v115; // [esp-4h] [ebp-2A0h]
+  int v116; // [esp-4h] [ebp-2A0h]
+  int dest_target_radius; // [esp+0h] [ebp-29Ch]
+  int dest_target_radiusa; // [esp+0h] [ebp-29Ch]
+  int dest_target_radiusb; // [esp+0h] [ebp-29Ch]
+  RGE_Moving_Object *v120; // [esp+4h] [ebp-298h]
+  int v121; // [esp+8h] [ebp-294h]
+  float v122; // [esp+8h] [ebp-294h]
+  float v123; // [esp+Ch] [ebp-290h]
+  int v124; // [esp+Ch] [ebp-290h]
+  float a; // [esp+10h] [ebp-28Ch]
+  float v126; // [esp+14h] [ebp-288h]
+  int *v127; // [esp+14h] [ebp-288h]
+  RGE_Player *v128; // [esp+18h] [ebp-284h]
+  float *v129; // [esp+18h] [ebp-284h]
+  float *v130; // [esp+18h] [ebp-284h]
+  int v131; // [esp+18h] [ebp-284h]
+  BVector *v132; // [esp+20h] [ebp-27Ch]
+  int v133; // [esp+20h] [ebp-27Ch]
+  int v134; // [esp+20h] [ebp-27Ch]
+  BVector *v135; // [esp+20h] [ebp-27Ch]
+  int v136; // [esp+20h] [ebp-27Ch]
+  int v137; // [esp+20h] [ebp-27Ch]
+  float v138; // [esp+20h] [ebp-27Ch]
+  float v139; // [esp+34h] [ebp-268h]
+  bool v140; // [esp+34h] [ebp-268h]
+  float v141; // [esp+34h] [ebp-268h]
+  float v142; // [esp+38h] [ebp-264h]
+  float v143; // [esp+38h] [ebp-264h]
+  RGE_Master_Moving_Object *v144; // [esp+38h] [ebp-264h]
+  RGE_Airspace_Manager *v145; // [esp+38h] [ebp-264h]
+  void *v146; // [esp+38h] [ebp-264h]
+  int *v147; // [esp+38h] [ebp-264h]
+  ObsRecord *v148; // [esp+38h] [ebp-264h]
+  bool v149; // [esp+3Ch] [ebp-260h]
+  RGE_Map_Analysis *v150; // [esp+3Ch] [ebp-260h]
+  RGE_Map_Analysis *v151; // [esp+3Ch] [ebp-260h]
+  RGE_Master_Moving_Object *v152; // [esp+3Ch] [ebp-260h]
+  RGE_Map_Analysis *v153; // [esp+3Ch] [ebp-260h]
+  RGE_Map_Analysis *v154; // [esp+3Ch] [ebp-260h]
+  RGE_Map_Analysis *v155; // [esp+3Ch] [ebp-260h]
+  BPathData *v156; // [esp+40h] [ebp-25Ch]
+  BPathData *v157; // [esp+40h] [ebp-25Ch]
+  int v158; // [esp+44h] [ebp-258h]
+  int v159; // [esp+44h] [ebp-258h]
+  int *v160; // [esp+48h] [ebp-254h]
+  float v161; // [esp+48h] [ebp-254h]
+  float v162; // [esp+48h] [ebp-254h]
+  float v163; // [esp+4Ch] [ebp-250h]
   BVector v; // [esp+50h] [ebp-24Ch] BYREF
-  BVector v160; // [esp+5Ch] [ebp-240h] BYREF
-  BVector v161; // [esp+68h] [ebp-234h] BYREF
-  int v162; // [esp+74h] [ebp-228h]
-  float v163; // [esp+7Ch] [ebp-220h]
-  float v164; // [esp+80h] [ebp-21Ch]
-  float v165; // [esp+84h] [ebp-218h]
-  float v166; // [esp+88h] [ebp-214h]
-  BVector v167; // [esp+8Ch] [ebp-210h] BYREF
+  BVector v165; // [esp+5Ch] [ebp-240h] BYREF
+  BVector v166; // [esp+68h] [ebp-234h] BYREF
+  float v167; // [esp+74h] [ebp-228h]
+  BVector v168; // [esp+78h] [ebp-224h] BYREF
+  RGE_Static_Object *v169; // [esp+84h] [ebp-218h]
+  int v170; // [esp+88h] [ebp-214h]
+  BVector v171; // [esp+8Ch] [ebp-210h]
+  float v172; // [esp+98h] [ebp-204h]
   BVector result; // [esp+9Ch] [ebp-200h] BYREF
-  BVector v169; // [esp+ACh] [ebp-1F0h] BYREF
-  float v170; // [esp+B8h] [ebp-1E4h]
-  BVector v171; // [esp+BCh] [ebp-1E0h] BYREF
-  int v172; // [esp+C8h] [ebp-1D4h]
+  BVector v174; // [esp+A8h] [ebp-1F4h] BYREF
+  BVector v175; // [esp+B4h] [ebp-1E8h] BYREF
+  BVector v176; // [esp+C0h] [ebp-1DCh] BYREF
   BVector p2; // [esp+CCh] [ebp-1D0h] BYREF
-  BVector v174; // [esp+D8h] [ebp-1C4h] BYREF
-  BVector v175; // [esp+E4h] [ebp-1B8h] BYREF
-  BVector v176; // [esp+F0h] [ebp-1ACh] BYREF
-  BVector v177; // [esp+FCh] [ebp-1A0h] BYREF
-  BVector v178; // [esp+110h] [ebp-18Ch] BYREF
-  BVector wpIndex; // [esp+11Ch] [ebp-180h] BYREF
-  int ignoreList; // [esp+128h] [ebp-174h] BYREF
-  int v181[3]; // [esp+130h] [ebp-16Ch] BYREF
-  int v182[3]; // [esp+13Ch] [ebp-160h] BYREF
-  int v183[4]; // [esp+148h] [ebp-154h] BYREF
-  int v184; // [esp+158h] [ebp-144h] BYREF
-  int v185[3]; // [esp+160h] [ebp-13Ch] BYREF
-  int v186[3]; // [esp+16Ch] [ebp-130h] BYREF
-  int v187[3]; // [esp+178h] [ebp-124h] BYREF
-  int v188[3]; // [esp+184h] [ebp-118h] BYREF
-  int v189[3]; // [esp+190h] [ebp-10Ch] BYREF
-  int v190[3]; // [esp+19Ch] [ebp-100h] BYREF
-  int v191[3]; // [esp+1A8h] [ebp-F4h] BYREF
-  int v192[3]; // [esp+1B4h] [ebp-E8h] BYREF
-  int v193[5]; // [esp+1C0h] [ebp-DCh] BYREF
-  int v194; // [esp+1D4h] [ebp-C8h] BYREF
-  int v195[3]; // [esp+1D8h] [ebp-C4h] BYREF
-  int v196[3]; // [esp+1E4h] [ebp-B8h] BYREF
-  int v197[6]; // [esp+1F0h] [ebp-ACh] BYREF
-  BVector v198; // [esp+208h] [ebp-94h] BYREF
-  int v199[4]; // [esp+214h] [ebp-88h] BYREF
-  int v200; // [esp+224h] [ebp-78h] BYREF
-  int v201[3]; // [esp+22Ch] [ebp-70h] BYREF
-  BVector v202; // [esp+238h] [ebp-64h] BYREF
-  int v203[3]; // [esp+244h] [ebp-58h] BYREF
-  BMatrix v204; // [esp+250h] [ebp-4Ch] BYREF
-  int v205; // [esp+288h] [ebp-14h]
-  int v206; // [esp+290h] [ebp-Ch]
+  BVector v178; // [esp+D8h] [ebp-1C4h] BYREF
+  BVector v179; // [esp+E4h] [ebp-1B8h] BYREF
+  BVector v180; // [esp+F0h] [ebp-1ACh] BYREF
+  BVector v181; // [esp+FCh] [ebp-1A0h] BYREF
+  float v182; // [esp+108h] [ebp-194h]
+  BVector v183; // [esp+10Ch] [ebp-190h] BYREF
+  BVector v184; // [esp+118h] [ebp-184h] BYREF
+  int unitsToIgnore; // [esp+124h] [ebp-178h] BYREF
+  BVector v186; // [esp+12Ch] [ebp-170h] BYREF
+  int v187; // [esp+138h] [ebp-164h] BYREF
+  BVector v188; // [esp+13Ch] [ebp-160h] BYREF
+  int v189[4]; // [esp+148h] [ebp-154h] BYREF
+  BVector v190; // [esp+158h] [ebp-144h] BYREF
+  BVector v191; // [esp+164h] [ebp-138h] BYREF
+  BVector v192; // [esp+170h] [ebp-12Ch] BYREF
+  BVector v193; // [esp+17Ch] [ebp-120h] BYREF
+  BVector v194; // [esp+188h] [ebp-114h] BYREF
+  int v195; // [esp+194h] [ebp-108h] BYREF
+  BVector v196; // [esp+19Ch] [ebp-100h] BYREF
+  BVector v197; // [esp+1A8h] [ebp-F4h] BYREF
+  BVector v198; // [esp+1B4h] [ebp-E8h] BYREF
+  int v199[5]; // [esp+1C0h] [ebp-DCh] BYREF
+  BVector v200; // [esp+1D8h] [ebp-C4h] BYREF
+  BVector v201; // [esp+1E4h] [ebp-B8h] BYREF
+  BVector v202[2]; // [esp+1F0h] [ebp-ACh] BYREF
+  BVector outVector; // [esp+208h] [ebp-94h] BYREF
+  int v204[4]; // [esp+214h] [ebp-88h] BYREF
+  BVector v205; // [esp+224h] [ebp-78h] BYREF
+  BVector v206; // [esp+230h] [ebp-6Ch] BYREF
+  BVector v207; // [esp+23Ch] [ebp-60h] BYREF
+  BVector v208; // [esp+248h] [ebp-54h] BYREF
+  BVector v209; // [esp+254h] [ebp-48h] BYREF
+  BMatrix v210; // [esp+260h] [ebp-3Ch] BYREF
+  int v211; // [esp+298h] [ebp-4h]
 
   v4 = this->mPathData;
   if ( !v4 )
@@ -170477,7 +170481,7 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
     }
     v6->pauseTime = 0.0;
   }
-  v166 = 0.0;
+  v170 = 0;
   while ( 1 )
   {
     while ( 1 )
@@ -170490,8 +170494,7 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
           {
             while ( 1 )
             {
-              ++LODWORD(v166);
-              if ( SLODWORD(v166) > 20 )
+              if ( ++v170 > 20 )
                 return 0;
               v7 = this->mPathData;
               v8 = v7->path;
@@ -170504,21 +170507,22 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
               }
               v9 = this->mPathData;
               v10 = 0;
-              v167.x = 3.4028235e38;
-              v165 = 0.0;
+              v171.x = 3.4028235e38;
+              v169 = 0;
               if ( v9->targetID > -1 )
               {
                 v10 = RGE_Game_World::object((RGE_Game_World *)base_game->world, v9->targetID);
-                v165 = *(float *)&v10;
+                v169 = v10;
                 if ( v10 )
-                  v167.x = RGE_Static_Object::distance_to_position(
+                  v171.x = RGE_Static_Object::distance_to_position(
                              v10,
                              this->mPosition.mPosition.x,
-                             this->mPosition.mPosition.z,
-                             this->mPosition.mPosition.y);
+                             this->mPosition.mPosition.y,
+                             this->mPosition.mPosition.z);
               }
               v11 = this->mPathData;
               v12 = v11->mFlags.valueValue;
+              v149 = (v12 & 4) != 0;
               if ( (v12 & BBitVectorAND_4) != 0 )
               {
                 if ( (v12 & 2) != 0 )
@@ -170526,8 +170530,12 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
                   if ( v11->waypoint < v8->waypointsCount )
                   {
                     v13 = this->vfptr;
-                    v138 = LODWORD(BPath::waypoint(v8, (int)&v198.y, v11->waypoint)->x);
-                    ((void (__thiscall *)(BMotion *))v13->setPosition)(this);
+                    v14 = BPath::waypoint(v8, (BVector *)&outVector.z, v11->waypoint);
+                    ((void (__thiscall *)(BMotion *, _DWORD, _DWORD, _DWORD))v13->setPosition)(
+                      this,
+                      LODWORD(v14->x),
+                      LODWORD(v14->z),
+                      LODWORD(v14->y));
                   }
                   BPathData::setFlag(this->mPathData, 1, 0);
                 }
@@ -170535,59 +170543,59 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
                 ++this->mPathData->waypoint;
                 if ( (BBitVectorAND_4 & v8->flags.valueValue) != 0 )
                 {
-                  this->mPathData->waypoint = BPath::nextPatrolWaypoint(v8, this->mPathData->waypoint - 1, v138);
+                  this->mPathData->waypoint = BPath::nextPatrolWaypoint(v8, this->mPathData->waypoint - 1);
                   this->mPathData->state = 2;
                   if ( this->mPathData->waypoint == -1 )
                   {
-                    v18 = this->mPathUnit;
-                    v19 = v18->world_y;
-                    v20 = v18->world_x;
-                    v21 = v8->waypointsCount;
-                    v178.z = v19;
-                    v178.x = v20;
-                    v178.y = 0.0;
-                    v22 = BPath::waypoint(v8, (int)&v194, v21 - 1);
-                    BVector::operator_minus(&v178, &v169, v22);
-                    v148 = sqrt(v169.x * v169.x + v169.y * v169.y + v169.z * v169.z);
+                    v19 = this->mPathUnit;
+                    v20 = v19->world_y;
+                    v21 = v19->world_x;
+                    v22 = v8->waypointsCount;
+                    v184.y = v20;
+                    v184.x = v21;
+                    v184.z = 0.0;
+                    v23 = BPath::waypoint(v8, (BVector *)&v200.z, v22 - 1);
+                    BVector::operator_minus(&v184, &v175, v23);
+                    v143 = sqrt(v175.x * v175.x + v175.z * v175.z + v175.y * v175.y);
                     if ( v10 )
                     {
-                      v23 = this->mPathData;
-                      v24 = RGE_Static_Object::distance_to_position(
+                      v24 = this->mPathData;
+                      v25 = RGE_Static_Object::distance_to_position(
                               v10,
                               this->mPathUnit->world_x,
                               0.0,
                               this->mPathUnit->world_y)
-                          - v23->range
+                          - v24->range
                           - 0.1;
-                      if ( (v23->mFlags.valueValue & 4) != 0 )
+                      if ( (v24->mFlags.valueValue & 4) != 0 )
                       {
-                        BPathData::setFlag(v23, 2, 0);
+                        BPathData::setFlag(v24, 2, 0);
                         this->mPathData->state = 4;
                         goto LABEL_51;
                       }
                     }
                     else
                     {
-                      v23 = this->mPathData;
-                      v24 = v148 - v23->range - 0.1;
+                      v24 = this->mPathData;
+                      v25 = v143 - v24->range - 0.1;
                     }
-                    if ( v24 >= 0.0000001 )
+                    if ( v25 >= 0.0000001 )
                     {
-                      if ( v10 || v24 >= 1.0 || !v23->waypointLevel )
+                      if ( v10 || v25 >= 1.0 || !v24->waypointLevel )
                       {
-                        if ( v148 >= 0.0000001 )
+                        if ( v143 >= 0.0000001 )
                         {
-                          v23->waypoint = 0;
+                          v24->waypoint = 0;
                           this->mPathData->state = 2;
                         }
                         else
                         {
-                          v23->state = 4;
+                          v24->state = 4;
                         }
                       }
                       else
                       {
-                        v23->state = 4;
+                        v24->state = 4;
                       }
                     }
                     else
@@ -170598,105 +170606,105 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
                 }
                 else
                 {
-                  v14 = BPath::waypoint(v8, (int)&v200, this->mPathData->waypoint - 1);
-                  BVector::operator_minus(&this->mPosition.mPosition, &result, v14);
-                  v147 = sqrt(result.x * result.x + result.y * result.y + result.z * result.z);
+                  v15 = BPath::waypoint(v8, &v206, this->mPathData->waypoint - 1);
+                  BVector::operator_minus(&this->mPosition.mPosition, &v174, v15);
+                  v142 = sqrt(v174.x * v174.x + v174.z * v174.z + v174.y * v174.y);
                   if ( v10 )
                   {
-                    v15 = this->mPathData;
-                    obstruction_manager = RGE_Static_Object::distance_to_position(
-                                            v10,
-                                            this->mPosition.mPosition.x,
-                                            this->mPosition.mPosition.z,
-                                            this->mPosition.mPosition.y)
-                                        - v15->range
-                                        - 0.1;
-                    if ( (v15->mFlags.valueValue & 4) != 0 )
+                    v16 = this->mPathData;
+                    v139 = RGE_Static_Object::distance_to_position(
+                             v10,
+                             this->mPosition.mPosition.x,
+                             this->mPosition.mPosition.y,
+                             this->mPosition.mPosition.z)
+                         - v16->range
+                         - 0.1;
+                    if ( (v16->mFlags.valueValue & 4) != 0 )
                     {
-                      obstruction_manager = 0.0;
-                      BPathData::setFlag(v15, 2, 0);
+                      v139 = 0.0;
+                      BPathData::setFlag(v16, 2, 0);
                     }
                   }
                   else
                   {
-                    obstruction_manager = v147 - this->mPathData->range - 0.1;
+                    v139 = v142 - this->mPathData->range - 0.1;
                   }
-                  v16 = this->mPathData;
-                  v17 = v16->waypoint;
-                  if ( v17 < v8->waypointsCount )
+                  v17 = this->mPathData;
+                  v18 = v17->waypoint;
+                  if ( v18 < v8->waypointsCount )
                   {
-                    if ( v16->waypointLevel > 0 )
-                      v16->state = 2;
+                    if ( v17->waypointLevel > 0 )
+                      v17->state = 2;
                   }
-                  else if ( obstruction_manager >= 0.0000001 )
+                  else if ( v139 >= 0.0000001 )
                   {
-                    if ( v10 || obstruction_manager >= 1.0 || !v16->waypointLevel )
+                    if ( v10 || v139 >= 1.0 || !v17->waypointLevel )
                     {
-                      if ( v147 >= 0.0000001 )
+                      if ( v142 >= 0.0000001 )
                       {
-                        v16->waypoint = v17 - 1;
+                        v17->waypoint = v18 - 1;
                         this->mPathData->state = 2;
                       }
                       else
                       {
-                        v16->state = 4;
+                        v17->state = 4;
                       }
                     }
                     else
                     {
-                      v16->state = 4;
+                      v17->state = 4;
                     }
                   }
                   else
                   {
-                    v16->state = 4;
+                    v17->state = 4;
                   }
                 }
               }
 LABEL_51:
-              v25 = this->mPathData;
-              v26 = v25->state;
-              if ( v26 != 4 && v26 != 5 )
+              v26 = this->mPathData;
+              v27 = v26->state;
+              if ( v27 != 4 && v27 != 5 )
                 break;
-              v27 = this->vfptr;
-              v137 = BPath::waypoint(v8, (int)&v184, v8->waypointsCount - 1);
-              ((void (__thiscall *)(BMotion *))v27->checkPositionNotifies_2)(this);
-              v28 = this->mPathData;
-              v29 = v28->linkedPath;
-              if ( !v29 )
+              v28 = this->vfptr;
+              v29 = BPath::waypoint(v8, &v191, v8->waypointsCount - 1);
+              v28->checkPositionNotifies_2(this, v29);
+              v30 = this->mPathData;
+              v31 = v30->linkedPath;
+              if ( !v31 )
                 goto LABEL_194;
-              v25 = this->mPathData;
-              v30 = v28->linkedPathType;
-              if ( v30 == 1 || LODWORD(v147) == 1 )
+              v26 = this->mPathData;
+              v32 = v30->linkedPathType;
+              if ( v32 == 1 || v149 )
               {
-                v28->linkedPath = 0;
-                v100 = this->mPathData;
-                if ( v100 )
+                v30->linkedPath = 0;
+                v102 = this->mPathData;
+                if ( v102 )
                 {
                   BPathData::destructor(this->mPathData);
-                  operator_delete(v100);
+                  operator_delete(v102);
                 }
-                this->mPathData = v29;
-                BPathData::setFlag(v29, 0, 1);
+                this->mPathData = v31;
+                BPathData::setFlag(v31, 0, 1);
               }
-              else if ( v30 == 2 )
+              else if ( v32 == 2 )
               {
-                v28->linkedPath = 0;
-                v31 = this->mPathData;
-                if ( v31 )
-                {
-                  BPathData::destructor(this->mPathData);
-                  operator_delete(v31);
-                }
-                this->mPathData = v29;
-                v29->state = 2;
-                v32 = this->mPathData;
-                v33 = v32->path;
+                v30->linkedPath = 0;
+                v33 = this->mPathData;
                 if ( v33 )
                 {
-                  if ( (v33->flags.valueValue & BBitVectorAND_4) != 0 )
+                  BPathData::destructor(this->mPathData);
+                  operator_delete(v33);
+                }
+                this->mPathData = v31;
+                v31->state = 2;
+                v34 = this->mPathData;
+                v35 = v34->path;
+                if ( v35 )
+                {
+                  if ( (v35->flags.valueValue & BBitVectorAND_4) != 0 )
                   {
-                    this->mPathData->waypoint = BPath::nextPatrolWaypoint(v33, v32->waypoint, (int)v137);
+                    this->mPathData->waypoint = BPath::nextPatrolWaypoint(v35, v34->waypoint);
                     if ( this->mPathData->waypoint == -1 )
                     {
 LABEL_194:
@@ -170709,61 +170717,61 @@ LABEL_194:
               }
               else
               {
-                if ( v30 != 3 )
+                if ( v32 != 3 )
                   break;
-                v28->linkedPath = 0;
-                v34 = this->mPathData;
-                if ( v34 )
+                v30->linkedPath = 0;
+                v36 = this->mPathData;
+                if ( v36 )
                 {
                   BPathData::destructor(this->mPathData);
-                  operator_delete(v34);
+                  operator_delete(v36);
                 }
-                this->mPathData = v29;
-                v29->state = 2;
+                this->mPathData = v31;
+                v31->state = 2;
               }
             }
-            if ( v25->state != 2 )
+            if ( v26->state != 2 )
               goto LABEL_155;
-            v35 = (RGE_Player *)this->mPathUnit->owner;
-            v157 = v35;
-            if ( v206 == 1 && !RGE_Player::availablePathingAttempts(v35, this->mNumberWaitDelays) )
+            v37 = (RGE_Player *)this->mPathUnit->owner;
+            LODWORD(v.x) = v37;
+            if ( doAvailablePathCheck == 1 && !RGE_Player::availablePathingAttempts(v37, this->mNumberWaitDelays) )
             {
               this->vfptr->stopMoving(this);
               ++this->mNumberWaitDelays;
               return 0;
             }
-            RGE_Player::incrementPathingAttempts(v35);
-            v36 = this->mPathData;
-            v37 = 0;
+            RGE_Player::incrementPathingAttempts(v37);
+            v38 = this->mPathData;
+            v39 = 0;
             this->mNumberWaitDelays = 0;
-            v38 = BPathData::highestLinkedPathPointer(v36);
-            if ( !v38
-              && (v39 = (RGE_Game_World *)base_game->world,
-                  v40 = BPathData::highestLinkedPath(this->mPathData),
-                  (v38 = RGE_Game_World::path(v39, v40)) == 0)
-              || (v38->flags.valueValue & BBitVectorAND_4) == 0 )
+            v40 = BPathData::highestLinkedPathPointer(v38);
+            if ( !v40
+              && (v41 = (RGE_Game_World *)base_game->world,
+                  v42 = BPathData::highestLinkedPath(this->mPathData),
+                  (v40 = RGE_Game_World::path(v41, v42)) == 0)
+              || (v40->flags.valueValue & BBitVectorAND_4) == 0 )
             {
               if ( BPathData::continuesLeft(this->mPathData, 1) <= 0 )
                 goto LABEL_198;
             }
-            v41 = (BPathData *)operator_new(0x34u);
-            v205 = 0;
-            if ( v41 )
-              v37 = BPathData::BPathData(v41);
-            v149 = v37;
-            v205 = -1;
-            if ( !v37 )
+            v43 = (BPathData *)operator_new(0x34u);
+            v211 = 0;
+            if ( v43 )
+              v39 = BPathData::BPathData(v43);
+            v156 = v39;
+            v211 = -1;
+            if ( !v39 )
             {
               BPathData::setFailure(this->mPathData);
               BPathData::reset(this->mPathData);
               this->vfptr->stopMoving(this);
               return 0;
             }
-            v42 = RGE_Game_World::createPath((RGE_Game_World *)base_game->world);
-            if ( !v42 )
+            v44 = RGE_Game_World::createPath((RGE_Game_World *)base_game->world);
+            if ( !v44 )
             {
-              BPathData::destructor(v37);
-              operator_delete(v37);
+              BPathData::destructor(v39);
+              operator_delete(v39);
 LABEL_198:
               BPathData::setFailure(this->mPathData);
               BPathData::reset(this->mPathData);
@@ -170771,219 +170779,198 @@ LABEL_199:
               this->vfptr->stopMoving(this);
               return 0;
             }
-            rads = 0;
-            v151 = 0;
+            v140 = 0;
+            v158 = 0;
             if ( !RGE_Static_Object::isFlagSet((RGE_Static_Object *)this->mPathUnit, 1) )
             {
-              BPath::addWaypointAtStart(v42, &this->mPosition.mPosition);
-              v43 = BPath::waypoint(v8, (int)v199, this->mPathData->waypoint);
-              BPath::addWaypointAtEnd(v42, v43);
-              BPath::calculatePathLength(v42);
-              rads = 1;
+              BPath::addWaypointAtStart(v44, &this->mPosition.mPosition);
+              v45 = BPath::waypoint(v8, &v205, this->mPathData->waypoint);
+              BPath::addWaypointAtEnd(v44, v45);
+              BPath::calculatePathLength(v44);
+              v140 = 1;
               goto LABEL_132;
             }
-            v44 = &this->mPosition;
-            v45 = BPath::waypoint(v8, (int)v186, this->mPathData->waypoint);
-            BVector::operator_minus(v45, &v160, &this->mPosition.mPosition);
-            v46 = this->mPathData;
-            v160.y = 0.0;
-            v156 = sqrt(v160.x * v160.x + v160.z * v160.z);
-            if ( v46->waypointLevel == 2 && dword_689568 == 1 && v156 > (double)flt_68F494 )
+            v46 = &this->mPosition;
+            v47 = BPath::waypoint(v8, &v193, this->mPathData->waypoint);
+            BVector::operator_minus(v47, (BVector *)&v166.z, &this->mPosition.mPosition);
+            v48 = this->mPathData;
+            v166.y = 0.0;
+            v163 = sqrt(v166.z * v166.z + v167 * v167);
+            if ( v48->waypointLevel == 2 && dword_689568 == 1 && v163 > (double)flt_68F494 )
             {
-              v147 = COERCE_FLOAT(
-                       RGE_Map_Analysis_System::get_map_analysis(
-                         base_game->world->map_analysis_system,
-                         (RGE_Master_Static_Object *)this->mPathUnit->master_obj));
-              if ( v147 == 0.0 )
+              v150 = RGE_Map_Analysis_System::get_map_analysis(
+                       base_game->world->map_analysis_system,
+                       (RGE_Master_Static_Object *)this->mPathUnit->master_obj);
+              if ( v150 )
               {
-                BPath::addWaypointAtStart(v42, &this->mPosition.mPosition);
-                v56 = BPath::waypoint(v8, (int)v181, this->mPathData->waypoint);
-                BPath::addWaypointAtEnd(v42, v56);
-                v55 = 1;
-                v151 = 1;
-LABEL_93:
-                rads = v55;
-              }
-              else
-              {
-                v47 = this->mPathData;
-                v164 = 0.0;
-                v48 = v47->targetID;
-                if ( v48 != -1 )
+                v49 = this->mPathData;
+                v171.z = 0.0;
+                v50 = v49->targetID;
+                if ( v50 != -1 )
                 {
-                  v49 = RGE_Game_World::object((RGE_Game_World *)base_game->world, v48);
-                  if ( v49 )
-                    v164 = v49->master_obj->radius_x;
+                  v51 = RGE_Game_World::object((RGE_Game_World *)base_game->world, v50);
+                  if ( v51 )
+                    v171.z = v51->master_obj->radius_x;
                 }
-                v50 = this->mPathUnit;
-                v51 = this->mPathData;
-                v126 = (RGE_Player *)v50->owner;
-                v124 = v51->range;
-                dest_target_radius = v164 + v50->master_obj->radius_x;
-                v121 = BPath::waypoint(v8, (int)v196, v51->waypoint)->z;
-                v52 = BPath::waypoint(v8, (int)v188, this->mPathData->waypoint);
-                v53 = RGE_Map_Analysis::find_path(
-                        (RGE_Map_Analysis *)LODWORD(v147),
-                        v42,
-                        v44->mPosition.x,
-                        this->mPosition.mPosition.z,
-                        v52->x,
-                        v121,
-                        dest_target_radius,
-                        v124,
+                v52 = this->mPathUnit;
+                v53 = this->mPathData;
+                v128 = (RGE_Player *)v52->owner;
+                v126 = v53->range;
+                a = v171.z + v52->master_obj->radius_x;
+                v123 = BPath::waypoint(v8, (BVector *)&v202[0].z, v53->waypoint)->y;
+                v54 = BPath::waypoint(v8, (BVector *)&v195, this->mPathData->waypoint);
+                v55 = RGE_Map_Analysis::find_path(
+                        v150,
+                        v44,
+                        v46->mPosition.x,
+                        this->mPosition.mPosition.y,
+                        v54->x,
+                        v123,
+                        a,
                         v126,
+                        v128,
                         0,
                         0);
-                if ( v53 != 3 && v53 != 4 )
+                if ( v55 != 3 && v55 != 4 )
                 {
-                  if ( v53 )
+                  if ( v55 )
                   {
-                    v151 = 1;
-                    rads = 1;
-                    smoothMidLevelPath(this->mPathUnit, v42);
-                    aa = BPath::waypoint(v42, (int)v203, v42->waypointsCount - 1);
-                    v54 = BPath::waypoint(v8, (int)v190, this->mPathData->waypoint);
-                    BVector::operator_minus(v54, &v176, aa);
-                    v176.y = 0.0;
-                    if ( sqrt(v176.z * v176.z + v176.x * v176.x) > v156 )
+                    v158 = 1;
+                    v140 = 1;
+                    smoothMidLevelPath(this->mPathUnit, v44);
+                    v132 = BPath::waypoint(v44, &v209, v44->waypointsCount - 1);
+                    v56 = BPath::waypoint(v8, (BVector *)&v197.z, this->mPathData->waypoint);
+                    BVector::operator_minus(v56, (BVector *)&v181.z, v132);
+                    v181.y = 0.0;
+                    if ( sqrt(v182 * v182 + v181.z * v181.z) > v163 )
                     {
-                      v55 = 0;
-                      v42->waypointsCount = 0;
+                      v57 = 0;
+                      v44->waypointsCount = 0;
                       goto LABEL_93;
                     }
                   }
                 }
               }
-              BPath::calculatePathLength(v42);
-              v42->creationTimeValue = base_game->world->world_time;
-              if ( rads && v42->waypointsCount > 2 )
+              else
+              {
+                BPath::addWaypointAtStart(v44, &this->mPosition.mPosition);
+                v58 = BPath::waypoint(v8, (BVector *)&v188.z, this->mPathData->waypoint);
+                BPath::addWaypointAtEnd(v44, v58);
+                v57 = 1;
+                v158 = 1;
+LABEL_93:
+                v140 = v57;
+              }
+              BPath::calculatePathLength(v44);
+              v44->creationTimeValue = base_game->world->world_time;
+              if ( v140 && v44->waypointsCount > 2 )
                 goto LABEL_110;
             }
-            if ( dword_689564 == 1 && v156 <= 10.0 )
+            if ( dword_689564 == 1 && v163 <= 10.0 )
             {
-              v151 = 0;
-              v42->waypointsCount = 0;
-              v57 = this->mPathUnit;
-              LODWORD(v178.y) = v57->id;
-              v58 = RGE_Game_World::getUnitGroup((RGE_Game_World *)base_game->world, v57->mGroupID);
-              if ( v58 )
+              v158 = 0;
+              v44->waypointsCount = 0;
+              v59 = this->mPathUnit;
+              unitsToIgnore = v59->id;
+              v60 = RGE_Game_World::getUnitGroup((RGE_Game_World *)base_game->world, v59->mGroupID);
+              if ( v60 )
               {
-                obstruction_managera = this->mPathUnit->master_obj;
-                v147 = obstruction_managera->movement_type == 1 ? *(float *)&OBSystem_Air : *(float *)&OBSystem_Land;
-                v59 = base_game->world;
-                v172 = v58->mNumberUnits;
-                v153 = v58->mUnits;
-                ab = v157->id;
-                v60 = &this->mPathData->id;
-                v127 = v59->terrains[obstruction_managera->terrain];
-                v119 = v172;
-                v115 = v60[9];
-                v112 = *((float *)v60 + 8);
-                v110 = obstruction_managera->radius_x;
-                v61 = BPath::waypoint(v8, (int)v192, v60[6]);
-                v62 = findLowLevelPath(
-                        (void *)LODWORD(v147),
+                v144 = this->mPathUnit->master_obj;
+                v151 = (RGE_Map_Analysis *)(v144->movement_type == 1 ? OBSystem_Air : OBSystem_Land);
+                v61 = base_game->world;
+                LODWORD(v178.x) = v60->mNumberUnits;
+                v160 = v60->mUnits;
+                v133 = *(_DWORD *)(LODWORD(v.x) + 160);
+                v62 = &this->mPathData->id;
+                v129 = v61->terrains[v144->terrain];
+                v121 = LODWORD(v178.x);
+                dest_target_radius = v62[9];
+                v114 = *((float *)v62 + 8);
+                v112 = v144->radius_x;
+                v63 = BPath::waypoint(v8, (BVector *)&v199[1], v62[6]);
+                v64 = findLowLevelPath(
+                        v151,
                         &this->mPosition.mPosition,
-                        v61,
-                        v110,
+                        v63,
                         v112,
-                        v115,
-                        v153,
-                        v119,
+                        v114,
+                        dest_target_radius,
+                        v160,
+                        v121,
                         0,
                         0,
-                        v42,
-                        v127,
+                        v44,
+                        v129,
                         0,
-                        ab);
+                        v133);
               }
               else
               {
-                v147 = *(float *)&this->mPathUnit->master_obj;
-                obstruction_managerb = *(_BYTE *)(LODWORD(v147) + 120) == 1 ? OBSystem_Air : OBSystem_Land;
-                v63 = &this->mPathData->id;
-                ac = v157->id;
-                v128 = base_game->world->terrains[*(__int16 *)(LODWORD(v147) + 118)];
-                v116 = v63[9];
-                v113 = *((float *)v63 + 8);
-                v111 = *(float *)(LODWORD(v147) + 60);
-                v64 = BPath::waypoint(v8, (int)v201, v63[6]);
-                v62 = findLowLevelPath(
-                        obstruction_managerb,
+                v152 = this->mPathUnit->master_obj;
+                v145 = v152->movement_type == 1 ? OBSystem_Air : OBSystem_Land;
+                v65 = &this->mPathData->id;
+                v134 = *(_DWORD *)(LODWORD(v.x) + 160);
+                v130 = base_game->world->terrains[v152->terrain];
+                dest_target_radiusa = v65[9];
+                v115 = *((float *)v65 + 8);
+                v113 = v152->radius_x;
+                v66 = BPath::waypoint(v8, &v207, v65[6]);
+                v64 = findLowLevelPath(
+                        v145,
                         &this->mPosition.mPosition,
-                        v64,
-                        v111,
+                        v66,
                         v113,
-                        v116,
-                        (int *)&v178.y,
+                        v115,
+                        dest_target_radiusa,
+                        &unitsToIgnore,
                         1,
                         0,
                         0,
-                        v42,
-                        v128,
+                        v44,
+                        v130,
                         0,
-                        ac);
+                        v134);
               }
-              obstruction_managerc = (void *)v62;
-              BPath::calculatePathLength(v42);
-              v42->creationTimeValue = v157->world->world_time;
-              if ( obstruction_managerc != (void *)3
-                && obstruction_managerc != (void *)4
-                && v42->pathLengthValue > 0.0000001 )
-              {
+              v146 = (void *)v64;
+              BPath::calculatePathLength(v44);
+              v44->creationTimeValue = *(_DWORD *)(*(_DWORD *)(LODWORD(v.x) + 140) + 16);
+              if ( v146 != (void *)3 && v146 != (void *)4 && v44->pathLengthValue > 0.0000001 )
                 goto LABEL_124;
-              }
             }
 LABEL_110:
-            if ( rads )
+            if ( v140 )
               goto LABEL_125;
-            if ( v156 < 1.0 || v163 < 1.0 )
+            if ( v163 < 1.0 || v171.x < 1.0 )
             {
-              v65 = this->mPathUnit;
-              ignoreList = v65->id;
-              v66 = RGE_Game_World::getUnitGroup((RGE_Game_World *)base_game->world, v65->mGroupID);
-              if ( v66 )
+              v67 = this->mPathUnit;
+              v187 = v67->id;
+              v68 = RGE_Game_World::getUnitGroup((RGE_Game_World *)base_game->world, v67->mGroupID);
+              if ( v68 )
               {
-                v147 = this->mPathUnit->master_obj->movement_type == 1 ? *(float *)&OBSystem_Air : *(float *)&OBSystem_Land;
-                v129 = v66->mNumberUnits;
-                v125 = v66->mUnits;
-                v67 = BPath::waypoint(v8, (int)v182, this->mPathData->waypoint);
-                findObSystemCollisions(
-                  (void *)LODWORD(v147),
-                  this->mPathUnit,
-                  &this->mPosition.mPosition,
-                  v67,
-                  v125,
-                  v129,
-                  1,
-                  1.0);
+                v153 = (RGE_Map_Analysis *)(this->mPathUnit->master_obj->movement_type == 1 ? OBSystem_Air : OBSystem_Land);
+                v131 = v68->mNumberUnits;
+                v127 = v68->mUnits;
+                v69 = BPath::waypoint(v8, (BVector *)&v189[1], this->mPathData->waypoint);
+                findObSystemCollisions(v153, this->mPathUnit, &this->mPosition.mPosition, v69, v127, v131, 1, 1.0);
               }
               else
               {
-                v147 = this->mPathUnit->master_obj->movement_type == 1 ? *(float *)&OBSystem_Air : *(float *)&OBSystem_Land;
-                v68 = BPath::waypoint(v8, (int)v183, this->mPathData->waypoint);
-                findObSystemCollisions(
-                  (void *)LODWORD(v147),
-                  this->mPathUnit,
-                  &this->mPosition.mPosition,
-                  v68,
-                  &ignoreList,
-                  1,
-                  1,
-                  1.0);
+                v154 = (RGE_Map_Analysis *)(this->mPathUnit->master_obj->movement_type == 1 ? OBSystem_Air : OBSystem_Land);
+                v70 = BPath::waypoint(v8, &v190, this->mPathData->waypoint);
+                findObSystemCollisions(v154, this->mPathUnit, &this->mPosition.mPosition, v70, &v187, 1, 1, 1.0);
               }
               if ( !numberObSystemCollisions )
               {
-                v42->waypointsCount = 0;
-                BPath::addWaypointAtStart(v42, &this->mPosition.mPosition);
-                v69 = BPath::waypoint(v8, (int)v185, this->mPathData->waypoint);
-                BPath::addWaypointAtEnd(v42, v69);
-                v42->creationTimeValue = base_game->world->world_time;
-                BPath::calculatePathLength(v42);
+                v44->waypointsCount = 0;
+                BPath::addWaypointAtStart(v44, &this->mPosition.mPosition);
+                v71 = BPath::waypoint(v8, &v192, this->mPathData->waypoint);
+                BPath::addWaypointAtEnd(v44, v71);
+                v44->creationTimeValue = base_game->world->world_time;
+                BPath::calculatePathLength(v44);
 LABEL_124:
-                rads = 1;
+                v140 = 1;
 LABEL_125:
-                if ( v42->waypointsCount >= 2 && v42->pathLengthValue >= 0.0099999998 )
+                if ( v44->waypointsCount >= 2 && v44->pathLengthValue >= 0.0099999998 )
                   goto LABEL_132;
                 goto LABEL_127;
               }
@@ -170991,55 +170978,55 @@ LABEL_125:
 LABEL_127:
             if ( dword_68956C == 1 )
             {
-              v42->waypointsCount = 0;
-              v70 = &this->mPathData->id;
-              v122 = v70[9];
-              v120 = *((float *)v70 + 8);
-              v118 = this->mPathUnit;
-              v117 = (__int64)BPath::waypoint(v8, (int)v187, v70[6])->z;
-              v114 = (__int64)BPath::waypoint(v8, (int)v189, this->mPathData->waypoint)->x;
-              rads = PathingSystem::findTilePath(
+              v44->waypointsCount = 0;
+              v72 = &this->mPathData->id;
+              v124 = v72[9];
+              v122 = *((float *)v72 + 8);
+              v120 = this->mPathUnit;
+              dest_target_radiusb = (__int64)BPath::waypoint(v8, &v194, v72[6])->y;
+              v116 = (__int64)BPath::waypoint(v8, (BVector *)&v196.z, this->mPathData->waypoint)->x;
+              v140 = PathingSystem::findTilePath(
                        &pathSystem,
-                       (__int64)v44->mPosition.x,
-                       (__int64)this->mPosition.mPosition.z,
-                       v114,
-                       v117,
-                       v118,
+                       (__int64)v46->mPosition.x,
+                       (__int64)this->mPosition.mPosition.y,
+                       v116,
+                       dest_target_radiusb,
                        v120,
                        v122,
+                       v124,
                        0,
                        -1,
                        -1,
-                       v42,
+                       v44,
                        0);
-              v42->creationTimeValue = v157->world->world_time;
-              BPath::calculatePathLength(v42);
-              if ( v42->pathLengthValue >= 0.0000001 )
+              v44->creationTimeValue = *(_DWORD *)(*(_DWORD *)(LODWORD(v.x) + 140) + 16);
+              BPath::calculatePathLength(v44);
+              if ( v44->pathLengthValue >= 0.0000001 )
               {
-                ad = BPath::waypoint(v42, (int)v191, v42->waypointsCount - 1);
-                v71 = BPath::waypoint(v8, (int)v193, this->mPathData->waypoint);
-                BVector::operator_minus(v71, &v177, ad);
-                v165 = v160.z;
-                v166 = v160.y;
-                v177.y = 0.0;
-                if ( sqrt(v160.x * v160.x + v160.z * v160.z + v160.y * v160.y) < sqrt(v177.x * v177.x + v177.z * v177.z) )
+                v135 = BPath::waypoint(v44, (BVector *)&v198.z, v44->waypointsCount - 1);
+                v73 = BPath::waypoint(v8, (BVector *)&v199[4], this->mPathData->waypoint);
+                BVector::operator_minus(v73, &v183, v135);
+                v171.y = v167;
+                v172 = v166.y;
+                v183.z = 0.0;
+                if ( sqrt(v166.z * v166.z + v167 * v167 + v166.y * v166.y) < sqrt(v183.x * v183.x + v183.y * v183.y) )
                 {
-                  v42->waypointsCount = 0;
-                  v42->pathLengthValue = 0.0;
+                  v44->waypointsCount = 0;
+                  v44->pathLengthValue = 0.0;
                 }
               }
               else
               {
-                rads = 0;
+                v140 = 0;
               }
             }
 LABEL_132:
-            if ( v42->waypointsCount > 1 )
+            if ( v44->waypointsCount > 1 )
               break;
-            BPathData::destructor(v149);
-            operator_delete(v149);
-            RGE_Game_World::destroyPath2((RGE_Game_World *)base_game->world, v42);
-            if ( rads )
+            BPathData::destructor(v156);
+            operator_delete(v156);
+            RGE_Game_World::destroyPath2((RGE_Game_World *)base_game->world, v44);
+            if ( v140 )
             {
               if ( (v8->flags.valueValue & BBitVectorAND_4) == 0 )
               {
@@ -171051,89 +171038,88 @@ LABEL_132:
             }
             else
             {
-              v72 = this->mPathData;
-              if ( v72->waypoint >= v8->waypointsCount - 1 )
+              v74 = this->mPathData;
+              if ( v74->waypoint >= v8->waypointsCount - 1 )
               {
-                if ( BPathData::continuesLeft(v72, 0) > 0 )
+                if ( BPathData::continuesLeft(v74, 0) > 0 )
                   goto LABEL_199;
                 if ( (v8->flags.valueValue & BBitVectorAND_4) != 0 )
                 {
                   this->mPathData->pauseTime = 0.5;
                   return 0;
                 }
-                v73 = this->mPathData;
-                if ( v73->waypointLevel >= 2 || BPathData::highestLinkedPathHasMoreWaypoints(v73) != 1 )
+                v75 = this->mPathData;
+                if ( v75->waypointLevel >= 2 || BPathData::highestLinkedPathHasMoreWaypoints(v75) != 1 )
                   goto LABEL_198;
                 this->mPathData->state = 5;
               }
               else
               {
-                BPathData::setFlag(v72, 0, 1);
+                BPathData::setFlag(v74, 0, 1);
               }
             }
           }
           this->mPathData->state = 0;
           this->mPathData->continueCounter = 10;
-          v74 = this->mPathData;
-          if ( v74->waypointLevel != 2 || v151 != 1 )
+          v76 = this->mPathData;
+          if ( v76->waypointLevel != 2 || v158 != 1 )
             break;
-          BPathData::setReadyToPath(v149, v42, v74->range, v74->targetID);
-          if ( rads )
-            BPathData::setLinkedPath(v149, this->mPathData, 1);
+          BPathData::setReadyToPath(v156, v44, v76->range, v76->targetID);
+          if ( v140 )
+            v136 = 1;
           else
-            BPathData::setLinkedPath(v149, this->mPathData, 2);
-          v149->waypointLevel = 1;
-          v149->range = this->mPathData->range;
-          v149->targetID = this->mPathData->targetID;
-          this->mPathData = v149;
-          v8 = v42;
+            v136 = 2;
+          BPathData::setLinkedPath(v156, this->mPathData, v136);
+          v156->waypointLevel = 1;
+          v156->range = this->mPathData->range;
+          v156->targetID = this->mPathData->targetID;
+          this->mPathData = v156;
+          v8 = v44;
           if ( dword_689564 != 1 && dword_68956C != 1 )
             goto LABEL_155;
         }
-        BPathData::setReadyToFollowPath(v149, v42);
-        if ( rads )
-          BPathData::setLinkedPath(v149, this->mPathData, 1);
-        else
-          BPathData::setLinkedPath(v149, this->mPathData, 2);
-        v149->waypointLevel = 0;
-        v149->range = this->mPathData->range;
-        v149->targetID = this->mPathData->targetID;
-        this->mPathData = v149;
-        v8 = v42;
+        BPathData::setReadyToFollowPath(v156, v44);
+        v137 = v140 ? 1 : 2;
+        BPathData::setLinkedPath(v156, this->mPathData, v137);
+        v156->waypointLevel = 0;
+        v156->range = this->mPathData->range;
+        v156->targetID = this->mPathData->targetID;
+        this->mPathData = v156;
+        v8 = v44;
 LABEL_155:
-        v75 = BPath::waypoint(v8, (int)v195, this->mPathData->waypoint);
-        BVector::operator_minus(&this->mPosition.mPosition, &v175, v75);
-        v175.y = 0.0;
-        if ( sqrt(v175.x * v175.x + v175.z * v175.z) < 0.0000001 )
+        v77 = BPath::waypoint(v8, (BVector *)&v201.z, this->mPathData->waypoint);
+        BVector::operator_minus(&this->mPosition.mPosition, (BVector *)&v180.z, v77);
+        v180.y = 0.0;
+        if ( sqrt(v180.z * v180.z + v181.x * v181.x) < 0.0000001 )
           goto LABEL_156;
-        v76 = BPath::waypoint(v8, (int)v197, this->mPathData->waypoint);
-        BVector::operator_minus(v76, &v167, &this->mPosition.mPosition);
-        v77 = sqrt(v167.x * v167.x + v167.z * v167.z);
-        v.x = v167.x / v77;
-        v.y = 0.0 / v77;
-        v.z = v167.z / v77;
-        v78 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world);
-        ae = (v78 * this->mAcceleration.z + this->mVelocity.z) * v78;
-        v79 = operator_mul(&v198, ae, &v);
-        BVector::operator_plus(&this->mPosition.mPosition, &v174, v79);
-        p2.x = v174.x;
-        v80 = this->mPathData;
-        p2.y = v174.y;
-        p2.z = v174.z;
-        v81 = BPath::waypoint(v8, (int)&wpIndex, v80->waypoint);
-        BVector::operator_minus(v81, &v171, &this->mPosition.mPosition);
-        BVector::operator_minus(v81, &v161, &p2);
-        BVector::operator_minus(&p2, (BVector *)&v169.y, &this->mPosition.mPosition);
-        v171.y = 0.0;
-        v161.y = 0.0;
-        v82 = sqrt(v171.x * v171.x + v171.z * v171.z);
-        v83 = sqrt(v169.y * v169.y + v169.z * v169.z + v170 * v170);
-        if ( v83 <= v82 )
+        v78 = BPath::waypoint(v8, (BVector *)&v202[1].z, this->mPathData->waypoint);
+        BVector::operator_minus(v78, &result, &this->mPosition.mPosition);
+        v79 = sqrt(result.x * result.x + result.y * result.y);
+        v165.z = result.x / v79;
+        v165.y = 0.0 / v79;
+        v166.x = result.y / v79;
+        v80 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world);
+        v138 = (v80 * this->mAcceleration.y + this->mVelocity.y) * v80;
+        v81 = operator_mul((BVector *)&v204[1], v138, (BVector *)&v165.z);
+        BVector::operator_plus(&this->mPosition.mPosition, (BVector *)&v179.z, v81);
+        v178.z = v179.z;
+        v82 = this->mPathData;
+        v178.y = v179.y;
+        v179.x = v180.x;
+        v83 = BPath::waypoint(v8, &v186, v82->waypoint);
+        BVector::operator_minus(v83, &p2, &this->mPosition.mPosition);
+        BVector::operator_minus(v83, &v168, (BVector *)&v178.z);
+        BVector::operator_minus((BVector *)&v178.z, &v176, &this->mPosition.mPosition);
+        p2.z = 0.0;
+        v168.z = 0.0;
+        v84 = sqrt(p2.x * p2.x + p2.y * p2.y);
+        v85 = sqrt(v176.x * v176.x + v176.z * v176.z + v176.y * v176.y);
+        if ( v85 <= v84 )
           break;
-        if ( v82 >= sqrt(v161.x * v161.x + v161.z * v161.z) )
+        if ( v84 >= sqrt(v168.x * v168.x + v168.y * v168.y) )
         {
-          v154 = v83;
-          if ( v154 >= 0.1 )
+          v161 = v85;
+          if ( v161 >= 0.1 )
           {
             BPathData::setFlag(this->mPathData, 1, 1);
             BPathData::setFlag(this->mPathData, 0, 1);
@@ -171146,164 +171132,165 @@ LABEL_156:
       }
       resetIgnoreList();
       addToIgnoreList((RGE_Static_Object *)this->mPathUnit);
-      v84 = RGE_Game_World::getUnitGroup((RGE_Game_World *)base_game->world, this->mPathUnit->mGroupID);
-      v85 = v84;
-      if ( v84 )
+      v86 = RGE_Game_World::getUnitGroup((RGE_Game_World *)base_game->world, this->mPathUnit->mGroupID);
+      v87 = v86;
+      if ( v86 )
       {
-        v86 = 0;
-        if ( v84->mNumberUnits > 0 )
+        v88 = 0;
+        if ( v86->mNumberUnits > 0 )
         {
-          obstruction_managerd = v84->mUnits;
+          v147 = v86->mUnits;
           do
           {
-            v87 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *obstruction_managerd);
-            addToIgnoreList(v87);
-            ++v86;
-            ++obstruction_managerd;
+            v89 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *v147);
+            addToIgnoreList(v89);
+            ++v88;
+            ++v147;
           }
-          while ( v86 < v85->mNumberUnits );
+          while ( v88 < v87->mNumberUnits );
         }
       }
-      v88 = this->mPathUnit;
-      v89 = OBSystem_Air;
-      if ( v88->master_obj->movement_type != 1 )
-        v89 = OBSystem_Land;
-      findObSystemCollisions(v89, v88, &this->mPosition.mPosition, &p2, collisionUnits, ignoreListSize, 0, 1.0);
+      v90 = this->mPathUnit;
+      v91 = OBSystem_Air;
+      if ( v90->master_obj->movement_type != 1 )
+        v91 = OBSystem_Land;
+      findObSystemCollisions(
+        v91,
+        v90,
+        &this->mPosition.mPosition,
+        (BVector *)&v178.z,
+        collisionUnits,
+        ignoreListSize,
+        0,
+        1.0);
       if ( numberObSystemCollisions <= 0 )
         break;
-      v152 = 0;
-      v150 = 0;
-      v147 = 0.0;
-      obstruction_managere = &obSystemCollisions;
+      v159 = 0;
+      v157 = 0;
+      v155 = 0;
+      v148 = &obSystemCollisions;
       do
       {
-        v90 = *(_DWORD *)(obstruction_managere->NodeProperties + 8);
-        if ( v90 )
+        v92 = *(_DWORD *)(v148->NodeProperties + 8);
+        if ( v92 )
         {
-          v91 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)(v90 + 16));
-          if ( v91 )
+          v93 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)(v92 + 16));
+          if ( v93 )
           {
-            if ( BPath::ignoreUnitsContain(v8, v91->id) != 1 )
+            if ( BPath::ignoreUnitsContain(v8, v93->id) != 1 )
             {
-              v92 = BPathData::highestLinkedPathPointer(this->mPathData);
-              if ( !v92 || BPath::ignoreUnitsContain(v92, v91->id) != 1 )
+              v94 = BPathData::highestLinkedPathPointer(this->mPathData);
+              if ( !v94 || BPath::ignoreUnitsContain(v94, v93->id) != 1 )
               {
-                v93 = this->mPathData->targetID;
-                if ( v93 >= 0 && v91->id == v93 )
-                  v152 = 1;
-                v94 = v8->creationTimeValue;
-                if ( v94 < v91->vfptr->lastMoveTime(v91) )
-                  v150 = (BPathData *)((char *)v150 + 1);
+                v95 = this->mPathData->targetID;
+                if ( v95 >= 0 && v93->id == v95 )
+                  v159 = 1;
+                v96 = v8->creationTimeValue;
+                if ( v96 < v93->vfptr->lastMoveTime(v93) )
+                  v157 = (BPathData *)((char *)v157 + 1);
               }
             }
           }
         }
-        v95 = ++LODWORD(v147) < numberObSystemCollisions;
-        obstruction_managere = (ObsRecord *)((char *)obstruction_managere + 4);
+        v97 = (int)&v155->mip_maps + 1 < numberObSystemCollisions;
+        v155 = (RGE_Map_Analysis *)((char *)v155 + 1);
+        v148 = (ObsRecord *)((char *)v148 + 4);
       }
-      while ( v95 );
-      if ( numberObSystemCollisions == 1 && v152 == 1 )
+      while ( v97 );
+      if ( numberObSystemCollisions == 1 && v159 == 1 )
       {
         BPathData::setFlag(this->mPathData, 0, 1);
         BPathData::setFlag(this->mPathData, 2, 1);
       }
       else
       {
-        if ( (int)v150 <= 0 )
+        if ( (int)v157 <= 0 )
           break;
-        v96 = this->mPathData->linkedPath;
-        if ( !v96 )
+        v98 = this->mPathData->linkedPath;
+        if ( !v98 )
           goto LABEL_194;
-        v96->state = 2;
+        v98->state = 2;
         this->mPathData->linkedPath = 0;
-        v97 = this->mPathData;
-        if ( v97 )
+        v99 = this->mPathData;
+        if ( v99 )
         {
           BPathData::destructor(this->mPathData);
-          operator_delete(v97);
+          operator_delete(v99);
         }
-        this->mPathData = v96;
+        this->mPathData = v98;
       }
     }
-    if ( !v162 )
+    if ( !v169 )
       break;
-    v98 = RGE_Game_World::object((RGE_Game_World *)base_game->world, this->mPathData->targetID);
-    v99 = this->mPathData;
+    v100 = RGE_Game_World::object((RGE_Game_World *)base_game->world, this->mPathData->targetID);
+    v101 = this->mPathData;
     if ( fabs(
            RGE_Static_Object::distance_to_position(
-             v98,
+             v100,
              this->mPosition.mPosition.x,
-             this->mPosition.mPosition.z,
-             this->mPosition.mPosition.y)
-         - v99->range) >= 0.0000001000000011686097 )
+             this->mPosition.mPosition.y,
+             this->mPosition.mPosition.z)
+         - v101->range) >= 0.0000001000000011686097 )
       goto LABEL_209;
-    BPathData::setFlag(v99, 0, 1);
+    BPathData::setFlag(v101, 0, 1);
   }
   if ( (v8->flags.valueValue & BBitVectorAND_4) != 0
-    || (v101 = this->mPathData, v101->range <= 0.1)
-    || (v102 = BPathData::highestLinkedPathPointer(v101)) == 0
-    || (v103 = BPath::waypoint(v102, (int)&wpIndex, v102->waypointsCount - 1),
-        BVector::operator_minus(&this->mPosition.mPosition, &v161, v103),
-        v104 = this->mPathData,
-        sqrt(v161.z * v161.z + v161.y * v161.y + v161.x * v161.x) - v104->range >= 0.0000001) )
+    || (v103 = this->mPathData, v103->range <= 0.1)
+    || (v104 = BPathData::highestLinkedPathPointer(v103)) == 0
+    || (v105 = BPath::waypoint(v104, &v186, v104->waypointsCount - 1),
+        BVector::operator_minus(&this->mPosition.mPosition, &v168, v105),
+        v106 = this->mPathData,
+        sqrt(v168.y * v168.y + v168.z * v168.z + v168.x * v168.x) - v106->range >= 0.0000001) )
   {
 LABEL_209:
-    v158.x = this->mPosition.mOrientationForward.x;
-    v158.z = this->mPosition.mOrientationForward.z;
-    v105 = sqrt(v158.x * v158.x + v158.z * v158.z);
-    v158.x = v158.x / v105;
-    v158.y = 0.0 / v105;
-    v158.z = v158.z / v105;
-    v155 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world);
-    radsa = BVector::angleBetweenVector(&v, &v158);
-    v106 = v155 * this->mMaximumYawPerSecondMoving;
-    if ( radsa > v106 )
-      radsa = v106;
-    BVector::operator_mul(&v, &v174, &v158);
-    if ( v174.y > 0.0 )
-      radsa = -radsa;
-    if ( fabs(radsa) > 0.0000001000000011686097 )
+    v.z = this->mPosition.mOrientationForward.x;
+    v165.x = this->mPosition.mOrientationForward.y;
+    v107 = sqrt(v.z * v.z + v165.x * v165.x);
+    v.z = v.z / v107;
+    v.y = 0.0 / v107;
+    v165.x = v165.x / v107;
+    v162 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world);
+    v141 = BVector::angleBetweenVector((BVector *)&v165.z, (BVector *)&v.z);
+    v108 = v162 * this->mMaximumYawPerSecondMoving;
+    if ( v141 > v108 )
+      v141 = v108;
+    BVector::operator_mul((BVector *)&v165.z, (BVector *)&v179.z, (BVector *)&v.z);
+    if ( v179.y > 0.0 )
+      v141 = -v141;
+    if ( fabs(v141) > 0.0000001000000011686097 )
     {
-      BMatrix::makeRotateArbitrary(&v204, radsa, &this->mNewPosition.mOrientationUp);
-      v107 = &this->mNewPosition.mOrientationForward;
+      BMatrix::makeRotateArbitrary(&v210, v141, &this->mNewPosition.mOrientationUp);
+      v109 = &this->mNewPosition.mOrientationForward;
       this->mNewPosition.mOrientationForward = *BMatrix::operator_mul(
-                                                  &v204,
-                                                  &wpIndex,
+                                                  &v210,
+                                                  &v186,
                                                   &this->mNewPosition.mOrientationForward);
-      this->mNewPosition.mOrientationRight = *BMatrix::operator_mul(&v204, &v202, &this->mNewPosition.mOrientationRight);
-      v108 = sqrt(v107->y * v107->y + v107->z * v107->z + v107->x * v107->x);
-      this->mNewPosition.mOrientationForward.x = this->mNewPosition.mOrientationForward.x / v108;
-      this->mNewPosition.mOrientationForward.y = this->mNewPosition.mOrientationForward.y / v108;
-      this->mNewPosition.mOrientationForward.z = this->mNewPosition.mOrientationForward.z / v108;
-      v109 = sqrt(
+      this->mNewPosition.mOrientationRight = *BMatrix::operator_mul(&v210, &v208, &this->mNewPosition.mOrientationRight);
+      v110 = sqrt(v109->z * v109->z + v109->y * v109->y + v109->x * v109->x);
+      this->mNewPosition.mOrientationForward.x = this->mNewPosition.mOrientationForward.x / v110;
+      this->mNewPosition.mOrientationForward.z = this->mNewPosition.mOrientationForward.z / v110;
+      this->mNewPosition.mOrientationForward.y = this->mNewPosition.mOrientationForward.y / v110;
+      v111 = sqrt(
                this->mNewPosition.mOrientationRight.x * this->mNewPosition.mOrientationRight.x
-             + this->mNewPosition.mOrientationRight.y * this->mNewPosition.mOrientationRight.y
-             + this->mNewPosition.mOrientationRight.z * this->mNewPosition.mOrientationRight.z);
-      this->mNewPosition.mOrientationRight.x = this->mNewPosition.mOrientationRight.x / v109;
-      this->mNewPosition.mOrientationRight.y = this->mNewPosition.mOrientationRight.y / v109;
-      this->mNewPosition.mOrientationRight.z = this->mNewPosition.mOrientationRight.z / v109;
+             + this->mNewPosition.mOrientationRight.z * this->mNewPosition.mOrientationRight.z
+             + this->mNewPosition.mOrientationRight.y * this->mNewPosition.mOrientationRight.y);
+      this->mNewPosition.mOrientationRight.x = this->mNewPosition.mOrientationRight.x / v111;
+      this->mNewPosition.mOrientationRight.z = this->mNewPosition.mOrientationRight.z / v111;
+      this->mNewPosition.mOrientationRight.y = this->mNewPosition.mOrientationRight.y / v111;
       this->vfptr->setFlag(this, 0, 1);
     }
-    ((void (__thiscall *)(BMotion *, _DWORD, int, int, BVector *))this->vfptr->setVelocityForward)(
+    ((void (__thiscall *)(BMotion *, _DWORD))this->vfptr->setVelocityForward)(
       this,
-      LODWORD(this->mMaximumVelocityForward),
-      v130,
-      a,
-      v137);
+      LODWORD(this->mMaximumVelocityForward));
   }
   else
   {
-    BPathData::reset(v104);
+    BPathData::reset(v106);
     this->vfptr->stopMoving(this);
   }
   return 1;
 }
 // 49E0F0: conditional instruction was optimized away because of 'ebx.4!=0'
-// 49CE97: variable 'v138' is possibly undefined
-// 49D076: variable 'v147' is possibly undefined
-// 49E3DC: variable 'v130' is possibly undefined
-// 49E3DC: variable 'a' is possibly undefined
-// 49E3DC: variable 'v137' is possibly undefined
 // 65BBE8: using guessed type int BBitVectorAND_4;
 // 65BBEC: using guessed type int dword_65BBEC;
 // 65BBF0: using guessed type int dword_65BBF0;
@@ -171314,7 +171301,7 @@ LABEL_209:
 // 6AD0C4: using guessed type ObsRecord obSystemCollisions;
 
 //----- (0049E400) --------------------------------------------------------
-float __thiscall BMotion::calculateYawAngle(BMotion *this, BVector *curOF, BVector *newOF, float interval, int limit)
+double __thiscall BMotion::calculateYawAngle(BMotion *this, BVector *curOF, BVector *newOF, float interval, int limit)
 {
   double v7; // st7
   double v8; // st7
@@ -171326,7 +171313,7 @@ float __thiscall BMotion::calculateYawAngle(BMotion *this, BVector *curOF, BVect
   if ( limit == 1 && v > v7 )
     v = v7;
   BVector::operator_mul(newOF, &result, curOF);
-  if ( result.y <= 0.0 )
+  if ( result.z <= 0.0 )
     v8 = v;
   else
     v8 = -v;
@@ -171346,11 +171333,11 @@ int __thiscall BMotion::calculateReachedPoint(BMotion *this, BVector *point, BVe
   BVector::operator_minus(point, &result, pos1);
   BVector::operator_minus(point, &v10, pos2);
   BVector::operator_minus(pos2, &v8, pos1);
-  v5 = sqrt(result.z * result.z + result.x * result.x);
-  v6 = sqrt(v8.y * v8.y + v8.z * v8.z + v8.x * v8.x);
+  v5 = sqrt(result.y * result.y + result.x * result.x);
+  v6 = sqrt(v8.z * v8.z + v8.y * v8.y + v8.x * v8.x);
   if ( v6 <= v5 )
     return 0;
-  if ( v5 < sqrt(v10.z * v10.z + v10.x * v10.x) )
+  if ( v5 < sqrt(v10.y * v10.y + v10.x * v10.x) )
     return 2;
   v = v6;
   if ( v < 0.1 )
@@ -171376,17 +171363,17 @@ void __thiscall BMotion::yaw(BMotion *this, float v)
                                                 &result,
                                                 &this->mNewPosition.mOrientationForward);
     this->mNewPosition.mOrientationRight = *BMatrix::operator_mul(&v7, &result, &this->mNewPosition.mOrientationRight);
-    v4 = sqrt(v3->x * v3->x + v3->y * v3->y + v3->z * v3->z);
+    v4 = sqrt(v3->x * v3->x + v3->z * v3->z + v3->y * v3->y);
     this->mNewPosition.mOrientationForward.x = this->mNewPosition.mOrientationForward.x / v4;
-    this->mNewPosition.mOrientationForward.y = this->mNewPosition.mOrientationForward.y / v4;
     this->mNewPosition.mOrientationForward.z = this->mNewPosition.mOrientationForward.z / v4;
+    this->mNewPosition.mOrientationForward.y = this->mNewPosition.mOrientationForward.y / v4;
     v5 = sqrt(
            this->mNewPosition.mOrientationRight.x * this->mNewPosition.mOrientationRight.x
-         + this->mNewPosition.mOrientationRight.y * this->mNewPosition.mOrientationRight.y
-         + this->mNewPosition.mOrientationRight.z * this->mNewPosition.mOrientationRight.z);
+         + this->mNewPosition.mOrientationRight.z * this->mNewPosition.mOrientationRight.z
+         + this->mNewPosition.mOrientationRight.y * this->mNewPosition.mOrientationRight.y);
     this->mNewPosition.mOrientationRight.x = this->mNewPosition.mOrientationRight.x / v5;
-    this->mNewPosition.mOrientationRight.y = this->mNewPosition.mOrientationRight.y / v5;
     this->mNewPosition.mOrientationRight.z = this->mNewPosition.mOrientationRight.z / v5;
+    this->mNewPosition.mOrientationRight.y = this->mNewPosition.mOrientationRight.y / v5;
     this->vfptr->setFlag(this, 0, 1);
   }
 }
@@ -172932,14 +172919,14 @@ void __fastcall smoothMidLevelPath(RGE_Moving_Object *obj, BPath *path)
   float v16; // [esp+4h] [ebp-78h]
   int v17; // [esp+8h] [ebp-74h]
   int v18; // [esp+1Ch] [ebp-60h]
-  int wpIndex; // [esp+20h] [ebp-5Ch] BYREF
-  int v20; // [esp+2Ch] [ebp-50h] BYREF
-  int v21[3]; // [esp+38h] [ebp-44h] BYREF
-  int v22[3]; // [esp+44h] [ebp-38h] BYREF
-  int v23; // [esp+50h] [ebp-2Ch] BYREF
-  int v24; // [esp+5Ch] [ebp-20h] BYREF
-  int v25[3]; // [esp+68h] [ebp-14h] BYREF
-  int v26; // [esp+74h] [ebp-8h] BYREF
+  BVector wpIndex; // [esp+20h] [ebp-5Ch] BYREF
+  BVector outVector; // [esp+2Ch] [ebp-50h] BYREF
+  BVector v21; // [esp+38h] [ebp-44h] BYREF
+  BVector v22; // [esp+44h] [ebp-38h] BYREF
+  BVector v23; // [esp+50h] [ebp-2Ch] BYREF
+  BVector v24; // [esp+5Ch] [ebp-20h] BYREF
+  BVector v25; // [esp+68h] [ebp-14h] BYREF
+  __int64 v26; // [esp+74h] [ebp-8h] BYREF
 
   if ( obj )
   {
@@ -172963,10 +172950,10 @@ void __fastcall smoothMidLevelPath(RGE_Moving_Object *obj, BPath *path)
           do
           {
             v7 = *v6;
-            v16 = BPath::waypoint(path, (int)&wpIndex, v5)->z;
-            v15 = BPath::waypoint(path, (int)&v20, v5)->x;
-            v14 = BPath::waypoint(path, (int)v21, v5 - 2)->z;
-            v8 = BPath::waypoint(path, (int)v22, v5 - 2);
+            v16 = BPath::waypoint(path, &wpIndex, v5)->y;
+            v15 = BPath::waypoint(path, &outVector, v5)->x;
+            v14 = BPath::waypoint(path, &v21, v5 - 2)->y;
+            v8 = BPath::waypoint(path, &v22, v5 - 2);
             (*(void (__thiscall **)(int *, _DWORD, float, float, float, int))(v7 + 24))(
               v6,
               LODWORD(v8->x),
@@ -172975,10 +172962,10 @@ void __fastcall smoothMidLevelPath(RGE_Moving_Object *obj, BPath *path)
               COERCE_FLOAT(LODWORD(v16)),
               v18);
             v9 = *v6;
-            v13 = BPath::waypoint(path, (int)&v23, v5)->z;
-            v12 = BPath::waypoint(path, (int)&v24, v5)->x;
-            v11 = BPath::waypoint(path, (int)v25, v5 - 2)->z;
-            v10 = BPath::waypoint(path, (int)&v26, v5 - 2);
+            v13 = BPath::waypoint(path, &v23, v5)->y;
+            v12 = BPath::waypoint(path, &v24, v5)->x;
+            v11 = BPath::waypoint(path, &v25, v5 - 2)->y;
+            v10 = BPath::waypoint(path, (BVector *)&v26, v5 - 2);
             if ( (*(unsigned __int8 (__thiscall **)(int *, _DWORD, float, float, float, int, int, _DWORD, _DWORD))(v9 + 80))(
                    v6,
                    LODWORD(v10->x),
@@ -173031,22 +173018,22 @@ RGE_Moving_Object *__thiscall RGE_Moving_Object::RGE_Moving_Object(RGE_Moving_Ob
   this->numberWaitDelays = 0;
   this->userDefinedWaypoints = 0;
   this->positionValue.x = 0.0;
-  this->positionValue.y = 0.0;
   this->positionValue.z = 0.0;
+  this->positionValue.y = 0.0;
   this->orientationForwardValue.x = 1.0;
-  this->orientationForwardValue.y = 0.0;
   this->orientationForwardValue.z = 0.0;
+  this->orientationForwardValue.y = 0.0;
   this->orientationRightValue.x = 0.0;
-  this->orientationRightValue.y = 0.0;
-  this->orientationRightValue.z = -1.0;
+  this->orientationRightValue.z = 0.0;
+  this->orientationRightValue.y = -1.0;
   this->pathData = 0;
   this->mFuturePathData = 0;
   this->movementData = 0;
   this->lastMoveTimeValue = 0;
   this->mHasSubstitutePosition = 0;
   this->mSubstitutePosition.x = 0.0;
-  this->mSubstitutePosition.y = 0.0;
   this->mSubstitutePosition.z = 0.0;
+  this->mSubstitutePosition.y = 0.0;
   this->mConsecutiveSubstituteCount = 0;
   this->vfptr = &RGE_Moving_Object::vftable;
   RGE_Moving_Object::initMovementData(this);
@@ -173084,22 +173071,22 @@ RGE_Moving_Object *__thiscall RGE_Moving_Object::RGE_Moving_Object_read(RGE_Movi
   this->numberWaitDelays = 0;
   this->userDefinedWaypoints = 0;
   this->positionValue.x = 0.0;
-  this->positionValue.y = 0.0;
   this->positionValue.z = 0.0;
+  this->positionValue.y = 0.0;
   this->orientationForwardValue.x = 1.0;
-  this->orientationForwardValue.y = 0.0;
   this->orientationForwardValue.z = 0.0;
+  this->orientationForwardValue.y = 0.0;
   this->orientationRightValue.x = 0.0;
-  this->orientationRightValue.y = 0.0;
-  this->orientationRightValue.z = -1.0;
+  this->orientationRightValue.z = 0.0;
+  this->orientationRightValue.y = -1.0;
   this->pathData = 0;
   this->mFuturePathData = 0;
   this->movementData = 0;
   this->lastMoveTimeValue = 0;
   this->mHasSubstitutePosition = 0;
   this->mSubstitutePosition.x = 0.0;
-  this->mSubstitutePosition.y = 0.0;
   this->mSubstitutePosition.z = 0.0;
+  this->mSubstitutePosition.y = 0.0;
   this->mConsecutiveSubstituteCount = 0;
   this->vfptr = &RGE_Moving_Object::vftable;
   RGE_Moving_Object::initMovementData(this);
@@ -173289,13 +173276,13 @@ int __thiscall RGE_Moving_Object::setup_read(RGE_Moving_Object *this, int infile
     rge_read(infile, &v20, 0xCu);
     v10 = this->movementData;
     v10->velocity.x = v20;
-    v10->velocity.y = v21;
-    v10->velocity.z = v22;
+    v10->velocity.z = v21;
+    v10->velocity.y = v22;
     rge_read(infile, &v20, 0xCu);
     v11 = &this->movementData->acceleration;
     v11->x = v20;
-    v11->y = v21;
-    v11->z = v22;
+    v11->z = v21;
+    v11->y = v22;
   }
   rge_read(infile, &this->positionValue, 0xCu);
   rge_read(infile, &this->orientationForwardValue, 0xCu);
@@ -173319,8 +173306,8 @@ int __thiscall RGE_Moving_Object::setup_read(RGE_Moving_Object *this, int infile
         ++v13;
         ++v14;
         v15->x = v20;
-        v15->y = v21;
-        v15->z = v22;
+        v15->z = v21;
+        v15->y = v22;
         v12 = newSize;
       }
       while ( v13 < newSize );
@@ -173484,7 +173471,7 @@ void __thiscall RGE_Moving_Object::stop_moving(RGE_Moving_Object *this)
 }
 
 //----- (004A1100) --------------------------------------------------------
-float __thiscall RGE_Moving_Object::angle_to_object(RGE_Moving_Object *this, RGE_Static_Object *to_object, float x, float y)
+double __thiscall RGE_Moving_Object::angle_to_object(RGE_Moving_Object *this, RGE_Static_Object *to_object, float x, float y)
 {
   RGE_Sprite *v4; // eax
   long double v5; // st7
@@ -173635,7 +173622,7 @@ void __thiscall RGE_Moving_Object::set_angle(RGE_Moving_Object *this)
 }
 
 //----- (004A1440) --------------------------------------------------------
-float __thiscall RGE_Moving_Object::teleport(RGE_Moving_Object *this, float x, float y, float z)
+double __thiscall RGE_Moving_Object::teleport(RGE_Moving_Object *this, float x, float y, float z)
 {
   RGE_Master_Moving_Object *v5; // ecx
   __int16 v6; // dx
@@ -173915,23 +173902,23 @@ LABEL_46:
       -1);
 LABEL_47:
   if ( fabs(this->world_x - this->positionValue.x) > 0.0000001000000011686097
-    || fabs(this->world_y - this->positionValue.z) > 0.0000001000000011686097
-    || fabs(this->world_z - this->positionValue.y) > 0.0000001000000011686097 )
+    || fabs(this->world_y - this->positionValue.y) > 0.0000001000000011686097
+    || fabs(this->world_z - this->positionValue.z) > 0.0000001000000011686097 )
   {
     v36 = this->world_x;
     v37 = this->world_z;
     this->lastMoveTimeValue = this->owner->world->world_time;
     v38 = this->world_y;
     this->positionValue.x = v36;
-    this->positionValue.y = v37;
-    this->positionValue.z = v38;
+    this->positionValue.z = v37;
+    this->positionValue.y = v38;
   }
   return za;
 }
 // 68957C: using guessed type int dword_68957C;
 
 //----- (004A1970) --------------------------------------------------------
-float __thiscall RGE_Moving_Object::handle_teleport_z_correction(RGE_Moving_Object *this, float ground_z)
+double __thiscall RGE_Moving_Object::handle_teleport_z_correction(RGE_Moving_Object *this, float ground_z)
 {
   this->on_ground = RGE_Static_Object::handle_teleport_z_correction((RGE_Static_Object *)this, ground_z) == ground_z;
   if ( !this->tile )
@@ -173972,8 +173959,8 @@ unsigned __int8 __thiscall RGE_Moving_Object::update(RGE_Moving_Object *this)
     BMovementData::update(this->movementData, (RGE_Static_Object *)this, elapsedTimeSec);
     v2 = this->movementData;
     v3 = this->mHasSubstitutePosition == 1;
-    this->speed = sqrt(v2->velocity.x * v2->velocity.x + v2->velocity.y * v2->velocity.y + v2->velocity.z
-                                                                                         * v2->velocity.z);
+    this->speed = sqrt(v2->velocity.x * v2->velocity.x + v2->velocity.z * v2->velocity.z + v2->velocity.y
+                                                                                         * v2->velocity.y);
     if ( v3 )
     {
       this->vfptr->setPosition(this, &this->mSubstitutePosition);
@@ -174178,7 +174165,7 @@ int __thiscall RGE_Moving_Object::canPath2(RGE_Moving_Object *this, XYZPoint poi
   v10 = (float)point.x;
   *(float *)&v11 = (float)point.y;
   v9.x = v10;
-  *(_QWORD *)&v9.y = __PAIR64__(v11, 0);
+  *(_QWORD *)&v9.z = __PAIR64__(v11, 0);
   return totalCanPath(
            this,
            targetID,
@@ -174400,17 +174387,17 @@ int __thiscall RGE_Moving_Object::findFirstTerrainAlongExceptionPath(RGE_Moving_
   int v10; // [esp+30h] [ebp-30h]
   int v11; // [esp+34h] [ebp-2Ch] BYREF
   int v12; // [esp+38h] [ebp-28h]
-  int wpIndex[3]; // [esp+3Ch] [ebp-24h] BYREF
-  int v14[3]; // [esp+48h] [ebp-18h] BYREF
-  int v15[3]; // [esp+54h] [ebp-Ch] BYREF
+  BVector wpIndex; // [esp+3Ch] [ebp-24h] BYREF
+  BVector outVector; // [esp+48h] [ebp-18h] BYREF
+  BVector v15; // [esp+54h] [ebp-Ch] BYREF
 
   if ( !exceptionPath || exceptionPath->waypointsCount < 2 )
     return 0;
-  v11 = (__int64)BPath::waypoint(exceptionPath, (int)wpIndex, 0)->x;
+  v11 = (__int64)BPath::waypoint(exceptionPath, &wpIndex, 0)->x;
   v6 = 1;
-  v12 = (__int64)BPath::waypoint(exceptionPath, (int)wpIndex, 0)->z;
-  v9 = (__int64)BPath::waypoint(exceptionPath, (int)wpIndex, 1)->x;
-  v10 = (__int64)BPath::waypoint(exceptionPath, (int)wpIndex, 1)->z;
+  v12 = (__int64)BPath::waypoint(exceptionPath, &wpIndex, 0)->y;
+  v9 = (__int64)BPath::waypoint(exceptionPath, &wpIndex, 1)->x;
+  v10 = (__int64)BPath::waypoint(exceptionPath, &wpIndex, 1)->y;
   if ( exceptionPath->waypointsCount <= 1 )
   {
 LABEL_7:
@@ -174422,7 +174409,7 @@ LABEL_7:
             this,
             (const XYPoint *)&v11,
             (const XYPoint *)&v9,
-            (XYPoint *)wpIndex,
+            (XYPoint *)&wpIndex,
             eTerrain,
             eTerrain,
             1) != 1 )
@@ -174433,13 +174420,13 @@ LABEL_7:
     v12 = v10;
     if ( v6 >= v7 )
       return 0;
-    v9 = (__int64)BPath::waypoint(exceptionPath, (int)v14, v6)->x;
-    v10 = (__int64)BPath::waypoint(exceptionPath, (int)v15, v6)->z;
+    v9 = (__int64)BPath::waypoint(exceptionPath, &outVector, v6)->x;
+    v10 = (__int64)BPath::waypoint(exceptionPath, &v15, v6)->y;
     if ( v6 >= exceptionPath->waypointsCount )
       goto LABEL_7;
   }
-  *rX = (double)wpIndex[0] + 0.5;
-  *rY = (double)wpIndex[1] + 0.5;
+  *rX = (double)SLODWORD(wpIndex.x) + 0.5;
+  *rY = (double)SLODWORD(wpIndex.z) + 0.5;
   return 1;
 }
 
@@ -174635,7 +174622,7 @@ int __thiscall RGE_Moving_Object::firstTileAlongLine(RGE_Moving_Object *this, XY
 
 //----- (004A28C0) --------------------------------------------------------
 // attributes: thunk
-float __thiscall RGE_Moving_Object::maximumSpeed(RGE_Moving_Object *this)
+double __thiscall RGE_Moving_Object::maximumSpeed(RGE_Moving_Object *this)
 {
   RGE_Sprite *v1; // edx
   double result; // st7
@@ -174697,17 +174684,17 @@ int __thiscall RGE_Moving_Object::addUserDefinedWaypoint(RGE_Moving_Object *this
     && (result = RGE_Moving_Object::resizeUserDefinedWaypoints(this, 2 * this->maximumNumberUserDefinedWaypointsValue)) != 0 )
   {
     this->userDefinedWaypoints[this->numberUserDefinedWaypointsValue].x = x;
-    this->userDefinedWaypoints[this->numberUserDefinedWaypointsValue].y = z;
-    this->userDefinedWaypoints[this->numberUserDefinedWaypointsValue].z = y;
+    this->userDefinedWaypoints[this->numberUserDefinedWaypointsValue].z = z;
+    this->userDefinedWaypoints[this->numberUserDefinedWaypointsValue].y = y;
     v7 = this->userDefinedWaypoints[this->numberUserDefinedWaypointsValue].x;
     floor(v7);
     xa = v7;
-    v8 = this->userDefinedWaypoints[this->numberUserDefinedWaypointsValue].z;
+    v8 = this->userDefinedWaypoints[this->numberUserDefinedWaypointsValue].y;
     floor(v8);
     v9 = this->userDefinedWaypoints;
     if ( fabs(v9[this->numberUserDefinedWaypointsValue].x - xa) < 0.0000001000000011686097 )
       v9[this->numberUserDefinedWaypointsValue].x = xa + 0.5;
-    v10 = &this->userDefinedWaypoints[this->numberUserDefinedWaypointsValue].z;
+    v10 = &this->userDefinedWaypoints[this->numberUserDefinedWaypointsValue].y;
     if ( fabs(*v10 - v8) < 0.0000001000000011686097 )
       *v10 = v8 + 0.5;
     ++this->numberUserDefinedWaypointsValue;
@@ -174779,8 +174766,8 @@ int __thiscall RGE_Moving_Object::resizeUserDefinedWaypoints(RGE_Moving_Object *
         ++v9;
         ++v10;
         *v11 = LODWORD(v12->x);
-        v11[1] = LODWORD(v12->y);
-        v11[2] = LODWORD(v12->z);
+        v11[1] = LODWORD(v12->z);
+        v11[2] = LODWORD(v12->y);
       }
       while ( v9 < this->numberUserDefinedWaypointsValue );
       v2 = newSize;
@@ -174839,7 +174826,7 @@ BPath *__thiscall RGE_Moving_Object::getPatrolInformation(RGE_Moving_Object *thi
 // 4A2C37: variable 'v10' is possibly undefined
 
 //----- (004A2C90) --------------------------------------------------------
-float __thiscall RGE_Moving_Object::distanceToHighestLevelPath2(RGE_Moving_Object *this)
+double __thiscall RGE_Moving_Object::distanceToHighestLevelPath2(RGE_Moving_Object *this)
 {
   BPathData *v2; // ecx
   double result; // st7
@@ -174866,7 +174853,7 @@ float __thiscall RGE_Moving_Object::distanceToHighestLevelPath2(RGE_Moving_Objec
 }
 
 //----- (004A2D00) --------------------------------------------------------
-float __thiscall RGE_Moving_Object::distanceToHighestLevelPath(RGE_Moving_Object *this, BVector point)
+double __thiscall RGE_Moving_Object::distanceToHighestLevelPath(RGE_Moving_Object *this, BVector point)
 {
   BPathData *v3; // ecx
   double result; // st7
@@ -175029,9 +175016,9 @@ int __thiscall RGE_Moving_Object::get_waypoint_checksum(RGE_Moving_Object *this)
   float i; // [esp+Ch] [ebp-28h]
   float v10; // [esp+Ch] [ebp-28h]
   float v11; // [esp+Ch] [ebp-28h]
-  int wpIndex[2]; // [esp+10h] [ebp-24h] BYREF
-  int v13; // [esp+1Ch] [ebp-18h] BYREF
-  int v14[3]; // [esp+28h] [ebp-Ch] BYREF
+  BVector wpIndex; // [esp+10h] [ebp-24h] BYREF
+  BVector outVector; // [esp+1Ch] [ebp-18h] BYREF
+  BVector v14; // [esp+28h] [ebp-Ch] BYREF
 
   v2 = this->owner;
   if ( v2 && v2->world )
@@ -175046,11 +175033,11 @@ int __thiscall RGE_Moving_Object::get_waypoint_checksum(RGE_Moving_Object *this)
         if ( !v4 )
           continue;
       }
-      for ( j = 0; j < v4->waypointsCount; i = v11 + v6->z )
+      for ( j = 0; j < v4->waypointsCount; i = v11 + v6->y )
       {
-        v10 = i + BPath::waypoint(v4, (int)wpIndex, j)->x;
-        v11 = v10 + BPath::waypoint(v4, (int)&v13, j)->y;
-        v6 = BPath::waypoint(v4, (int)v14, j++);
+        v10 = i + BPath::waypoint(v4, &wpIndex, j)->x;
+        v11 = v10 + BPath::waypoint(v4, &outVector, j)->z;
+        v6 = BPath::waypoint(v4, &v14, j++);
       }
     }
     v7 = (__int64)((double)this->lastMoveTimeValue + i);
@@ -175086,8 +175073,8 @@ int __thiscall RGE_Moving_Object::addMove(RGE_Moving_Object *this, int targetID,
   BVector result; // [esp+10h] [ebp-48h] BYREF
   BVector v29; // [esp+1Ch] [ebp-3Ch] BYREF
   BVector wp; // [esp+28h] [ebp-30h] BYREF
-  int wpIndex[3]; // [esp+34h] [ebp-24h] BYREF
-  int v32[3]; // [esp+40h] [ebp-18h] BYREF
+  BVector wpIndex; // [esp+34h] [ebp-24h] BYREF
+  BVector outVector; // [esp+40h] [ebp-18h] BYREF
   int v33; // [esp+54h] [ebp-4h]
   char v34; // [esp+7Ch] [ebp+24h]
 
@@ -175118,17 +175105,17 @@ int __thiscall RGE_Moving_Object::addMove(RGE_Moving_Object *this, int targetID,
   v17 = this->mFuturePathData;
   if ( v17 && v17->path && v17->state == 2 )
   {
-    v18 = BPath::waypoint(v17->path, (int)wpIndex, 0);
+    v18 = BPath::waypoint(v17->path, &wpIndex, 0);
     BVector::operator_minus(&this->positionValue, &result, v18);
-    result.y = 0.0;
-    if ( sqrt(result.x * result.x + result.z * result.z) > 0.0000001 )
+    result.z = 0.0;
+    if ( sqrt(result.x * result.x + result.y * result.y) > 0.0000001 )
       BPath::addWaypointAtStart(v16, &this->positionValue);
     v19 = &this->mFuturePathData->path;
     if ( (*v19)->waypointsCount > 0 )
     {
       do
       {
-        v20 = BPath::waypoint(*v19, (int)wpIndex, v10);
+        v20 = BPath::waypoint(*v19, &wpIndex, v10);
         BPath::addWaypointAtEnd(v16, v20);
         ++v10;
         v19 = &this->mFuturePathData->path;
@@ -175185,12 +175172,12 @@ int __thiscall RGE_Moving_Object::addMove(RGE_Moving_Object *this, int targetID,
     {
       wp.x = targetX;
       v26 = v16->waypointsCount;
-      wp.y = targetZ;
-      wp.z = targetY;
-      v27 = BPath::waypoint(v16, (int)v32, v26 - 1);
+      wp.z = targetZ;
+      wp.y = targetY;
+      v27 = BPath::waypoint(v16, &outVector, v26 - 1);
       BVector::operator_minus(&wp, &v29, v27);
-      v29.y = 0.0;
-      if ( sqrt(v29.z * v29.z + v29.x * v29.x) > 0.0000001 )
+      v29.z = 0.0;
+      if ( sqrt(v29.y * v29.y + v29.x * v29.x) > 0.0000001 )
         BPath::addWaypointAtEnd(v16, &wp);
     }
     BPathData::setReadyToPath(this->pathData, v16, range, targetID);
@@ -175270,8 +175257,8 @@ int __thiscall RGE_Moving_Object::addFuturePath(RGE_Moving_Object *this, BPath *
   BVector *v12; // eax
   BVector *v13; // eax
   BPathData *v14; // eax
-  int wpIndex[3]; // [esp+Ch] [ebp-24h] BYREF
-  int v16[3]; // [esp+18h] [ebp-18h] BYREF
+  BVector wpIndex; // [esp+Ch] [ebp-24h] BYREF
+  BVector outVector; // [esp+18h] [ebp-18h] BYREF
   int v17; // [esp+2Ch] [ebp-4h]
 
   v5 = 0;
@@ -175300,9 +175287,9 @@ int __thiscall RGE_Moving_Object::addFuturePath(RGE_Moving_Object *this, BPath *
     v11 = RGE_Game_World::createPath((RGE_Game_World *)base_game->world);
     if ( v11 )
     {
-      v12 = BPath::waypoint(newPath, (int)wpIndex, 0);
+      v12 = BPath::waypoint(newPath, &wpIndex, 0);
       BPath::addWaypointAtStart(v11, v12);
-      v13 = BPath::waypoint(newPath, (int)v16, newPath->waypointsCount - 1);
+      v13 = BPath::waypoint(newPath, &outVector, newPath->waypointsCount - 1);
       BPath::addWaypointAtEnd(v11, v13);
       v11->creationTimeValue = base_game->world->world_time;
       v14 = (BPathData *)operator_new(0x34u);
@@ -175357,10 +175344,10 @@ void __thiscall RGE_Moving_Object::setOrientation(RGE_Moving_Object *this, BVect
   v3 = (BVector *)((char *)v3 + 268);
   *v4 = *newForward;
   *v3 = *BVector::operator_mul(newUp, &result, newForward);
-  v5 = sqrt(v3->x * v3->x + v3->y * v3->y + v3->z * v3->z);
+  v5 = sqrt(v3->x * v3->x + v3->z * v3->z + v3->y * v3->y);
   v3->x = v3->x / v5;
-  v3->y = v3->y / v5;
   v3->z = v3->z / v5;
+  v3->y = v3->y / v5;
 }
 
 //----- (004A3830) --------------------------------------------------------
@@ -175378,8 +175365,8 @@ BVector *__thiscall RGE_Moving_Object::velocity(RGE_Moving_Object *this, BVector
   else
   {
     result->x = 0.0;
-    result->y = 0.0;
     result->z = 0.0;
+    result->y = 0.0;
   }
   return v3;
 }
@@ -175391,7 +175378,7 @@ void __thiscall RGE_Moving_Object::setVelocity(RGE_Moving_Object *this, BVector 
   BMovementData *v4; // eax
 
   if ( this->movementData
-    || sqrt(v->x * v->x + v->y * v->y + v->z * v->z) != 0.0
+    || sqrt(v->x * v->x + v->z * v->z + v->y * v->y) != 0.0
     && ((v3 = (BMovementData *)operator_new(0x18u)) == 0 ? (v4 = 0) : (v4 = BMovementData::BMovementData(v3)),
         (this->movementData = v4) != 0) )
   {
@@ -175417,8 +175404,8 @@ BVector *__thiscall RGE_Moving_Object::acceleration(RGE_Moving_Object *this, BVe
   {
     v4 = result;
     result->x = 0.0;
-    result->y = 0.0;
     result->z = 0.0;
+    result->y = 0.0;
   }
   return v4;
 }
@@ -175430,7 +175417,7 @@ void __thiscall RGE_Moving_Object::setAcceleration(RGE_Moving_Object *this, BVec
   BMovementData *v4; // eax
 
   if ( this->movementData
-    || sqrt(v->x * v->x + v->y * v->y + v->z * v->z) != 0.0
+    || sqrt(v->x * v->x + v->z * v->z + v->y * v->y) != 0.0
     && ((v3 = (BMovementData *)operator_new(0x18u)) == 0 ? (v4 = 0) : (v4 = BMovementData::BMovementData(v3)),
         (this->movementData = v4) != 0) )
   {
@@ -175439,14 +175426,14 @@ void __thiscall RGE_Moving_Object::setAcceleration(RGE_Moving_Object *this, BVec
 }
 
 //----- (004A3A10) --------------------------------------------------------
-float __thiscall RGE_Moving_Object::forwardVelocity(RGE_Moving_Object *this)
+double __thiscall RGE_Moving_Object::forwardVelocity(RGE_Moving_Object *this)
 {
   BMovementData *v1; // eax
   double result; // st7
 
   v1 = this->movementData;
   if ( v1 )
-    result = v1->velocity.z;
+    result = v1->velocity.y;
   else
     result = 0.0;
   return result;
@@ -175463,19 +175450,19 @@ void __thiscall RGE_Moving_Object::setForwardVelocity(RGE_Moving_Object *this, f
     && ((v3 = (BMovementData *)operator_new(0x18u)) == 0 ? (v4 = 0) : (v4 = BMovementData::BMovementData(v3)),
         (this->movementData = v4) != 0) )
   {
-    this->movementData->velocity.z = v;
+    this->movementData->velocity.y = v;
   }
 }
 
 //----- (004A3AC0) --------------------------------------------------------
-float __thiscall RGE_Moving_Object::forwardAcceleration(RGE_Moving_Object *this)
+double __thiscall RGE_Moving_Object::forwardAcceleration(RGE_Moving_Object *this)
 {
   BMovementData *v1; // eax
   double result; // st7
 
   v1 = this->movementData;
   if ( v1 )
-    result = v1->acceleration.z;
+    result = v1->acceleration.y;
   else
     result = 0.0;
   return result;
@@ -175492,7 +175479,7 @@ void __thiscall RGE_Moving_Object::setForwardAcceleration(RGE_Moving_Object *thi
     && ((v3 = (BMovementData *)operator_new(0x18u)) == 0 ? (v4 = 0) : (v4 = BMovementData::BMovementData(v3)),
         (this->movementData = v4) != 0) )
   {
-    this->movementData->acceleration.z = v;
+    this->movementData->acceleration.y = v;
   }
 }
 
@@ -175508,13 +175495,13 @@ void __thiscall RGE_Moving_Object::moveForward(RGE_Moving_Object *this, float v)
     v4 = this->positionValue;
     v3 = operator_mul(&result, v, &this->orientationForwardValue);
     v4.x = v4.x + v3->x;
-    v4.y = v4.y + v3->y;
     v4.z = v4.z + v3->z;
+    v4.y = v4.y + v3->y;
     ((void (__thiscall *)(RGE_Moving_Object *, _DWORD, _DWORD, _DWORD))this->vfptr->teleport)(
       this,
       LODWORD(v4.x),
-      LODWORD(v4.z),
-      LODWORD(v4.y));
+      LODWORD(v4.y),
+      LODWORD(v4.z));
   }
 }
 
@@ -175525,8 +175512,8 @@ void __thiscall RGE_Moving_Object::setPosition(RGE_Moving_Object *this, BVector 
   ((void (__thiscall *)(RGE_Moving_Object *, _DWORD, _DWORD, _DWORD))this->vfptr->teleport)(
     this,
     LODWORD(pos->x),
-    LODWORD(pos->z),
-    LODWORD(pos->y));
+    LODWORD(pos->y),
+    LODWORD(pos->z));
 }
 
 //----- (004A3C40) --------------------------------------------------------
@@ -175546,17 +175533,17 @@ void __thiscall RGE_Moving_Object::yaw(RGE_Moving_Object *this, float v)
   v3 = &this->orientationForwardValue;
   this->orientationForwardValue = *BMatrix::operator_mul(&v11, &result, &this->orientationForwardValue);
   this->orientationRightValue = *BMatrix::operator_mul(&v11, &result, &this->orientationRightValue);
-  v4 = sqrt(v3->x * v3->x + v3->y * v3->y + v3->z * v3->z);
+  v4 = sqrt(v3->x * v3->x + v3->z * v3->z + v3->y * v3->y);
   this->orientationForwardValue.x = this->orientationForwardValue.x / v4;
-  this->orientationForwardValue.y = this->orientationForwardValue.y / v4;
   this->orientationForwardValue.z = this->orientationForwardValue.z / v4;
+  this->orientationForwardValue.y = this->orientationForwardValue.y / v4;
   v5 = sqrt(
          this->orientationRightValue.x * this->orientationRightValue.x
-       + this->orientationRightValue.y * this->orientationRightValue.y
-       + this->orientationRightValue.z * this->orientationRightValue.z);
+       + this->orientationRightValue.z * this->orientationRightValue.z
+       + this->orientationRightValue.y * this->orientationRightValue.y);
   this->orientationRightValue.x = this->orientationRightValue.x / v5;
-  this->orientationRightValue.y = this->orientationRightValue.y / v5;
   this->orientationRightValue.z = this->orientationRightValue.z / v5;
+  this->orientationRightValue.y = this->orientationRightValue.y / v5;
   this->vfptr->setOrientation(this, &this->orientationForwardValue, &upVector);
   v6 = this->sprite;
   if ( !v6 || (v7 = v6->facet_num, v8 = v7, v7 <= 8) )
@@ -175575,7 +175562,7 @@ int __thiscall RGE_Moving_Object::isMoving(RGE_Moving_Object *this)
 
   v1 = this->movementData;
   return v1
-      && sqrt(v1->velocity.x * v1->velocity.x + v1->velocity.y * v1->velocity.y + v1->velocity.z * v1->velocity.z) > 0.0;
+      && sqrt(v1->velocity.x * v1->velocity.x + v1->velocity.z * v1->velocity.z + v1->velocity.y * v1->velocity.y) > 0.0;
 }
 
 //----- (004A3DD0) --------------------------------------------------------
@@ -175588,7 +175575,7 @@ void __thiscall RGE_Moving_Object::stopMoving(RGE_Moving_Object *this)
 }
 
 //----- (004A3E00) --------------------------------------------------------
-float __thiscall RGE_Moving_Object::calculateFutureVelocity(RGE_Moving_Object *this, float currentVelocity, float acceleration, float secondsInTheFuture, BVector *futurePos)
+double __thiscall RGE_Moving_Object::calculateFutureVelocity(RGE_Moving_Object *this, float currentVelocity, float acceleration, float secondsInTheFuture, BVector *futurePos)
 {
   BUnitGroup *v6; // eax
   BUnitGroup *v7; // edi
@@ -175637,7 +175624,7 @@ void __thiscall RGE_Moving_Object::pauseMovement(RGE_Moving_Object *this, float 
 }
 
 //----- (004A3F40) --------------------------------------------------------
-float __thiscall RGE_Moving_Object::precalcDistToTarget(RGE_Moving_Object *this, RGE_Static_Object **targetObj)
+double __thiscall RGE_Moving_Object::precalcDistToTarget(RGE_Moving_Object *this, RGE_Static_Object **targetObj)
 {
   int v3; // eax
   RGE_Static_Object *v4; // eax
@@ -175675,15 +175662,15 @@ float __thiscall RGE_Moving_Object::precalcDistToTarget(RGE_Moving_Object *this,
 }
 
 //----- (004A4000) --------------------------------------------------------
-float __thiscall RGE_Moving_Object::precalcDistToGoal(RGE_Moving_Object *this, RGE_Static_Object *targetObj, float goal)
+double __thiscall RGE_Moving_Object::precalcDistToGoal(RGE_Moving_Object *this, RGE_Static_Object *targetObj, float goal)
 {
   BPathData *v5; // eax
   BPath *v6; // esi
   int v7; // edi
   BVector *v8; // eax
   float v9; // [esp-Ch] [ebp-30h]
-  int wpIndex; // [esp+Ch] [ebp-18h] BYREF
-  int v11[3]; // [esp+18h] [ebp-Ch] BYREF
+  BVector wpIndex; // [esp+Ch] [ebp-18h] BYREF
+  BVector outVector; // [esp+18h] [ebp-Ch] BYREF
 
   if ( targetObj )
     return goal;
@@ -175698,43 +175685,38 @@ float __thiscall RGE_Moving_Object::precalcDistToGoal(RGE_Moving_Object *this, R
       return 3.4028235e38;
   }
   v7 = v6->waypointsCount;
-  v9 = BPath::waypoint(v6, (int)&wpIndex, v7 - 1)->z;
-  v8 = BPath::waypoint(v6, (int)v11, v7 - 1);
+  v9 = BPath::waypoint(v6, &wpIndex, v7 - 1)->y;
+  v8 = BPath::waypoint(v6, &outVector, v7 - 1);
   return RGE_Static_Object::distance_to_position((RGE_Static_Object *)this, v8->x, v9, 0.0);
 }
 
 //----- (004A40A0) --------------------------------------------------------
 unsigned __int8 __thiscall RGE_Moving_Object::incrementWaypoint(RGE_Moving_Object *this, BPath *path, RGE_Static_Object *obj)
 {
-  int v3; // ebp
   BPathData *v5; // eax
   int v6; // edx
   RGE_Moving_ObjectVtbl *v7; // ebx
-  int v8; // edx
-  BVector *v9; // eax
-  double v10; // st7
-  RGE_Static_Object *v11; // ebx
-  double v12; // st7
-  _BOOL1 v13; // zf
-  RGE_Game_World *v14; // ebp
-  int v15; // eax
-  RGE_Static_Object *v16; // eax
-  double v17; // st7
-  BPathData *v18; // ecx
-  BPathData *v19; // ecx
-  int v20; // edx
+  BVector *v8; // eax
+  int v9; // edx
+  BVector *v10; // eax
+  RGE_Game_World *v12; // ebp
+  int v13; // eax
+  RGE_Static_Object *v14; // eax
+  double v15; // st7
+  BPathData *v16; // ecx
+  BPathData *v17; // ecx
+  int v18; // edx
   unsigned __int8 result; // al
-  BPathData *v22; // esi
-  float v23; // [esp-10h] [ebp-48h]
-  int v24; // [esp-Ch] [ebp-44h]
-  int v25; // [esp-8h] [ebp-40h]
-  float v26; // [esp+0h] [ebp-38h]
-  float v27; // [esp+4h] [ebp-34h]
+  BPathData *v20; // esi
+  float v21; // [esp-4h] [ebp-3Ch]
+  float v22; // [esp-4h] [ebp-3Ch]
+  float v23; // [esp+0h] [ebp-38h]
+  float v24; // [esp+10h] [ebp-28h]
   int wpIndex[3]; // [esp+14h] [ebp-24h] BYREF
-  int v29[3]; // [esp+20h] [ebp-18h] BYREF
-  int v30; // [esp+2Ch] [ebp-Ch] BYREF
-  int v31; // [esp+30h] [ebp-8h]
-  RGE_Static_Object *obja; // [esp+34h] [ebp-4h]
+  BVector outVector; // [esp+20h] [ebp-18h] BYREF
+  BVector v27; // [esp+2Ch] [ebp-Ch] BYREF
+  float patha; // [esp+3Ch] [ebp+4h]
+  int obja; // [esp+40h] [ebp+8h]
 
   v5 = this->pathData;
   if ( (v5->mFlags.valueValue & 2) != 0 )
@@ -175743,138 +175725,125 @@ unsigned __int8 __thiscall RGE_Moving_Object::incrementWaypoint(RGE_Moving_Objec
     if ( v6 < path->waypointsCount )
     {
       v7 = this->vfptr;
-      v26 = BPath::waypoint(path, (int)wpIndex, v6)->y;
-      BPath::waypoint(path, (int)v29, this->pathData->waypoint);
-      v25 = LODWORD(BPath::waypoint(path, (int)&v30, this->pathData->waypoint)->x);
-      ((void (__thiscall *)(RGE_Moving_Object *))v7->teleport)(this);
+      v23 = BPath::waypoint(path, (BVector *)wpIndex, v6)->z;
+      v21 = BPath::waypoint(path, &outVector, this->pathData->waypoint)->y;
+      v8 = BPath::waypoint(path, &v27, this->pathData->waypoint);
+      ((void (__thiscall *)(RGE_Moving_Object *, _DWORD, float, float))v7->teleport)(
+        this,
+        LODWORD(v8->x),
+        COERCE_FLOAT(LODWORD(v21)),
+        COERCE_FLOAT(LODWORD(v23)));
     }
     BPathData::setFlag(this->pathData, 1, 0);
   }
   BPathData::setFlag(this->pathData, 0, 0);
-  v8 = ++this->pathData->waypoint;
-  if ( v8 < path->waypointsCount
-    && (BPath::waypoint(path, (int)v29, v8)->x < (double)this->master_obj->radius_x
-     || BPath::waypoint(path, (int)v29, this->pathData->waypoint)->z < (double)this->master_obj->radius_y
+  v9 = ++this->pathData->waypoint;
+  if ( v9 < path->waypointsCount
+    && (BPath::waypoint(path, &v27, v9)->x < (double)this->master_obj->radius_x
+     || BPath::waypoint(path, &v27, this->pathData->waypoint)->y < (double)this->master_obj->radius_y
      || (double)this->owner->world->map->map_width - this->master_obj->radius_x < BPath::waypoint(
                                                                                     path,
-                                                                                    (int)v29,
+                                                                                    &v27,
                                                                                     this->pathData->waypoint)->x
      || (double)this->owner->world->map->map_width - this->master_obj->radius_y < BPath::waypoint(
                                                                                     path,
-                                                                                    (int)v29,
-                                                                                    this->pathData->waypoint)->z) )
+                                                                                    &v27,
+                                                                                    this->pathData->waypoint)->y) )
   {
     ++this->pathData->waypoint;
   }
   if ( (path->flags.valueValue & BBitVectorAND_2) != 0 )
   {
-    this->pathData->waypoint = BPath::nextPatrolWaypoint(this->pathData->path, this->pathData->waypoint - 1, v25);
+    this->pathData->waypoint = BPath::nextPatrolWaypoint(this->pathData->path, this->pathData->waypoint - 1);
     this->pathData->state = 2;
-    v22 = this->pathData;
-    if ( v22->waypoint == -1 )
-      v22->state = 4;
+    v20 = this->pathData;
+    if ( v20->waypoint == -1 )
+      v20->state = 4;
     return 1;
   }
-  v23 = BPath::waypoint(path, (int)v29, this->pathData->waypoint - 1)->z;
-  v9 = BPath::waypoint(path, (int)wpIndex, this->pathData->waypoint - 1);
-  v10 = RGE_Static_Object::distance_to_position((RGE_Static_Object *)this, v9->x, v23, 0.0);
-  v11 = obja;
-  if ( obja )
+  v22 = BPath::waypoint(path, &v27, this->pathData->waypoint - 1)->y;
+  v10 = BPath::waypoint(path, &outVector, this->pathData->waypoint - 1);
+  v24 = RGE_Static_Object::distance_to_position((RGE_Static_Object *)this, v10->x, v22, 0.0);
+  if ( obj )
   {
-    v12 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this, obja);
-    v13 = v11->master_obj->object_group == 8;
-    *(float *)&v31 = v12 - this->pathData->range - 0.1;
-    if ( v13 )
+    patha = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this, obj) - this->pathData->range - 0.1;
+    if ( obj->master_obj->object_group == 8 )
     {
-      v24 = v3;
-      obja = 0;
-      do
+      for ( obja = 0; obja < 2; ++obja )
       {
-        v14 = (RGE_Game_World *)base_game->world;
-        v15 = ((int (__thiscall *)(RGE_Static_Object *, RGE_Static_Object *, int))v11->vfptr->getLinkedChild)(
-                v11,
-                obja,
-                v24);
-        v16 = RGE_Game_World::object(v14, v15);
-        if ( v16 )
+        v12 = (RGE_Game_World *)base_game->world;
+        v13 = obj->vfptr->getLinkedChild(obj, obja);
+        v14 = RGE_Game_World::object(v12, v13);
+        if ( v14 )
         {
-          v17 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this, v16) - this->pathData->range - 0.1;
-          if ( v17 < *(float *)&v30 )
-            *(float *)&v30 = v17;
+          v15 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this, v14) - this->pathData->range - 0.1;
+          if ( v15 < patha )
+            patha = v15;
         }
-        ++v31;
       }
-      while ( v31 < 2 );
     }
-    v18 = this->pathData;
-    if ( (v18->mFlags.valueValue & 4) != 0 )
+    v16 = this->pathData;
+    if ( (v16->mFlags.valueValue & 4) != 0 )
     {
-      *(float *)&v30 = 0.0;
-      BPathData::setFlag(v18, 2, 0);
+      patha = 0.0;
+      BPathData::setFlag(v16, 2, 0);
     }
   }
   else
   {
-    v27 = v10;
-    *(float *)&v31 = v27 - this->pathData->range - 0.1;
+    patha = v24 - this->pathData->range - 0.1;
   }
-  v19 = this->pathData;
-  v20 = v19->waypoint;
-  if ( v20 < path->waypointsCount )
+  v17 = this->pathData;
+  v18 = v17->waypoint;
+  if ( v18 < path->waypointsCount )
   {
-    if ( v19->waypointLevel > 0 )
+    if ( v17->waypointLevel > 0 )
     {
-      v19->state = 2;
+      v17->state = 2;
       return 1;
     }
     return 1;
   }
-  if ( *(float *)&v30 >= 0.0000001 )
+  if ( patha >= 0.0000001 )
   {
-    if ( v11 || *(float *)&v30 >= 1.0 || !v19->waypointLevel )
+    if ( obj || patha >= 1.0 || !v17->waypointLevel )
     {
-      if ( v26 >= 0.0000001 )
+      if ( v24 >= 0.0000001 )
       {
-        v19->waypoint = v20 - 1;
+        v17->waypoint = v18 - 1;
         this->pathData->state = 2;
         result = 1;
       }
-      else if ( v19->waypointLevel == 2 )
+      else if ( v17->waypointLevel == 2 )
       {
-        v19->state = 6;
+        v17->state = 6;
         this->vfptr->stopMoving(this);
         result = 0;
       }
       else
       {
-        v19->state = 4;
+        v17->state = 4;
         result = 1;
       }
     }
     else
     {
-      v19->state = 4;
+      v17->state = 4;
       result = 1;
     }
   }
   else
   {
-    v19->state = 4;
+    v17->state = 4;
     result = 1;
   }
   return result;
 }
-// 4A40A0: could not find valid save-restore pair for ebp
-// 4A4296: variable 'v3' is possibly undefined
-// 4A42B4: variable 'v24' is possibly undefined
-// 4A439F: variable 'v26' is possibly undefined
-// 4A4427: variable 'v25' is possibly undefined
 // 65BD94: using guessed type int BBitVectorAND_2;
 // 65BD98: using guessed type int dword_65BD98;
 // 65BD9C: using guessed type int dword_65BD9C;
 
 //----- (004A4460) --------------------------------------------------------
-// positive sp value has been detected, the output may be wrong!
 unsigned __int8 __thiscall RGE_Moving_Object::checkDistance(RGE_Moving_Object *this, float a2)
 {
   BPathData *v3; // ecx
@@ -175885,12 +175854,10 @@ unsigned __int8 __thiscall RGE_Moving_Object::checkDistance(RGE_Moving_Object *t
   BPathData *v9; // eax
   BPath *v10; // ecx
   BPathData *v11; // ebx
-  int v12; // [esp-4h] [ebp-10h]
-  float retaddr; // [esp+Ch] [ebp+0h]
 
   v3 = this->pathData;
   v4 = v3->linkedPath;
-  if ( !v4 || retaddr <= (double)v3->range )
+  if ( !v4 || a2 <= (double)v3->range )
     goto LABEL_18;
   v5 = v3->linkedPathType;
   if ( v5 == 1 )
@@ -175923,7 +175890,7 @@ unsigned __int8 __thiscall RGE_Moving_Object::checkDistance(RGE_Moving_Object *t
       return 0;
     if ( (v10->flags.valueValue & BBitVectorAND_2) == 0 )
       return 0;
-    this->pathData->waypoint = BPath::nextPatrolWaypoint(v10, v9->waypoint, v12);
+    this->pathData->waypoint = BPath::nextPatrolWaypoint(v10, v9->waypoint);
     v3 = this->pathData;
     if ( v3->waypoint != -1 )
       return 0;
@@ -175947,8 +175914,6 @@ LABEL_18:
   v4->state = 2;
   return 0;
 }
-// 4A453C: positive sp value 4 has been found
-// 4A451D: variable 'v12' is possibly undefined
 // 65BD94: using guessed type int BBitVectorAND_2;
 
 //----- (004A45A0) --------------------------------------------------------
@@ -176001,10 +175966,10 @@ void __thiscall RGE_Moving_Object::moveUnit(RGE_Moving_Object *this, BVector *a2
   if ( RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 3)
     || RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 4) )
   {
-    v5 = sqrt(v13.z * v13.z + v13.x * v13.x);
+    v5 = sqrt(v13.y * v13.y + v13.x * v13.x);
     v13.x = v13.x / v5;
-    v13.y = 0.0 / v5;
-    v13.z = v13.z / v5;
+    v13.z = 0.0 / v5;
+    v13.y = v13.y / v5;
   }
   v6 = this->vfptr;
   v12 = 0;
@@ -176022,7 +175987,7 @@ void __thiscall RGE_Moving_Object::moveUnit(RGE_Moving_Object *this, BVector *a2
     && ((v9 = v7->waypointsCount, v9 < 2) ? (v10 = &stru_6AE6A0) : (v10 = &v7->waypoints[v9 - 1]),
         fabs(v10->x - *(float *)LODWORD(a4.x)) < 0.5
      && (v9 < 2 ? (v11 = &stru_6AE6A0) : (v11 = &v8->waypoints[v9 - 1]),
-         fabs(v11->z - *(float *)(LODWORD(a4.x) + 8)) < 0.5)) )
+         fabs(v11->y - *(float *)(LODWORD(a4.x) + 8)) < 0.5)) )
   {
     this->vfptr->checkAcceleration(this, (BVector *)LODWORD(a4.x), 1, v12);
   }
@@ -176107,7 +176072,7 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   BVector *v71; // eax
   double v72; // st7
   BPathData *v73; // eax
-  BPath *v74; // ebp
+  BVector *v74; // ebp
   BVector *v75; // eax
   BVector *v76; // eax
   BPathData *v77; // ecx
@@ -176131,7 +176096,7 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   BPath *v95; // eax
   int v96; // eax
   __int16 v97; // ax
-  unsigned int v98; // ebx
+  float v98; // ebx
   ObsRecord *v99; // ebx
   int v100; // eax
   int v101; // ecx
@@ -176202,45 +176167,49 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   BVector v166; // [esp+7Ch] [ebp-218h] BYREF
   BVector v167; // [esp+88h] [ebp-20Ch] BYREF
   BVector v168; // [esp+94h] [ebp-200h] BYREF
-  BPath v169; // [esp+A0h] [ebp-1F4h] BYREF
+  BVector v169; // [esp+A0h] [ebp-1F4h] BYREF
+  BVector p2; // [esp+ACh] [ebp-1E8h] BYREF
+  BVector v171; // [esp+B8h] [ebp-1DCh] BYREF
+  BVector v172; // [esp+C4h] [ebp-1D0h] BYREF
+  BVector v173; // [esp+D0h] [ebp-1C4h] BYREF
   BVector result; // [esp+E0h] [ebp-1B4h] BYREF
-  int v171[3]; // [esp+F4h] [ebp-1A0h] BYREF
+  BVector v175; // [esp+F4h] [ebp-1A0h] BYREF
   BPath ReturnPath; // [esp+100h] [ebp-194h] BYREF
-  int v173[3]; // [esp+134h] [ebp-160h] BYREF
-  int v174[3]; // [esp+140h] [ebp-154h] BYREF
-  int v175[3]; // [esp+14Ch] [ebp-148h] BYREF
-  int v176[3]; // [esp+158h] [ebp-13Ch] BYREF
-  int v177[3]; // [esp+164h] [ebp-130h] BYREF
-  int v178[3]; // [esp+170h] [ebp-124h] BYREF
-  int v179[4]; // [esp+17Ch] [ebp-118h] BYREF
+  BVector outVector; // [esp+134h] [ebp-160h] BYREF
+  BVector v178; // [esp+140h] [ebp-154h] BYREF
+  BVector v179; // [esp+14Ch] [ebp-148h] BYREF
+  BVector v180; // [esp+158h] [ebp-13Ch] BYREF
+  BVector v181; // [esp+164h] [ebp-130h] BYREF
+  BVector v182; // [esp+170h] [ebp-124h] BYREF
+  BVector v183; // [esp+17Ch] [ebp-118h] BYREF
   int wpIndex; // [esp+18Ch] [ebp-108h] BYREF
-  int v181[3]; // [esp+194h] [ebp-100h] BYREF
-  int v182[3]; // [esp+1A0h] [ebp-F4h] BYREF
-  int v183[3]; // [esp+1ACh] [ebp-E8h] BYREF
-  int v184[3]; // [esp+1B8h] [ebp-DCh] BYREF
-  int v185[3]; // [esp+1C4h] [ebp-D0h] BYREF
-  int v186[3]; // [esp+1D0h] [ebp-C4h] BYREF
-  int v187[3]; // [esp+1DCh] [ebp-B8h] BYREF
-  int v188[3]; // [esp+1E8h] [ebp-ACh] BYREF
-  int v189[3]; // [esp+1F4h] [ebp-A0h] BYREF
-  int v190[3]; // [esp+200h] [ebp-94h] BYREF
-  int v191[6]; // [esp+20Ch] [ebp-88h] BYREF
-  int v192[6]; // [esp+224h] [ebp-70h] BYREF
-  int v193[6]; // [esp+23Ch] [ebp-58h] BYREF
-  int v194[6]; // [esp+254h] [ebp-40h] BYREF
-  int v195[3]; // [esp+26Ch] [ebp-28h] BYREF
-  int v196[4]; // [esp+278h] [ebp-1Ch] BYREF
-  int v197; // [esp+28Ch] [ebp-8h]
+  BVector v185; // [esp+194h] [ebp-100h] BYREF
+  BVector v186; // [esp+1A0h] [ebp-F4h] BYREF
+  BVector v187; // [esp+1ACh] [ebp-E8h] BYREF
+  BVector v188; // [esp+1B8h] [ebp-DCh] BYREF
+  BVector v189; // [esp+1C4h] [ebp-D0h] BYREF
+  BVector v190; // [esp+1D0h] [ebp-C4h] BYREF
+  BVector v191; // [esp+1DCh] [ebp-B8h] BYREF
+  BVector v192; // [esp+1E8h] [ebp-ACh] BYREF
+  BVector v193; // [esp+1F4h] [ebp-A0h] BYREF
+  BVector v194; // [esp+200h] [ebp-94h] BYREF
+  BVector v195; // [esp+20Ch] [ebp-88h] BYREF
+  BVector v196; // [esp+224h] [ebp-70h] BYREF
+  BVector v197; // [esp+23Ch] [ebp-58h] BYREF
+  BVector v198; // [esp+254h] [ebp-40h] BYREF
+  BVector v199; // [esp+26Ch] [ebp-28h] BYREF
+  BVector v200; // [esp+278h] [ebp-1Ch] BYREF
+  int v201; // [esp+28Ch] [ebp-8h]
 
   if ( RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 2) )
     return 1;
   v3 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)this->owner->world);
   v4 = this->pathData;
-  v159.z = v3;
+  v159.y = v3;
   v161.x = 0.0;
   if ( v4 && v4->pauseTime > 0.0 )
   {
-    v4->pauseTime = v4->pauseTime - v159.z;
+    v4->pauseTime = v4->pauseTime - v159.y;
     v5 = this->pathData;
     if ( v5->pauseTime > 0.0 )
     {
@@ -176253,9 +176222,9 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   numberCollisionUnits = (int)OBSystem_Land;
   if ( v6->movement_type == 1 )
     numberCollisionUnits = (int)OBSystem_Air;
-  v169.waypointsAllocatedSize = 0;
-  v169.waypoints = 0;
-  v169.pathLengthValue = 0.0;
+  p2.z = 0.0;
+  p2.y = 0.0;
+  v171.x = 0.0;
   v164 = 0;
   v165 = 0;
   v166.x = 0.0;
@@ -176303,9 +176272,9 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
           if ( v13 != 2 )
             break;
           v14 = &this->positionValue;
-          v15 = BPath::waypoint(v8, (int)&wpIndex, v12->waypoint);
+          v15 = BPath::waypoint(v8, (BVector *)&wpIndex, v12->waypoint);
           BVector::operator_minus(&this->positionValue, &result, v15);
-          result.y = 0.0;
+          result.z = 0.0;
           if ( RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 1) )
           {
             if ( !RGE_Player::availablePathingAttempts((RGE_Player *)this->owner, this->numberWaitDelays)
@@ -176337,13 +176306,13 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
           this->vfptr->setWaitingToMove(this, 0);
           *(float *)&v20 = COERCE_FLOAT(operator_new(0x34u));
           v158 = v20;
-          v197 = 0;
+          v201 = 0;
           if ( *(float *)&v20 == 0.0 )
             v21 = 0;
           else
             v21 = BPathData::BPathData((BPathData *)v20);
           v154 = v21;
-          v197 = -1;
+          v201 = -1;
           if ( !v21 )
           {
 LABEL_232:
@@ -176371,18 +176340,18 @@ LABEL_229:
           if ( !v23 )
           {
             BPath::addWaypointAtStart(v22, v136);
-            v24 = BPath::waypoint(v8, (int)v173, this->pathData->waypoint);
+            v24 = BPath::waypoint(v8, &outVector, this->pathData->waypoint);
             BPath::addWaypointAtEnd(v22, v24);
             BPath::calculatePathLength(v22);
             v25 = v147;
             v148 = 1;
             goto LABEL_129;
           }
-          v26 = BPath::waypoint(v8, (int)v182, this->pathData->waypoint);
+          v26 = BPath::waypoint(v8, &v186, this->pathData->waypoint);
           BVector::operator_minus(v26, &v161, v136);
           v27 = this->pathData;
-          v161.y = 0.0;
-          v153 = sqrt(v161.z * v161.z + v161.x * v161.x);
+          v161.z = 0.0;
+          v153 = sqrt(v161.y * v161.y + v161.x * v161.x);
           if ( v27->waypointLevel == 2 && dword_689568 == 1 && v153 > (double)flt_68F494 )
           {
             *(float *)&v158 = COERCE_FLOAT(
@@ -176392,7 +176361,7 @@ LABEL_229:
             if ( *(float *)&v158 == 0.0 )
             {
               BPath::addWaypointAtStart(v22, &this->positionValue);
-              v36 = BPath::waypoint(v8, (int)v189, this->pathData->waypoint);
+              v36 = BPath::waypoint(v8, &v193, this->pathData->waypoint);
               BPath::addWaypointAtEnd(v22, v36);
               v35 = 1;
               goala = 1;
@@ -176413,13 +176382,13 @@ LABEL_50:
               v31 = this->pathData;
               v128 = (BPath *)LODWORD(v31->range);
               dest_target_radius = v163 + this->master_obj->radius_x;
-              v122 = BPath::waypoint(v8, (int)v196, v31->waypoint)->z;
-              v32 = BPath::waypoint(v8, (int)v175, this->pathData->waypoint);
+              v122 = BPath::waypoint(v8, &v200, v31->waypoint)->y;
+              v32 = BPath::waypoint(v8, &v179, this->pathData->waypoint);
               v33 = RGE_Map_Analysis::find_path(
                       v158,
                       v22,
                       v14->x,
-                      this->positionValue.z,
+                      this->positionValue.y,
                       v32->x,
                       v122,
                       dest_target_radius,
@@ -176434,12 +176403,11 @@ LABEL_50:
                   goala = 1;
                   v148 = 1;
                   smoothMidLevelPath(this, v22);
-                  v137 = BPath::waypoint(v22, (int)v194, v22->waypointsCount - 1);
-                  v34 = BPath::waypoint(v8, (int)v177, this->pathData->waypoint);
-                  BVector::operator_minus(v34, (BVector *)&v169, v137);
-                  v169.prev = 0;
-                  if ( sqrt(*(float *)&v169.idValue * *(float *)&v169.idValue + *(float *)&v169.next
-                                                                              * *(float *)&v169.next) > v153 )
+                  v137 = BPath::waypoint(v22, &v198, v22->waypointsCount - 1);
+                  v34 = BPath::waypoint(v8, &v181, this->pathData->waypoint);
+                  BVector::operator_minus(v34, &v169, v137);
+                  v169.z = 0.0;
+                  if ( sqrt(v169.y * v169.y + v169.x * v169.x) > v153 )
                   {
                     v35 = 0;
                     v22->waypointsCount = 0;
@@ -176518,7 +176486,7 @@ LABEL_50:
           v118 = v44[9];
           v115 = *((float *)v44 + 8);
           v113 = v43->radius_x;
-          v45 = BPath::waypoint(v147, (int)v179, v44[6]);
+          v45 = BPath::waypoint(v147, &v183, v44[6]);
           v14 = &this->positionValue;
           v46 = findLowLevelPath(
                   targetObj,
@@ -176545,18 +176513,15 @@ LABEL_73:
               if ( v153 >= 1.0 && v149 >= 1.0 )
                 goto LABEL_97;
               goala = 0;
-              BPath::waypoint(v147, (int)&v169.initialNumberWaypoints, this->pathData->waypoint);
+              BPath::waypoint(v147, &v172, this->pathData->waypoint);
               v48 = this->master_obj;
-              if ( *(float *)&v169.initialNumberWaypoints < (double)v48->radius_x )
+              if ( v172.x < (double)v48->radius_x )
                 goto LABEL_97;
-              if ( *(float *)&v169.mNumberIgnoreUnits < (double)v48->radius_y )
+              if ( v172.y < (double)v48->radius_y )
                 goto LABEL_97;
               v49 = this->owner->world->map;
-              if ( (double)v49->map_width - v48->radius_x < *(float *)&v169.initialNumberWaypoints
-                || (double)v49->map_height - v48->radius_y < *(float *)&v169.mNumberIgnoreUnits )
-              {
+              if ( (double)v49->map_width - v48->radius_x < v172.x || (double)v49->map_height - v48->radius_y < v172.y )
                 goto LABEL_97;
-              }
               v50 = 0;
               ignoreListSize = 0;
               if ( this )
@@ -176610,14 +176575,14 @@ LABEL_73:
                 }
               }
               v132 = v50;
-              v55 = BPath::waypoint(v147, (int)v191, this->pathData->waypoint);
+              v55 = BPath::waypoint(v147, &v195, this->pathData->waypoint);
               v14 = &this->positionValue;
               findObSystemCollisions(targetObj, this, &this->positionValue, v55, collisionUnits, v132, 1, 1.0);
               if ( numberObSystemCollisions )
                 goto LABEL_97;
               v22->waypointsCount = 0;
               BPath::addWaypointAtStart(v22, &this->positionValue);
-              v56 = BPath::waypoint(v147, (int)v183, this->pathData->waypoint);
+              v56 = BPath::waypoint(v147, &v187, this->pathData->waypoint);
               BPath::addWaypointAtEnd(v22, v56);
               v22->creationTimeValue = this->owner->world->world_time;
               BPath::calculatePathLength(v22);
@@ -176627,11 +176592,11 @@ LABEL_73:
           else
           {
             v148 = 1;
-            v139 = BPath::waypoint(v22, (int)v193, v22->waypointsCount - 1);
-            v47 = BPath::waypoint(v147, (int)v181, this->pathData->waypoint);
+            v139 = BPath::waypoint(v22, &v197, v22->waypointsCount - 1);
+            v47 = BPath::waypoint(v147, &v185, this->pathData->waypoint);
             BVector::operator_minus(v47, &v166, v139);
-            v166.y = 0.0;
-            v159.x = sqrt(v166.z * v166.z + v166.x * v166.x);
+            v166.z = 0.0;
+            v159.x = sqrt(v166.y * v166.y + v166.x * v166.x);
           }
           if ( v22->waypointsCount >= 2 && v22->pathLengthValue >= 0.0099999998 )
             goto LABEL_99;
@@ -176654,12 +176619,12 @@ LABEL_97:
             goala = 0;
             v124 = v66[9];
             v121 = *((float *)v66 + 8);
-            v119 = (__int64)BPath::waypoint(v147, (int)v195, v66[6])->z;
-            v116 = (__int64)BPath::waypoint(v147, (int)v185, this->pathData->waypoint)->x;
+            v119 = (__int64)BPath::waypoint(v147, &v199, v66[6])->y;
+            v116 = (__int64)BPath::waypoint(v147, &v189, this->pathData->waypoint)->x;
             v148 = PathingSystem::findTilePath(
                      &pathSystem,
                      (__int64)v14->x,
-                     (__int64)this->positionValue.z,
+                     (__int64)this->positionValue.y,
                      v116,
                      v119,
                      this,
@@ -176683,7 +176648,7 @@ LABEL_103:
                            base_game->world->map_analysis_system,
                            (RGE_Master_Static_Object *)this->master_obj));
                 BPath::BPath(&ReturnPath, -1);
-                v197 = 1;
+                v201 = 1;
                 if ( v149 != 0.0 )
                 {
                   v58 = this->pathData;
@@ -176698,13 +176663,13 @@ LABEL_103:
                   v61 = this->pathData;
                   v129 = (BPath *)LODWORD(v61->range);
                   dest_target_radiusb = v162 + this->master_obj->radius_x;
-                  v123 = BPath::waypoint(v25, (int)v174, v61->waypoint)->z;
-                  v62 = BPath::waypoint(v25, (int)v176, this->pathData->waypoint);
+                  v123 = BPath::waypoint(v25, &v178, v61->waypoint)->y;
+                  v62 = BPath::waypoint(v25, &v180, this->pathData->waypoint);
                   v63 = RGE_Map_Analysis::find_path(
                           (RGE_Map_Analysis *)LODWORD(v149),
                           &ReturnPath,
                           v14->x,
-                          this->positionValue.z,
+                          this->positionValue.y,
                           v62->x,
                           v123,
                           dest_target_radiusb,
@@ -176712,11 +176677,11 @@ LABEL_103:
                           0,
                           0,
                           0);
-                  v140 = BPath::waypoint(&ReturnPath, (int)v178, ReturnPath.waypointsCount - 1);
-                  v64 = BPath::waypoint(v25, (int)&result.z, this->pathData->waypoint);
+                  v140 = BPath::waypoint(&ReturnPath, &v182, ReturnPath.waypointsCount - 1);
+                  v64 = BPath::waypoint(v25, (BVector *)&result.y, this->pathData->waypoint);
                   BVector::operator_minus(v64, &v168, v140);
-                  v168.y = 0.0;
-                  v65 = sqrt(v168.z * v168.z + v168.x * v168.x);
+                  v168.z = 0.0;
+                  v65 = sqrt(v168.y * v168.y + v168.x * v168.x);
                   v149 = v65;
                   if ( v65 <= v153 )
                   {
@@ -176729,7 +176694,7 @@ LABEL_103:
                       {
                         do
                         {
-                          v71 = BPath::waypoint(&ReturnPath, (int)v171, v69);
+                          v71 = BPath::waypoint(&ReturnPath, &v175, v69);
                           BPath::addWaypointAtEnd(v22, v71);
                           ++v69;
                         }
@@ -176753,18 +176718,18 @@ LABEL_103:
                     v22->waypointsCount = 0;
                   }
                 }
-                v197 = -1;
+                v201 = -1;
                 BPath::destructor(&ReturnPath);
               }
               goto LABEL_129;
             }
-            v141 = BPath::waypoint(v22, (int)v192, v22->waypointsCount - 1);
-            v67 = BPath::waypoint(v147, (int)v187, this->pathData->waypoint);
+            v141 = BPath::waypoint(v22, &v196, v22->waypointsCount - 1);
+            v67 = BPath::waypoint(v147, &v191, this->pathData->waypoint);
             BVector::operator_minus(v67, &v167, v141);
-            v167.y = 0.0;
-            v68 = sqrt(v167.z * v167.z + v167.x * v167.x);
+            v167.z = 0.0;
+            v68 = sqrt(v167.y * v167.y + v167.x * v167.x);
             *(float *)&v158 = v68;
-            if ( sqrt(v161.z * v161.z + v161.y * v161.y + v161.x * v161.x) < v68 )
+            if ( sqrt(v161.y * v161.y + v161.z * v161.z + v161.x * v161.x) < v68 )
             {
               v159.x = v68;
               v22->waypointsCount = 0;
@@ -176783,8 +176748,8 @@ LABEL_129:
             BPathData::destructor(v154);
             operator_delete(v154);
             RGE_Game_World::destroyPath2((RGE_Game_World *)base_game->world, v22);
-            v134 = BPath::waypoint(v25, (int)v184, this->pathData->waypoint - 1)->z;
-            v76 = BPath::waypoint(v25, (int)v186, this->pathData->waypoint - 1);
+            v134 = BPath::waypoint(v25, &v188, this->pathData->waypoint - 1)->y;
+            v76 = BPath::waypoint(v25, &v190, this->pathData->waypoint - 1);
             RGE_Static_Object::distance_to_position((RGE_Static_Object *)this, v76->x, v134, 0.0);
             if ( obj )
             {
@@ -176793,7 +176758,7 @@ LABEL_129:
               if ( (v77->mFlags.valueValue & 4) != 0 )
                 BPathData::setFlag(v77, 2, 0);
             }
-            if ( v148 && (v78 = this->pathData, v159.z <= (double)v78->range) )
+            if ( v148 && (v78 = this->pathData, v159.y <= (double)v78->range) )
             {
               if ( (v25->flags.valueValue & BBitVectorAND_2) == 0 )
                 goto LABEL_239;
@@ -176855,23 +176820,19 @@ LABEL_151:
               break;
           }
         }
-        v74 = v147;
-        v75 = BPath::waypoint(v147, (int)v188, this->pathData->waypoint);
-        BVector::operator_minus(&this->positionValue, (BVector *)&v169.pathLengthValue, v75);
-        v169.creationTimeValue = 0;
-        if ( sqrt(
-               *(float *)&v169.flags.valueValue * *(float *)&v169.flags.valueValue
-             + v169.pathLengthValue * v169.pathLengthValue) >= 0.0000001 )
+        v74 = (BVector *)v147;
+        v75 = BPath::waypoint(v147, &v192, this->pathData->waypoint);
+        BVector::operator_minus(&this->positionValue, &v171, v75);
+        v171.z = 0.0;
+        if ( sqrt(v171.y * v171.y + v171.x * v171.x) >= 0.0000001 )
         {
           v80 = this->vfptr;
-          v81 = BPath::waypoint(v147, (int)v190, this->pathData->waypoint);
-          v80->calculateForward(this, &this->positionValue, v81, (BVector *)&v169.waypointsCount);
+          v81 = BPath::waypoint(v147, &v194, this->pathData->waypoint);
+          v80->calculateForward(this, &this->positionValue, v81, &p2);
           v130 = (BPath *)numberCollisionUnits;
-          ((void (__thiscall *)(RGE_Moving_Object *, const int *))this->vfptr->straightProjectedPosition)(
-            this,
-            &v169.initialNumberWaypoints);
+          ((void (__thiscall *)(RGE_Moving_Object *, BVector *))this->vfptr->straightProjectedPosition)(this, &v172);
           v82 = this->vfptr;
-          LODWORD(v117.y) = BPath::waypoint(v147, (int)v190, this->pathData->waypoint);
+          LODWORD(v117.z) = BPath::waypoint(v147, &v194, this->pathData->waypoint);
           v83 = ((int (__thiscall *)(RGE_Moving_Object *))v82->calculateReachedPoint)(this);
           if ( v83 != 2 )
             break;
@@ -176884,17 +176845,17 @@ LABEL_151:
         BPathData::setFlag(this->pathData, 1, 1);
         BPathData::setFlag(this->pathData, 0, 1);
       }
-      v84 = BPath::waypoint(v147, (int)v191, this->pathData->waypoint);
+      v84 = BPath::waypoint(v147, &v195, this->pathData->waypoint);
       v159.x = v84->x;
-      v159.y = v84->y;
-      v85 = v84->z;
+      v159.z = v84->z;
+      v85 = v84->y;
       v86 = this->pathData;
-      v159.z = v85;
+      v159.y = v85;
       v87 = v86->waypoint;
       if ( v87 < v147->waypointsCount - 1 )
-        BPath::waypoint(v147, (int)v193, v86->waypoint + 1);
+        BPath::waypoint(v147, &v197, v86->waypoint + 1);
       else
-        BPath::waypoint(v147, (int)v192, v87);
+        BPath::waypoint(v147, &v196, v87);
       goalb = RGE_Game_World::getUnitGroup((RGE_Game_World *)this->owner->world, this->mGroupID);
       if ( !RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 1) )
         break;
@@ -176924,15 +176885,7 @@ LABEL_151:
           while ( v89 < 4 );
         }
       }
-      findObSystemCollisions(
-        OB_System_To_Use,
-        this,
-        &this->positionValue,
-        (BVector *)&v169.waypointsCount,
-        collisionUnits,
-        v88,
-        0,
-        1.0);
+      findObSystemCollisions(OB_System_To_Use, this, &this->positionValue, &p2, collisionUnits, v88, 0, 1.0);
       if ( numberObSystemCollisions <= 0 )
         break;
       v142 = 0;
@@ -176953,7 +176906,7 @@ LABEL_151:
             v94 = (int *)v93;
             if ( v93 )
             {
-              if ( BPath::ignoreUnitsContain(&v169, v93->id) != 1 )
+              if ( BPath::ignoreUnitsContain((BPath *)&v169, v93->id) != 1 )
               {
                 v95 = BPathData::highestLinkedPathPointer(this->pathData);
                 if ( !v95 || BPath::ignoreUnitsContain(v95, v94[4]) != 1 )
@@ -176969,8 +176922,8 @@ LABEL_151:
                     || v97 == 10
                     || v97 == 9 )
                   {
-                    v98 = v169.creationTimeValue;
-                    if ( v98 < (*(int (__thiscall **)(int *))(*v94 + 780))(v94) )
+                    v98 = v171.z;
+                    if ( LODWORD(v98) < (*(int (__thiscall **)(int *))(*v94 + 780))(v94) )
                     {
                       ++v135;
                       if ( (int)v91 < (int)&numberObSystemCollisions )
@@ -176990,7 +176943,7 @@ LABEL_151:
         v143 = (ObsRecord *)((char *)v143 + 4);
       }
       while ( v70 );
-      RGE_Moving_Object::resolveCollisions(this, (BVector *)&v169.waypointsCount);
+      RGE_Moving_Object::resolveCollisions(this, &p2);
       if ( numberObSystemCollisions == 1 && v142 == numberObSystemCollisions )
       {
         BPathData::setFlag(this->pathData, 0, numberObSystemCollisions);
@@ -177053,18 +177006,18 @@ LABEL_151:
     if ( RGE_Moving_Object::checkRange(this, v144) != 1 )
       goto LABEL_241;
   }
-  if ( (v74->flags.valueValue & BBitVectorAND_2) != 0
+  if ( (LODWORD(v74[2].y) & BBitVectorAND_2) != 0
     || (v107 = this->pathData, v107->range <= 0.1)
     || (v108 = BPathData::highestLinkedPathPointer(v107), (v109 = v108) == 0)
     || (v110 = v108->waypointsCount,
         v111 = this->pathData,
-        v114 = BPath::waypoint(v108, (int)&v169.mIgnoreUnits, v110 - 1)->z,
-        v112 = BPath::waypoint(v109, (int)&v169.initialNumberWaypoints, v110 - 1),
+        v114 = BPath::waypoint(v108, &v173, v110 - 1)->y,
+        v112 = BPath::waypoint(v109, &v172, v110 - 1),
         RGE_Static_Object::distance_to_position((RGE_Static_Object *)this, v112->x, v114, 0.0) - v111->range >= 0.0000001) )
   {
 LABEL_241:
     LODWORD(v117.x) = &v159;
-    LODWORD(v117.z) = &this->positionValue;
+    LODWORD(v117.y) = &this->positionValue;
     RGE_Moving_Object::moveUnit(this, &v167, v149, v117);
     return 0;
   }
@@ -177134,8 +177087,8 @@ int __thiscall RGE_Moving_Object::resolveCollisions(RGE_Moving_Object *this, BVe
   v4 = newPosition->x;
   v27 = 0;
   v.x = v4;
-  v.y = newPosition->y;
   v.z = newPosition->z;
+  v.y = newPosition->y;
   if ( numberObSystemCollisions > 0 )
   {
     v5 = &obSystemCollisions;
@@ -177144,9 +177097,9 @@ int __thiscall RGE_Moving_Object::resolveCollisions(RGE_Moving_Object *this, BVe
       v6 = this->master_obj;
       v7 = v5->NodeProperties;
       v34 = v.x - v6->radius_x;
-      v35 = v.z - v6->radius_y;
+      v35 = v.y - v6->radius_y;
       v28 = v.x + v6->radius_x;
-      v8 = v.z + v6->radius_y;
+      v8 = v.y + v6->radius_y;
       v9 = *(_DWORD *)(v7 + 8);
       v29 = v8;
       if ( !v9 )
@@ -177173,7 +177126,7 @@ int __thiscall RGE_Moving_Object::resolveCollisions(RGE_Moving_Object *this, BVe
       }
       v13 = &this->positionValue;
       BVector::operator_minus(&v, &result, &this->positionValue);
-      v14 = sqrt(result.y * result.y + result.z * result.z + result.x * result.x);
+      v14 = sqrt(result.z * result.z + result.y * result.y + result.x * result.x);
       v25 = v14;
       if ( v14 < 0.0000001 )
       {
@@ -177183,10 +177136,10 @@ int __thiscall RGE_Moving_Object::resolveCollisions(RGE_Moving_Object *this, BVe
       v15 = v13->x >= (double)v11->vfptr->position(v11, &v39)->x ? v36 - v34 : v28 - v32;
       v16 = v11->vfptr;
       v30 = v15;
-      v17 = this->positionValue.z >= (double)v16->position(v11, &v40)->z ? v37 - v35 : v29 - v33;
+      v17 = this->positionValue.y >= (double)v16->position(v11, &v40)->y ? v37 - v35 : v29 - v33;
       v31 = v17;
       v18 = result.x <= 0.0 ? 0.0 : v30 * v25 / fabs(result.x);
-      v22 = result.z <= 0.0 ? 0.0 : (float)(v31 * v25 / fabs(result.z));
+      v22 = result.y <= 0.0 ? 0.0 : (float)(v31 * v25 / fabs(result.y));
       if ( v18 < 0.0000001 && v22 < 0.0000001 )
         goto LABEL_39;
       if ( (v18 >= v22 || v18 <= 0.0000001) && v22 >= 0.0000001 )
@@ -177200,18 +177153,18 @@ int __thiscall RGE_Moving_Object::resolveCollisions(RGE_Moving_Object *this, BVe
       if ( v19 > 0.0 )
       {
         v.x = v.x - v19 * result.x;
-        v.z = v.z - v19 * result.z;
+        v.y = v.y - v19 * result.y;
       }
       else
       {
-        v20 = this->positionValue.y;
-        v21 = this->positionValue.z;
+        v20 = this->positionValue.z;
+        v21 = this->positionValue.y;
         v.x = v13->x;
-        v.y = v20;
-        v.z = v21;
+        v.z = v20;
+        v.y = v21;
       }
       BVector::operator_minus(newPosition, &v38, &v);
-      if ( sqrt(v38.z * v38.z + v38.y * v38.y + v38.x * v38.x) < 0.0000001 )
+      if ( sqrt(v38.y * v38.y + v38.z * v38.z + v38.x * v38.x) < 0.0000001 )
       {
 LABEL_40:
         v3 = v24;
@@ -177231,7 +177184,7 @@ LABEL_39:
 
 //----- (004A6250) --------------------------------------------------------
 // attributes: thunk
-float __thiscall RGE_Moving_Object::calculateMaximumSpeed(RGE_Moving_Object *this, int terrainType)
+double __thiscall RGE_Moving_Object::calculateMaximumSpeed(RGE_Moving_Object *this, int terrainType)
 {
   RGE_Sprite *v2; // edx
   double result; // st7
@@ -177251,7 +177204,7 @@ int __thiscall RGE_Moving_Object::calculateForward(RGE_Moving_Object *this, BVec
   long double v5; // st7
   BVector result; // [esp+4h] [ebp-Ch] BYREF
 
-  if ( start->x == destination->x && start->y == destination->y && start->z == destination->z )
+  if ( start->x == destination->x && start->z == destination->z && start->y == destination->y )
   {
     *newOF = this->orientationForwardValue;
     v4 = 1;
@@ -177260,17 +177213,17 @@ int __thiscall RGE_Moving_Object::calculateForward(RGE_Moving_Object *this, BVec
   {
     BVector::operator_minus(destination, &result, start);
     *newOF = result;
-    v5 = sqrt(newOF->x * newOF->x + newOF->z * newOF->z);
+    v5 = sqrt(newOF->x * newOF->x + newOF->y * newOF->y);
     newOF->x = newOF->x / v5;
-    newOF->y = 0.0 / v5;
-    newOF->z = newOF->z / v5;
+    newOF->z = 0.0 / v5;
+    newOF->y = newOF->y / v5;
     v4 = 1;
   }
   return v4;
 }
 
 //----- (004A6350) --------------------------------------------------------
-float __thiscall RGE_Moving_Object::calculateYawAngle(RGE_Moving_Object *this, BVector *curOF, BVector *newOF, float interval, int *limitedAngle)
+double __thiscall RGE_Moving_Object::calculateYawAngle(RGE_Moving_Object *this, BVector *curOF, BVector *newOF, float interval, int *limitedAngle)
 {
   double v7; // st7
   double v8; // st7
@@ -177292,7 +177245,7 @@ float __thiscall RGE_Moving_Object::calculateYawAngle(RGE_Moving_Object *this, B
     *limitedAngle = 1;
   }
   BVector::operator_mul(newOF, &result, curOF);
-  if ( result.y <= 0.0 )
+  if ( result.z <= 0.0 )
     v8 = v;
   else
     v8 = -v;
@@ -177317,17 +177270,17 @@ int __thiscall RGE_Moving_Object::calculateReachedPoint(RGE_Moving_Object *this,
     || RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 4) )
   {
     v5 = 0.0;
-    v9.y = 0.0;
+    v9.z = 0.0;
   }
   else
   {
-    v5 = result.y;
+    v5 = result.z;
   }
-  v6 = sqrt(result.z * result.z + result.x * result.x + v5 * v5);
-  v7 = sqrt(v9.z * v9.z + v9.x * v9.x + v9.y * v9.y);
+  v6 = sqrt(result.y * result.y + result.x * result.x + v5 * v5);
+  v7 = sqrt(v9.y * v9.y + v9.x * v9.x + v9.z * v9.z);
   if ( v7 < 0.0000001 )
     return 1;
-  if ( sqrt(v11.z * v11.z + v11.y * v11.y + v11.x * v11.x) <= v6 )
+  if ( sqrt(v11.y * v11.y + v11.z * v11.z + v11.x * v11.x) <= v6 )
     return 0;
   v = v7;
   if ( v6 >= v )
@@ -177336,7 +177289,7 @@ int __thiscall RGE_Moving_Object::calculateReachedPoint(RGE_Moving_Object *this,
 }
 
 //----- (004A6510) --------------------------------------------------------
-float __thiscall RGE_Moving_Object::calculateTurnRadius(RGE_Moving_Object *this)
+double __thiscall RGE_Moving_Object::calculateTurnRadius(RGE_Moving_Object *this)
 {
   RGE_Master_Moving_Object *v2; // esi
   float v3; // [esp+0h] [ebp-4h]
@@ -177345,7 +177298,7 @@ float __thiscall RGE_Moving_Object::calculateTurnRadius(RGE_Moving_Object *this)
     return 0.0;
   v2 = this->master_obj;
   v3 = ((double (__thiscall *)(RGE_Master_Moving_Object *))v2->vfptr->getTurnRadius)(v2)
-     * this->movementData->velocity.z;
+     * this->movementData->velocity.y;
   return v3 / ((double (__thiscall *)(RGE_Master_Moving_Object *))v2->vfptr->getTurnRadiusSpeed)(v2);
 }
 
@@ -177370,20 +177323,20 @@ int __thiscall RGE_Moving_Object::checkAcceleration(RGE_Moving_Object *this, BVe
 
   v12 = this->master_obj->vfptr->acceleration(
           this->master_obj,
-          this->owner->world->map->map_row_offset[(__int64)this->positionValue.z][(__int64)this->positionValue.x].terrain_type);
+          this->owner->world->map->map_row_offset[(__int64)this->positionValue.y][(__int64)this->positionValue.x].terrain_type);
   v11 = this->master_obj->vfptr->deceleration(
           this->master_obj,
-          this->owner->world->map->map_row_offset[(__int64)this->positionValue.z][(__int64)this->positionValue.x].terrain_type);
+          this->owner->world->map->map_row_offset[(__int64)this->positionValue.y][(__int64)this->positionValue.x].terrain_type);
   if ( !this->movementData )
     goto LABEL_11;
   v14 = this->vfptr->calculateMaximumSpeed(
           this,
-          this->owner->world->map->map_row_offset[(__int64)this->positionValue.z][(__int64)this->positionValue.x].terrain_type);
+          this->owner->world->map->map_row_offset[(__int64)this->positionValue.y][(__int64)this->positionValue.x].terrain_type);
   BVector::operator_minus(point, &result, &this->positionValue);
-  v6 = sqrt(result.x * result.x + result.y * result.y + result.z * result.z);
+  v6 = sqrt(result.x * result.x + result.z * result.z + result.y * result.y);
   v17.x = result.x / v6;
-  v17.y = result.y / v6;
   v17.z = result.z / v6;
+  v17.y = result.y / v6;
   v13 = BVector::angleBetweenVector(&this->orientationForwardValue, &v17);
   pointa = this->vfptr->calculateTurnRadius(this);
   if ( limitedYawAngle == 1 )
@@ -177392,22 +177345,22 @@ int __thiscall RGE_Moving_Object::checkAcceleration(RGE_Moving_Object *this, BVe
     ((void (__thiscall *)(RGE_Moving_Object *, _DWORD))this->vfptr->setForwardVelocity)(this, 0);
     return 1;
   }
-  if ( this->movementData->velocity.z > 0.0 && fabs(v13) > 0.0000001000000011686097 )
+  if ( this->movementData->velocity.y > 0.0 && fabs(v13) > 0.0000001000000011686097 )
   {
     BVector::operator_mul(&v17, &v19, &this->orientationForwardValue);
     v.x = this->orientationRightValue.x;
-    v8 = this->orientationRightValue.z;
-    v.y = this->orientationRightValue.y;
-    v.z = v8;
-    if ( v19.y > 0.0 )
+    v8 = this->orientationRightValue.y;
+    v.z = this->orientationRightValue.z;
+    v.y = v8;
+    if ( v19.z > 0.0 )
       v = *BVector::operator_neg(&v, &v20);
-    v.y = v.y * pointa;
     v.z = v.z * pointa;
+    v.y = v.y * pointa;
     v.x = v.x * pointa + this->positionValue.x;
-    v.y = v.y + this->positionValue.y;
     v.z = v.z + this->positionValue.z;
+    v.y = v.y + this->positionValue.y;
     BVector::operator_minus(point, &v18, &v);
-    if ( sqrt(v18.z * v18.z + v18.y * v18.y + v18.x * v18.x) < pointa )
+    if ( sqrt(v18.y * v18.y + v18.z * v18.z + v18.x * v18.x) < pointa )
     {
       v9 = this->vfptr;
       v10 = v11;
@@ -177416,7 +177369,7 @@ LABEL_12:
       return 1;
     }
   }
-  if ( this->movementData->velocity.z < (double)v14 )
+  if ( this->movementData->velocity.y < (double)v14 )
   {
 LABEL_11:
     v9 = this->vfptr;
@@ -177446,10 +177399,10 @@ BVector *__thiscall RGE_Moving_Object::straightProjectedPosition(RGE_Moving_Obje
     BVector::operator_plus(&this->movementData->velocity, &v10, v7);
     v8 = ((double (__thiscall *)(RGE_Moving_Object *, _DWORD))this->vfptr->calculateMaximumSpeed)(
            this,
-           this->owner->world->map->map_row_offset[(__int64)this->positionValue.z][(__int64)this->positionValue.x].terrain_type);
-    if ( v10.z > v8 || v10.z <= 0.0 )
-      v10.z = v8;
-    a = v10.z * secondsInTheFuture;
+           this->owner->world->map->map_row_offset[(__int64)this->positionValue.y][(__int64)this->positionValue.x].terrain_type);
+    if ( v10.y > v8 || v10.y <= 0.0 )
+      v10.y = v8;
+    a = v10.y * secondsInTheFuture;
     v9 = operator_mul(&resulta, a, newOF);
     BVector::operator_plus(&this->positionValue, &v11, v9);
     v6 = result;
@@ -177544,14 +177497,14 @@ void __thiscall RGE_Moving_Object::initMovementData(RGE_Moving_Object *this)
   ((void (*)(void))v2->removeAllUserDefinedWaypoints)();
   v3 = this->pathData;
   this->orientationForwardValue.x = 1.0;
-  this->orientationForwardValue.y = 0.0;
-  this->positionValue.x = 0.0;
   this->orientationForwardValue.z = 0.0;
+  this->positionValue.x = 0.0;
+  this->orientationForwardValue.y = 0.0;
   this->orientationRightValue.x = 0.0;
-  this->positionValue.y = 0.0;
   this->positionValue.z = 0.0;
-  this->orientationRightValue.y = 0.0;
-  this->orientationRightValue.z = -1.0;
+  this->positionValue.y = 0.0;
+  this->orientationRightValue.z = 0.0;
+  this->orientationRightValue.y = -1.0;
   if ( v3 )
   {
     BPathData::destructor(v3);
@@ -177816,7 +177769,7 @@ unsigned __int8 __thiscall RGE_Moving_Object::try_evac_tile(RGE_Moving_Object *t
     return 0;
   }
   *(_QWORD *)&v5.x = (unsigned int)ya;
-  v5.z = goal;
+  v5.y = goal;
   return totalCanPath(this, -1, this->positionValue, v5, 0.0, 0, -1, -1, 1, 0, 0);
 }
 
@@ -181372,7 +181325,7 @@ LABEL_14:
         wp.x = (v18 + v17) * 0.5;
         v21 = *(float *)(result + 4 * v19 + 32) + *(float *)(result + 4 * v20 + 32);
         v22 = 0;
-        wp.y = v21 * 0.5;
+        wp.z = v21 * 0.5;
         v23 = startPoint->X - targetPoint->X;
         v24 = startPoint->Y - targetPoint->Y;
         targetPointb = v24;
@@ -181389,12 +181342,12 @@ LABEL_14:
           if ( v22 )
           {
             v47 = wp.x - v27;
-            v28 = wp.y - targetPointa * v46;
+            v28 = wp.z - targetPointa * v46;
           }
           else
           {
             v47 = v27 + wp.x;
-            v28 = targetPointa * v46 + wp.y;
+            v28 = targetPointa * v46 + wp.z;
           }
           v48 = v28;
           v30 = v47 < (double)this->MapMinX;
@@ -181467,17 +181420,17 @@ LABEL_14:
                     if ( !*v13 || result && (result = targetID, targetID >= 0) && (*this->HitList)->id == targetID )
                     {
                       wp.x = startPoint->X;
-                      wp.z = startPoint->Y;
-                      wp.y = 0.0;
+                      wp.y = startPoint->Y;
+                      wp.z = 0.0;
                       BPath::addWaypointAtEnd(returnPath, &wp);
                       wp.x = v47;
-                      wp.y = 0.0;
-                      wp.z = v28;
+                      wp.z = 0.0;
+                      wp.y = v28;
                       BPath::addWaypointAtEnd(returnPath, &wp);
                       wp.x = targetPoint->X;
                       v45 = targetPoint->Y;
-                      wp.y = 0.0;
-                      wp.z = v45;
+                      wp.z = 0.0;
+                      wp.y = v45;
                       result = BPath::addWaypointAtEnd(returnPath, &wp);
                       LOBYTE(result) = 1;
                       return result;
@@ -181509,12 +181462,12 @@ LABEL_29:
     goto LABEL_14;
   }
   wp.x = startPoint->X;
-  wp.z = startPoint->Y;
-  wp.y = 0.0;
+  wp.y = startPoint->Y;
+  wp.z = 0.0;
   BPath::addWaypointAtEnd(returnPath, &wp);
   wp.x = targetPoint->X;
-  wp.z = targetPoint->Y;
-  wp.y = 0.0;
+  wp.y = targetPoint->Y;
+  wp.z = 0.0;
   result = BPath::addWaypointAtEnd(returnPath, &wp);
   LOBYTE(result) = 1;
   return result;
@@ -181903,7 +181856,7 @@ LABEL_229:
           LODWORD(v157) &= 0x7FFFFFFFu;
           if ( v157 < 0.0000001 )
           {
-            v157 = v144[v145].z - x.Y;
+            v157 = v144[v145].y - x.Y;
             LODWORD(v157) &= 0x7FFFFFFFu;
             if ( v157 < 0.0000001 )
             {
@@ -181947,16 +181900,16 @@ LABEL_229:
         ((void (__thiscall *)(RGE_Obstruction_Manager *, _DWORD, _DWORD, _DWORD, _DWORD, int))this->OBSystem->vfptr->CheckForTerrainCollisions)(
           this->OBSystem,
           LODWORD(v134->waypoints[(_DWORD)v141].x),
-          LODWORD(v134->waypoints[(_DWORD)v141].z),
+          LODWORD(v134->waypoints[(_DWORD)v141].y),
           LODWORD(v134->waypoints[(int)v141 - 1].x),
-          LODWORD(v134->waypoints[(int)v141 - 1].z),
+          LODWORD(v134->waypoints[(int)v141 - 1].y),
           TerrainCollisionMask);
         ((void (__thiscall *)(RGE_Obstruction_Manager *, _DWORD, _DWORD, _DWORD, _DWORD, int, int *, ObsRecord **, int, int, int *, int))this->OBSystem->vfptr->CheckForCollisions)(
           this->OBSystem,
           LODWORD(v134->waypoints[v142].x),
-          LODWORD(v134->waypoints[v142].z),
+          LODWORD(v134->waypoints[v142].y),
           LODWORD(v134->waypoints[v142 - 1].x),
-          LODWORD(v134->waypoints[v142 - 1].z),
+          LODWORD(v134->waypoints[v142 - 1].y),
           64,
           &this->NumHits,
           this->HitList,
@@ -182085,7 +182038,7 @@ LABEL_94:
             {
               v60 = this->mExitPaths;
               v170.X = v60[v54].waypoints[v57].x;
-              v170.Y = v60[v54].waypoints[v57].z;
+              v170.Y = v60[v54].waypoints[v57].y;
               MShortPather::addNode(this, 0, 1, v56, &v170, &v150, hullIndex, -1, -1, 0);
             }
           }
@@ -182096,7 +182049,7 @@ LABEL_94:
             {
               v59 = this->mExitPaths;
               v170.X = v59[v54].waypoints[v58].x;
-              v170.Y = v59[v54].waypoints[v58].z;
+              v170.Y = v59[v54].waypoints[v58].y;
               v56 = MShortPather::addNode(this, 0, 0, v56, &v170, &v150, hullIndex, -1, -1, 0);
               if ( !v56 )
                 break;
@@ -182228,7 +182181,7 @@ LABEL_97:
           v89 = hullIndex + v176[(_DWORD)v152];
           v90 = &this->mEntrancePaths[v88].waypoints[this->mEntrancePaths[v88].waypointsCount - 1];
           v91 = LODWORD(v90->x);
-          v92 = LODWORD(v90->z);
+          v92 = LODWORD(v90->y);
           v172 = v91;
           v93 = this->Hulls;
           v173 = v92;
@@ -182999,8 +182952,8 @@ void __thiscall MShortPather::buildPath(MShortPather *this, BPath *path, Pathing
   for ( i = node; i; i = i->parent )
   {
     wp.x = i->location.X;
-    wp.z = i->location.Y;
-    wp.y = 0.0;
+    wp.y = i->location.Y;
+    wp.z = 0.0;
     BPath::addWaypointAtStart(path, &wp);
   }
 }
@@ -195795,11 +195748,11 @@ BMovementData *__thiscall BMovementData::BMovementData(BMovementData *this)
 
   result = this;
   this->velocity.x = 0.0;
-  this->velocity.y = 0.0;
   this->velocity.z = 0.0;
+  this->velocity.y = 0.0;
   this->acceleration.x = 0.0;
-  this->acceleration.y = 0.0;
   this->acceleration.z = 0.0;
+  this->acceleration.y = 0.0;
   return result;
 }
 
@@ -195818,11 +195771,11 @@ int __thiscall BMovementData::update(BMovementData *this, RGE_Static_Object *obj
   v6 = obj->vfptr->position(obj, v9);
   v7 = ((double (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, _DWORD, BVector *))v5->calculateFutureVelocity)(
          obj,
-         LODWORD(this->velocity.z),
-         LODWORD(this->acceleration.z),
+         LODWORD(this->velocity.y),
+         LODWORD(this->acceleration.y),
          LODWORD(elapsedTimeSec),
          v6);
-  this->velocity.z = v7;
+  this->velocity.y = v7;
   v8 = v7 * elapsedTimeSec;
   ((void (__thiscall *)(RGE_Static_Object *, _DWORD))obj->vfptr->moveForward)(obj, LODWORD(v8));
   return 1;
@@ -196251,25 +196204,21 @@ void __thiscall BPath::destructor(BPath *this)
 }
 
 //----- (004BC440) --------------------------------------------------------
-BVector *__thiscall BPath::waypoint(BPath *this, int wpIndex, int unk)
+BVector *__thiscall BPath::waypoint(BPath *this, BVector *outVector, int wpIndex)
 {
-  BVector *v3; // edx
   BVector *result; // eax
 
-  if ( unk < 0 || unk >= this->waypointsCount )
+  if ( wpIndex < 0 || wpIndex >= this->waypointsCount )
   {
-    result = (BVector *)wpIndex;
-    *(_DWORD *)wpIndex = 0;
-    *(_DWORD *)(wpIndex + 4) = 0;
-    *(_DWORD *)(wpIndex + 8) = 0;
+    result = outVector;
+    outVector->x = 0.0;
+    outVector->z = 0.0;
+    outVector->y = 0.0;
   }
   else
   {
-    v3 = &this->waypoints[unk];
-    result = (BVector *)wpIndex;
-    *(float *)wpIndex = v3->x;
-    *(float *)(wpIndex + 4) = v3->y;
-    *(float *)(wpIndex + 8) = v3->z;
+    result = outVector;
+    *outVector = this->waypoints[wpIndex];
   }
   return result;
 }
@@ -196299,8 +196248,8 @@ int __thiscall BPath::addWaypointAtStart(BPath *this, BVector *wp)
         v8 = &this->waypoints[v7--];
         --v6;
         v8->x = v8[-1].x;
-        v8->y = v8[-1].y;
         v8->z = v8[-1].z;
+        v8->y = v8[-1].y;
       }
       while ( v6 );
     }
@@ -196387,7 +196336,7 @@ void __thiscall BPath::calculatePathLength(BPath *this)
       ++v2;
       ++v4;
       v5 = this->waypointsCount - 1;
-      this->pathLengthValue = sqrt(result.z * result.z + result.y * result.y + result.x * result.x)
+      this->pathLengthValue = sqrt(result.y * result.y + result.z * result.z + result.x * result.x)
                             + this->pathLengthValue;
     }
     while ( v2 < v5 );
@@ -196395,23 +196344,23 @@ void __thiscall BPath::calculatePathLength(BPath *this)
 }
 
 //----- (004BC670) --------------------------------------------------------
-int __thiscall BPath::nextPatrolWaypoint(BPath *this, int currentWaypoint, int modifyPath)
+int __thiscall BPath::nextPatrolWaypoint(BPath *this, int currentWaypoint)
 {
-  int v3; // eax
+  int v2; // eax
   int result; // eax
 
-  v3 = this->flags.valueValue;
-  if ( (BBitVectorAND_3[0] & v3) == 0 )
+  v2 = this->flags.valueValue;
+  if ( (BBitVectorAND_3[0] & v2) == 0 )
     return -1;
-  if ( (v3 & 0x20) != 0 )
+  if ( (v2 & 0x20) != 0 )
   {
     result = currentWaypoint + 1;
     if ( currentWaypoint + 1 >= this->waypointsCount )
       result = -1;
   }
-  else if ( (v3 & 2) != 0 )
+  else if ( (v2 & 2) != 0 )
   {
-    if ( (v3 & 4) != 0 )
+    if ( (v2 & 4) != 0 )
     {
       result = currentWaypoint + 1;
       if ( currentWaypoint + 1 >= this->waypointsCount )
@@ -196441,7 +196390,7 @@ int __thiscall BPath::nextPatrolWaypoint(BPath *this, int currentWaypoint, int m
 // 65C960: using guessed type int dword_65C960;
 
 //----- (004BC700) --------------------------------------------------------
-float __thiscall BPath::distanceFromPath(BPath *this, BVector point)
+double __thiscall BPath::distanceFromPath(BPath *this, BVector point)
 {
   int v3; // ebx
   int v4; // esi
@@ -196539,8 +196488,8 @@ void __thiscall BPath::copyGameData(BPath *this, BPath *path)
       {
         v7 = &path->waypoints[path->waypointsCount];
         v7->x = v6->x;
-        v7->y = v6->y;
         v7->z = v6->z;
+        v7->y = v6->y;
         ++path->waypointsCount;
       }
       ++v3;
@@ -196559,7 +196508,7 @@ void __thiscall BPath::copyGameData(BPath *this, BPath *path)
           ++v9;
           ++v8;
           v11 = path->waypointsCount - 1;
-          path->pathLengthValue = sqrt(result.z * result.z + result.y * result.y + result.x * result.x)
+          path->pathLengthValue = sqrt(result.y * result.y + result.z * result.z + result.x * result.x)
                                 + path->pathLengthValue;
         }
         while ( v9 < v11 );
@@ -196659,8 +196608,8 @@ void __thiscall BPath::load(BPath *this, int ifile)
     {
       v6 = &this->waypoints[this->waypointsCount];
       v6->x = buffer;
-      v6->y = v11;
-      v6->z = v12;
+      v6->z = v11;
+      v6->y = v12;
       ++this->waypointsCount;
     }
   }
@@ -196738,8 +196687,8 @@ bool __thiscall BPath::EnsureRoomInWaypointArray(BPath *this, int deltaSize)
         ++v3;
         ++v10;
         *v11 = LODWORD(v12->x);
-        v11[1] = LODWORD(v12->y);
-        v11[2] = LODWORD(v12->z);
+        v11[1] = LODWORD(v12->z);
+        v11[2] = LODWORD(v12->y);
       }
       while ( v3 < this->waypointsCount );
       v2 = deltaSize;
@@ -196822,20 +196771,20 @@ int __fastcall findLowLevelPath(void *obstruction_manager, BVector *start, BVect
 
   if ( targetID == -1
     || (v16 = RGE_Game_World::object((RGE_Game_World *)base_game->world, targetID)) == 0
-    || RGE_Static_Object::distance_to_position(v16, start->x, start->z, start->y) - unitRadius > range )
+    || RGE_Static_Object::distance_to_position(v16, start->x, start->y, start->z) - unitRadius > range )
   {
     if ( rPath
       && ((rPath->waypointsCount = 0, numberUnitsToIgnore <= 0) || unitsToIgnore)
       && (numberCollisionUnits <= 0 || collisionUnits)
       && (v18 = base_game->world, (v19 = v18->map) != 0)
       && start->x >= 0.0
-      && start->z >= 0.0
+      && start->y >= 0.0
       && (v21 = (float)v19->map_width, start->x < (double)v21)
-      && (v22 = (float)v19->map_height, start->z < (double)v22)
+      && (v22 = (float)v19->map_height, start->y < (double)v22)
       && goal->x >= 0.0
-      && goal->z >= 0.0
+      && goal->y >= 0.0
       && goal->x < (double)v21
-      && goal->z < (double)v22 )
+      && goal->y < (double)v22 )
     {
       rPath->creationTimeValue = v18->world_time;
       v20 = (*(int (__thiscall **)(void *, float *))(*(_DWORD *)obstruction_manager + 28))(
@@ -196850,10 +196799,10 @@ int __fastcall findLowLevelPath(void *obstruction_manager, BVector *start, BVect
       result = MShortPather::FindShortPath(
                  *((MShortPather **)obstruction_manager + 111),
                  start->x,
-                 start->z,
+                 start->y,
                  unitRadius,
                  goal->x,
-                 goal->z,
+                 goal->y,
                  targetID,
                  range,
                  v20,
@@ -196914,12 +196863,12 @@ int __fastcall totalCanPath(RGE_Moving_Object *unit, int targetID, BVector start
   v15 = v13->map;
   if ( start.x < 0.0
     || (double)v15->map_width <= start.x
-    || start.z < 0.0
-    || (double)v15->map_height <= start.z
+    || start.y < 0.0
+    || (double)v15->map_height <= start.y
     || goal.x < 0.0
     || (double)v15->map_width <= goal.x
-    || goal.z < 0.0
-    || (double)v15->map_height <= goal.z )
+    || goal.y < 0.0
+    || (double)v15->map_height <= goal.y )
   {
     return 0;
   }
@@ -196945,9 +196894,9 @@ int __fastcall totalCanPath(RGE_Moving_Object *unit, int targetID, BVector start
             v17,
             &ReturnPath,
             start.x,
-            start.z,
+            start.y,
             goal.x,
-            goal.z,
+            goal.y,
             dest_target_radius,
             range,
             0,
@@ -196964,21 +196913,21 @@ LABEL_32:
       }
     }
   }
-  if ( sqrt((goal.x - start.x) * (goal.x - start.x) + (goal.z - start.z) * (goal.z - start.z)) > 10.0 )
+  if ( sqrt((goal.x - start.x) * (goal.x - start.x) + (goal.y - start.y) * (goal.y - start.y)) > 10.0 )
   {
 LABEL_28:
     if ( v16 )
       v28 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)unit, v16);
     else
-      v28 = RGE_Static_Object::distance_to_position((RGE_Static_Object *)unit, goal.x, goal.z, goal.y);
+      v28 = RGE_Static_Object::distance_to_position((RGE_Static_Object *)unit, goal.x, goal.y, goal.z);
     if ( v28 >= 1.0 )
     {
       v29 = PathingSystem::findTilePath(
               &pathSystem,
               (__int64)start.x,
-              (__int64)start.z,
+              (__int64)start.y,
               (__int64)goal.x,
-              (__int64)goal.z,
+              (__int64)goal.y,
               unit,
               v18,
               targetID,
@@ -197156,7 +197105,7 @@ int __fastcall cpAttack(RGE_Static_Object *a1, float sx, float sy, float a4, flo
 //----- (004BD560) --------------------------------------------------------
 int __fastcall cpAttackCanPath(RGE_Static_Object *a1, RGE_Static_Object *a2, BVector a3, BVector a4, float a5, float *a6, int a7, int a8, int a9, Exclude_Rect *a10, BPath *a11)
 {
-  return cpAttack(a1, a3.x, a3.z, a4.x, a4.z, a5, a6, a7, a8, a11, 1, a2, a9, a10, 0);
+  return cpAttack(a1, a3.x, a3.y, a4.x, a4.y, a5, a6, a7, a8, a11, 1, a2, a9, a10, 0);
 }
 
 //----- (004BD5B0) --------------------------------------------------------
@@ -198443,8 +198392,8 @@ bool __thiscall PathingSystem::copyPath(PathingSystem *this, RGE_Static_Object *
       if ( v29 != v11 )
       {
         wp.x = v15;
-        wp.z = v34;
-        wp.y = v35;
+        wp.y = v34;
+        wp.z = v35;
         result = BPath::addWaypointAtStart(v8, &wp);
         if ( !result )
           goto LABEL_43;
@@ -198556,8 +198505,8 @@ LABEL_37:
       v34 = (double)objectCount + 0.5;
     }
     wp.x = v15;
-    wp.z = v34;
-    wp.y = v35;
+    wp.y = v34;
+    wp.z = v35;
     result = BPath::addWaypointAtStart(v8, &wp);
     LOBYTE(result) = result;
   }
@@ -202961,7 +202910,7 @@ void __thiscall RGE_Player::update_built_object_count(RGE_Player *this, int obj_
 }
 
 //----- (004C4470) --------------------------------------------------------
-float __thiscall RGE_Player::getDebitAmount(RGE_Player *this, int resource)
+double __thiscall RGE_Player::getDebitAmount(RGE_Player *this, int resource)
 {
   double result; // st7
 
@@ -202973,7 +202922,7 @@ float __thiscall RGE_Player::getDebitAmount(RGE_Player *this, int resource)
 }
 
 //----- (004C44A0) --------------------------------------------------------
-float __thiscall RGE_Player::getEscrowAmount(RGE_Player *this, int resource)
+double __thiscall RGE_Player::getEscrowAmount(RGE_Player *this, int resource)
 {
   double result; // st7
 
@@ -300127,7 +300076,7 @@ void __thiscall RGE_Static_Object::teleport_off_map(RGE_Static_Object *this)
 }
 
 //----- (0054F820) --------------------------------------------------------
-float __thiscall RGE_Static_Object::teleport(RGE_Static_Object *this, float x, float y, float z)
+double __thiscall RGE_Static_Object::teleport(RGE_Static_Object *this, float x, float y, float z)
 {
   double v4; // st7
   RGE_Map *v6; // ebp
@@ -300331,7 +300280,7 @@ LABEL_68:
 // 54FC15: variable 'v25' is possibly undefined
 
 //----- (0054FD20) --------------------------------------------------------
-float __thiscall RGE_Static_Object::handle_teleport_z_correction(RGE_Static_Object *this, float ground_z)
+double __thiscall RGE_Static_Object::handle_teleport_z_correction(RGE_Static_Object *this, float ground_z)
 {
   RGE_Master_Static_Object *v2; // edx
   __int16 v3; // ax
@@ -301845,7 +301794,7 @@ void __thiscall RGE_Static_Object::damage(RGE_Static_Object *this, int weapon_nu
 // 662C88: using guessed type int dword_662C88;
 
 //----- (005518F0) --------------------------------------------------------
-float __thiscall RGE_Static_Object::calculateDamage(RGE_Static_Object *this, int weapon_num, RGE_Armor_Weapon_Info *damage, float attack_modifier, RGE_Player *attacking_player, RGE_Static_Object *attackingObject)
+double __thiscall RGE_Static_Object::calculateDamage(RGE_Static_Object *this, int weapon_num, RGE_Armor_Weapon_Info *damage, float attack_modifier, RGE_Player *attacking_player, RGE_Static_Object *attackingObject)
 {
   double result; // st7
   int v7; // ecx
@@ -302011,13 +301960,13 @@ int __thiscall RGE_Static_Object::inRange(RGE_Static_Object *this, RGE_Static_Ob
 }
 
 //----- (00551B80) --------------------------------------------------------
-float __thiscall RGE_Static_Object::distance_to_object(RGE_Static_Object *this, RGE_Static_Object *obj)
+double __thiscall RGE_Static_Object::distance_to_object(RGE_Static_Object *this, RGE_Static_Object *obj)
 {
   return RGE_Static_Object::distance_to_object2(this, obj, this->world_x, this->world_y);
 }
 
 //----- (00551BA0) --------------------------------------------------------
-float __thiscall RGE_Static_Object::distance_to_object2(RGE_Static_Object *this, RGE_Static_Object *obj, float x, float y)
+double __thiscall RGE_Static_Object::distance_to_object2(RGE_Static_Object *this, RGE_Static_Object *obj, float x, float y)
 {
   double result; // st7
   double v6; // st7
@@ -302052,7 +302001,7 @@ float __thiscall RGE_Static_Object::distance_to_object2(RGE_Static_Object *this,
 }
 
 //----- (00551C60) --------------------------------------------------------
-float __thiscall RGE_Static_Object::distance_to_position(RGE_Static_Object *unit, float x, float y, float z)
+double __thiscall RGE_Static_Object::distance_to_position(RGE_Static_Object *unit, float x, float y, float z)
 {
   double v4; // st7
   double v5; // st6
@@ -302874,8 +302823,8 @@ BVector *__thiscall RGE_Static_Object::position(RGE_Static_Object *this, BVector
   v3 = this->world_z;
   v4 = result;
   result->x = this->world_x;
-  result->y = v3;
-  result->z = v2;
+  result->z = v3;
+  result->y = v2;
   return v4;
 }
 
@@ -302902,15 +302851,15 @@ void __thiscall RGE_Static_Object::setOrientation(RGE_Static_Object *this, BVect
   float fc; // [esp+44h] [ebp+4h]
 
   v16 = *f;
-  v4 = sqrt(v16.z * v16.z + v16.x * v16.x);
+  v4 = sqrt(v16.y * v16.y + v16.x * v16.x);
   v16.x = v16.x / v4;
-  v16.y = 0.0 / v4;
-  v16.z = v16.z / v4;
+  v16.z = 0.0 / v4;
+  v16.y = v16.y / v4;
   v5 = sqrt(2.0);
   v.x = 1.0 / v5;
-  v.y = 0.0 / v5;
-  v.z = v.x;
-  v6 = v16.z * v.x + v.x * v16.x + v.y * v16.y;
+  v.z = 0.0 / v5;
+  v.y = v.x;
+  v6 = v16.y * v.x + v.x * v16.x + v.z * v16.z;
   fa = v6;
   if ( v6 == 1.0 )
   {
@@ -302925,7 +302874,7 @@ void __thiscall RGE_Static_Object::setOrientation(RGE_Static_Object *this, BVect
     fb = acos(fa);
   }
   BVector::operator_mul(&v16, &result, &v);
-  v7 = result.y >= 0.0;
+  v7 = result.z >= 0.0;
   v8 = this->sprite;
   if ( !v8 || (v9 = v8->facet_num, v10 = v9, v9 <= 8) )
     v10 = 8;
@@ -302957,7 +302906,7 @@ void __thiscall RGE_Static_Object::setOrientation(RGE_Static_Object *this, BVect
 }
 
 //----- (00552E10) --------------------------------------------------------
-float __thiscall RGE_Static_Object::searchRadius(RGE_Static_Object *this)
+double __thiscall RGE_Static_Object::searchRadius(RGE_Static_Object *this)
 {
   return this->master_obj->los;
 }
@@ -303242,11 +303191,11 @@ TRIBE_Building_Object *__thiscall TRIBE_Building_Object::TRIBE_Building_Object(T
   this->pending_order = 0;
   this->snow_flag = 0;
   this->mEndpoint1.x = 0.0;
-  this->mEndpoint1.y = 0.0;
   this->mEndpoint1.z = 0.0;
+  this->mEndpoint1.y = 0.0;
   this->mEndpoint2.x = 0.0;
-  this->mEndpoint2.y = 0.0;
   this->mEndpoint2.z = 0.0;
+  this->mEndpoint2.y = 0.0;
   this->mFirstUpdate = 1;
   this->mGateLocked = 0;
   this->mCloseTimer = 0.0;
@@ -303347,11 +303296,11 @@ TRIBE_Building_Object *__thiscall TRIBE_Building_Object::TRIBE_Building_Object2(
   this->pending_order = 0;
   this->snow_flag = 0;
   this->mEndpoint1.x = 0.0;
-  this->mEndpoint1.y = 0.0;
   this->mEndpoint1.z = 0.0;
+  this->mEndpoint1.y = 0.0;
   this->mEndpoint2.x = 0.0;
-  this->mEndpoint2.y = 0.0;
   this->mEndpoint2.z = 0.0;
+  this->mEndpoint2.y = 0.0;
   this->mFirstUpdate = 1;
   this->mGateLocked = 0;
   this->mCloseTimer = 0.0;
@@ -303417,11 +303366,11 @@ TRIBE_Building_Object *__thiscall TRIBE_Building_Object::TRIBE_Building_Object3(
   this->pending_order = 0;
   this->snow_flag = 0;
   this->mEndpoint1.x = 0.0;
-  this->mEndpoint1.y = 0.0;
   this->mEndpoint1.z = 0.0;
+  this->mEndpoint1.y = 0.0;
   this->mEndpoint2.x = 0.0;
-  this->mEndpoint2.y = 0.0;
   this->mEndpoint2.z = 0.0;
+  this->mEndpoint2.y = 0.0;
   this->mFirstUpdate = 1;
   this->mGateLocked = 0;
   this->mCloseTimer = 0.0;
@@ -303613,11 +303562,11 @@ void __thiscall TRIBE_Building_Object::recycle_out_of_game(TRIBE_Building_Object
     TRIBE_Building_Object::change_terrain(this, 0x1Bu);
   }
   this->mEndpoint1.x = 0.0;
-  this->mEndpoint1.y = 0.0;
   this->mEndpoint1.z = 0.0;
+  this->mEndpoint1.y = 0.0;
   this->mEndpoint2.x = 0.0;
-  this->mEndpoint2.y = 0.0;
   this->mEndpoint2.z = 0.0;
+  this->mEndpoint2.y = 0.0;
   v9 = this->snow_flag;
   this->mGateLocked = 0;
   this->mFirstUpdate = 1;
@@ -303794,11 +303743,11 @@ int __thiscall TRIBE_Building_Object::setup(TRIBE_Building_Object *this, TRIBE_M
       this->wonder_node = RGE_Object_List::add_node(v27, (RGE_Static_Object *)this);
   }
   this->mEndpoint1.x = 0.0;
-  this->mEndpoint1.y = 0.0;
   this->mEndpoint1.z = 0.0;
+  this->mEndpoint1.y = 0.0;
   this->mEndpoint2.x = 0.0;
-  this->mEndpoint2.y = 0.0;
   this->mEndpoint2.z = 0.0;
+  this->mEndpoint2.y = 0.0;
   v28 = this->owner;
   this->mGateLocked = 0;
   this->mFirstUpdate = 1;
@@ -306145,7 +306094,7 @@ RGE_Static_Object *__thiscall TRIBE_Building_Object::spawn_death_obj(TRIBE_Build
 }
 
 //----- (00557040) --------------------------------------------------------
-float __thiscall TRIBE_Building_Object::teleport(TRIBE_Building_Object *this, float x, float y, float z)
+double __thiscall TRIBE_Building_Object::teleport(TRIBE_Building_Object *this, float x, float y, float z)
 {
   TRIBE_Master_Building_Object *v5; // edi
   double result; // st7
@@ -306684,7 +306633,7 @@ int __thiscall TRIBE_Building_Object::production_queue_status(TRIBE_Building_Obj
 }
 
 //----- (00557BA0) --------------------------------------------------------
-float __thiscall TRIBE_Building_Object::calc_attack_modifier(TRIBE_Building_Object *this, RGE_Static_Object *target)
+double __thiscall TRIBE_Building_Object::calc_attack_modifier(TRIBE_Building_Object *this, RGE_Static_Object *target)
 {
   double result; // st7
 
@@ -307142,14 +307091,14 @@ void __thiscall TRIBE_Building_Object::updateGate(TRIBE_Building_Object *this)
     {
       v2 = this->linked_child[0]->vfptr->position(this->linked_child[0], v11);
       this->mEndpoint1.x = v2->x;
-      this->mEndpoint1.y = v2->y;
       this->mEndpoint1.z = v2->z;
+      this->mEndpoint1.y = v2->y;
       v3 = this->linked_child[1]->vfptr->position(this->linked_child[1], v11);
       this->mEndpoint2.x = v3->x;
-      this->mEndpoint2.y = v3->y;
-      v4 = v3->z;
+      this->mEndpoint2.z = v3->z;
+      v4 = v3->y;
       this->mFirstUpdate = 0;
-      this->mEndpoint2.z = v4;
+      this->mEndpoint2.y = v4;
     }
     if ( this->mGateLocked != 1 || this->master_obj->radius_z <= 0.0000001 )
     {
@@ -307286,7 +307235,7 @@ void __thiscall TRIBE_Building_Object::set_being_worked_on(TRIBE_Building_Object
 }
 
 //----- (00558730) --------------------------------------------------------
-float __thiscall TRIBE_Building_Object::getTradeAmount(TRIBE_Building_Object *this, float pickupX, float pickupY, float workRate, float speed)
+double __thiscall TRIBE_Building_Object::getTradeAmount(TRIBE_Building_Object *this, float pickupX, float pickupY, float workRate, float speed)
 {
   double v5; // st7
   double v6; // st6
@@ -309943,7 +309892,7 @@ LABEL_34:
 }
 
 //----- (0055BBC0) --------------------------------------------------------
-float __thiscall TRIBE_Combat_Object::calc_attack_modifier(TRIBE_Combat_Object *this, RGE_Static_Object *target)
+double __thiscall TRIBE_Combat_Object::calc_attack_modifier(TRIBE_Combat_Object *this, RGE_Static_Object *target)
 {
   double result; // st7
   float v4; // [esp+4h] [ebp-4h]
@@ -312189,7 +312138,7 @@ void __thiscall TRIBE_Combat_Object::notify_of_relation(TRIBE_Combat_Object *thi
 // 408FC0: using guessed type _DWORD __stdcall nullsub_1(_DWORD, _DWORD);
 
 //----- (0055E8A0) --------------------------------------------------------
-float __thiscall TRIBE_Combat_Object::calc_volley_base_info(TRIBE_Combat_Object *this)
+double __thiscall TRIBE_Combat_Object::calc_volley_base_info(TRIBE_Combat_Object *this)
 {
   double result; // st7
   TRIBE_Master_Combat_Object *v2; // edi
@@ -312811,7 +312760,7 @@ int __thiscall TRIBE_Combat_Object::unlock_down(TRIBE_Combat_Object *this)
 }
 
 //----- (0055F460) --------------------------------------------------------
-float __thiscall TRIBE_Combat_Object::maximumSpeed(TRIBE_Combat_Object *this)
+double __thiscall TRIBE_Combat_Object::maximumSpeed(TRIBE_Combat_Object *this)
 {
   double result; // st7
 
@@ -312929,9 +312878,9 @@ LABEL_5:
           UnitAIModule::setCurrentTarget2(this->unitAIValue, obj->id, obj->master_obj->object_group, x, y, z);
           v10 = obj->vfptr->position(obj, v15);
           *(float *)v14 = v10->x;
-          *(float *)&v14[4] = v10->y;
+          *(float *)&v14[4] = v10->z;
           v11 = this->vfptr;
-          *(float *)&v14[8] = v10->z;
+          *(float *)&v14[8] = v10->y;
           v13 = obj->id;
         }
         else
@@ -318682,7 +318631,7 @@ LABEL_20:
               case 1u:
                 break;
               case 3u:
-                if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) > (double)this->requiredRange )
+                if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) > this->requiredRange )
                   goto LABEL_27;
                 break;
               case 4u:
@@ -318972,8 +318921,7 @@ int __thiscall TRIBE_Action_Convert::checkRange(TRIBE_Action_Convert *this)
       goto LABEL_9;
     v3 = RGE_Game_World::object((RGE_Game_World *)this->obj->owner->world, this->savedTargetID);
     v4 = v3;
-    if ( v3
-      && RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, v3) < (double)this->obj->master_obj->los )
+    if ( v3 && RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, v3) < this->obj->master_obj->los )
     {
       ((void (__thiscall *)(TRIBE_Action_Convert *, RGE_Static_Object *, _DWORD, _DWORD, _DWORD))this->vfptr->work)(
         this,
@@ -319004,7 +318952,7 @@ LABEL_9:
       this->lastTargetYPoint = v10->world_y;
     }
   }
-  if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) <= (double)this->requiredRange )
+  if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) <= this->requiredRange )
     return 1;
   v11 = 0.0;
   if ( v6 == 15
@@ -326788,7 +326736,7 @@ unsigned __int8 __thiscall TRIBE_Action_Unpack::update(TRIBE_Action_Unpack *this
         case 3u:
           if ( this->target_obj )
           {
-            if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) <= (double)this->range )
+            if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) <= this->range )
             {
 LABEL_15:
               this->vfptr->set_state(this, 6u);
@@ -326800,7 +326748,7 @@ LABEL_15:
                       (RGE_Static_Object *)this->obj,
                       this->target_x,
                       this->target_y,
-                      0.0) <= (double)this->range )
+                      0.0) <= this->range )
           {
             goto LABEL_15;
           }
@@ -337491,21 +337439,21 @@ TribeInformationAIModule *__thiscall TribeInformationAIModule::TribeInformationA
   this->mEnemySoldiersInTown.maximumSizeValue = 0;
   v4 = &this->mUnitDeaths;
   this->mUnitDeaths.mUnitPosition.x = 0.0;
-  this->mUnitDeaths.mUnitPosition.y = 0.0;
   this->mUnitDeaths.mUnitPosition.z = 0.0;
+  this->mUnitDeaths.mUnitPosition.y = 0.0;
   this->mUnitDeaths.mAttackingUnitPosition.x = 0.0;
-  this->mUnitDeaths.mAttackingUnitPosition.y = 0.0;
   this->mUnitDeaths.mAttackingUnitPosition.z = 0.0;
+  this->mUnitDeaths.mAttackingUnitPosition.y = 0.0;
   this->mUnitDeaths.mUnitID = -1;
   this->mUnitDeaths.mUnitPosition.x = 0.0;
-  this->mUnitDeaths.mUnitPosition.y = 0.0;
   this->mUnitDeaths.mUnitPosition.z = 0.0;
+  this->mUnitDeaths.mUnitPosition.y = 0.0;
   this->mUnitDeaths.mAttackingPlayerID = -1;
   this->mUnitDeaths.mAttackingUnitID = -1;
   this->mUnitDeaths.mAttackingUnitRange = 0;
   this->mUnitDeaths.mAttackingUnitPosition.x = 0.0;
-  this->mUnitDeaths.mAttackingUnitPosition.y = 0.0;
   this->mUnitDeaths.mAttackingUnitPosition.z = 0.0;
+  this->mUnitDeaths.mAttackingUnitPosition.y = 0.0;
   this->mUnitDeaths.mTime = 0;
   this->vfptr = &TribeInformationAIModule::vftable;
   memset(this->mGoal, 0xFFu, sizeof(this->mGoal));
@@ -337867,21 +337815,21 @@ TribeInformationAIModule *__thiscall TribeInformationAIModule::TribeInformationA
   LOBYTE(v93) = 11;
   v5 = infile;
   this->mUnitDeaths.mUnitPosition.x = 0.0;
-  this->mUnitDeaths.mUnitPosition.y = 0.0;
   this->mUnitDeaths.mUnitPosition.z = 0.0;
+  this->mUnitDeaths.mUnitPosition.y = 0.0;
   this->mUnitDeaths.mAttackingUnitPosition.x = 0.0;
-  this->mUnitDeaths.mAttackingUnitPosition.y = 0.0;
   this->mUnitDeaths.mAttackingUnitPosition.z = 0.0;
+  this->mUnitDeaths.mAttackingUnitPosition.y = 0.0;
   this->mUnitDeaths.mUnitID = -1;
   this->mUnitDeaths.mUnitPosition.x = 0.0;
-  this->mUnitDeaths.mUnitPosition.y = 0.0;
   this->mUnitDeaths.mUnitPosition.z = 0.0;
+  this->mUnitDeaths.mUnitPosition.y = 0.0;
   this->mUnitDeaths.mAttackingPlayerID = -1;
   this->mUnitDeaths.mAttackingUnitID = -1;
   this->mUnitDeaths.mAttackingUnitRange = 0;
   this->mUnitDeaths.mAttackingUnitPosition.x = 0.0;
-  this->mUnitDeaths.mAttackingUnitPosition.y = 0.0;
   this->mUnitDeaths.mAttackingUnitPosition.z = 0.0;
+  this->mUnitDeaths.mAttackingUnitPosition.y = 0.0;
   this->mUnitDeaths.mTime = 0;
   this->vfptr = &TribeInformationAIModule::vftable;
   rge_read(v5, &this->mDoctrine, 4u);
@@ -338416,21 +338364,21 @@ LABEL_139:
           if ( v81 )
           {
             v81->mUnitPosition.x = 0.0;
-            v81->mUnitPosition.y = 0.0;
             v81->mUnitPosition.z = 0.0;
+            v81->mUnitPosition.y = 0.0;
             v81->mAttackingUnitPosition.x = 0.0;
-            v81->mAttackingUnitPosition.y = 0.0;
             v81->mAttackingUnitPosition.z = 0.0;
+            v81->mAttackingUnitPosition.y = 0.0;
             v81->mUnitID = -1;
             v81->mUnitPosition.x = 0.0;
-            v81->mUnitPosition.y = 0.0;
             v81->mUnitPosition.z = 0.0;
+            v81->mUnitPosition.y = 0.0;
             v81->mAttackingPlayerID = -1;
             v81->mAttackingUnitID = -1;
             v81->mAttackingUnitRange = 0;
             v81->mAttackingUnitPosition.x = 0.0;
-            v81->mAttackingUnitPosition.y = 0.0;
             v81->mAttackingUnitPosition.z = 0.0;
+            v81->mAttackingUnitPosition.y = 0.0;
             v81->mTime = 0;
             rge_read(v5, v81, 4u);
             rge_read(v5, &v81->mUnitPosition, 0xCu);
@@ -348193,7 +348141,7 @@ LABEL_28:
 }
 
 //----- (00590EB0) --------------------------------------------------------
-float __thiscall TribeInformationAIModule::findClosestDropsite(TribeInformationAIModule *this, RGE_Static_Object *resourceObj, int countTownCenter, int *dropsiteID)
+double __thiscall TribeInformationAIModule::findClosestDropsite(TribeInformationAIModule *this, RGE_Static_Object *resourceObj, int countTownCenter, int *dropsiteID)
 {
   int v5; // eax
   int v6; // ebx
@@ -348597,7 +348545,7 @@ void __thiscall TribeInformationAIModule::enemyUnitsInRange(TribeInformationAIMo
         {
           if ( v6->object_state <= 2u && v6->hp >= 1.0 )
           {
-            v20 = RGE_Static_Object::distance_to_position(v6, position.x, position.z, 0.0);
+            v20 = RGE_Static_Object::distance_to_position(v6, position.x, position.y, 0.0);
             if ( ((double (__thiscall *)(RGE_Static_Object *))v7->vfptr->damageCapability_1)(v7) >= v20 )
             {
               v8 = rUnits->numberValue;
@@ -349405,7 +349353,7 @@ void __thiscall AIBestUnitToAttackStatistics::addUnit(AIBestUnitToAttackStatisti
   v8->mTargets[v8->mNumberTargets].mDistance = RGE_Static_Object::distance_to_position(
                                                  target,
                                                  unitCentroid->x,
-                                                 unitCentroid->z,
+                                                 unitCentroid->y,
                                                  0.0);
   v15 = &v8->mTargets[v8->mNumberTargets].mDistance;
   if ( *v15 < (double)v8->mShortestDistance )
@@ -350218,8 +350166,8 @@ ObjectMemory *__thiscall TribeInformationAIModule::objectToAttack2(TribeInformat
   landGroup = 1;
   allMonks = 0;
   unitCentroid.x = 0.0;
-  unitCentroid.y = 0.0;
   unitCentroid.z = 0.0;
+  unitCentroid.y = 0.0;
   anyPetards = 0;
   anyGarrisonedRams = 0;
   if ( !TribeInformationAIModule::verifyGroupValidity(
@@ -350408,9 +350356,9 @@ LABEL_74:
               AIBestUnitToAttackStatistics::addExcludeRegion(
                 &statistics_0,
                 v47 - i->mAttackingUnitRange,
-                (__int64)i->mAttackingUnitPosition.z - i->mAttackingUnitRange,
+                (__int64)i->mAttackingUnitPosition.y - i->mAttackingUnitRange,
                 i->mAttackingUnitRange + v47,
-                (__int64)i->mAttackingUnitPosition.z + i->mAttackingUnitRange);
+                (__int64)i->mAttackingUnitPosition.y + i->mAttackingUnitRange);
               v9 = v101;
               v8 = group;
             }
@@ -350472,7 +350420,7 @@ LABEL_83:
                   v57,
                   &v117,
                   referenceMonkID);
-          *(_QWORD *)&v88.y = *(_QWORD *)v59;
+          *(_QWORD *)&v88.z = *(_QWORD *)v59;
           v92 = *(float *)(v59 + 8);
           LODWORD(v88.x) = &v120;
           v85 = *(BVector *)((int (__thiscall *)(RGE_Static_Object *))v55->vfptr->position)(v55);
@@ -350496,17 +350444,17 @@ LABEL_83:
           {
             v62 = (__int64)v58->world_x;
             v63 = v58->world_z;
-            LODWORD(unitCentroid.y) = (__int64)v58->world_y;
-            LODWORD(unitCentroid.z) = (__int64)v63;
-            BPath::BPath((BPath *)&v118.z, -1);
+            LODWORD(unitCentroid.z) = (__int64)v58->world_y;
+            LODWORD(unitCentroid.y) = (__int64)v63;
+            BPath::BPath((BPath *)&v118.y, -1);
             v89 = v58->id;
             v64 = v55->vfptr;
             v122 = 0;
             if ( ((int (__thiscall *)(RGE_Static_Object *, int, _DWORD, _DWORD, int, int, _DWORD, int, int, int, int, int, int, int, float *))v64->canPathWithAdditionalPassability)(
                    v55,
                    v62,
-                   LODWORD(unitCentroid.y),
                    LODWORD(unitCentroid.z),
+                   LODWORD(unitCentroid.y),
                    referenceMonkID,
                    v89,
                    0,
@@ -350517,7 +350465,7 @@ LABEL_83:
                    15,
                    -1,
                    -1,
-                   &v118.z) == 1 )
+                   &v118.y) == 1 )
             {
               v69 = groupZone;
               *onSameZone = statistics_0.mTargets[statistics_0.mSortedTargetIndices[groupZone]].mSameZone;
@@ -350529,37 +350477,37 @@ LABEL_83:
                         1,
                         (float *)&memoryIndex,
                         (float *)&v100,
-                        (BPath *)&v118.z)
+                        (BPath *)&v118.y)
                   && !v55->vfptr->findFirstTerrainAlongExceptionPath(
                         v55,
                         22,
                         (float *)&memoryIndex,
                         (float *)&v100,
-                        (BPath *)&v118.z)
+                        (BPath *)&v118.y)
                   && !v55->vfptr->findFirstTerrainAlongExceptionPath(
                         v55,
                         23,
                         (float *)&memoryIndex,
                         (float *)&v100,
-                        (BPath *)&v118.z)
+                        (BPath *)&v118.y)
                   && !v55->vfptr->findFirstTerrainAlongExceptionPath(
                         v55,
                         16,
                         (float *)&memoryIndex,
                         (float *)&v100,
-                        (BPath *)&v118.z)
+                        (BPath *)&v118.y)
                   && !v55->vfptr->findFirstTerrainAlongExceptionPath(
                         v55,
                         15,
                         (float *)&memoryIndex,
                         (float *)&v100,
-                        (BPath *)&v118.z) )
+                        (BPath *)&v118.y) )
                 {
                   v70 = ((int (__thiscall *)(RGE_Static_Object *, float *, int))v58->vfptr->position)(
                           v58,
-                          &v120.z,
+                          &v120.y,
                           referenceMonkID);
-                  *(_QWORD *)&v90.y = *(_QWORD *)v70;
+                  *(_QWORD *)&v90.z = *(_QWORD *)v70;
                   v93 = *(float *)(v70 + 8);
                   LODWORD(v90.x) = &v121;
                   v86 = *(BVector *)((int (__thiscall *)(RGE_Static_Object *))v55->vfptr->position)(v55);
@@ -350575,11 +350523,11 @@ LABEL_83:
               v73 = &v101->importantObjectMemory[statistics_0.mTargets[statistics_0.mSortedTargetIndices[v69]].mMemoryIndex].attackAttempts;
               ++*v73;
               v74 = &v72->importantObjectMemory[statistics_0.mTargets[statistics_0.mSortedTargetIndices[v69]].mMemoryIndex];
-              BPath::destructor((BPath *)&v118.z);
+              BPath::destructor((BPath *)&v118.y);
               return v74;
             }
             v122 = -1;
-            BPath::destructor((BPath *)&v118.z);
+            BPath::destructor((BPath *)&v118.y);
           }
           v65 = 0;
           v107 = 0;
@@ -350688,7 +350636,7 @@ LABEL_83:
       if ( v21 == groupZone )
       {
         v22 = ((int (__thiscall *)(RGE_Static_Object *, char *, _DWORD))v20->vfptr->position)(v20, v119, 0);
-        *(_QWORD *)&v87.y = *(_QWORD *)v22;
+        *(_QWORD *)&v87.z = *(_QWORD *)v22;
         v91 = *(float *)(v22 + 8);
         LODWORD(v87.x) = &v118;
         v84 = *(BVector *)((int (__thiscall *)(RGE_Static_Object *))v11->vfptr->position)(v11);
@@ -350771,8 +350719,8 @@ int __thiscall TribeInformationAIModule::verifyGroupValidity(TribeInformationAIM
 
   v10 = 0;
   unitCentroid->x = 0.0;
-  unitCentroid->y = 0.0;
   unitCentroid->z = 0.0;
+  unitCentroid->y = 0.0;
   *allMonks = 1;
   if ( numberUnits <= 0 )
   {
@@ -350780,8 +350728,8 @@ LABEL_17:
     v16 = (double)numberUnits;
     result = 1;
     unitCentroid->x = unitCentroid->x / v16;
-    unitCentroid->y = unitCentroid->y / v16;
     unitCentroid->z = unitCentroid->z / v16;
+    unitCentroid->y = unitCentroid->y / v16;
   }
   else
   {
@@ -350814,8 +350762,8 @@ LABEL_17:
       }
       v15 = (float *)v12->vfptr->position(v12, &v19);
       unitCentroid->x = unitCentroid->x + *v15;
-      unitCentroid->y = v15[1] + unitCentroid->y;
-      unitCentroid->z = v15[2] + unitCentroid->z;
+      unitCentroid->z = v15[1] + unitCentroid->z;
+      unitCentroid->y = v15[2] + unitCentroid->y;
       if ( v12->master_obj->object_group == 50 && *referenceMonkID == -1 )
         *referenceMonkID = v12->id;
       if ( v12->master_obj->object_group != 50 )
@@ -350850,28 +350798,28 @@ void __thiscall TribeInformationAIModule::addUnitDeath(TribeInformationAIModule 
     if ( v5 )
     {
       v5->mUnitPosition.x = 0.0;
-      v5->mUnitPosition.y = 0.0;
       v5->mUnitPosition.z = 0.0;
+      v5->mUnitPosition.y = 0.0;
       v5->mAttackingUnitPosition.x = 0.0;
-      v5->mAttackingUnitPosition.y = 0.0;
       v5->mAttackingUnitPosition.z = 0.0;
+      v5->mAttackingUnitPosition.y = 0.0;
       v5->mUnitID = -1;
       v5->mUnitPosition.x = 0.0;
-      v5->mUnitPosition.y = 0.0;
       v5->mUnitPosition.z = 0.0;
+      v5->mUnitPosition.y = 0.0;
       v5->mAttackingPlayerID = -1;
       v5->mAttackingUnitID = -1;
       v5->mAttackingUnitRange = 0;
       v5->mAttackingUnitPosition.x = 0.0;
-      v5->mAttackingUnitPosition.y = 0.0;
       v5->mAttackingUnitPosition.z = 0.0;
+      v5->mAttackingUnitPosition.y = 0.0;
       v5->mTime = 0;
       v5->mUnitID = unitID;
       v7 = v3->vfptr->position(v3, &v12);
       v6->mUnitPosition.x = v7->x;
-      v8 = v7->y;
-      v6->mUnitPosition.y = v8;
-      v6->mUnitPosition.z = v7->z;
+      v8 = v7->z;
+      v6->mUnitPosition.z = v8;
+      v6->mUnitPosition.y = v7->y;
       if ( v4 )
       {
         v6->mAttackingUnitID = v4->id;
@@ -350896,8 +350844,8 @@ void __thiscall TribeInformationAIModule::addUnitDeath(TribeInformationAIModule 
                          &v12);
       }
       v6->mAttackingUnitPosition.x = *v10;
-      v6->mAttackingUnitPosition.y = v10[1];
-      v6->mAttackingUnitPosition.z = v10[2];
+      v6->mAttackingUnitPosition.z = v10[1];
+      v6->mAttackingUnitPosition.y = v10[2];
       v6->mTime = base_game->world->world_time;
       v6->mNext = &this->mUnitDeaths;
       v6->mPrev = this->mUnitDeaths.mPrev;
@@ -354322,12 +354270,12 @@ TacticalAIGroup *__thiscall TacticalAIGroup::TacticalAIGroup(TacticalAIGroup *th
   this->objectsToDestroyOwnerValue = -1;
   this->lastAddedUnitTimeValue = 0;
   this->mCentroid.x = 0.0;
-  this->mCentroid.y = 0.0;
   this->mCentroid.z = 0.0;
+  this->mCentroid.y = 0.0;
   this->mFlags.valueValue = 0;
   this->mRandomMovePoint.x = 0.0;
-  this->mRandomMovePoint.y = 0.0;
   this->mRandomMovePoint.z = 0.0;
+  this->mRandomMovePoint.y = 0.0;
   this->targetLocationValue.x = -1.0;
   this->targetLocationValue.y = -1.0;
   this->targetLocationValue.z = -1.0;
@@ -354537,8 +354485,8 @@ int __thiscall TacticalAIGroup::update(TacticalAIGroup *this, TribeTacticalAIMod
   v4 = this->numberUnitsValue;
   v5 = 0;
   v59.x = 0.0;
-  v59.y = 0.0;
   v59.z = 0.0;
+  v59.y = 0.0;
   v57 = 0;
   v53 = 0;
   v49 = 0;
@@ -354556,8 +354504,8 @@ int __thiscall TacticalAIGroup::update(TacticalAIGroup *this, TribeTacticalAIMod
         v8 = (float *)v7->vfptr->position(v7, &result);
         ++v57;
         v59.x = v59.x + *v8;
-        v59.y = v59.y + v8[1];
-        v59.z = v59.z + v8[2];
+        v59.z = v59.z + v8[1];
+        v59.y = v59.y + v8[2];
         if ( v7->selected == 1 )
           this->mFlags.valueValue |= BBitVectorAND_0[2];
         if ( TribeTacticalAIModule::isUnitIdle(t, v7->id) )
@@ -354648,14 +354596,14 @@ LABEL_19:
     && (v18 = RGE_Game_World::object((RGE_Game_World *)base_game->world, this->unitsValue[0]),
         v19 = t->mTownDefenseGatherPoint.x,
         result.x = v19,
-        result.y = t->mTownDefenseGatherPoint.y,
         result.z = t->mTownDefenseGatherPoint.z,
+        result.y = t->mTownDefenseGatherPoint.y,
         v18)
-    && ((v48 = RGE_Static_Object::lookupZone(v18, (__int64)result.x, (__int64)result.z),
+    && ((v48 = RGE_Static_Object::lookupZone(v18, (__int64)result.x, (__int64)result.y),
          RGE_Static_Object::currentZone(v18) == v48)
      || this->typeValue == 108) )
   {
-    v20 = result.z;
+    v20 = result.y;
     this->targetValue = -1;
     this->targetTypeValue = -1;
     this->actionValue = 1;
@@ -354715,7 +354663,7 @@ LABEL_19:
                               v27,
                               &result,
                               LODWORD(v45));
-                      *(_QWORD *)&v44.y = *(_QWORD *)v32;
+                      *(_QWORD *)&v44.z = *(_QWORD *)v32;
                       v46 = *(float *)(v32 + 8);
                       LODWORD(v44.x) = &v61;
                       v43 = *(BVector *)((int (__thiscall *)(RGE_Static_Object *))v25->vfptr->position)(v25);
@@ -354798,8 +354746,8 @@ LABEL_78:
       if ( v34 == 1 )
       {
         this->gatherLocationValue.x = this->mCentroid.x;
-        this->gatherLocationValue.y = this->mCentroid.z;
-        v42 = this->mCentroid.y;
+        this->gatherLocationValue.y = this->mCentroid.y;
+        v42 = this->mCentroid.z;
         this->targetValue = -1;
         this->targetTypeValue = -1;
         this->inUseValue = 0;
@@ -355246,8 +355194,8 @@ int __thiscall TacticalAIGroup::task(TacticalAIGroup *this, TribeTacticalAIModul
   float rangea; // [esp+20h] [ebp-22Ch]
   XYPoint v57; // [esp+24h] [ebp-228h] BYREF
   XYPoint p; // [esp+2Ch] [ebp-220h] BYREF
-  int wpIndex; // [esp+34h] [ebp-218h] BYREF
-  int v60[3]; // [esp+40h] [ebp-20Ch] BYREF
+  BVector wpIndex; // [esp+34h] [ebp-218h] BYREF
+  BVector outVector; // [esp+40h] [ebp-20Ch] BYREF
   char v61[256]; // [esp+4Ch] [ebp-200h] BYREF
   char v62[256]; // [esp+14Ch] [ebp-100h] BYREF
 
@@ -355313,8 +355261,8 @@ int __thiscall TacticalAIGroup::task(TacticalAIGroup *this, TribeTacticalAIModul
             v41 = 256;
           for ( i = 0; i < v41; ++i )
           {
-            v62[i] = (__int64)BPath::waypoint(&this->mWaypoints, (int)&wpIndex, i)->x;
-            v61[i] = (__int64)BPath::waypoint(&this->mWaypoints, (int)v60, i)->z;
+            v62[i] = (__int64)BPath::waypoint(&this->mWaypoints, &wpIndex, i)->x;
+            v61[i] = (__int64)BPath::waypoint(&this->mWaypoints, &outVector, i)->y;
           }
           RGE_Command::command_group_multi_waypoints(
             (RGE_Command *)base_game->world->commands,
@@ -355521,7 +355469,7 @@ int __thiscall TacticalAIGroup::task(TacticalAIGroup *this, TribeTacticalAIModul
       break;
     case 18:
       p.x = rand() % 40 + (__int64)this->mRandomMovePoint.x - 20;
-      p.y = rand() % 40 + (__int64)this->mRandomMovePoint.z - 20;
+      p.y = rand() % 40 + (__int64)this->mRandomMovePoint.y - 20;
       TribeInformationAIModule::mapBound(&md->informationAI, &p);
       function(p.y, p.x);
       yLoc = (float)p.y;
@@ -355792,8 +355740,8 @@ TribeTacticalAIModule *__thiscall TribeTacticalAIModule::TribeTacticalAIModule(T
   this->mUnderAttackProcessedUnits.maximumSizeValue = 0;
   this->mTownUnderAttack = 0;
   this->mTownDefenseGatherPoint.x = 0.0;
-  this->mTownDefenseGatherPoint.y = 0.0;
   this->mTownDefenseGatherPoint.z = 0.0;
+  this->mTownDefenseGatherPoint.y = 0.0;
   this->mKillInTownMode = 0;
   this->mKillInTownIndex = 0;
   this->mLastGatherDefenseUnitsTime = 0;
@@ -356072,8 +356020,8 @@ TribeTacticalAIModule *__thiscall TribeTacticalAIModule::TribeTacticalAIModule2(
   v5 = infile;
   this->mTownUnderAttack = 0;
   this->mTownDefenseGatherPoint.x = 0.0;
-  this->mTownDefenseGatherPoint.y = 0.0;
   this->mTownDefenseGatherPoint.z = 0.0;
+  this->mTownDefenseGatherPoint.y = 0.0;
   LOBYTE(v88) = 24;
   this->mLastUnloadTime = 0;
   this->mLastPlaceFixTime = 0;
@@ -357077,7 +357025,7 @@ int __thiscall TribeTacticalAIModule::update(TribeTacticalAIModule *this, int ti
   if ( this->sn[239] > 0 )
   {
     this->mTownDefenseGatherPoint.x = (float)(rand() % 6 + this->md->player->world->map->map_width / 2 - 3);
-    this->mTownDefenseGatherPoint.z = (float)(rand() % 6 + this->md->player->world->map->map_height / 2 - 3);
+    this->mTownDefenseGatherPoint.y = (float)(rand() % 6 + this->md->player->world->map->map_height / 2 - 3);
   }
   this->md->informationAI.farmsTaskedThisUpdate.numberValue = 0;
   this->mUnderAttackProcessedUnits.numberValue = 0;
@@ -358577,8 +358525,8 @@ LABEL_83:
         v41 = (float *)v40->position(v2, &v47);
         v42 = &this->mTownDefenseGatherPoint;
         v42->x = *v41;
-        v42->y = v41[1];
-        v42->z = v41[2];
+        v42->z = v41[1];
+        v42->y = v41[2];
         return;
     }
   }
@@ -361468,7 +361416,7 @@ LABEL_54:
                           v29,
                           v61,
                           LODWORD(v51)),
-                  *(_QWORD *)&v50.y = *(_QWORD *)v36,
+                  *(_QWORD *)&v50.z = *(_QWORD *)v36,
                   v52 = *(float *)(v36 + 8),
                   LODWORD(v50.x) = &v62,
                   v49 = *(BVector *)((int (__thiscall *)(RGE_Static_Object *))v35->vfptr->position)(v35),
@@ -361661,7 +361609,7 @@ LABEL_15:
         if ( (tag->mFlags.valueValue & BBitVectorAND_0[0]) != 0 )
         {
           v12 = ((int (__thiscall *)(RGE_Static_Object *, char *, _DWORD))v4->vfptr->position)(v4, v17, 0);
-          *(_QWORD *)&v15.y = *(_QWORD *)v12;
+          *(_QWORD *)&v15.z = *(_QWORD *)v12;
           v16 = *(float *)(v12 + 8);
           LODWORD(v15.x) = &v18;
           v14 = *(BVector *)((int (__thiscall *)(RGE_Static_Object *))v10->vfptr->position)(v10);
@@ -361711,8 +361659,8 @@ void __thiscall TacticalAIGroup::setTargetLocationValue(TacticalAIGroup *this, f
 void __thiscall TacticalAIGroup::setCompleteIdle(TacticalAIGroup *this)
 {
   this->gatherLocationValue.x = this->mCentroid.x;
-  this->gatherLocationValue.y = this->mCentroid.z;
-  this->gatherLocationValue.z = this->mCentroid.y;
+  this->gatherLocationValue.y = this->mCentroid.y;
+  this->gatherLocationValue.z = this->mCentroid.z;
 }
 
 //----- (005A3510) --------------------------------------------------------
@@ -361734,8 +361682,8 @@ LABEL_8:
       if ( !v6 || v6->inside_obj )
       {
         tag->gatherLocationValue.x = tag->mCentroid.x;
-        tag->gatherLocationValue.y = tag->mCentroid.z;
-        v7 = tag->mCentroid.y;
+        tag->gatherLocationValue.y = tag->mCentroid.y;
+        v7 = tag->mCentroid.z;
         tag->inUseValue = 0;
         tag->targetValue = -1;
         tag->targetTypeValue = -1;
@@ -361797,11 +361745,11 @@ void __thiscall TribeTacticalAIModule::updateGroupReturnRelic(TribeTacticalAIMod
     if ( tag->numberUnitsValue <= 0 )
     {
 LABEL_8:
-      v7 = tag->mCentroid.y;
+      v7 = tag->mCentroid.z;
       tag->targetLocationValue.x = -1.0;
       tag->targetLocationValue.y = -1.0;
       tag->targetLocationValue.z = -1.0;
-      v8 = tag->mCentroid.z;
+      v8 = tag->mCentroid.y;
       tag->inUseValue = 0;
       tag->numberObjectsToDestroyValue = 0;
       v18 = tag->mCentroid.x;
@@ -362205,8 +362153,8 @@ void __thiscall TribeTacticalAIModule::taskActiveGroupAttack(TribeTacticalAIModu
         if ( BBitVector::isSet(&tag->mFlags, 5) )
         {
           tag->mRandomMovePoint.x = tag->mCentroid.x;
-          tag->mRandomMovePoint.y = tag->mCentroid.y;
           tag->mRandomMovePoint.z = tag->mCentroid.z;
+          tag->mRandomMovePoint.y = tag->mCentroid.y;
         }
         v9 = base_game->world->world_time;
         tag->actionValue = 18;
@@ -362216,16 +362164,16 @@ void __thiscall TribeTacticalAIModule::taskActiveGroupAttack(TribeTacticalAIModu
         tag->targetValue = -1;
         tag->targetTypeValue = -1;
         v23 = tag->mCentroid.x;
-        v24 = tag->mCentroid.y;
-        v25 = tag->mCentroid.z;
+        v24 = tag->mCentroid.z;
+        v25 = tag->mCentroid.y;
         v20 = tag->mCentroid.x;
-        v21 = tag->mCentroid.y;
-        v10 = tag->mCentroid.z;
+        v21 = tag->mCentroid.z;
+        v10 = tag->mCentroid.y;
         point.x = LODWORD(tag->mCentroid.x);
         tag->targetLocationValue.x = *(float *)&point.x;
         v22 = v10;
-        v11 = tag->mCentroid.z;
-        point.y = LODWORD(tag->mCentroid.y);
+        v11 = tag->mCentroid.y;
+        point.y = LODWORD(tag->mCentroid.z);
         tag->targetLocationValue.y = v10;
         tag->targetLocationValue.z = v24;
         v19 = v11;
@@ -362403,10 +362351,10 @@ LABEL_37:
     v47 = -1;
     v46 = 0;
     v26 = ((int (__thiscall *)(RGE_Static_Object *, int *, _DWORD))v25->position)(v11, &v54, 0);
-    v44.y = *(float *)v26;
+    v44.z = *(float *)v26;
     v27 = *(float *)(v26 + 4);
     v28 = *(_DWORD *)(v26 + 8);
-    v44.z = v27;
+    v44.y = v27;
     v29 = v24->vfptr;
     v45 = v28;
     LODWORD(v44.x) = &v57;
@@ -362414,8 +362362,8 @@ LABEL_37:
     v43.x = *(float *)v30;
     v31 = *(float *)(v30 + 4);
     v32 = *(float *)(v30 + 8);
-    v43.y = v31;
-    v43.z = v32;
+    v43.z = v31;
+    v43.y = v32;
     if ( cpAttackCanPath(v24, v11, v43, v44, *(float *)&v45, 0, -1, -1, 0, 0, 0) )
     {
       v41 = v11->world_z;
@@ -362434,19 +362382,19 @@ LABEL_37:
       v34 = v11->world_z;
       v55 = (__int64)v11->world_y;
       v56 = (__int64)v34;
-      BPath::BPath((BPath *)&v57.z, -1);
+      BPath::BPath((BPath *)&v57.y, -1);
       v35 = *(float *)&v11->id;
-      v51 = (int)&v57.z;
+      v51 = (int)&v57.y;
       v50 = -1;
       v49 = -1;
       v48 = 15;
       v47 = 16;
       v46 = 23;
       v45 = 22;
-      LODWORD(v44.z) = 1;
-      v44.y = 0.0;
+      LODWORD(v44.y) = 1;
+      v44.z = 0.0;
       v44.x = v35;
-      v43.z = 0.0;
+      v43.y = 0.0;
       v36 = v24->vfptr;
       v58 = 0;
       if ( ((int (__thiscall *)(RGE_Static_Object *, int, int, int, _DWORD, float, _DWORD, int, int, int, int, int, int, int, float *))v36->canPathWithAdditionalPassability)(
@@ -362464,9 +362412,9 @@ LABEL_37:
              15,
              -1,
              -1,
-             &v57.z) )
+             &v57.y) )
       {
-        if ( v24->vfptr->findFirstTerrainAlongExceptionPath(v24, 2, (float *)&v53, (float *)&tag, (BPath *)&v57.z) == 1 )
+        if ( v24->vfptr->findFirstTerrainAlongExceptionPath(v24, 2, (float *)&v53, (float *)&tag, (BPath *)&v57.y) == 1 )
         {
           TacticalAIGroup::task(v3, t, t->md, 12, 0);
           v3->actionValue = 11;
@@ -362491,7 +362439,7 @@ LABEL_37:
         v3->mIdleTimer = v37;
       }
       v58 = -1;
-      BPath::destructor((BPath *)&v57.z);
+      BPath::destructor((BPath *)&v57.y);
     }
   }
 }
@@ -362594,7 +362542,7 @@ LABEL_25:
             if ( v17 )
             {
               v19 = ((int (__thiscall *)(RGE_Static_Object *, char *, _DWORD))v17->vfptr->position)(v17, v26, 0);
-              *(_QWORD *)&v23.y = *(_QWORD *)v19;
+              *(_QWORD *)&v23.z = *(_QWORD *)v19;
               v24 = *(float *)(v19 + 8);
               LODWORD(v23.x) = &v27;
               v22 = *(BVector *)((int (__thiscall *)(RGE_Static_Object *))v14->vfptr->position)(v14);
@@ -363016,7 +362964,7 @@ LABEL_86:
                   if ( v15 > 0 )
                   {
                     v64 = 0;
-                    v63 = (int)&v77.z;
+                    v63 = (int)&v77.y;
                     do
                     {
                       v17 = this->md;
@@ -363029,7 +362977,7 @@ LABEL_86:
                               &roXPos,
                               &roYPos,
                               &dropsiteID,
-                              (int *)&v77.z,
+                              (int *)&v77.y,
                               numExclusions);
                       v18 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, v14);
                       v19 = v18;
@@ -363039,7 +362987,7 @@ LABEL_86:
                                 v18,
                                 v76,
                                 1065353216);
-                        *(_QWORD *)&v56.y = *(_QWORD *)v20;
+                        *(_QWORD *)&v56.z = *(_QWORD *)v20;
                         v57 = *(float *)(v20 + 8);
                         LODWORD(v56.x) = &v77;
                         v55 = *(BVector *)(*(int (__thiscall **)(int))(*(_DWORD *)numExclusions + 684))(numExclusions);
@@ -364256,7 +364204,7 @@ LABEL_144:
                                 v20,
                                 v114,
                                 LODWORD(v99));
-                        *(_QWORD *)&v98.y = *(_QWORD *)v90;
+                        *(_QWORD *)&v98.z = *(_QWORD *)v90;
                         v100 = *(float *)(v90 + 8);
                         LODWORD(v98.x) = &v117;
                         v97 = *(BVector *)((int (__thiscall *)(RGE_Static_Object *))v79->vfptr->position)(v79);
@@ -366406,7 +366354,7 @@ int __thiscall TribeTacticalAIModule::taskBuilder2(TribeTacticalAIModule *this, 
   if ( building )
   {
     v9 = ((int (__thiscall *)(RGE_Static_Object *, char *, int))building->vfptr->position)(building, v31, 1065353216);
-    *(_QWORD *)&v29.y = *(_QWORD *)v9;
+    *(_QWORD *)&v29.z = *(_QWORD *)v9;
     v30 = *(float *)(v9 + 8);
     LODWORD(v29.x) = &v35;
     v28 = *(BVector *)((int (__thiscall *)(RGE_Static_Object *))v5->vfptr->position)(v5);
@@ -366416,12 +366364,12 @@ int __thiscall TribeTacticalAIModule::taskBuilder2(TribeTacticalAIModule *this, 
       v10 = building->vfptr;
       v37 = 0;
       v11 = (__int64)v10->position(building, (BVector *)&v34)->x;
-      v12 = (__int64)building->vfptr->position(building, &v34)->y;
+      v12 = (__int64)building->vfptr->position(building, &v34)->z;
       HIDWORD(v12) = building->vfptr;
       v32 = v12;
       v33 = (__int64)*(float *)((*(int (__thiscall **)(RGE_Static_Object *, float *))(HIDWORD(v12) + 684))(
                                   building,
-                                  &v35.z)
+                                  &v35.y)
                               + 8);
       if ( ((int (__thiscall *)(RGE_Static_Object *, int, int, int, _DWORD, int, _DWORD, int, int, int, int, int, int, int, BPath *))v5->vfptr->canPathWithAdditionalPassability)(
              v5,
@@ -366749,7 +366697,7 @@ LABEL_10:
   v64 = 0;
   if ( resourceType != -1 )
   {
-    v62 = &v75.z;
+    v62 = &v75.y;
     while ( 1 )
     {
       v18 = &this->md->informationAI;
@@ -366761,7 +366709,7 @@ LABEL_10:
               &roXPos,
               &roYPos,
               &v72,
-              (int *)&v75.z,
+              (int *)&v75.y,
               numExclusions);
       v19 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, v12);
       v20 = v19;
@@ -366769,8 +366717,8 @@ LABEL_10:
         return 0;
       v66 = roYPos;
       v65 = roXPos;
-      v21 = ((int (__thiscall *)(RGE_Static_Object *, float *, int))v19->vfptr->position)(v19, &v74.z, 1065353216);
-      *(_QWORD *)&v55.y = *(_QWORD *)v21;
+      v21 = ((int (__thiscall *)(RGE_Static_Object *, float *, int))v19->vfptr->position)(v19, &v74.y, 1065353216);
+      *(_QWORD *)&v55.z = *(_QWORD *)v21;
       v57 = *(float *)(v21 + 8);
       LODWORD(v55.x) = &v74;
       v53 = *(BVector *)((int (__thiscall *)(RGE_Static_Object *))v7->vfptr->position)(v7);
@@ -366807,7 +366755,7 @@ LABEL_10:
         if ( v28->tacticalAI.transportBoats.numberValue > 0 )
         {
           v65 = v7->vfptr->position(v7, (BVector *)&v73)->x;
-          v66 = v7->vfptr->position(v7, &v77)->y;
+          v66 = v7->vfptr->position(v7, &v77)->z;
 LABEL_38:
           v64 = 1;
           v78 = -1;
@@ -366867,7 +366815,7 @@ LABEL_39:
               &roXPos,
               &roYPos,
               &dropsiteID,
-              (int *)&v75.z,
+              (int *)&v75.y,
               0);
       v14 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, v12);
       v15 = v14;
@@ -366876,7 +366824,7 @@ LABEL_39:
         if ( v14 )
         {
           v16 = ((int (__thiscall *)(RGE_Static_Object *, int *, int))v14->vfptr->position)(v14, &v69, 1065353216);
-          *(_QWORD *)&v54.y = *(_QWORD *)v16;
+          *(_QWORD *)&v54.z = *(_QWORD *)v16;
           v56 = *(float *)(v16 + 8);
           LODWORD(v54.x) = &v75;
           v52 = *(BVector *)((int (__thiscall *)(RGE_Static_Object *))v7->vfptr->position)(v7);
@@ -372318,7 +372266,7 @@ void __thiscall TribeTacticalAIModule::gatherDefenseUnits(TribeTacticalAIModule 
   {
     this->mLastGatherDefenseUnitsTime = v2->world_time;
     if ( !this->mTownUnderAttack
-      && (this->mTownDefenseGatherPoint.x >= 0.0000001 || this->mTownDefenseGatherPoint.z >= 0.0000001) )
+      && (this->mTownDefenseGatherPoint.x >= 0.0000001 || this->mTownDefenseGatherPoint.y >= 0.0000001) )
     {
       v3 = 0;
       for ( i = 0; v3 < this->soldiers.numberValue; i = v3 )
@@ -372345,13 +372293,13 @@ void __thiscall TribeTacticalAIModule::gatherDefenseUnits(TribeTacticalAIModule 
             if ( RGE_Static_Object::distance_to_position(
                    v5,
                    this->mTownDefenseGatherPoint.x,
-                   this->mTownDefenseGatherPoint.z,
-                   this->mTownDefenseGatherPoint.y) >= (double)v23 )
+                   this->mTownDefenseGatherPoint.y,
+                   this->mTownDefenseGatherPoint.z) >= v23 )
             {
               v7 = RGE_Static_Object::lookupZone(
                      v5,
                      (__int64)this->mTownDefenseGatherPoint.x,
-                     (__int64)this->mTownDefenseGatherPoint.z);
+                     (__int64)this->mTownDefenseGatherPoint.y);
               if ( RGE_Static_Object::currentZone(v5) == v7 )
                 ((void (__thiscall *)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD))this->md->player->vfptr->sendUnitAIOrder)(
                   this->md->player,
@@ -372361,7 +372309,7 @@ void __thiscall TribeTacticalAIModule::gatherDefenseUnits(TribeTacticalAIModule 
                   -1,
                   -1,
                   this->mTownDefenseGatherPoint.x,
-                  this->mTownDefenseGatherPoint.z,
+                  this->mTownDefenseGatherPoint.y,
                   1065353216,
                   LODWORD(v23),
                   1,
@@ -372399,8 +372347,8 @@ LABEL_22:
             if ( RGE_Static_Object::distance_to_position(
                    v10,
                    this->mTownDefenseGatherPoint.x,
-                   this->mTownDefenseGatherPoint.z,
-                   this->mTownDefenseGatherPoint.y) >= (double)v24 )
+                   this->mTownDefenseGatherPoint.y,
+                   this->mTownDefenseGatherPoint.z) >= v24 )
               ((void (__thiscall *)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD))this->md->player->vfptr->sendUnitAIOrder)(
                 this->md->player,
                 this->md->player->id,
@@ -372409,7 +372357,7 @@ LABEL_22:
                 -1,
                 -1,
                 this->mTownDefenseGatherPoint.x,
-                this->mTownDefenseGatherPoint.z,
+                this->mTownDefenseGatherPoint.y,
                 1065353216,
                 LODWORD(v24),
                 1,
@@ -372465,8 +372413,8 @@ LABEL_41:
               && RGE_Static_Object::distance_to_position(
                    v18,
                    this->mTownDefenseGatherPoint.x,
-                   this->mTownDefenseGatherPoint.z,
-                   this->mTownDefenseGatherPoint.y) >= 4.0 )
+                   this->mTownDefenseGatherPoint.y,
+                   this->mTownDefenseGatherPoint.z) >= 4.0 )
             {
               ((void (__thiscall *)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD))this->md->player->vfptr->sendUnitAIOrder)(
                 this->md->player,
@@ -372476,7 +372424,7 @@ LABEL_41:
                 -1,
                 -1,
                 this->mTownDefenseGatherPoint.x,
-                this->mTownDefenseGatherPoint.z,
+                this->mTownDefenseGatherPoint.y,
                 1065353216,
                 1082130432,
                 1,
@@ -372800,8 +372748,8 @@ LABEL_53:
               if ( v25 != 1 && v25 != 2 && v25 != 18 )
                 goto LABEL_82;
             }
-            v52 = v21->mCentroid.y;
-            if ( RGE_Static_Object::distance_to_position(v20, v21->mCentroid.x, v21->mCentroid.z, 0.0) >= (double)this->sn[74] * 1.2 )
+            v52 = v21->mCentroid.z;
+            if ( RGE_Static_Object::distance_to_position(v20, v21->mCentroid.x, v21->mCentroid.y, 0.0) >= (double)this->sn[74] * 1.2 )
               goto LABEL_82;
             v45 = -1;
             if ( v21->actionValue != 2 )
@@ -374199,8 +374147,7 @@ void __thiscall TribeTacticalAIModule::moveAwayFromObject(TribeTacticalAIModule 
           if ( v13->object_state <= 2u )
           {
             v14 = RGE_Static_Object::unitAI(v13);
-            if ( UnitAIModule::currentAction(v14) == -1
-              && RGE_Static_Object::distance_to_object(v5, v13) <= (double)maxDistance )
+            if ( UnitAIModule::currentAction(v14) == -1 && RGE_Static_Object::distance_to_object(v5, v13) <= maxDistance )
             {
               v15 = v13->world_x - v5->world_x;
               v16 = v13->world_y - v5->world_y;
@@ -374848,7 +374795,7 @@ int __thiscall TribeLionUnitAIModule::processNotify(TribeLionUnitAIModule *this,
   v4 = RGE_Game_World::object((RGE_Game_World *)this->objectValue->owner->world, this->currentTargetValue);
   v5 = v4;
   if ( !v4
-    || RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->objectValue, v4) > (double)this->objectValue->master_obj->los
+    || RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->objectValue, v4) > this->objectValue->master_obj->los
     || v5->master_obj->object_group == 47 )
   {
     UnitAIModule::removeCurrentTarget((UnitAIModule *)this);
@@ -374905,7 +374852,7 @@ LABEL_8:
   v9 = UnitAIModule::lookupObject((UnitAIModule *)this, v5);
   if ( v5 == -1
     || !v9
-    || v11 >= 0.0 && RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->objectValue, v9) > (double)v11 )
+    || v11 >= 0.0 && RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->objectValue, v9) > v11 )
   {
     return 5;
   }
@@ -376262,8 +376209,8 @@ int __thiscall TribePriestUnitAIModule::canAttackUnit(TribePriestUnitAIModule *t
     unitb = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD))v12->distanceToHighestLevelPath_2)(
               this->objectValue,
               LODWORD(v13->x),
-              LODWORD(v13->y),
-              LODWORD(v13->z));
+              LODWORD(v13->z),
+              LODWORD(v13->y));
     v14 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
         + 5.0 < unitb;
   }
@@ -376327,7 +376274,7 @@ int __stdcall TribePriestUnitAIModule::findAlertModeObject(TribePriestUnitAIModu
     v6 = v5;
     if ( v5 && ((double (__thiscall *)(RGE_Static_Object *))v5->vfptr->rateOfFire)(v5) != 0.0 )
     {
-      v7 = RGE_Static_Object::distance_to_object(*(RGE_Static_Object **)(v4 + 4), v6);
+      v7 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)*(_DWORD *)(v4 + 4), v6);
       if ( *(_WORD *)(*(_DWORD *)(*(_DWORD *)(v4 + 4) + 20) + 30) == 44 )
         v7 = v7 * 0.5;
       if ( v2 == -1 || v7 < v9 )
@@ -377703,8 +377650,8 @@ int __thiscall TribeSoldierUnitAIModule::canAttackUnit(TribeSoldierUnitAIModule 
     unitb = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD))v17->distanceToHighestLevelPath_2)(
               this->objectValue,
               LODWORD(v18->x),
-              LODWORD(v18->y),
-              LODWORD(v18->z));
+              LODWORD(v18->z),
+              LODWORD(v18->y));
     v19 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
         + 5.0 < unitb;
   }
@@ -378383,8 +378330,8 @@ int __thiscall TribeSiegeUnitAIModule::canAttackUnit(TribeSiegeUnitAIModule *thi
     unitb = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD))v9->distanceToHighestLevelPath_2)(
               this->objectValue,
               LODWORD(v10->x),
-              LODWORD(v10->y),
-              LODWORD(v10->z));
+              LODWORD(v10->z),
+              LODWORD(v10->y));
     v11 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
         + 5.0 < unitb;
   }
@@ -391296,16 +391243,16 @@ RGE_Static_Object *__thiscall TRIBE_Master_Building_Object::make_new_obj(TRIBE_M
 //----- (005C7810) --------------------------------------------------------
 RGE_Master_Static_Object *__thiscall TRIBE_Master_Building_Object::make_new_master(TRIBE_Master_Building_Object *this)
 {
-  TRIBE_Master_Building_Object *v2; // esi
+  TRIBE_Master_Combat_Object *v2; // esi
   RGE_Master_Static_Object *result; // eax
 
-  v2 = (TRIBE_Master_Building_Object *)operator_new(0x228u);
+  v2 = (TRIBE_Master_Combat_Object *)operator_new(0x228u);
   result = 0;
   if ( v2 )
   {
-    TRIBE_Master_Combat_Object::TRIBE_Master_Combat_Object(v2, this, 0);
-    v2->vfptr = &TRIBE_Master_Building_Object::vftable;
-    TRIBE_Master_Building_Object::setup(v2, this);
+    TRIBE_Master_Combat_Object::TRIBE_Master_Combat_Object(v2, (TRIBE_Master_Combat_Object *)this, 0);
+    v2->vfptr = (TRIBE_Master_Combat_ObjectVtbl *)&TRIBE_Master_Building_Object::vftable;
+    TRIBE_Master_Building_Object::setup((TRIBE_Master_Building_Object *)v2, this);
     result = (RGE_Master_Static_Object *)v2;
   }
   return result;
@@ -391858,15 +391805,15 @@ LABEL_47:
 }
 
 //----- (005C8340) --------------------------------------------------------
-TRIBE_Master_Building_Object *__thiscall TRIBE_Master_Combat_Object::TRIBE_Master_Combat_Object(TRIBE_Master_Building_Object *this, TRIBE_Master_Building_Object *other_object, int do_setup)
+TRIBE_Master_Combat_Object *__thiscall TRIBE_Master_Combat_Object::TRIBE_Master_Combat_Object(TRIBE_Master_Combat_Object *this, TRIBE_Master_Combat_Object *other_object, int do_setup)
 {
   RGE_Master_Combat_Object::RGE_Master_Combat_Object(
     (RGE_Master_Combat_Object *)this,
     (RGE_Master_Combat_Object *)other_object,
     0);
-  this->vfptr = (TRIBE_Master_Building_ObjectVtbl *)&TRIBE_Master_Combat_Object::vftable;
+  this->vfptr = &TRIBE_Master_Combat_Object::vftable;
   if ( do_setup )
-    TRIBE_Master_Combat_Object::setup((TRIBE_Master_Combat_Object *)this, (TRIBE_Master_Combat_Object *)other_object);
+    TRIBE_Master_Combat_Object::setup(this, other_object);
   return this;
 }
 // 66738C: using guessed type TRIBE_Master_Combat_ObjectVtbl TRIBE_Master_Combat_Object::vftable;
@@ -402460,7 +402407,7 @@ LABEL_27:
 }
 
 //----- (005D7260) --------------------------------------------------------
-float __thiscall TRIBE_Player::unit_pop_count(TRIBE_Player *this, int master_id)
+double __thiscall TRIBE_Player::unit_pop_count(TRIBE_Player *this, int master_id)
 {
   double result; // st7
   RGE_Master_Static_Object *v3; // eax
@@ -404520,8 +404467,8 @@ int __thiscall TRIBE_Panel_Object::draw(TRIBE_Panel_Object *this)
   TRIBE_Building_Object *v196; // [esp+24Ch] [ebp-154h]
   CHAR String[12]; // [esp+250h] [ebp-150h] BYREF
   int wpIndex[3]; // [esp+2B4h] [ebp-ECh] BYREF
-  int v199[3]; // [esp+2C0h] [ebp-E0h] BYREF
-  int v200[3]; // [esp+2CCh] [ebp-D4h] BYREF
+  BVector outVector; // [esp+2C0h] [ebp-E0h] BYREF
+  BVector v200; // [esp+2CCh] [ebp-D4h] BYREF
   char Dest[200]; // [esp+2D8h] [ebp-C8h] BYREF
 
   HIWORD(v2) = 0;
@@ -404980,9 +404927,9 @@ LABEL_272:
             if ( v111 && (v112 = BPathData::highestLinkedPathDataPointer(v111)) != 0 && (v113 = v112->path) != 0 )
             {
               v114 = v113->waypointsCount;
-              v165 = BPath::waypoint(v113, (int)wpIndex, v114 - 1)->z;
-              v161 = BPath::waypoint(v113, (int)v199, v114 - 1)->y;
-              v115 = BPath::waypoint(v113, (int)v200, v114 - 1)->x;
+              v165 = BPath::waypoint(v113, (BVector *)wpIndex, v114 - 1)->y;
+              v161 = BPath::waypoint(v113, &outVector, v114 - 1)->z;
+              v115 = BPath::waypoint(v113, &v200, v114 - 1)->x;
               TRIBE_Panel_Object::draw_text_varied(this, v110, "target (%3.2f, %3.2f, %3.2f)", v115, v161, v165);
               this->vfptr->draw_finish(this);
             }
@@ -411009,7 +410956,7 @@ LABEL_56:
 }
 
 //----- (005E2FD0) --------------------------------------------------------
-float __thiscall Time_Line_Panel::calculate_intermediate_Y_line(Time_Line_Panel *this, int in_y1, int in_y2, int adj_x_thickness, int intermediate_x_pos)
+double __thiscall Time_Line_Panel::calculate_intermediate_Y_line(Time_Line_Panel *this, int in_y1, int in_y2, int adj_x_thickness, int intermediate_x_pos)
 {
   double result; // st7
   int v6; // eax
@@ -436245,8 +436192,8 @@ BVector *__thiscall BVector::operator_mul2(BVector *this, BVector *result, const
 
   v3 = result;
   *(float *)byte_7A1028 = a * this->x;
-  *(float *)&byte_7A1028[4] = a * this->y;
-  *(float *)&byte_7A1028[8] = a * this->z;
+  *(float *)&byte_7A1028[4] = a * this->z;
+  *(float *)&byte_7A1028[8] = a * this->y;
   *result = *(BVector *)byte_7A1028;
   return v3;
 }
@@ -436258,8 +436205,8 @@ BVector *__fastcall operator_mul(BVector *result, const float a, BVector *v)
 
   v3 = result;
   *(float *)byte_7A1028 = a * v->x;
-  *(float *)&byte_7A1028[4] = a * v->y;
-  *(float *)&byte_7A1028[8] = a * v->z;
+  *(float *)&byte_7A1028[4] = a * v->z;
+  *(float *)&byte_7A1028[8] = a * v->y;
   *result = *(BVector *)byte_7A1028;
   return v3;
 }
@@ -436271,8 +436218,8 @@ BVector *__thiscall BVector::operator_div(BVector *this, BVector *result, const 
 
   v3 = result;
   *(float *)byte_7A1028 = this->x / a;
-  *(float *)&byte_7A1028[4] = this->y / a;
-  *(float *)&byte_7A1028[8] = this->z / a;
+  *(float *)&byte_7A1028[4] = this->z / a;
+  *(float *)&byte_7A1028[8] = this->y / a;
   *result = *(BVector *)byte_7A1028;
   return v3;
 }
@@ -436283,9 +436230,9 @@ BVector *__thiscall BVector::operator_plus(BVector *this, BVector *result, BVect
   BVector *v3; // eax
 
   *(float *)byte_7A1028 = v->x + this->x;
-  *(float *)&byte_7A1028[4] = v->y + this->y;
+  *(float *)&byte_7A1028[4] = v->z + this->z;
   v3 = result;
-  *(float *)&byte_7A1028[8] = v->z + this->z;
+  *(float *)&byte_7A1028[8] = v->y + this->y;
   *result = *(BVector *)byte_7A1028;
   return v3;
 }
@@ -436296,9 +436243,9 @@ BVector *__thiscall BVector::operator_minus(BVector *this, BVector *result, BVec
   BVector *v3; // eax
 
   *(float *)byte_7A1028 = this->x - v->x;
-  *(float *)&byte_7A1028[4] = this->y - v->y;
+  *(float *)&byte_7A1028[4] = this->z - v->z;
   v3 = result;
-  *(float *)&byte_7A1028[8] = this->z - v->z;
+  *(float *)&byte_7A1028[8] = this->y - v->y;
   *result = *(BVector *)byte_7A1028;
   return v3;
 }
@@ -436310,8 +436257,8 @@ BVector *__thiscall BVector::operator_neg(BVector *this, BVector *result)
 
   *(float *)byte_7A1028 = -this->x;
   v2 = result;
-  *(float *)&byte_7A1028[4] = -this->y;
-  *(float *)&byte_7A1028[8] = -this->z;
+  *(float *)&byte_7A1028[4] = -this->z;
+  *(float *)&byte_7A1028[8] = -this->y;
   *result = *(BVector *)byte_7A1028;
   return v2;
 }
@@ -436321,16 +436268,16 @@ BVector *__thiscall BVector::operator_mul(BVector *this, BVector *result, BVecto
 {
   BVector *v3; // eax
 
-  *(float *)byte_7A1028 = this->y * v->z - v->y * this->z;
-  *(float *)&byte_7A1028[4] = v->x * this->z - this->x * v->z;
+  *(float *)byte_7A1028 = this->z * v->y - v->z * this->y;
+  *(float *)&byte_7A1028[4] = v->x * this->y - this->x * v->y;
   v3 = result;
-  *(float *)&byte_7A1028[8] = v->y * this->x - this->y * v->x;
+  *(float *)&byte_7A1028[8] = v->z * this->x - this->z * v->x;
   *result = *(BVector *)byte_7A1028;
   return v3;
 }
 
 //----- (00606B60) --------------------------------------------------------
-float __thiscall BVector::distanceToLineSegment(BVector *this, BVector *p1, BVector *p2, int *onSegment)
+double __thiscall BVector::distanceToLineSegment(BVector *this, BVector *p1, BVector *p2, int *onSegment)
 {
   double v4; // st4
   double v5; // st3
@@ -436346,28 +436293,28 @@ float __thiscall BVector::distanceToLineSegment(BVector *this, BVector *p1, BVec
 
   *(float *)byte_7A1028 = p2->x - p1->x;
   v10 = *(float *)byte_7A1028;
-  *(float *)&byte_7A1028[4] = p2->y - p1->y;
+  *(float *)&byte_7A1028[4] = p2->z - p1->z;
   v11 = *(float *)&byte_7A1028[4];
-  *(float *)&byte_7A1028[8] = p2->z - p1->z;
+  *(float *)&byte_7A1028[8] = p2->y - p1->y;
   v12 = *(float *)&byte_7A1028[8];
   *(float *)byte_7A1028 = this->x - p1->x;
-  *(float *)&byte_7A1028[4] = this->y - p1->y;
-  *(float *)&byte_7A1028[8] = this->z - p1->z;
+  *(float *)&byte_7A1028[4] = this->z - p1->z;
+  *(float *)&byte_7A1028[8] = this->y - p1->y;
   v4 = v11 * *(float *)byte_7A1028 - *(float *)&byte_7A1028[4] * v10;
   v5 = *(float *)&byte_7A1028[8] * v10 - *(float *)byte_7A1028 * v12;
   v6 = v4 * v4 + v5 * v5;
   v7 = *(float *)&byte_7A1028[4] * v12 - v11 * *(float *)&byte_7A1028[8];
   result = sqrt((v6 + v7 * v7) / (v11 * v11 + v12 * v12 + v10 * v10));
   *(float *)byte_7A1028 = this->x - p1->x;
-  *(float *)&byte_7A1028[4] = this->y - p1->y;
-  *(float *)&byte_7A1028[8] = this->z - p1->z;
+  *(float *)&byte_7A1028[4] = this->z - p1->z;
+  *(float *)&byte_7A1028[8] = this->y - p1->y;
   if ( v11 * *(float *)&byte_7A1028[4] + *(float *)&byte_7A1028[8] * v12 + *(float *)byte_7A1028 * v10 >= 0.0 )
   {
     *(float *)byte_7A1028 = this->x - p2->x;
-    *(float *)&byte_7A1028[4] = this->y - p2->y;
+    *(float *)&byte_7A1028[4] = this->z - p2->z;
     v14 = *(float *)&byte_7A1028[4];
     v13 = *(float *)byte_7A1028;
-    *(float *)&byte_7A1028[8] = this->z - p2->z;
+    *(float *)&byte_7A1028[8] = this->y - p2->y;
     *(float *)byte_7A1028 = -v10;
     v9 = *(float *)&byte_7A1028[8];
     *(float *)&byte_7A1028[4] = -v11;
@@ -436382,12 +436329,12 @@ float __thiscall BVector::distanceToLineSegment(BVector *this, BVector *p1, BVec
 }
 
 //----- (00606D60) --------------------------------------------------------
-float __thiscall BVector::angleBetweenVector(BVector *this, BVector *v)
+double __thiscall BVector::angleBetweenVector(BVector *this, BVector *v)
 {
   long double v2; // st7
   float va; // [esp+4h] [ebp+4h]
 
-  v2 = v->z * this->z + v->y * this->y + v->x * this->x;
+  v2 = v->y * this->y + v->z * this->z + v->x * this->x;
   va = v2;
   if ( fabs(v2) < 0.0000001000000011686097 )
     return 1.5707964;
@@ -437669,7 +437616,7 @@ void __thiscall RGE_Victory_Conditions::handle_explore(RGE_Victory_Conditions *t
               {
                 v2 = node;
 LABEL_14:
-                if ( (double)v2->count <= RGE_Visible_Map::percentExplored(*(RGE_Visible_Map **)(*(_DWORD *)v7 + 136))
+                if ( (double)v2->count <= RGE_Visible_Map::percentExplored((RGE_Visible_Map *)*(_DWORD *)(*(_DWORD *)v7 + 136))
                                         * 100.0 )
                   goto LABEL_18;
                 goto LABEL_15;
@@ -449380,7 +449327,7 @@ void __thiscall RGE_Visible_Map::explore_all(RGE_Visible_Map *this)
 }
 
 //----- (006155D0) --------------------------------------------------------
-float __thiscall RGE_Visible_Map::percentExplored(RGE_Visible_Map *this)
+double __thiscall RGE_Visible_Map::percentExplored(RGE_Visible_Map *this)
 {
   return (double)this->numberTilesExploredValue / (double)this->numberTotalTilesValue;
 }
@@ -461904,8 +461851,8 @@ LABEL_12:
                 v10 = v8->vfptr->getPosition(v8);
                 v9 = v3->vfptr->getPosition(v3);
                 BVector::operator_minus(v9, &result, v10);
-                result.y = 0.0;
-                if ( sqrt(result.x * result.x + result.z * result.z) < 3.0 )
+                result.z = 0.0;
+                if ( sqrt(result.x * result.x + result.y * result.y) < 3.0 )
                 {
                   while ( v8->mNumberUnits > 0 )
                     BUnitGroup::addUnit(v3, *v8->mUnits, -1);
@@ -462056,7 +462003,7 @@ LABEL_16:
 // 624ADB: conditional instruction was optimized away because of '%numberUnits.4>=1'
 
 //----- (00624B50) --------------------------------------------------------
-float __thiscall RGE_Game_World::getWorldTimeDeltaSeconds(RGE_Game_World *this)
+double __thiscall RGE_Game_World::getWorldTimeDeltaSeconds(RGE_Game_World *this)
 {
   double result; // st7
 

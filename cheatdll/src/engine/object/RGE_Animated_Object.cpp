@@ -215,8 +215,12 @@ void __fastcall RGE_Animated_Object__release_being_worked_on_new(
 
 // Replacement for RGE_Animated_Object::getSpeed. Original: @ 0x00408B70
 // (idb_functions.h). Range [0x408B70, 0x408B80). PURE GETTER (.c:
-// 51396-region: return speed @+0xB4).
-float __fastcall RGE_Animated_Object__getSpeed_new(RGE_Animated_Object* this_, DWORD dummy)
+// 51396-region: return speed @+0xB4). DOUBLE RETURN (FLOAT PRECISION
+// corollary (h)): the original is fld dword ptr [ecx+0B4h]; retn
+// (asm 0x408B70-0x408B76) - callers consume st0 at full x87 precision;
+// a float-typed return truncates at the 24-bit call boundary. The m32
+// load is exact, so the double return is bit-identical for this body.
+double __fastcall RGE_Animated_Object__getSpeed_new(RGE_Animated_Object* this_, DWORD dummy)
 {
     return this_->speed;
 }
