@@ -203,6 +203,8 @@ void setPlayerOptionsHooks()
     setHook((void*)0x004BFFD5, on_delete_option);
 
     //evac area oos fix
-    setHook((void*)0x004A6E95, on_evac_area);
+    // retired 2026-11-17: baked into RGE_Moving_Object__find_evacuate_area_new
+    // (src/engine/object/RGE_Moving_Object.cpp, batch M6b), see 0x004A6E95 (EVAC_OOS_FIX)
+    // setHook((void*)0x004A6E95, on_evac_area);
 }
 #pragma optimize( "", on )

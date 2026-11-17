@@ -280527,16 +280527,16 @@
 .text:004A4650 ; =============== S U B R O U T I N E =======================================
 .text:004A4650
 .text:004A4650
-.text:004A4650 ; void __thiscall RGE_Moving_Object::moveUnit(RGE_Moving_Object *this, BVector *, float, BVector)
+.text:004A4650 ; void __thiscall RGE_Moving_Object::moveUnit(RGE_Moving_Object *this, BVector *a2, float a3, BVector *a4)
 .text:004A4650 RGE_Moving_Object__moveUnit proc near   ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+169C\u2193p
 .text:004A4650
 .text:004A4650 var_10          = dword ptr -10h
 .text:004A4650 var_C           = dword ptr -0Ch
 .text:004A4650 var_8           = dword ptr -8
 .text:004A4650 var_4           = dword ptr -4
-.text:004A4650 arg_0           = dword ptr  4
-.text:004A4650 arg_4           = dword ptr  8
-.text:004A4650 arg_8           = BVector ptr  0Ch
+.text:004A4650 a2              = dword ptr  4
+.text:004A4650 a3              = dword ptr  8
+.text:004A4650 a4              = dword ptr  0Ch
 .text:004A4650
 .text:004A4650                 sub     esp, 10h
 .text:004A4653                 push    esi
@@ -280579,12 +280579,12 @@
 .text:004A46C3                 fstp    st
 .text:004A46C5
 .text:004A46C5 loc_4A46C5:                             ; CODE XREF: RGE_Moving_Object__moveUnit+3D\u2191j
-.text:004A46C5                 mov     ecx, [esp+18h+arg_4]
+.text:004A46C5                 mov     ecx, [esp+18h+a3]
 .text:004A46C9                 mov     edx, [esi]
 .text:004A46CB                 lea     eax, [esp+18h+var_10]
 .text:004A46CF                 mov     [esp+18h+var_10], 0
 .text:004A46D7                 push    eax
-.text:004A46D8                 mov     eax, [esp+1Ch+arg_0]
+.text:004A46D8                 mov     eax, [esp+1Ch+a2]
 .text:004A46DC                 push    ecx
 .text:004A46DD                 lea     ecx, [esp+20h+var_C]
 .text:004A46E1                 push    eax
@@ -280593,10 +280593,10 @@
 .text:004A46E5                 call    dword ptr [edx+324h]
 .text:004A46EB                 mov     edx, [esi+118h]
 .text:004A46F1                 mov     eax, ds:BBitVectorAND_2
-.text:004A46F6                 fstp    [esp+18h+arg_4]
+.text:004A46F6                 fstp    [esp+18h+a3]
 .text:004A46FA                 test    [edx+30h], eax
 .text:004A46FD                 ja      short loc_4A470E
-.text:004A46FF                 mov     eax, [esp+18h+arg_4]
+.text:004A46FF                 mov     eax, [esp+18h+a3]
 .text:004A4703                 mov     edx, [esi]
 .text:004A4705                 push    eax
 .text:004A4706                 mov     ecx, esi
@@ -280605,7 +280605,7 @@
 .text:004A470E loc_4A470E:                             ; CODE XREF: RGE_Moving_Object__moveUnit+AD\u2191j
 .text:004A470E                 mov     ecx, [esi+118h] ; this
 .text:004A4714                 call    BPathData__highestLinkedPathPointer
-.text:004A4719                 mov     edi, [esp+18h+arg_8.x]
+.text:004A4719                 mov     edi, [esp+18h+a4]
 .text:004A471D                 mov     edx, eax
 .text:004A471F                 test    edx, edx
 .text:004A4721                 jz      short loc_4A4796
@@ -280688,10 +280688,6 @@
 .text:004A47B0
 .text:004A47B0 dest_target_radius= dword ptr -294h
 .text:004A47B0 var_290         = dword ptr -290h
-.text:004A47B0 var_28C         = dword ptr -28Ch
-.text:004A47B0 var_288         = dword ptr -288h
-.text:004A47B0 var_284         = dword ptr -284h
-.text:004A47B0 var_280         = dword ptr -280h
 .text:004A47B0 var_27C         = dword ptr -27Ch
 .text:004A47B0 OB_System_To_Use= dword ptr -278h
 .text:004A47B0 var_274         = dword ptr -274h
@@ -280710,22 +280706,21 @@
 .text:004A47B0 var_238         = BVector ptr -238h
 .text:004A47B0 var_22C         = dword ptr -22Ch
 .text:004A47B0 var_228         = dword ptr -228h
-.text:004A47B0 var_220         = dword ptr -220h
-.text:004A47B0 var_21C         = dword ptr -21Ch
-.text:004A47B0 var_218         = BVector ptr -218h
-.text:004A47B0 var_20C         = BVector ptr -20Ch
-.text:004A47B0 var_200         = BVector ptr -200h
+.text:004A47B0 var_224         = dword ptr -224h
+.text:004A47B0 a4              = BVector ptr -220h
+.text:004A47B0 var_214         = BVector ptr -214h
+.text:004A47B0 var_208         = BVector ptr -208h
 .text:004A47B0 var_1F4         = BVector ptr -1F4h
 .text:004A47B0 p2              = BVector ptr -1E8h
 .text:004A47B0 var_1DC         = BVector ptr -1DCh
 .text:004A47B0 var_1D0         = BVector ptr -1D0h
-.text:004A47B0 var_1C4         = BVector ptr -1C4h
+.text:004A47B0 newPosition     = BVector ptr -1C4h
 .text:004A47B0 result          = BVector ptr -1B4h
-.text:004A47B0 var_1A0         = BVector ptr -1A0h
-.text:004A47B0 ReturnPath      = BPath ptr -194h
-.text:004A47B0 outVector       = BVector ptr -160h
-.text:004A47B0 var_154         = BVector ptr -154h
-.text:004A47B0 var_148         = BVector ptr -148h
+.text:004A47B0 var_1A8         = BVector ptr -1A8h
+.text:004A47B0 var_19C         = BVector ptr -19Ch
+.text:004A47B0 ReturnPath      = BPath ptr -190h
+.text:004A47B0 var_15C         = BVector ptr -15Ch
+.text:004A47B0 var_150         = BVector ptr -150h
 .text:004A47B0 var_13C         = BVector ptr -13Ch
 .text:004A47B0 var_130         = BVector ptr -130h
 .text:004A47B0 var_124         = BVector ptr -124h
@@ -280738,17 +280733,20 @@
 .text:004A47B0 var_D0          = BVector ptr -0D0h
 .text:004A47B0 var_C4          = BVector ptr -0C4h
 .text:004A47B0 var_B8          = BVector ptr -0B8h
-.text:004A47B0 var_AC          = BVector ptr -0ACh
+.text:004A47B0 outVector       = BVector ptr -0ACh
 .text:004A47B0 var_A0          = BVector ptr -0A0h
 .text:004A47B0 var_94          = BVector ptr -94h
 .text:004A47B0 var_88          = BVector ptr -88h
-.text:004A47B0 var_70          = BVector ptr -70h
-.text:004A47B0 var_58          = BVector ptr -58h
+.text:004A47B0 var_78          = BVector ptr -78h
+.text:004A47B0 var_6C          = BVector ptr -6Ch
+.text:004A47B0 var_60          = BVector ptr -60h
+.text:004A47B0 var_54          = BVector ptr -54h
+.text:004A47B0 var_48          = byte ptr -48h
 .text:004A47B0 var_40          = BVector ptr -40h
-.text:004A47B0 var_28          = BVector ptr -28h
-.text:004A47B0 var_1C          = BVector ptr -1Ch
+.text:004A47B0 var_30          = BVector ptr -30h
+.text:004A47B0 var_24          = BVector ptr -24h
 .text:004A47B0 var_C           = dword ptr -0Ch
-.text:004A47B0 var_8           = dword ptr -8
+.text:004A47B0 var_4           = dword ptr -4
 .text:004A47B0
 .text:004A47B0 ; FUNCTION CHUNK AT .text:006428E0 SIZE 00000023 BYTES
 .text:004A47B0
@@ -280819,9 +280817,9 @@
 .text:004A4865                 mov     [esp+27Ch+p2.z], 0
 .text:004A4870                 mov     [esp+27Ch+p2.y], 0
 .text:004A487B                 mov     [esp+27Ch+var_1DC.x], 0
-.text:004A4886                 mov     [esp+27Ch+var_220], 0
-.text:004A488E                 mov     [esp+27Ch+var_21C], 0
-.text:004A4896                 mov     [esp+27Ch+var_218.x], 0
+.text:004A4886                 mov     [esp+27Ch+a4.x], 0
+.text:004A488E                 mov     [esp+27Ch+a4.z], 0
+.text:004A4896                 mov     [esp+27Ch+a4.y], 0
 .text:004A489E                 mov     [esp+27Ch+var_24C], edx
 .text:004A48A2
 .text:004A48A2 loc_4A48A2:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+E84\u2193j
@@ -280960,9 +280958,9 @@
 .text:004A4A49                 push    34h ; '4'       ; size
 .text:004A4A4B                 call    operator_new
 .text:004A4A50                 add     esp, 4
-.text:004A4A53                 mov     [esp+280h+var_24C], eax
+.text:004A4A53                 mov     [esp+27Ch+var_248.x], eax
 .text:004A4A57                 test    eax, eax
-.text:004A4A59                 mov     [esp+280h+var_8], 0
+.text:004A4A59                 mov     [esp+27Ch+var_4], 0
 .text:004A4A64                 jz      short loc_4A4A6F
 .text:004A4A66                 mov     ecx, eax        ; this
 .text:004A4A68                 call    BPathData__BPathData
@@ -280974,8 +280972,8 @@
 .text:004A4A71
 .text:004A4A71 loc_4A4A71:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+2BD\u2191j
 .text:004A4A71                 test    eax, eax
-.text:004A4A73                 mov     [esp+280h+var_25C], eax
-.text:004A4A77                 mov     [esp+280h+var_8], 0FFFFFFFFh
+.text:004A4A73                 mov     [esp+27Ch+obj], eax
+.text:004A4A77                 mov     [esp+27Ch+var_4], 0FFFFFFFFh
 .text:004A4A82                 jz      loc_4A5D82
 .text:004A4A88                 mov     ecx, base_game
 .text:004A4A8E                 mov     ecx, [ecx+420h] ; this
@@ -280986,8 +280984,8 @@
 .text:004A4AA3                 xor     eax, eax
 .text:004A4AA5                 push    1               ; n
 .text:004A4AA7                 mov     ecx, esi        ; this
-.text:004A4AA9                 mov     [esp+284h+var_26C], eax
-.text:004A4AAD                 mov     [esp+284h+goal], eax
+.text:004A4AA9                 mov     [esp+280h+var_268], eax
+.text:004A4AAD                 mov     [esp+280h+var_260], eax
 .text:004A4AB1                 call    RGE_Static_Object__isFlagSet
 .text:004A4AB6                 test    eax, eax
 .text:004A4AB8                 push    ebx             ; v
@@ -280995,7 +280993,7 @@
 .text:004A4ABB                 mov     ecx, edi        ; this
 .text:004A4ABD                 call    BPath__addWaypointAtStart
 .text:004A4AC2                 mov     edx, [esi+118h]
-.text:004A4AC8                 lea     ecx, [esp+280h+outVector]
+.text:004A4AC8                 lea     ecx, [esp+27Ch+var_15C]
 .text:004A4ACF                 mov     eax, [edx+18h]
 .text:004A4AD2                 push    eax             ; wpIndex
 .text:004A4AD3                 push    ecx             ; outVector
@@ -281006,16 +281004,16 @@
 .text:004A4ADE                 call    BPath__addWaypointAtEnd
 .text:004A4AE3                 mov     ecx, edi        ; this
 .text:004A4AE5                 call    BPath__calculatePathLength
-.text:004A4AEA                 mov     ebp, [esp+280h+var_270]
-.text:004A4AEE                 mov     [esp+280h+var_26C], 1
+.text:004A4AEA                 mov     ebp, [esp+27Ch+var_26C]
+.text:004A4AEE                 mov     [esp+27Ch+var_268], 1
 .text:004A4AF6                 jmp     loc_4A557B
 .text:004A4AFB ; ---------------------------------------------------------------------------
 .text:004A4AFB
 .text:004A4AFB loc_4A4AFB:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+309\u2191j
 .text:004A4AFB                 mov     eax, [esi+118h]
-.text:004A4B01                 lea     edx, [esp+284h+var_238]
+.text:004A4B01                 lea     edx, [esp+280h+var_238.z]
 .text:004A4B05                 push    edx             ; result
-.text:004A4B06                 lea     edx, [esp+288h+var_F4]
+.text:004A4B06                 lea     edx, [esp+284h+var_F4.z]
 .text:004A4B0D                 mov     ecx, [eax+18h]
 .text:004A4B10                 push    ecx             ; wpIndex
 .text:004A4B11                 push    edx             ; outVector
@@ -281023,20 +281021,20 @@
 .text:004A4B14                 call    BPath__waypoint
 .text:004A4B19                 mov     ecx, eax        ; this
 .text:004A4B1B                 call    BVector__operator_minus
-.text:004A4B20                 fld     [esp+280h+var_238.y]
-.text:004A4B24                 fmul    [esp+280h+var_238.y]
-.text:004A4B28                 fld     [esp+280h+var_238.x]
-.text:004A4B2C                 fmul    [esp+280h+var_238.x]
+.text:004A4B20                 fld     [esp+27Ch+var_22C]
+.text:004A4B24                 fmul    [esp+27Ch+var_22C]
+.text:004A4B28                 fld     [esp+27Ch+var_238.z]
+.text:004A4B2C                 fmul    [esp+27Ch+var_238.z]
 .text:004A4B30                 mov     eax, [esi+118h]
-.text:004A4B36                 mov     [esp+280h+var_238.z], 0
+.text:004A4B36                 mov     [esp+27Ch+var_238.y], 0
 .text:004A4B3E                 faddp   st(1), st
 .text:004A4B40                 cmp     dword ptr [eax+0Ch], 2
 .text:004A4B44                 fsqrt
-.text:004A4B46                 fstp    [esp+280h+var_260]
+.text:004A4B46                 fstp    [esp+27Ch+var_25C]
 .text:004A4B4A                 jnz     loc_4A4D2C
 .text:004A4B50                 cmp     dword_689568, 1
 .text:004A4B57                 jnz     loc_4A4D2C
-.text:004A4B5D                 fld     [esp+280h+var_260]
+.text:004A4B5D                 fld     [esp+27Ch+var_25C]
 .text:004A4B61                 fcomp   flt_68F494
 .text:004A4B67                 fnstsw  ax
 .text:004A4B69                 test    ah, 41h
@@ -281048,10 +281046,10 @@
 .text:004A4B82                 mov     ecx, [eax+74h]  ; this
 .text:004A4B85                 call    RGE_Map_Analysis_System__get_map_analysis
 .text:004A4B8A                 test    eax, eax
-.text:004A4B8C                 mov     [esp+280h+var_24C], eax
+.text:004A4B8C                 mov     [esp+27Ch+var_248.x], eax
 .text:004A4B90                 jz      loc_4A4CE0
 .text:004A4B96                 mov     eax, [esi+118h]
-.text:004A4B9C                 mov     [esp+280h+var_228], 0
+.text:004A4B9C                 mov     [esp+27Ch+var_224], 0
 .text:004A4BA4                 mov     eax, [eax+24h]
 .text:004A4BA7                 cmp     eax, 0FFFFFFFFh
 .text:004A4BAA                 jz      short loc_4A4BCC
@@ -281063,13 +281061,13 @@
 .text:004A4BC0                 jz      short loc_4A4BCC
 .text:004A4BC2                 mov     edx, [eax+14h]
 .text:004A4BC5                 mov     eax, [edx+3Ch]
-.text:004A4BC8                 mov     [esp+280h+var_228], eax
+.text:004A4BC8                 mov     [esp+27Ch+var_224], eax
 .text:004A4BCC
 .text:004A4BCC loc_4A4BCC:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+3FA\u2191j
 .text:004A4BCC                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+410\u2191j
 .text:004A4BCC                 mov     eax, [esi+118h]
 .text:004A4BD2                 mov     edx, [esi+14h]
-.text:004A4BD5                 fld     [esp+280h+var_228]
+.text:004A4BD5                 fld     [esp+27Ch+var_224]
 .text:004A4BD9                 mov     ecx, [eax+20h]
 .text:004A4BDC                 mov     eax, [eax+18h]
 .text:004A4BDF                 fadd    dword ptr [edx+3Ch]
@@ -281078,8 +281076,8 @@
 .text:004A4BE6                 push    0               ; player
 .text:004A4BE8                 push    ecx             ; dest_radius
 .text:004A4BE9                 push    ecx             ; float
-.text:004A4BEA                 lea     ecx, [esp+294h+var_1C]
-.text:004A4BF1                 fstp    [esp+294h+dest_target_radius] ; dest_target_radius
+.text:004A4BEA                 lea     ecx, [esp+278h]
+.text:004A4BF1                 fstp    [esp+290h+var_290] ; dest_target_radius
 .text:004A4BF4                 push    eax             ; wpIndex
 .text:004A4BF5                 push    ecx             ; outVector
 .text:004A4BF6                 mov     ecx, ebp        ; this
@@ -281087,7 +281085,7 @@
 .text:004A4BFD                 mov     edx, [eax+8]
 .text:004A4C00                 mov     eax, [esi+118h]
 .text:004A4C06                 push    edx             ; dy
-.text:004A4C07                 lea     edx, [esp+298h+var_148]
+.text:004A4C07                 lea     edx, [esp+150h]
 .text:004A4C0E                 mov     ecx, [eax+18h]
 .text:004A4C11                 push    ecx             ; wpIndex
 .text:004A4C12                 push    edx             ; outVector
@@ -281098,7 +281096,7 @@
 .text:004A4C22                 mov     edx, [ebx]
 .text:004A4C24                 push    eax             ; dx
 .text:004A4C25                 push    ecx             ; sy
-.text:004A4C26                 mov     ecx, [esp+2A0h+var_24C] ; this
+.text:004A4C26                 mov     ecx, [esp+29Ch+var_248.x] ; this
 .text:004A4C2A                 push    edx             ; sx
 .text:004A4C2B                 push    edi             ; ReturnPath
 .text:004A4C2C                 call    RGE_Map_Analysis__find_path
@@ -281112,36 +281110,36 @@
 .text:004A4C50                 mov     eax, 1
 .text:004A4C55                 mov     edx, edi        ; path
 .text:004A4C57                 mov     ecx, esi        ; obj
-.text:004A4C59                 mov     [esp+280h+goal], eax
-.text:004A4C5D                 mov     [esp+280h+var_26C], eax
+.text:004A4C59                 mov     [esp+27Ch+var_260], eax
+.text:004A4C5D                 mov     [esp+27Ch+var_268], eax
 .text:004A4C61                 call    smoothMidLevelPath
 .text:004A4C66                 mov     eax, [edi+0Ch]
 .text:004A4C69                 mov     ecx, edi        ; this
 .text:004A4C6B                 dec     eax
 .text:004A4C6C                 push    eax             ; wpIndex
-.text:004A4C6D                 lea     eax, [esp+284h+var_40]
+.text:004A4C6D                 lea     eax, [esp+280h+var_40.z]
 .text:004A4C74                 push    eax             ; outVector
 .text:004A4C75                 call    BPath__waypoint
 .text:004A4C7A                 mov     edx, [esi+118h]
-.text:004A4C80                 lea     ecx, [esp+280h+var_1F4]
+.text:004A4C80                 lea     ecx, [esp+27Ch+var_1F4.z]
 .text:004A4C87                 push    eax             ; v
 .text:004A4C88                 push    ecx             ; result
 .text:004A4C89                 mov     eax, [edx+18h]
-.text:004A4C8C                 lea     ecx, [esp+288h+var_130]
+.text:004A4C8C                 lea     ecx, [esp+284h+var_130.z]
 .text:004A4C93                 push    eax             ; wpIndex
 .text:004A4C94                 push    ecx             ; outVector
 .text:004A4C95                 mov     ecx, ebp        ; this
 .text:004A4C97                 call    BPath__waypoint
 .text:004A4C9C                 mov     ecx, eax        ; this
 .text:004A4C9E                 call    BVector__operator_minus
-.text:004A4CA3                 fld     [esp+280h+var_1F4.y]
-.text:004A4CAA                 fmul    [esp+280h+var_1F4.y]
-.text:004A4CB1                 fld     [esp+280h+var_1F4.x]
-.text:004A4CB8                 fmul    [esp+280h+var_1F4.x]
-.text:004A4CBF                 mov     [esp+280h+var_1F4.z], 0
+.text:004A4CA3                 fld     [esp+27Ch+p2.x]
+.text:004A4CAA                 fmul    [esp+27Ch+p2.x]
+.text:004A4CB1                 fld     [esp+27Ch+var_1F4.z]
+.text:004A4CB8                 fmul    [esp+27Ch+var_1F4.z]
+.text:004A4CBF                 mov     [esp+27Ch+var_1F4.y], 0
 .text:004A4CCA                 faddp   st(1), st
 .text:004A4CCC                 fsqrt
-.text:004A4CCE                 fcomp   [esp+280h+var_260]
+.text:004A4CCE                 fcomp   [esp+27Ch+var_25C]
 .text:004A4CD2                 fnstsw  ax
 .text:004A4CD4                 test    ah, 41h
 .text:004A4CD7                 jnz     short loc_4A4D16
@@ -281155,7 +281153,7 @@
 .text:004A4CE1                 mov     ecx, edi        ; this
 .text:004A4CE3                 call    BPath__addWaypointAtStart
 .text:004A4CE8                 mov     edx, [esi+118h]
-.text:004A4CEE                 lea     ecx, [esp+280h+var_A0]
+.text:004A4CEE                 lea     ecx, [esp+27Ch+var_A0.z]
 .text:004A4CF5                 mov     eax, [edx+18h]
 .text:004A4CF8                 push    eax             ; wpIndex
 .text:004A4CF9                 push    ecx             ; outVector
@@ -281165,10 +281163,10 @@
 .text:004A4D02                 mov     ecx, edi        ; this
 .text:004A4D04                 call    BPath__addWaypointAtEnd
 .text:004A4D09                 mov     eax, 1
-.text:004A4D0E                 mov     [esp+280h+goal], eax
+.text:004A4D0E                 mov     [esp+27Ch+var_260], eax
 .text:004A4D12
 .text:004A4D12 loc_4A4D12:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+52E\u2191j
-.text:004A4D12                 mov     [esp+280h+var_26C], eax
+.text:004A4D12                 mov     [esp+27Ch+var_268], eax
 .text:004A4D16
 .text:004A4D16 loc_4A4D16:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+489\u2191j
 .text:004A4D16                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+492\u2191j ...
@@ -281181,10 +281179,10 @@
 .text:004A4D2C
 .text:004A4D2C loc_4A4D2C:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+39A\u2191j
 .text:004A4D2C                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+3A7\u2191j ...
-.text:004A4D2C                 mov     eax, [esp+280h+var_26C]
+.text:004A4D2C                 mov     eax, [esp+27Ch+var_268]
 .text:004A4D30                 xor     ebp, ebp
 .text:004A4D32                 cmp     eax, ebp
-.text:004A4D34                 mov     [esp+280h+var_248.x], SINGLE_MAXIMUM_VALUE
+.text:004A4D34                 mov     [esp+27Ch+var_248.z], SINGLE_MAXIMUM_VALUE
 .text:004A4D3C                 jz      short loc_4A4D48
 .text:004A4D3E                 cmp     dword ptr [edi+0Ch], 2
 .text:004A4D42                 jg      loc_4A4F26
@@ -281192,7 +281190,7 @@
 .text:004A4D48 loc_4A4D48:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+58C\u2191j
 .text:004A4D48                 cmp     dword_689564, 1
 .text:004A4D4F                 jnz     loc_4A4F26
-.text:004A4D55                 fld     [esp+280h+var_260]
+.text:004A4D55                 fld     [esp+27Ch+var_25C]
 .text:004A4D59                 fcomp   ds:flt_6565F0
 .text:004A4D5F                 fnstsw  ax
 .text:004A4D61                 test    ah, 41h
@@ -281200,7 +281198,7 @@
 .text:004A4D6A                 xor     ecx, ecx
 .text:004A4D6C                 mov     [edi+0Ch], ebp
 .text:004A4D6F                 cmp     esi, ebp
-.text:004A4D71                 mov     [esp+280h+goal], ebp
+.text:004A4D71                 mov     [esp+27Ch+var_260], ebp
 .text:004A4D75                 mov     ignoreListSize, ecx
 .text:004A4D7B                 jz      short loc_4A4DC8
 .text:004A4D7D                 mov     ecx, [esi+10h]
@@ -281232,7 +281230,7 @@
 .text:004A4DC8
 .text:004A4DC8 loc_4A4DC8:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+5CB\u2191j
 .text:004A4DC8                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+5E6\u2191j ...
-.text:004A4DC8                 mov     eax, [esp+280h+obj]
+.text:004A4DC8                 mov     eax, [esp+27Ch+targetObj]
 .text:004A4DCC                 cmp     eax, ebp
 .text:004A4DCE                 jz      short loc_4A4E21
 .text:004A4DD0                 cmp     ecx, 80h ; '€'
@@ -281277,7 +281275,7 @@
 .text:004A4E40                 mov     edx, [edx+60h]
 .text:004A4E43                 mov     edx, [edx+ebx*4]
 .text:004A4E46                 push    edx             ; terrainTable
-.text:004A4E47                 mov     edx, [esp+28Ch+numberCollisionUnits]
+.text:004A4E47                 mov     edx, [esp+288h+var_24C]
 .text:004A4E4B                 push    edi             ; rPath
 .text:004A4E4C                 push    edx             ; numberCollisionUnits
 .text:004A4E4D                 mov     edx, [eax+20h]
@@ -281290,12 +281288,12 @@
 .text:004A4E62                 push    edx             ; range
 .text:004A4E63                 mov     edx, [eax+18h]
 .text:004A4E66                 push    ecx             ; unitRadius
-.text:004A4E67                 mov     ecx, [esp+2ACh+var_270] ; this
-.text:004A4E6B                 lea     eax, [esp+2ACh+var_118]
+.text:004A4E67                 mov     ecx, [esp+2A8h+var_26C] ; this
+.text:004A4E6B                 lea     eax, [esp+2A8h+var_118.z]
 .text:004A4E72                 push    edx             ; wpIndex
 .text:004A4E73                 push    eax             ; outVector
 .text:004A4E74                 call    BPath__waypoint
-.text:004A4E79                 mov     ecx, [esp+2ACh+targetObj] ; obstruction_manager
+.text:004A4E79                 mov     ecx, [esp+2A8h+numberCollisionUnits] ; obstruction_manager
 .text:004A4E7D                 lea     ebx, [esi+0F4h]
 .text:004A4E83                 push    eax             ; goal
 .text:004A4E84                 mov     edx, ebx        ; start
@@ -281319,45 +281317,45 @@
 .text:004A4EBD                 mov     eax, [edi+0Ch]
 .text:004A4EC0                 mov     ecx, edi        ; this
 .text:004A4EC2                 dec     eax
-.text:004A4EC3                 mov     [esp+280h+var_26C], 1
+.text:004A4EC3                 mov     [esp+27Ch+var_268], 1
 .text:004A4ECB                 push    eax             ; wpIndex
-.text:004A4ECC                 lea     eax, [esp+284h+var_58]
+.text:004A4ECC                 lea     eax, [esp+280h+var_54]
 .text:004A4ED3                 push    eax             ; outVector
 .text:004A4ED4                 call    BPath__waypoint
 .text:004A4ED9                 mov     edx, [esi+118h]
-.text:004A4EDF                 lea     ecx, [esp+280h+var_218]
+.text:004A4EDF                 lea     ecx, [esp+27Ch+var_214]
 .text:004A4EE3                 push    eax             ; v
 .text:004A4EE4                 push    ecx             ; result
 .text:004A4EE5                 mov     eax, [edx+18h]
-.text:004A4EE8                 lea     ecx, [esp+288h+var_100]
+.text:004A4EE8                 lea     ecx, [esp+284h+var_100.z]
 .text:004A4EEF                 push    eax             ; wpIndex
 .text:004A4EF0                 push    ecx             ; outVector
-.text:004A4EF1                 mov     ecx, [esp+290h+var_270] ; this
+.text:004A4EF1                 mov     ecx, [esp+28Ch+var_26C] ; this
 .text:004A4EF5                 call    BPath__waypoint
 .text:004A4EFA                 mov     ecx, eax        ; this
 .text:004A4EFC                 call    BVector__operator_minus
-.text:004A4F01                 fld     [esp+280h+var_218.y]
-.text:004A4F05                 fmul    [esp+280h+var_218.y]
-.text:004A4F09                 fld     [esp+280h+var_218.x]
-.text:004A4F0D                 fmul    [esp+280h+var_218.x]
-.text:004A4F11                 mov     [esp+280h+var_218.z], 0
+.text:004A4F01                 fld     [esp+27Ch+var_214.y]
+.text:004A4F05                 fmul    [esp+27Ch+var_214.y]
+.text:004A4F09                 fld     [esp+27Ch+var_214.x]
+.text:004A4F0D                 fmul    [esp+27Ch+var_214.x]
+.text:004A4F11                 mov     [esp+27Ch+var_214.z], 0
 .text:004A4F19                 faddp   st(1), st
 .text:004A4F1B                 fsqrt
-.text:004A4F1D                 fstp    [esp+280h+var_248.x]
+.text:004A4F1D                 fstp    [esp+27Ch+var_248.z]
 .text:004A4F21                 jmp     loc_4A511F
 .text:004A4F26 ; ---------------------------------------------------------------------------
 .text:004A4F26
 .text:004A4F26 loc_4A4F26:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+592\u2191j
 .text:004A4F26                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+59F\u2191j ...
-.text:004A4F26                 mov     eax, [esp+280h+var_26C]
+.text:004A4F26                 mov     eax, [esp+27Ch+var_268]
 .text:004A4F2A                 test    eax, eax
 .text:004A4F2C                 jnz     loc_4A511F
-.text:004A4F32                 fld     [esp+280h+var_260]
+.text:004A4F32                 fld     [esp+27Ch+var_25C]
 .text:004A4F36                 fcomp   ds:const_f_one
 .text:004A4F3C                 fnstsw  ax
 .text:004A4F3E                 test    ah, 1
 .text:004A4F41                 jnz     short loc_4A4F58
-.text:004A4F43                 fld     [esp+280h+var_268]
+.text:004A4F43                 fld     [esp+27Ch+goal]
 .text:004A4F47                 fcomp   ds:const_f_one
 .text:004A4F4D                 fnstsw  ax
 .text:004A4F4F                 test    ah, 1
@@ -281365,20 +281363,20 @@
 .text:004A4F58
 .text:004A4F58 loc_4A4F58:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+791\u2191j
 .text:004A4F58                 mov     edx, [esi+118h]
-.text:004A4F5E                 lea     ecx, [esp+280h+var_1D0]
-.text:004A4F65                 mov     [esp+280h+goal], 0
+.text:004A4F5E                 lea     ecx, [esp+27Ch+var_1D0.z]
+.text:004A4F65                 mov     [esp+27Ch+var_260], 0
 .text:004A4F6D                 mov     eax, [edx+18h]
 .text:004A4F70                 push    eax             ; wpIndex
 .text:004A4F71                 push    ecx             ; outVector
-.text:004A4F72                 mov     ecx, [esp+288h+var_270] ; this
+.text:004A4F72                 mov     ecx, [esp+284h+var_26C] ; this
 .text:004A4F76                 call    BPath__waypoint
 .text:004A4F7B                 mov     ecx, [esi+14h]
-.text:004A4F7E                 fld     [esp+280h+var_1D0.x]
+.text:004A4F7E                 fld     [esp+27Ch+var_1D0.z]
 .text:004A4F85                 fcomp   dword ptr [ecx+3Ch]
 .text:004A4F88                 fnstsw  ax
 .text:004A4F8A                 test    ah, 1
 .text:004A4F8D                 jnz     loc_4A5135
-.text:004A4F93                 fld     [esp+280h+var_1D0.y]
+.text:004A4F93                 fld     [esp+27Ch+newPosition.x]
 .text:004A4F9A                 fcomp   dword ptr [ecx+40h]
 .text:004A4F9D                 fnstsw  ax
 .text:004A4F9F                 test    ah, 1
@@ -281388,13 +281386,13 @@
 .text:004A4FB1                 mov     edx, [eax+34h]
 .text:004A4FB4                 fild    dword ptr [edx+8]
 .text:004A4FB7                 fsub    dword ptr [ecx+3Ch]
-.text:004A4FBA                 fcomp   [esp+280h+var_1D0.x]
+.text:004A4FBA                 fcomp   [esp+27Ch+var_1D0.z]
 .text:004A4FC1                 fnstsw  ax
 .text:004A4FC3                 test    ah, 1
 .text:004A4FC6                 jnz     loc_4A5135
 .text:004A4FCC                 fild    dword ptr [edx+0Ch]
 .text:004A4FCF                 fsub    dword ptr [ecx+40h]
-.text:004A4FD2                 fcomp   [esp+280h+var_1D0.y]
+.text:004A4FD2                 fcomp   [esp+27Ch+newPosition.x]
 .text:004A4FD9                 fnstsw  ax
 .text:004A4FDB                 test    ah, 1
 .text:004A4FDE                 jnz     loc_4A5135
@@ -281430,7 +281428,7 @@
 .text:004A5036
 .text:004A5036 loc_4A5036:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+83D\u2191j
 .text:004A5036                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+856\u2191j ...
-.text:004A5036                 mov     ecx, [esp+280h+obj]
+.text:004A5036                 mov     ecx, [esp+27Ch+targetObj]
 .text:004A503A                 test    ecx, ecx
 .text:004A503C                 jz      short loc_4A508B
 .text:004A503E                 cmp     eax, 80h ; '€'
@@ -281470,12 +281468,12 @@
 .text:004A5098                 push    eax             ; ignoreListSize
 .text:004A5099                 mov     eax, [edx+18h]
 .text:004A509C                 push    offset collisionUnits ; ignoreList
-.text:004A50A1                 lea     ecx, [esp+290h+var_88]
+.text:004A50A1                 lea     ecx, [esp+28Ch+var_88.z]
 .text:004A50A8                 push    eax             ; wpIndex
 .text:004A50A9                 push    ecx             ; outVector
-.text:004A50AA                 mov     ecx, [esp+298h+var_270] ; this
+.text:004A50AA                 mov     ecx, [esp+294h+var_26C] ; this
 .text:004A50AE                 call    BPath__waypoint
-.text:004A50B3                 mov     ecx, [esp+290h+targetObj] ; OB_System_To_Use
+.text:004A50B3                 mov     ecx, [esp+28Ch+numberCollisionUnits] ; OB_System_To_Use
 .text:004A50B7                 lea     ebx, [esi+0F4h]
 .text:004A50BD                 push    eax             ; p2
 .text:004A50BE                 push    ebx             ; p1
@@ -281489,11 +281487,11 @@
 .text:004A50D2                 mov     dword ptr [edi+0Ch], 0
 .text:004A50D9                 call    BPath__addWaypointAtStart
 .text:004A50DE                 mov     edx, [esi+118h]
-.text:004A50E4                 lea     ecx, [esp+280h+var_E8]
+.text:004A50E4                 lea     ecx, [esp+27Ch+var_E8.z]
 .text:004A50EB                 mov     eax, [edx+18h]
 .text:004A50EE                 push    eax             ; wpIndex
 .text:004A50EF                 push    ecx             ; outVector
-.text:004A50F0                 mov     ecx, [esp+288h+var_270] ; this
+.text:004A50F0                 mov     ecx, [esp+284h+var_26C] ; this
 .text:004A50F4                 call    BPath__waypoint
 .text:004A50F9                 push    eax             ; wp
 .text:004A50FA                 mov     ecx, edi        ; this
@@ -281504,7 +281502,7 @@
 .text:004A510C                 mov     eax, [eax+10h]
 .text:004A510F                 mov     [edi+1Ch], eax
 .text:004A5112                 call    BPath__calculatePathLength
-.text:004A5117                 mov     [esp+280h+var_26C], 1
+.text:004A5117                 mov     [esp+27Ch+var_268], 1
 .text:004A511F
 .text:004A511F loc_4A511F:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+771\u2191j
 .text:004A511F                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+77C\u2191j
@@ -281518,15 +281516,15 @@
 .text:004A5135
 .text:004A5135 loc_4A5135:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+7A2\u2191j
 .text:004A5135                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+7DD\u2191j ...
-.text:004A5135                 mov     ecx, [esp+280h+obj]
+.text:004A5135                 mov     ecx, [esp+27Ch+targetObj]
 .text:004A5139                 push    ecx             ; obj
 .text:004A513A                 mov     ecx, esi        ; this
 .text:004A513C                 call    RGE_Static_Object__distance_to_object
-.text:004A5141                 mov     ecx, [esp+280h+obj]
+.text:004A5141                 mov     ecx, [esp+27Ch+targetObj]
 .text:004A5145                 test    ecx, ecx
 .text:004A5147                 jnz     loc_4A5336
 .text:004A514D                 fstp    st
-.text:004A514F                 fld     [esp+280h+var_260]
+.text:004A514F                 fld     [esp+27Ch+var_25C]
 .text:004A5153                 fcomp   ds:const_f_one
 .text:004A5159                 fnstsw  ax
 .text:004A515B                 test    ah, 1
@@ -281534,11 +281532,11 @@
 .text:004A5164
 .text:004A5164 loc_4A5164:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+983\u2191j
 .text:004A5164                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+B9B\u2193j ...
-.text:004A5164                 mov     ebp, [esp+280h+var_270]
+.text:004A5164                 mov     ebp, [esp+27Ch+var_26C]
 .text:004A5168
 .text:004A5168 loc_4A5168:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+CF5\u2193j
 .text:004A5168                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+CFC\u2193j
-.text:004A5168                 mov     eax, [esp+280h+var_26C]
+.text:004A5168                 mov     eax, [esp+27Ch+var_268]
 .text:004A516C                 test    eax, eax
 .text:004A516E                 jz      short loc_4A518A
 .text:004A5170                 cmp     dword ptr [edi+0Ch], 2
@@ -281556,7 +281554,7 @@
 .text:004A5194                 jnz     loc_4A557B
 .text:004A519A                 cmp     dword_689568, 1
 .text:004A51A1                 jnz     loc_4A557B
-.text:004A51A7                 fld     [esp+280h+var_260]
+.text:004A51A7                 fld     [esp+27Ch+var_25C]
 .text:004A51AB                 fcomp   flt_68F494
 .text:004A51B1                 fnstsw  ax
 .text:004A51B3                 test    ah, 1
@@ -281568,15 +281566,15 @@
 .text:004A51CC                 mov     ecx, [eax+74h]  ; this
 .text:004A51CF                 call    RGE_Map_Analysis_System__get_map_analysis
 .text:004A51D4                 push    0FFFFFFFFh      ; newID
-.text:004A51D6                 lea     ecx, [esp+284h+ReturnPath] ; this
-.text:004A51DD                 mov     [esp+284h+var_268], eax
+.text:004A51D6                 lea     ecx, [esp+280h+ReturnPath] ; this
+.text:004A51DD                 mov     [esp+280h+goal], eax
 .text:004A51E1                 call    BPath__BPath
-.text:004A51E6                 mov     eax, [esp+280h+var_268]
-.text:004A51EA                 mov     [esp+280h+var_8], 1
+.text:004A51E6                 mov     eax, [esp+27Ch+goal]
+.text:004A51EA                 mov     [esp+27Ch+var_4], 1
 .text:004A51F5                 test    eax, eax
 .text:004A51F7                 jz      loc_4A5564
 .text:004A51FD                 mov     eax, [esi+118h]
-.text:004A5203                 mov     [esp+280h+var_22C], 0
+.text:004A5203                 mov     [esp+27Ch+var_228], 0
 .text:004A520B                 mov     eax, [eax+24h]
 .text:004A520E                 cmp     eax, 0FFFFFFFFh
 .text:004A5211                 jz      short loc_4A5233
@@ -281588,13 +281586,13 @@
 .text:004A5227                 jz      short loc_4A5233
 .text:004A5229                 mov     edx, [eax+14h]
 .text:004A522C                 mov     eax, [edx+3Ch]
-.text:004A522F                 mov     [esp+280h+var_22C], eax
+.text:004A522F                 mov     [esp+27Ch+var_228], eax
 .text:004A5233
 .text:004A5233 loc_4A5233:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+A61\u2191j
 .text:004A5233                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+A77\u2191j
 .text:004A5233                 mov     eax, [esi+118h]
 .text:004A5239                 mov     edx, [esi+14h]
-.text:004A523C                 fld     [esp+280h+var_22C]
+.text:004A523C                 fld     [esp+27Ch+var_228]
 .text:004A5240                 mov     ecx, [eax+20h]
 .text:004A5243                 mov     eax, [eax+18h]
 .text:004A5246                 fadd    dword ptr [edx+3Ch]
@@ -281603,8 +281601,8 @@
 .text:004A524D                 push    0               ; player
 .text:004A524F                 push    ecx             ; dest_radius
 .text:004A5250                 push    ecx             ; float
-.text:004A5251                 lea     ecx, [esp+294h+var_154]
-.text:004A5258                 fstp    [esp+294h+dest_target_radius] ; dest_target_radius
+.text:004A5251                 lea     ecx, [esp+290h+var_150]
+.text:004A5258                 fstp    [esp+290h+var_290] ; dest_target_radius
 .text:004A525B                 push    eax             ; wpIndex
 .text:004A525C                 push    ecx             ; outVector
 .text:004A525D                 mov     ecx, ebp        ; this
@@ -281612,7 +281610,7 @@
 .text:004A5264                 mov     edx, [eax+8]
 .text:004A5267                 mov     eax, [esi+118h]
 .text:004A526D                 push    edx             ; dy
-.text:004A526E                 lea     edx, [esp+298h+var_13C]
+.text:004A526E                 lea     edx, [esp+294h+var_13C.z]
 .text:004A5275                 mov     ecx, [eax+18h]
 .text:004A5278                 push    ecx             ; wpIndex
 .text:004A5279                 push    edx             ; outVector
@@ -281623,41 +281621,41 @@
 .text:004A5289                 mov     edx, [ebx]
 .text:004A528B                 push    eax             ; dx
 .text:004A528C                 push    ecx             ; sy
-.text:004A528D                 mov     ecx, [esp+2A0h+var_268] ; this
-.text:004A5291                 lea     eax, [esp+2A0h+ReturnPath]
+.text:004A528D                 mov     ecx, [esp+29Ch+goal] ; this
+.text:004A5291                 lea     eax, [esp+29Ch+ReturnPath]
 .text:004A5298                 push    edx             ; sx
 .text:004A5299                 push    eax             ; ReturnPath
 .text:004A529A                 call    RGE_Map_Analysis__find_path
-.text:004A529F                 mov     ecx, [esp+280h+ReturnPath.waypointsCount]
+.text:004A529F                 mov     ecx, [esp+27Ch+ReturnPath.waypointsCount]
 .text:004A52A6                 and     eax, 0FFh
 .text:004A52AB                 dec     ecx
-.text:004A52AC                 lea     edx, [esp+280h+var_124]
+.text:004A52AC                 lea     edx, [esp+27Ch+var_124.z]
 .text:004A52B3                 push    ecx             ; wpIndex
 .text:004A52B4                 push    edx             ; outVector
-.text:004A52B5                 lea     ecx, [esp+288h+ReturnPath] ; this
+.text:004A52B5                 lea     ecx, [esp+284h+ReturnPath] ; this
 .text:004A52BC                 mov     ebx, eax
 .text:004A52BE                 call    BPath__waypoint
 .text:004A52C3                 mov     ecx, [esi+118h]
 .text:004A52C9                 push    eax             ; v
-.text:004A52CA                 lea     eax, [esp+284h+var_200]
+.text:004A52CA                 lea     eax, [esp+84h]
 .text:004A52D1                 mov     edx, [ecx+18h]
 .text:004A52D4                 push    eax             ; result
-.text:004A52D5                 lea     eax, [esp+288h+result.y]
+.text:004A52D5                 lea     eax, [esp+284h+var_1A8]
 .text:004A52DC                 push    edx             ; wpIndex
 .text:004A52DD                 push    eax             ; outVector
 .text:004A52DE                 mov     ecx, ebp        ; this
 .text:004A52E0                 call    BPath__waypoint
 .text:004A52E5                 mov     ecx, eax        ; this
 .text:004A52E7                 call    BVector__operator_minus
-.text:004A52EC                 fld     [esp+280h+var_200.y]
-.text:004A52F3                 fmul    [esp+280h+var_200.y]
-.text:004A52FA                 fld     [esp+280h+var_200.x]
-.text:004A5301                 fmul    [esp+280h+var_200.x]
-.text:004A5308                 mov     [esp+280h+var_200.z], 0
+.text:004A52EC                 fld     [esp+27Ch+var_1F4.x]
+.text:004A52F3                 fmul    [esp+27Ch+var_1F4.x]
+.text:004A52FA                 fld     dword ptr [esp+80h]
+.text:004A5301                 fmul    dword ptr [esp+80h]
+.text:004A5308                 mov     dword ptr [esp+84h], 0
 .text:004A5313                 faddp   st(1), st
 .text:004A5315                 fsqrt
-.text:004A5317                 fst     [esp+280h+var_268]
-.text:004A531B                 fcomp   [esp+280h+var_260]
+.text:004A5317                 fst     [esp+27Ch+goal]
+.text:004A531B                 fcomp   [esp+27Ch+var_25C]
 .text:004A531F                 fnstsw  ax
 .text:004A5321                 test    ah, 41h
 .text:004A5324                 jnz     loc_4A54B1
@@ -281679,7 +281677,7 @@
 .text:004A5351                 cmp     dword_68956C, 1
 .text:004A5358                 jnz     loc_4A5164
 .text:004A535E                 xor     ecx, ecx
-.text:004A5360                 mov     ebp, [esp+280h+var_270]
+.text:004A5360                 mov     ebp, [esp+27Ch+var_26C]
 .text:004A5364                 push    ecx             ; useRangeWithoutTarget
 .text:004A5365                 mov     [edi+0Ch], ecx
 .text:004A5368                 mov     eax, [esi+118h]
@@ -281687,14 +281685,14 @@
 .text:004A536F                 push    0FFFFFFFFh      ; unobstructibleGroupID
 .text:004A5371                 push    0FFFFFFFFh      ; unobstructiblePlayerID
 .text:004A5373                 mov     edx, [eax+20h]
-.text:004A5376                 mov     [esp+290h+goal], ecx
+.text:004A5376                 mov     [esp+28Ch+var_260], ecx
 .text:004A537A                 push    ecx             ; rLength
 .text:004A537B                 mov     ecx, [eax+24h]
 .text:004A537E                 mov     eax, [eax+18h]
 .text:004A5381                 push    ecx             ; targetID
 .text:004A5382                 push    edx             ; range
 .text:004A5383                 push    esi             ; unit
-.text:004A5384                 lea     ecx, [esp+2A0h+var_28]
+.text:004A5384                 lea     ecx, [esp+29Ch+var_24]
 .text:004A538B                 push    eax             ; wpIndex
 .text:004A538C                 push    ecx             ; outVector
 .text:004A538D                 mov     ecx, ebp        ; this
@@ -281703,7 +281701,7 @@
 .text:004A5397                 call    __ftol
 .text:004A539C                 mov     edx, [esi+118h]
 .text:004A53A2                 push    eax             ; goalY
-.text:004A53A3                 lea     ecx, [esp+2A4h+var_D0]
+.text:004A53A3                 lea     ecx, [esp+2A0h+var_D0.z]
 .text:004A53AA                 mov     eax, [edx+18h]
 .text:004A53AD                 push    eax             ; wpIndex
 .text:004A53AE                 push    ecx             ; outVector
@@ -281722,7 +281720,7 @@
 .text:004A53D7                 call    PathingSystem__findTilePath
 .text:004A53DC                 mov     edx, [esi+18h]
 .text:004A53DF                 and     eax, 0FFh
-.text:004A53E4                 mov     [esp+280h+var_26C], eax
+.text:004A53E4                 mov     [esp+27Ch+var_268], eax
 .text:004A53E8                 mov     ecx, edi        ; this
 .text:004A53EA                 mov     eax, [edx+8Ch]
 .text:004A53F0                 mov     eax, [eax+10h]
@@ -281733,13 +281731,13 @@
 .text:004A5404                 fnstsw  ax
 .text:004A5406                 test    ah, 1
 .text:004A5409                 jz      short loc_4A5418
-.text:004A540B                 mov     [esp+280h+var_26C], 0
+.text:004A540B                 mov     [esp+27Ch+var_268], 0
 .text:004A5413                 jmp     loc_4A518A
 .text:004A5418 ; ---------------------------------------------------------------------------
 .text:004A5418
 .text:004A5418 loc_4A5418:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+C59\u2191j
 .text:004A5418                 mov     eax, [edi+0Ch]
-.text:004A541B                 lea     ecx, [esp+280h+var_70]
+.text:004A541B                 lea     ecx, [esp+27Ch+var_6C]
 .text:004A5422                 dec     eax
 .text:004A5423                 push    eax             ; wpIndex
 .text:004A5424                 push    ecx             ; outVector
@@ -281747,38 +281745,38 @@
 .text:004A5427                 call    BPath__waypoint
 .text:004A542C                 push    eax             ; v
 .text:004A542D                 mov     eax, [esi+118h]
-.text:004A5433                 lea     edx, [esp+284h+var_20C]
+.text:004A5433                 lea     edx, [esp+280h+var_208]
 .text:004A5437                 mov     ecx, [eax+18h]
 .text:004A543A                 push    edx             ; result
-.text:004A543B                 lea     edx, [esp+288h+var_B8]
+.text:004A543B                 lea     edx, [esp+284h+var_B8.z]
 .text:004A5442                 push    ecx             ; wpIndex
 .text:004A5443                 push    edx             ; outVector
 .text:004A5444                 mov     ecx, ebp        ; this
 .text:004A5446                 call    BPath__waypoint
 .text:004A544B                 mov     ecx, eax        ; this
 .text:004A544D                 call    BVector__operator_minus
-.text:004A5452                 fld     [esp+280h+var_20C.y]
-.text:004A5456                 fmul    [esp+280h+var_20C.y]
-.text:004A545A                 fld     [esp+280h+var_20C.x]
-.text:004A545E                 fmul    [esp+280h+var_20C.x]
-.text:004A5462                 mov     [esp+280h+var_20C.z], 0
+.text:004A5452                 fld     [esp+27Ch+var_208.y]
+.text:004A5456                 fmul    [esp+27Ch+var_208.y]
+.text:004A545A                 fld     [esp+27Ch+var_208.x]
+.text:004A545E                 fmul    [esp+27Ch+var_208.x]
+.text:004A5462                 mov     [esp+27Ch+var_208.z], 0
 .text:004A546A                 faddp   st(1), st
 .text:004A546C                 fsqrt
-.text:004A546E                 fst     [esp+280h+var_24C]
-.text:004A5472                 fld     [esp+280h+var_238.y]
-.text:004A5476                 fmul    [esp+280h+var_238.y]
-.text:004A547A                 fld     [esp+280h+var_238.z]
-.text:004A547E                 fmul    [esp+280h+var_238.z]
+.text:004A546E                 fst     [esp+27Ch+var_248.x]
+.text:004A5472                 fld     [esp+27Ch+var_22C]
+.text:004A5476                 fmul    [esp+27Ch+var_22C]
+.text:004A547A                 fld     [esp+27Ch+var_238.y]
+.text:004A547E                 fmul    [esp+27Ch+var_238.y]
 .text:004A5482                 faddp   st(1), st
-.text:004A5484                 fld     [esp+280h+var_238.x]
-.text:004A5488                 fmul    [esp+280h+var_238.x]
+.text:004A5484                 fld     [esp+27Ch+var_238.z]
+.text:004A5488                 fmul    [esp+27Ch+var_238.z]
 .text:004A548C                 faddp   st(1), st
 .text:004A548E                 fsqrt
 .text:004A5490                 fcomp   st(1)
 .text:004A5492                 fnstsw  ax
 .text:004A5494                 test    ah, 1
 .text:004A5497                 jz      short loc_4A54AA
-.text:004A5499                 fstp    [esp+280h+var_248.x]
+.text:004A5499                 fstp    [esp+27Ch+var_248.z]
 .text:004A549D                 xor     eax, eax
 .text:004A549F                 mov     [edi+0Ch], eax
 .text:004A54A2                 mov     [edi+18h], eax
@@ -281797,29 +281795,29 @@
 .text:004A54BD                 jz      loc_4A5564
 .text:004A54C3                 test    ebx, ebx
 .text:004A54C5                 jz      loc_4A5564
-.text:004A54CB                 fld     [esp+280h+var_268]
-.text:004A54CF                 fld     [esp+280h+var_248.x]
+.text:004A54CB                 fld     [esp+27Ch+goal]
+.text:004A54CF                 fld     [esp+27Ch+var_248.z]
 .text:004A54D3                 fcomp   st(1)
 .text:004A54D5                 fnstsw  ax
 .text:004A54D7                 test    ah, 41h
 .text:004A54DA                 fstp    st
 .text:004A54DC                 jnz     loc_4A5564
-.text:004A54E2                 mov     eax, [esp+280h+ReturnPath.waypointsCount]
+.text:004A54E2                 mov     eax, [esp+27Ch+ReturnPath.waypointsCount]
 .text:004A54E9                 xor     ebx, ebx
 .text:004A54EB                 test    eax, eax
 .text:004A54ED                 mov     dword ptr [edi+0Ch], 0
 .text:004A54F4                 jle     short loc_4A551F
 .text:004A54F6
 .text:004A54F6 loc_4A54F6:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+D6D\u2193j
-.text:004A54F6                 lea     ecx, [esp+280h+var_1A0]
+.text:004A54F6                 lea     ecx, [esp+27Ch+var_19C]
 .text:004A54FD                 push    ebx             ; wpIndex
 .text:004A54FE                 push    ecx             ; outVector
-.text:004A54FF                 lea     ecx, [esp+288h+ReturnPath] ; this
+.text:004A54FF                 lea     ecx, [esp+284h+ReturnPath] ; this
 .text:004A5506                 call    BPath__waypoint
 .text:004A550B                 push    eax             ; wp
 .text:004A550C                 mov     ecx, edi        ; this
 .text:004A550E                 call    BPath__addWaypointAtEnd
-.text:004A5513                 mov     eax, [esp+280h+ReturnPath.waypointsCount]
+.text:004A5513                 mov     eax, [esp+27Ch+ReturnPath.waypointsCount]
 .text:004A551A                 inc     ebx
 .text:004A551B                 cmp     ebx, eax
 .text:004A551D                 jl      short loc_4A54F6
@@ -281828,8 +281826,8 @@
 .text:004A551F                 mov     eax, 1
 .text:004A5524                 mov     edx, edi        ; path
 .text:004A5526                 mov     ecx, esi        ; obj
-.text:004A5528                 mov     [esp+280h+goal], eax
-.text:004A552C                 mov     [esp+280h+var_26C], eax
+.text:004A5528                 mov     [esp+27Ch+var_260], eax
+.text:004A552C                 mov     [esp+27Ch+var_268], eax
 .text:004A5530                 call    smoothMidLevelPath
 .text:004A5535                 mov     ecx, edi        ; this
 .text:004A5537                 call    BPath__calculatePathLength
@@ -281844,12 +281842,12 @@
 .text:004A5559                 jz      short loc_4A5564
 .text:004A555B                 xor     eax, eax
 .text:004A555D                 mov     [edi+0Ch], eax
-.text:004A5560                 mov     [esp+280h+var_26C], eax
+.text:004A5560                 mov     [esp+27Ch+var_268], eax
 .text:004A5564
 .text:004A5564 loc_4A5564:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+A47\u2191j
 .text:004A5564                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+B81\u2191j ...
-.text:004A5564                 lea     ecx, [esp+280h+ReturnPath] ; this
-.text:004A556B                 mov     [esp+280h+var_8], 0FFFFFFFFh
+.text:004A5564                 lea     ecx, [esp+27Ch+ReturnPath] ; this
+.text:004A556B                 mov     [esp+27Ch+var_4], 0FFFFFFFFh
 .text:004A5576                 call    BPath__destructor
 .text:004A557B
 .text:004A557B loc_4A557B:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+346\u2191j
@@ -281870,17 +281868,17 @@
 .text:004A55B8                 mov     eax, [esi+118h]
 .text:004A55BE                 cmp     dword ptr [eax+0Ch], 2
 .text:004A55C2                 jnz     loc_4A5648
-.text:004A55C8                 cmp     [esp+280h+goal], ecx
+.text:004A55C8                 cmp     [esp+27Ch+var_260], ecx
 .text:004A55CC                 jnz     short loc_4A5648
 .text:004A55CE                 mov     ecx, [eax+24h]
 .text:004A55D1                 mov     edx, [eax+20h]
-.text:004A55D4                 mov     ebx, [esp+280h+var_25C]
+.text:004A55D4                 mov     ebx, [esp+27Ch+obj]
 .text:004A55D8                 push    ecx             ; tID
 .text:004A55D9                 push    edx             ; r
 .text:004A55DA                 push    edi             ; p
 .text:004A55DB                 mov     ecx, ebx        ; this
 .text:004A55DD                 call    BPathData__setReadyToPath
-.text:004A55E2                 mov     eax, [esp+280h+var_26C]
+.text:004A55E2                 mov     eax, [esp+27Ch+var_268]
 .text:004A55E6                 mov     ebp, 1
 .text:004A55EB                 cmp     eax, ebp
 .text:004A55ED                 jnz     short loc_4A55F9
@@ -281900,7 +281898,7 @@
 .text:004A5604                 call    BPathData__setLinkedPath
 .text:004A5609                 mov     [ebx+0Ch], ebp
 .text:004A560C                 mov     edx, [esi+118h]
-.text:004A5612                 mov     [esp+280h+var_270], edi
+.text:004A5612                 mov     [esp+27Ch+var_26C], edi
 .text:004A5616                 mov     eax, [edx+20h]
 .text:004A5619                 mov     [ebx+20h], eax
 .text:004A561C                 mov     ecx, [esi+118h]
@@ -281916,11 +281914,11 @@
 .text:004A5648
 .text:004A5648 loc_4A5648:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+E12\u2191j
 .text:004A5648                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+E1C\u2191j
-.text:004A5648                 mov     ebx, [esp+280h+var_25C]
+.text:004A5648                 mov     ebx, [esp+27Ch+obj]
 .text:004A564C                 push    edi             ; p
 .text:004A564D                 mov     ecx, ebx        ; this
 .text:004A564F                 call    BPathData__setReadyToFollowPath
-.text:004A5654                 cmp     [esp+280h+var_26C], 1
+.text:004A5654                 cmp     [esp+27Ch+var_268], 1
 .text:004A5659                 jnz     short loc_4A5666
 .text:004A565B                 mov     eax, [esi+118h]
 .text:004A5661                 push    1
@@ -281938,7 +281936,7 @@
 .text:004A5671                 call    BPathData__setLinkedPath
 .text:004A5676                 mov     dword ptr [ebx+0Ch], 0
 .text:004A567D                 mov     edx, [esi+118h]
-.text:004A5683                 mov     [esp+280h+var_270], edi
+.text:004A5683                 mov     [esp+27Ch+var_26C], edi
 .text:004A5687                 mov     eax, [edx+20h]
 .text:004A568A                 mov     [ebx+20h], eax
 .text:004A568D                 mov     ecx, [esi+118h]
@@ -281949,8 +281947,8 @@
 .text:004A569F loc_4A569F:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+1B6\u2191j
 .text:004A569F                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+E91\u2191j
 .text:004A569F                 mov     eax, [esi+118h]
-.text:004A56A5                 mov     ebp, [esp+280h+var_270]
-.text:004A56A9                 lea     edx, [esp+280h+var_AC]
+.text:004A56A5                 mov     ebp, [esp+27Ch+var_26C]
+.text:004A56A9                 lea     edx, [esp+27Ch+outVector.z]
 .text:004A56B0                 lea     ebx, [esi+0F4h]
 .text:004A56B6                 mov     ecx, [eax+18h]
 .text:004A56B9                 push    ecx             ; wpIndex
@@ -281958,16 +281956,16 @@
 .text:004A56BB                 mov     ecx, ebp        ; this
 .text:004A56BD                 call    BPath__waypoint
 .text:004A56C2                 push    eax             ; v
-.text:004A56C3                 lea     eax, [esp+284h+var_1DC]
+.text:004A56C3                 lea     eax, [esp+280h+var_1DC.z]
 .text:004A56CA                 push    eax             ; result
 .text:004A56CB                 mov     ecx, ebx        ; this
 .text:004A56CD                 call    BVector__operator_minus
-.text:004A56D2                 fld     [esp+280h+var_1DC.y]
+.text:004A56D2                 fld     [esp+27Ch+var_1D0.x]
 .text:004A56D9                 fld     st
 .text:004A56DB                 fmulp   st(1), st
-.text:004A56DD                 fld     [esp+280h+var_1DC.x]
-.text:004A56E4                 fmul    [esp+280h+var_1DC.x]
-.text:004A56EB                 mov     [esp+280h+var_1DC.z], 0
+.text:004A56DD                 fld     [esp+27Ch+var_1DC.z]
+.text:004A56E4                 fmul    [esp+27Ch+var_1DC.z]
+.text:004A56EB                 mov     [esp+27Ch+var_1DC.y], 0
 .text:004A56F6                 faddp   st(1), st
 .text:004A56F8                 fsqrt
 .text:004A56FA                 fcomp   ds:flt_6565F4
@@ -281989,7 +281987,7 @@
 .text:004A572E
 .text:004A572E loc_4A572E:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+DD5\u2191j
 .text:004A572E                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+DE8\u2191j
-.text:004A572E                 mov     ebx, [esp+280h+var_25C]
+.text:004A572E                 mov     ebx, [esp+27Ch+obj]
 .text:004A5732                 mov     ecx, ebx        ; this
 .text:004A5734                 call    BPathData__destructor
 .text:004A5739                 push    ebx             ; ptr
@@ -282001,7 +281999,7 @@
 .text:004A574E                 call    RGE_Game_World__destroyPath2
 .text:004A5753                 mov     ecx, [esi+118h]
 .text:004A5759                 push    0               ; z
-.text:004A575B                 lea     eax, [esp+284h+var_DC]
+.text:004A575B                 lea     eax, [esp+280h+var_DC.z]
 .text:004A5762                 mov     edx, [ecx+18h]
 .text:004A5765                 mov     ecx, ebp        ; this
 .text:004A5767                 dec     edx
@@ -282011,7 +282009,7 @@
 .text:004A576F                 mov     edx, [esi+118h]
 .text:004A5775                 mov     ecx, [eax+8]
 .text:004A5778                 push    ecx             ; y
-.text:004A5779                 lea     ecx, [esp+288h+var_C4]
+.text:004A5779                 lea     ecx, [esp+284h+var_C4.z]
 .text:004A5780                 mov     eax, [edx+18h]
 .text:004A5783                 dec     eax
 .text:004A5784                 push    eax             ; wpIndex
@@ -282022,7 +282020,7 @@
 .text:004A578F                 mov     ecx, esi        ; unit
 .text:004A5791                 push    edx             ; x
 .text:004A5792                 call    RGE_Static_Object__distance_to_position
-.text:004A5797                 mov     eax, [esp+280h+obj]
+.text:004A5797                 mov     eax, [esp+27Ch+targetObj]
 .text:004A579B                 test    eax, eax
 .text:004A579D                 fstp    st
 .text:004A579F                 jz      short loc_4A57C4
@@ -282040,10 +282038,10 @@
 .text:004A57C4
 .text:004A57C4 loc_4A57C4:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+FEF\u2191j
 .text:004A57C4                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+1009\u2191j
-.text:004A57C4                 cmp     [esp+280h+var_26C], 1
+.text:004A57C4                 cmp     [esp+27Ch+var_268], 1
 .text:004A57C9                 jnz     short loc_4A57FE
 .text:004A57CB                 mov     ecx, [esi+118h] ; this
-.text:004A57D1                 fld     [esp+280h+var_248.y]
+.text:004A57D1                 fld     [esp+27Ch+var_23C]
 .text:004A57D5                 fcomp   dword ptr [ecx+20h]
 .text:004A57D8                 fnstsw  ax
 .text:004A57DA                 test    ah, 41h
@@ -282094,10 +282092,10 @@
 .text:004A586B loc_4A586B:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+F55\u2191j
 .text:004A586B                 mov     edx, [esi+118h]
 .text:004A5871                 mov     edi, [esi]
-.text:004A5873                 lea     ecx, [esp+280h+p2]
+.text:004A5873                 lea     ecx, [esp+27Ch+p2.z]
 .text:004A587A                 mov     eax, [edx+18h]
 .text:004A587D                 push    ecx
-.text:004A587E                 lea     ecx, [esp+284h+var_94]
+.text:004A587E                 lea     ecx, [esp+280h+var_94.z]
 .text:004A5885                 push    eax             ; wpIndex
 .text:004A5886                 push    ecx             ; outVector
 .text:004A5887                 mov     ecx, ebp        ; this
@@ -282106,22 +282104,22 @@
 .text:004A588F                 push    ebx
 .text:004A5890                 mov     ecx, esi
 .text:004A5892                 call    dword ptr [edi+320h]
-.text:004A5898                 mov     eax, [esp+28Ch+numberCollisionUnits]
+.text:004A5898                 mov     eax, [esp+27Ch+var_248.y]
 .text:004A589C                 mov     edx, [esi]
 .text:004A589E                 push    eax
-.text:004A589F                 lea     ecx, [esp+290h+var_1F4]
-.text:004A58A6                 lea     eax, [esp+290h+var_1D0]
+.text:004A589F                 lea     ecx, [esp+280h+p2.z]
+.text:004A58A6                 lea     eax, [esp+280h+newPosition.z]
 .text:004A58AD                 push    ecx
 .text:004A58AE                 push    eax
 .text:004A58AF                 mov     ecx, esi
 .text:004A58B1                 call    dword ptr [edx+334h]
 .text:004A58B7                 mov     edx, [esi+118h]
 .text:004A58BD                 mov     edi, [esi]
-.text:004A58BF                 lea     ecx, [esp+298h+var_1DC]
+.text:004A58BF                 lea     ecx, [esp+27Ch+newPosition.z]
 .text:004A58C6                 mov     eax, [edx+18h]
 .text:004A58C9                 push    ecx
 .text:004A58CA                 push    ebx
-.text:004A58CB                 lea     ecx, [esp+2A0h+var_94]
+.text:004A58CB                 lea     ecx, [esp+284h+var_78]
 .text:004A58D2                 push    eax             ; wpIndex
 .text:004A58D3                 push    ecx             ; outVector
 .text:004A58D4                 mov     ecx, ebp        ; this
@@ -282148,25 +282146,25 @@
 .text:004A5919
 .text:004A5919 loc_4A5919:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+1149\u2191j
 .text:004A5919                 mov     edx, [esi+118h]
-.text:004A591F                 lea     ecx, [esp+2A4h+var_88]
+.text:004A591F                 lea     ecx, [esp+27Ch+var_60]
 .text:004A5926                 mov     eax, [edx+18h]
 .text:004A5929                 push    eax             ; wpIndex
 .text:004A592A                 push    ecx             ; outVector
 .text:004A592B                 mov     ecx, ebp        ; this
 .text:004A592D                 call    BPath__waypoint
 .text:004A5932                 mov     edx, [eax]
-.text:004A5934                 mov     [esp+2A4h+var_248.x], edx
+.text:004A5934                 mov     [esp+27Ch+a4.x], edx
 .text:004A5938                 mov     ecx, [eax+4]
-.text:004A593B                 mov     [esp+2A4h+var_248.z], ecx
+.text:004A593B                 mov     [esp+27Ch+a4.z], ecx
 .text:004A593F                 mov     edx, [eax+8]
 .text:004A5942                 mov     eax, [esi+118h]
-.text:004A5948                 mov     [esp+2A4h+var_248.y], edx
+.text:004A5948                 mov     [esp+27Ch+a4.y], edx
 .text:004A594C                 mov     ecx, [ebp+0Ch]
 .text:004A594F                 mov     edx, [eax+18h]
 .text:004A5952                 dec     ecx
 .text:004A5953                 cmp     edx, ecx
 .text:004A5955                 jl      short loc_4A5962
-.text:004A5957                 lea     eax, [esp+2A4h+var_70]
+.text:004A5957                 lea     eax, [esp+27Ch+var_48]
 .text:004A595E                 push    edx
 .text:004A595F                 push    eax
 .text:004A5960                 jmp     short loc_4A596F
@@ -282174,7 +282172,7 @@
 .text:004A5962
 .text:004A5962 loc_4A5962:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+11A5\u2191j
 .text:004A5962                 mov     ecx, [eax+18h]
-.text:004A5965                 lea     edx, [esp+2A4h+var_58]
+.text:004A5965                 lea     edx, [esp+27Ch+var_30]
 .text:004A596C                 inc     ecx
 .text:004A596D                 push    ecx             ; wpIndex
 .text:004A596E                 push    edx             ; outVector
@@ -282189,7 +282187,7 @@
 .text:004A5986                 call    RGE_Game_World__getUnitGroup
 .text:004A598B                 push    1               ; n
 .text:004A598D                 mov     ecx, esi        ; this
-.text:004A598F                 mov     [esp+2A8h+goal], eax
+.text:004A598F                 mov     [esp+280h+var_23C], eax
 .text:004A5993                 call    RGE_Static_Object__isFlagSet
 .text:004A5998                 test    eax, eax
 .text:004A599A                 jz      loc_4A5CAF
@@ -282225,12 +282223,12 @@
 .text:004A59F2
 .text:004A59F2 loc_4A59F2:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+11F9\u2191j
 .text:004A59F2                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+1212\u2191j ...
-.text:004A59F2                 mov     ecx, [esp+2A4h+OB_System_To_Use] ; OB_System_To_Use
+.text:004A59F2                 mov     ecx, [esp+27Ch+numberCollisionUnits] ; OB_System_To_Use
 .text:004A59F6                 xor     edi, edi
 .text:004A59F8                 push    1.0             ; radiusModifier
 .text:004A59FD                 push    edi             ; checkTerrain
 .text:004A59FE                 push    eax             ; ignoreListSize
-.text:004A59FF                 lea     edx, [esp+2B0h+p2]
+.text:004A59FF                 lea     edx, [esp+288h+newPosition.z]
 .text:004A5A06                 push    offset collisionUnits ; ignoreList
 .text:004A5A0B                 push    edx             ; p2
 .text:004A5A0C                 push    ebx             ; p1
@@ -282239,15 +282237,15 @@
 .text:004A5A14                 mov     eax, numberObSystemCollisions
 .text:004A5A19                 cmp     eax, edi
 .text:004A5A1B                 jle     loc_4A5CAF
-.text:004A5A21                 mov     eax, [esp+2A4h+var_274]
-.text:004A5A25                 mov     [esp+2A4h+var_284], edi
-.text:004A5A29                 mov     [esp+2A4h+var_288], edi
-.text:004A5A2D                 mov     [esp+2A4h+var_28C], edi
+.text:004A5A21                 mov     eax, [esp+27Ch+var_24C]
+.text:004A5A25                 mov     [esp+27Ch+var_25C], edi
+.text:004A5A29                 mov     [esp+27Ch+var_260], edi
+.text:004A5A2D                 mov     [esp+27Ch+goal], edi
 .text:004A5A31                 lea     ebp, ds:6AD170h[eax*4]
-.text:004A5A38                 mov     [esp+2A4h+var_280], offset obSystemCollisions
+.text:004A5A38                 mov     [esp+27Ch+obj], offset obSystemCollisions
 .text:004A5A40
 .text:004A5A40 loc_4A5A40:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+13BD\u2193j
-.text:004A5A40                 mov     ebx, [esp+2A4h+var_280]
+.text:004A5A40                 mov     ebx, [esp+27Ch+obj]
 .text:004A5A44                 mov     ecx, [ebx]
 .text:004A5A46                 mov     eax, [ecx+8]
 .text:004A5A49                 test    eax, eax
@@ -282273,7 +282271,7 @@
 .text:004A5A81                 jz      loc_4A5B51
 .text:004A5A87                 mov     ecx, [edi+10h]
 .text:004A5A8A                 push    ecx             ; unitID
-.text:004A5A8B                 mov     ecx, [esp+2A8h+dest_target_radius] ; this
+.text:004A5A8B                 mov     ecx, [esp+280h+var_26C] ; this
 .text:004A5A8F                 call    BPath__ignoreUnitsContain
 .text:004A5A94                 cmp     eax, 1
 .text:004A5A97                 jz      loc_4A5B51
@@ -282295,11 +282293,11 @@
 .text:004A5ACB                 jl      short loc_4A5ADA
 .text:004A5ACD                 cmp     [edi+10h], eax
 .text:004A5AD0                 jnz     short loc_4A5ADA
-.text:004A5AD2                 mov     [esp+2A4h+var_284], 1
+.text:004A5AD2                 mov     [esp+27Ch+var_25C], 1
 .text:004A5ADA
 .text:004A5ADA loc_4A5ADA:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+131B\u2191j
 .text:004A5ADA                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+1320\u2191j
-.text:004A5ADA                 mov     ecx, [esp+2A4h+goal] ; this
+.text:004A5ADA                 mov     ecx, [esp+27Ch+var_23C] ; this
 .text:004A5ADE                 test    ecx, ecx
 .text:004A5AE0                 jz      short loc_4A5B19
 .text:004A5AE2                 mov     edx, [esi+10h]
@@ -282324,44 +282322,44 @@
 .text:004A5B19
 .text:004A5B19 loc_4A5B19:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+1330\u2191j
 .text:004A5B19                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+133D\u2191j ...
-.text:004A5B19                 mov     eax, [esp+2A4h+dest_target_radius]
+.text:004A5B19                 mov     eax, [esp+27Ch+var_26C]
 .text:004A5B1D                 mov     edx, [edi]
 .text:004A5B1F                 mov     ecx, edi
 .text:004A5B21                 mov     ebx, [eax+1Ch]
 .text:004A5B24                 call    dword ptr [edx+30Ch]
 .text:004A5B2A                 cmp     ebx, eax
 .text:004A5B2C                 jnb     short loc_4A5B51
-.text:004A5B2E                 mov     ecx, [esp+2A4h+var_288]
+.text:004A5B2E                 mov     ecx, [esp+27Ch+var_260]
 .text:004A5B32                 inc     ecx
 .text:004A5B33                 cmp     ebp, offset numberObSystemCollisions
-.text:004A5B39                 mov     [esp+2A4h+var_288], ecx
+.text:004A5B39                 mov     [esp+27Ch+var_260], ecx
 .text:004A5B3D                 jge     short loc_4A5B51
-.text:004A5B3F                 mov     ecx, [esp+2A4h+var_274]
+.text:004A5B3F                 mov     ecx, [esp+27Ch+var_24C]
 .text:004A5B43                 mov     eax, [edi+10h]
 .text:004A5B46                 inc     ecx
 .text:004A5B47                 mov     [ebp+0], eax
-.text:004A5B4A                 mov     [esp+2A4h+var_274], ecx
+.text:004A5B4A                 mov     [esp+27Ch+var_24C], ecx
 .text:004A5B4E                 add     ebp, 4
 .text:004A5B51
 .text:004A5B51 loc_4A5B51:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+129B\u2191j
 .text:004A5B51                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+12B5\u2191j ...
-.text:004A5B51                 mov     eax, [esp+2A4h+var_28C]
-.text:004A5B55                 mov     edx, [esp+2A4h+var_280]
+.text:004A5B51                 mov     eax, [esp+27Ch+goal]
+.text:004A5B55                 mov     edx, [esp+27Ch+obj]
 .text:004A5B59                 mov     ecx, numberObSystemCollisions
 .text:004A5B5F                 inc     eax
 .text:004A5B60                 add     edx, 4
 .text:004A5B63                 cmp     eax, ecx
-.text:004A5B65                 mov     [esp+2A4h+var_28C], eax
-.text:004A5B69                 mov     [esp+2A4h+var_280], edx
+.text:004A5B65                 mov     [esp+27Ch+goal], eax
+.text:004A5B69                 mov     [esp+27Ch+obj], edx
 .text:004A5B6D                 jl      loc_4A5A40
-.text:004A5B73                 lea     ecx, [esp+2A4h+p2]
+.text:004A5B73                 lea     ecx, [esp+27Ch+newPosition.z]
 .text:004A5B7A                 push    ecx             ; newPosition
 .text:004A5B7B                 mov     ecx, esi        ; this
 .text:004A5B7D                 call    RGE_Moving_Object__resolveCollisions
 .text:004A5B82                 mov     eax, numberObSystemCollisions
 .text:004A5B87                 cmp     eax, 1
 .text:004A5B8A                 jnz     short loc_4A5BB4
-.text:004A5B8C                 cmp     [esp+2A4h+var_284], eax
+.text:004A5B8C                 cmp     [esp+27Ch+var_25C], eax
 .text:004A5B90                 jnz     short loc_4A5BB4
 .text:004A5B92                 mov     ecx, [esi+118h] ; this
 .text:004A5B98                 push    eax             ; v
@@ -282376,11 +282374,11 @@
 .text:004A5BB4
 .text:004A5BB4 loc_4A5BB4:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+13DA\u2191j
 .text:004A5BB4                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+13E0\u2191j
-.text:004A5BB4                 mov     ecx, [esp+2A4h+var_288]
+.text:004A5BB4                 mov     ecx, [esp+27Ch+var_260]
 .text:004A5BB8                 test    ecx, ecx
 .text:004A5BBA                 jle     loc_4A5CAB
 .text:004A5BC0                 test    eax, eax
-.text:004A5BC2                 mov     [esp+2A4h+var_28C], 0
+.text:004A5BC2                 mov     [esp+27Ch+goal], 0
 .text:004A5BCA                 jle     loc_4A5C61
 .text:004A5BD0                 mov     ebx, offset obSystemCollisions
 .text:004A5BD5
@@ -282432,12 +282430,12 @@
 .text:004A5C47
 .text:004A5C47 loc_4A5C47:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+142C\u2191j
 .text:004A5C47                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+143E\u2191j ...
-.text:004A5C47                 mov     eax, [esp+2A8h+var_290]
+.text:004A5C47                 mov     eax, [esp+27Ch+goal]
 .text:004A5C4B                 mov     ecx, numberObSystemCollisions
 .text:004A5C51                 inc     eax
 .text:004A5C52                 add     ebx, 4
 .text:004A5C55                 cmp     eax, ecx
-.text:004A5C57                 mov     [esp+2A8h+var_290], eax
+.text:004A5C57                 mov     [esp+27Ch+goal], eax
 .text:004A5C5B                 jl      loc_4A5BD5
 .text:004A5C61
 .text:004A5C61 loc_4A5C61:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+141A\u2191j
@@ -282463,11 +282461,11 @@
 .text:004A5CAB ; ---------------------------------------------------------------------------
 .text:004A5CAB
 .text:004A5CAB loc_4A5CAB:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+140A\u2191j
-.text:004A5CAB                 mov     ebp, [esp+2A4h+dest_target_radius]
+.text:004A5CAB                 mov     ebp, [esp+27Ch+var_26C]
 .text:004A5CAF
 .text:004A5CAF loc_4A5CAF:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+11EA\u2191j
 .text:004A5CAF                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+126B\u2191j
-.text:004A5CAF                 mov     eax, [esp+2A4h+var_27C]
+.text:004A5CAF                 mov     eax, [esp+27Ch+targetObj]
 .text:004A5CB3                 test    eax, eax
 .text:004A5CB5                 jz      loc_4A5DA1
 .text:004A5CBB                 push    eax             ; obj
@@ -282508,7 +282506,7 @@
 .text:004A5D19 ; ---------------------------------------------------------------------------
 .text:004A5D19
 .text:004A5D19 loc_4A5D19:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+2ED\u2191j
-.text:004A5D19                 mov     edi, [esp+280h+var_25C]
+.text:004A5D19                 mov     edi, [esp+27Ch+obj]
 .text:004A5D1D                 test    edi, edi
 .text:004A5D1F                 jz      short loc_4A5D31
 .text:004A5D21                 mov     ecx, edi        ; this
@@ -282580,7 +282578,7 @@
 .text:004A5DD3                 mov     ebx, [edi+0Ch]
 .text:004A5DD6                 mov     ebp, [esi+118h]
 .text:004A5DDC                 push    0               ; z
-.text:004A5DDE                 lea     eax, [esp+2A8h+var_1C4]
+.text:004A5DDE                 lea     eax, [esp+280h+var_19C]
 .text:004A5DE5                 lea     edx, [ebx-1]
 .text:004A5DE8                 mov     ecx, edi        ; this
 .text:004A5DEA                 push    edx             ; wpIndex
@@ -282589,7 +282587,7 @@
 .text:004A5DF1                 mov     ecx, [eax+8]
 .text:004A5DF4                 dec     ebx
 .text:004A5DF5                 push    ecx             ; y
-.text:004A5DF6                 lea     edx, [esp+2ACh+var_1D0]
+.text:004A5DF6                 lea     edx, [esp+284h+var_1A8]
 .text:004A5DFD                 push    ebx             ; wpIndex
 .text:004A5DFE                 push    edx             ; outVector
 .text:004A5DFF                 mov     ecx, edi        ; this
@@ -282618,12 +282616,12 @@
 .text:004A5E38
 .text:004A5E38 loc_4A5E38:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+1515\u2191j
 .text:004A5E38                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+15FC\u2191j ...
-.text:004A5E38                 mov     ecx, [esp+2A4h+var_268]
-.text:004A5E3C                 lea     eax, [esp+2A4h+var_248]
-.text:004A5E40                 push    eax             ; BVector
-.text:004A5E41                 lea     edx, [esp+2A8h+var_20C]
-.text:004A5E48                 push    ecx             ; float
-.text:004A5E49                 push    edx             ; BVector *
+.text:004A5E38                 mov     ecx, [esp+27Ch+var_248.y]
+.text:004A5E3C                 lea     eax, [esp+27Ch+a4]
+.text:004A5E40                 push    eax             ; a4
+.text:004A5E41                 lea     edx, [esp+280h+p2.z]
+.text:004A5E48                 push    ecx             ; a3
+.text:004A5E49                 push    edx             ; a2
 .text:004A5E4A                 mov     ecx, esi        ; this
 .text:004A5E4C                 call    RGE_Moving_Object__moveUnit
 .text:004A5E51
@@ -282642,7 +282640,7 @@
 .text:004A5E65                 add     esp, 26Ch
 .text:004A5E6B                 retn
 .text:004A5E6B ; } // starts at 4A47B0
-.text:004A5E6B RGE_Moving_Object__doIntelligentMovementUpdate endp ; sp-analysis failed
+.text:004A5E6B RGE_Moving_Object__doIntelligentMovementUpdate endp
 .text:004A5E6B
 .text:004A5E6B ; ---------------------------------------------------------------------------
 .text:004A5E6C                 align 10h

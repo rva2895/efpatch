@@ -881,8 +881,13 @@ void setCastHooks()
     // retired 2026-11-16: baked into RGE_Moving_Object__maximumSpeed_new
     // (src/engine/object/RGE_Moving_Object.cpp), see 0x004A28C0
     // setHook((void*)0x004A28C0, speed2);
-    setHook((void*)0x004A3EAD, speed3);
-    setHook((void*)0x004A6250, speed4);
+    // retired 2026-11-16: baked into RGE_Moving_Object__calculateFutureVelocity_new
+    // (src/engine/object/RGE_Moving_Object.cpp, batch M3c), see 0x004A3EAD
+    // (the M3c ledger claimed this retirement; the edit was missed - corrected now)
+    // setHook((void*)0x004A3EAD, speed3);
+    // retired 2026-11-16: baked into RGE_Moving_Object__calculateMaximumSpeed_new
+    // (src/engine/object/RGE_Moving_Object.cpp, batch M4), see 0x004A6250 (SPEED_MOD)
+    // setHook((void*)0x004A6250, speed4);
 
     setHook((void*)0x0054BB42, stealth1);
 

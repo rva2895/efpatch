@@ -3271,6 +3271,227 @@ authoritative.)
     (re-verify the named function alone); the approval gate before
     every write."
 
+  - RUNTIME METHODS BATCH M4 - movement-data + sprite pairs (owner-
+    approved + WRITTEN 2026-11-16): 9 hooks - RGE_Moving_Object.cpp +8
+    (installer 42 -> 50), RGE_Animated_Object.cpp +1 (installer 11 ->
+    12 - THE ANIMATED CLASS IS COMPLETE, 12/12 exports owned).
+    forwardVelocity @0x004A3A10 / forwardAcceleration @0x004A3AC0
+    (double returns; movementData @+0x120 -> velocity/acceleration.y,
+    fld m32 exits - bit-identical); setForwardVelocity @0x004A3A30 /
+    setForwardAcceleration @0x004A3AE0 (SEH allocation-unwind chunks
+    0x6428A0/0x6428C0 folded with the 0-init; the v!=0 C3-only gate =
+    setne result-identical incl. NaN; operator_new(0x18) = sizeof-
+    (BMovementData) walked; BMovementData ctor via the idb constant
+    0x004BBCF0; the store SHARED by existing/created paths);
+    calculateMaximumSpeed @0x004A6250 (double, retn 4, terrainType
+    unused) - BAKED: speed4 (casts.cpp:885) folded, call site retired,
+    // SPEED_MOD markers - install order had silenced the stub since
+    its inception, this bake is its first effective shipping form;
+    setRunSprite @0x004A69B0 / setMoveSprite @0x004A69F0 /
+    setFidgetSprite @0x004A6A30 - the asm-proven DOUBLE master-vtbl
+    call kept (test call + second call feeding new_sprite slot +0xB0;
+    the result NEVER stored - DESYNC FIX #4 form); master vtbl slots
+    30/31 (+0x78/+0x7C) are DECLARED ONLY IN THE DERIVED MASTER VTBLs
+    (verified member-by-member across Moving def@14980/Missile
+    def@21459/Action/Combat/TRIBE tiers - the Static master vtbl ends
+    at slot 29) - the replacements cast master_obj to
+    RGE_Master_Moving_Object* (lowest declaring tier; layout-safe
+    vfptr@0; runtime evidence = the functions sit in the runtime
+    Moving+ vftables -> Moving+ masters per factory identity);
+    setFidgetSprite needs NO cast (get_sprite = slot 1, in the Static
+    vtbl). RGE_Animated_Object__RGE_Animated_Object_read_new
+    @0x00422B70 (SEH chunk 0x640F90 = the Static-destructor fold; base
+    :3787 HOOKED -> routes with do_setup = 0; vfptr 0x006566A0 stored
+    UNCONDITIONALLY before the do_setup branch; type @+0x5E = 0x14;
+    rge_read &speed @+0xB4 sizeof = 4) - the owned Dopple/Moving
+    read-ctors' base calls now route. DISCREPANCY FIXED: casts.cpp:884
+    setHook(0x004A3EAD, speed3) was STILL ACTIVE despite the M3c
+    ledger's retirement claim (the bake was in
+    calculateFutureVelocity_new; the comment-out had been missed -
+    writing into dead original-body bytes, behaviorally harmless;
+    retired now with a note). COLLISION SCAN: the 9 ranges - only
+    speed4 (baked); functionlist.cpp table = dead profiler (standing
+    disposition). GATE: 0 errors 0 warnings x3 TUs
+    (Moving/Animated/casts) x86. defs/refs 50/50 + 12/12;
+    store-and-read diff FULL MATCH (2/2 + 2/2 + 2/2); exit paths
+    mapped; CRT 0; base_game 0; pointer-walk 0; cast sweep clean.
+    Runtime totals: 133 hooks; 408 runtime methods remain (Moving 47,
+    Action 38, Combat 48, Static 130, TRIBE_Combat 75,
+    TRIBE_Building 70). Re-verify: the 9 new defs + the 50/12
+    installers; grep casts.cpp for active setHook 0x004A6250 /
+    0x004A3EAD (= 0).
+
+  - RUNTIME METHODS BATCH M5a/M5b (owner-approved + WRITTEN
+    2026-11-16/17): 4 hooks in RGE_Moving_Object.cpp (installer 50 ->
+    54). distanceToHighestLevelPath2 @0x004A2C90 /
+    distanceToHighestLevelPath @0x004A2D00 (double; pathData @+0x118
+    guard; highestLinkedPathPointer :2509 -> else (*base_game)->world
+    @+0x420 -> highestLinkedPath :2508 + RGE_Game_World__path :6094;
+    BPath__distanceFromPath :2528 - PURE st0 passthroughs, corollary
+    (h); the by-value BVector point param confirmed REAL, retn 0Ch +
+    the asm stack-copy); calculateTurnRadius @0x004A6510 /
+    calculateYawAngle @0x004A6350 - UNBLOCKED by the owner's vtbl slot
+    re-typing (RGE_Master_Static_ObjectVtbl maximumSpeed :3605 /
+    getTurnRadius :3608 / getTurnRadiusSpeed :3609 /
+    getMaximumYawPerSecondMoving :3612 all double now; slots 23/24/27
+    in the Static vtbl, no casts). TurnRadius: product fstp store-round
+    @0x4A6545 (float local kept), fdivr quotient st0 unrounded at retn.
+    YawAngle: angleBetweenVector :5791 fstp v store-round @0x4A636B
+    (float); yaw*interval fmul on raw st0 (53-bit, no store); merge
+    fld v/fcomp st(1); limit path C0-only v<0 test (comiss/jb
+    NaN-equivalent) -> fchs -> fstp v store-round @0x4A639C;
+    operator_mul :5789; result.z (the corrected BVector vertical)
+    <= 0 rule-(b) gate; +-v exits exact. GATE CATCHES:
+    calculateTurnRadius's master assignment needed the explicit
+    cross-class cast (base-ward assignments are conversions too);
+    moveUnit's v14 capture - the re-typed runtime calculateYawAngle
+    slot surfaced the C4244 - asm fstp a3 @0x4A46F6 proves the
+    store-round, explicit (float) applied. The corollary-(h) vtbl
+    residual is CLOSED for these slots; the runtime-vtbl equivalents
+    should be swept the same way on future dispatch sites. GATE:
+    0 errors 0 warnings x1 TU x86; defs/refs 54/54. TEMPLATE AMENDED
+    (owner-directed 2026-11-17): context-window size is never a
+    stopping reason or a scope-reduction argument. Remaining Moving 43
+    (M6 = the evacuate_area cluster: evacuate_area @0x004A6BA0
+    move_to-arg re-pull + find_evacuate_area @0x004A6C20). Re-verify:
+    the 4 defs + the 54 installer hooks.
+
+  - RUNTIME METHODS BATCH M6a/M6b + COLLISION INCIDENT (owner-approved
+    + WRITTEN 2026-11-17/18): 3 hooks in RGE_Moving_Object.cpp
+    (installer 54 -> 57). evacuate_area @0x004A6BA0 (void, retn 10h;
+    the int rendering asm-confirmed - raw dword forwarding to
+    find_evacuate_area (:2210), the out-params are ints read back with
+    fild; is_moving slot +0x144 gate; move_to slot +0x118 with
+    (0, ex+0.5, ey+0.5, world_z) - the two fild/fadd const_f_half/fstp
+    m32 store-rounds replicated; the .c's "float v8" slot = the int ey
+    out-param artifact); find_evacuate_area @0x004A6C20 (the Bresenham
+    perimeter walk: ftol world tiles, the budget = 2*(y2-y1)-x1+x2+3,
+    the setle/dec/and-2 nearest-edge pick, the 4-case direction state
+    machine (all four asm cases decoded), the two-walker probe loop,
+    the distance_to_position scoring with the m32 store-rounds);
+    try_evac_tile @0x004A6F00 (the && OOB gates asm-exact and
+    dead-in-practice - kept faithfully; placement slot +0x38 with the
+    float-bit args; totalCanPath :2537 with the goal
+    {x+0.5, 0, y+0.5} - the .c-vs-asm "swap" resolved as frame-scratch
+    reuse). BAKED (EVAC_OOS_FIX): playeroptions.cpp:206
+    setHook(0x004A6E95, on_evac_area) - a MID-FUNCTION entry hook at
+    the walker-flip/exit join of find_evacuate_area, retired in place.
+    THE PATCH'S REASON (owner hint, confirmed at instruction level):
+    the original's walkers-met exit compares read the NEVER-STORED
+    mirror slots (the .c's v38[2]/v37[2] = asm var_4/var_10 - no
+    stores in [0x4A6C20, 0x4A6ECE)) = per-machine stack garbage ->
+    per-client walk divergence -> the OOS. The stub gates on the
+    owner's option byte ([owner+0x21], the playeroptions
+    CURRENT_PLAYER_OPTION_LEVEL): == 0x0B -> the original behavior
+    (replay + resume 0x4A6EA3); != 0x0B -> budget-only continuation.
+    The written mirrors are DETERMINISTICALLY ZERO-INITIALIZED (owner
+    direction; the constant is tunable - future work: identify which
+    constants reproduce original outcomes most often); the 0x0B legacy
+    path reads them in the original's shape (deviation signed off).
+    RESTRUCTURE (owner-directed): the asm while(1) with the top
+    decrement + the bottom exits = a for loop (exactly `budget`
+    iterations; the legacy walker-meet exits map to break).
+    COLLISION INCIDENT + ROOT CAUSE: the M6b presentation shipped
+    without its own collision scan - the M4-era scan verdict was
+    inherited and the hand-built interior address patterns missed the
+    0x4A6D/0x4A6E span (playeroptions.cpp:206 @0x004A6E95 sits inside
+    find_evacuate_area). TEMPLATE AMENDED (step 3b, PER-BATCH SCAN
+    RE-RUN): the mechanical writer-target scan re-runs for EVERY batch
+    over ALL owned + pending ranges; clean verdicts are never
+    inherited; hand-built per-range address patterns are PROHIBITED;
+    every presentation carries its own Collision audit section with
+    the scan output quoted. MECHANICAL RE-SCAN over the ten M4-M6b
+    ranges: 15 distinct hits = self installer hooks + the retired
+    speed4 + the one real collision (0x4A6E95) - M4/M5/M6a ranges
+    clean. COMMENT STYLE (owner-directed 2026-11-17/18): the
+    semantic-header + inline-comment style (per
+    check_placement_new/alignment_new/get_string_id_new) codified in
+    TEMPLATE - SEMANTIC comments go ABOVE the code in natural groups;
+    asm citations trail on the statement lines; the M4-M6b headers
+    retrofitted (18 functions) and the evacuation-cluster bodies
+    converted (find_evacuate_area the exemplar; try_evac_tile,
+    evacuate_area done; the remainder of the M4/M5 bodies continue).
+    M6b VERIFICATION RE-RUN (owner-directed 2026-11-18): full
+    instruction-level re-walk incl. the previously-unpulled
+    0x4A6CC6-0x4A6D53 gap - var_4/var_10 confirmed NEVER stored (the
+    bake rationale holds at instruction level); all four initial-switch
+    cases decoded and matched (the two-case reduction provable); the
+    stub's esp-relative operands reconciled with the body's slots
+    ([esp+38h] = var_C, [esp+18h] = var_2C = budget, [esp+13h] =
+    var_31); store-and-read diff FULL MATCH; exit paths mapped (single
+    retn + the stub's replicated epilogue); the for-loop iteration
+    count re-verified against the in-place decrement. FAITHFUL.
+    GATE: 0 errors 0 warnings (RGE_Moving_Object.cpp + playeroptions.cpp
+    + RGE_Animated_Object.cpp) x86; defs/refs 57/57. Remaining Moving
+    methods 39 (the save/setup families, the medium bodies,
+    doIntelligentMovementUpdate with its bake inventory:
+    checkAcceleration_patch @0x4A6569, isMoving_v2 @0x4A3D90 - speed4
+    already baked). Re-verify: the 3 defs + the 57 installer hooks;
+    grep playeroptions.cpp for active setHook 0x004A6E95 (= 0).
+
+  - CALCULATEYAWANGLE DESYNC + PRECISION SUB-RULE (i) + PROBE TABLE +
+    LOGGER PROCESS (owner-reported bisect + root-caused + fixed +
+    CONFIRMED FIXED IN-GAME 2026-11-18): RGE_Moving_Object__
+    calculateYawAngle_new desynced (the turn direction sign-flipped
+    +/-pi/2). ROOT CAUSE (the owner's A/B capture - inputs identical:
+    getMaximumYawPerSecondMoving = FLT_MAX, curOF normalized, newOF =
+    NaN, interval = 0.04, limitedAngle = 0): the direction gate's x87
+    idiom "fcomp const_f_zero; test ah,41h; jnz" is UNORDERED-TRUE -
+    NaN result.z (from operator_mul over the NaN newOF) takes the +v
+    branch in the original; the literal C result.z <= 0.0f is
+    unordered-FALSE in compiled MSVC -> the replacement took -v.
+    FIXED: all three compares in the function use the negated-opposite
+    forms ((double)v > yaw / v >= 0.0f / result.z > 0.0f, negated) -
+    MSVC compiles them comiss/comisd + jna/jbe = unordered-taken,
+    bit-matching the x87 C0|C3 / C0-only idioms. TEMPLATE: precision
+    sub-rule (i) written (X87 COMPARE-BRANCH UNORDERED POLARITY) with
+    the POLARITY TABLE (jnz/jz target positive vs negative branch) and
+    the PROBE-VERIFIED COMPLETE TABLE: a compiled-and-EXECUTED probe
+    (qNaN vs constant, /O2 /arch:SSE2 /fp:fast and /Od, identical)
+    proved EVERY literal ordered predicate unordered-FALSE, x != c
+    unordered-TRUE (the one exception), all four negated forms
+    unordered-TRUE, value-return == (sete) unordered-TRUE (matches
+    x87), branch == unordered-FALSE (diverges). PROBE PROTOCOL
+    mandatory for NaN-form decisions (compiled AND executed under the
+    project's real flags, runtime-seeded NaN, /Fa jcc verification).
+    SWEEP APPLIED TO ALL OWNED CODE: FIXED 4 further divergent sites -
+    setForwardVelocity_new/setForwardAcceleration_new (the v != 0.0f
+    lazy-create gate -> the ordered-nonzero disjunction (v < 0)||(v > 0):
+    the x87 test ah,40h; jnz -> skip set includes unordered, NaN
+    commands do NOT allocate in the original; the literal != would
+    allocate + store a NaN velocity), find_evacuate_area_new (the
+    scoring update -> !(score >= bestDist): the x87 test ah,1
+    FALL-THROUGH update fires on unordered - a NaN distance takes the
+    tile), precalcDistToTarget_new (the gate-child min -> !(d >=
+    result)). VERIFIED MATCHING (kept): maximumSpeed_new/
+    calculateMaximumSpeed_new (the > 0 cap gates - the jnz targets the
+    negative path, the literal form matches), moveUnit_new (the fabs
+    >= 0.5 pair - the literal form reproduces the original's NaN ->
+    aligned flow, asm 0x4A473E-0x4A474F test ah,1; jz), incrementWaypoint
+    _new (the three 1e-7/1.0 gates, jz targets the >= branch), checkRange
+    _new, moveForward_new (NaN skips in both), missile_move_new (the
+    sete value-return). FLAGGED for per-site pulls next: yaw_new /
+    make_object_collision_list (the pull windows came back empty).
+    DIAGNOSTIC LOGGER PROCESS codified in TEMPLATE (owner-directed):
+    any owned function gets the A/B harness on request - the _orig
+    naked trampoline (replay the prologue past the E9 with
+    esp-adjusted operand reads, jmp entry + replayed length; the
+    owner's calculateYawAngle_orig verified as the exemplar incl. the
+    [esp+18h]=newOF frame reconciliation), the _logger wrapper (sprintf
+    inputs -> call _orig -> sprintf outputs + the updated out-params ->
+    val_log.txt "at"-mode lazy append), the installer swap (hook the
+    logger; the _new stays compiled for A/B; flipping the line restores
+    the fix - the current installer :2146 was flipped back to _new by
+    the owner with the fix confirmed). CRT NOTE: the logger's bare
+    sprintf/fopen/fputs = the approved diagnostic exception (owner-
+    supervised, removed before final ship). GATE 0 errors 0 warnings
+    (RGE_Moving_Object.cpp + playeroptions.cpp). Re-verify: the three
+    negated-compare forms at RGE_Moving_Object.cpp :1673/:1683/:1701;
+    the ordered-nonzero gates in the two setter bodies; the negated >=
+    updates in precalcDistToTarget_new/find_evacuate_area_new; the
+    probe source preserved at %TEMP%\opencode\nanprobe.cpp; the rule
+    (i) table + the logger process in DECOMP_TEMPLATE.md.
+
   - FLOAT ST0-BOUNDARY FIX APPLIED (owner-directed, staged plan executed
     2026-11-16; prompt items (1) and (2) of the NEXT SESSION block above
     are COMPLETE - item (3), the roadmap, is unchanged): the regenerated

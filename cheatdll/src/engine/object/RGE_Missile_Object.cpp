@@ -467,6 +467,7 @@ RGE_Check_List* __fastcall RGE_Missile_Object__make_object_collision_list_new(
 }
 
 // Replacement for RGE_Missile_Object::handle_teleport_z_correction.
+// SEMANTIC: the teleport HEIGHT fixer - non-ghost missiles re-run the base correction against the ground; ghost-mode missiles flag themselves airborne (on_ground = 0) and report the -99.9 sentinel height.
 // Original: @ 0x0049C1C0 (idb_functions.h:2073). Range [0x49C1C0,
 // 0x49C1F0), returns double.
 // Decode (.c 169813-169819): IF !ghost_mode: the base Moving
