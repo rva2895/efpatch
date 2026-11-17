@@ -37,16 +37,16 @@ RGE_Animated_Object* __fastcall RGE_Animated_Object__RGE_Animated_Object_new(
         if (do_setup != 0)
         {
             RGE_Static_Object__setup((RGE_Static_Object*)this_, (RGE_Master_Static_Object*)tobj, obj_owner, x, y, z);
-            this_->type = 0x14;                                   // asm 0x4229F1 — runtime tier mirror
-            this_->speed = 0.0f;                                  // asm 0x4229F5 — the Animated extension @0xB4
+            this_->type = 0x14;                                   // asm 0x4229F1 ? runtime tier mirror
+            this_->speed = 0.0f;                                  // asm 0x4229F5 ? the Animated extension @0xB4
             RGE_Static_Object__set_sleep_flag((RGE_Static_Object*)this_, 0);          // idb_functions.h:3891
             if (this_->sprite_list == 0)                          // @+0x24 (asm 0x422A00)
             {
                 this_->sprite_list = this_->vfptr->create_sprite_list(this_);   // slot +0x2A8
                 this_->sprite = 0;                                // asm 0x422A15
                 RGE_Master_Animated_Object* master = this_->master_obj;
-                RGE_Sprite* new_sprite = master->vfptr->get_sprite(master, (RGE_Static_Object*)this_);   // asm 0x422A1D — master vtbl slot +4; result NOT stored (passes to new_sprite)
-                this_->vfptr->new_sprite(this_, new_sprite);      // asm 0x422A23 — slot +0xB0
+                RGE_Sprite* new_sprite = master->vfptr->get_sprite(master, (RGE_Static_Object*)this_);   // asm 0x422A1D ? master vtbl slot +4; result NOT stored (passes to new_sprite)
+                this_->vfptr->new_sprite(this_, new_sprite);      // asm 0x422A23 ? slot +0xB0
             }
         }
         result = this_;
@@ -214,6 +214,7 @@ void __fastcall RGE_Animated_Object__release_being_worked_on_new(
 }
 
 // Replacement for RGE_Animated_Object::getSpeed. Original: @ 0x00408B70
+// SEMANTIC: the unit's movement-speed getter - returns the Animated extension's speed field (the live animation rate the sprite-list update consumes).
 // (idb_functions.h). Range [0x408B70, 0x408B80). PURE GETTER (.c:
 // 51396-region: return speed @+0xB4). DOUBLE RETURN (FLOAT PRECISION
 // corollary (h)): the original is fld dword ptr [ecx+0B4h]; retn
@@ -223,6 +224,43 @@ void __fastcall RGE_Animated_Object__release_being_worked_on_new(
 double __fastcall RGE_Animated_Object__getSpeed_new(RGE_Animated_Object* this_, DWORD dummy)
 {
     return this_->speed;
+}
+
+// Replacement for RGE_Animated_Object::RGE_Animated_Object_read.
+// Original: @ 0x00422B70 (idb_functions.h:546). Range [0x422B70,
+// 0x422BE5) (retn 0Ch = 3 stack args), void. SEH chunk 0x640F90 =
+// mov ecx, [ebp-10h]; jmp RGE_Static_Object__destructor (the
+// throw-during-construction fold - the HOOKED runtime Static
+// destructor). Completes the Animated class (12/12 exports owned):
+// the owned Doppleganger/Moving read-ctors' base calls (the 0x422B70
+// call sites in RGE_Doppleganger_Object__RGE_Doppleganger_Object_read
+// +2D / RGE_Moving_Object__RGE_Moving_Object_read +2D) now route
+// through this hook per the hook-routing ruling.
+// Decode (asm 0x422B70-0x422BE5): base RGE_Static_Object_read
+// (:3787, HOOKED -> routes) with do_setup = 0 (asm 0x422B91 push 0);
+// vfptr = RGE_Animated_Object::vftable (0x006566A0, asm 0x422BAE -
+// stored UNCONDITIONALLY, BEFORE the do_setup branch); IF do_setup:
+// RGE_Static_Object__setup_read (:3804) + type @+0x5E = 0x14 (asm
+// 0x422BC9, the runtime tier mirror) + rge_read (:3003, infile,
+// &speed @+0xB4, 4 = sizeof(float), asm 0x422BBF-0x422BCD).
+void __fastcall RGE_Animated_Object__RGE_Animated_Object_read_new(
+    RGE_Animated_Object* this_, DWORD dummy, int infile, RGE_Game_World* gworld, int do_setup)
+{
+    __try
+    {
+        RGE_Static_Object__RGE_Static_Object_read(
+            (RGE_Static_Object*)this_, infile, gworld, 0);    // asm 0x422B91-0x422B9B (do_setup = 0; HOOKED -> routes)
+        this_->vfptr = rge_animated_object_vftable;           // asm 0x422BAE (0x006566A0)
+        if (do_setup != 0)                                    // asm 0x422BAC-0x422BB4
+        {
+            RGE_Static_Object__setup_read((RGE_Static_Object*)this_, infile, gworld);   // asm 0x422BBA (:3804)
+            this_->type = 0x14;                               // asm 0x422BC9 (byte @+0x5E = 20)
+            rge_read(infile, &this_->speed, sizeof(this_->speed));   // asm 0x422BBF-0x422BCD (sizeof = 4)
+        }
+    }
+    __except (RGE_Static_Object__destructor((RGE_Static_Object*)this_), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x640F90
+    {
+    }
 }
 
 void install_RGE_Animated_Object()
@@ -238,4 +276,5 @@ void install_RGE_Animated_Object()
     setHook((void*)0x00422E30, RGE_Animated_Object__set_being_worked_on_new);
     setHook((void*)0x00422E50, RGE_Animated_Object__release_being_worked_on_new);
     setHook((void*)0x00408B70, RGE_Animated_Object__getSpeed_new);
+    setHook((void*)0x00422B70, RGE_Animated_Object__RGE_Animated_Object_read_new);
 }

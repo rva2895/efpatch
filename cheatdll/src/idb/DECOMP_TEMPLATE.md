@@ -306,6 +306,63 @@ no pseudocode restatements of the function body:
    invisible to the store diff and the compile gate (check_placement
    desynced with a faithful control flow); only this operand-precision
    trace catches it.
+   (i) X87 COMPARE-BRANCH UNORDERED POLARITY (owner-directed
+       2026-11-18, after the calculateYawAngle desync - NaN newOF made
+       result.z NaN and the C <= took the wrong turn direction,
+       +/-pi/2): the x87 idiom "fcomp; fnstsw ax; test ah,41h; jnz"
+       (the C0|C3 <= / >= shapes) is UNORDERED-TRUE - NaN takes the
+       branch - because unordered sets C0=C2=C3=1. The same holds for
+       the C0-only "test ah,1" shapes (the taken set includes
+       unordered whenever the jcc fires on C0 alone). MSVC's SSE
+       codegen for C's <= / >= / < / > is UNORDERED-FALSE (the IEEE
+       predicate), so a literal transcription of those branches
+       DIVERGES on NaN inputs. THE FAITHFUL FORMS: for an x87
+       C0|C3-taken branch write the NEGATED OPPOSITE, !(x > c) /
+       !(x < c) (compiles comiss/comisd + jna/jbe = unordered-taken);
+       for a C0-only-taken branch write !(x >= c) / !(x <= c)
+       (jb/ja). Verify the emitted jcc at the gate (jna/jbe/jb/ja -
+       NOT setcc+boolean folding). POLARITY TABLE: when the x87
+       jnz/jz targets the POSITIVE branch (<= / >= taken), the literal
+       C form diverges - use the negated form; when it targets the
+       NEGATIVE branch (the > / < skip, e.g. maximumSpeed's
+       base_speed > 0 cap gate whose jnz leads to the plain-speed
+       path), the literal C form (NaN-false -> the skip) already
+       matches - keep it. Every owned x87 compare branch is swept
+       against this table (the sweep found calculateYawAngle's three
+       sites divergent; maximumSpeed/calculateMaximumSpeed's cap gates
+       match; moveUnit's fabs >= 0.5 pair and incrementWaypoint/
+       checkRange's 1e-7 gates are per-site polarity-checked at their
+       decode).
+       PROBE-VERIFIED COMPLETE TABLE (owner-directed 2026-11-18; a
+       compiled-and-EXECUTED probe under the project's real Release
+       flags /O2 /arch:SSE2 /fp:fast - and /Od, results identical -
+       qNaN vs constant): x <= c FALSE; x < c FALSE; x > c FALSE;
+       x >= c FALSE; x == c FALSE; x != c **TRUE** (the ONE literal
+       that is unordered-TRUE); !(x > c) TRUE; !(x >= c) TRUE;
+       !(x < c) TRUE; !(x <= c) TRUE; double-typed forms and fabsf
+       forms identical. RULES DERIVED: (1) every literal ordered
+       predicate (<, <=, >, >=, ==) is unordered-FALSE in compiled
+       MSVC - NEVER assume an x87 unordered-true idiom survives a
+       literal transcription; (2) `!=` is unordered-TRUE - the x87
+       "test ah,40h; jnz -> SKIP" gates (equality-with-skip, e.g.
+       setForwardVelocity/Acceleration's lazy-create gate) must be
+       written as the ORDERED-NONZERO disjunction
+       ((v < c) || (v > c)), not `v != c`; (3) x87 branch-FALL-THROUGH
+       update idioms ("fcom mem; test ah,1; jz -> discard", e.g. the
+       min-scoring updates in precalcDistToTarget/find_evacuate_area)
+       fire on unordered - write the negated >= (the score is NaN ->
+       the update happens in the original); (4) value-return equality
+       (`return a == b`, compiled sete: unordered -> ZF=1 -> 1)
+       MATCHES the x87 test ah,40h idiom - safe (missile_move);
+       (5) branch equality (`if (a == b)`) is IEEE-false on NaN and
+       DIVERGES from the x87 C3-taken set - use the composed form
+       (!(x < c) && !(x > c)) when a x87 ah,40h branch is taken-set
+       {=, NaN}. PROBE PROTOCOL (mandatory for NaN-form decisions):
+       the probe is compiled AND EXECUTED under the project's real
+       flags (the vcxproj Release: /O2 /arch:SSE2 /fp:fast + /GL) with
+       a runtime-seeded NaN (unfolding-able), both /O2 and /Od; asm
+       listings (/Fa) verify the emitted jcc per form. The probe
+       source is the reference implementation of this table.
 - Allocation size verification (hard stop): every operator_new /
   operator_new_internal literal size must be mechanically verified as
   sizeof(allocated type) вЂ” recursive struct walk over idb_types.h with
@@ -451,6 +508,49 @@ no pseudocode restatements of the function body:
   decision. A manual reinterpretation may still be used when it is
   short, mechanical, and walker-confirmed вЂ” it must be presented in
   the review artifact either way.
+- DIAGNOSTIC LOGGER PROCESS (owner-directed 2026-11-18, after the
+   calculateYawAngle A/B harness): on owner request, ANY owned function
+   gets the A/B harness - three pieces, appended to the class file:
+   (1) THE ORIG TRAMPOLINE: `__declspec(naked) <rettype> __fastcall
+   <Class>__<method>_orig(...same params...)` - read the original's
+   prologue from the .lst, REPLAY in inline asm enough instructions to
+   pass the 5-byte setHook E9 (adjust every [esp+X] operand for the
+   trampoline's own frame: the trampoline is entered via a CALL, so its
+   esp = the original's entry esp - 4 - the trampoline's own pushes;
+   the replayed instructions' stack reads must resolve to the SAME
+   slots the original's did), then `mov eax, <original entry + replayed
+   length>; jmp eax` (enter PAST the E9 - calling the hooked entry
+   would recurse). Verified exemplar: RGE_Moving_Object__calculateYaw
+   Angle_orig (replays sub esp,0Ch / push ebx / mov ebx,[esp+18h]=newOF,
+   enters 0x4A6358). (2) THE LOGGER WRAPPER:
+   `<rettype> __fastcall <Class>__<method>_logger(...)` - sprintf the
+   inputs, call _orig, sprintf the outputs + the updated out-params,
+   append to val_log.txt ("at" mode, lazy fopen, one handle per
+   session). (3) THE INSTALLER SWAP: setHook(<addr>, _logger) - the
+   _new stays compiled but unhooked; flipping the line back restores
+   the fix. THE CRT NOTE: the logger's bare sprintf/fopen/fputs are
+   the APPROVED DIAGNOSTIC EXCEPTION to the CRT-wrapper rule
+   (owner-supervised, removed before final ship). VERIFICATION: the
+   trampoline's replayed instructions must cover EVERY byte the E9
+   overwrote; the register/stack lifecycle must balance (the exemplar's
+   retn 10h pops the logger's arg block and returns to the logger).
+   A/B OUTPUT: run both the hooked build and the unhooked build, diff
+   val_log.txt - the first diverging value names the exact stage.
+- SEMANTIC COMMENT HEADER (owner-directed 2026-11-17, style per
+   check_placement_new / alignment_new / get_string_id_new): every
+   replacement's decode comment OPENS with a short semantic summary -
+   what the function DOES in gameplay terms (its role, then the
+   narrative: what is read, what is decided, what side effects land) -
+   before the address-by-address decode mechanics. The semantic
+   paragraph justifies identifier choices and comments; the asm
+   citations remain the grounding. COMMENT PLACEMENT (owner-directed
+   2026-11-18): SEMANTIC comments go ABOVE the code they explain, in
+   natural statement groups separated by blank lines; the asm CITATIONS
+   trail on the statement lines (the "// asm 0x..." form) - never the
+   reverse, and never a semantic novel appended after a statement.
+   Retrofits: batches written before
+   this rule carry the semantic headers too (comment-only edits,
+   re-gated).
 - Do not "improve" the algorithm. Faithful reconstruction, not refactoring.
 - Residual judgment calls that are legal under the gate (naming choices,
   comment placement, whether an equivalence is trivial) are marked
@@ -653,6 +753,23 @@ Protocol:
    Every hit outside the IDB exports must be individually dispositioned.
    3b. Writer-target enumeration against FULL ranges (mandatory, scripted): extract the target address from EVERY writer call site in the repository - all Layer-1/2 names AND this project's __declspec(naked) mid-function hook stubs (the patch style hooks function INTERIORS, e.g. bldg_heal_rate_save.cpp) - and test each target against EVERY owned [proc, endp) range. Entry-address literal greps DO NOT catch interior targets: the 2026-11-15 Building batch shipped two such misses (0x005C750D inside small_save, 0x005C72AF inside setup4 - the bldg_heal_rate save-format hooks) that silently reverted a shipped stream-format extension and crashed master reading. A colliding patch's behavior must be BAKED into the replacement (owner-approved) and the patch call site retired - a replacement silently reverts the patch and desyncs whatever state the patch changed. Bake-in is the DEFAULT disposition for every colliding patch; the only waiver is owner-directed, and the affected replacement lines then carry a // <PATCH_ID> marker comment (e.g. // MAP_SIZE in RGE_Visible_Map__get_visible_new) so the revert stays visible at the code site. The scan is scripted: extract targets from all writer call sites, range-test against every owned [proc, endp), report. MAP_SIZE EXCEPTION (owner-directed 2026-11-15): mapsize.cpp patches are NEVER baked regardless of the default rule - the replacement keeps the original's table/address access (e.g. unified_map_offsets), the affected replacement lines carry the // MAP_SIZE marker documenting the intentional divergence when the big-map mod re-points the patched locations, and the colliding mapsize.cpp call sites are retired in place (commented, dead-after-hook) with the not-baked reason.
   BAKE MANDATORY PER FAMILY (owner directive 2026-11-15): every
+   PER-BATCH SCAN RE-RUN (owner-directed 2026-11-17, after the missed
+   on_evac_area collision): the scripted writer-target scan re-runs for
+   EVERY batch, over ALL owned ranges PLUS every pending batch range -
+   a clean verdict from a previous batch is NEVER inherited, and any
+   "covered by an earlier scan" claim is void. The scan is the
+   MECHANICAL FORM ONLY: extract every literal .text target from every
+   writer call site repo-wide (Layer-1 names, reloc, Voobly
+   Write*/WriteJump, WriteProcessMemory, and every __declspec(naked)
+   stub's setHook/Write*), then range-test each target against every
+   [proc,endp) range. Hand-built per-range address patterns are
+   PROHIBITED - they are how the M6b miss happened (the hand pattern
+   covered 4A6C/4A6F but not the 4A6D/4A6E interior, missing
+   playeroptions.cpp:206 setHook(0x004A6E95, on_evac_area) inside
+   find_evacuate_area). Every presentation carries its own
+   "Collision audit" section with the scan output quoted; a
+   presentation without it is incomplete and must not be acted on.
+   BAKE MANDATORY PER FAMILY (owner directive 2026-11-15): every
   STORE-AND-READ DIFF LIMITATION (owner-reported desync 2026-11-15,
   Animated setup bootstrap): the offset-level diff cannot catch an
   INVENTED store that targets an offset the asm also legitimately
@@ -906,4 +1023,9 @@ stopping at internal checkpoints; the only stop is a protocol gate
 (batch approval before writing, deviation sign-offs, hard stops).
 The owner will explicitly request a session close when the context is
 running out - never preemptively wrap up, truncate a batch, or defer
-work citing context.
+work citing context. CONTEXT-WINDOW SIZE IS NEVER A STOPPING REASON OR
+A SCOPE-REDUCTION ARGUMENT (owner-directed 2026-11-17): never cite
+remaining context, token budgets, or output length when deciding what
+to decode, verify, present, or write - every session point has
+sufficient context for the full protocol; deferrals must be justified
+by protocol gates or decode blockers only, never by size.

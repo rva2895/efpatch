@@ -203,6 +203,7 @@ void __fastcall RGE_Moving_Object__destructor_new(RGE_Moving_Object* this_, DWOR
 // get+set_Selected_Groups) dispatch to these runtime bodies.
 
 // Replacement for RGE_Moving_Object::getTurnRadius. Original:
+// SEMANTIC: returns the unit's current facing ANGLE (the master slot's name notwithstanding - the runtime body reads the angle field, not a radius).
 // @ 0x00408B80 (idb_functions.h). Decode (.c:51402-51407): return
 // this->angle (float @+0xC8 = 200; the .c's "v1+200" with v1 = the
 // __thiscall ecx this - the "possibly undefined" render is the
@@ -424,7 +425,7 @@ void __fastcall RGE_Moving_Object__setWaitingToMove_new(
 // @ 0x004A2930. Range [0x4A2930, 0x4A2960), returns BVector*.
 // Decode (.c:174672-174681): v < 0 || v >= count @+0xEC -> 0;
 // else &userDefinedWaypoints[v] (@+0x1E0... the BVector* array
-// @+0xE8? — userDefinedWaypoints @232 = 0xE8 per the Moving walk).
+// @+0xE8? ? userDefinedWaypoints @232 = 0xE8 per the Moving walk).
 BVector* __fastcall RGE_Moving_Object__userDefinedWaypoint_new(
     RGE_Moving_Object* this_, DWORD dummy, int v)
 {
@@ -487,7 +488,7 @@ void __fastcall RGE_Moving_Object__removeAllUserDefinedWaypoints_new(
 // Original: @ 0x004A2AE0. Range [0x4A2AE0, 0x4A2BB0), returns int.
 // Decode (.c:174732-174793): newSize <= 0 -> 0; maximum >= newSize
 // && maximum > 0 -> 0; operator_new(12 * newSize) (12 = sizeof
-// (BVector) ✓) + the zero-fill loop (12 bytes per element, asm
+// (BVector) ?) + the zero-fill loop (12 bytes per element, asm
 // 174757-174767); IF old array: the count-capped copy loop
 // (x/y/z dwords), operator_delete of the old (CRT rule); swap;
 // maximum = newSize; return 1.
@@ -917,10 +918,14 @@ double __fastcall RGE_Moving_Object__precalcDistToTarget_new(
         RGE_Static_Object* child = RGE_Game_World__object(world, childID);   // asm 0x4A3FAB-0x4A3FAE (:6086)
         if (child != 0)
         {
+            // the nearer gate-child wins; the x87 update branch is test ah,1
+            // FALL-THROUGH = "< OR unordered" - a NaN distance UPDATES in the
+            // original; the literal C < is unordered-false and would skip
+            // (precision sub-rule (i))
             double d = (double)RGE_Static_Object__distance_to_object(
                 (RGE_Static_Object*)this_, child) - 0.1;             // asm 0x4A3FB7-0x4A3FBF (flt_6545BC)
-            if (d < (double)result)
-                result = (float)d;                                   // asm 0x4A3FC5-0x4A3FD0
+            if (!(d >= (double)result))                              // asm 0x4A3FC5-0x4A3FD0 (fcom var_4; test ah,1; jz -> the fstp-st discard)
+                result = (float)d;                                   // asm 0x4A3FD0 (fstp var_4 store-round)
         }
     }
     return result;                                                   // asm 0x4A3FDE
@@ -1292,7 +1297,7 @@ void __fastcall RGE_Moving_Object__moveUnit_new(
         fwd.y = (float)((double)fwd.y / len);                        // asm 0x4A46B9-0x4A46BF
     }
     int yawArg = 0;                                                  // asm 0x4A46CF (var_10)
-    float v14 = this_->vfptr->calculateYawAngle(this_, &fwd, a2, a3, &yawArg);   // asm 0x4A46D7-0x4A46E5 (slot +0x324)
+    float v14 = (float)this_->vfptr->calculateYawAngle(this_, &fwd, a2, a3, &yawArg);   // asm 0x4A46D7-0x4A46F6 (slot +0x324; fstp a3 STORE-ROUND @0x4A46F6 - v14 IS float in the original; the explicit cast keeps the rounding point under the double-typed vtbl slot - corollary (h))
     if ((this_->pathData->mFlags.valueValue & 1) == 0)               // asm 0x4A46EB-0x4A46FD (BBitVectorAND_2 = 1; ja = taken when != 0)
         this_->vfptr->yaw(this_, v14);                               // asm 0x4A46FF-0x4A4708 (slot +0x2FC)
     BPath* hp = BPathData__highestLinkedPathPointer(this_->pathData);   // asm 0x4A470E-0x4A4714 (:2509)
@@ -1314,6 +1319,790 @@ void __fastcall RGE_Moving_Object__moveUnit_new(
         return;
     }
     this_->vfptr->checkAcceleration(this_, a4, 0, yawArg);           // asm 0x4A4796-0x4A47A2 (slot +0x330; hp == 0)
+}
+
+// ============ RUNTIME METHODS (batch M4 - movement-data + sprite pairs) ============
+
+// Replacement for RGE_Moving_Object::forwardVelocity. Original:
+// SEMANTIC: the forward-axis movement readout - the forward component (BVector .y, the planar axis) of the live BMotionData velocity; 0 when the unit has no movement data (idle).
+// @ 0x004A3A10 (idb_functions.h). Range [0x4A3A10, 0x4A3A24), returns
+// double. Decode (asm 0x4A3A10-0x4A3A24): movementData @+0x120 != 0 ->
+// return movementData->velocity.y (fld [eax+8]; BVector.y = offset 8,
+// velocity @+0 of BMovementData {velocity, acceleration}); else
+// 0.0 (fld const_f_zero). Both exits are exact m32 loads - the double
+// return is bit-identical (FLOAT PRECISION corollary (h)).
+double __fastcall RGE_Moving_Object__forwardVelocity_new(RGE_Moving_Object* this_, DWORD dummy)
+{
+    // the forward-axis readout: the live BMotionData's forward velocity
+    // component (BVector .y = the planar axis); 0 when the unit has never
+    // been commanded
+    if (this_->movementData != 0)                            // asm 0x4A3A16-0x4A3A18
+        return this_->movementData->velocity.y;              // asm 0x4A3A1A (fld [eax+8])
+    return 0.0f;                                             // asm 0x4A3A1E (fld const_f_zero)
+}
+
+// Replacement for RGE_Moving_Object::forwardAcceleration. Original:
+// SEMANTIC: the forward-axis acceleration readout - the forward component of the live BMotionData acceleration; 0 when idle.
+// @ 0x004A3AC0 (idb_functions.h). Range [0x4A3AC0, 0x4A3AD4), returns
+// double. Decode (asm 0x4A3AC0-0x4A3AD4): movementData != 0 -> return
+// movementData->acceleration.y (fld [eax+14h]; acceleration @+0xC of
+// BMovementData + .y @+8); else 0.0. Exact m32 loads - bit-identical
+// double return.
+double __fastcall RGE_Moving_Object__forwardAcceleration_new(RGE_Moving_Object* this_, DWORD dummy)
+{
+    // the forward-axis acceleration readout: the live BMotionData's forward
+    // acceleration component; 0 when the unit has never been commanded
+    if (this_->movementData != 0)                            // asm 0x4A3AC6-0x4A3AC8
+        return this_->movementData->acceleration.y;          // asm 0x4A3ACA (fld [eax+14h])
+    return 0.0f;                                             // asm 0x4A3ACE (fld const_f_zero)
+}
+
+// Replacement for RGE_Moving_Object::setForwardVelocity. Original:
+// SEMANTIC: the forward-velocity command - lazily creates the unit's BMotionData on the first NONZERO forward command, then stores the forward component; a zero command on an idle unit is a no-op (no allocation).
+// @ 0x004A3A30 (idb_functions.h). Range [0x4A3A30, 0x4A3AAF), void,
+// retn 4. SEH allocation-unwind frame (chunk 0x6428A0: mov eax,
+// [ebp-10h]; push eax; call operator_delete - the fresh BMovementData
+// is freed if the ctor throws; folded as the __except below, with the
+// 0-init per the getPatrolInformation J1 precedent).
+// Decode (asm 0x4A3A30-0x4A3AAF): IF movementData @+0x120 == 0 AND
+// v != 0.0 (fcomp const_f_zero; test ah,40h; jnz end - the C3-only
+// equality idiom; SSE setne reads the same ZF and is result-identical
+// incl. NaN): operator_new(0x18) (0x18 = sizeof(BMovementData) = 2 x
+// BVector(12) = 24, walked); non-null -> BMovementData ctor
+// (idb constant, 0x004BBCF0); movementData = result; then IF
+// movementData != 0: velocity.y = v (raw dword move, asm
+// 0x4A3A93-0x4A3A9D). The store is SHARED by the existing-data path
+// and the created-data path.
+void __fastcall RGE_Moving_Object__setForwardVelocity_new(
+    RGE_Moving_Object* this_, DWORD dummy, float v)
+{
+    BMovementData* new_data = 0;   // asm var_10 - the slot the SEH funclet frees if the ctor throws (0-init per the getPatrolInformation J1 precedent)
+    __try
+    {
+        // no movement data AND an ordered-nonzero command: lazily create it -
+        // the x87 gate is test ah,40h; jnz -> skip (the skip set includes
+        // UNORDERED: NaN commands do NOT create the block); the literal C
+        // v != 0.0f is unordered-TRUE (probe: ne_f = 10) and would allocate
+        // on NaN - the faithful form is the ordered-nonzero disjunction
+        // (precision sub-rule (i))
+        if (this_->movementData == 0 && ((v < 0.0f) || (v > 0.0f)))   // asm 0x4A3A4F-0x4A3A62 (test ah,40h; jnz -> the skip)
+        {
+            new_data = (BMovementData*)operator_new_internal(sizeof(BMovementData));   // the 24-byte velocity+acceleration block (asm push 18h; same target as the binary's operator_new)
+            if (new_data != 0)                               // guarded ctor - a null propagates as "still no data"
+                new_data = BMovementData__BMovementData(new_data);   // asm 0x4A3A80 (ctor 0x004BBCF0)
+            this_->movementData = new_data;                  // asm 0x4A3A8B - the unit now carries live movement state
+            if (this_->movementData != 0)                    // asm 0x4A3A89-0x4A3A91 - the command lands only if the block exists
+                this_->movementData->velocity.y = v;         // asm 0x4A3A93-0x4A3A9D - the forward speed (BVector .y = the planar forward axis; raw dword move)
+        }
+        else if (this_->movementData != 0)                   // asm 0x4A3A49-0x4A3A51 - already moving: just update the forward speed
+        {
+            this_->movementData->velocity.y = v;             // asm 0x4A3A93-0x4A3A9D (the store is shared with the just-created path)
+        }
+    }
+    __except (operator_delete_internal(new_data), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x6428A0 - the fresh block is freed if the ctor throws
+    {
+    }
+}
+
+// Replacement for RGE_Moving_Object::setForwardAcceleration. Original:
+// SEMANTIC: the forward-acceleration command - the same lazy-create-then-store shape as setForwardVelocity, for the acceleration component.
+// @ 0x004A3AE0 (idb_functions.h). Range [0x4A3AE0, 0x4A3B6B), void,
+// retn 4. SEH allocation-unwind frame (chunk 0x6428C0, identical
+// 5-instruction funclet). Decode (asm 0x4A3AE0-0x4A3B55): the
+// setForwardVelocity shape with acceleration.y ([eax+14h],
+// asm 0x4A3B43-0x4A3B4D).
+void __fastcall RGE_Moving_Object__setForwardAcceleration_new(
+    RGE_Moving_Object* this_, DWORD dummy, float v)
+{
+    BMovementData* new_data = 0;   // asm var_10 (the SEH-freed slot; 0-init)
+    __try
+    {
+        // lazy create, same rule as setForwardVelocity: only an ordered-nonzero
+        // command wakes the block up (the x87 test ah,40h skip set includes
+        // unordered - see the setForwardVelocity note, sub-rule (i))
+        if (this_->movementData == 0 && ((v < 0.0f) || (v > 0.0f)))   // asm 0x4A3AFF-0x4A3B12
+        {
+            new_data = (BMovementData*)operator_new_internal(sizeof(BMovementData));   // asm 0x4A3B14 (push 18h)
+            if (new_data != 0)
+                new_data = BMovementData__BMovementData(new_data);   // asm 0x4A3B30
+            this_->movementData = new_data;                  // asm 0x4A3B3B
+            if (this_->movementData != 0)
+                this_->movementData->acceleration.y = v;     // asm 0x4A3B43-0x4A3B4D ([eax+14h] - the forward acceleration component)
+        }
+        else if (this_->movementData != 0)                   // asm 0x4A3AF9-0x4A3B01 - already moving: update in place
+        {
+            this_->movementData->acceleration.y = v;         // the shared store
+        }
+    }
+    __except (operator_delete_internal(new_data), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x6428C0 - identical funclet
+    {
+    }
+}
+
+// Replacement for RGE_Moving_Object::calculateMaximumSpeed. Original:
+// SEMANTIC: the speed CAP used by the movement planner - the master's speed, scaled by the sprite's base_speed when the sprite carries one; terrainType is accepted but unused (the planar planner's hook point). With the baked speed-modifier mechanic (SPEED_MOD) folded in.
+// @ 0x004A6250 (idb_functions.h; Attributes: thunk per the .c). Range
+// [0x4A6250, 0x4A627F), returns double, retn 4 (terrainType UNUSED by
+// the original - kept for ABI). The original body is maximumSpeed's
+// gate shape WITHOUT the modifier (asm 0x4A6250-0x4A627F: sprite
+// @+0x1C test; base_speed @+0x74 fcomp const_d_zero; test ah,41h;
+// fld [eax+D0h]; fmul [edx+74h]; retn 4 / pure load).
+// BAKED (SPEED_MOD): casts.cpp:885 setHook(0x004A6250, speed4) - the
+// ENTRY of this function (an ACTIVE patch; install order setCastHooks
+// dllmain:451 < install_engine :765 previously overwrote the stub's
+// E9, so this bake is the stub's first effective shipping form). The
+// stub fetches getSpeedModifier(this) (raw float bits in eax;
+// __stdcall) UNCONDITIONALLY before the gate and multiplies it into
+// master->speed BEFORE the base_speed multiply (left-assoc: fld
+// [esp]=modifier; fld [eax+D0h]=speed; fmul st(1),st; fstp st ->
+// st0 = speed*modifier at 53-bit; the gate path then fmul
+// [edx+74h]); the double-zero fcomp gate is result-identical to a
+// float compare under all inputs. The double return reproduces the
+// stub's unrounded 53-bit st0 (FLOAT PRECISION corollary (h)). Call
+// site retired in casts.cpp (:885, commented in place). // SPEED_MOD
+// markers at the affected lines.
+double __fastcall RGE_Moving_Object__calculateMaximumSpeed_new(
+    RGE_Moving_Object* this_, DWORD dummy, int terrainType)
+{
+    uint32_t modifier_bits = getSpeedModifier((RGE_Static_Object*)this_);   // baked SPEED_MOD (speed4): the terrain modifier from the unit's terrain standing (raw float bits; fetched unconditionally, before the gate - the stub's order)
+    float modifier;
+    memcpy(&modifier, &modifier_bits, sizeof(modifier));   // the helper returns raw float bits (casts.cpp:140) - 4-byte value copy, aliasing-clean
+    if (this_->sprite != 0 && this_->sprite->base_speed > 0.0)   // asm 0x4A6253-0x4A6265 (double-zero fcomp) - the sprite's own cap only counts when it carries one
+        return (double)this_->master_obj->speed * (double)modifier * (double)this_->sprite->base_speed;   // baked SPEED_MOD: master speed x terrain modifier x sprite cap, left-assoc fmul x2 - st0 unrounded at retn (0x4A626A-0x4A6273 form)
+    return (double)this_->master_obj->speed * (double)modifier;   // baked SPEED_MOD: no sprite cap - just the modified master speed (loc_4A6276 form)
+}
+
+// Replacement for RGE_Moving_Object::setRunSprite. Original:
+// SEMANTIC: swaps the unit's displayed sprite to its RUN set - the master supplies the sprite (polymorphic per tier); none -> no-op. The double getter call is real (gate + fetch).
+// @ 0x004A69B0 (idb_functions.h). Range [0x4A69B0, 0x4A69E0), returns
+// int. Decode (asm 0x4A69B0-0x4A69E0): master_obj @+0x14 ->
+// master->vfptr->get_run_sprite(master, this) (asm 0x4A69B9 call
+// [eax+7Ch] = master vtbl slot 31) == 0 -> return 0; ELSE the SAME
+// getter is called a SECOND time (asm 0x4A69C9 call [edx+7Ch] - a
+// REAL double call, not a render artifact) and its result is passed
+// DIRECTLY to vfptr->new_sprite (asm 0x4A69CC-0x4A69CF push eax;
+// call [edi+0xB0] = runtime vtbl slot 44) - the result is NEVER
+// stored to this->sprite (the bootstrap-store lesson, DESYNC FIX #4);
+// return 1.
+// MASTER-VTBL CAST (cross-class rule (b) + cast-compatibility
+// protocol): the runtime master_obj field is typed
+// RGE_Master_Static_Object*, whose vtbl struct ends at slot 29
+// (setStationaryYawRevolutionTime @+0x74) - slots 30/31 are declared
+// only in the derived master vtbls, ALL at the same offsets (verified
+// member-by-member: RGE_Master_Moving_ObjectVtbl def@14980 slots
+// 30/31 = :15012/15013 get_move_sprite/get_run_sprite, and the same
+// +0x78/+0x7C indices in the Missile (def@21459), Action, Combat,
+// TRIBE_Combat and TRIBE_Building vtbls). The callers of setRunSprite
+// are runtime Moving+ objects (the address sits in the
+// Action/Combat/Moving runtime vftables - asm DATA XREFs), whose
+// master_obj is a Moving+-tier master per the factory identity
+// (DECOMP_HIERARCHY.md) - the cast to RGE_Master_Moving_Object* (the
+// lowest tier declaring the slots) is layout-safe (vfptr @0) and
+// slot-stable across every possible runtime tier.
+int __fastcall RGE_Moving_Object__setRunSprite_new(RGE_Moving_Object* this_, DWORD dummy)
+{
+    RGE_Master_Moving_Object* master = (RGE_Master_Moving_Object*)this_->master_obj;   // asm 0x4A69B4 ([esi+14h]); see the cast note above
+    if (master->vfptr->get_run_sprite(master, (RGE_Static_Object*)this_) == 0)   // asm 0x4A69B9 (slot +0x7C) - the master refuses (no run sprite for this tier/unit): stay as-is
+        return 0;                                            // asm 0x4A69DD-0x4A69E0
+    this_->vfptr->new_sprite(this_,
+        master->vfptr->get_run_sprite(master, (RGE_Static_Object*)this_));   // asm 0x4A69C9-0x4A69CF - the SECOND getter call is real: its result goes straight into the sprite registration (never stored on the unit)
+    return 1;                                                // asm 0x4A69D6
+}
+
+// Replacement for RGE_Moving_Object::setMoveSprite. Original:
+// SEMANTIC: swaps the displayed sprite to the MOVE set - the setRunSprite shape against the master's move-sprite getter.
+// @ 0x004A69F0 (idb_functions.h). Range [0x4A69F0, 0x4A6A20), returns
+// int. Decode (asm 0x4A69F0-0x4A6A20): the setRunSprite shape with
+// get_move_sprite (asm 0x4A69F9/0x4A6A09 call [eax+78h] = master vtbl
+// slot 30); same double-call + pass-through-to-new_sprite form.
+int __fastcall RGE_Moving_Object__setMoveSprite_new(RGE_Moving_Object* this_, DWORD dummy)
+{
+    // the unit's master, through the Moving-master vtbl (slots 30/31 live
+    // only in the derived tiers - see the setRunSprite cast note)
+    RGE_Master_Moving_Object* master = (RGE_Master_Moving_Object*)this_->master_obj;   // asm 0x4A69F4
+
+    // the master refuses (no move sprite for this tier/unit): stay as-is
+    if (master->vfptr->get_move_sprite(master, (RGE_Static_Object*)this_) == 0)   // asm 0x4A69F9 (slot +0x78)
+        return 0;                                            // asm 0x4A6A1D-0x4A6A20
+
+    // the SECOND getter call is real: its result goes straight into the
+    // sprite registration (never stored on the unit)
+    this_->vfptr->new_sprite(this_,
+        master->vfptr->get_move_sprite(master, (RGE_Static_Object*)this_));   // asm 0x4A6A09-0x4A6A0F (slot +0x78 -> new_sprite +0xB0)
+    return 1;                                                // asm 0x4A6A16
+}
+
+// Replacement for RGE_Moving_Object::setFidgetSprite. Original:
+// SEMANTIC: swaps the displayed sprite to the FIDGET (idle-animation) set - the setRunSprite shape against the master's plain sprite getter.
+// @ 0x004A6A30 (idb_functions.h). Range [0x4A6A30, 0x4A6A5D+), returns
+// int. Decode (asm 0x4A6A30-0x4A6A5D): the setRunSprite shape with
+// get_sprite (asm 0x4A6A39/0x4A6A49 call [eax+4] = master vtbl slot 1
+// - IN the RGE_Master_Static_ObjectVtbl, no master cast needed);
+// same double-call + pass-through-to-new_sprite form.
+int __fastcall RGE_Moving_Object__setFidgetSprite_new(RGE_Moving_Object* this_, DWORD dummy)
+{
+    // the plain sprite getter is IN the Static master vtbl (slot 1) - no cast
+    if (this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object*)this_) == 0)   // asm 0x4A6A39 (slot +0x04)
+        return 0;                                            // asm 0x4A6A5D
+
+    // the SECOND getter call is real: its result goes straight into the
+    // sprite registration (never stored on the unit)
+    this_->vfptr->new_sprite(this_,
+        this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object*)this_));   // asm 0x4A6A49-0x4A6A4F (slot +0x04 -> new_sprite +0xB0)
+    return 1;                                                // asm 0x4A6A4F-region epilogue
+}
+
+// ============ RUNTIME METHODS (batch M5a/M5b - path-distance pair + yaw family) ============
+
+// Replacement for RGE_Moving_Object::distanceToHighestLevelPath2.
+// SEMANTIC: how far the unit is from its highest-priority (linked) path - resolves the linked path (or re-fetches it by id through the world), then measures the unit's position against the path; 0.0 when there is nothing to measure against. The movement planner's arrival signal.
+// Original: @ 0x004A2C90 (idb_functions.h). Range [0x4A2C90,
+// 0x4A2CFF), returns double. Decode (asm 0x4A2C90-0x4A2CFF):
+// pathData @+0x118 == 0 -> 0.0 (fld const_f_zero, asm 0x4A2C9E);
+// path = BPathData__highestLinkedPathPointer(pathData) (:2509, asm
+// 0x4A2CA7); null -> world = (*base_game)->world (asm 0x4A2CB0-0x4A2CBB,
+// +0x420) -> path = RGE_Game_World__path(world,
+// BPathData__highestLinkedPath(pathData)) (:2508/:6094, asm
+// 0x4A2CC1-0x4A2CC9) -> null -> 0.0 (asm 0x4A2CD2); else return
+// BPath__distanceFromPath(path, this->positionValue @+0xF4) (:2528,
+// asm 0x4A2CDB-0x4A2CF8 - the 12-byte by-value BVector stack copy,
+// esi+0F4h). The distanceFromPath return is a PURE st0 PASSTHROUGH
+// (asm call 0x4A2CF8; retn 0x4A2CFF, no store) - the double-typed
+// constant captures the 53-bit value (FLOAT PRECISION corollary (h)).
+double __fastcall RGE_Moving_Object__distanceToHighestLevelPath2_new(
+    RGE_Moving_Object* this_, DWORD dummy)
+{
+    if (this_->pathData == 0)                                // asm 0x4A2C9A-0x4A2C9C
+        return 0.0f;                                         // asm 0x4A2C9E (fld const_f_zero)
+    BPath* path = BPathData__highestLinkedPathPointer(this_->pathData);   // asm 0x4A2CA7 (:2509)
+    if (path == 0)
+    {
+        RGE_Game_World* world = (RGE_Game_World*)(*base_game)->world;   // asm 0x4A2CB0-0x4A2CBB (@+0x420)
+        path = RGE_Game_World__path(world, BPathData__highestLinkedPath(this_->pathData));   // asm 0x4A2CC1-0x4A2CC9 (:2508, :6094)
+        if (path == 0)
+            return 0.0f;                                     // asm 0x4A2CD2 (fld const_f_zero)
+    }
+    return BPath__distanceFromPath(path, this_->positionValue);   // asm 0x4A2CDB-0x4A2CF8 (:2528; by-value BVector; st0 passthrough)
+}
+
+// Replacement for RGE_Moving_Object::distanceToHighestLevelPath.
+// SEMANTIC: the same measurement as distanceToHighestLevelPath2 but from an arbitrary point (the caller's BVector) instead of the unit's position.
+// Original: @ 0x004A2D00 (idb_functions.h). Range [0x4A2D00,
+// 0x4A2D71), returns double, retn 0Ch = the 12-byte by-value BVector
+// point (the idb proto (this_, BVector point) is CORRECT - the caller
+// stack copy is real, asm 0x4A2D4F-0x4A2D65 x->z->y dword copies).
+// Decode (asm 0x4A2D00-0x4A2D71): the distanceToHighestLevelPath2
+// shape with distanceFromPath(path, point) (asm 0x4A2D6A; st0
+// passthrough - corollary (h)).
+double __fastcall RGE_Moving_Object__distanceToHighestLevelPath_new(
+    RGE_Moving_Object* this_, DWORD dummy, BVector point)
+{
+    if (this_->pathData == 0)                                // asm 0x4A2D0A-0x4A2D0C
+        return 0.0f;                                         // asm 0x4A2D0E (fld const_f_zero)
+    BPath* path = BPathData__highestLinkedPathPointer(this_->pathData);   // asm 0x4A2D19 (:2509)
+    if (path == 0)
+    {
+        RGE_Game_World* world = (RGE_Game_World*)(*base_game)->world;   // asm 0x4A2D22-0x4A2D2D (@+0x420)
+        path = RGE_Game_World__path(world, BPathData__highestLinkedPath(this_->pathData));   // asm 0x4A2D33-0x4A2D3B (:2508, :6094)
+        if (path == 0)
+            return 0.0f;                                     // asm 0x4A2D44 (fld const_f_zero)
+    }
+    return BPath__distanceFromPath(path, point);             // asm 0x4A2D4F-0x4A2D6A (:2528; st0 passthrough)
+}
+
+// Replacement for RGE_Moving_Object::calculateTurnRadius. Original:
+// SEMANTIC: the turn radius for the CURRENT speed - the master's base turn radius scaled by the ratio of the forward velocity to the master's turn-radius speed (faster = wider turns).
+// @ 0x004A6510 (idb_functions.h:2201). Range [0x4A6510, 0x4A6553),
+// returns double. Decode (asm 0x4A6510-0x4A6553): movementData
+// @+0x120 == 0 -> 0.0 (fld const_f_zero, asm 0x4A651E); else master
+// getTurnRadius (vtbl slot +0x5C = 23, asm 0x4A6535 - the slot is
+// double-typed per the corrected RGE_Master_Static_ObjectVtbl :3608;
+// in the Static vtbl, no cast) * velocity.y (fmul [eax+8], asm
+// 0x4A6542) -> fstp var_4 STORE-ROUND (asm 0x4A6545 - the product is
+// float in the original, kept float here); master getTurnRadiusSpeed
+// (slot +0x60 = 24, asm 0x4A6549, :3609) -> fdivr (asm 0x4A654C:
+// st0 = product / speed) - st0 UNROUNDED at retn (corollary (h)).
+double __fastcall RGE_Moving_Object__calculateTurnRadius_new(RGE_Moving_Object* this_, DWORD dummy)
+{
+    // no movement data -> the unit has never been commanded: zero radius
+    if (this_->movementData == 0)                            // asm 0x4A651A-0x4A651C
+        return 0.0f;                                         // asm 0x4A651E (fld const_f_zero)
+
+    // the master, through the Static vtbl (slots 23/24 - getTurnRadius/
+    // getTurnRadiusSpeed - are in the base; now double-typed, no cast)
+    RGE_Master_Static_Object* master = (RGE_Master_Static_Object*)this_->master_obj;    // asm 0x4A6527-0x4A652B (@+0x14; explicit cast per the cross-class rule - the flattened runtime structs are unrelated C++ types)
+
+    // the radius scales with the CURRENT forward speed: base radius x the
+    // forward velocity component - store-rounded to m32 exactly as the
+    // original's fstp var_4 (the explicit cast keeps the rounding point)
+    float product = (float)(master->vfptr->getTurnRadius(master)
+        * (double)this_->movementData->velocity.y);          // asm 0x4A6535-0x4A6545 (fstp var_4 store-round @0x4A6545)
+
+    // divided by the speed at which that radius was calibrated - the 53-bit
+    // quotient stays unrounded on st0 at retn (corollary (h))
+    return (double)product / master->vfptr->getTurnRadiusSpeed(master);   // asm 0x4A6549-0x4A654C (fdivr: product / speed)
+}
+
+// Replacement for RGE_Moving_Object::calculateYawAngle. Original:
+// SEMANTIC: the yaw STEP toward the new orientation - the angle between the current and desired forward vectors, clamped to the master's maximum yaw rate for this frame interval; the cross product's vertical decides the turn direction; limitedAngle reports whether the step had to be clamped.
+// @ 0x004A6350 (idb_functions.h:2199). Range [0x4A6350, 0x4A63F0)
+// (retn 10h = 4 stack args), returns double. Decode (asm 0x4A6350-
+// 0x4A63EF): v = angleBetweenVector(newOF, curOF) (:5791, asm
+// 0x4A6363) -> fstp v STORE-ROUND (asm 0x4A636B - v is float); yaw =
+// getMaximumYawPerSecondMoving (vtbl slot +0x6C = 27, asm 0x4A6371,
+// :3612 double-typed; in the Static vtbl, no cast) * interval (fmul
+// on raw st0, asm 0x4A6374 - 53-bit, NO store); IF v <= yaw (fld v
+// m32; fcomp st(1) - rounded-angle vs the 53-bit product, test ah,41h,
+// asm 0x4A6378-0x4A6383): limitedAngle = 0 (asm 0x4A63A8-region; the
+// product popped, no store); ELSE: v < 0 -> fchs (asm 0x4A6396; the
+// C0-only test = comiss/jb incl. NaN), v = (float)yaw (fstp v STORE-
+// ROUND, asm 0x4A639C - v IS float in the original), limitedAngle = 1
+// (asm 0x4A63A0); BVector__operator_mul(newOF, &result, curOF) (:5789,
+// asm 0x4A63B4-0x4A63BC); result.z <= 0.0 (fld m32; fcomp
+// const_f_zero; test ah,41h, asm 0x4A63C1-0x4A63D3 - direct float
+// compare, rule (b)) -> return v : return -v (both exits load the m32
+// v, exact widening - asm 0x4A63D5-0x4A63E1).
+double __fastcall RGE_Moving_Object__calculateYawAngle_new(
+    RGE_Moving_Object* this_, DWORD dummy, BVector* curOF, BVector* newOF,
+    float interval, int* limitedAngle)
+{
+    // the angle between the desired and current forward vectors - the
+    // original store-rounds it to m32 immediately (the explicit cast keeps
+    // that rounding point under the double-typed constant)
+    float v = (float)BVector__angleBetweenVector(newOF, curOF);   // asm 0x4A6363-0x4A636B (:5791; fstp v store-round @0x4A636B)
+
+    // the maximum turn the master allows this frame: yaw rate x the frame
+    // interval - the fmul lands directly on the slot call's st0 (53-bit,
+    // no store)
+    double yaw = this_->master_obj->vfptr->getMaximumYawPerSecondMoving(this_->master_obj)
+        * (double)interval;                                  // asm 0x4A6371-0x4A6374 (slot +0x6C)
+
+    // the step fits? (the rounded angle vs the 53-bit allowance). The x87
+    // idiom is test ah,41h; jnz - C0|C3 = "< OR unordered" -> the branch is
+    // UNORDERED-TRUE (NaN v takes the no-clamp path). MSVC's SSE codegen for
+    // C's <= is unordered-FALSE, so the faithful form is the negated
+    // opposite (compiles comisd + jna/jbe = unordered-taken) - precision
+    // sub-rule (i); the observed desync was exactly this class (NaN newOF)
+    if (!((double)v > yaw))                                  // asm 0x4A6378-0x4A6383 (fld v; fcomp st(1); test ah,41h)
+    {
+        *limitedAngle = 0;                                   // no clamp needed; the allowance is popped unused (asm 0x4A63A8-region)
+    }
+    else
+    {
+        // the angle reads negative when the turn is clockwise - flip the
+        // allowance's sign to match. The x87 test ah,1 is C0-ONLY = "< OR
+        // unordered" -> the negate fires for NaN too; the faithful form is
+        // the negated >= (precision sub-rule (i))
+        if (!(v >= 0.0f))                                    // asm 0x4A6385-0x4A6394
+            yaw = -yaw;                                      // asm 0x4A6396 (fchs on the 53-bit product)
+
+        // the clamped step, rounded to m32 exactly as the original stores it
+        v = (float)yaw;                                      // asm 0x4A639C (fstp v store-round - v IS float)
+        *limitedAngle = 1;                                   // asm 0x4A63A0
+    }
+
+    // the cross product of desired x current: its VERTICAL (result.z) picks
+    // the turn direction
+    BVector result;                                          // asm [esp+result] (-0Ch)
+    BVector__operator_mul(newOF, &result, curOF);            // asm 0x4A63B4-0x4A63BC (:5789)
+
+    // vertical up -> turn one way, down (or flat) -> the other; both exits
+    // load the m32 v - exact widening to the double return. The x87 gate is
+    // test ah,41h; jnz = UNORDERED-TRUE (NaN result.z -> +v; the observed
+    // desync: NaN newOF made result.z NaN and the C <= took -v, flipping the
+    // turn direction) - the negated > is the faithful form (sub-rule (i))
+    if (!(result.z > 0.0f))                                  // asm 0x4A63C1-0x4A63D3 (fld m32; fcomp const_f_zero; test ah,41h)
+        return v;                                            // asm 0x4A63E1 path (fld v m32)
+    return -v;                                               // asm 0x4A63D5-0x4A63DE (fld v; fchs)
+}
+
+// Replacement for RGE_Moving_Object::evacuate_area. Original:
+// SEMANTIC: repositions the unit OUT of a placement rectangle - if the unit is standing still and the area scan finds a free tile, it is walked to that tile's centre (+0.5s) at its current height.
+// @ 0x004A6BA0 (idb_functions.h:2209). Range [0x4A6BA0, 0x4A6C1B),
+// void, retn 10h = 4 stack args (int x1, int y1, int x2, int y2 - the
+// raw-dword consumption at asm 0x4A6BC2-0x4A6BDF confirms the int
+// rendering for THIS function; the Building check_placement_for_units
+// caller computes the bounds as floats and passes the bits). Decode
+// (asm 0x4A6BA0-0x4A6C1B): ex = 0 (asm 0x4A6BA6), ey = 0 (the .c's
+// "float v8" slot - an IDA artifact: find_evacuate_area writes the
+// int tile coord through the int* out-param and evacuate_area reads
+// it back with fild); IF !vfptr->is_moving(this) (slot +0x144, asm
+// 0x4A6BB8, test al,al): IF find_evacuate_area (:2210, the four
+// raw-dword forwards + &ex/&ey): move_to (slot +0x118, asm 0x4A6C11;
+// RGE_Static_Object* = 0, x = ex+0.5, y = ey+0.5, z = world_z @+0x50)
+// - the two fild/fadd const_f_half/fstp pairs (asm 0x4A6BEB-0x4A6C0C)
+// are m32 STORE-ROUNDS, replicated by the explicit (float) casts.
+// The two bare "push ecx" sites in the listing (0x4A6BF5/0x4A6C03)
+// are the known IDA esp-frame derailment - the .c render + the x87
+// block fix the argument values exactly.
+void __fastcall RGE_Moving_Object__evacuate_area_new(
+    RGE_Moving_Object* this_, DWORD dummy, int x1, int y1, int x2, int y2)
+{
+    // the scan's out-params: the found tile (ex/ey; the .c's "float v8" slot
+    // for ey is an IDA artifact - find_evacuate_area writes the int tile
+    // through the int* and evacuate_area reads it back with fild)
+    int ex = 0;                                              // asm 0x4A6BA6
+    int ey = 0;                                              // asm 0x4A6BAE (var_8; see the decode note)
+
+    // only a unit that is NOT moving needs evacuation (slot +0x144)
+    if (!this_->vfptr->is_moving(this_))                     // asm 0x4A6BB6-0x4A6BC0
+    {
+        // scan the rectangle for a free tile
+        if (RGE_Moving_Object__find_evacuate_area(
+                this_, x1, y1, x2, y2, &ex, &ey))            // asm 0x4A6BC2-0x4A6BE2 (:2210 - the four raw-dword forwards)
+        {
+            // walk to the found tile's CENTRE (int + 0.5, each an m32
+            // store-round - rule (e)), keeping the current height
+            this_->vfptr->move_to(this_, 0,
+                (float)((double)ex + 0.5),                   // asm 0x4A6BFF-0x4A6C0C (fild/fadd/fstp - m32 store-round)
+                (float)((double)ey + 0.5),                   // asm 0x4A6BEB-0x4A6BFC (fild/fadd/fstp - m32 store-round)
+                this_->world_z);                             // asm 0x4A6BEF ([esi+50h]; call [edx+118h] @0x4A6C11 - slot +0x118)
+        }
+    }
+}
+
+// Replacement for RGE_Moving_Object::find_evacuate_area. Original:
+// SEMANTIC: the evacuation scan - two walkers do a Bresenham perimeter walk around the placement rectangle (opposite halves), probing every tile for evacuability and keeping the WALKABLE candidate nearest to the unit (distance-scored, 999 seed); returns whether any was found, via the ex/ey out-params. The loop bound is the perimeter step budget; the walkers-meet early exit reads never-initialized mirror slots in the original (the OOS the baked EVAC_OOS_FIX addresses below).
+// @ 0x004A6C20 (idb_functions.h:2210). Range [0x4A6C20, 0x4A6ECE),
+// retn 18h = 6 stack args, u8 return. Decode (asm 0x4A6C20-0x4A6ECE):
+// the Bresenham perimeter walk - worldX/worldY = ftol(world_x
+// @+0x48/world_y @+0x4C) (asm 0x4A6C28-0x4A6C36); the step budget =
+// 2*(y2-y1) - x1 + x2 + 3 (asm 0x4A6C4D-0x4A6C74); the nearest-edge
+// pick = (worldX - x1 <= x2 - worldX) ? 0 : 2 (setle/dec/and 2, asm
+// 0x4A6C7C-0x4A6C85); the initial probe tile (pick 0 -> (x1-1,
+// worldY), pick 2 -> (x2+1, worldY) - the .c's switch cases 1/3 are
+// unreachable from the pick domain, asm off_4A6ED4); bestDist seeded
+// 999.0f (asm 0x4A6C66, the float bits as an immediate); the initial
+// try_evac_tile probe + the ex/ey/bestDist/found stores; then the
+// TWO-WALKER loop (dir[2] seeded {0,1} or {2,3} per the pick, the
+// walker index flips per iteration, setnz asm 0x4A6E9B-0x4A6EA1):
+// the 4-case direction state machine (asm 0x4A6D8F-0x4A6E2B, the
+// corner turns storing 0/1/2/3), the try_evac_tile probe, the score
+// = distance_to_position(x+0.5, y+0.5, 0) with the two fild/fadd/
+// fstp m32 store-rounds (asm 0x4A6E4C-0x4A6E69, rule (e)), the
+// compare vs the m32-rounded bestDist (fcom, asm 0x4A6E71) and the
+// update store-round (fstp, asm 0x4A6E84).
+// BAKED (EVAC_OOS_FIX): playeroptions.cpp:206 setHook(0x004A6E95,
+// on_evac_area) - a MID-FUNCTION entry hook at the walker-flip/exit
+// join (the call site retired in place). The stub gates on the
+// owner's option byte ([owner+0x21], the playeroptions
+// CURRENT_PLAYER_OPTION_LEVEL byte): == 0x0B -> the ORIGINAL
+// behavior (the stub replays the overwritten instructions: ecx =
+// var_C, the flip, resume 0x4A6EA3); != 0x0B -> the flip then
+// budget-only continuation (the stub: budget > 0 -> jmp 0x4A6D60 the
+// loop head; else the replicated epilogue: al = var_31, pops, retn
+// 18h). THE REASON (owner hint, confirmed): the original's loop-exit
+// compares read the NEVER-STORED mirror slots (the .c's v38[2]/
+// v37[2] = asm var_4/var_10 - no stores in the range) = per-machine
+// stack garbage -> per-client walk divergence -> the OOS the patch
+// fixes. The mirrors are DETERMINISTICALLY INITIALIZED (0) per the
+// owner direction 2026-11-17 - the constant is tunable (future work:
+// identify which constants reproduce original outcomes most often);
+// the 0x0B legacy path reads them in the original's shape.
+// RESTRUCTURE (owner-directed 2026-11-17): the asm's while(1) with
+// the top decrement + the bottom exits is written as a for loop -
+// the budget decrement is the pure loop count (the original executes
+// exactly `budget` iterations: decrement top, probe, exit when
+// post-decrement value <= 0), the bottom budget>0 continue is the
+// for continuation condition, the legacy walker-meet exits map to
+// break; probe order and value flow identical per iteration. The
+// loop re-reads x1/y1/x2/y2 from the stack each iteration (asm
+// 0x4A6D60 reloads ebp = x1) - the written form uses the params
+// directly (no clobber in C - identical). Single retn site
+// 0x4A6ECE (the loop exit and the fall-through converge).
+unsigned __int8 __fastcall RGE_Moving_Object__find_evacuate_area_new(
+    RGE_Moving_Object* this_, DWORD dummy, int x1, int y1, int x2, int y2,
+    int* ex, int* ey)
+{
+    // the unit's tile: the float world position truncated to the grid
+    int worldX = (int)this_->world_x;                        // asm 0x4A6C28-0x4A6C31 (__ftol)
+    int worldY = (int)this_->world_y;                        // asm 0x4A6C31-0x4A6C36 (__ftol)
+
+    // the perimeter step budget: twice the rectangle height plus the width
+    // plus the corner allowance - enough steps to circle the whole rim
+    int budget = 2 * (y2 - y1) - x1 + x2 + 3;                // asm 0x4A6C4D-0x4A6C74
+
+    // "no candidate yet" sentinel - any real tile centre scores below it
+    float bestDist = 999.0f;                                 // asm 0x4A6C66 (the float bits as an immediate)
+    unsigned __int8 found = 0;                               // asm 0x4A6C53 (var_31 = 0)
+
+    // which vertical rim is closer to the unit - the walk starts on that side
+    int pick = (worldX - x1 <= x2 - worldX) ? 0 : 2;         // asm 0x4A6C78-0x4A6C85 (setle/dec/and 2)
+
+    // the two walkers' probe tiles
+    int probeX[2];                                           // the .c's v38 (asm var_C/var_4)
+    int probeY[2];                                           // the .c's v37 (asm var_18/var_10)
+
+    // walker 0 starts one tile OUTSIDE the near rim, on the unit's row
+    if (pick == 0)
+    {
+        probeY[0] = worldY;
+        probeX[0] = x1 - 1;                                  // asm case 0 (off_4A6ED4)
+    }
+    else
+    {
+        probeY[0] = worldY;
+        probeX[0] = x2 + 1;                                  // asm 0x4A6C8E-0x4A6C9B (loc_4A6C8E)
+    }
+
+    // if the rim tile beside the unit is already free, it's the answer
+    if (RGE_Moving_Object__try_evac_tile(
+            (RGE_Moving_Object*)this_, probeX[0], probeY[0]))   // asm 0x4A6CC6-region (:2211 - HOOKED this batch -> routes)
+    {
+        *ex = probeX[0];
+        *ey = probeY[0];
+
+        // scored by the planar distance from the tile CENTRE (grid + 0.5):
+        // the centres are m32 store-rounded here (rule (e)); the distance
+        // result stays on st0 at 53-bit (the st0-boundary capture)
+        bestDist = (float)RGE_Static_Object__distance_to_position(
+            (RGE_Static_Object*)this_,
+            (float)((double)*ex + 0.5),
+            (float)((double)*ey + 0.5),
+            0.0f);                                           // the two fild/fadd/fstp store-rounds
+        found = 1;
+    }
+
+    // walker 1 starts where walker 0 does - they then circle opposite halves
+    probeX[1] = probeX[0];                                   // asm (v38[1] = v12)
+    probeY[1] = probeY[0];                                   // asm (v37[1] = v37[0])
+
+    // one walks the rim upward, the other downward (mirrored for the far rim)
+    int dir[2];
+    if (pick == 2 || pick == 0)
+    {
+        dir[0] = 0;
+        dir[1] = 1;
+    }
+    else
+    {
+        dir[0] = 2;
+        dir[1] = 3;
+    }
+
+    // which walker takes the current step
+    int w = 0;                                               // asm 0x4A6D5C (xor esi,esi)
+
+    // the .c's v38[2]/v37[2] (asm var_4/var_10): NEVER stored in the original,
+    // so the walkers-met test below reads per-machine stack garbage - the OOS
+    // this function's bake fixes. Deterministic zero init per owner direction
+    // 2026-11-17; the constant is tunable.
+    int mirrorX = 0;
+    int mirrorY = 0;
+
+    // exactly `budget` iterations: the original decrements at the top and
+    // exits when the post-decrement value is spent (RESTRUCTURE, see header)
+    for (int step = 0; step < budget; ++step)
+    {
+        // step along the current rim; the 4-direction machine turns at corners
+        switch (dir[w])                                      // asm jmp ds:off_4A6EE4[eax*4] @0x4A6D88
+        {
+        case 0:                                              // up: stop at the top rim, then head horizontally
+            if (probeY[w] <= y1)
+                goto turn_x;
+            --probeY[w];                                     // asm 0x4A6D9B-0x4A6D9C
+            break;
+
+        case 1:                                              // down: stop at the bottom rim, then horizontal
+            if (probeY[w] < y2)
+            {
+                ++probeY[w];                                 // asm 0x4A6DCF-0x4A6DD0
+            }
+            else
+            {
+            turn_x:                                          // asm loc_4A6DB1 (the LABEL_17 join): the horizontal leg -
+                                                             // away from the rectangle if outside it, toward it if inside -
+                                                             // then onto the next rim
+                if (probeX[w] > x1)
+                {
+                    --probeX[w];                             // asm 0x4A6DC4-0x4A6DC5
+                    dir[w] = 2;                              // asm mov [var_20], edx (= 2)
+                }
+                else
+                {
+                    ++probeX[w];                             // asm 0x4A6DB9
+                    dir[w] = 3;                              // asm mov [var_20], ecx (= 3)
+                }
+            }
+            break;
+
+        case 2:                                              // left along the rim: at the left edge, turn up or down onto the next rim
+            if (probeX[w] > x1)
+            {
+                --probeX[w];                                 // asm 0x4A6E04
+            }
+            else if (probeY[w] > y1)
+            {
+                --probeY[w];                                 // asm 0x4A6DF5 (the LABEL_25 join)
+                dir[w] = 0;                                  // asm mov [var_20], 0
+            }
+            else
+            {
+                ++probeY[w];                                 // asm 0x4A6DEA
+                dir[w] = 1;                                  // asm mov [var_20], edi (= 1)
+            }
+            break;
+
+        default:                                             // right: mirror of case 2 (asm loc_4A6E07)
+            if (probeX[w] < x2)
+            {
+                ++probeX[w];                                 // asm 0x4A6E2A
+            }
+            else if (probeY[w] > y1)                         // asm 0x4A6E13-0x4A6E1D (jg -> the LABEL_25 join)
+            {
+                --probeY[w];
+                dir[w] = 0;
+            }
+            else
+            {
+                ++probeY[w];
+                dir[w] = 1;
+            }
+            break;
+        }
+
+        // the stepped tile
+        int py = probeY[w];                                  // asm 0x4A6E2F (edi)
+        int px = probeX[w];                                  // asm 0x4A6E33 (ebp)
+
+        // free AND pathable? score the tile centre by planar distance to the
+        // unit; the nearest candidate wins. The centres are m32 store-rounded
+        // (rule (e)); the score stays on st0 at 53-bit for the compare
+        // (asm 0x4A6E71) and the update store-rounds it back to m32.
+        // The x87 update branch is test ah,1 FALL-THROUGH = "< OR unordered"
+        // - a NaN score UPDATES in the original (bestDist becomes NaN, the
+        // tile is taken); the literal C < is unordered-false and would skip -
+        // the faithful form is the negated >= (precision sub-rule (i))
+        if (RGE_Moving_Object__try_evac_tile(
+                (RGE_Moving_Object*)this_, px, py))          // asm 0x4A6E43 (:2211 - HOOKED -> routes)
+        {
+            double score = RGE_Static_Object__distance_to_position(
+                (RGE_Static_Object*)this_,
+                (float)((double)px + 0.5),                   // asm 0x4A6E5C-0x4A6E69 (fild/fadd/fstp store-round)
+                (float)((double)py + 0.5),                   // asm 0x4A6E4C-0x4A6E59 (fild/fadd/fstp store-round)
+                0.0f);
+            if (!(score >= (double)bestDist))                // asm 0x4A6E71-0x4A6E7A (fcom var_30; test ah,1; jz -> the discard)
+            {
+                bestDist = (float)score;                     // asm 0x4A6E84 (fstp var_30 store-round)
+                *ex = px;                                    // asm 0x4A6E88
+                *ey = py;                                    // asm 0x4A6E8A
+                found = 1;                                   // asm 0x4A6E8C
+            }
+        }
+
+        // hand the next step to the other walker
+        w = !w;                                              // asm 0x4A6E9B-0x4A6EA1 (setnz)
+
+        // baked EVAC_OOS_FIX (playeroptions.cpp:206 @0x004A6E95, retired in
+        // place): unless this player runs the legacy option level, the walk is
+        // bounded by the budget alone - the for test enforces it
+        if (((unsigned __int8*)this_->owner)[0x21] != 0x0B)
+            continue;
+
+        // the 0x0B legacy path: the walkers-met test against the mirror slots
+        // (the uninitialized reads the fix bypasses)
+        if (probeX[0] == mirrorX || probeY[0] == mirrorY)    // asm 0x4A6EA3-0x4A6EB5
+            break;
+    }
+
+    // found-or-not (single retn site 0x4A6ECE; the stub's budget-exhausted
+    // path replicates this epilogue)
+    return found;
+}
+
+// Replacement for RGE_Moving_Object::try_evac_tile. Original:
+// SEMANTIC: is this tile a legal evacuation destination - in map bounds (the && gate is asm-exact), the master's placement rules pass for the unit standing at the tile centre, and the unit can actually PATH there from its current position (totalCanPath).
+// @ 0x004A6F00 (idb_functions.h:2211). Range [0x4A6F00, 0x4A7000),
+// retn 8, u8 return. Decode (asm 0x4A6F00-0x4A6FFF): the OOB gates
+// are the asm-exact && shape - the width half only runs when x < 0
+// (test eax/eax; jge skip; cmp map_width @+8; jl skip -> return 0,
+// asm 0x4A6F07-0x4A6F25: dead-in-practice, FAITHFUL), height @+0xC
+// the same (asm 0x4A6F28-0x4A6F47); owner @+0x18 -> world @+0x8C ->
+// map @+0x34 (asm 0x4A6F0E-0x4A6F17); the probe floats are m32
+// store-rounds (fild/fadd const_f_half/fstp, asm 0x4A6F4A-0x4A6F7D,
+// rule (e)) - the .c's "float goal / int ya" slots are scratch reuse
+// (the frame 'goal' BVector's .x slot holds y+0.5 for the
+// check_placement arg; the 'y' local holds x+0.5 - no semantic swap:
+// the totalCanPath goal block builds {x+0.5, 0, y+0.5} at
+// [edx]/[edx+4]/[edx+8], asm 0x4A6FCC-0x4A6FDB); master
+// check_placement slot +0x38 = 14 (asm 0x4A6F8A) with the raw
+// float-bit args (owner, x+0.5, y+0.5, six 0s, 1, this, 1) - blocked
+// -> return 0; start = positionValue @+0xF4 (asm 0x4A6FD5-0x4A6FED);
+// totalCanPath (:2537, __fastcall) with targetID = -1 (or edx,-1,
+// asm 0x4A6FF0), range = 0, pathDistance = 0, unobstructiblePlayerID/
+// GroupID = -1, tryMidLevelPathing = 1, useRangeWithoutTarget = 0,
+// useLowLevelHulledArea = 0.
+unsigned __int8 __fastcall RGE_Moving_Object__try_evac_tile_new(
+    RGE_Moving_Object* this_, DWORD dummy, int x, int y)
+{
+    // out-of-map guard: the && shape is asm-exact - the width half only runs
+    // when x < 0, so the rejection is dead-in-practice (kept faithfully)
+    if (x < 0 && x >= this_->owner->world->map->map_width)   // asm 0x4A6F07-0x4A6F25
+        return 0;
+    if (y < 0 && y >= this_->owner->world->map->map_height)  // asm 0x4A6F28-0x4A6F47 (height @+0xC)
+        return 0;
+
+    // the tile CENTRE floats, each an m32 store-round of int + 0.5 (rule (e));
+    // the .c's "float goal / int ya" frame slots are scratch reuse - no swap
+    float goal = (float)((double)y + 0.5);                   // asm 0x4A6F4A-0x4A6F68 (fild/fadd/fstp)
+    float xa = (float)((double)x + 0.5);                     // asm 0x4A6F6C-0x4A6F7D (fild/fadd/fstp)
+
+    // placement legality: the unit standing at the tile centre must pass the
+    // master's placement rules (slot +0x38; the float args push as raw bits)
+    if (this_->master_obj->vfptr->check_placement(           // asm 0x4A6F8A
+            this_->master_obj,
+            (RGE_Player*)this_->owner, xa, goal,             // dual-naming cast: the runtime field is TRIBE_Player*, the vtbl slot declares RGE_Player* (the M1/Combat(70) precedent)
+            0, 0, 0, 0, 0, 0,
+            1, (RGE_Static_Object*)this_, 1))
+    {
+        return 0;                                            // asm 0x4A6F91-0x4A6F97 - blocked: not an evacuation destination
+    }
+
+    // the pathability probe: goal = {x+0.5, 0, y+0.5} (the planar centre, zero
+    // height), start = the unit's current position; totalCanPath decides
+    BVector v5;                                              // asm [edx]/[edx+4]/[edx+8]
+    v5.x = xa;                                               // asm 0x4A6FCC
+    v5.z = 0.0f;                                             // asm 0x4A6FD2 (the QWORD render's zero dword)
+    v5.y = goal;                                             // asm 0x4A6FDB
+    return totalCanPath(this_, -1, this_->positionValue, v5, // asm 0x4A6FD5-0x4A6FF5 (:2537; start = positionValue @+0xF4)
+        0.0f, 0, -1, -1, 1, 0, 0);
+}
+
+__declspec(naked) double __fastcall RGE_Moving_Object__calculateYawAngle_orig(
+    RGE_Moving_Object* this_, DWORD dummy, BVector* curOF, BVector* newOF,
+    float interval, int* limitedAngle)
+{
+    __asm
+    {
+        sub     esp, 0Ch
+        push    ebx
+        mov     ebx, [esp + 18h]
+        mov     eax, 004A6358h
+        jmp     eax
+    }
+}
+
+FILE* f = NULL;
+
+double __fastcall RGE_Moving_Object__calculateYawAngle_logger(
+    RGE_Moving_Object* this_, DWORD dummy, BVector* curOF, BVector* newOF,
+    float interval, int* limitedAngle)
+{
+    char b[0x100];
+    sprintf(b, "getMaximumYawPerSecondMoving=%f curOF={%f, %f, %f}, newOF={%f, %f, %f}, interval=%f, ",
+        this_->master_obj->vfptr->getMaximumYawPerSecondMoving(this_->master_obj),
+        curOF->x, curOF->z, curOF->y, newOF->x, newOF->z, newOF->y,
+        interval);
+    double result = RGE_Moving_Object__calculateYawAngle_orig(this_, 0, curOF, newOF, interval, limitedAngle);
+    sprintf(b + strlen(b), "limitedAngle=%d, result=%f\n", *limitedAngle, result);
+
+    if (!f)
+        f = fopen("val_log.txt", "at");
+
+    fputs(b, f);
+    //fclose(f);
+
+    return result;
 }
 
 void install_RGE_Moving_Object()
@@ -1360,4 +2149,19 @@ void install_RGE_Moving_Object()
     setHook((void*)0x004A4460, RGE_Moving_Object__checkDistance_new);
     setHook((void*)0x004A45A0, RGE_Moving_Object__checkRange_new);
     setHook((void*)0x004A4650, RGE_Moving_Object__moveUnit_new);
+    setHook((void*)0x004A3A10, RGE_Moving_Object__forwardVelocity_new);
+    setHook((void*)0x004A3A30, RGE_Moving_Object__setForwardVelocity_new);
+    setHook((void*)0x004A3AC0, RGE_Moving_Object__forwardAcceleration_new);
+    setHook((void*)0x004A3AE0, RGE_Moving_Object__setForwardAcceleration_new);
+    setHook((void*)0x004A6250, RGE_Moving_Object__calculateMaximumSpeed_new);
+    setHook((void*)0x004A69B0, RGE_Moving_Object__setRunSprite_new);
+    setHook((void*)0x004A69F0, RGE_Moving_Object__setMoveSprite_new);
+    setHook((void*)0x004A6A30, RGE_Moving_Object__setFidgetSprite_new);
+    setHook((void*)0x004A2C90, RGE_Moving_Object__distanceToHighestLevelPath2_new);
+    setHook((void*)0x004A2D00, RGE_Moving_Object__distanceToHighestLevelPath_new);
+    setHook((void*)0x004A6510, RGE_Moving_Object__calculateTurnRadius_new);
+    setHook((void*)0x004A6350, RGE_Moving_Object__calculateYawAngle_new);
+    setHook((void*)0x004A6BA0, RGE_Moving_Object__evacuate_area_new);
+    setHook((void*)0x004A6C20, RGE_Moving_Object__find_evacuate_area_new);
+    setHook((void*)0x004A6F00, RGE_Moving_Object__try_evac_tile_new);
 }

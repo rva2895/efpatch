@@ -2283,7 +2283,7 @@ double __thiscall RGE_Moving_Object::precalcDistToGoal(RGE_Moving_Object *this, 
 unsigned __int8 __thiscall RGE_Moving_Object::incrementWaypoint(RGE_Moving_Object *this, BPath *path, RGE_Static_Object *obj);
 unsigned __int8 __thiscall RGE_Moving_Object::checkDistance(RGE_Moving_Object *this, float);
 unsigned __int8 __thiscall RGE_Moving_Object::checkRange(RGE_Moving_Object *this, RGE_Static_Object *obj);
-void __thiscall RGE_Moving_Object::moveUnit(RGE_Moving_Object *this, BVector *, float, BVector);
+void __thiscall RGE_Moving_Object::moveUnit(RGE_Moving_Object *this, BVector *a2, float a3, BVector *a4);
 int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object *this);
 int __thiscall RGE_Moving_Object::resolveCollisions(RGE_Moving_Object *this, BVector *newPosition);
 double __thiscall RGE_Moving_Object::calculateMaximumSpeed(RGE_Moving_Object *this, int terrainType);
@@ -45676,7 +45676,7 @@ void __thiscall RGE_Action_Attack::first_in_stack(RGE_Action_Attack *this, unsig
     v4 = RGE_Action_Attack::ready_to_attack(this, &rangeState);
     if ( v4 == 2 )
       this->vfptr->set_state(this, 13u);
-    if ( ((double (__thiscall *)(RGE_Action_Object *))this->obj->vfptr->maximumSpeed)(this->obj) == 0.0
+    if ( this->obj->vfptr->maximumSpeed(this->obj) == 0.0
       || (v5 = RGE_Static_Object::unitAI((RGE_Static_Object *)this->obj), !v5->vfptr->canMoveToAttack(
                                                                              v5,
                                                                              this->targetID)) )
@@ -45978,7 +45978,7 @@ unsigned __int8 __thiscall RGE_Action_Attack::update(RGE_Action_Attack *this)
     else
     {
       if ( !RGE_Static_Object::unitAI((RGE_Static_Object *)this->obj)->stateValue
-        && ((double (__thiscall *)(RGE_Action_Object *))this->obj->vfptr->maximumSpeed)(this->obj) > 0.0
+        && this->obj->vfptr->maximumSpeed(this->obj) > 0.0
         && this->obj->master_obj->object_group != 58
         && (!v4 || !v4->mFormationLocked) )
       {
@@ -46321,7 +46321,7 @@ int __thiscall RGE_Action_Attack::work(RGE_Action_Attack *this, RGE_Static_Objec
     if ( v8 == 4 || v8 == 5 || v8 == 11 || v8 == 6 || v8 == 7 )
       return 1;
   }
-  if ( ((double (__thiscall *)(RGE_Action_Object *))v7->vfptr->maximumSpeed)(v7) == 0.0
+  if ( v7->vfptr->maximumSpeed(v7) == 0.0
     || (v10 = RGE_Static_Object::unitAI((RGE_Static_Object *)this->obj), !v10->vfptr->canMoveToAttack(v10, v5->id)) )
   {
     v17 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, v5);
@@ -46389,7 +46389,7 @@ int __thiscall RGE_Action_Attack::ready_to_attack(RGE_Action_Attack *this, int *
   v3 = this->target_obj;
   if ( v3 )
     v29 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, v3);
-  if ( ((double (__thiscall *)(RGE_Action_Object *))this->obj->vfptr->damageCapability_1)(this->obj) <= 0.1 )
+  if ( this->obj->vfptr->damageCapability_1(this->obj) <= 0.1 )
     v29 = v29 - 0.5;
   v4 = RGE_Game_World::getUnitGroup((RGE_Game_World *)this->obj->owner->world, this->obj->mGroupID);
   if ( v4 )
@@ -46416,7 +46416,7 @@ int __thiscall RGE_Action_Attack::ready_to_attack(RGE_Action_Attack *this, int *
       if ( !v15 || v15 == 0x80 && !this->target_obj->master_obj->fog_flag )
       {
         if ( !RGE_Static_Object::unitAI((RGE_Static_Object *)this->obj)->stateValue
-          && ((double (__thiscall *)(RGE_Action_Object *))this->obj->vfptr->maximumSpeed)(this->obj) > 0.0 )
+          && this->obj->vfptr->maximumSpeed(this->obj) > 0.0 )
         {
           v16 = RGE_Static_Object::unitAI((RGE_Static_Object *)this->obj);
           if ( v16->vfptr->canMoveToAttack(v16, this->targetID) == 1 )
@@ -46443,7 +46443,7 @@ int __thiscall RGE_Action_Attack::ready_to_attack(RGE_Action_Attack *this, int *
           *rangeState = 0;
           if ( !this->subActionValue )
             this->obj->vfptr->notify(this->obj, this->obj->id, this->obj->id, 510, -1, -1, -1);
-          if ( ((double (__thiscall *)(RGE_Action_Object *))this->obj->vfptr->maximumSpeed)(this->obj) != 0.0 )
+          if ( this->obj->vfptr->maximumSpeed(this->obj) != 0.0 )
           {
             v20 = RGE_Static_Object::unitAI((RGE_Static_Object *)this->obj);
             if ( v20->vfptr->canMoveToAttack(v20, this->targetID) )
@@ -46452,7 +46452,7 @@ int __thiscall RGE_Action_Attack::ready_to_attack(RGE_Action_Attack *this, int *
           goto LABEL_72;
         }
         xb = this->range;
-        if ( ((double (__thiscall *)(RGE_Action_Object *))this->obj->vfptr->damageCapability_1)(this->obj) <= 0.1 )
+        if ( this->obj->vfptr->damageCapability_1(this->obj) <= 0.1 )
           xb = xb + 0.5;
         if ( this->target_obj->master_obj->object_group == 8 )
         {
@@ -46483,9 +46483,9 @@ int __thiscall RGE_Action_Attack::ready_to_attack(RGE_Action_Attack *this, int *
                 v26 = this->target_obj->world_y
                     - RGE_Static_Object::unitAI((RGE_Static_Object *)this->obj)->statePositionYValue,
                 rangeStateb = sqrt(v26 * v26 + rangeStatea * rangeStatea),
-                ((double (__thiscall *)(RGE_Action_Object *))this->obj->vfptr->damageCapability_1)(this->obj) + 5.0 > rangeStateb) )
+                this->obj->vfptr->damageCapability_1(this->obj) + 5.0 > rangeStateb) )
           {
-            if ( ((double (__thiscall *)(RGE_Action_Object *))this->obj->vfptr->maximumSpeed)(this->obj) != 0.0 )
+            if ( this->obj->vfptr->maximumSpeed(this->obj) != 0.0 )
             {
               v27 = RGE_Static_Object::unitAI((RGE_Static_Object *)this->obj);
               if ( v27->vfptr->canMoveToAttack(v27, this->targetID) )
@@ -46524,7 +46524,7 @@ int __thiscall RGE_Action_Attack::ready_to_attack(RGE_Action_Attack *this, int *
       *rangeState = 0;
       if ( !this->subActionValue )
         this->obj->vfptr->notify(this->obj, this->obj->id, this->obj->id, 510, -1, -1, -1);
-      if ( ((double (__thiscall *)(RGE_Action_Object *))this->obj->vfptr->maximumSpeed)(this->obj) != 0.0 )
+      if ( this->obj->vfptr->maximumSpeed(this->obj) != 0.0 )
       {
         v9 = RGE_Static_Object::unitAI((RGE_Static_Object *)this->obj);
         if ( v9->vfptr->canMoveToAttack(v9, this->targetID) )
@@ -46542,7 +46542,7 @@ int __thiscall RGE_Action_Attack::ready_to_attack(RGE_Action_Attack *this, int *
       *rangeState = 2;
       if ( !this->subActionValue )
         this->obj->vfptr->notify(this->obj, this->obj->id, this->obj->id, 509, 0, 0, 0);
-      if ( ((double (__thiscall *)(RGE_Action_Object *))this->obj->vfptr->maximumSpeed)(this->obj) != 0.0 )
+      if ( this->obj->vfptr->maximumSpeed(this->obj) != 0.0 )
       {
         v14 = RGE_Static_Object::unitAI((RGE_Static_Object *)this->obj);
         if ( v14->vfptr->canMoveToAttack(v14, this->targetID) )
@@ -47394,7 +47394,7 @@ int __thiscall RGE_Action_Enter::calculateTargetPoint(RGE_Action_Enter *this, fl
   {
     if ( !v4->vfptr->more_room(v4, (RGE_Static_Object *)this->obj) )
       goto LABEL_26;
-    v5 = ((double (__thiscall *)(RGE_Static_Object *))this->target_obj->vfptr->maximumSpeed)(this->target_obj);
+    v5 = this->target_obj->vfptr->maximumSpeed(this->target_obj);
     v6 = this->target_obj;
     if ( v5 <= 0.0 )
     {
@@ -50262,15 +50262,14 @@ void __thiscall RGE_Action_Missile::set_state(RGE_Action_Missile *this, unsigned
       v5 = this->target_obj;
       if ( v5 )
       {
-        if ( ((double (__thiscall *)(RGE_Combat_Object *))v5->vfptr->getSpeed)(v5) > 0.0 )
+        if ( v5->vfptr->getSpeed(v5) > 0.0 )
         {
-          v6 = ((double (__thiscall *)(RGE_Combat_Object *))this->target_obj->vfptr->getSpeed)(this->target_obj);
+          v6 = this->target_obj->vfptr->getSpeed(this->target_obj);
           v32 = v6;
           if ( v6 > 1.15 )
             v32 = 1.15;
-          v34 = cos(((double (__thiscall *)(RGE_Combat_Object *))this->target_obj->vfptr->getAngle)(this->target_obj))
-              * v32;
-          v7 = ((double (__thiscall *)(RGE_Combat_Object *))this->target_obj->vfptr->getAngle)(this->target_obj);
+          v34 = cos(this->target_obj->vfptr->getAngle(this->target_obj)) * v32;
+          v7 = this->target_obj->vfptr->getAngle(this->target_obj);
           v8 = this->obj->master_obj;
           v9 = sin(v7) * v32;
           v10 = new_statea - sqrt((v9 + v29) * (v9 + v29) + (v34 + v30) * (v34 + v30) + v33) + v8->speed;
@@ -50984,7 +50983,7 @@ void __thiscall RGE_Action_Move_To::first_in_stack(RGE_Action_Move_To *this, uns
 {
   if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, this->target_obj) > 0.0099999998 )
   {
-    if ( ((double (__thiscall *)(RGE_Action_Object *))this->obj->vfptr->maximumSpeed)(this->obj) == 0.0 )
+    if ( this->obj->vfptr->maximumSpeed(this->obj) == 0.0 )
       this->vfptr->set_state(this, 13u);
     else
       this->vfptr->set_state(this, 3u);
@@ -66227,7 +66226,7 @@ void __thiscall UnitAIModule::search(UnitAIModule *this, float x, float y, bool 
       }
     }
   }
-  v10 = (__int64)((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->searchRadius)(this->objectValue);
+  v10 = (__int64)this->objectValue->vfptr->searchRadius(this->objectValue);
   v11 = this->objectValue;
   v12 = v10;
   if ( (int)v10 < (int)((__int64)v11->master_obj->los + 1) )
@@ -66473,8 +66472,8 @@ int __thiscall UnitAIModule::bestUnitToAttack(UnitAIModule *this, BVector refere
   if ( unit2 )
   {
     referencePositiona = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->objectValue, unit2);
-    if ( ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue) >= referencePositiona
-      || ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->maximumSpeed)(this->objectValue) > 0.0 )
+    if ( this->objectValue->vfptr->damageCapability_1(this->objectValue) >= referencePositiona
+      || this->objectValue->vfptr->maximumSpeed(this->objectValue) > 0.0 )
     {
       switch ( unit2->master_obj->object_group )
       {
@@ -66556,9 +66555,7 @@ int __thiscall UnitAIModule::bestUnitToAttack(UnitAIModule *this, BVector refere
         (TRIBE_Combat_Object *)unit2,
         referencePositiona,
         v22);
-      if ( !idleCheck
-        && referencePositiona <= (double)referenceDistance
-        && ((double (__thiscall *)(RGE_Static_Object *))unit2->vfptr->maximumSpeed)(unit2) > 0.0 )
+      if ( !idleCheck && referencePositiona <= (double)referenceDistance && unit2->vfptr->maximumSpeed(unit2) > 0.0 )
       {
         switch ( unit2->master_obj->object_group )
         {
@@ -66832,9 +66829,9 @@ LABEL_90:
                               targetDistance = RGE_Static_Object::distance_to_object(
                                                  (RGE_Static_Object *)this->objectValue,
                                                  v37);
-                              if ( ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->weaponRange)(this->objectValue) <= targetDistance
-                                && (((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue) >= targetDistance
-                                 || ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->maximumSpeed)(this->objectValue) != 0.0)
+                              if ( this->objectValue->vfptr->weaponRange(this->objectValue) <= targetDistance
+                                && (this->objectValue->vfptr->damageCapability_1(this->objectValue) >= targetDistance
+                                 || this->objectValue->vfptr->maximumSpeed(this->objectValue) != 0.0)
                                 && (v82 || targetDistance <= (double)v72)
                                 && (referenceDistance <= 0.0 || targetDistance <= (double)referenceDistance)
                                 && v73 >= (double)targetDistance )
@@ -66955,14 +66952,11 @@ LABEL_90:
     LOBYTE(numberAdditionalUnitsToCheck) = 0;
     if ( statistics.mNumberMoveableTargets < 5
       && unit2
-      && (((double (__thiscall *)(RGE_Static_Object *))unit2->vfptr->maximumSpeed)(unit2) < 0.0000001
-       && !statistics.mNumberMoveableTargets
-       || ((double (__thiscall *)(RGE_Static_Object *))unit2->vfptr->maximumSpeed)(unit2) > 0.0)
+      && (unit2->vfptr->maximumSpeed(unit2) < 0.0000001 && !statistics.mNumberMoveableTargets
+       || unit2->vfptr->maximumSpeed(unit2) > 0.0)
       && !idleCheck )
     {
-      if ( ((double (__thiscall *)(RGE_Static_Object *, RGE_Combat_Object *))unit2->vfptr->damageCapability_2)(
-             unit2,
-             this->objectValue) > 0.0
+      if ( unit2->vfptr->damageCapability_2(unit2, (RGE_Static_Object *)this->objectValue) > 0.0
         || RGE_Static_Object::unitAI(unit2)
         && (v47 = RGE_Static_Object::unitAI(unit2), v47->vfptr->canConvert(v47, this->objectValue->id, 1) == 1)
         || statistics.mNumberDamagingTargets <= 0 )
@@ -67119,7 +67113,7 @@ void __thiscall BestUnitToAttackStatistics::update(BestUnitToAttackStatistics *t
               ++this->mAttackCategoryDistributions[targetAttackCategory];
             if ( target->id != RGE_Static_Object::unitAI(unit)->currentTargetValue )
               ++this->mNumberNonCurrentTargets;
-            v8 = ((double (__thiscall *)(TRIBE_Combat_Object *))target->vfptr->maximumSpeed)(target);
+            v8 = target->vfptr->maximumSpeed(target);
             v9 = this->mNumberTargets;
             if ( v8 <= 0.0 )
             {
@@ -67135,28 +67129,23 @@ void __thiscall BestUnitToAttackStatistics::update(BestUnitToAttackStatistics *t
               }
               ++this->mNumberMoveableTargets;
             }
-            if ( ((double (__thiscall *)(TRIBE_Combat_Object *, RGE_Static_Object *))target->vfptr->damageCapability_2)(
-                   target,
-                   unit) > 0.0
+            if ( target->vfptr->damageCapability_2(target, unit) > 0.0
               || (v10 = RGE_Static_Object::unitAI((RGE_Static_Object *)target),
                   v10->vfptr->canConvert(v10, unit->id, 1) == 1) )
             {
               ++this->mNumberDamagingTargets;
             }
-            if ( ((double (__thiscall *)(RGE_Static_Object *))unit->vfptr->damageCapability_1)(unit) >= targetDistance )
+            if ( unit->vfptr->damageCapability_1(unit) >= targetDistance )
               ++this->mNumberTargetsInRange;
             if ( targetDistance < (double)this->mShortestTargetDistance )
               this->mShortestTargetDistance = targetDistance;
             if ( targetDistance > (double)this->mLongestTargetDistance )
               this->mLongestTargetDistance = targetDistance;
-            v11 = ((double (__thiscall *)(RGE_Static_Object *, TRIBE_Combat_Object *))unit->vfptr->damageCapability_2)(
-                    unit,
-                    target);
+            v11 = unit->vfptr->damageCapability_2(unit, (RGE_Static_Object *)target);
             if ( v11 > 0.0000001 )
             {
               unita = target->hp / v11;
-              this->mTargets[this->mNumberTargets].mTTK = unita
-                                                        / ((double (__thiscall *)(RGE_Static_Object *))unit->vfptr->rateOfFire)(unit);
+              this->mTargets[this->mNumberTargets].mTTK = unita / unit->vfptr->rateOfFire(unit);
             }
             else
             {
@@ -67179,7 +67168,7 @@ void __thiscall BestUnitToAttackStatistics::update(BestUnitToAttackStatistics *t
               this->mTargets[v16].mCurrentTargetFactor = 15.0;
             else
               this->mTargets[v16].mCurrentTargetFactor = 0.0;
-            if ( ((double (__thiscall *)(TRIBE_Combat_Object *))target->vfptr->maximumSpeed)(target) > 0.0 )
+            if ( target->vfptr->maximumSpeed(target) > 0.0 )
             {
               if ( targetDistance < (double)this->mShortestMoveableTargetDistance )
                 this->mShortestMoveableTargetDistance = targetDistance;
@@ -67362,8 +67351,7 @@ LABEL_15:
           if ( used[v12] != 1 && *((_BYTE *)v13 - 32) != 1 )
           {
             v14 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *((_DWORD *)v13 - 9));
-            if ( ((double (__thiscall *)(RGE_Static_Object *))v14->vfptr->damageCapability_1)(v14) >= 0.0000001
-              && (*v13 > (double)unita || v11 == -1) )
+            if ( v14->vfptr->damageCapability_1(v14) >= 0.0000001 && (*v13 > (double)unita || v11 == -1) )
             {
               v11 = v12;
               unita = *v13;
@@ -67855,8 +67843,7 @@ LABEL_27:
               && (objectGroup != 1
                || (this->objectValue->owner == v16->owner || v17 != 2)
                && !v16->inside_obj
-               && (((double (__thiscall *)(RGE_Static_Object *))v16->vfptr->currentTargetX)(v16) == -1.0
-                || v16->vfptr->actionType(v16) != 107)
+               && (v16->vfptr->currentTargetX(v16) == -1.0 || v16->vfptr->actionType(v16) != 107)
                && ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath_2)(
                     this->objectValue,
                     v16->id,
@@ -69634,7 +69621,7 @@ int __thiscall UnitAIModule::runAwayFromAttackers(UnitAIModule *this, int uncond
   v19 = this->objectValue;
   v20 = v19->master_obj->object_group;
   if ( v19->owner->vfptr->computerPlayer(v19->owner) == 1
-    && ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->maximumSpeed)(this->objectValue) > 0.0
+    && this->objectValue->vfptr->maximumSpeed(this->objectValue) > 0.0
     && v20 != 14
     && v20 != 12
     && v20 != 17
@@ -69674,7 +69661,7 @@ int __thiscall UnitAIModule::runAwayFromAttackers(UnitAIModule *this, int uncond
                 if ( RGE_Static_Object::unitAI(v25) )
                 {
                   if ( v26->object_state <= 2u
-                    && ((double (__thiscall *)(RGE_Static_Object *))v26->vfptr->maximumSpeed)(v26) >= 0.0000001
+                    && v26->vfptr->maximumSpeed(v26) >= 0.0000001
                     && v27 != 18
                     && v27 != 10
                     && v27 != 9
@@ -69695,7 +69682,7 @@ int __thiscall UnitAIModule::runAwayFromAttackers(UnitAIModule *this, int uncond
       }
     }
   }
-  v29 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->maximumSpeed)(this->objectValue);
+  v29 = this->objectValue->vfptr->maximumSpeed(this->objectValue);
   unconditionalb = v29 + v29;
   if ( this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner) == 1
     && (this->objectValue->master_obj->object_flags & 1) != 0 )
@@ -71152,7 +71139,7 @@ LABEL_28:
         && this->currentOrderValue == -1
         && this->currentActionValue == -1 )
       {
-        if ( ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->maximumSpeed)(this->objectValue) < 0.0000001 )
+        if ( this->objectValue->vfptr->maximumSpeed(this->objectValue) < 0.0000001 )
           return 2;
         return 3 - (this->vfptr->runAwayFromAttackers(this, 1, -1) != 1);
       }
@@ -71265,9 +71252,7 @@ LABEL_87:
       {
         LOBYTE(uTime) = 0;
       }
-      if ( ((double (__thiscall *)(RGE_Static_Object *, RGE_Combat_Object *))v19->vfptr->damageCapability_2)(
-             v19,
-             this->objectValue) < 0.0000001
+      if ( v19->vfptr->damageCapability_2(v19, (RGE_Static_Object *)this->objectValue) < 0.0000001
         && !(_BYTE)uTime
         && unita == (void *)1 )
       {
@@ -71300,9 +71285,7 @@ LABEL_87:
           this->currentOrderValue = -1;
         }
       }
-      v48 = ((double (__thiscall *)(RGE_Combat_Object *, RGE_Static_Object *))this->objectValue->vfptr->damageCapability_2)(
-              this->objectValue,
-              v19);
+      v48 = this->objectValue->vfptr->damageCapability_2(this->objectValue, v19);
       if ( v48 <= 0.0 )
       {
         v135 = 25000.0;
@@ -71310,8 +71293,7 @@ LABEL_87:
       else
       {
         v134 = v19->hp / v48;
-        v135 = v134
-             / ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->rateOfFire)(this->objectValue);
+        v135 = v134 / this->objectValue->vfptr->rateOfFire(this->objectValue);
       }
       v50 = 0;
       if ( RGE_Static_Object::unitAI(v39) )
@@ -71320,9 +71302,7 @@ LABEL_87:
         if ( v49->vfptr->canConvert(v49, this->objectValue->id, 1) )
           v50 = 1;
       }
-      v51 = ((double (__thiscall *)(RGE_Static_Object *, RGE_Combat_Object *))v39->vfptr->damageCapability_2)(
-              v39,
-              this->objectValue);
+      v51 = v39->vfptr->damageCapability_2(v39, (RGE_Static_Object *)this->objectValue);
       if ( v51 <= 0.0 )
       {
         v52 = 25000.0;
@@ -71330,7 +71310,7 @@ LABEL_87:
       else
       {
         referenceDistanceb = v39->hp / v51;
-        v52 = referenceDistanceb / ((double (__thiscall *)(RGE_Static_Object *))v39->vfptr->rateOfFire)(v39);
+        v52 = referenceDistanceb / v39->vfptr->rateOfFire(v39);
       }
       if ( (_BYTE)uTime || v52 >= v135 && !v50 || unita != (void *)1 )
         return 2;
@@ -72139,8 +72119,7 @@ LABEL_36:
             v18 = RGE_Game_World::object((RGE_Game_World *)this->objectValue->owner->world, v17);
             if ( v18 )
             {
-              v19 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->maximumSpeed)(this->objectValue)
-                  * 3.0;
+              v19 = this->objectValue->vfptr->maximumSpeed(this->objectValue) * 3.0;
               v20 = this->objectValue;
               v21 = v18->world_x - v20->world_x;
               v22 = v18->world_y - v20->world_y;
@@ -72806,7 +72785,7 @@ LABEL_102:
     v57 = rand();
     v58 = this->objectValue;
     this->mRandomizedRetargetTimer = v57 % 0x1F4 + 750;
-    if ( ((double (__thiscall *)(RGE_Combat_Object *))v58->vfptr->damageCapability_1)(v58) > 3.0
+    if ( v58->vfptr->damageCapability_1(v58) > 3.0
       && this->currentOrderValue == 700
       && !this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner) )
     {
@@ -73604,7 +73583,7 @@ int __thiscall UnitAIModule::backUpFromTarget(UnitAIModule *this, int targetID, 
   int allTheWaya; // [esp+50h] [ebp+Ch]
   float allTheWayb; // [esp+50h] [ebp+Ch]
 
-  if ( ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->maximumSpeed)(this->objectValue) == 0.0 )
+  if ( this->objectValue->vfptr->maximumSpeed(this->objectValue) == 0.0 )
     return 0;
   v5 = this->objectValue;
   if ( targetID == v5->id )
@@ -98396,10 +98375,7 @@ unsigned __int8 __thiscall RGE_Combat_Object::do_attack(RGE_Combat_Object *this,
     v13 = v11->base_hit_chance;
     if ( v13 > 0 && (v12 <= v13 || v11->missile_id >= 0) )
     {
-      targeta = ((double (__thiscall *)(RGE_Combat_Object *, RGE_Static_Object *))this->vfptr->calc_attack_modifier)(
-                  this,
-                  target)
-              * damage_mod;
+      targeta = this->vfptr->calc_attack_modifier(this, target) * damage_mod;
       ((void (__thiscall *)(RGE_Static_Object *, _DWORD, RGE_Armor_Weapon_Info *, _DWORD, TRIBE_Player *, RGE_Combat_Object *, int))target->vfptr->damage)(
         target,
         this->master_obj->weapon_num,
@@ -99556,9 +99532,7 @@ double __thiscall RGE_Combat_Object::damageCapability(RGE_Combat_Object *this, R
     v4 = RGE_Static_Object::unitAI((RGE_Static_Object *)this);
     if ( v4->vfptr->canAttackUnit(v4, attackingUnit) )
     {
-      result = ((double (__thiscall *)(RGE_Combat_Object *, RGE_Static_Object *))this->vfptr->calc_attack_modifier)(
-                 this,
-                 attackingUnit);
+      result = this->vfptr->calc_attack_modifier(this, attackingUnit);
       attackingUnita = result;
       ((void (__thiscall *)(RGE_Static_Object *, _DWORD, RGE_Armor_Weapon_Info *, _DWORD, TRIBE_Player *, RGE_Combat_Object *))attackingUnit->vfptr->calculateDamage)(
         attackingUnit,
@@ -99608,7 +99582,7 @@ int __thiscall RGE_Combat_Object::inAttackRange(RGE_Combat_Object *this, RGE_Sta
 
   *insideMinimum = 0;
   insideMinimuma = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this, target);
-  v5 = ((double (__thiscall *)(RGE_Combat_Object *))this->vfptr->weaponRange)(this);
+  v5 = this->vfptr->weaponRange(this);
   obj = v5;
   this->vfptr->damageCapability_1(this);
   if ( insideMinimuma < (double)obj )
@@ -109954,9 +109928,7 @@ double __userpurge sub_451CC0@<st0>(double a1@<st0>, signed int *a2, int a3, sig
           v14 = v13;
           if ( !v13 || !RGE_Static_Object::unitAI(v13) )
             goto LABEL_16;
-          v15 = ((double (__thiscall *)(RGE_Static_Object *, RGE_Static_Object *))v14->vfptr->damageCapability_2)(
-                  v14,
-                  v11);
+          v15 = v14->vfptr->damageCapability_2(v14, v11);
           if ( a1 > 0.0000001 )
             break;
           v16 = RGE_Static_Object::unitAI(v14);
@@ -110018,9 +109990,7 @@ LABEL_38:
           v23 = v22;
           if ( !v22 || !RGE_Static_Object::unitAI(v22) )
             goto LABEL_34;
-          v24 = ((double (__thiscall *)(RGE_Static_Object *, RGE_Static_Object *))v23->vfptr->damageCapability_2)(
-                  v23,
-                  v20);
+          v24 = v23->vfptr->damageCapability_2(v23, v20);
           if ( a1 > 0.0000001 )
             break;
           v25 = RGE_Static_Object::unitAI(v23);
@@ -143319,7 +143289,7 @@ void __thiscall BFormation::update(BFormation *this)
         if ( v7 )
         {
           v9 = this->mLines[v2].mAttackRange;
-          if ( ((double (__thiscall *)(RGE_Static_Object *))v7->vfptr->damageCapability_1)(v7) < v9 )
+          if ( v7->vfptr->damageCapability_1(v7) < v9 )
             this->mLines[v2].mAttackRange = v7->vfptr->damageCapability_1(v7);
         }
         v4 = this->mLines;
@@ -147449,16 +147419,14 @@ int __thiscall BUnitGroup::canMoveToAttack(BUnitGroup *this, int unitID, int tar
                        v12[v9].mTransformPosition.x,
                        v12[v9].mTransformPosition.y,
                        v12[v9].mTransformPosition.z);
-    if ( this->mState == 2
-      && *(float *)&oID - ((double (__thiscall *)(RGE_Static_Object *))unit->vfptr->damageCapability_1)(unit) > 2.5
-      || this->mState == 1
-      && *(float *)&oID - ((double (__thiscall *)(RGE_Static_Object *))unit->vfptr->damageCapability_1)(unit) > 5.0 )
+    if ( this->mState == 2 && *(float *)&oID - unit->vfptr->damageCapability_1(unit) > 2.5
+      || this->mState == 1 && *(float *)&oID - unit->vfptr->damageCapability_1(unit) > 5.0 )
     {
       return 0;
     }
     if ( !this->mState )
     {
-      v13 = *(float *)&oID - ((double (__thiscall *)(RGE_Static_Object *))unit->vfptr->damageCapability_1)(unit);
+      v13 = *(float *)&oID - unit->vfptr->damageCapability_1(unit);
       return v13 <= 15.0;
     }
     return 1;
@@ -147860,27 +147828,19 @@ LABEL_17:
             this->mLargestUnitRadius = v17;
           if ( !v3 || v17 < this->mSmallestUnitRadius )
             this->mSmallestUnitRadius = v17;
-          if ( !v3 || ((double (__thiscall *)(RGE_Static_Object *))v6->vfptr->maximumSpeed)(v6) < v31 )
+          if ( !v3 || v6->vfptr->maximumSpeed(v6) < v31 )
             v31 = v6->vfptr->maximumSpeed(v6);
-          if ( !v3
-            || ((double (__thiscall *)(RGE_Static_Object *))v6->vfptr->damageCapability_1)(v6) < this->mSmallestUnitRange )
-          {
+          if ( !v3 || v6->vfptr->damageCapability_1(v6) < this->mSmallestUnitRange )
             this->mSmallestUnitRange = v6->vfptr->damageCapability_1(v6);
-          }
-          if ( !v3
-            || ((double (__thiscall *)(RGE_Static_Object *))v6->vfptr->damageCapability_1)(v6) > this->mLargestUnitRange )
-          {
+          if ( !v3 || v6->vfptr->damageCapability_1(v6) > this->mLargestUnitRange )
             this->mLargestUnitRange = v6->vfptr->damageCapability_1(v6);
-          }
-          if ( ((double (__thiscall *)(RGE_Static_Object *))v6->vfptr->damageCapability_1)(v6) > 0.0
-            && (!v3
-             || ((double (__thiscall *)(RGE_Static_Object *))v6->vfptr->damageCapability_1)(v6) < this->mSmallestRangedUnitRange) )
+          if ( v6->vfptr->damageCapability_1(v6) > 0.0
+            && (!v3 || v6->vfptr->damageCapability_1(v6) < this->mSmallestRangedUnitRange) )
           {
             this->mSmallestRangedUnitRange = v6->vfptr->damageCapability_1(v6);
           }
-          if ( ((double (__thiscall *)(RGE_Static_Object *))v6->vfptr->damageCapability_1)(v6) > 0.0
-            && (!v3
-             || ((double (__thiscall *)(RGE_Static_Object *))v6->vfptr->damageCapability_1)(v6) < this->mLargestRangedUnitRange) )
+          if ( v6->vfptr->damageCapability_1(v6) > 0.0
+            && (!v3 || v6->vfptr->damageCapability_1(v6) < this->mLargestRangedUnitRange) )
           {
             this->mLargestRangedUnitRange = v6->vfptr->damageCapability_1(v6);
           }
@@ -148919,7 +148879,7 @@ int __thiscall BUnitGroup::commandAttack(BUnitGroup *this, RGE_Static_Object *ta
       if ( v8 )
       {
         targetObjb = RGE_Static_Object::distance_to_object(v8, v6);
-        if ( ((double (__thiscall *)(RGE_Static_Object *))v9->vfptr->damageCapability_1)(v9) < targetObjb )
+        if ( v9->vfptr->damageCapability_1(v9) < targetObjb )
         {
           ++v4;
         }
@@ -150501,13 +150461,13 @@ LABEL_33:
       {
         if ( v106 >= 3.0 )
         {
-          v57 = ((double (__thiscall *)(RGE_Static_Object *))v6->vfptr->maximumSpeed)(v6) * 1.2;
+          v57 = v6->vfptr->maximumSpeed(v6) * 1.2;
         }
         else
         {
-          v94 = ((double (__thiscall *)(RGE_Static_Object *))v6->vfptr->maximumSpeed)(v6) * 1.2;
-          v95 = v94 - ((double (__thiscall *)(RGE_Static_Object *))v6->vfptr->maximumSpeed)(v6);
-          v56 = ((double (__thiscall *)(RGE_Static_Object *))v6->vfptr->maximumSpeed)(v6);
+          v94 = v6->vfptr->maximumSpeed(v6) * 1.2;
+          v95 = v94 - v6->vfptr->maximumSpeed(v6);
+          v56 = v6->vfptr->maximumSpeed(v6);
           v57 = v56 + v95 * v106 / 3.0;
         }
         v96 = v57;
@@ -150945,7 +150905,7 @@ LABEL_9:
             if ( v12 <= v26 )
               break;
             numberUnitsa = v12;
-            if ( ((double (__thiscall *)(RGE_Static_Object *))v3->vfptr->damageCapability_1)(v3) >= numberUnitsa )
+            if ( v3->vfptr->damageCapability_1(v3) >= numberUnitsa )
               break;
           }
           if ( ++v10 >= v9->mNumberUnits )
@@ -151250,7 +151210,7 @@ int __thiscall BUnitGroup::updateAttackCommandLocked(BUnitGroup *this, int *need
             if ( v24 <= v64.x )
               break;
             v59 = v24;
-            if ( ((double (__thiscall *)(RGE_Static_Object *))v5->vfptr->damageCapability_1)(v5) >= v59 )
+            if ( v5->vfptr->damageCapability_1(v5) >= v59 )
               break;
           }
           if ( ++v22 >= i->mNumberUnits )
@@ -151389,7 +151349,7 @@ LABEL_47:
                           v50 = sqrt(v.z * v.z + v64.y * v64.y);
                           if ( v50 <= 1.0
                             || (needToUpdateDesiredPositionsa = v50,
-                                ((double (__thiscall *)(RGE_Static_Object *))v43->vfptr->damageCapability_1)(v43) > needToUpdateDesiredPositionsa) )
+                                v43->vfptr->damageCapability_1(v43) > needToUpdateDesiredPositionsa) )
                           {
                             if ( v43->vfptr->actionType(v43) != 9 && this->mCurrentTarget.mType == 1 && range )
                             {
@@ -151767,10 +151727,10 @@ void __thiscall BUnitGroup::unlockedAttackWithoutPlan(BUnitGroup *this, int *uni
             if ( v11 >= v10 )
               goto LABEL_17;
           }
-          if ( ((double (__thiscall *)(RGE_Static_Object *))v9->vfptr->maximumSpeed)(v9) > 0.0000001 )
+          if ( v9->vfptr->maximumSpeed(v9) > 0.0000001 )
           {
             unitsa = RGE_Static_Object::distance_to_object(v9, v7);
-            v15 = 2000 * (__int64)(unitsa / ((double (__thiscall *)(RGE_Static_Object *))v9->vfptr->maximumSpeed)(v9));
+            v15 = 2000 * (__int64)(unitsa / v9->vfptr->maximumSpeed(v9));
             v13 = RGE_Static_Object::unitAI(v9);
             UnitAIModule::setRandomizedRetargetTimer(v13, v15);
           }
@@ -151913,7 +151873,7 @@ void __thiscall BUnitGroup::unlockedAttackWithPlan(BUnitGroup *this, BContextPla
                   if ( v18 >= v17 )
                     goto LABEL_25;
                 }
-                if ( ((double (__thiscall *)(RGE_Static_Object *))v10->vfptr->maximumSpeed)(v10) > 0.0000001 )
+                if ( v10->vfptr->maximumSpeed(v10) > 0.0000001 )
                 {
                   if ( v12 )
                   {
@@ -151925,8 +151885,7 @@ void __thiscall BUnitGroup::unlockedAttackWithPlan(BUnitGroup *this, BContextPla
                     v20 = RGE_Static_Object::distance_to_object(v10, v11);
                   }
                   v34 = v20;
-                  v25 = 2000
-                      * (__int64)(v34 / ((double (__thiscall *)(RGE_Static_Object *))v10->vfptr->maximumSpeed)(v10));
+                  v25 = 2000 * (__int64)(v34 / v10->vfptr->maximumSpeed(v10));
                   v21 = RGE_Static_Object::unitAI(v10);
                   UnitAIModule::setRandomizedRetargetTimer(v21, v25);
                 }
@@ -173775,7 +173734,7 @@ double __thiscall RGE_Moving_Object::teleport(RGE_Moving_Object *this, float x, 
   v66 = this->world_y;
   world_ya = this->world_z;
   v52 = this->on_ground;
-  if ( ((double (__thiscall *)(RGE_Moving_Object *))this->vfptr->maximumSpeed)(this) <= 0.0000001 )
+  if ( this->vfptr->maximumSpeed(this) <= 0.0000001 )
     goto LABEL_22;
   v18 = this->master_obj;
   v19 = v18->radius_x + 0.0099999998;
@@ -175949,7 +175908,7 @@ unsigned __int8 __thiscall RGE_Moving_Object::checkRange(RGE_Moving_Object *this
 }
 
 //----- (004A4650) --------------------------------------------------------
-void __thiscall RGE_Moving_Object::moveUnit(RGE_Moving_Object *this, BVector *a2, float a3, BVector a4)
+void __thiscall RGE_Moving_Object::moveUnit(RGE_Moving_Object *this, BVector *a2, float a3, BVector *a4)
 {
   long double v5; // st7
   RGE_Moving_ObjectVtbl *v6; // edx
@@ -175960,7 +175919,7 @@ void __thiscall RGE_Moving_Object::moveUnit(RGE_Moving_Object *this, BVector *a2
   BVector *v11; // eax
   int v12; // [esp+14h] [ebp-10h] BYREF
   BVector v13; // [esp+18h] [ebp-Ch] BYREF
-  float v14; // [esp+2Ch] [ebp+8h]
+  float a3a; // [esp+2Ch] [ebp+8h]
 
   v13 = this->orientationForwardValue;
   if ( RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 3)
@@ -175973,27 +175932,26 @@ void __thiscall RGE_Moving_Object::moveUnit(RGE_Moving_Object *this, BVector *a2
   }
   v6 = this->vfptr;
   v12 = 0;
-  v14 = ((double (__thiscall *)(RGE_Moving_Object *, BVector *, BVector *, _DWORD, int *))v6->calculateYawAngle)(
+  a3a = ((double (__thiscall *)(RGE_Moving_Object *, BVector *, BVector *, _DWORD, int *))v6->calculateYawAngle)(
           this,
           &v13,
           a2,
           LODWORD(a3),
           &v12);
   if ( (BBitVectorAND_2 & this->pathData->mFlags.valueValue) == 0 )
-    ((void (__thiscall *)(RGE_Moving_Object *, _DWORD))this->vfptr->yaw)(this, LODWORD(v14));
+    ((void (__thiscall *)(RGE_Moving_Object *, _DWORD))this->vfptr->yaw)(this, LODWORD(a3a));
   v7 = BPathData::highestLinkedPathPointer(this->pathData);
   v8 = v7;
   if ( v7
     && ((v9 = v7->waypointsCount, v9 < 2) ? (v10 = &stru_6AE6A0) : (v10 = &v7->waypoints[v9 - 1]),
-        fabs(v10->x - *(float *)LODWORD(a4.x)) < 0.5
-     && (v9 < 2 ? (v11 = &stru_6AE6A0) : (v11 = &v8->waypoints[v9 - 1]),
-         fabs(v11->y - *(float *)(LODWORD(a4.x) + 8)) < 0.5)) )
+        fabs(v10->x - a4->x) < 0.5
+     && (v9 < 2 ? (v11 = &stru_6AE6A0) : (v11 = &v8->waypoints[v9 - 1]), fabs(v11->y - a4->y) < 0.5)) )
   {
-    this->vfptr->checkAcceleration(this, (BVector *)LODWORD(a4.x), 1, v12);
+    this->vfptr->checkAcceleration(this, a4, 1, v12);
   }
   else
   {
-    this->vfptr->checkAcceleration(this, (BVector *)LODWORD(a4.x), 0, v12);
+    this->vfptr->checkAcceleration(this, a4, 0, v12);
   }
 }
 // 65BD94: using guessed type int BBitVectorAND_2;
@@ -176018,7 +175976,7 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   BPath *v17; // eax
   RGE_Game_World *v18; // edi
   int v19; // eax
-  RGE_Map_Analysis *v20; // eax
+  BPathData *v20; // eax
   BPathData *v21; // eax
   BPath *v22; // edi
   int v23; // eax
@@ -176038,146 +175996,146 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   int v37; // ecx
   int v38; // ebx
   int *v39; // edx
-  int v40; // ebx
-  int *v41; // edx
-  TRIBE_Player *v42; // edx
-  RGE_Master_Moving_Object *v43; // ebp
-  int *v44; // eax
-  BVector *v45; // eax
-  int v46; // ebp
-  BVector *v47; // eax
-  RGE_Master_Moving_Object *v48; // ecx
-  RGE_Map *v49; // edx
-  int v50; // eax
-  int v51; // ebx
-  int *v52; // edx
-  int v53; // ebx
-  int *v54; // edx
-  BVector *v55; // eax
-  BVector *v56; // eax
-  double v57; // st7
-  BPathData *v58; // eax
-  int v59; // eax
-  RGE_Static_Object *v60; // eax
-  BPathData *v61; // eax
-  BVector *v62; // eax
-  int v63; // ebx
+  RGE_Static_Object *v40; // eax
+  int v41; // ebx
+  int *v42; // edx
+  TRIBE_Player *v43; // edx
+  RGE_Master_Moving_Object *v44; // ebp
+  int *v45; // eax
+  BVector *v46; // eax
+  int v47; // ebp
+  BVector *v48; // eax
+  RGE_Master_Moving_Object *v49; // ecx
+  RGE_Map *v50; // edx
+  int v51; // eax
+  int v52; // ebx
+  int *v53; // edx
+  RGE_Static_Object *v54; // ecx
+  int v55; // ebx
+  int *v56; // edx
+  BVector *v57; // eax
+  BVector *v58; // eax
+  double v59; // st7
+  BPathData *v60; // eax
+  int v61; // eax
+  RGE_Static_Object *v62; // eax
+  BPathData *v63; // eax
   BVector *v64; // eax
-  long double v65; // st7
-  int *v66; // eax
-  BVector *v67; // eax
-  long double v68; // st7
-  int v69; // ebx
-  _BOOL1 v70; // cc
-  BVector *v71; // eax
-  double v72; // st7
-  BPathData *v73; // eax
-  BVector *v74; // ebp
-  BVector *v75; // eax
-  BVector *v76; // eax
-  BPathData *v77; // ecx
-  BPathData *v78; // ecx
+  int v65; // ebx
+  BVector *v66; // eax
+  long double v67; // st7
+  int *v68; // eax
+  BVector *v69; // eax
+  long double v70; // st7
+  int v71; // ebx
+  _BOOL1 v72; // cc
+  BVector *v73; // eax
+  double v74; // st7
+  BPathData *v75; // eax
+  BPath *v76; // ebp
+  BVector *v77; // eax
+  BVector *v78; // eax
   BPathData *v79; // ecx
-  RGE_Moving_ObjectVtbl *v80; // edi
-  BVector *v81; // eax
+  BPathData *v80; // ecx
+  BPathData *v81; // ecx
   RGE_Moving_ObjectVtbl *v82; // edi
-  int v83; // eax
-  BVector *v84; // eax
-  float v85; // edx
-  BPathData *v86; // eax
-  int v87; // edx
-  int v88; // eax
-  int v89; // edi
-  int *v90; // edx
-  _DWORD *v91; // ebp
-  int v92; // eax
-  RGE_Static_Object *v93; // eax
-  int *v94; // edi
-  BPath *v95; // eax
-  int v96; // eax
-  __int16 v97; // ax
-  float v98; // ebx
-  ObsRecord *v99; // ebx
-  int v100; // eax
-  int v101; // ecx
-  RGE_Static_Object *v102; // eax
-  RGE_Static_Object *v103; // edi
-  int v104; // ebp
-  BPathData *v105; // edi
-  BPathData *v106; // ebx
-  BPathData *v107; // ecx
-  BPath *v108; // eax
-  BPath *v109; // edi
-  int v110; // ebx
-  BPathData *v111; // ebp
-  BVector *v112; // eax
-  float v113; // [esp-18h] [ebp-2ACh]
-  float v114; // [esp-18h] [ebp-2ACh]
-  float v115; // [esp-14h] [ebp-2A8h]
-  int v116; // [esp-14h] [ebp-2A8h]
-  BVector v117; // [esp-14h] [ebp-2A8h]
-  int v118; // [esp-10h] [ebp-2A4h]
+  BVector *v83; // eax
+  RGE_Moving_ObjectVtbl *v84; // edi
+  BVector *v85; // eax
+  int v86; // eax
+  BVector *v87; // eax
+  float v88; // edx
+  BPathData *v89; // eax
+  int v90; // edx
+  int v91; // eax
+  int v92; // edi
+  int *v93; // edx
+  _DWORD *v94; // ebp
+  int (__thiscall *v95)(RGE_Static_Object *); // eax
+  RGE_Static_Object *v96; // eax
+  int *v97; // edi
+  BPath *v98; // eax
+  int v99; // eax
+  __int16 v100; // ax
+  unsigned int v101; // ebx
+  RGE_Map_Analysis *v102; // ecx
+  ObsRecord *v103; // ebx
+  int v104; // eax
+  int v105; // ecx
+  RGE_Static_Object *v106; // eax
+  RGE_Static_Object *v107; // edi
+  int v108; // ebp
+  BPathData *v109; // edi
+  BPathData *v110; // ebx
+  BPathData *v111; // ecx
+  BPath *v112; // eax
+  BPath *v113; // edi
+  int v114; // ebx
+  BPathData *v115; // ebp
+  BVector *v116; // eax
+  float v117; // [esp-14h] [ebp-2A8h]
+  float v118; // [esp-10h] [ebp-2A4h]
   int v119; // [esp-10h] [ebp-2A4h]
-  int v120; // [esp-8h] [ebp-29Ch]
-  float v121; // [esp-8h] [ebp-29Ch]
-  float v122; // [esp-4h] [ebp-298h]
+  int v120; // [esp-Ch] [ebp-2A0h]
+  int v121; // [esp-Ch] [ebp-2A0h]
+  int v122; // [esp-4h] [ebp-298h]
   float v123; // [esp-4h] [ebp-298h]
-  int v124; // [esp-4h] [ebp-298h]
   float dest_target_radius; // [esp+0h] [ebp-294h]
-  int dest_target_radiusa; // [esp+0h] [ebp-294h]
-  float dest_target_radiusb; // [esp+0h] [ebp-294h]
+  float dest_target_radiusa; // [esp+0h] [ebp-294h]
+  int dest_target_radiusb; // [esp+0h] [ebp-294h]
+  float v127; // [esp+4h] [ebp-290h]
   BPath *v128; // [esp+4h] [ebp-290h]
-  BPath *v129; // [esp+4h] [ebp-290h]
-  BPath *v130; // [esp+4h] [ebp-290h]
-  float *v131; // [esp+8h] [ebp-28Ch]
-  int v132; // [esp+8h] [ebp-28Ch]
-  int v133; // [esp+8h] [ebp-28Ch]
-  float v134; // [esp+Ch] [ebp-288h]
-  int v135; // [esp+Ch] [ebp-288h]
-  BVector *v136; // [esp+10h] [ebp-284h]
-  BVector *v137; // [esp+10h] [ebp-284h]
-  int v138; // [esp+10h] [ebp-284h]
-  BVector *v139; // [esp+10h] [ebp-284h]
-  BVector *v140; // [esp+10h] [ebp-284h]
-  BVector *v141; // [esp+10h] [ebp-284h]
-  int v142; // [esp+10h] [ebp-284h]
-  ObsRecord *v143; // [esp+14h] [ebp-280h]
-  RGE_Static_Object *v144; // [esp+18h] [ebp-27Ch]
-  void *OB_System_To_Use; // [esp+1Ch] [ebp-278h]
-  void *v146; // [esp+20h] [ebp-274h]
-  BPath *v147; // [esp+24h] [ebp-270h]
-  bool v148; // [esp+28h] [ebp-26Ch]
-  float v149; // [esp+2Ch] [ebp-268h]
+  float v129; // [esp+4h] [ebp-290h]
+  float v130; // [esp+8h] [ebp-28Ch]
+  float v131; // [esp+8h] [ebp-28Ch]
+  float *v132; // [esp+Ch] [ebp-288h]
+  int v133; // [esp+Ch] [ebp-288h]
+  float v134; // [esp+10h] [ebp-284h]
+  float v135; // [esp+10h] [ebp-284h]
+  BVector *v136; // [esp+14h] [ebp-280h]
+  BVector *v137; // [esp+14h] [ebp-280h]
+  int v138; // [esp+14h] [ebp-280h]
+  BVector *v139; // [esp+14h] [ebp-280h]
+  BVector *v140; // [esp+14h] [ebp-280h]
+  BVector *v141; // [esp+14h] [ebp-280h]
+  BPath *v142; // [esp+28h] [ebp-26Ch]
+  bool v143; // [esp+2Ch] [ebp-268h]
   float goal; // [esp+30h] [ebp-264h]
-  int goala; // [esp+30h] [ebp-264h]
-  BUnitGroup *goalb; // [esp+30h] [ebp-264h]
-  float v153; // [esp+34h] [ebp-260h]
-  BPathData *v154; // [esp+38h] [ebp-25Ch]
-  RGE_Static_Object *obj; // [esp+3Ch] [ebp-258h]
+  RGE_Map_Analysis *goala; // [esp+30h] [ebp-264h]
+  float goald; // [esp+30h] [ebp-264h]
+  int goalb; // [esp+30h] [ebp-264h]
+  int goalc; // [esp+30h] [ebp-264h]
+  int v149; // [esp+34h] [ebp-260h]
+  BUnitGroup *v150; // [esp+34h] [ebp-260h]
+  float v151; // [esp+38h] [ebp-25Ch]
+  int v152; // [esp+38h] [ebp-25Ch]
+  BPathData *obj; // [esp+3Ch] [ebp-258h]
+  RGE_Static_Object *obja; // [esp+3Ch] [ebp-258h]
   RGE_Static_Object *targetObj; // [esp+40h] [ebp-254h] BYREF
   int numberCollisionUnits; // [esp+44h] [ebp-250h]
-  RGE_Map_Analysis *v158; // [esp+48h] [ebp-24Ch]
-  BVector v159; // [esp+4Ch] [ebp-248h] BYREF
-  float v160; // [esp+58h] [ebp-23Ch]
-  BVector v161; // [esp+5Ch] [ebp-238h] BYREF
-  float v162; // [esp+68h] [ebp-22Ch]
-  float v163; // [esp+6Ch] [ebp-228h]
-  int v164; // [esp+74h] [ebp-220h]
-  int v165; // [esp+78h] [ebp-21Ch]
-  BVector v166; // [esp+7Ch] [ebp-218h] BYREF
-  BVector v167; // [esp+88h] [ebp-20Ch] BYREF
-  BVector v168; // [esp+94h] [ebp-200h] BYREF
-  BVector v169; // [esp+A0h] [ebp-1F4h] BYREF
+  RGE_Map_Analysis *v157; // [esp+48h] [ebp-24Ch]
+  BVector v158; // [esp+4Ch] [ebp-248h]
+  BUnitGroup *v159; // [esp+58h] [ebp-23Ch]
+  BVector v160; // [esp+5Ch] [ebp-238h] BYREF
+  float v161; // [esp+68h] [ebp-22Ch]
+  float v162; // [esp+6Ch] [ebp-228h]
+  float v163; // [esp+70h] [ebp-224h]
+  BVector a4; // [esp+74h] [ebp-220h] BYREF
+  BVector v165; // [esp+80h] [ebp-214h] BYREF
+  BVector v166; // [esp+8Ch] [ebp-208h] BYREF
+  float v167[2]; // [esp+98h] [ebp-1FCh] BYREF
+  BVector v168; // [esp+A0h] [ebp-1F4h] BYREF
   BVector p2; // [esp+ACh] [ebp-1E8h] BYREF
-  BVector v171; // [esp+B8h] [ebp-1DCh] BYREF
-  BVector v172; // [esp+C4h] [ebp-1D0h] BYREF
-  BVector v173; // [esp+D0h] [ebp-1C4h] BYREF
+  BVector v170; // [esp+B8h] [ebp-1DCh] BYREF
+  BVector v171; // [esp+C4h] [ebp-1D0h] BYREF
+  BVector newPosition; // [esp+D0h] [ebp-1C4h] BYREF
   BVector result; // [esp+E0h] [ebp-1B4h] BYREF
-  BVector v175; // [esp+F4h] [ebp-1A0h] BYREF
-  BPath ReturnPath; // [esp+100h] [ebp-194h] BYREF
-  BVector outVector; // [esp+134h] [ebp-160h] BYREF
-  BVector v178; // [esp+140h] [ebp-154h] BYREF
-  BVector v179; // [esp+14Ch] [ebp-148h] BYREF
+  BVector v174; // [esp+ECh] [ebp-1A8h] BYREF
+  BVector v175; // [esp+F8h] [ebp-19Ch] BYREF
+  BPath ReturnPath; // [esp+104h] [ebp-190h] BYREF
+  BVector v177; // [esp+138h] [ebp-15Ch] BYREF
+  BVector v178; // [esp+144h] [ebp-150h] BYREF
+  int v179; // [esp+150h] [ebp-144h] BYREF
   BVector v180; // [esp+158h] [ebp-13Ch] BYREF
   BVector v181; // [esp+164h] [ebp-130h] BYREF
   BVector v182; // [esp+170h] [ebp-124h] BYREF
@@ -176190,26 +176148,30 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   BVector v189; // [esp+1C4h] [ebp-D0h] BYREF
   BVector v190; // [esp+1D0h] [ebp-C4h] BYREF
   BVector v191; // [esp+1DCh] [ebp-B8h] BYREF
-  BVector v192; // [esp+1E8h] [ebp-ACh] BYREF
+  BVector outVector; // [esp+1E8h] [ebp-ACh] BYREF
   BVector v193; // [esp+1F4h] [ebp-A0h] BYREF
   BVector v194; // [esp+200h] [ebp-94h] BYREF
   BVector v195; // [esp+20Ch] [ebp-88h] BYREF
-  BVector v196; // [esp+224h] [ebp-70h] BYREF
-  BVector v197; // [esp+23Ch] [ebp-58h] BYREF
-  BVector v198; // [esp+254h] [ebp-40h] BYREF
-  BVector v199; // [esp+26Ch] [ebp-28h] BYREF
-  BVector v200; // [esp+278h] [ebp-1Ch] BYREF
-  int v201; // [esp+28Ch] [ebp-8h]
+  BVector v196; // [esp+21Ch] [ebp-78h] BYREF
+  BVector v197; // [esp+228h] [ebp-6Ch] BYREF
+  BVector v198; // [esp+234h] [ebp-60h] BYREF
+  BVector v199; // [esp+240h] [ebp-54h] BYREF
+  char v200; // [esp+24Ch] [ebp-48h] BYREF
+  BVector v201; // [esp+254h] [ebp-40h] BYREF
+  BVector v202; // [esp+264h] [ebp-30h] BYREF
+  BVector v203; // [esp+270h] [ebp-24h] BYREF
+  BVector v204; // [esp+27Ch] [ebp-18h] BYREF
+  int v205; // [esp+290h] [ebp-4h]
 
   if ( RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 2) )
     return 1;
   v3 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)this->owner->world);
   v4 = this->pathData;
-  v159.y = v3;
-  v161.x = 0.0;
+  v158.y = v3;
+  v160.x = 0.0;
   if ( v4 && v4->pauseTime > 0.0 )
   {
-    v4->pauseTime = v4->pauseTime - v159.y;
+    v4->pauseTime = v4->pauseTime - v158.y;
     v5 = this->pathData;
     if ( v5->pauseTime > 0.0 )
     {
@@ -176224,11 +176186,11 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
     numberCollisionUnits = (int)OBSystem_Air;
   p2.z = 0.0;
   p2.y = 0.0;
-  v171.x = 0.0;
-  v164 = 0;
-  v165 = 0;
-  v166.x = 0.0;
-  *(float *)&v158 = 0.0;
+  v170.x = 0.0;
+  a4.x = 0.0;
+  a4.z = 0.0;
+  a4.y = 0.0;
+  v157 = 0;
   while ( 1 )
   {
     while ( 1 )
@@ -176243,9 +176205,11 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
             if ( !v7 )
               return 1;
             v8 = v7->path;
+            v142 = v8;
             if ( !v8 )
             {
               v8 = RGE_Game_World::path((RGE_Game_World *)this->owner->world, v7->pathID);
+              v142 = v8;
               if ( !v8 )
                 return 1;
               this->pathData->path = v8;
@@ -176256,7 +176220,7 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
             goal = RGE_Moving_Object::precalcDistToTarget(this, &targetObj);
             v10 = RGE_Moving_Object::precalcDistToGoal(this, targetObj, goal);
             v11 = this->pathData;
-            v160 = v10;
+            *(float *)&v159 = v10;
             if ( (BBitVectorAND_2 & v11->mFlags.valueValue) != 0
               && !RGE_Moving_Object::incrementWaypoint(this, v8, targetObj) )
             {
@@ -176278,16 +176242,16 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
           if ( RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 1) )
           {
             if ( !RGE_Player::availablePathingAttempts((RGE_Player *)this->owner, this->numberWaitDelays)
-              || SLODWORD(v161.x) >= 3 )
+              || SLODWORD(v160.x) >= 3 )
             {
               this->vfptr->stopMoving(this);
               ++this->numberWaitDelays;
               return 0;
             }
             RGE_Player::incrementPathingAttempts((RGE_Player *)this->owner);
-            v16 = v161.x;
+            v16 = v160.x;
             this->numberWaitDelays = 0;
-            LODWORD(v161.x) = LODWORD(v16) + 1;
+            LODWORD(v160.x) = LODWORD(v16) + 1;
           }
           v17 = BPathData::highestLinkedPathPointer(this->pathData);
           if ( !v17
@@ -176304,15 +176268,15 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
             }
           }
           this->vfptr->setWaitingToMove(this, 0);
-          *(float *)&v20 = COERCE_FLOAT(operator_new(0x34u));
-          v158 = v20;
-          v201 = 0;
-          if ( *(float *)&v20 == 0.0 )
-            v21 = 0;
+          v20 = (BPathData *)operator_new(0x34u);
+          LODWORD(v158.x) = v20;
+          v205 = 0;
+          if ( v20 )
+            v21 = BPathData::BPathData(v20);
           else
-            v21 = BPathData::BPathData((BPathData *)v20);
-          v154 = v21;
-          v201 = -1;
+            v21 = 0;
+          obj = v21;
+          v205 = -1;
           if ( !v21 )
           {
 LABEL_232:
@@ -176323,52 +176287,41 @@ LABEL_232:
           v22 = RGE_Game_World::createPath((RGE_Game_World *)base_game->world);
           if ( !v22 )
           {
-            if ( v154 )
+            if ( obj )
             {
-              BPathData::destructor(v154);
-              operator_delete(v154);
+              BPathData::destructor(obj);
+              operator_delete(obj);
             }
             BPathData::setFailure(this->pathData);
 LABEL_229:
             this->vfptr->stopMoving(this);
             return 1;
           }
-          v148 = 0;
-          goala = 0;
+          v143 = 0;
+          v149 = 0;
           v23 = RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 1);
           v136 = &this->positionValue;
           if ( !v23 )
           {
             BPath::addWaypointAtStart(v22, v136);
-            v24 = BPath::waypoint(v8, &outVector, this->pathData->waypoint);
+            v24 = BPath::waypoint(v8, &v177, this->pathData->waypoint);
             BPath::addWaypointAtEnd(v22, v24);
             BPath::calculatePathLength(v22);
-            v25 = v147;
-            v148 = 1;
+            v25 = v142;
+            v143 = 1;
             goto LABEL_129;
           }
-          v26 = BPath::waypoint(v8, &v186, this->pathData->waypoint);
-          BVector::operator_minus(v26, &v161, v136);
+          v26 = BPath::waypoint(v8, (BVector *)&v186.z, this->pathData->waypoint);
+          BVector::operator_minus(v26, (BVector *)&v160.z, v136);
           v27 = this->pathData;
-          v161.z = 0.0;
-          v153 = sqrt(v161.y * v161.y + v161.x * v161.x);
-          if ( v27->waypointLevel == 2 && dword_689568 == 1 && v153 > (double)flt_68F494 )
+          v160.y = 0.0;
+          v151 = sqrt(v161 * v161 + v160.z * v160.z);
+          if ( v27->waypointLevel == 2 && dword_689568 == 1 && v151 > (double)flt_68F494 )
           {
-            *(float *)&v158 = COERCE_FLOAT(
-                                RGE_Map_Analysis_System::get_map_analysis(
-                                  base_game->world->map_analysis_system,
-                                  (RGE_Master_Static_Object *)this->master_obj));
-            if ( *(float *)&v158 == 0.0 )
-            {
-              BPath::addWaypointAtStart(v22, &this->positionValue);
-              v36 = BPath::waypoint(v8, &v193, this->pathData->waypoint);
-              BPath::addWaypointAtEnd(v22, v36);
-              v35 = 1;
-              goala = 1;
-LABEL_50:
-              v148 = v35;
-            }
-            else
+            LODWORD(v158.x) = RGE_Map_Analysis_System::get_map_analysis(
+                                base_game->world->map_analysis_system,
+                                (RGE_Master_Static_Object *)this->master_obj);
+            if ( LODWORD(v158.x) )
             {
               v28 = this->pathData;
               v163 = 0.0;
@@ -176380,19 +176333,19 @@ LABEL_50:
                   v163 = v30->master_obj->radius_x;
               }
               v31 = this->pathData;
-              v128 = (BPath *)LODWORD(v31->range);
-              dest_target_radius = v163 + this->master_obj->radius_x;
-              v122 = BPath::waypoint(v8, &v200, v31->waypoint)->y;
-              v32 = BPath::waypoint(v8, &v179, this->pathData->waypoint);
+              v130 = v31->range;
+              v127 = v163 + this->master_obj->radius_x;
+              dest_target_radius = BPath::waypoint(v8, &v204, v31->waypoint)->y;
+              v32 = BPath::waypoint(v8, (BVector *)&v179, this->pathData->waypoint);
               v33 = RGE_Map_Analysis::find_path(
-                      v158,
+                      (RGE_Map_Analysis *)LODWORD(v158.x),
                       v22,
                       v14->x,
                       this->positionValue.y,
                       v32->x,
-                      v122,
                       dest_target_radius,
-                      *(float *)&v128,
+                      v127,
+                      v130,
                       0,
                       0,
                       0);
@@ -176400,14 +176353,14 @@ LABEL_50:
               {
                 if ( v33 )
                 {
-                  goala = 1;
-                  v148 = 1;
+                  v149 = 1;
+                  v143 = 1;
                   smoothMidLevelPath(this, v22);
-                  v137 = BPath::waypoint(v22, &v198, v22->waypointsCount - 1);
-                  v34 = BPath::waypoint(v8, &v181, this->pathData->waypoint);
-                  BVector::operator_minus(v34, &v169, v137);
-                  v169.z = 0.0;
-                  if ( sqrt(v169.y * v169.y + v169.x * v169.x) > v153 )
+                  v137 = BPath::waypoint(v22, (BVector *)&v201.z, v22->waypointsCount - 1);
+                  v34 = BPath::waypoint(v8, (BVector *)&v181.z, this->pathData->waypoint);
+                  BVector::operator_minus(v34, (BVector *)&v168.z, v137);
+                  v168.y = 0.0;
+                  if ( sqrt(p2.x * p2.x + v168.z * v168.z) > v151 )
                   {
                     v35 = 0;
                     v22->waypointsCount = 0;
@@ -176416,15 +176369,25 @@ LABEL_50:
                 }
               }
             }
+            else
+            {
+              BPath::addWaypointAtStart(v22, &this->positionValue);
+              v36 = BPath::waypoint(v8, (BVector *)&v193.z, this->pathData->waypoint);
+              BPath::addWaypointAtEnd(v22, v36);
+              v35 = 1;
+              v149 = 1;
+LABEL_50:
+              v143 = v35;
+            }
             BPath::calculatePathLength(v22);
             v22->creationTimeValue = this->owner->world->world_time;
           }
-          v159.x = 3.4028235e38;
-          if ( v148 && v22->waypointsCount > 2 || dword_689564 != 1 || v153 > 10.0 )
+          v158.z = 3.4028235e38;
+          if ( v143 && v22->waypointsCount > 2 || dword_689564 != 1 || v151 > 10.0 )
             goto LABEL_73;
           v37 = 0;
           v22->waypointsCount = 0;
-          goala = 0;
+          v149 = 0;
           ignoreListSize = 0;
           if ( this )
           {
@@ -176450,186 +176413,199 @@ LABEL_50:
               while ( v38 < 4 );
             }
           }
-          if ( obj )
+          v40 = targetObj;
+          if ( targetObj )
           {
             if ( v37 < 128 )
             {
-              collisionUnits[v37++] = obj->id;
+              collisionUnits[v37++] = targetObj->id;
               ignoreListSize = v37;
-              if ( obj->type == 80 )
+              if ( v40->type == 80 )
               {
-                v40 = 0;
-                v41 = &obj[2].damaged_lately_timer;
+                v41 = 0;
+                v42 = &v40[2].damaged_lately_timer;
                 do
                 {
-                  if ( *v41 )
+                  if ( *v42 )
                   {
-                    collisionUnits[v37++] = *(_DWORD *)(*v41 + 16);
+                    collisionUnits[v37++] = *(_DWORD *)(*v42 + 16);
                     ignoreListSize = v37;
                     if ( v37 >= 128 )
                       break;
                   }
-                  ++v40;
                   ++v41;
+                  ++v42;
                 }
-                while ( v40 < 4 );
+                while ( v41 < 4 );
               }
             }
           }
-          v42 = this->owner;
-          v43 = this->master_obj;
-          v44 = &this->pathData->id;
-          v138 = v42->id;
-          v131 = v42->world->terrains[v43->terrain];
-          dest_target_radiusa = numberCollisionUnits;
-          v120 = v37;
-          v118 = v44[9];
-          v115 = *((float *)v44 + 8);
-          v113 = v43->radius_x;
-          v45 = BPath::waypoint(v147, &v183, v44[6]);
+          v43 = this->owner;
+          v44 = this->master_obj;
+          v45 = &this->pathData->id;
+          v138 = v43->id;
+          v132 = v43->world->terrains[v44->terrain];
+          v128 = (BPath *)v157;
+          v122 = v37;
+          v120 = v45[9];
+          v118 = *((float *)v45 + 8);
+          v117 = v44->radius_x;
+          v46 = BPath::waypoint(v142, (BVector *)&v183.z, v45[6]);
           v14 = &this->positionValue;
-          v46 = findLowLevelPath(
-                  targetObj,
+          v47 = findLowLevelPath(
+                  (void *)numberCollisionUnits,
                   &this->positionValue,
-                  v45,
-                  v113,
-                  v115,
+                  v46,
+                  v117,
                   v118,
-                  collisionUnits,
                   v120,
+                  collisionUnits,
+                  v122,
                   (int *)&unk_6AD170,
-                  dest_target_radiusa,
+                  (int)v128,
                   v22,
-                  v131,
+                  v132,
                   0,
                   v138);
           BPath::calculatePathLength(v22);
           v22->creationTimeValue = this->owner->world->world_time;
-          if ( v46 == 3 || v46 == 4 || v22->pathLengthValue <= 0.0000001 )
+          if ( v47 == 3 || v47 == 4 || v22->pathLengthValue <= 0.0000001 )
           {
 LABEL_73:
-            if ( !v148 )
+            if ( !v143 )
             {
-              if ( v153 >= 1.0 && v149 >= 1.0 )
+              if ( v151 >= 1.0 && goal >= 1.0 )
                 goto LABEL_97;
-              goala = 0;
-              BPath::waypoint(v147, &v172, this->pathData->waypoint);
-              v48 = this->master_obj;
-              if ( v172.x < (double)v48->radius_x )
+              v149 = 0;
+              BPath::waypoint(v142, (BVector *)&v171.z, this->pathData->waypoint);
+              v49 = this->master_obj;
+              if ( v171.z < (double)v49->radius_x )
                 goto LABEL_97;
-              if ( v172.y < (double)v48->radius_y )
+              if ( newPosition.x < (double)v49->radius_y )
                 goto LABEL_97;
-              v49 = this->owner->world->map;
-              if ( (double)v49->map_width - v48->radius_x < v172.x || (double)v49->map_height - v48->radius_y < v172.y )
+              v50 = this->owner->world->map;
+              if ( (double)v50->map_width - v49->radius_x < v171.z
+                || (double)v50->map_height - v49->radius_y < newPosition.x )
+              {
                 goto LABEL_97;
-              v50 = 0;
+              }
+              v51 = 0;
               ignoreListSize = 0;
               if ( this )
               {
-                v50 = 1;
+                v51 = 1;
                 collisionUnits[0] = this->id;
                 ignoreListSize = 1;
                 if ( this->type == 80 )
                 {
-                  v51 = 0;
-                  v52 = &this[1].ei.y2;
+                  v52 = 0;
+                  v53 = &this[1].ei.y2;
                   do
                   {
-                    if ( *v52 )
+                    if ( *v53 )
                     {
-                      collisionUnits[v50++] = *(_DWORD *)(*v52 + 16);
-                      ignoreListSize = v50;
-                      if ( v50 >= 128 )
+                      collisionUnits[v51++] = *(_DWORD *)(*v53 + 16);
+                      ignoreListSize = v51;
+                      if ( v51 >= 128 )
                         break;
                     }
-                    ++v51;
                     ++v52;
+                    ++v53;
                   }
-                  while ( v51 < 4 );
+                  while ( v52 < 4 );
                 }
               }
-              if ( obj )
+              v54 = targetObj;
+              if ( targetObj )
               {
-                if ( v50 < 128 )
+                if ( v51 < 128 )
                 {
-                  collisionUnits[v50++] = obj->id;
-                  ignoreListSize = v50;
-                  if ( obj->type == 80 )
+                  collisionUnits[v51++] = targetObj->id;
+                  ignoreListSize = v51;
+                  if ( v54->type == 80 )
                   {
-                    v53 = 0;
-                    v54 = &obj[2].damaged_lately_timer;
+                    v55 = 0;
+                    v56 = &v54[2].damaged_lately_timer;
                     do
                     {
-                      if ( *v54 )
+                      if ( *v56 )
                       {
-                        collisionUnits[v50++] = *(_DWORD *)(*v54 + 16);
-                        ignoreListSize = v50;
-                        if ( v50 >= 128 )
+                        collisionUnits[v51++] = *(_DWORD *)(*v56 + 16);
+                        ignoreListSize = v51;
+                        if ( v51 >= 128 )
                           break;
                       }
-                      ++v53;
-                      ++v54;
+                      ++v55;
+                      ++v56;
                     }
-                    while ( v53 < 4 );
+                    while ( v55 < 4 );
                   }
                 }
               }
-              v132 = v50;
-              v55 = BPath::waypoint(v147, &v195, this->pathData->waypoint);
+              v133 = v51;
+              v57 = BPath::waypoint(v142, (BVector *)&v195.z, this->pathData->waypoint);
               v14 = &this->positionValue;
-              findObSystemCollisions(targetObj, this, &this->positionValue, v55, collisionUnits, v132, 1, 1.0);
+              findObSystemCollisions(
+                (void *)numberCollisionUnits,
+                this,
+                &this->positionValue,
+                v57,
+                collisionUnits,
+                v133,
+                1,
+                1.0);
               if ( numberObSystemCollisions )
                 goto LABEL_97;
               v22->waypointsCount = 0;
               BPath::addWaypointAtStart(v22, &this->positionValue);
-              v56 = BPath::waypoint(v147, &v187, this->pathData->waypoint);
-              BPath::addWaypointAtEnd(v22, v56);
+              v58 = BPath::waypoint(v142, (BVector *)&v187.z, this->pathData->waypoint);
+              BPath::addWaypointAtEnd(v22, v58);
               v22->creationTimeValue = this->owner->world->world_time;
               BPath::calculatePathLength(v22);
-              v148 = 1;
+              v143 = 1;
             }
           }
           else
           {
-            v148 = 1;
-            v139 = BPath::waypoint(v22, &v197, v22->waypointsCount - 1);
-            v47 = BPath::waypoint(v147, &v185, this->pathData->waypoint);
-            BVector::operator_minus(v47, &v166, v139);
-            v166.z = 0.0;
-            v159.x = sqrt(v166.y * v166.y + v166.x * v166.x);
+            v143 = 1;
+            v139 = BPath::waypoint(v22, &v199, v22->waypointsCount - 1);
+            v48 = BPath::waypoint(v142, (BVector *)&v185.z, this->pathData->waypoint);
+            BVector::operator_minus(v48, &v165, v139);
+            v165.z = 0.0;
+            v158.z = sqrt(v165.y * v165.y + v165.x * v165.x);
           }
           if ( v22->waypointsCount >= 2 && v22->pathLengthValue >= 0.0099999998 )
             goto LABEL_99;
 LABEL_97:
-          v57 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this, obj);
-          if ( obj )
+          v59 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this, targetObj);
+          if ( targetObj )
           {
-            if ( v57 < 1.0 && obj->master_obj->id != 45 )
+            if ( v59 < 1.0 && targetObj->master_obj->id != 45 )
               goto LABEL_99;
           }
-          else if ( v153 < 1.0 )
+          else if ( v151 < 1.0 )
           {
             goto LABEL_99;
           }
           if ( dword_68956C == 1 )
           {
-            v25 = v147;
+            v25 = v142;
             v22->waypointsCount = 0;
-            v66 = &this->pathData->id;
-            goala = 0;
-            v124 = v66[9];
-            v121 = *((float *)v66 + 8);
-            v119 = (__int64)BPath::waypoint(v147, &v199, v66[6])->y;
-            v116 = (__int64)BPath::waypoint(v147, &v189, this->pathData->waypoint)->x;
-            v148 = PathingSystem::findTilePath(
+            v68 = &this->pathData->id;
+            v149 = 0;
+            dest_target_radiusb = v68[9];
+            v123 = *((float *)v68 + 8);
+            v121 = (__int64)BPath::waypoint(v142, &v203, v68[6])->y;
+            v119 = (__int64)BPath::waypoint(v142, (BVector *)&v189.z, this->pathData->waypoint)->x;
+            v143 = PathingSystem::findTilePath(
                      &pathSystem,
                      (__int64)v14->x,
                      (__int64)this->positionValue.y,
-                     v116,
                      v119,
-                     this,
                      v121,
-                     v124,
+                     this,
+                     v123,
+                     dest_target_radiusb,
                      0,
                      -1,
                      -1,
@@ -176639,77 +176615,82 @@ LABEL_97:
             BPath::calculatePathLength(v22);
             if ( v22->pathLengthValue < 0.0000001 )
             {
-              v148 = 0;
+              v143 = 0;
 LABEL_103:
-              if ( this->pathData->waypointLevel == 2 && dword_689568 == 1 && v153 < (double)flt_68F494 )
+              if ( this->pathData->waypointLevel == 2 && dword_689568 == 1 && v151 < (double)flt_68F494 )
               {
-                v149 = COERCE_FLOAT(
-                         RGE_Map_Analysis_System::get_map_analysis(
-                           base_game->world->map_analysis_system,
-                           (RGE_Master_Static_Object *)this->master_obj));
+                goala = RGE_Map_Analysis_System::get_map_analysis(
+                          base_game->world->map_analysis_system,
+                          (RGE_Master_Static_Object *)this->master_obj);
                 BPath::BPath(&ReturnPath, -1);
-                v201 = 1;
-                if ( v149 != 0.0 )
+                v205 = 1;
+                if ( goala )
                 {
-                  v58 = this->pathData;
+                  v60 = this->pathData;
                   v162 = 0.0;
-                  v59 = v58->targetID;
-                  if ( v59 != -1 )
+                  v61 = v60->targetID;
+                  if ( v61 != -1 )
                   {
-                    v60 = RGE_Game_World::object((RGE_Game_World *)base_game->world, v59);
-                    if ( v60 )
-                      v162 = v60->master_obj->radius_x;
+                    v62 = RGE_Game_World::object((RGE_Game_World *)base_game->world, v61);
+                    if ( v62 )
+                      v162 = v62->master_obj->radius_x;
                   }
-                  v61 = this->pathData;
-                  v129 = (BPath *)LODWORD(v61->range);
-                  dest_target_radiusb = v162 + this->master_obj->radius_x;
-                  v123 = BPath::waypoint(v25, &v178, v61->waypoint)->y;
-                  v62 = BPath::waypoint(v25, &v180, this->pathData->waypoint);
-                  v63 = RGE_Map_Analysis::find_path(
-                          (RGE_Map_Analysis *)LODWORD(v149),
+                  v63 = this->pathData;
+                  v131 = v63->range;
+                  v129 = v162 + this->master_obj->radius_x;
+                  dest_target_radiusa = BPath::waypoint(v25, &v178, v63->waypoint)->y;
+                  v64 = BPath::waypoint(v25, (BVector *)&v180.z, this->pathData->waypoint);
+                  v65 = RGE_Map_Analysis::find_path(
+                          goala,
                           &ReturnPath,
                           v14->x,
                           this->positionValue.y,
-                          v62->x,
-                          v123,
-                          dest_target_radiusb,
-                          *(float *)&v129,
+                          v64->x,
+                          dest_target_radiusa,
+                          v129,
+                          v131,
                           0,
                           0,
                           0);
-                  v140 = BPath::waypoint(&ReturnPath, &v182, ReturnPath.waypointsCount - 1);
-                  v64 = BPath::waypoint(v25, (BVector *)&result.y, this->pathData->waypoint);
-                  BVector::operator_minus(v64, &v168, v140);
-                  v168.z = 0.0;
-                  v65 = sqrt(v168.y * v168.y + v168.x * v168.x);
-                  v149 = v65;
-                  if ( v65 <= v153 )
+                  v140 = BPath::waypoint(&ReturnPath, (BVector *)&v182.z, ReturnPath.waypointsCount - 1);
+                  v66 = BPath::waypoint(v25, &v174, this->pathData->waypoint);
+                  BVector::operator_minus(v66, (BVector *)v167, v140);
+                  v167[1] = 0.0;
+                  v67 = sqrt(v168.x * v168.x + v167[0] * v167[0]);
+                  if ( v67 <= v151 )
                   {
-                    if ( v63 != 3 && v63 != 4 && v63 && v159.x > (double)v149 )
+                    if ( v65 != 3 && v65 != 4 )
                     {
-                      v69 = 0;
-                      v70 = ReturnPath.waypointsCount <= 0;
-                      v22->waypointsCount = 0;
-                      if ( !v70 )
+                      if ( v65 )
                       {
-                        do
+                        goald = v67;
+                        if ( v158.z > (double)goald )
                         {
-                          v71 = BPath::waypoint(&ReturnPath, &v175, v69);
-                          BPath::addWaypointAtEnd(v22, v71);
-                          ++v69;
+                          v71 = 0;
+                          v72 = ReturnPath.waypointsCount <= 0;
+                          v22->waypointsCount = 0;
+                          if ( !v72 )
+                          {
+                            do
+                            {
+                              v73 = BPath::waypoint(&ReturnPath, &v175, v71);
+                              BPath::addWaypointAtEnd(v22, v73);
+                              ++v71;
+                            }
+                            while ( v71 < ReturnPath.waypointsCount );
+                          }
+                          v149 = 1;
+                          v143 = 1;
+                          smoothMidLevelPath(this, v22);
+                          BPath::calculatePathLength(v22);
+                          v74 = v22->pathLengthValue;
+                          v22->creationTimeValue = this->owner->world->world_time;
+                          if ( v74 < flt_68F494 )
+                          {
+                            v22->waypointsCount = 0;
+                            v143 = 0;
+                          }
                         }
-                        while ( v69 < ReturnPath.waypointsCount );
-                      }
-                      goala = 1;
-                      v148 = 1;
-                      smoothMidLevelPath(this, v22);
-                      BPath::calculatePathLength(v22);
-                      v72 = v22->pathLengthValue;
-                      v22->creationTimeValue = this->owner->world->world_time;
-                      if ( v72 < flt_68F494 )
-                      {
-                        v22->waypointsCount = 0;
-                        v148 = 0;
                       }
                     }
                   }
@@ -176718,59 +176699,59 @@ LABEL_103:
                     v22->waypointsCount = 0;
                   }
                 }
-                v201 = -1;
+                v205 = -1;
                 BPath::destructor(&ReturnPath);
               }
               goto LABEL_129;
             }
-            v141 = BPath::waypoint(v22, &v196, v22->waypointsCount - 1);
-            v67 = BPath::waypoint(v147, &v191, this->pathData->waypoint);
-            BVector::operator_minus(v67, &v167, v141);
-            v167.z = 0.0;
-            v68 = sqrt(v167.y * v167.y + v167.x * v167.x);
-            *(float *)&v158 = v68;
-            if ( sqrt(v161.y * v161.y + v161.z * v161.z + v161.x * v161.x) < v68 )
+            v141 = BPath::waypoint(v22, &v197, v22->waypointsCount - 1);
+            v69 = BPath::waypoint(v142, (BVector *)&v191.z, this->pathData->waypoint);
+            BVector::operator_minus(v69, &v166, v141);
+            v166.z = 0.0;
+            v70 = sqrt(v166.y * v166.y + v166.x * v166.x);
+            v158.x = v70;
+            if ( sqrt(v161 * v161 + v160.y * v160.y + v160.z * v160.z) < v70 )
             {
-              v159.x = v68;
+              v158.z = v70;
               v22->waypointsCount = 0;
               v22->pathLengthValue = 0.0;
             }
             goto LABEL_100;
           }
 LABEL_99:
-          v25 = v147;
+          v25 = v142;
 LABEL_100:
-          if ( !v148 || v22->waypointsCount < 2 || v22->pathLengthValue < 0.0099999998 )
+          if ( !v143 || v22->waypointsCount < 2 || v22->pathLengthValue < 0.0099999998 )
             goto LABEL_103;
 LABEL_129:
           if ( v22->waypointsCount <= 1 || v22->pathLengthValue < 0.0000001 )
           {
-            BPathData::destructor(v154);
-            operator_delete(v154);
+            BPathData::destructor(obj);
+            operator_delete(obj);
             RGE_Game_World::destroyPath2((RGE_Game_World *)base_game->world, v22);
-            v134 = BPath::waypoint(v25, &v188, this->pathData->waypoint - 1)->y;
-            v76 = BPath::waypoint(v25, &v190, this->pathData->waypoint - 1);
-            RGE_Static_Object::distance_to_position((RGE_Static_Object *)this, v76->x, v134, 0.0);
-            if ( obj )
+            v134 = BPath::waypoint(v25, (BVector *)&v188.z, this->pathData->waypoint - 1)->y;
+            v78 = BPath::waypoint(v25, (BVector *)&v190.z, this->pathData->waypoint - 1);
+            RGE_Static_Object::distance_to_position((RGE_Static_Object *)this, v78->x, v134, 0.0);
+            if ( targetObj )
             {
-              RGE_Static_Object::distance_to_object((RGE_Static_Object *)this, obj);
-              v77 = this->pathData;
-              if ( (v77->mFlags.valueValue & 4) != 0 )
-                BPathData::setFlag(v77, 2, 0);
+              RGE_Static_Object::distance_to_object((RGE_Static_Object *)this, targetObj);
+              v79 = this->pathData;
+              if ( (v79->mFlags.valueValue & 4) != 0 )
+                BPathData::setFlag(v79, 2, 0);
             }
-            if ( v148 && (v78 = this->pathData, v159.y <= (double)v78->range) )
+            if ( v143 && (v80 = this->pathData, *(float *)&v159 <= (double)v80->range) )
             {
               if ( (v25->flags.valueValue & BBitVectorAND_2) == 0 )
                 goto LABEL_239;
 LABEL_151:
-              BPathData::setFlag(v78, 0, 1);
+              BPathData::setFlag(v80, 0, 1);
             }
             else
             {
-              v78 = this->pathData;
-              if ( v78->waypoint < v25->waypointsCount - 1 )
+              v80 = this->pathData;
+              if ( v80->waypoint < v25->waypointsCount - 1 )
                 goto LABEL_151;
-              if ( BPathData::continuesLeft(v78, 0) > 0 )
+              if ( BPathData::continuesLeft(v80, 0) > 0 )
               {
                 ((void (__thiscall *)(RGE_Moving_Object *, int))this->vfptr->pauseMovement)(this, 1048576000);
                 this->vfptr->stopMoving(this);
@@ -176781,8 +176762,8 @@ LABEL_151:
                 ((void (__thiscall *)(RGE_Moving_Object *, int))this->vfptr->pauseMovement)(this, 1056964608);
                 return 0;
               }
-              v79 = this->pathData;
-              if ( v79->waypointLevel >= 2 || BPathData::highestLinkedPathHasMoreWaypoints(v79) != 1 )
+              v81 = this->pathData;
+              if ( v81->waypointLevel >= 2 || BPathData::highestLinkedPathHasMoreWaypoints(v81) != 1 )
                 goto LABEL_232;
               this->pathData->state = 5;
             }
@@ -176791,146 +176772,158 @@ LABEL_151:
           {
             this->pathData->state = 0;
             this->pathData->continueCounter = 10;
-            v73 = this->pathData;
-            if ( v73->waypointLevel != 2 || goala != 1 )
+            v75 = this->pathData;
+            if ( v75->waypointLevel != 2 || v149 != 1 )
             {
-              BPathData::setReadyToFollowPath(v154, v22);
-              if ( v148 )
-                BPathData::setLinkedPath(v154, this->pathData, 1);
+              BPathData::setReadyToFollowPath(obj, v22);
+              if ( v143 )
+                BPathData::setLinkedPath(obj, this->pathData, 1);
               else
-                BPathData::setLinkedPath(v154, this->pathData, 2);
-              v154->waypointLevel = 0;
-              v147 = v22;
-              v154->range = this->pathData->range;
-              v154->targetID = this->pathData->targetID;
-              this->pathData = v154;
+                BPathData::setLinkedPath(obj, this->pathData, 2);
+              obj->waypointLevel = 0;
+              v142 = v22;
+              obj->range = this->pathData->range;
+              obj->targetID = this->pathData->targetID;
+              this->pathData = obj;
               break;
             }
-            BPathData::setReadyToPath(v154, v22, v73->range, v73->targetID);
-            if ( v148 )
-              BPathData::setLinkedPath(v154, this->pathData, 1);
+            BPathData::setReadyToPath(obj, v22, v75->range, v75->targetID);
+            if ( v143 )
+              BPathData::setLinkedPath(obj, this->pathData, 1);
             else
-              BPathData::setLinkedPath(v154, this->pathData, 2);
-            v154->waypointLevel = 1;
-            v147 = v22;
-            v154->range = this->pathData->range;
-            v154->targetID = this->pathData->targetID;
-            this->pathData = v154;
+              BPathData::setLinkedPath(obj, this->pathData, 2);
+            obj->waypointLevel = 1;
+            v142 = v22;
+            obj->range = this->pathData->range;
+            obj->targetID = this->pathData->targetID;
+            this->pathData = obj;
             if ( dword_689564 != 1 && dword_68956C != 1 )
               break;
           }
         }
-        v74 = (BVector *)v147;
-        v75 = BPath::waypoint(v147, &v192, this->pathData->waypoint);
-        BVector::operator_minus(&this->positionValue, &v171, v75);
-        v171.z = 0.0;
-        if ( sqrt(v171.y * v171.y + v171.x * v171.x) >= 0.0000001 )
+        v76 = v142;
+        v77 = BPath::waypoint(v142, (BVector *)&outVector.z, this->pathData->waypoint);
+        BVector::operator_minus(&this->positionValue, (BVector *)&v170.z, v77);
+        v170.y = 0.0;
+        if ( sqrt(v171.x * v171.x + v170.z * v170.z) >= 0.0000001 )
         {
-          v80 = this->vfptr;
-          v81 = BPath::waypoint(v147, &v194, this->pathData->waypoint);
-          v80->calculateForward(this, &this->positionValue, v81, &p2);
-          v130 = (BPath *)numberCollisionUnits;
-          ((void (__thiscall *)(RGE_Moving_Object *, BVector *))this->vfptr->straightProjectedPosition)(this, &v172);
           v82 = this->vfptr;
-          LODWORD(v117.z) = BPath::waypoint(v147, &v194, this->pathData->waypoint);
-          v83 = ((int (__thiscall *)(RGE_Moving_Object *))v82->calculateReachedPoint)(this);
-          if ( v83 != 2 )
+          v83 = BPath::waypoint(v142, (BVector *)&v194.z, this->pathData->waypoint);
+          v82->calculateForward(this, &this->positionValue, v83, (BVector *)&p2.z);
+          ((void (__thiscall *)(RGE_Moving_Object *, float *, float *, _DWORD))this->vfptr->straightProjectedPosition)(
+            this,
+            &newPosition.z,
+            &p2.z,
+            LODWORD(v158.y));
+          v84 = this->vfptr;
+          v85 = BPath::waypoint(v142, &v196, this->pathData->waypoint);
+          v86 = v84->calculateReachedPoint(this, v85, &this->positionValue, (BVector *)&newPosition.z);
+          if ( v86 != 2 )
             break;
         }
         BPathData::setFlag(this->pathData, 1, 1);
         BPathData::setFlag(this->pathData, 0, 1);
       }
-      if ( v83 == 1 || this->mConsecutiveSubstituteCount > 2 )
+      if ( v86 == 1 || this->mConsecutiveSubstituteCount > 2 )
       {
         BPathData::setFlag(this->pathData, 1, 1);
         BPathData::setFlag(this->pathData, 0, 1);
       }
-      v84 = BPath::waypoint(v147, &v195, this->pathData->waypoint);
-      v159.x = v84->x;
-      v159.z = v84->z;
-      v85 = v84->y;
-      v86 = this->pathData;
-      v159.y = v85;
-      v87 = v86->waypoint;
-      if ( v87 < v147->waypointsCount - 1 )
-        BPath::waypoint(v147, &v197, v86->waypoint + 1);
+      v87 = BPath::waypoint(v142, &v198, this->pathData->waypoint);
+      a4.x = v87->x;
+      a4.z = v87->z;
+      v88 = v87->y;
+      v89 = this->pathData;
+      a4.y = v88;
+      v90 = v89->waypoint;
+      if ( v90 < v142->waypointsCount - 1 )
+        BPath::waypoint(v142, &v202, v89->waypoint + 1);
       else
-        BPath::waypoint(v147, &v196, v87);
-      goalb = RGE_Game_World::getUnitGroup((RGE_Game_World *)this->owner->world, this->mGroupID);
+        BPath::waypoint(v142, (BVector *)&v200, v90);
+      *(float *)&v159 = COERCE_FLOAT(RGE_Game_World::getUnitGroup((RGE_Game_World *)this->owner->world, this->mGroupID));
       if ( !RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 1) )
         break;
-      v88 = 0;
+      v91 = 0;
       ignoreListSize = 0;
       if ( this )
       {
-        v88 = 1;
+        v91 = 1;
         collisionUnits[0] = this->id;
         ignoreListSize = 1;
         if ( this->type == 80 )
         {
-          v89 = 0;
-          v90 = &this[1].ei.y2;
+          v92 = 0;
+          v93 = &this[1].ei.y2;
           do
           {
-            if ( *v90 )
+            if ( *v93 )
             {
-              collisionUnits[v88++] = *(_DWORD *)(*v90 + 16);
-              ignoreListSize = v88;
-              if ( v88 >= 128 )
+              collisionUnits[v91++] = *(_DWORD *)(*v93 + 16);
+              ignoreListSize = v91;
+              if ( v91 >= 128 )
                 break;
             }
-            ++v89;
-            ++v90;
+            ++v92;
+            ++v93;
           }
-          while ( v89 < 4 );
+          while ( v92 < 4 );
         }
       }
-      findObSystemCollisions(OB_System_To_Use, this, &this->positionValue, &p2, collisionUnits, v88, 0, 1.0);
+      findObSystemCollisions(
+        (void *)numberCollisionUnits,
+        this,
+        &this->positionValue,
+        (BVector *)&newPosition.z,
+        collisionUnits,
+        v91,
+        0,
+        1.0);
       if ( numberObSystemCollisions <= 0 )
         break;
-      v142 = 0;
-      v135 = 0;
-      v133 = 0;
-      v91 = (_DWORD *)(4 * (_DWORD)v146 + 7000432);
-      v143 = &obSystemCollisions;
+      v152 = 0;
+      v150 = 0;
+      goalb = 0;
+      v94 = (_DWORD *)(4 * (_DWORD)v157 + 7000432);
+      obja = (RGE_Static_Object *)&obSystemCollisions;
       do
       {
-        v92 = *(_DWORD *)(v143->NodeProperties + 8);
-        if ( v92 )
+        v95 = obja->vfptr->gbg_get_civ_override;
+        if ( v95 )
         {
-          v93 = RGE_Game_World::object((RGE_Game_World *)this->owner->world, *(_DWORD *)(v92 + 16));
-          if ( v93 )
+          v96 = RGE_Game_World::object((RGE_Game_World *)this->owner->world, *((_DWORD *)v95 + 4));
+          if ( v96 )
           {
-            if ( v93->type == 80 && v93[2].mMaximumPathingGroupSize )
-              v93 = (RGE_Static_Object *)v93[2].mMaximumPathingGroupSize;
-            v94 = (int *)v93;
-            if ( v93 )
+            if ( v96->type == 80 && v96[2].mMaximumPathingGroupSize )
+              v96 = (RGE_Static_Object *)v96[2].mMaximumPathingGroupSize;
+            v97 = (int *)v96;
+            if ( v96 )
             {
-              if ( BPath::ignoreUnitsContain((BPath *)&v169, v93->id) != 1 )
+              if ( BPath::ignoreUnitsContain(v142, v96->id) != 1 )
               {
-                v95 = BPathData::highestLinkedPathPointer(this->pathData);
-                if ( !v95 || BPath::ignoreUnitsContain(v95, v94[4]) != 1 )
+                v98 = BPathData::highestLinkedPathPointer(this->pathData);
+                if ( !v98 || BPath::ignoreUnitsContain(v98, v97[4]) != 1 )
                 {
-                  v96 = this->pathData->targetID;
-                  if ( v96 >= 0 && v94[4] == v96 )
-                    v142 = 1;
-                  if ( !goalb
-                    || BUnitGroup::getSpecificMoveReason(goalb, this->id)
-                    || (v97 = *(_WORD *)(*(_DWORD *)(*(_DWORD *)(v143->NodeProperties + 8) + 20) + 30), v97 == 18)
-                    || v97 == 6
-                    || v97 == 8
-                    || v97 == 10
-                    || v97 == 9 )
+                  v99 = this->pathData->targetID;
+                  if ( v99 >= 0 && v97[4] == v99 )
+                    v152 = 1;
+                  if ( *(float *)&v159 == 0.0
+                    || BUnitGroup::getSpecificMoveReason(v159, this->id)
+                    || (v100 = *(_WORD *)(*((_DWORD *)obja->vfptr->gbg_get_civ_override + 5) + 30), v100 == 18)
+                    || v100 == 6
+                    || v100 == 8
+                    || v100 == 10
+                    || v100 == 9 )
                   {
-                    v98 = v171.z;
-                    if ( LODWORD(v98) < (*(int (__thiscall **)(int *))(*v94 + 780))(v94) )
+                    v101 = v142->creationTimeValue;
+                    if ( v101 < (*(int (__thiscall **)(int *))(*v97 + 780))(v97) )
                     {
-                      ++v135;
-                      if ( (int)v91 < (int)&numberObSystemCollisions )
+                      v150 = (BUnitGroup *)((char *)v150 + 1);
+                      if ( (int)v94 < (int)&numberObSystemCollisions )
                       {
-                        *v91 = v94[4];
-                        v146 = (char *)v146 + 1;
-                        ++v91;
+                        v102 = (RGE_Map_Analysis *)((char *)&v157->mip_maps + 1);
+                        *v94 = v97[4];
+                        v157 = v102;
+                        ++v94;
                       }
                     }
                   }
@@ -176939,99 +176932,92 @@ LABEL_151:
             }
           }
         }
-        v70 = ++v133 < numberObSystemCollisions;
-        v143 = (ObsRecord *)((char *)v143 + 4);
+        v72 = ++goalb < numberObSystemCollisions;
+        obja = (RGE_Static_Object *)((char *)obja + 4);
       }
-      while ( v70 );
-      RGE_Moving_Object::resolveCollisions(this, &p2);
-      if ( numberObSystemCollisions == 1 && v142 == numberObSystemCollisions )
+      while ( v72 );
+      RGE_Moving_Object::resolveCollisions(this, (BVector *)&newPosition.z);
+      if ( numberObSystemCollisions == 1 && v152 == numberObSystemCollisions )
       {
         BPathData::setFlag(this->pathData, 0, numberObSystemCollisions);
         BPathData::setFlag(this->pathData, 2, 1);
       }
       else
       {
-        if ( v135 <= 0 )
+        if ( (int)v150 <= 0 )
         {
-          v74 = &v169;
+          v76 = v142;
           break;
         }
+        goalc = 0;
         if ( numberObSystemCollisions > 0 )
         {
-          v99 = &obSystemCollisions;
+          v103 = &obSystemCollisions;
           do
           {
-            v100 = *(_DWORD *)(v99->NodeProperties + 8);
-            if ( v100 )
+            v104 = *(_DWORD *)(v103->NodeProperties + 8);
+            if ( v104 )
             {
-              v101 = this->pathData->targetID;
-              if ( v101 < 0 || *(_DWORD *)(v100 + 16) != v101 )
+              v105 = this->pathData->targetID;
+              if ( v105 < 0 || *(_DWORD *)(v104 + 16) != v105 )
               {
-                v102 = RGE_Game_World::object((RGE_Game_World *)this->owner->world, *(_DWORD *)(v100 + 16));
-                if ( v102 )
+                v106 = RGE_Game_World::object((RGE_Game_World *)this->owner->world, *(_DWORD *)(v104 + 16));
+                if ( v106 )
                 {
-                  if ( v102->type == 80 && v102[2].mMaximumPathingGroupSize )
-                    v102 = (RGE_Static_Object *)v102[2].mMaximumPathingGroupSize;
-                  v103 = v102;
-                  if ( v102 )
+                  if ( v106->type == 80 && v106[2].mMaximumPathingGroupSize )
+                    v106 = (RGE_Static_Object *)v106[2].mMaximumPathingGroupSize;
+                  v107 = v106;
+                  if ( v106 )
                   {
-                    v104 = v102->vfptr->movementPriority(v102);
-                    if ( v104 > this->vfptr->movementPriority(this) )
-                      ((void (__thiscall *)(RGE_Static_Object *, int))v103->vfptr->pauseMovement)(v103, 1056964608);
+                    v108 = v106->vfptr->movementPriority(v106);
+                    if ( v108 > this->vfptr->movementPriority(this) )
+                      ((void (__thiscall *)(RGE_Static_Object *, int))v107->vfptr->pauseMovement)(v107, 1056964608);
                   }
                 }
               }
             }
-            v99 = (ObsRecord *)((char *)v99 + 4);
-            v130 = (BPath *)((char *)v130 + 1);
+            v103 = (ObsRecord *)((char *)v103 + 4);
+            ++goalc;
           }
-          while ( (int)v130 < numberObSystemCollisions );
+          while ( goalc < numberObSystemCollisions );
         }
-        v105 = this->pathData->linkedPath;
-        if ( !v105 )
+        v109 = this->pathData->linkedPath;
+        if ( !v109 )
           goto LABEL_229;
-        v105->state = 2;
+        v109->state = 2;
         this->pathData->linkedPath = 0;
-        v106 = this->pathData;
-        if ( v106 )
+        v110 = this->pathData;
+        if ( v110 )
         {
           BPathData::destructor(this->pathData);
-          operator_delete(v106);
+          operator_delete(v110);
         }
-        this->pathData = v105;
+        this->pathData = v109;
       }
     }
-    if ( !v144 )
+    if ( !targetObj )
       break;
-    if ( RGE_Moving_Object::checkRange(this, v144) != 1 )
+    if ( RGE_Moving_Object::checkRange(this, targetObj) != 1 )
       goto LABEL_241;
   }
-  if ( (LODWORD(v74[2].y) & BBitVectorAND_2) != 0
-    || (v107 = this->pathData, v107->range <= 0.1)
-    || (v108 = BPathData::highestLinkedPathPointer(v107), (v109 = v108) == 0)
-    || (v110 = v108->waypointsCount,
-        v111 = this->pathData,
-        v114 = BPath::waypoint(v108, &v173, v110 - 1)->y,
-        v112 = BPath::waypoint(v109, &v172, v110 - 1),
-        RGE_Static_Object::distance_to_position((RGE_Static_Object *)this, v112->x, v114, 0.0) - v111->range >= 0.0000001) )
+  if ( (v76->flags.valueValue & BBitVectorAND_2) != 0
+    || (v111 = this->pathData, v111->range <= 0.1)
+    || (v112 = BPathData::highestLinkedPathPointer(v111), (v113 = v112) == 0)
+    || (v114 = v112->waypointsCount,
+        v115 = this->pathData,
+        v135 = BPath::waypoint(v112, &v175, v114 - 1)->y,
+        v116 = BPath::waypoint(v113, &v174, v114 - 1),
+        RGE_Static_Object::distance_to_position((RGE_Static_Object *)this, v116->x, v135, 0.0) - v115->range >= 0.0000001) )
   {
 LABEL_241:
-    LODWORD(v117.x) = &v159;
-    LODWORD(v117.y) = &this->positionValue;
-    RGE_Moving_Object::moveUnit(this, &v167, v149, v117);
+    RGE_Moving_Object::moveUnit(this, (BVector *)&p2.z, v158.y, &a4);
     return 0;
   }
-  BPathData::reset(v111);
+  BPathData::reset(v115);
 LABEL_239:
   this->vfptr->stopMoving(this);
   return 2;
 }
-// 4A4AEA: variable 'v147' is possibly undefined
-// 4A4DCE: variable 'obj' is possibly undefined
-// 4A4F43: variable 'v149' is possibly undefined
-// 4A5A0F: variable 'OB_System_To_Use' is possibly undefined
-// 4A5A31: variable 'v146' is possibly undefined
-// 4A5CB5: variable 'v144' is possibly undefined
 // 65BD94: using guessed type int BBitVectorAND_2;
 // 65BD9C: using guessed type int dword_65BD9C;
 // 689564: using guessed type int dword_689564;
@@ -177112,7 +177098,7 @@ int __thiscall RGE_Moving_Object::resolveCollisions(RGE_Moving_Object *this, BVe
       v11 = v10;
       if ( !v10 )
         goto LABEL_39;
-      if ( ((double (__thiscall *)(RGE_Static_Object *))v10->vfptr->maximumSpeed)(v10) > 0.0 )
+      if ( v10->vfptr->maximumSpeed(v10) > 0.0 )
         goto LABEL_39;
       v12 = v11->master_obj;
       v32 = v11->world_x - v12->radius_x;
@@ -177231,8 +177217,7 @@ double __thiscall RGE_Moving_Object::calculateYawAngle(RGE_Moving_Object *this, 
   float v; // [esp+1Ch] [ebp+4h]
 
   v = BVector::angleBetweenVector(newOF, curOF);
-  v7 = ((double (__thiscall *)(RGE_Master_Moving_Object *))this->master_obj->vfptr->getMaximumYawPerSecondMoving)(this->master_obj)
-     * interval;
+  v7 = this->master_obj->vfptr->getMaximumYawPerSecondMoving(this->master_obj) * interval;
   if ( v <= v7 )
   {
     *limitedAngle = 0;
@@ -177297,9 +177282,8 @@ double __thiscall RGE_Moving_Object::calculateTurnRadius(RGE_Moving_Object *this
   if ( !this->movementData )
     return 0.0;
   v2 = this->master_obj;
-  v3 = ((double (__thiscall *)(RGE_Master_Moving_Object *))v2->vfptr->getTurnRadius)(v2)
-     * this->movementData->velocity.y;
-  return v3 / ((double (__thiscall *)(RGE_Master_Moving_Object *))v2->vfptr->getTurnRadiusSpeed)(v2);
+  v3 = v2->vfptr->getTurnRadius(v2) * this->movementData->velocity.y;
+  return v3 / v2->vfptr->getTurnRadiusSpeed(v2);
 }
 
 //----- (004A6560) --------------------------------------------------------
@@ -177397,7 +177381,7 @@ BVector *__thiscall RGE_Moving_Object::straightProjectedPosition(RGE_Moving_Obje
   {
     v7 = operator_mul(&resulta, secondsInTheFuture, &v5->acceleration);
     BVector::operator_plus(&this->movementData->velocity, &v10, v7);
-    v8 = ((double (__thiscall *)(RGE_Moving_Object *, _DWORD))this->vfptr->calculateMaximumSpeed)(
+    v8 = this->vfptr->calculateMaximumSpeed(
            this,
            this->owner->world->map->map_row_offset[(__int64)this->positionValue.y][(__int64)this->positionValue.x].terrain_type);
     if ( v10.y > v8 || v10.y <= 0.0 )
@@ -302919,7 +302903,7 @@ int __thiscall RGE_Static_Object::isFlagSet(RGE_Static_Object *this, int n)
   switch ( n )
   {
     case 2:
-      if ( ((double (__thiscall *)(RGE_Static_Object *))this->vfptr->maximumSpeed)(this) != 0.0 )
+      if ( this->vfptr->maximumSpeed(this) != 0.0 )
         return 0;
       break;
     case 1:
@@ -309423,7 +309407,7 @@ void __thiscall TRIBE_Combat_Object::damage(TRIBE_Combat_Object *this, int weapo
   unsigned __int8 *v16; // eax
   float v17; // [esp+44h] [ebp-8h]
   float v18; // [esp+48h] [ebp-4h]
-  float first_calla; // [esp+64h] [ebp+18h]
+  int first_calla; // [esp+64h] [ebp+18h]
 
   v18 = this->hp;
   if ( v18 >= 1.0 )
@@ -309463,17 +309447,17 @@ void __thiscall TRIBE_Combat_Object::damage(TRIBE_Combat_Object *this, int weapo
             v12 = RGE_Moving_Object::angle_to_object((RGE_Moving_Object *)this, attackingObject, 0.0, 0.0);
             if ( v12 > -1.2 && v12 < 1.2 )
             {
-              first_calla = this->vfptr->calc_attack_modifier(this, attackingObject);
+              *(float *)&first_calla = this->vfptr->calc_attack_modifier(this, attackingObject);
               if ( attackingObject->master_obj->master_type == 70
                 && (unsigned __int8)RGE_Action_List::have_action2((RGE_Action_List *)attackingObject[1].mGroupID, 133) )
               {
-                first_calla = first_calla * 4.0;
+                *(float *)&first_calla = *(float *)&first_calla * 4.0;
               }
-              ((void (__thiscall *)(RGE_Static_Object *, _DWORD, RGE_Armor_Weapon_Info *, _DWORD, TRIBE_Player *, TRIBE_Combat_Object *))attackingObject->vfptr->damage)(
+              ((void (__thiscall *)(RGE_Static_Object *, _DWORD, RGE_Armor_Weapon_Info *, int, TRIBE_Player *, TRIBE_Combat_Object *))attackingObject->vfptr->damage)(
                 attackingObject,
                 this->master_obj->weapon_num,
                 this->master_obj->weapon,
-                LODWORD(first_calla),
+                first_calla,
                 this->owner,
                 this);
               if ( attackingObject->hp <= 1.0 )
@@ -310260,10 +310244,7 @@ unsigned __int8 __thiscall TRIBE_Combat_Object::do_attack(TRIBE_Combat_Object *t
       this->vfptr->notify(this, this->id, this->id, 512, 600, target->id, 0);
       if ( 100 * rand() / 0x7FFF <= this->master_obj->base_hit_chance )
       {
-        damage_moda = ((double (__thiscall *)(TRIBE_Combat_Object *, RGE_Static_Object *))this->vfptr->calc_attack_modifier)(
-                        this,
-                        target)
-                    * damage_mod;
+        damage_moda = this->vfptr->calc_attack_modifier(this, target) * damage_mod;
         ((void (__thiscall *)(RGE_Static_Object *, _DWORD, RGE_Armor_Weapon_Info *, _DWORD, TRIBE_Player *, RGE_Combat_Object *, int))target->vfptr->damage)(
           target,
           this->master_obj->weapon_num,
@@ -320305,7 +320286,7 @@ LABEL_55:
             return;
           }
           if ( this->target_obj->vfptr->get_target_obj(this->target_obj)
-            || ((double (__thiscall *)(RGE_Static_Object *))this->target_obj->vfptr->currentTargetX)(this->target_obj) != -1.0 )
+            || this->target_obj->vfptr->currentTargetX(this->target_obj) != -1.0 )
           {
             this->moved_sheep = 1;
           }
@@ -321004,11 +320985,8 @@ LABEL_128:
       v16 = this->target_obj;
       if ( !v16 )
         goto LABEL_54;
-      if ( !v16->vfptr->get_target_obj(v16)
-        && ((double (__thiscall *)(RGE_Static_Object *))this->target_obj->vfptr->currentTargetX)(this->target_obj) == -1.0 )
-      {
+      if ( !v16->vfptr->get_target_obj(v16) && this->target_obj->vfptr->currentTargetX(this->target_obj) == -1.0 )
         goto LABEL_57;
-      }
       v17 = (RGE_Static_Object *)this->obj;
       v18 = v17->owner->world->world_time_delta_seconds + this->timer;
       this->timer = v18;
@@ -321412,7 +321390,7 @@ void __thiscall TRIBE_Action_Hunt::gather_sheep(TRIBE_Action_Hunt *this, RGE_Sta
                     && v16->owner == this->obj->owner
                     && v16->object_state == 2
                     && !v16->vfptr->get_target_obj(v16)
-                    && ((double (__thiscall *)(RGE_Static_Object *))v16->vfptr->currentTargetX)(v16) == -1.0 )
+                    && v16->vfptr->currentTargetX(v16) == -1.0 )
                   {
                     v17 = 0;
                     if ( sheep_ordered_count <= 0 )
@@ -346144,7 +346122,7 @@ int __thiscall TribeInformationAIModule::InfluenceMapPart4(TribeInformationAIMod
               }
               else if ( !v10 && (v11 == 3 || v11 == 9 || v8->master_obj->id == 82) )
               {
-                v23 = ((double (__thiscall *)(RGE_Static_Object *))v8->vfptr->damageCapability_1)(v8);
+                v23 = v8->vfptr->damageCapability_1(v8);
                 minX.x = (__int64)((double)minX.x - v23 + 0.5);
                 minX.y = (__int64)((double)minX.y - v23 + 0.5);
                 maxX.x = (__int64)((double)maxX.x + v23 + 0.5);
@@ -348546,7 +348524,7 @@ void __thiscall TribeInformationAIModule::enemyUnitsInRange(TribeInformationAIMo
           if ( v6->object_state <= 2u && v6->hp >= 1.0 )
           {
             v20 = RGE_Static_Object::distance_to_position(v6, position.x, position.y, 0.0);
-            if ( ((double (__thiscall *)(RGE_Static_Object *))v7->vfptr->damageCapability_1)(v7) >= v20 )
+            if ( v7->vfptr->damageCapability_1(v7) >= v20 )
             {
               v8 = rUnits->numberValue;
               v9 = v7->id;
@@ -349370,9 +349348,7 @@ void __thiscall AIBestUnitToAttackStatistics::addUnit(AIBestUnitToAttackStatisti
     {
       if ( !unit )
         unit = v17;
-      v18 = ((double (__thiscall *)(RGE_Static_Object *, RGE_Static_Object *))v17->vfptr->damageCapability_2)(
-              v17,
-              target);
+      v18 = v17->vfptr->damageCapability_2(v17, target);
       if ( v18 <= 0.0000001 && (v19 = RGE_Static_Object::unitAI(v17), v19->vfptr->canConvert(v19, target->id, 0) == 1) )
       {
         v20 = target->hp * 0.1;
@@ -349380,7 +349356,7 @@ void __thiscall AIBestUnitToAttackStatistics::addUnit(AIBestUnitToAttackStatisti
       else
       {
         unitCentroidb = v18;
-        v20 = unitCentroidb / ((double (__thiscall *)(RGE_Static_Object *))v17->vfptr->rateOfFire)(v17);
+        v20 = unitCentroidb / v17->vfptr->rateOfFire(v17);
       }
       memoryIndexa = v20 + memoryIndexa;
     }
@@ -349452,9 +349428,7 @@ LABEL_69:
     v31 = v30;
     if ( v30 && RGE_Static_Object::unitAI(v30) )
     {
-      v32 = ((double (__thiscall *)(RGE_Static_Object *, RGE_Static_Object *))v31->vfptr->damageCapability_2)(
-              v31,
-              memoryIndexb);
+      v32 = v31->vfptr->damageCapability_2(v31, memoryIndexb);
       if ( v32 <= 0.0000001
         && (v33 = RGE_Static_Object::unitAI(v31), v33->vfptr->canConvert(v33, memoryIndexb->id, 0) == 1) )
       {
@@ -349463,7 +349437,7 @@ LABEL_69:
       else
       {
         v44 = v32;
-        v34 = v44 / ((double (__thiscall *)(RGE_Static_Object *))v31->vfptr->rateOfFire)(v31);
+        v34 = v44 / v31->vfptr->rateOfFire(v31);
       }
       unitsa = v34 + unitsa;
     }
@@ -351072,7 +351046,7 @@ LABEL_58:
       }
       if ( !v27
         || ((v17 = v11->master_obj->object_group, v17 == 10) || v17 == 9)
-        && ((double (__thiscall *)(RGE_Static_Object *))v12->vfptr->weaponRange)(v12) >= 0.0000001
+        && v12->vfptr->weaponRange(v12) >= 0.0000001
         && !TribeInformationAIModule::underInTownEnemyBuildingCoverFire(v2, v12->id) )
       {
         v32 = (float)TribeTacticalAIModule::buildingKillPriority(&v2->md->tacticalAI, v12->master_obj->id);
@@ -351369,7 +351343,7 @@ bool __thiscall TribeInformationAIModule::underInTownEnemyBuildingCoverFire(Trib
           if ( v9->object_state == 2 )
           {
             v33 = RGE_Static_Object::distance_to_object(v9, obj);
-            v12 = ((double (__thiscall *)(RGE_Static_Object *))v10->vfptr->damageCapability_1)(v10) + 1.0;
+            v12 = v10->vfptr->damageCapability_1(v10) + 1.0;
             v13 = v12 < v33;
             v14 = 0;
             v15 = v12 == v33;
@@ -351430,7 +351404,7 @@ LABEL_40:
           if ( v23 != 58 && v23 != 45 && v23 != 36 && v23 != 34 )
           {
             v34 = RGE_Static_Object::distance_to_object(v22, obj);
-            v24 = ((double (__thiscall *)(RGE_Static_Object *))v22->vfptr->damageCapability_1)(v22);
+            v24 = v22->vfptr->damageCapability_1(v22);
             if ( v24 < 6.0 )
               v24 = 6.0;
             v26 = v24 + 1.0;
@@ -363151,7 +363125,7 @@ void __thiscall TribeTacticalAIModule::evaluateOpenTasks(TribeTacticalAIModule *
           }
           while ( v6 < (int)unit );
         }
-        if ( ((double (__thiscall *)(RGE_Static_Object *))v5->vfptr->getSpeed)(v5) != 0.0
+        if ( v5->vfptr->getSpeed(v5) != 0.0
           || v5->attribute_amount_held <= 0.0
           || v5->vfptr->waitingToMove(v5)
           || v5->vfptr->actionState(v5) > 2u )
@@ -371786,7 +371760,7 @@ void __thiscall TribeTacticalAIModule::civilianUnderAttack(TribeTacticalAIModule
   v8 = RGE_Static_Object::unitAI(v5);
   UnitAIModule::unitsInSight(v8, v76, visibleUnits, &numberVisibleUnits, 50);
   v83 = 0;
-  v9 = ((double (__thiscall *)(RGE_Static_Object *))v7->vfptr->damageCapability_1)(v7);
+  v9 = v7->vfptr->damageCapability_1(v7);
   v96 = v9 > 0.0;
   v10 = 0;
   if ( numberVisibleUnits > 0 )
@@ -371797,7 +371771,7 @@ void __thiscall TribeTacticalAIModule::civilianUnderAttack(TribeTacticalAIModule
       v12 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *v11);
       if ( v12 )
       {
-        v9 = ((double (__thiscall *)(RGE_Static_Object *))v12->vfptr->damageCapability_1)(v12);
+        v9 = v12->vfptr->damageCapability_1(v12);
         if ( v9 > 0.0 )
           ++v83;
       }
@@ -371879,7 +371853,7 @@ void __thiscall TribeTacticalAIModule::civilianUnderAttack(TribeTacticalAIModule
               v25 = RGE_Static_Object::distance_to_object(v95, v19);
               v26 = v19->vfptr;
               *(float *)&v93 = v25;
-              v9 = ((double (__thiscall *)(RGE_Static_Object *))v26->damageCapability_1)(v19);
+              v9 = v26->damageCapability_1(v19);
               if ( v9 < 10.0 )
                 v9 = 10.0;
               if ( *(float *)&v93 <= v9 )
@@ -371970,7 +371944,7 @@ LABEL_49:
           v39 = RGE_Static_Object::distance_to_object(v95, v35);
           v40 = v35->vfptr;
           *(float *)&v93 = v39;
-          v9 = ((double (__thiscall *)(RGE_Static_Object *))v40->damageCapability_1)(v35);
+          v9 = v40->damageCapability_1(v35);
           if ( v9 < 10.0 )
             v9 = 10.0;
           if ( *(float *)&v93 <= v9 )
@@ -373753,7 +373727,7 @@ void __thiscall TribeTacticalAIModule::villagerAttackResponse(TribeTacticalAIMod
   if ( (double)v25->master_obj->hp * 0.2 < v25->hp )
   {
     obja = RGE_Static_Object::distance_to_object(v25, v5);
-    if ( ((double (__thiscall *)(RGE_Static_Object *))v25->vfptr->damageCapability_1)(v25) - 0.5 >= obja )
+    if ( v25->vfptr->damageCapability_1(v25) - 0.5 >= obja )
     {
       v26 = RGE_Static_Object::unitAI(v25);
       if ( v26->vfptr->canAttackUnit(v26, v5) )
@@ -374000,7 +373974,7 @@ LABEL_60:
               {
                 if ( v30 != 0x80 || v29->master_obj->fog_flag )
                 {
-                  v31 = ((double (__thiscall *)(RGE_Static_Object *))unit->vfptr->damageCapability_1)(unit);
+                  v31 = unit->vfptr->damageCapability_1(unit);
                   v43 = v31;
                   if ( v31 < 1.0 )
                     v43 = unit->master_obj->los;
@@ -374059,7 +374033,7 @@ LABEL_60:
               {
                 if ( v18 != 0x80 || v17->master_obj->fog_flag )
                 {
-                  v19 = ((double (__thiscall *)(RGE_Static_Object *))unit->vfptr->damageCapability_1)(unit);
+                  v19 = unit->vfptr->damageCapability_1(unit);
                   v42 = v19;
                   if ( v19 < 1.0 )
                     v42 = unit->master_obj->los;
@@ -374522,7 +374496,7 @@ LABEL_13:
     v10 = RGE_Game_World::object((RGE_Game_World *)this->objectValue->owner->world, v9);
     if ( !v10 )
       return 5;
-    v11 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->maximumSpeed)(this->objectValue) * 3.0;
+    v11 = this->objectValue->vfptr->maximumSpeed(this->objectValue) * 3.0;
     v12 = this->objectValue;
     v13 = v10->world_x - v12->world_x;
     v14 = v10->world_y - v12->world_y;
@@ -375972,7 +375946,7 @@ LABEL_3:
   v15 = v13->vfptr;
   v21 = v14;
   v23 = sqrt(v14 * v21 + v22 * v22);
-  v16 = ((double (__thiscall *)(RGE_Combat_Object *))v15->damageCapability_1)(v13);
+  v16 = v15->damageCapability_1(v13);
   v17 = v16 - v23;
   if ( v17 <= 0.0 )
     return 5;
@@ -376192,8 +376166,7 @@ int __thiscall TribePriestUnitAIModule::canAttackUnit(TribePriestUnitAIModule *t
             this->statePositionXValue,
             this->statePositionYValue,
             v4->world_z);
-  v8 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
-     + 0.5;
+  v8 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 0.5;
   if ( !unit->owner->id )
     v8 = v8 + 1.5;
   v9 = this->stateValue;
@@ -376211,22 +376184,19 @@ int __thiscall TribePriestUnitAIModule::canAttackUnit(TribePriestUnitAIModule *t
               LODWORD(v13->x),
               LODWORD(v13->z),
               LODWORD(v13->y));
-    v14 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
-        + 5.0 < unitb;
+    v14 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unitb;
   }
   else
   {
     if ( UnitAIModule::hasPatrolInformation((UnitAIModule *)this) != 1 )
     {
-      if ( ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
-         + 5.0 < unita )
+      if ( this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unita )
         return 0;
       return UnitAIModule::canAttackUnit((UnitAIModule *)this, unit);
     }
     v15 = *unit->vfptr->position(unit, v16);
     unitc = BPath::distanceFromPath(this->mPatrolPath, v15);
-    v14 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
-        + 5.0 < unitc;
+    v14 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unitc;
   }
   if ( v14 )
     return 0;
@@ -376272,7 +376242,7 @@ int __stdcall TribePriestUnitAIModule::findAlertModeObject(TribePriestUnitAIModu
            *(RGE_Game_World **)(*(_DWORD *)(*(_DWORD *)(v4 + 4) + 24) + 140),
            *(_DWORD *)(dword_7A1CB0[0] + 8 * v3));
     v6 = v5;
-    if ( v5 && ((double (__thiscall *)(RGE_Static_Object *))v5->vfptr->rateOfFire)(v5) != 0.0 )
+    if ( v5 && v5->vfptr->rateOfFire(v5) != 0.0 )
     {
       v7 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)*(_DWORD *)(v4 + 4), v6);
       if ( *(_WORD *)(*(_DWORD *)(*(_DWORD *)(v4 + 4) + 20) + 30) == 44 )
@@ -376433,7 +376403,7 @@ LABEL_10:
     case 512:
       if ( v5 == 512
         && (!this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner)
-         || ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue) < 1.0
+         || this->objectValue->vfptr->damageCapability_1(this->objectValue) < 1.0
          || UnitAIModule::currentTargetType((UnitAIModule *)this) == 18
          || UnitAIModule::currentTargetType((UnitAIModule *)this) == 6
          || UnitAIModule::currentTargetType((UnitAIModule *)this) == 8
@@ -377455,7 +377425,7 @@ int __thiscall TribeFishingShipUnitAIModule::processIdle(TribeTradeShipUnitAIMod
   v5 = RGE_Game_World::object((RGE_Game_World *)this->objectValue->owner->world, v4);
   if ( !v5 )
     return 5;
-  v6 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->maximumSpeed)(this->objectValue) * 7.0;
+  v6 = this->objectValue->vfptr->maximumSpeed(this->objectValue) * 7.0;
   v7 = this->objectValue;
   v8 = v5->world_x - v7->world_x;
   v9 = v5->world_y - v7->world_y;
@@ -377633,8 +377603,7 @@ int __thiscall TribeSoldierUnitAIModule::canAttackUnit(TribeSoldierUnitAIModule 
             this->statePositionXValue,
             this->statePositionYValue,
             this->objectValue->world_z);
-  v13 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
-      + 0.5;
+  v13 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 0.5;
   if ( !unit->owner->id )
     v13 = v13 + 1.5;
   v14 = this->stateValue;
@@ -377652,22 +377621,19 @@ int __thiscall TribeSoldierUnitAIModule::canAttackUnit(TribeSoldierUnitAIModule 
               LODWORD(v18->x),
               LODWORD(v18->z),
               LODWORD(v18->y));
-    v19 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
-        + 5.0 < unitb;
+    v19 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unitb;
   }
   else
   {
     if ( UnitAIModule::hasPatrolInformation((UnitAIModule *)this) != 1 )
     {
-      if ( ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
-         + 5.0 < unita )
+      if ( this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unita )
         return 0;
       return UnitAIModule::canAttackUnit((UnitAIModule *)this, unit);
     }
     v20 = *unit->vfptr->position(unit, v21);
     unitc = BPath::distanceFromPath(this->mPatrolPath, v20);
-    v19 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
-        + 5.0 < unitc;
+    v19 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unitc;
   }
   if ( v19 )
     return 0;
@@ -377697,7 +377663,7 @@ int __thiscall TribeSoldierUnitAIModule::findAlertModeObject(TribeSoldierUnitAIM
     v5 = v4;
     if ( v4 )
     {
-      if ( ((double (__thiscall *)(RGE_Static_Object *))v4->vfptr->rateOfFire)(v4) != 0.0 )
+      if ( v4->vfptr->rateOfFire(v4) != 0.0 )
       {
         v6 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->objectValue, v5);
         if ( v1 == -1 || v6 < v8 )
@@ -377812,7 +377778,7 @@ int __thiscall TribeSoldierUnitAIModule::processNotify(TribeSoldierUnitAIModule 
   }
   if ( nEvent->mType == 512
     && (!this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner)
-     || ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue) < 1.0
+     || this->objectValue->vfptr->damageCapability_1(this->objectValue) < 1.0
      || UnitAIModule::currentTargetType((UnitAIModule *)this) == 18
      || UnitAIModule::currentTargetType((UnitAIModule *)this) == 6
      || UnitAIModule::currentTargetType((UnitAIModule *)this) == 8
@@ -378313,8 +378279,7 @@ int __thiscall TribeSiegeUnitAIModule::canAttackUnit(TribeSiegeUnitAIModule *thi
             this->statePositionXValue,
             this->statePositionYValue,
             this->objectValue->world_z);
-  v5 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
-     + 0.5;
+  v5 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 0.5;
   if ( !unit->owner->id )
     v5 = v5 + 1.5;
   v6 = this->stateValue;
@@ -378332,22 +378297,19 @@ int __thiscall TribeSiegeUnitAIModule::canAttackUnit(TribeSiegeUnitAIModule *thi
               LODWORD(v10->x),
               LODWORD(v10->z),
               LODWORD(v10->y));
-    v11 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
-        + 5.0 < unitb;
+    v11 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unitb;
   }
   else
   {
     if ( UnitAIModule::hasPatrolInformation((UnitAIModule *)this) != 1 )
     {
-      if ( ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
-         + 5.0 < unita )
+      if ( this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unita )
         return 0;
       goto LABEL_22;
     }
     v18 = *unit->vfptr->position(unit, v19);
     unitc = BPath::distanceFromPath(this->mPatrolPath, v18);
-    v11 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue)
-        + 5.0 < unitc;
+    v11 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unitc;
   }
   if ( v11 )
     return 0;
@@ -378446,8 +378408,7 @@ int __thiscall TribeSiegeUnitAIModule::processNotify(TribeSiegeUnitAIModule *thi
     {
       if ( nEvent->mType != 512
         || this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner)
-        && (v3 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue),
-            v3 >= 1.0)
+        && (v3 = this->objectValue->vfptr->damageCapability_1(this->objectValue), v3 >= 1.0)
         && UnitAIModule::currentTargetType((UnitAIModule *)this) != 18
         && UnitAIModule::currentTargetType((UnitAIModule *)this) != 6
         && UnitAIModule::currentTargetType((UnitAIModule *)this) != 8
@@ -378465,7 +378426,7 @@ int __thiscall TribeSiegeUnitAIModule::processNotify(TribeSiegeUnitAIModule *thi
           else
           {
             v5 = 0;
-            v3 = ((double (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->damageCapability_1)(this->objectValue);
+            v3 = this->objectValue->vfptr->damageCapability_1(this->objectValue);
           }
           v6 = nEvent->p1;
           if ( v6 == -1 || nEvent->mType != 510 )
@@ -428177,8 +428138,7 @@ int __thiscall TRIBE_Main_View::mouse_up_action(TRIBE_Main_View *this, int left_
         }
         else
         {
-          if ( v15 <= *(float *)&v14[1].elevation_flag
-            || ((double (__thiscall *)(RGE_Static_Object *))v13->vfptr->maximumSpeed)(v13) != 0.0 )
+          if ( v15 <= *(float *)&v14[1].elevation_flag || v13->vfptr->maximumSpeed(v13) != 0.0 )
           {
 LABEL_20:
             v11 = this->player;
@@ -428515,7 +428475,7 @@ LABEL_31:
       }
       if ( !v61 )
         goto LABEL_166;
-      if ( v73 && ((double (__thiscall *)(RGE_Static_Object *))v61->vfptr->maximumSpeed)(v61) > 0.0 )
+      if ( v73 && v61->vfptr->maximumSpeed(v61) > 0.0 )
       {
         world_x.x = v61->world_x;
         world_x.y = v61->world_y;
@@ -452554,11 +452514,8 @@ LABEL_129:
                   ((void (__stdcall *)(int, int))base_game->vfptr->display_cant_do_msg)(3067, v6->player->id);
                   goto LABEL_79;
                 }
-                if ( v26 > *(float *)&v24[1].elevation_flag
-                  && ((double (__thiscall *)(RGE_Static_Object *))v23->vfptr->maximumSpeed)(v23) == 0.0 )
-                {
+                if ( v26 > *(float *)&v24[1].elevation_flag && v23->vfptr->maximumSpeed(v23) == 0.0 )
                   break;
-                }
               }
               v22 = v6->player;
               v27 = (int)&list->name + 1 < v22->sel_count;
