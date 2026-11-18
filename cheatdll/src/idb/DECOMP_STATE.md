@@ -3488,9 +3488,199 @@ authoritative.)
     (RGE_Moving_Object.cpp + playeroptions.cpp). Re-verify: the three
     negated-compare forms at RGE_Moving_Object.cpp :1673/:1683/:1701;
     the ordered-nonzero gates in the two setter bodies; the negated >=
-    updates in precalcDistToTarget_new/find_evacuate_area_new; the
-    probe source preserved at %TEMP%\opencode\nanprobe.cpp; the rule
+    updates in precalcDistToTarget_new/find_evacuate_area_new; the probe
+    source preserved at %TEMP%\opencode\nanprobe.cpp; the rule
     (i) table + the logger process in DECOMP_TEMPLATE.md.
+
+  - RUNTIME METHODS BATCH M7 (owner-approved + WRITTEN 2026-11-18):
+    5 hooks in RGE_Moving_Object.cpp (installer 57 -> 62). handle_teleport
+    _z_correction @0x004A1970 (double; the static correction :3833
+    UNHOOKED via the double-typed constant; the ground-match is the x87
+    test ah,40h; jz -> zero idiom - the on_ground=1 set is {=, NaN} ->
+    X87_EQ_NAN (the composed form); tile @+0x28 == 0 -> on_ground = 0;
+    the world_z @+0x50 return, exact widening); angle_to_object
+    @0x004A1100 (double, retn 0Ch; the facet guards INT tests; the planar
+    delta to_object-or-raw; atan2; the WRAP COMPARES are test ah,1; jz ->
+    skip idioms - unordered-taken -> X87_LT_NAN x2 (a NaN angle gets the
+    +2pi shifts in the original); the middle v8 > pi compare is test
+    ah,41h; jnz -> skip - the jnz targets the SKIP path so the literal >
+    MATCHES (kept literal); the scale fild facet; fmul flt_65C1A8
+    (0.15915494 = 1/2pi); fmulp st(1),st = the .c multiply order exact);
+    setVelocity @0x004A3870 / setAcceleration @0x004A3960 (void, retn 8;
+    the FULL-NORM lazy-create gate sqrt(x^2 + z^2 + y^2) != 0.0 - the x87
+    != render is the ORDERED-NONZERO test (a NaN vector does NOT
+    allocate) -> X87_NE_ORD(sqrt(...), 0.0); SEH chunks 0x642860/0x642880;
+    the guarded ctor; the 12-byte velocity/acceleration copies;
+    RESTRUCTURE documented (the nested if/else vs the .c's embedded-create
+    form - path-exact, the store shared)); calculateForward @0x004A6290
+    (retn 0Ch, int = always 1; the three-component coincidence chain is
+    the test ah,40h; jz -> normalize idiom x3 - the taken set per
+    component is {=, NaN}: ANY NaN component reads EQUAL and the unit
+    keeps its orientation -> X87_EQ_NAN x3; else operator_minus
+    (this = destination) + the PLANAR normalize (sqrt over .x/.y, the
+    vertical zeroed via the divide) + return 1). MACRO USAGE: X87_EQ_NAN
+    x4, X87_LT_NAN x2, X87_NE_ORD x2 - all unordered-inclusive compares
+    via the macros per the mandate. GATE CATCH: the batch insert omitted
+    calculateForward_new's body while its hook was pre-added - caught by
+    the defs/refs orphan check, fixed, re-gated clean. GATE 0 errors 0
+    warnings x1 TU x86; defs/refs 62/62 (installer 62). /Fa jcc
+    verification PASSED on calculateYawAngle_new (the exemplar: all
+    three macro expansions emit the CF-reading unordered-taken branches
+    - ja/jae-not-taken; the constants fold to the right addresses
+    0x606D60/0x606B00; the master slot dispatch mov eax,[edx+108] =
+    +0x6C; the fstp QWORD/movsd dance introduces no extra rounding; the
+    xorps sign-flips = exact fchs) - the same-expansion argument covers
+    the sibling macros; the full per-function /Fa sweep continues.
+    Remaining Moving methods 34 (M8 candidates smallest-first:
+    passableTile2 249, addCurrentPath 258, calculateReachedPoint 270,
+    passableTile 274, straightProjectedPosition 284, initMovementData
+    298; then findFirstTerrainAlongExceptionPath 338, canLinePath 349,
+    findAvoidancePath 351, canQuickPath 353, canLinePath2 397,
+    addFuturePath 414, firstTileAlongLine 425, canPathWithObstructions
+    465, turn_towards 514, checkAcceleration 750, resolveCollisions 975;
+    the capstone doIntelligentMovementUpdate 5819 with its bake
+    inventory: checkAcceleration_patch @0x4A6569, isMoving_v2 @0x4A3D90 -
+    speed4 already baked). Re-verify: the 5 defs + the 62 installer
+    hooks; the macros at the 7 call sites; x87_nan.h in stdafx.h +
+    the vcxproj ClInclude.
+
+  - RUNTIME METHODS BATCH M8a (owner-approved + WRITTEN 2026-11-18/19):
+    3 hooks in RGE_Moving_Object.cpp (installer 62 -> 65).
+    straightProjectedPosition @0x004A6860 (BVector*, retn 0Ch; the
+    scalar-overload operator_mul multiplies INLINED (the moveForward
+    precedent - the free operator_mul is un-exported, call operator_mul
+    with ECX = sret); operator_plus :5786 x2 (velocity+resulta;
+    positionValue+advanced); the cap: the tile under the unit via
+    ftol(positionValue.y)=row / ftol(positionValue.x)=col ->
+    map_row_offset[row][col].terrain_type (the real RGE_Map field
+    @0xBF18, terrain_type @+5, the 32-byte stride shl eax,5) -> the
+    calculateMaximumSpeed dispatch call [eax+31Ch] (slot 199 = our
+    hook); the two-gate clamp in the polarity-exact literal-composite
+    form !(v10.y > 0.0f && v10.y <= cap) - NaN clamps to the cap (the
+    polarity-table MATCH row: both x87 jz target the negative/keep
+    paths)); calculateReachedPoint @0x004A63F0 (int, retn 0Ch; the
+    three operator_minus deltas; the flight-phase flatten (flags 3/4 ->
+    vz = 0 + toPoint2.z = 0); the three sqrt lengths in the .c's exact
+    operand orders (len1 = y^2+x^2+vz^2; len2 = y^2+x^2+z^2; segLen =
+    y^2+z^2+x^2); the epsilon gate unordered-taken -> X87_LT_NAN(len2,
+    1e-7) -> return 1; the segment gate {<=, NaN}-taken -> X87_LE_NAN
+    (segLen, len1) -> return 0; the final ladder literal (ordered by
+    construction)); initMovementData @0x4A6A70 (void; the movement-state
+    reset) - THE STORE-SET DIFF FOUND TWO ITEMS THE .C RENDER DROPS:
+    (1) the vtable call slot +0x264 = 153 = removeAllUserDefinedWaypoints
+    (asm 0x4A6AC7, HOOKED -> routes to removeAllUserDefinedWaypoints_new;
+    the movement reset wipes the user waypoints) and (2)
+    orientationForwardValue.x = 1.0 (asm 0x4A6ACD-0x4A6AEB) - both
+    written. The rest: the terrain exceptions -1, the motion scalars
+    zeroed, the orientation reset (forward.x = 1.0, forward.z = 0,
+    right.x = 0, right.z = 0, right.y = -1.0, the position zeroed), the
+    three frees via BPathData__destructor :2506 + operator_delete_
+    internal, the lastMoveTimeValue/mHasSubstitutePosition/
+    mConsecutiveSubstituteCount zeros. GATE CATCH: continueCounter is
+    an INT field (the C4244 on the 0.0f) - corrected to = 0. OBSystem
+    GROUNDING RESOLVED (the owner's pushback - the absence claim was
+    WRONG, the definition-pattern search was never run): OBSystem_Land/
+    Air are TYPED - RGE_Obstruction_Manager** / RGE_Airspace_Manager**
+    (common.h:109-110); RGE_Obstruction_Manager DEFINED at idb_types.h
+    :5820 (168 bytes): vfptr @+0x0 (the ONLY vtbl pointer - the
+    intermediate "two vfptrs" claim was MY WALK BUG: the stepper
+    advanced 4 bytes per LINE incl. braces/comments), Active @+0x4,
+    World (RGE_Game_World*) @+0x8, Width (int) @+0xC, Height (int)
+    @+0x10, mfwidth/mfheight, HardObArrayData/HardObArray, NodeLevel
+    Index[32], the ignore-list block, BufferRadius, mnplayernum; the
+    Airspace twin @:5868 (slot-identical). THE .C'S v5[3]/v5[4] = the
+    object base +0xC/+0x10 = Width/Height EXACTLY (v5 = &vfptr = the
+    object base). The passableTile pair UNBLOCKED for their dedicated
+    decode (the OBSystem domain select + the Width/Height gates typed).
+    ENUMERATION-SCRIPT CORRECTION: the member-walk regex missed the two
+    pointer-return declarations at 150/155 (the BVector*/BPath* returns
+    break the \(\w[\w ]*\s+\* pattern) and shifted the printed indices
+    by +2 - the phantom "slot 153 = getPatrolInformation"; the permissive
+    per-member counter reconciles the struct with the real binary vftable
+    data at every verified slot (150-158, +0x324, +0x78/+0x7C, +0x6C) -
+    NO observable error in the vtable definitions; the corrected walker =
+    the permissive per-member count with the name extraction secondary.
+    GATE 0 errors 0 warnings x1 TU x86; defs/refs 65/65. Remaining Moving
+    methods 31. Re-verify: the 3 defs + the 65 installer hooks; the
+    OBSystem member form in passableTile2's decode.
+
+  - SESSION CLOSE (2026-11-19): the working tree verified consistent -
+    RGE_Moving_Object.cpp 65/65 gated 0/0 (the final gate pass), the
+    state file repaired (the M8a entry repositioned after the M7 entry;
+    the M6-era tail junction restored), x87_nan.h + the vcxproj entry +
+    the stdafx include in place, the template carrying rule (i) + the
+    probe protocol + the macro mandate + the logger process + the
+    per-batch scan rule + the comment placement + the context rule.
+    In-game: confirmed OK through M7 (the owner); M8a (straightProjected
+    Position/calculateReachedPoint/initMovementData) + the NaN fixes
+    AWAIT the owner's test build. THE PASSABLETILE PAIR (passableTile2
+    @0x004A1B30 / passableTile @0x004A1C30) = the dedicated-decode
+    queue HEAD: the OBSystem grounding RESOLVED (RGE_Obstruction_Manager
+    .Width/Height @+0xC/+0x10, :5820/:5868); the REMAINING groundings:
+    the runtime Static vtbl members 7/21/23 (the passableTile2 calls),
+    the master word @+0x76, the world+0x60 table, the dword_6AD134
+    global; passableTile's decode is asm-primary (the positive-sp
+    render).
+
+  - NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first. NOTE: .c/.lst were REGENERATED (the vtbl
+    re-typing + the prototype corrections): the ledger's LINE citations
+    are stale - cite addresses + function names; the .lst stack labels
+    are reliable. State: the runtime construction ladder complete (41);
+    the runtime methods through M8a: Moving installer 65 (remaining
+    Moving 31), Animated 12/12, Doppleganger 9/9, Missile 16/16, Tree
+    2/2 COMPLETE; Action 7/45, Combat 5/53, Static 6/136, TRIBE_Combat
+    4/79, TRIBE_Building 6/76 remaining. The x87_nan.h macro set is
+    MANDATORY for every unordered-inclusive compare (rule (i) + the
+    probe table + the /Fa gate check); the semantic comments go ABOVE
+    with trailing asm citations; the per-batch mechanical collision
+    scan is mandatory (never inherit a verdict); an Information Request
+    is a STOP CONDITION (resolve from the references first, then
+    present). IMMEDIATE WORK: (1) M8b - the passableTile cluster
+    dedicated decode: passableTile2 @0x004A1B30 + passableTile
+    @0x004A1C30 (asm-primary: the positive-sp render) - the REMAINING
+    groundings: the runtime Static vtbl members 7/21/23, the master
+    word @+0x76, the world+0x60 table, the dword_6AD134 global (the
+    OBSystem grounding DONE: RGE_Obstruction_Manager.Width/Height
+    @+0xC/+0x10, the Airspace twin :5868); (2) M8c smallest-first:
+    calculateReachedPoint/straightProjectedPosition/initMovementData
+    DONE (M8a) - next: canPathWithAdditionalPassability, get_waypoint
+    _checksum, addCurrentPath, passableTile pair (M8b), calculateReached
+    Point done; (3) the capstone: doIntelligentMovementUpdate (5819
+    bytes) with its bake inventory: checkAcceleration_patch @0x4A6569,
+    isMoving_v2 @0x4A3D90 - speed4 already baked (M4). ALSO FLAGGED:
+    the yaw/make_object_collision_list polarity pulls (the empty-window
+    sites - verify the x87 test masks), the /Fa per-function sweep
+    continuation, the LTG (/GL WholeProgramOptimization=true) probe gap
+    (the NaN probe ran /O2 non-LTCG). PROTOCOL: rule (i) + the probe
+    protocol + the macro mandate; the logger process available on
+    request; the per-batch mechanical collision scan; the semantic
+    comments above + the trailing citations; the approval gate before
+    every write; an Information Request is a stop condition."
+
+  - NaN SWEEP COMPLETE (owner-directed continuation of the (i) sweep,
+    2026-11-18): FIXED 1 further divergent site - make_object_collision
+    _list_new's radius gate (asm 0x49C04E-0x49C070: fld master radius;
+    fcomp const_f_zero; test ah,41h; jnz loc_49C1A3 = the empty return
+    - the taken set includes unordered, a NaN master radius returns the
+    empty list in the original; the literal <= is unordered-false and
+    would run the whole scan) -> the negated > form (!(radius_x >
+    0.0f) || !(radius_y > 0.0f)). VERIFIED MATCHING: the dz band check
+    (dz >= -radius_z && dz <= radius_z - the original's NaN flow skips
+    at the first x87 check exactly as the literal form does; ordered
+    deltas identical), yaw_new/setOrientation_new (no x87 compare
+    branches in the bodies), plus the previously verified sites.
+    FINAL SWEEP TALLY: 8 divergent sites fixed across the owned code
+    (calculateYawAngle x3, the setter pair, find_evacuate_area,
+    precalcDistToTarget, make_object_collision_list); all other owned
+    x87 compare branches verified matching against the (i) polarity
+    table. FLAGGED follow-ups: make_object_collision_list's world_z
+    delta block (asm 0x49C124-0x49C148 - the fcompp/test ah,1;jnz +
+    fcom/test ah,41h;jz two-radius structure decoded; the NaN delta
+    skips in BOTH the original and the written form - MATCH verified);
+    the yaw facet/angle calc tail (pure vector math, no branches -
+    clean). GATE 0 errors 0 warnings (RGE_Missile_Object.cpp).
 
   - FLOAT ST0-BOUNDARY FIX APPLIED (owner-directed, staged plan executed
     2026-11-16; prompt items (1) and (2) of the NEXT SESSION block above
@@ -3544,3 +3734,94 @@ authoritative.)
     this batch) OK. Re-verify: the 7 double signatures in the cpps;
     grep idb_functions.h '^float \(' (= 0); corollary (h) in
     DECOMP_TEMPLATE.md.
+
+  - RGE_Moving_Object::angle_to_object DESYNC FIXED (owner-reported +
+    owner-approved 2026-11-18): @0x004A1100 [0x4A1100,0x4A11A3). ROOT
+    CAUSE: the shipped form dropped the shared-tail dy subtraction -
+    fsub [ecx+4Ch] @0x4A1146 is the CONVERGED tail of BOTH delta paths
+    (jmp 0x4A1139 / fall-through; the .c's atan2(v6 - this->world_y, v5)
+    render has it) -> atan2 received the ABSOLUTE y. SECONDARY: the four
+    constants are dd floats widened exactly by the x87 ops (const_f_2pi
+    @0x65B388, flt_65B604 @0x65B604 = pi, flt_65C1AC @0x65C1AC = -pi,
+    flt_65C1A8 @0x65C1A8 = 1/2pi); the bare double literals differed by
+    2e-8..4e-8 (wrap-boundary windows + the facet scale) -> f-suffixed,
+    /Fa pool-verified against the mechanically computed widened
+    encodings (401921FB60000000 / 400921FB60000000 / C00921FB60000000 /
+    3FC45F3060000000). TERTIARY (caught by the /Fa check, same approval
+    round): the deltas now widen BEFORE the subtraction ((double) casts)
+    - the x87 fsub computes at 53-bit and feeds fpatan unrounded; the
+    bare float-float form compiled subss+cvtps2pd, a float rounding the
+    original never performed (rule (a) mechanical /Fa signature).
+    Gate: compile PASSED (v141_xp 14.16.27023, x86, /O2 /arch:SSE2
+    /fp:fast; non-/GL per the known LTG gap), sweeps clean (bare CRT 0,
+    bare base_game 0, pointer-walk int-only), /Fa jcc check passed (two
+    X87_LT_NAN unordered-taken comisd+jae, one literal > MATCH row
+    comisd+jbe, exit inventory 2x ret 12 = the asm's 2 retn 0Ch sites).
+    atan2 -> __libm_sse2_atan2: <= 1-2 double-ulp vs fpatan, judged
+    negligible for facet truncation. PENDING (NOT approved): amendments
+    A-D for DECOMP_TEMPLATE.md - A REVISED per the owner ruling that the
+    .lst CODE XREF annotations are INCOMPLETE and must not be relied on
+    (the join inventory must count inbound edges from the jump
+    instructions in the range itself, not from IDA's annotation lines);
+    the systemic widen-before-op /Fa sweep (incrementWaypoint,
+    calculateYawAngle, missile_move norm chains, the doIntelligent
+    MovementUpdate decode) awaits the amendment ruling.
+
+  - RGE_Moving_Object::calculateReachedPoint DESYNC FIXED (owner-reported
+    + owner-approved 2026-11-18), first M8a test feedback:
+    @0x004A63F0 [0x4A63F0,0x4A64FE). (1) rule (j) - the three norm
+    chains computed mulss/addss (24-bit per product/sum; len2/segLen
+    rounded entirely before sqrtsd) vs the x87 53-bit chain - all
+    operands now widen before the multiply; (2) rule (e) - len2 is
+    fst'd to m32 @0x4A6498 (the caller's pos1 slot, scratch reuse) and
+    the FINAL compare @0x4A64E1 consumes the ROUNDED value - the
+    (float) len2_reached intermediate restores the store-round the
+    transcription dropped (the .c's `v = v7; if (v6 >= v)` shows it).
+    LAYOUT LESSON: BVector = {x, z, y} (idb_types.h:1761 - z @+4, y @+8;
+    calibrated against operator_minus @0x606A60's write order) - an
+    assumed standard {x,y,z} layout initially manufactured a phantom
+    divergence; the .c render and the .lst labels AGREE under the true
+    layout. Also fixed: the return-2 comment cited the return-0 site
+    (0x4A64F7 -> 0x4A64EC), segLen's fcompp -> fcomp st(1), the range
+    end 0x4A6510 -> 0x4A64FE, and segLen aligned to the asm's
+    (z^2+y^2)+x^2 order (commutative, cosmetic). Gate: compile PASSED,
+    /Fa rule-(j) signature PASS (cvtps2pd before every mulsd; the only
+    cvtpd2ps is the intentional store-round), epsilon pool constant =
+    widened 1e-7f verified (3E7AD7F2A0000000), sweeps clean. OPEN:
+    straightProjectedPosition (same M8a batch) owes the same
+    rule-(j)/(e) audit.
+
+  - AMENDMENTS A-D APPLIED (owner-approved 2026-11-18):
+    DECOMP_TEMPLATE.md :166 (C, dd-constant widening), :393 (D, rule (j)
+    widen-before-op + the owed retroactive sweep), :669 (A,
+    join-convergence inventory - join discovery from the jump
+    instructions in the range, NOT the CODE XREF annotations - the
+    owner ruling that they are incomplete is recorded in the rule),
+    :688 (B, total-instruction citation coverage); plus the STATE-FILE
+    SESSION CONVENTION (:127) - NEXT SESSION blocks are closed records,
+    a new one is appended at session end. Line numbers as-inserted
+    2026-11-18. The A-D retroactive sweep (D's owed list) remains open
+    work.
+
+  - RGE_Moving_Object::straightProjectedPosition AUDITED + 2 FIXES
+    (owner-approved 2026-11-18, the rule-(j)/(e) audit owed by the
+    calculateReachedPoint entry): @0x004A6860 [0x4A6860,0x4A697C).
+    rule-(j)/(e) CLEAN (the operator_mul inlines are float-exact
+    products; the cap store-round and the speed-x-seconds product
+    store-round were already replicated). FIX 1 (aliasing): the advance
+    multiplies now target the asm's sret LOCAL (-0xC) instead of the
+    caller's *result - the direct form clobbers *result before
+    operator_plus reads positionValue when a caller aliases
+    result = &positionValue (no direct .c callers - vtable dispatch
+    only - so the asm's safe shape is mandatory); emitted form verified
+    (multiplies into _displacement$, one [edi] write at the tail).
+    FIX 2 (clamp polarity): the composite `!(v > 0.0f && v <= cap)`
+    nested the cap compare into the keep condition - on a NaN cap with
+    ordered v > 0 the asm's gate 2 (v vs 0.0 only, jz @0x4A6927) KEEPS
+    the speed while the nested form clamped to NaN - rewritten as the
+    cap-first chain `v > cap || !(v > 0.0f)`; /Fa-verified case table
+    incl. the NaN-cap row. Also: range comment 0x4A6980 -> 0x4A697C.
+    CLAMP-CHAIN LESSON logged for the doIntelligentMovementUpdate
+    decode: when the asm's gates are a CHAIN, the C composite must
+    preserve the gate ORDER and each gate's private operand set - never
+    fold a later gate's operand into an earlier keep condition.

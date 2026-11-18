@@ -924,7 +924,7 @@ double __fastcall RGE_Moving_Object__precalcDistToTarget_new(
             // (precision sub-rule (i))
             double d = (double)RGE_Static_Object__distance_to_object(
                 (RGE_Static_Object*)this_, child) - 0.1;             // asm 0x4A3FB7-0x4A3FBF (flt_6545BC)
-            if (!(d >= (double)result))                              // asm 0x4A3FC5-0x4A3FD0 (fcom var_4; test ah,1; jz -> the fstp-st discard)
+            if (X87_LT_NAN(d, (double)result))               // asm 0x4A3FC5-0x4A3FD0 (fcom var_4; test ah,1; jz -> the fstp-st discard - {>=, NaN}: a NaN distance UPDATES, as the original)
                 result = (float)d;                                   // asm 0x4A3FD0 (fstp var_4 store-round)
         }
     }
@@ -1385,7 +1385,7 @@ void __fastcall RGE_Moving_Object__setForwardVelocity_new(
         // v != 0.0f is unordered-TRUE (probe: ne_f = 10) and would allocate
         // on NaN - the faithful form is the ordered-nonzero disjunction
         // (precision sub-rule (i))
-        if (this_->movementData == 0 && ((v < 0.0f) || (v > 0.0f)))   // asm 0x4A3A4F-0x4A3A62 (test ah,40h; jnz -> the skip)
+        if (this_->movementData == 0 && X87_NE_ORD(v, 0.0f))   // asm 0x4A3A4F-0x4A3A62 (test ah,40h; jnz -> the skip; the skip set includes unordered - NaN commands do NOT create; the macro = the ordered-nonzero set)
         {
             new_data = (BMovementData*)operator_new_internal(sizeof(BMovementData));   // the 24-byte velocity+acceleration block (asm push 18h; same target as the binary's operator_new)
             if (new_data != 0)                               // guarded ctor - a null propagates as "still no data"
@@ -1420,7 +1420,7 @@ void __fastcall RGE_Moving_Object__setForwardAcceleration_new(
         // lazy create, same rule as setForwardVelocity: only an ordered-nonzero
         // command wakes the block up (the x87 test ah,40h skip set includes
         // unordered - see the setForwardVelocity note, sub-rule (i))
-        if (this_->movementData == 0 && ((v < 0.0f) || (v > 0.0f)))   // asm 0x4A3AFF-0x4A3B12
+        if (this_->movementData == 0 && X87_NE_ORD(v, 0.0f))   // asm 0x4A3AFF-0x4A3B12 (test ah,40h; jnz -> the skip; NaN commands do NOT create)
         {
             new_data = (BMovementData*)operator_new_internal(sizeof(BMovementData));   // asm 0x4A3B14 (push 18h)
             if (new_data != 0)
@@ -1683,7 +1683,7 @@ double __fastcall RGE_Moving_Object__calculateYawAngle_new(
     // C's <= is unordered-FALSE, so the faithful form is the negated
     // opposite (compiles comisd + jna/jbe = unordered-taken) - precision
     // sub-rule (i); the observed desync was exactly this class (NaN newOF)
-    if (!((double)v > yaw))                                  // asm 0x4A6378-0x4A6383 (fld v; fcomp st(1); test ah,41h)
+    if (X87_LE_NAN(v, yaw))                                  // asm 0x4A6378-0x4A6383 (fld v; fcomp st(1); test ah,41h - {<=, NaN}; the macro = the sub-rule (i) fix)
     {
         *limitedAngle = 0;                                   // no clamp needed; the allowance is popped unused (asm 0x4A63A8-region)
     }
@@ -1693,7 +1693,7 @@ double __fastcall RGE_Moving_Object__calculateYawAngle_new(
         // allowance's sign to match. The x87 test ah,1 is C0-ONLY = "< OR
         // unordered" -> the negate fires for NaN too; the faithful form is
         // the negated >= (precision sub-rule (i))
-        if (!(v >= 0.0f))                                    // asm 0x4A6385-0x4A6394
+        if (X87_LT_NAN(v, 0.0f))                             // asm 0x4A6385-0x4A6394 (test ah,1 - {<, NaN}; the macro = the sub-rule (i) fix)
             yaw = -yaw;                                      // asm 0x4A6396 (fchs on the 53-bit product)
 
         // the clamped step, rounded to m32 exactly as the original stores it
@@ -1711,7 +1711,7 @@ double __fastcall RGE_Moving_Object__calculateYawAngle_new(
     // test ah,41h; jnz = UNORDERED-TRUE (NaN result.z -> +v; the observed
     // desync: NaN newOF made result.z NaN and the C <= took -v, flipping the
     // turn direction) - the negated > is the faithful form (sub-rule (i))
-    if (!(result.z > 0.0f))                                  // asm 0x4A63C1-0x4A63D3 (fld m32; fcomp const_f_zero; test ah,41h)
+    if (X87_LE_NAN(result.z, 0.0f))                          // asm 0x4A63C1-0x4A63D3 (fld m32; fcomp const_f_zero; test ah,41h - {<=, NaN}; the macro = the sub-rule (i) fix - the observed desync: NaN newOF took -v, flipping the turn direction)
         return v;                                            // asm 0x4A63E1 path (fld v m32)
     return -v;                                               // asm 0x4A63D5-0x4A63DE (fld v; fchs)
 }
@@ -1981,7 +1981,7 @@ unsigned __int8 __fastcall RGE_Moving_Object__find_evacuate_area_new(
                 (float)((double)px + 0.5),                   // asm 0x4A6E5C-0x4A6E69 (fild/fadd/fstp store-round)
                 (float)((double)py + 0.5),                   // asm 0x4A6E4C-0x4A6E59 (fild/fadd/fstp store-round)
                 0.0f);
-            if (!(score >= (double)bestDist))                // asm 0x4A6E71-0x4A6E7A (fcom var_30; test ah,1; jz -> the discard)
+            if (X87_LT_NAN(score, (double)bestDist))         // asm 0x4A6E71-0x4A6E7A (fcom var_30; test ah,1; jz -> the discard - the taken set is {>=, NaN}: a NaN score UPDATES, as the original)
             {
                 bestDist = (float)score;                     // asm 0x4A6E84 (fstp var_30 store-round)
                 *ex = px;                                    // asm 0x4A6E88
@@ -2105,6 +2105,525 @@ double __fastcall RGE_Moving_Object__calculateYawAngle_logger(
     return result;
 }
 
+// Replacement for RGE_Moving_Object::handle_teleport_z_correction.
+// Original: @ 0x004A1970 (idb_functions.h:2139). Range [0x4A1970,
+// 0x4A19C6), returns double, retn 4. SEMANTIC: the teleport HEIGHT
+// reconciler - runs the base correction against the ground and marks
+// the unit on-ground when the correction agrees with the ground level
+// (or when there is no tile to stand on).
+// Decode (asm 0x4A1970-0x4A19C6): corrected = RGE_Static_Object__
+// handle_teleport_z_correction (:3833, UNHOOKED -> routes via the
+// double-typed constant, the 53-bit capture) with ground_z re-pushed
+// (asm 0x4A1977); the ground-match gate is the x87 test ah,40h; jz ->
+// ZERO idiom (asm 0x4A1985) - the on_ground=1 set is {=, NaN}
+// (unordered-equal-TRUE, sub-rule (i) item 5) - X87_EQ_NAN is the
+// faithful form (the literal C == is unordered-FALSE and would zero
+// on_ground for NaN); tile @+0x28 == 0 -> on_ground = 0 (asm
+// 0x4A1999-0x4A199E); return world_z @+0x50 (asm 0x4A19A4, fld m32 -
+// the exact widening to the double return). Single retn site
+// 0x4A19Ax (pop esi; retn 4).
+double __fastcall RGE_Moving_Object__handle_teleport_z_correction_new(
+    RGE_Moving_Object* this_, DWORD dummy, float ground_z)
+{
+    // the base correction (HOOKED -> routes; the st0 result captured at
+    // 53-bit through the double-typed constant)
+    double corrected = RGE_Static_Object__handle_teleport_z_correction(
+        (RGE_Static_Object*)this_, ground_z);                // asm 0x4A1978 (:3833)
+
+    // the ground-match: {=, NaN} -> on_ground (the x87 test ah,40h; jz ->
+    // the zero path; the composed form is the {=, NaN}-true test)
+    if (X87_EQ_NAN(corrected, ground_z))
+        this_->on_ground = 1;                                // asm 0x4A198A (byte @+0xD0)
+    else
+        this_->on_ground = 0;                                // asm 0x4A1993 (cl = 0)
+
+    // no tile beneath -> not on ground, whatever the correction said
+    if (this_->tile == 0)                                    // asm 0x4A1999 (@+0x28)
+        this_->on_ground = 0;                                // asm 0x4A199E
+
+    return this_->world_z;                                   // asm 0x4A19A4 (fld [esi+50h] - exact widening)
+}
+
+// Replacement for RGE_Moving_Object::angle_to_object. Original:
+// @ 0x004A1100 (idb_functions.h:2135). Range [0x4A1100, 0x4A119F),
+// returns double, retn 0Ch = 3 stack args. SEMANTIC: the facing angle
+// FROM this unit TO a target (or to a raw x/y when there is no
+// target), expressed as a signed facet-multiple: the atan2 of the
+// planar delta, wrapped into (-pi, pi], scaled by the sprite's facet
+// density (facets x 1/2pi - flt_65C1A8 = 0.15915494); 0.0 when the
+// sprite has no facets.
+// Decode (asm 0x4A1100-0x4A119F): sprite @+0x1C; the facet guards are
+// INT tests (facet_num < 8 -> the scale floor 8; !sprite ||
+// facet_num <= 0 -> return 0.0 via fld const_f_zero, asm 0x4A119C);
+// the planar delta: to_object ? (to->world_x/y @+0x48/+0x4C -
+// this->world_x/y) : (x/y params - this->world_x/y) (asm
+// 0x4A1130-0x4A1146); atan2 (the CRT double; asm 0x4A1148-region);
+// the WRAP COMPARES are the x87 test ah,1; jz -> skip idioms - the
+// taken set includes UNORDERED (sub-rule (i)): v7 < 0 -> +2pi
+// (const_f_2pi, asm 0x4A1155-0x4A115A -> X87_LT_NAN), v8 < -pi
+// (flt_65C1AC, asm 0x4A1181-0x4A1186 -> X87_LT_NAN); the middle
+// v8 > pi compare is test ah,41h; jnz -> skip (asm 0x4A116E-0x4A1173)
+// - the jnz targets the NEGATIVE path so the literal > MATCHES
+// (polarity table); the scale: fild facet_num; fmul flt_65C1A8;
+// fmulp st(1),st (asm 0x4A118C-0x4A1196) = v8 * (facet x 1/2pi) - the
+// .c multiply order exact.
+// DESYNC FIX (owner-approved 2026-11-18): the shipped form dropped the
+// shared-tail dy subtraction - fsub [ecx+4Ch] @0x4A1146 is the CONVERGED
+// tail of BOTH delta paths (jmp 0x4A1139 / fall-through) and the .c
+// render's atan2(v6 - this->world_y, v5) has it - so atan2 received the
+// ABSOLUTE y instead of the delta. Also all four constants are dd floats
+// widened exactly by the x87 ops (const_f_2pi @0x65B388, flt_65B604
+// @0x65B604, flt_65C1AC @0x65C1AC, flt_65C1A8 @0x65C1A8); the bare
+// double literals differed by 2e-8..4e-8 (wrap boundaries + the facet
+// scale) - now f-suffixed for the exact widening. Follow-up (same
+// approval round): the deltas widen BEFORE the subtraction ((double)
+// casts) - the x87 fsub computes at 53-bit and feeds fpatan unrounded;
+// the bare float-float form compiled to subss+cvtps2pd (a float
+// rounding the original never performed).
+double __fastcall RGE_Moving_Object__angle_to_object_new(
+    RGE_Moving_Object* this_, DWORD dummy, RGE_Static_Object* to_object,
+    float x, float y)
+{
+    RGE_Sprite* sprite = this_->sprite;                      // asm 0x4A1100-region
+    int facets = sprite ? sprite->facet_num : 0;             // asm 0x4A1104-0x4A1115 (int tests)
+    if (facets < 8)
+        facets = 8;                                          // asm 0x4A1118-0x4A1128 (the scale floor)
+    if (sprite == 0 || sprite->facet_num <= 0)
+        return 0.0;                                          // asm 0x4A119C (fld const_f_zero)
+
+    // the planar delta to the target (or to the raw fallback coords)
+    double dx;
+    double dy;
+    if (to_object != 0)
+    {
+        dx = (double)to_object->world_x - (double)this_->world_x;   // asm 0x4A1130-0x4A1133 (fld m32; fsub m32 - 53-bit intermediates: widen-before-op)
+        dy = (double)to_object->world_y - (double)this_->world_y;   // asm 0x4A1136 (fld) + 0x4A1146 (fsub [ecx+4Ch], shared tail - both paths converge via jmp 0x4A1139)
+    }
+    else
+    {
+        dx = (double)x - (double)this_->world_x;                    // asm 0x4A113B-0x4A113F
+        dy = (double)y - (double)this_->world_y;                    // asm 0x4A1142 (fld) + 0x4A1146 (fsub [ecx+4Ch], shared tail)
+    }
+
+    // the wrapped angle: atan2 then the two x87 wrap compares - the taken
+    // set includes unordered (test ah,1; jz -> skip): a NaN angle gets the
+    // +2pi shifts in the original -> X87_LT_NAN
+    double angle = atan2(dy, dx);                            // asm 0x4A1148
+    if (X87_LT_NAN(angle, 0.0))
+        angle += 6.2831855f;                                 // asm 0x4A1155-0x4A115A (fadd const_f_2pi @0x65B388, dd float)
+
+    // relative to the unit's current facing
+    double rel = angle - this_->angle;                       // asm 0x4A1160 (this->angle @+0xC8)
+
+    // the middle wrap: test ah,41h; jnz -> SKIP the subtraction - the
+    // jnz targets the skip path so the literal > MATCHES (polarity table)
+    if (rel > 3.1415927f)
+        rel -= 6.2831855f;                                   // asm 0x4A1173 (fsub const_f_2pi; flt_65B604 @0x65B604 = pi, dd float)
+
+    // the second wrap: test ah,1; jz -> skip - unordered taken -> X87_LT_NAN
+    if (X87_LT_NAN(rel, -3.1415927f))
+        rel += 6.2831855f;                                   // asm 0x4A1181-0x4A1186 (fadd const_f_2pi; flt_65C1AC @0x65C1AC, dd float)
+
+    // the facet multiple: rel x (facets / 2pi)
+    return rel * ((double)facets * 0.15915494f);             // asm 0x4A118C-0x4A1196 (fild; fmul flt_65C1A8 @0x65C1A8, dd float; fmulp st(1),st)
+}
+
+// Replacement for RGE_Moving_Object::setVelocity. Original:
+// @ 0x004A3870 (idb_functions.h:2175). Range [0x4A3870, 0x4A3920),
+// void, retn 8. SEMANTIC: the full-vector velocity command - lazily
+// creates the BMotionData when the unit is idle AND the commanded
+// vector is a NONZERO LENGTH (the full planar+vertical norm, not the
+// forward-only gate of setForwardVelocity), then copies the whole
+// BVector. SEH allocation-unwind chunk 0x642860.
+// Decode (asm 0x4A3870-0x4A3920): the norm gate sqrt(x^2 + z^2 + y^2)
+// (asm 0x4A3897-0x4A38AF, fsqrt) rendered `!= 0.0` - the x87 idiom is
+// the ORDERED-NONZERO test (unordered -> no create; a NaN vector does
+// NOT allocate) -> X87_NE_ORD(v, 0.0) is the faithful form (the
+// literal C != is unordered-TRUE and would allocate on NaN - probe:
+// ne_f = 10, sub-rule (i)); operator_new(0x18) = sizeof(BMovementData)
+// walked; the guarded ctor (0x004BBCF0); movementData = result; the
+// 12-byte velocity copy (the .c's assignment).
+// RESTRUCTURE (documented): the .c's `movementData || norm != 0 &&
+// (create-embedded)` form is written as the nested if/else - path-exact
+// (the store is shared between the pre-existing and the created paths;
+// a NaN/zero norm skips both in the original).
+void __fastcall RGE_Moving_Object__setVelocity_new(
+    RGE_Moving_Object* this_, DWORD dummy, BVector* v)
+{
+    BMovementData* new_data = 0;   // asm var_4 - the SEH-freed slot (0-init)
+    __try
+    {
+        // the norm gate: the original's `!= 0.0` render is the
+        // ordered-nonzero test - NaN vectors do NOT create the block
+        if (this_->movementData != 0
+            || X87_NE_ORD(sqrt((double)v->x * (double)v->x
+                + (double)v->z * (double)v->z
+                + (double)v->y * (double)v->y), 0.0))        // asm 0x4A3897-0x4A38B0+ (fsqrt; the ordered-nonzero test)
+        {
+            if (this_->movementData == 0)
+            {
+                new_data = (BMovementData*)operator_new_internal(sizeof(BMovementData));   // asm push 18h
+                if (new_data != 0)
+                    new_data = BMovementData__BMovementData(new_data);   // asm (ctor 0x004BBCF0)
+                this_->movementData = new_data;
+            }
+            if (this_->movementData != 0)
+                this_->movementData->velocity = *v;          // the 12-byte copy
+        }
+    }
+    __except (operator_delete_internal(new_data), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x642860
+    {
+    }
+}
+
+// Replacement for RGE_Moving_Object::setAcceleration. Original:
+// @ 0x004A3960 (idb_functions.h:2177). Range [0x4A3960, 0x4A3A10),
+// void, retn 8. SEMANTIC: the full-vector acceleration command - the
+// setVelocity shape storing into BMotionData::acceleration. SEH
+// allocation-unwind chunk 0x642880.
+void __fastcall RGE_Moving_Object__setAcceleration_new(
+    RGE_Moving_Object* this_, DWORD dummy, BVector* v)
+{
+    BMovementData* new_data = 0;   // asm var_4 - the SEH-freed slot (0-init)
+    __try
+    {
+        if (this_->movementData != 0
+            || X87_NE_ORD(sqrt((double)v->x * (double)v->x
+                + (double)v->z * (double)v->z
+                + (double)v->y * (double)v->y), 0.0))        // asm (fsqrt; the ordered-nonzero test)
+        {
+            if (this_->movementData == 0)
+            {
+                new_data = (BMovementData*)operator_new_internal(sizeof(BMovementData));
+                if (new_data != 0)
+                    new_data = BMovementData__BMovementData(new_data);
+                this_->movementData = new_data;
+            }
+            if (this_->movementData != 0)
+                this_->movementData->acceleration = *v;      // the 12-byte copy
+        }
+    }
+    __except (operator_delete_internal(new_data), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x642880
+    {
+    }
+}
+
+// Replacement for RGE_Moving_Object::calculateForward. Original:
+// @ 0x004A6290 (idb_functions.h:2198). Range [0x4A6290, 0x4A62E9+),
+// retn 0Ch = 3 stack args, int (always 1). SEMANTIC: computes the
+// movement forward vector from start to destination - when the two
+// points coincide the unit keeps its current orientation; otherwise
+// the delta is normalized to unit length (the PLANAR normalize: sqrt
+// over .x/.y only, the vertical .z zeroed by the 0/v5 term).
+// Decode (asm 0x4A6290-0x4A62E6): the three-component equality chain
+// is the x87 test ah,40h; jz -> normalize idiom x3 (asm 0x4A62A0-62C1)
+// - the taken set per component is {=, NaN} (sub-rule (i) item 5):
+// ANY NaN component takes the equal path in the original -> the
+// X87_EQ_NAN composed form per component; the equal path:
+// *newOF = orientationForwardValue @+0x100 (asm 0x4A62C3-0x4A62DB, the
+// 12-byte copy) + return 1 (asm 0x4A62DE, retn 0Ch 0x4A62E6); the
+// normalize path: BVector__operator_minus (this = destination; the
+// .c's `operator_minus(destination, &result, start)`, asm 0x4A62E9-62EF)
+// -> *newOF = result -> the planar sqrt normalize (the .c:
+// sqrt(x*x + y*y); x/v5; z = 0/v5; y/v5) -> return 1.
+int __fastcall RGE_Moving_Object__calculateForward_new(
+    RGE_Moving_Object* this_, DWORD dummy, BVector* start, BVector* destination,
+    BVector* newOF)
+{
+    // the coincidence test: ANY NaN component reads as "equal" in the
+    // original (the x87 test ah,40h idiom - {=, NaN} taken) - the unit
+    // keeps its current orientation
+    if (X87_EQ_NAN(start->x, destination->x)
+        && X87_EQ_NAN(start->z, destination->z)
+        && X87_EQ_NAN(start->y, destination->y))             // asm 0x4A62A0-0x4A62C1 (test ah,40h; jz x3)
+    {
+        *newOF = this_->orientationForwardValue;             // asm 0x4A62C3-0x4A62DB (@+0x100, the 12-byte copy)
+        return 1;                                            // asm 0x4A62DE
+    }
+
+    // the delta + the planar normalize
+    BVector result;
+    BVector__operator_minus(destination, &result, start);    // asm 0x4A62E9-0x4A62EF (this = destination)
+    *newOF = result;                                         // the .c's *newOF = result
+    double len = sqrt((double)newOF->x * (double)newOF->x
+        + (double)newOF->y * (double)newOF->y);              // the PLANAR norm (x + y per the .c)
+    newOF->x = (float)((double)newOF->x / len);              // asm (fld/fdiv)
+    newOF->z = (float)(0.0 / len);                           // asm - the vertical zeroed via the divide (the .c's 0.0 / v5)
+    newOF->y = (float)((double)newOF->y / len);              // asm
+    return 1;                                                // asm mov eax, 1
+}
+
+// Replacement for RGE_Moving_Object::straightProjectedPosition. Original:
+// @ 0x004A6860 (idb_functions.h:2203). Range [0x4A6860, 0x4A697C),
+// retn 0Ch, returns BVector*. SEMANTIC: where the unit would be if it
+// kept accelerating along newOF for the given seconds, speed-capped.
+// Decode (asm 0x4A6860-0x4A697C): no movementData -> *result =
+// positionValue (asm 0x4A6874-0x4A688A, add esi,0xF4; the 3-dword copy;
+// retn 0Ch 0x4A6890); else resulta = acceleration x seconds (the SCALAR
+// operator_mul overload - un-exported free function, call operator_mul
+// asm 0x4A68A2 with ECX = sret - the moveForward inline precedent
+// applies: the 3-multiplies are the faithful form); v10 = velocity +
+// resulta (BVector__operator_plus :5786, asm 0x4A68B3, this =
+// movementData); the cap: the unit's tile via ftol(positionValue.y) =
+// the row / ftol(positionValue.x) = the col (asm 0x4A68D6/0x4A68E9),
+// map_row_offset[row] (asm 0x4A68DD/0x4A68EE, the real RGE_Map field
+// @0xBF18) -> terrain_type @+5 (asm mov dl,[ecx+eax+5]; shl eax,5 =
+// the 32-byte tile stride) -> the calculateMaximumSpeed dispatch
+// call [eax+31Ch] (slot 199 = our hook, asm 0x4A6902); the clamp is
+// the two-gate x87 form (asm 0x4A6908-0x4A692F): gate 1 test ah,41h;
+// jz -> clamp (ordered && v10.y > cap), gate 2 test ah,41h; jz -> keep
+// (ordered && v10.y > 0) - the fall-throughs (incl. NaN) CLAMP - the
+// literal-composite form below is polarity-exact (the polarity-table
+// MATCH row: both jz target the negative/keep paths; the .c's
+// `v10.y > v8 || v10.y <= 0.0` clamp form DIVERGES on NaN - it would
+// keep a NaN speed; the written composite follows the asm); a = the
+// clamped speed x seconds (asm 0x4A6931-0x4A693D, the product
+// store-rounded by fstp m32 @0x4A693D - replicated by the float
+// local); the advance: newOF x a (the scalar overload inlined,
+// asm 0x4A694A) -> operator_plus(positionValue, &v11, ...) (asm
+// 0x4A6959, :5786) -> *result = v11 (the 3-dword copy, asm
+// 0x4A695E-0x4A6976).
+// AUDIT FIX (owner-approved 2026-11-18): the advance multiplies target
+// the asm's sret LOCAL (-0xC), not the caller's *result - the direct
+// form clobbers *result before operator_plus reads positionValue when
+// a caller aliases result = &positionValue (the function has NO direct
+// .c callers - vtable dispatch only - so aliasing callers are
+// unprovable and the asm's safe shape is mandatory). Range corrected
+// 0x4A6980 -> 0x4A697C (the endp; 0x4A6980 is the next proc's align).
+// CLAMP FIX (same approval round): the composite
+// `!(v > 0.0f && v <= cap)` nested the cap compare into the keep
+// condition - on a NaN cap with ordered v > 0 the asm's gate 2 (which
+// tests v against 0.0 only) KEEPS the speed while the nested form
+// CLAMPED to NaN - rewritten as the cap-first chain
+// `v > cap || !(v > 0.0f)` matching the gate order.
+BVector* __fastcall RGE_Moving_Object__straightProjectedPosition_new(
+    RGE_Moving_Object* this_, DWORD dummy, BVector* result, BVector* newOF,
+    float secondsInTheFuture)
+{
+    if (this_->movementData == 0)
+    {
+        *result = this_->positionValue;
+        return result;
+    }
+
+    // resulta = acceleration x seconds (the scalar overload inlined)
+    BVector resulta;
+    resulta.x = this_->movementData->acceleration.x * secondsInTheFuture;
+    resulta.z = this_->movementData->acceleration.z * secondsInTheFuture;
+    resulta.y = this_->movementData->acceleration.y * secondsInTheFuture;
+
+    // v10 = velocity + resulta
+    BVector v10;
+    BVector__operator_plus(&this_->movementData->velocity, &v10, &resulta);
+
+    // the speed cap from the tile under the unit
+    int row = (int)this_->positionValue.y;                   // the row axis (asm __ftol)
+    int col = (int)this_->positionValue.x;                   // asm __ftol
+    RGE_Map* map = this_->owner->world->map;
+    unsigned __int8 terrain = map->map_row_offset[row][col].terrain_type;
+    double cap = this_->vfptr->calculateMaximumSpeed(this_, terrain);
+
+    // keep only an ordered speed: the asm CLAMPS when (ordered && v > cap)
+    // (gate 1, jz @0x4A6916) or when NOT(ordered && v > 0) (gate 2, jz
+    // @0x4A6927) - the gates are a CHAIN and gate 2 tests v against 0.0
+    // only, so a NaN cap falls through BOTH and the original KEEPS the
+    // speed: the composite below preserves that (the previous form nested
+    // the cap compare into the keep condition and clamped on a NaN cap)
+    if (v10.y > cap || !(v10.y > 0.0f))
+        v10.y = (float)cap;                              // asm 0x4A6929 (fstp m32 - the cap store-round)
+
+    // a = the clamped speed x seconds
+    float a = v10.y * secondsInTheFuture;
+
+    // the position advance: newOF x a (the scalar overload inlined) - the
+    // asm targets its sret LOCAL (-0xC), NOT the caller's *result: a
+    // caller may alias result with positionValue, and the direct form
+    // would clobber positionValue before operator_plus reads it
+    BVector displacement;                                    // the asm's -0xC sret local (operator_mul sret @0x4A6946)
+    displacement.x = newOF->x * a;
+    displacement.z = newOF->z * a;
+    displacement.y = newOF->y * a;
+
+    // plus the unit's current position
+    BVector advanced;
+    BVector__operator_plus(&this_->positionValue, &advanced, &displacement);   // asm 0x4A6959 (var_18 = positionValue + displacement)
+    *result = advanced;                                      // asm 0x4A695E-0x4A6976 (var_18 -> [result])
+    return result;
+}
+
+// Replacement for RGE_Moving_Object::calculateReachedPoint. Original:
+// @ 0x004A63F0 (idb_functions.h:2200). Range [0x4A63F0, 0x4A64FE),
+// retn 0Ch, int. SEMANTIC: the reach test against the pos1->pos2
+// segment - 1 = reached (or the segment is degenerate/negative), 0 =
+// the segment is shorter than the remaining distance, 2 = en route.
+// NOTE: BVector is {x, z, y} (idb_types.h:1761 - z @+4, y @+8; the
+// vertical stored last; calibrated against operator_minus @0x606A60's
+// write order and the var_24.z store at var_24+4) - so var_14 = .z and
+// var_10 = .y in this function's .lst frame labels.
+// Decode (asm 0x4A63F0-0x4A64FE): the three operator_minus deltas; the
+// isFlagSet(3)/(4) gates (asm 0x4A6430/0x4A643D) zero toPoint2.z and
+// the first length's vertical (the join value); the three sqrt lengths
+// in the asm's operand orders (len1 = y^2+x^2+vz^2; len2 = y^2+x^2+z^2;
+// segLen = (z^2+y^2)+x^2); the epsilon gate (fcom flt_6565F4 = dd
+// 1.0e-7 @0x6565F4; test ah,1; jz -> continue, asm 0x4A649C-0x4A64A9)
+// is UNORDERED-TAKEN - a NaN len2 returns 1 -> X87_LT_NAN; the segment
+// gate (fcomp st(1); test ah,41h; jnz -> return 0, asm 0x4A64D8-0x4A64DF)
+// is {<=, NaN}-taken -> X87_LE_NAN (a NaN len1 also returns 0); the
+// final ladder's operands are ordered by then - the literal >= matches.
+// DESYNC FIX (owner-approved 2026-11-18): (1) rule (j) - the bare
+// float-field norm products compiled mulss/addss (24-bit roundings per
+// product and per sum; len2/segLen summed entirely at float before
+// sqrtsd) where the x87 chain is 53-bit end to end - every operand now
+// widens BEFORE the multiply; (2) rule (e) - len2 is fst'd to m32
+// @0x4A6498 (into the caller's pos1 slot, scratch reuse) and the FINAL
+// compare consumes the ROUNDED value (fcomp [esp+24h+v] @0x4A64E1)
+// while the epsilon gate consumes the unrounded st0 - the (float)
+// len2_reached intermediate restores the store-round the transcription
+// dropped (the .c's `v = v7; if (v6 >= v)` shows it); the segLen
+// expression is aligned to the asm's (z^2+y^2)+x^2 order (commutative,
+// cosmetic). Exit inventory: 3 asm return sites (loc_4A64AB eax=1 - a
+// 2-inbound join per amendment A: the 0x4A64A9 fall-through AND jz
+// @0x4A64EA, both written as return 1; loc_4A64EC eax=2; loc_4A64F7
+// eax=0).
+int __fastcall RGE_Moving_Object__calculateReachedPoint_new(
+    RGE_Moving_Object* this_, DWORD dummy, BVector* point, BVector* pos1, BVector* pos2)
+{
+    BVector toPoint1;                                        // the .c's result (point - pos1)
+    BVector toPoint2;                                        // the .c's v9 (point - pos2)
+    BVector segment;                                         // the .c's v11 (pos2 - pos1)
+    BVector__operator_minus(point, &toPoint1, pos1);         // :5787
+    BVector__operator_minus(point, &toPoint2, pos2);
+    BVector__operator_minus(pos2, &segment, pos1);
+
+    // the flight-phase flatten: flags 3/4 zero the second delta's vertical
+    // and the first length's vertical term
+    double vz;
+    if (RGE_Static_Object__isFlagSet((RGE_Static_Object*)this_, 3)
+        || RGE_Static_Object__isFlagSet((RGE_Static_Object*)this_, 4))   // asm 0x4A6442
+    {
+        vz = 0.0;                                            // the .c's v5
+        toPoint2.z = 0.0f;                                   // the .c's v9.z = 0
+    }
+    else
+    {
+        vz = toPoint1.z;                                     // the .c's v5 = result.z
+    }
+
+    double len1 = sqrt((double)toPoint1.y * toPoint1.y + (double)toPoint1.x * toPoint1.x + vz * vz);       // asm 0x4A645A-0x4A6476 (y^2 + x^2 + vz^2, all 53-bit)
+    double len2 = sqrt((double)toPoint2.y * toPoint2.y + (double)toPoint2.x * toPoint2.x + (double)toPoint2.z * toPoint2.z);   // asm 0x4A647A-0x4A6496
+
+    // the store-round: len2 is fst'd to m32 @0x4A6498 (into the caller's
+    // pos1 slot - scratch reuse) and the FINAL compare consumes the
+    // ROUNDED value (rule (e)); the epsilon gate consumes the unrounded st0
+    float len2_reached = (float)len2;                        // asm 0x4A6498 (fst [esp+24h+v])
+
+    // the epsilon gate: unordered-taken (a NaN len2 = "reached")
+    if (X87_LT_NAN(len2, 0.0000001f))                        // asm 0x4A649C-0x4A64A9 (fcomp flt_6565F4 = dd 1.0e-7 @0x6565F4)
+        return 1;
+
+    // the segment shorter than the remaining distance -> not reached;
+    // {<=, NaN}-taken (a NaN len1 or a NaN segment = 0)
+    double segLen = sqrt((double)segment.z * segment.z + (double)segment.y * segment.y + (double)segment.x * segment.x);   // asm 0x4A64B6-0x4A64D2 ((z^2 + y^2) + x^2)
+    if (X87_LE_NAN(segLen, len1))                            // asm 0x4A64D8-0x4A64DF (fcomp st(1); test ah,41h; jnz -> return 0)
+        return 0;
+
+    // the operands are ordered here (every NaN source is gated upstream)
+    // and the len2 operand is the FLOAT-ROUNDED store - the literal >= MATCH
+    if (len1 >= len2_reached)                                // asm 0x4A64E1-0x4A64EA (fcomp [esp+24h+v] - the ROUNDED operand)
+        return 1;
+    return 2;                                                // asm 0x4A64EC (mov eax,2)
+}
+
+// Replacement for RGE_Moving_Object::initMovementData. Original:
+// @ 0x4A6A70 (idb_functions.h:2208). Range [0x4A6A70, 0x4A6B96+), void.
+// SEMANTIC: the movement-state RESET - the terrain exceptions, the
+// motion scalars, the orientation (forward restored to +X, right to -Y,
+// the position zeroed), the patrol-information refresh, and the three
+// heap frees.
+// Decode (asm 0x4A6A70-0x4A6B96) - THE STORE-SET DIFF FOUND TWO ITEMS
+// THE .C RENDER DROPS: (1) the vtable call slot +0x264 = 153 =
+// removeAllUserDefinedWaypoints (asm 0x4A6AC7, HOOKED -> routes; the
+// REAL Moving vftable initializer verified - slot 153 = removeAll...
+// and 155 = getPatrolInformation; the idb struct member names match the
+// real data slot-for-slot - the earlier "slot 153 = getPatrolInformation"
+// was MY enumeration script's defect: its member regex missed the two
+// pointer-return declarations at 150/155 and shifted the printed indices
+// by +2); (2) orientationForwardValue.x = 1.0 (asm 0x4A6ACD-0x4A6AEB,
+// the 1.0 float local stored to [esi+0x100]) - the .c's zero-list omits
+// both.
+// The store set: currentTerrainException2/1 = -1 (@+0xE0/0xDC); trail_
+// remainder = 0 (@+0xB8); velocity_x/y/z = 0 (@+0xBC/0xC0/0xC4); angle
+// = 0 (@+0xC8); turn_towards_time = 0 (@+0xCC); turnTimer = 0 (@+0xD4);
+// continueCounter = 0 (@+0xD8); waitingToMoveValue = 0 (@+0xE4, byte);
+// numberWaitDelays = 0 (@+0xE5, byte); forward.x = 1.0 (@+0x100),
+// forward.z = 0 (@+0x104); right.x = 0 (@+0x10C), right.z = 0
+// (@+0x110), right.y = -1.0 (@+0x114); position.x/z/y = 0 (@+0xF4/
+// 0xF8/0xFC); the three frees: pathData (BPathData::destructor :2506 +
+// delete -> internal, asm 0x4A6B31-0x4A6B43), mFuturePathData (asm
+// 0x4A6B49-0x4A6B63), movementData (bare delete -> internal, asm
+// 0x4A6B69-0x4A6B7C); lastMoveTimeValue = 0 (@+0x124); mHasSubstitute
+// Position = 0 (@+0x128); mConsecutiveSubstituteCount = 0 (@+0x138).
+// The remove-all call sits BEFORE the orientation block (the asm
+// position preserved - a re-order would be observable through the hook).
+void __fastcall RGE_Moving_Object__initMovementData_new(
+    RGE_Moving_Object* this_, DWORD dummy)
+{
+    this_->currentTerrainException2 = -1;                // asm 0x4A6A7D (@+0xE0)
+    this_->currentTerrainException1 = -1;                // asm 0x4A6A83 (@+0xDC)
+    this_->trail_remainder = 0.0f;                       // asm 0x4A6A8B (@+0xB8)
+    this_->velocity_x = 0.0f;                            // asm 0x4A6A91 (@+0xBC)
+    this_->velocity_y = 0.0f;                            // asm 0x4A6A97 (@+0xC0)
+    this_->velocity_z = 0.0f;                            // asm 0x4A6A9D (@+0xC4)
+    this_->angle = 0.0f;                                 // asm 0x4A6AA3 (@+0xC8)
+    this_->turn_towards_time = 0.0f;                     // asm 0x4A6AA9 (@+0xCC)
+    this_->turnTimer = 0.0f;                             // asm 0x4A6AAF (@+0xD4)
+    this_->continueCounter = 0;                          // asm 0x4A6AB5 (@+0xD8, int - the C4244 catch)
+    this_->waitingToMoveValue = 0;                       // asm 0x4A6ABB (@+0xE4, byte)
+    this_->numberWaitDelays = 0;                         // asm 0x4A6AC1 (@+0xE5, byte)
+
+    // the user-defined waypoint wipe (slot +0x264 = 153 in the REAL Moving
+    // vftable = removeAllUserDefinedWaypoints - verified against the
+    // collapsed vftable initializer; HOOKED -> routes to removeAllUser
+    // DefinedWaypoints_new; zero stack args, the no-push call is exact; the
+    // .c render drops this call - the store-set diff caught it)
+    RGE_Moving_Object__removeAllUserDefinedWaypoints(this_);   // asm 0x4A6AC7
+
+    // the orientation reset: forward restored to +X (the .c render drops
+    // the forward.x store - the store-set diff caught it), right to -Y
+    this_->orientationForwardValue.x = 1.0f;             // asm 0x4A6AEB (@+0x100)
+    this_->orientationForwardValue.z = 0.0f;             // asm 0x4A6AFB (@+0x104)
+    this_->orientationRightValue.x = 0.0f;               // asm 0x4A6B11 (@+0x10C)
+    this_->orientationRightValue.z = 0.0f;               // asm 0x4A6B23 (@+0x110)
+    this_->orientationRightValue.y = -1.0f;              // asm 0x4A6B2E (@+0x114)
+    this_->positionValue.x = 0.0f;                       // asm 0x4A6B06 (@+0xF4)
+    this_->positionValue.z = 0.0f;                       // asm 0x4A6B17 (@+0xF8)
+    this_->positionValue.y = 0.0f;                       // asm 0x4A6B1D (@+0xFC)
+
+    // the three frees (the .c's bare operator_delete -> internal per the
+    // CRT rule)
+    if (this_->pathData != 0)                            // asm 0x4A6B04/0x4A6B31
+    {
+        BPathData__destructor(this_->pathData);          // :2506 (asm 0x4A6B35)
+        operator_delete_internal(this_->pathData);       // asm 0x4A6B3B
+        this_->pathData = 0;                             // asm 0x4A6B43 (@+0x118)
+    }
+    if (this_->mFuturePathData != 0)                     // asm 0x4A6B49/0x4A6B51
+    {
+        BPathData__destructor(this_->mFuturePathData);   // asm 0x4A6B55 (:2506)
+        operator_delete_internal(this_->mFuturePathData);   // asm 0x4A6B5B
+        this_->mFuturePathData = 0;                      // asm 0x4A6B63 (@+0x11C)
+    }
+    if (this_->movementData != 0)                        // asm 0x4A6B69/0x4A6B71
+    {
+        operator_delete_internal(this_->movementData);   // asm 0x4A6B74
+        this_->movementData = 0;                         // asm 0x4A6B7C (@+0x120)
+    }
+
+    this_->lastMoveTimeValue = 0;                        // asm 0x4A6B82 (@+0x124)
+    this_->mHasSubstitutePosition = 0;                   // asm 0x4A6B88 (@+0x128)
+    this_->mConsecutiveSubstituteCount = 0;              // asm 0x4A6B8E (@+0x138)
+}
+
 void install_RGE_Moving_Object()
 {
     setHook((void*)0x004A0540, RGE_Moving_Object__RGE_Moving_Object_new);
@@ -2164,4 +2683,12 @@ void install_RGE_Moving_Object()
     setHook((void*)0x004A6BA0, RGE_Moving_Object__evacuate_area_new);
     setHook((void*)0x004A6C20, RGE_Moving_Object__find_evacuate_area_new);
     setHook((void*)0x004A6F00, RGE_Moving_Object__try_evac_tile_new);
+    setHook((void*)0x004A1970, RGE_Moving_Object__handle_teleport_z_correction_new);
+    setHook((void*)0x004A1100, RGE_Moving_Object__angle_to_object_new);
+    setHook((void*)0x004A3870, RGE_Moving_Object__setVelocity_new);
+    setHook((void*)0x004A3960, RGE_Moving_Object__setAcceleration_new);
+    setHook((void*)0x004A6290, RGE_Moving_Object__calculateForward_new);
+    setHook((void*)0x004A6860, RGE_Moving_Object__straightProjectedPosition_new);
+    setHook((void*)0x004A63F0, RGE_Moving_Object__calculateReachedPoint_new);
+    setHook((void*)0x004A6A70, RGE_Moving_Object__initMovementData_new);
 }

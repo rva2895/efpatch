@@ -30,6 +30,7 @@
 #include <stdio.h>
 
 #include "consts.h"
+#include "x87_nan.h"
 #ifdef TARGET_VOOBLY
 #include "iuserpatch.h"
 #endif
