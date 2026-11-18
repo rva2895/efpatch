@@ -137,7 +137,7 @@ int __stdcall nullsub_15(int a1, int a2, int a3, int a4, int a5, int a6);
 int __stdcall nullsub_22(int a1, int a2, int a3, int a4, int a5);
 int __stdcall nullsub_46(int childNumber);
 double __thiscall RGE_Animated_Object::getSpeed(RGE_Animated_Object *this);
-double __thiscall RGE_Moving_Object::getTurnRadius(RGE_Moving_Object *this);
+double __thiscall RGE_Moving_Object::getAngle(RGE_Moving_Object *this);
 void __thiscall RGE_Moving_Object::zeroUserDefinedWaypoints(RGE_Moving_Object *this);
 int __thiscall RGE_Moving_Object::numberUserDefinedWaypoints(RGE_Moving_Object *this);
 BVector *__thiscall RGE_Moving_Object::position(RGE_Moving_Object *this, BVector *result);
@@ -2239,7 +2239,7 @@ int __thiscall RGE_Moving_Object::canPath2(RGE_Moving_Object *this, XYZPoint poi
 int __thiscall RGE_Moving_Object::canPath(RGE_Moving_Object *this, int targetID, float range, float *pathDistance, int unobstructiblePlayerID, int unobstructibleGroupID, bool useHulledArea);
 int __thiscall RGE_Moving_Object::canQuickPath(RGE_Moving_Object *this, int targetID, float range, float *pathDistance);
 BOOL __thiscall RGE_Moving_Object::canPathWithObstructions(RGE_Moving_Object *this, int targetID, float aRange, float *pathDistance, int unobstructiblePlayerID, int unobstructibleGroupID, void *obstructions);
-int __thiscall RGE_Moving_Object::canPathWithAdditionalPassability(RGE_Moving_Object *this, XYZPoint p, float aRange, int targetID, float *pathDistance, int eTerrain1, int eTerrain2, int eTerrain3, int unobstructiblePlayerID, int unobstructibleGroupID, BPath *exceptionPath);
+int __thiscall RGE_Moving_Object::canPathWithAdditionalPassability(RGE_Moving_Object *this, XYZPoint p, float aRange, int targetID, float *pathDistance, int eTerrain1, int eTerrain2, int eTerrain3, int mAI_arg, int gbg_arg, int unobstructiblePlayerID, int unobstructibleGroupID, BPath *exceptionPath);
 int __thiscall RGE_Moving_Object::findFirstTerrainAlongExceptionPath(RGE_Moving_Object *this, int eTerrain, float *rX, float *rY, BPath *exceptionPath);
 int __thiscall RGE_Moving_Object::canLinePath2(RGE_Moving_Object *this, XYPoint *s, XYPoint *d, float range, XYPoint *rPoint);
 int __thiscall RGE_Moving_Object::canLinePath(RGE_Moving_Object *this, int sX, int sY, int dX, int dY, float range);
@@ -4037,7 +4037,7 @@ int __thiscall TRIBE_Building_Object::setup_read(TRIBE_Building_Object *this, in
 void __thiscall TRIBE_Building_Object::take_building_attribute_from_owner(TRIBE_Building_Object *this);
 void __thiscall TRIBE_Building_Object::give_building_attribute_to_owner(TRIBE_Building_Object *this);
 void __thiscall TRIBE_Building_Object::destroy_obj(TRIBE_Building_Object *this);
-unsigned __int8 __thiscall TRIBE_Building_Object::heal2(TRIBE_Building_Object *this, float healing);
+unsigned __int8 __thiscall TRIBE_Building_Object::heal(TRIBE_Building_Object *this, float healing);
 unsigned __int8 __thiscall TRIBE_Building_Object::heal_other(TRIBE_Building_Object *this, float healing, RGE_Player *payor, int first_call);
 void __thiscall TRIBE_Building_Object::set_object_state(TRIBE_Building_Object *this, unsigned __int8 new_object_state);
 void __thiscall TRIBE_Building_Object::rehook(TRIBE_Building_Object *this);
@@ -4130,7 +4130,7 @@ void __thiscall TRIBE_Combat_Object::enter_obj(TRIBE_Combat_Object *this, RGE_St
 void __thiscall TRIBE_Combat_Object::exit_obj(TRIBE_Combat_Object *this);
 int __thiscall TRIBE_Combat_Object::hunt(TRIBE_Combat_Object *this, int targetID, int unconditional);
 int __thiscall TRIBE_Combat_Object::convert(TRIBE_Combat_Object *this, int targetID, int unconditional);
-int __thiscall TRIBE_Combat_Object::heal(TRIBE_Combat_Object *this, int targetID, int unconditional);
+int __thiscall TRIBE_Combat_Object::heal2(TRIBE_Combat_Object *this, int targetID, int unconditional);
 int __thiscall TRIBE_Combat_Object::repair(TRIBE_Combat_Object *this, int targetID, int unconditional);
 int __thiscall TRIBE_Combat_Object::build(TRIBE_Combat_Object *this, int targetID, int unconditional);
 int __thiscall TRIBE_Combat_Object::trade(TRIBE_Combat_Object *this, int targetID, int unconditional);
@@ -4141,7 +4141,7 @@ void __thiscall TRIBE_Combat_Object::initUnitAI(TRIBE_Combat_Object *this);
 int __thiscall TRIBE_Combat_Object::higher_check_for_cliff(TRIBE_Combat_Object *this, RGE_Static_Object *target, int XTileInt, int YTileInt, float StartX, float StartY, float DestX, float DestY, RGE_Map *Map, RGE_Static_Object *LastCliffObject, float *AngleToTarget, int *HigherCalc);
 int __thiscall TRIBE_Combat_Object::higher_than_target(TRIBE_Combat_Object *this, RGE_Static_Object *target);
 unsigned __int8 __thiscall TRIBE_Combat_Object::area_attack(TRIBE_Combat_Object *this, float x, float y, float z, RGE_Combat_Object *attacker, RGE_Static_Object *ignore_object, RGE_Static_Object *target);
-unsigned __int8 __thiscall TRIBE_Combat_Object::heal2(TRIBE_Combat_Object *this, float healing);
+unsigned __int8 __thiscall TRIBE_Combat_Object::heal(TRIBE_Combat_Object *this, float healing);
 unsigned __int8 __thiscall TRIBE_Combat_Object::heal_other(TRIBE_Combat_Object *this, float healing, RGE_Player *payor, int first_call);
 int __thiscall TRIBE_Combat_Object::canRepair(TRIBE_Combat_Object *this);
 void __thiscall TRIBE_Combat_Object::do_repair(TRIBE_Combat_Object *this, RGE_Static_Object *obj);
@@ -7305,7 +7305,7 @@ RGE_Action_ObjectVtbl RGE_Action_Object::vftable =
   &RGE_Static_Object::setUnderAttack,
   &RGE_Static_Object::calc_attack_modifier,
   &RGE_Animated_Object::getSpeed,
-  &RGE_Moving_Object::getTurnRadius,
+  &RGE_Moving_Object::getAngle,
   &RGE_Moving_Object::maximumSpeed,
   &nullsub_28,
   &nullsub_29,
@@ -8232,7 +8232,7 @@ RGE_Combat_ObjectVtbl RGE_Combat_Object::vftable =
   &RGE_Static_Object::setUnderAttack,
   &RGE_Combat_Object::calc_attack_modifier,
   &RGE_Animated_Object::getSpeed,
-  &RGE_Moving_Object::getTurnRadius,
+  &RGE_Moving_Object::getAngle,
   &RGE_Moving_Object::maximumSpeed,
   &RGE_Combat_Object::rateOfFire,
   &RGE_Combat_Object::damageCapability,
@@ -10620,7 +10620,7 @@ RGE_Missile_ObjectVtbl RGE_Missile_Object::vftable =
   &RGE_Static_Object::setUnderAttack,
   &RGE_Combat_Object::calc_attack_modifier,
   &RGE_Animated_Object::getSpeed,
-  &RGE_Moving_Object::getTurnRadius,
+  &RGE_Moving_Object::getAngle,
   &RGE_Moving_Object::maximumSpeed,
   &RGE_Combat_Object::rateOfFire,
   &RGE_Combat_Object::damageCapability,
@@ -10917,7 +10917,7 @@ RGE_Moving_ObjectVtbl RGE_Moving_Object::vftable =
   &RGE_Static_Object::setUnderAttack,
   &RGE_Static_Object::calc_attack_modifier,
   &RGE_Animated_Object::getSpeed,
-  &RGE_Moving_Object::getTurnRadius,
+  &RGE_Moving_Object::getAngle,
   &RGE_Moving_Object::maximumSpeed,
   &nullsub_28,
   &nullsub_29,
@@ -15579,8 +15579,8 @@ TRIBE_Building_ObjectVtbl TRIBE_Building_Object::vftable =
   &RGE_Combat_Object::can_attack,
   &RGE_Static_Object::set_attribute,
   &RGE_Static_Object::set_attribute_amount,
-  &TRIBE_Combat_Object::heal,
-  &TRIBE_Building_Object::heal2,
+  &TRIBE_Combat_Object::heal2,
+  &TRIBE_Building_Object::heal,
   &TRIBE_Combat_Object::canRepair,
   &TRIBE_Building_Object::notify_of_relation,
   &RGE_Action_Object::do_command,
@@ -15612,7 +15612,7 @@ TRIBE_Building_ObjectVtbl TRIBE_Building_Object::vftable =
   &RGE_Static_Object::setUnderAttack,
   &TRIBE_Building_Object::calc_attack_modifier,
   &RGE_Animated_Object::getSpeed,
-  &RGE_Moving_Object::getTurnRadius,
+  &RGE_Moving_Object::getAngle,
   &TRIBE_Combat_Object::maximumSpeed,
   &RGE_Combat_Object::rateOfFire,
   &RGE_Combat_Object::damageCapability,
@@ -15841,8 +15841,8 @@ TRIBE_Combat_ObjectVtbl TRIBE_Combat_Object::vftable =
   &RGE_Combat_Object::can_attack,
   &RGE_Static_Object::set_attribute,
   &RGE_Static_Object::set_attribute_amount,
-  &TRIBE_Combat_Object::heal,
   &TRIBE_Combat_Object::heal2,
+  &TRIBE_Combat_Object::heal,
   &TRIBE_Combat_Object::canRepair,
   &TRIBE_Combat_Object::notify_of_relation,
   &RGE_Action_Object::do_command,
@@ -15874,7 +15874,7 @@ TRIBE_Combat_ObjectVtbl TRIBE_Combat_Object::vftable =
   &RGE_Static_Object::setUnderAttack,
   &TRIBE_Combat_Object::calc_attack_modifier,
   &RGE_Animated_Object::getSpeed,
-  &RGE_Moving_Object::getTurnRadius,
+  &RGE_Moving_Object::getAngle,
   &TRIBE_Combat_Object::maximumSpeed,
   &RGE_Combat_Object::rateOfFire,
   &RGE_Combat_Object::damageCapability,
@@ -46326,7 +46326,7 @@ int __thiscall RGE_Action_Attack::work(RGE_Action_Attack *this, RGE_Static_Objec
   {
     v17 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, v5);
     obj = this->range;
-    this->obj->vfptr->damageCapability_1(this->obj);
+    this->obj->vfptr->weaponRange(this->obj);
     v12 = obj;
     if ( v13 | v14 )
       v12 = v12 + 0.5;
@@ -46389,7 +46389,7 @@ int __thiscall RGE_Action_Attack::ready_to_attack(RGE_Action_Attack *this, int *
   v3 = this->target_obj;
   if ( v3 )
     v29 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->obj, v3);
-  if ( this->obj->vfptr->damageCapability_1(this->obj) <= 0.1 )
+  if ( this->obj->vfptr->weaponRange(this->obj) <= 0.1 )
     v29 = v29 - 0.5;
   v4 = RGE_Game_World::getUnitGroup((RGE_Game_World *)this->obj->owner->world, this->obj->mGroupID);
   if ( v4 )
@@ -46452,7 +46452,7 @@ int __thiscall RGE_Action_Attack::ready_to_attack(RGE_Action_Attack *this, int *
           goto LABEL_72;
         }
         xb = this->range;
-        if ( this->obj->vfptr->damageCapability_1(this->obj) <= 0.1 )
+        if ( this->obj->vfptr->weaponRange(this->obj) <= 0.1 )
           xb = xb + 0.5;
         if ( this->target_obj->master_obj->object_group == 8 )
         {
@@ -46483,7 +46483,7 @@ int __thiscall RGE_Action_Attack::ready_to_attack(RGE_Action_Attack *this, int *
                 v26 = this->target_obj->world_y
                     - RGE_Static_Object::unitAI((RGE_Static_Object *)this->obj)->statePositionYValue,
                 rangeStateb = sqrt(v26 * v26 + rangeStatea * rangeStatea),
-                this->obj->vfptr->damageCapability_1(this->obj) + 5.0 > rangeStateb) )
+                this->obj->vfptr->weaponRange(this->obj) + 5.0 > rangeStateb) )
           {
             if ( this->obj->vfptr->maximumSpeed(this->obj) != 0.0 )
             {
@@ -46533,7 +46533,7 @@ int __thiscall RGE_Action_Attack::ready_to_attack(RGE_Action_Attack *this, int *
       goto LABEL_72;
     }
     xc = this->range;
-    this->obj->vfptr->damageCapability_1(this->obj);
+    this->obj->vfptr->weaponRange(this->obj);
     v11 = xc;
     if ( v12 | v13 )
       v11 = v11 + 0.5;
@@ -47102,7 +47102,7 @@ LABEL_29:
           {
             if ( v4 == 1 )
             {
-              ((void (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, _DWORD, _DWORD, int, _DWORD))v13->vfptr->moveTo_3)(
+              ((void (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, _DWORD, _DWORD, int, _DWORD))v13->vfptr->moveTo)(
                 v13,
                 LODWORD(this->target_x),
                 LODWORD(this->target_y),
@@ -47113,7 +47113,7 @@ LABEL_29:
             }
             else if ( v4 == 2 )
             {
-              ((void (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, _DWORD, _DWORD, int, _DWORD))v13->vfptr->moveTo_3)(
+              ((void (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, _DWORD, _DWORD, int, _DWORD))v13->vfptr->moveTo)(
                 v13,
                 LODWORD(this->obj->world_x),
                 LODWORD(this->obj->world_y),
@@ -51153,7 +51153,7 @@ LABEL_14:
       v28 = this->target_y;
       v27 = this->target_x;
       if ( this->target_obj )
-        v22 = ((int (__stdcall *)(int, float, float, float, float, int, int, int, int))v21->addMove_2)(
+        v22 = ((int (__stdcall *)(int, float, float, float, float, int, int, int, int))v21->addMove2)(
                 this->target_obj->id,
                 COERCE_FLOAT(LODWORD(v27)),
                 COERCE_FLOAT(LODWORD(v28)),
@@ -51164,7 +51164,7 @@ LABEL_14:
                 v6,
                 v31);
       else
-        v22 = ((int (__stdcall *)(int, float, float, float, float, int, int, int, int))v21->addMove_2)(
+        v22 = ((int (__stdcall *)(int, float, float, float, float, int, int, int, int))v21->addMove2)(
                 -1,
                 COERCE_FLOAT(LODWORD(v27)),
                 COERCE_FLOAT(LODWORD(v28)),
@@ -51403,7 +51403,7 @@ double __thiscall RGE_Animated_Object::getSpeed(RGE_Animated_Object *this)
 }
 
 //----- (00408B80) --------------------------------------------------------
-double __thiscall RGE_Moving_Object::getTurnRadius(RGE_Moving_Object *this)
+double __thiscall RGE_Moving_Object::getAngle(RGE_Moving_Object *this)
 {
   return this->angle;
 }
@@ -65591,7 +65591,7 @@ int __thiscall UnitAIModule::update(UnitAIModule *this, unsigned int uTime)
           if ( ((int (__thiscall *)(UnitAIModule *, _DWORD, int))this->vfptr->processIdle)(this, 0, 1) == 5 )
           {
             v16 = this->vfptr;
-            v65 = ((double (__thiscall *)(RGE_Combat_Object *, int, _DWORD))this->objectValue->vfptr->damageCapability_1)(
+            v65 = ((double (__thiscall *)(RGE_Combat_Object *, int, _DWORD))this->objectValue->vfptr->weaponRange)(
                     this->objectValue,
                     1,
                     0);
@@ -66468,11 +66468,11 @@ int __thiscall UnitAIModule::bestUnitToAttack(UnitAIModule *this, BVector refere
   }
   v82 = this->vfptr->canMoveToAttack(this, -1) != 0;
   v66 = -1;
-  v72 = this->objectValue->vfptr->damageCapability_1(this->objectValue);
+  v72 = this->objectValue->vfptr->weaponRange(this->objectValue);
   if ( unit2 )
   {
     referencePositiona = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->objectValue, unit2);
-    if ( this->objectValue->vfptr->damageCapability_1(this->objectValue) >= referencePositiona
+    if ( this->objectValue->vfptr->weaponRange(this->objectValue) >= referencePositiona
       || this->objectValue->vfptr->maximumSpeed(this->objectValue) > 0.0 )
     {
       switch ( unit2->master_obj->object_group )
@@ -66829,8 +66829,8 @@ LABEL_90:
                               targetDistance = RGE_Static_Object::distance_to_object(
                                                  (RGE_Static_Object *)this->objectValue,
                                                  v37);
-                              if ( this->objectValue->vfptr->weaponRange(this->objectValue) <= targetDistance
-                                && (this->objectValue->vfptr->damageCapability_1(this->objectValue) >= targetDistance
+                              if ( this->objectValue->vfptr->minimumWeaponRange(this->objectValue) <= targetDistance
+                                && (this->objectValue->vfptr->weaponRange(this->objectValue) >= targetDistance
                                  || this->objectValue->vfptr->maximumSpeed(this->objectValue) != 0.0)
                                 && (v82 || targetDistance <= (double)v72)
                                 && (referenceDistance <= 0.0 || targetDistance <= (double)referenceDistance)
@@ -66956,7 +66956,7 @@ LABEL_90:
        || unit2->vfptr->maximumSpeed(unit2) > 0.0)
       && !idleCheck )
     {
-      if ( unit2->vfptr->damageCapability_2(unit2, (RGE_Static_Object *)this->objectValue) > 0.0
+      if ( unit2->vfptr->damageCapability(unit2, (RGE_Static_Object *)this->objectValue) > 0.0
         || RGE_Static_Object::unitAI(unit2)
         && (v47 = RGE_Static_Object::unitAI(unit2), v47->vfptr->canConvert(v47, this->objectValue->id, 1) == 1)
         || statistics.mNumberDamagingTargets <= 0 )
@@ -66965,13 +66965,13 @@ LABEL_90:
           return unit2->id;
         v48 = this->objectValue;
         v49 = v48->vfptr;
-        v62 = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, int, int, _DWORD))v48->vfptr->damageCapability_1)(
+        v62 = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, int, int, _DWORD))v48->vfptr->weaponRange)(
                 v48,
                 0,
                 -1,
                 -1,
                 0);
-        if ( ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD))v49->canPath_2)(
+        if ( ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD))v49->canPath)(
                this->objectValue,
                *(_DWORD *)(LODWORD(v72) + 16),
                LODWORD(v62)) == 1 )
@@ -66993,7 +66993,7 @@ LABEL_90:
         {
           v53 = this->objectValue;
           v54 = v53->vfptr;
-          v63 = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD))v53->vfptr->damageCapability_1)(v53, 0);
+          v63 = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD))v53->vfptr->weaponRange)(v53, 0);
           if ( ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD))v54->canQuickPath)(
                  this->objectValue,
                  v52,
@@ -67014,13 +67014,13 @@ LABEL_90:
         return statistics.mClosestMoveableTargetID;
       v55 = this->objectValue;
       v56 = v55->vfptr;
-      v64 = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, int, int, int))v55->vfptr->damageCapability_1)(
+      v64 = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, int, int, int))v55->vfptr->weaponRange)(
               v55,
               0,
               -1,
               -1,
               numberAdditionalUnitsToCheck);
-      if ( ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD))v56->canPath_2)(
+      if ( ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD))v56->canPath)(
              this->objectValue,
              statistics.mClosestMoveableTargetID,
              LODWORD(v64)) == 1 )
@@ -67045,13 +67045,13 @@ LABEL_90:
           {
             v58 = this->objectValue;
             v59 = v58->vfptr;
-            v65 = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, int, int, int))v58->vfptr->damageCapability_1)(
+            v65 = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, int, int, int))v58->vfptr->weaponRange)(
                     v58,
                     0,
                     -1,
                     -1,
                     numberAdditionalUnitsToCheck);
-            if ( ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD))v59->canPath_2)(
+            if ( ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD))v59->canPath)(
                    this->objectValue,
                    v52,
                    LODWORD(v65)) == 1 )
@@ -67129,19 +67129,19 @@ void __thiscall BestUnitToAttackStatistics::update(BestUnitToAttackStatistics *t
               }
               ++this->mNumberMoveableTargets;
             }
-            if ( target->vfptr->damageCapability_2(target, unit) > 0.0
+            if ( target->vfptr->damageCapability(target, unit) > 0.0
               || (v10 = RGE_Static_Object::unitAI((RGE_Static_Object *)target),
                   v10->vfptr->canConvert(v10, unit->id, 1) == 1) )
             {
               ++this->mNumberDamagingTargets;
             }
-            if ( unit->vfptr->damageCapability_1(unit) >= targetDistance )
+            if ( unit->vfptr->weaponRange(unit) >= targetDistance )
               ++this->mNumberTargetsInRange;
             if ( targetDistance < (double)this->mShortestTargetDistance )
               this->mShortestTargetDistance = targetDistance;
             if ( targetDistance > (double)this->mLongestTargetDistance )
               this->mLongestTargetDistance = targetDistance;
-            v11 = unit->vfptr->damageCapability_2(unit, (RGE_Static_Object *)target);
+            v11 = unit->vfptr->damageCapability(unit, (RGE_Static_Object *)target);
             if ( v11 > 0.0000001 )
             {
               unita = target->hp / v11;
@@ -67351,7 +67351,7 @@ LABEL_15:
           if ( used[v12] != 1 && *((_BYTE *)v13 - 32) != 1 )
           {
             v14 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *((_DWORD *)v13 - 9));
-            if ( v14->vfptr->damageCapability_1(v14) >= 0.0000001 && (*v13 > (double)unita || v11 == -1) )
+            if ( v14->vfptr->weaponRange(v14) >= 0.0000001 && (*v13 > (double)unita || v11 == -1) )
             {
               v11 = v12;
               unita = *v13;
@@ -67844,7 +67844,7 @@ LABEL_27:
                || (this->objectValue->owner == v16->owner || v17 != 2)
                && !v16->inside_obj
                && (v16->vfptr->currentTargetX(v16) == -1.0 || v16->vfptr->actionType(v16) != 107)
-               && ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath_2)(
+               && ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath)(
                     this->objectValue,
                     v16->id,
                     0,
@@ -67976,7 +67976,7 @@ LABEL_10:
         {
           if ( maxWorkers == -1 || v19 && v19 != 2 || v15->worker_num < maxWorkers )
           {
-            if ( ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD, _DWORD, int, int, char))v16->vfptr->canPath_2)(
+            if ( ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD, _DWORD, int, int, char))v16->vfptr->canPath)(
                    v16,
                    v11->object_id,
                    0,
@@ -68132,7 +68132,7 @@ int __thiscall UnitAIModule::closestUndiscoveredTile(UnitAIModule *this, int *tX
         {
           v38 = (float)v33;
           v37 = (float)v36;
-          if ( ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD))this->objectValue->vfptr->passableTile_2)(
+          if ( ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD))this->objectValue->vfptr->passableTile2)(
                  this->objectValue,
                  LODWORD(v37),
                  LODWORD(v38)) )
@@ -68183,7 +68183,7 @@ LABEL_27:
     return 0;
   v26 = this->objectValue;
   v28 = v26->master_obj->los - 1.0;
-  return ((int (__thiscall *)(RGE_Combat_Object *, int, int, _DWORD, _DWORD, int, _DWORD, int, int, _DWORD))v26->vfptr->canPath_1)(
+  return ((int (__thiscall *)(RGE_Combat_Object *, int, int, _DWORD, _DWORD, int, _DWORD, int, int, _DWORD))v26->vfptr->canPath2)(
            v26,
            *tX,
            *tY,
@@ -68415,7 +68415,7 @@ int __thiscall UnitAIModule::attackObject(UnitAIModule *this, int targetID, int 
   v5 = (float *)v4;
   if ( !v4
     || !this->vfptr->canAttackUnit(this, v4)
-    || this->objectValue->vfptr->attack_1(this->objectValue, targetID, unconditional) != 1 )
+    || this->objectValue->vfptr->attack2(this->objectValue, targetID, unconditional) != 1 )
   {
     return 0;
   }
@@ -68467,19 +68467,16 @@ int __thiscall UnitAIModule::attackRoundupObject(UnitAIModule *this, int targetI
   {
     v5 = this->objectValue;
     v6 = v5->vfptr;
-    v15 = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, int, int, _DWORD))v5->vfptr->damageCapability_1)(
+    v15 = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, int, int, _DWORD))v5->vfptr->weaponRange)(
             v5,
             0,
             -1,
             -1,
             0);
-    if ( !((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD))v6->canPath_2)(
-            this->objectValue,
-            targetID,
-            LODWORD(v15)) )
+    if ( !((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD))v6->canPath)(this->objectValue, targetID, LODWORD(v15)) )
       return 0;
   }
-  if ( this->objectValue->vfptr->attack_1(this->objectValue, targetID, 1) != 1 )
+  if ( this->objectValue->vfptr->attack2(this->objectValue, targetID, 1) != 1 )
     return 0;
   v7 = this->currentActionValue;
   this->currentActionValue = 600;
@@ -68624,7 +68621,7 @@ int __thiscall UnitAIModule::healObject(UnitAIModule *this, int targetID, int un
   int v14; // edx
 
   if ( !unconditional && this->currentActionValue == 603
-    || this->objectValue->vfptr->heal_2(this->objectValue, targetID, unconditional) != 1 )
+    || this->objectValue->vfptr->heal(this->objectValue, targetID, unconditional) != 1 )
   {
     return 0;
   }
@@ -69054,7 +69051,7 @@ int __thiscall UnitAIModule::moveTo(UnitAIModule *this, int targetID, int uncond
   RGE_Static_Object *v17; // eax
 
   if ( !unconditional && this->currentActionValue != -1
-    || this->objectValue->vfptr->moveTo_1(this->objectValue, targetID, unconditional) != 1 )
+    || this->objectValue->vfptr->moveTo3(this->objectValue, targetID, unconditional) != 1 )
   {
     return 0;
   }
@@ -69119,7 +69116,7 @@ int __thiscall UnitAIModule::moveTo2(UnitAIModule *this, int targetID, float min
   RGE_Static_Object *v17; // eax
 
   if ( !unconditional && this->currentActionValue != -1
-    || ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD, int))this->objectValue->vfptr->moveTo_2)(
+    || ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD, int))this->objectValue->vfptr->moveTo2)(
          this->objectValue,
          targetID,
          LODWORD(minimumRange),
@@ -69178,7 +69175,7 @@ int __thiscall UnitAIModule::moveTo3(UnitAIModule *this, float targetX, float ta
   RGE_Static_Object *v11; // eax
 
   if ( !unconditional && this->currentActionValue != -1
-    || ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD, _DWORD, int, int))this->objectValue->vfptr->moveTo_3)(
+    || ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD, _DWORD, int, int))this->objectValue->vfptr->moveTo)(
          this->objectValue,
          LODWORD(targetX),
          LODWORD(targetY),
@@ -69249,7 +69246,7 @@ int __thiscall UnitAIModule::evasiveMoveTo(UnitAIModule *this, float targetX, fl
   }
   for ( i = 0; i < 5; ++i )
   {
-    if ( ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD))this->objectValue->vfptr->passableTile_2)(
+    if ( ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD))this->objectValue->vfptr->passableTile2)(
            this->objectValue,
            LODWORD(targetX),
            LODWORD(targetY)) == 1 )
@@ -69290,7 +69287,7 @@ int __thiscall UnitAIModule::evasiveMoveTo(UnitAIModule *this, float targetX, fl
       targetY = 0.0;
     }
   }
-  if ( ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD, _DWORD, int, _DWORD))this->objectValue->vfptr->moveTo_3)(
+  if ( ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD, _DWORD, int, _DWORD))this->objectValue->vfptr->moveTo)(
          this->objectValue,
          LODWORD(targetX),
          LODWORD(targetY),
@@ -69368,7 +69365,7 @@ int __thiscall UnitAIModule::intelligentEvasiveMoveTo(UnitAIModule *this, float 
   v11 = (__int64)targetY;
   v26 = v11;
   v27 = (__int64)v10->world_z;
-  if ( !((int (__thiscall *)(RGE_Combat_Object *, int, int, int, _DWORD, int, _DWORD, int, int, _DWORD))v10->vfptr->canPath_1)(
+  if ( !((int (__thiscall *)(RGE_Combat_Object *, int, int, int, _DWORD, int, _DWORD, int, int, _DWORD))v10->vfptr->canPath2)(
           v10,
           v9,
           v11,
@@ -69449,7 +69446,7 @@ LABEL_30:
                   v23,
                   this->objectValue->world_z) >= v24) )
           {
-            if ( ((int (__thiscall *)(RGE_Combat_Object *, int, int, int, _DWORD, int, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath_1)(
+            if ( ((int (__thiscall *)(RGE_Combat_Object *, int, int, int, _DWORD, int, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath2)(
                    this->objectValue,
                    v9,
                    v11,
@@ -69475,7 +69472,7 @@ LABEL_30:
 LABEL_34:
   v21 = (double)v26 + 0.5;
   v20 = (double)v25 + 0.5;
-  if ( ((int (__stdcall *)(_DWORD, _DWORD, _DWORD, _DWORD, int, _DWORD))this->objectValue->vfptr->moveTo_3)(
+  if ( ((int (__stdcall *)(_DWORD, _DWORD, _DWORD, _DWORD, int, _DWORD))this->objectValue->vfptr->moveTo)(
          LODWORD(v20),
          LODWORD(v21),
          LODWORD(targetZ),
@@ -69855,7 +69852,7 @@ int __thiscall UnitAIModule::seekAndDestroy(UnitAIModule *this, int targetID, in
   RGE_Static_Object *v9; // eax
 
   if ( !unconditional && this->currentActionValue != -1
-    || this->objectValue->vfptr->attack_1(this->objectValue, targetID, unconditional) != 1 )
+    || this->objectValue->vfptr->attack2(this->objectValue, targetID, unconditional) != 1 )
   {
     return 0;
   }
@@ -70351,13 +70348,13 @@ void __thiscall UnitAIModule::askForHelp(UnitAIModule *this, int unitToAttack)
                                     && RGE_Static_Object::unitAI(v13)->currentTargetValue == -1 )
                                   {
                                     v17 = v13->vfptr;
-                                    v19 = ((double (__thiscall *)(RGE_Static_Object *, _DWORD, int, int, _DWORD))v13->vfptr->damageCapability_1)(
+                                    v19 = ((double (__thiscall *)(RGE_Static_Object *, _DWORD, int, int, _DWORD))v13->vfptr->weaponRange)(
                                             v13,
                                             0,
                                             -1,
                                             -1,
                                             0);
-                                    if ( ((int (__thiscall *)(RGE_Static_Object *, int, _DWORD))v17->canPath_2)(
+                                    if ( ((int (__thiscall *)(RGE_Static_Object *, int, _DWORD))v17->canPath)(
                                            v13,
                                            v23,
                                            LODWORD(v19)) )
@@ -71147,13 +71144,13 @@ LABEL_28:
         return 2;
       v29 = this->objectValue;
       v30 = v29->vfptr;
-      v125 = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, int, int, _DWORD))v29->vfptr->damageCapability_1)(
+      v125 = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, int, int, _DWORD))v29->vfptr->weaponRange)(
                v29,
                0,
                -1,
                -1,
                0);
-      v31 = ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD))v30->canPath_2)(
+      v31 = ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD))v30->canPath)(
               this->objectValue,
               v9->caller,
               LODWORD(v125));
@@ -71252,7 +71249,7 @@ LABEL_87:
       {
         LOBYTE(uTime) = 0;
       }
-      if ( v19->vfptr->damageCapability_2(v19, (RGE_Static_Object *)this->objectValue) < 0.0000001
+      if ( v19->vfptr->damageCapability(v19, (RGE_Static_Object *)this->objectValue) < 0.0000001
         && !(_BYTE)uTime
         && unita == (void *)1 )
       {
@@ -71285,7 +71282,7 @@ LABEL_87:
           this->currentOrderValue = -1;
         }
       }
-      v48 = this->objectValue->vfptr->damageCapability_2(this->objectValue, v19);
+      v48 = this->objectValue->vfptr->damageCapability(this->objectValue, v19);
       if ( v48 <= 0.0 )
       {
         v135 = 25000.0;
@@ -71302,7 +71299,7 @@ LABEL_87:
         if ( v49->vfptr->canConvert(v49, this->objectValue->id, 1) )
           v50 = 1;
       }
-      v51 = v39->vfptr->damageCapability_2(v39, (RGE_Static_Object *)this->objectValue);
+      v51 = v39->vfptr->damageCapability(v39, (RGE_Static_Object *)this->objectValue);
       if ( v51 <= 0.0 )
       {
         v52 = 25000.0;
@@ -72079,7 +72076,7 @@ int __thiscall UnitAIModule::processIdle_search(UnitAIModule *this, int doSearch
            this->statePositionXValue,
            this->statePositionYValue,
            this->objectValue->world_z) > 1.0
-      && ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->moveTo_3)(
+      && ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->moveTo)(
            this->objectValue,
            LODWORD(this->statePositionXValue),
            LODWORD(this->statePositionYValue),
@@ -72148,7 +72145,7 @@ LABEL_36:
                this->statePositionXValue,
                this->statePositionYValue,
                this->objectValue->world_z) > 1.0
-          && ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->moveTo_3)(
+          && ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->moveTo)(
                this->objectValue,
                LODWORD(this->statePositionXValue),
                LODWORD(this->statePositionYValue),
@@ -72546,8 +72543,7 @@ LABEL_17:
     }
     v33 = this->currentActionValue;
     if ( v33 != 600
-      && (v33 != 610
-       || ((int (__thiscall *)(RGE_Combat_Object *))this->objectValue->vfptr->passableTile_1)(this->objectValue) != this->defendTargetValue) )
+      && (v33 != 610 || this->objectValue->vfptr->currentTargetID(this->objectValue) != this->defendTargetValue) )
     {
       if ( this->defendTargetValue == -1 )
       {
@@ -72571,7 +72567,7 @@ LABEL_17:
         v36 = this->defendTargetValue;
         if ( v36 == -1 )
         {
-          if ( ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, int, _DWORD, int, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath_1)(
+          if ( ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, int, _DWORD, int, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath2)(
                  this->objectValue,
                  (__int64)this->currentTargetXValue,
                  (__int64)this->currentTargetYValue,
@@ -72591,7 +72587,7 @@ LABEL_17:
               1,
               0);
         }
-        else if ( ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath_2)(
+        else if ( ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath)(
                     this->objectValue,
                     v36,
                     LODWORD(v84),
@@ -72677,7 +72673,7 @@ LABEL_17:
                    this->statePositionXValue,
                    this->statePositionYValue,
                    this->objectValue->world_z) > 1.0
-              && ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->moveTo_3)(
+              && ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->moveTo)(
                    this->objectValue,
                    LODWORD(this->statePositionXValue),
                    LODWORD(this->statePositionYValue),
@@ -72752,7 +72748,7 @@ LABEL_102:
                    this->statePositionXValue,
                    this->statePositionYValue,
                    this->objectValue->world_z) > 1.0
-              && ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->moveTo_3)(
+              && ((int (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD, int, int, _DWORD))this->objectValue->vfptr->moveTo)(
                    this->objectValue,
                    LODWORD(this->statePositionXValue),
                    LODWORD(this->statePositionYValue),
@@ -72785,7 +72781,7 @@ LABEL_102:
     v57 = rand();
     v58 = this->objectValue;
     this->mRandomizedRetargetTimer = v57 % 0x1F4 + 750;
-    if ( v58->vfptr->damageCapability_1(v58) > 3.0
+    if ( v58->vfptr->weaponRange(v58) > 3.0
       && this->currentOrderValue == 700
       && !this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner) )
     {
@@ -73283,7 +73279,7 @@ int __thiscall UnitAIModule::restorePatrolInformation(UnitAIModule *this)
   v14 = BPath::waypoint(v7, (BVector *)&v19, v8 - 1)->z;
   v13 = BPath::waypoint(this->mPatrolPath, &outVector, v8 - 1)->y;
   v10 = BPath::waypoint(this->mPatrolPath, &wpIndex, v8 - 1);
-  ((void (__thiscall *)(RGE_Combat_Object *, _DWORD, float, float, _DWORD))v9->moveTo_3)(
+  ((void (__thiscall *)(RGE_Combat_Object *, _DWORD, float, float, _DWORD))v9->moveTo)(
     this->objectValue,
     LODWORD(v10->x),
     COERCE_FLOAT(LODWORD(v13)),
@@ -99060,7 +99056,7 @@ int __thiscall RGE_Combat_Object::attack(RGE_Combat_Object *this, float x, float
 //----- (00445510) --------------------------------------------------------
 int __thiscall RGE_Combat_Object::moveTo3(RGE_Combat_Object *this, int targetID, int unconditional)
 {
-  return ((int (__thiscall *)(RGE_Combat_Object *, int, int, int))this->vfptr->moveTo_2)(
+  return ((int (__thiscall *)(RGE_Combat_Object *, int, int, int))this->vfptr->moveTo2)(
            this,
            targetID,
            1065353216,
@@ -99582,9 +99578,9 @@ int __thiscall RGE_Combat_Object::inAttackRange(RGE_Combat_Object *this, RGE_Sta
 
   *insideMinimum = 0;
   insideMinimuma = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this, target);
-  v5 = this->vfptr->weaponRange(this);
+  v5 = this->vfptr->minimumWeaponRange(this);
   obj = v5;
-  this->vfptr->damageCapability_1(this);
+  this->vfptr->weaponRange(this);
   if ( insideMinimuma < (double)obj )
     *insideMinimum = 1;
   return insideMinimuma <= v5 && !*insideMinimum;
@@ -104103,7 +104099,7 @@ void __thiscall RGE_Command::do_command_ai_order(RGE_Command *this, RGE_Command_
       {
         v8 = aiOrder->orderType;
         if ( v8 == 700 || v8 == 729 )
-          aiOrder->range = v7->vfptr->damageCapability_1(v7);
+          aiOrder->range = v7->vfptr->weaponRange(v7);
         v9 = aiOrder->orderType;
         if ( v9 == 705 || v9 == 706 )
         {
@@ -109928,7 +109924,7 @@ double __userpurge sub_451CC0@<st0>(double a1@<st0>, signed int *a2, int a3, sig
           v14 = v13;
           if ( !v13 || !RGE_Static_Object::unitAI(v13) )
             goto LABEL_16;
-          v15 = v14->vfptr->damageCapability_2(v14, v11);
+          v15 = v14->vfptr->damageCapability(v14, v11);
           if ( a1 > 0.0000001 )
             break;
           v16 = RGE_Static_Object::unitAI(v14);
@@ -109990,7 +109986,7 @@ LABEL_38:
           v23 = v22;
           if ( !v22 || !RGE_Static_Object::unitAI(v22) )
             goto LABEL_34;
-          v24 = v23->vfptr->damageCapability_2(v23, v20);
+          v24 = v23->vfptr->damageCapability(v23, v20);
           if ( a1 > 0.0000001 )
             break;
           v25 = RGE_Static_Object::unitAI(v23);
@@ -143289,8 +143285,8 @@ void __thiscall BFormation::update(BFormation *this)
         if ( v7 )
         {
           v9 = this->mLines[v2].mAttackRange;
-          if ( v7->vfptr->damageCapability_1(v7) < v9 )
-            this->mLines[v2].mAttackRange = v7->vfptr->damageCapability_1(v7);
+          if ( v7->vfptr->weaponRange(v7) < v9 )
+            this->mLines[v2].mAttackRange = v7->vfptr->weaponRange(v7);
         }
         v4 = this->mLines;
         ++v3;
@@ -145063,7 +145059,7 @@ void __thiscall BUnitTypeStatistic::calculateMetrics(BUnitTypeStatistic *this)
       v5 = v4;
       if ( v4 )
       {
-        v4->vfptr->damageCapability_1(v4);
+        v4->vfptr->weaponRange(v4);
         v6 = v5->master_obj;
         if ( v6->object_group == 34 )
         {
@@ -147419,14 +147415,14 @@ int __thiscall BUnitGroup::canMoveToAttack(BUnitGroup *this, int unitID, int tar
                        v12[v9].mTransformPosition.x,
                        v12[v9].mTransformPosition.y,
                        v12[v9].mTransformPosition.z);
-    if ( this->mState == 2 && *(float *)&oID - unit->vfptr->damageCapability_1(unit) > 2.5
-      || this->mState == 1 && *(float *)&oID - unit->vfptr->damageCapability_1(unit) > 5.0 )
+    if ( this->mState == 2 && *(float *)&oID - unit->vfptr->weaponRange(unit) > 2.5
+      || this->mState == 1 && *(float *)&oID - unit->vfptr->weaponRange(unit) > 5.0 )
     {
       return 0;
     }
     if ( !this->mState )
     {
-      v13 = *(float *)&oID - unit->vfptr->damageCapability_1(unit);
+      v13 = *(float *)&oID - unit->vfptr->weaponRange(unit);
       return v13 <= 15.0;
     }
     return 1;
@@ -147830,20 +147826,14 @@ LABEL_17:
             this->mSmallestUnitRadius = v17;
           if ( !v3 || v6->vfptr->maximumSpeed(v6) < v31 )
             v31 = v6->vfptr->maximumSpeed(v6);
-          if ( !v3 || v6->vfptr->damageCapability_1(v6) < this->mSmallestUnitRange )
-            this->mSmallestUnitRange = v6->vfptr->damageCapability_1(v6);
-          if ( !v3 || v6->vfptr->damageCapability_1(v6) > this->mLargestUnitRange )
-            this->mLargestUnitRange = v6->vfptr->damageCapability_1(v6);
-          if ( v6->vfptr->damageCapability_1(v6) > 0.0
-            && (!v3 || v6->vfptr->damageCapability_1(v6) < this->mSmallestRangedUnitRange) )
-          {
-            this->mSmallestRangedUnitRange = v6->vfptr->damageCapability_1(v6);
-          }
-          if ( v6->vfptr->damageCapability_1(v6) > 0.0
-            && (!v3 || v6->vfptr->damageCapability_1(v6) < this->mLargestRangedUnitRange) )
-          {
-            this->mLargestRangedUnitRange = v6->vfptr->damageCapability_1(v6);
-          }
+          if ( !v3 || v6->vfptr->weaponRange(v6) < this->mSmallestUnitRange )
+            this->mSmallestUnitRange = v6->vfptr->weaponRange(v6);
+          if ( !v3 || v6->vfptr->weaponRange(v6) > this->mLargestUnitRange )
+            this->mLargestUnitRange = v6->vfptr->weaponRange(v6);
+          if ( v6->vfptr->weaponRange(v6) > 0.0 && (!v3 || v6->vfptr->weaponRange(v6) < this->mSmallestRangedUnitRange) )
+            this->mSmallestRangedUnitRange = v6->vfptr->weaponRange(v6);
+          if ( v6->vfptr->weaponRange(v6) > 0.0 && (!v3 || v6->vfptr->weaponRange(v6) < this->mLargestRangedUnitRange) )
+            this->mLargestRangedUnitRange = v6->vfptr->weaponRange(v6);
           if ( v6->selected == 1 )
             this->mAnyUnitSelected = 1;
           if ( v6->vfptr->underAttack(v6) == 1 )
@@ -148297,7 +148287,7 @@ void __thiscall BUnitGroup::movePositionToFront2(BUnitGroup *this, float project
   }
   if ( this->mFormationLockedType == 8
     && (v12 = this->mPathUnit) != 0
-    && ((int (__thiscall *)(RGE_Moving_Object *, float, float, int *, int))v12->vfptr->minimumWeaponRange)(
+    && v12->vfptr->passableTile(
          v12,
          COERCE_FLOAT(LODWORD(v9)),
          COERCE_FLOAT(LODWORD(v10)),
@@ -148879,7 +148869,7 @@ int __thiscall BUnitGroup::commandAttack(BUnitGroup *this, RGE_Static_Object *ta
       if ( v8 )
       {
         targetObjb = RGE_Static_Object::distance_to_object(v8, v6);
-        if ( v9->vfptr->damageCapability_1(v9) < targetObjb )
+        if ( v9->vfptr->weaponRange(v9) < targetObjb )
         {
           ++v4;
         }
@@ -149652,7 +149642,7 @@ void __thiscall BUnitGroup::notify(BUnitGroup *this, int unitID, int notifyType,
                 if ( v14 )
                 {
                   v16 = v14->vfptr;
-                  v17 = ((double (__thiscall *)(RGE_Static_Object *, _DWORD, int, int, _DWORD))v14->vfptr->damageCapability_1)(
+                  v17 = ((double (__thiscall *)(RGE_Static_Object *, _DWORD, int, int, _DWORD))v14->vfptr->weaponRange)(
                           v14,
                           0,
                           -1,
@@ -149661,10 +149651,7 @@ void __thiscall BUnitGroup::notify(BUnitGroup *this, int unitID, int notifyType,
                   v18 = v16;
                   v8 = v20;
                   v19 = v17;
-                  if ( ((int (__thiscall *)(RGE_Static_Object *, int, _DWORD))v18->canPath_2)(
-                         v15,
-                         v20->id,
-                         LODWORD(v19)) )
+                  if ( ((int (__thiscall *)(RGE_Static_Object *, int, _DWORD))v18->canPath)(v15, v20->id, LODWORD(v19)) )
                   {
                     v15->vfptr->stopMoving(v15);
                     ((void (__thiscall *)(RGE_Static_Object *, RGE_Static_Object *, _DWORD, _DWORD, _DWORD))v15->vfptr->do_command)(
@@ -150506,7 +150493,7 @@ LABEL_33:
     if ( !v23 )
       goto LABEL_81;
     v24 = 3;
-    if ( ((int (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, int *, int))v6->vfptr->minimumWeaponRange)(
+    if ( ((int (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, int *, int))v6->vfptr->passableTile)(
            v6,
            LODWORD(slot->mTransformPosition.x),
            LODWORD(slot->mTransformPosition.y),
@@ -150575,7 +150562,7 @@ LABEL_33:
         v107 = (void *)LODWORD(v32->y);
         v90 = (BVector *)this->mNumberUnits;
         v89 = this->mUnits;
-        if ( ((int (__thiscall *)(RGE_Static_Object *, _DWORD, void *))v33->minimumWeaponRange)(
+        if ( ((int (__thiscall *)(RGE_Static_Object *, _DWORD, void *))v33->passableTile)(
                v6,
                LODWORD(outVector.y),
                v107) )
@@ -150657,7 +150644,7 @@ LABEL_33:
                 outVector.z = this->mPosition.mPosition.z;
                 v41 = v6->vfptr;
                 outVector.y = this->mPosition.mPosition.y;
-                if ( ((int (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, int *, int))v41->minimumWeaponRange)(
+                if ( ((int (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, int *, int))v41->passableTile)(
                        v6,
                        LODWORD(outVector.x),
                        LODWORD(outVector.y),
@@ -150905,7 +150892,7 @@ LABEL_9:
             if ( v12 <= v26 )
               break;
             numberUnitsa = v12;
-            if ( v3->vfptr->damageCapability_1(v3) >= numberUnitsa )
+            if ( v3->vfptr->weaponRange(v3) >= numberUnitsa )
               break;
           }
           if ( ++v10 >= v9->mNumberUnits )
@@ -151210,7 +151197,7 @@ int __thiscall BUnitGroup::updateAttackCommandLocked(BUnitGroup *this, int *need
             if ( v24 <= v64.x )
               break;
             v59 = v24;
-            if ( v5->vfptr->damageCapability_1(v5) >= v59 )
+            if ( v5->vfptr->weaponRange(v5) >= v59 )
               break;
           }
           if ( ++v22 >= i->mNumberUnits )
@@ -151349,7 +151336,7 @@ LABEL_47:
                           v50 = sqrt(v.z * v.z + v64.y * v64.y);
                           if ( v50 <= 1.0
                             || (needToUpdateDesiredPositionsa = v50,
-                                v43->vfptr->damageCapability_1(v43) > needToUpdateDesiredPositionsa) )
+                                v43->vfptr->weaponRange(v43) > needToUpdateDesiredPositionsa) )
                           {
                             if ( v43->vfptr->actionType(v43) != 9 && this->mCurrentTarget.mType == 1 && range )
                             {
@@ -174296,25 +174283,23 @@ BOOL __thiscall RGE_Moving_Object::canPathWithObstructions(RGE_Moving_Object *th
 }
 
 //----- (004A21D0) --------------------------------------------------------
-int __thiscall RGE_Moving_Object::canPathWithAdditionalPassability(RGE_Moving_Object *this, XYZPoint p, float aRange, int targetID, float *pathDistance, int eTerrain1, int eTerrain2, int eTerrain3, int unobstructiblePlayerID, int unobstructibleGroupID, BPath *exceptionPath)
+int __thiscall RGE_Moving_Object::canPathWithAdditionalPassability(RGE_Moving_Object *this, XYZPoint p, float aRange, int targetID, float *pathDistance, int eTerrain1, int eTerrain2, int eTerrain3, int mAI_arg, int gbg_arg, int unobstructiblePlayerID, int unobstructibleGroupID, BPath *exceptionPath)
 {
-  RGE_Map *v12; // ecx
+  RGE_Map *v14; // ecx
   int result; // eax
-  int unobstructibleGroupIDa; // [esp+3Ch] [ebp+34h]
-  BPath *rPath; // [esp+40h] [ebp+38h]
 
   if ( p.x < 0 )
     return 0;
   if ( p.y < 0 )
     return 0;
-  v12 = this->owner->world->map;
-  if ( p.x >= v12->map_width || p.y >= v12->map_height || !rPath )
+  v14 = this->owner->world->map;
+  if ( p.x >= v14->map_width || p.y >= v14->map_height || !exceptionPath )
     return 0;
   pathSystem.mTerrainException1 = eTerrain1;
   pathSystem.mTerrainException2 = eTerrain2;
   pathSystem.mTerrainException3 = eTerrain3;
-  pathSystem.mAI = unobstructiblePlayerID;
-  pathSystem.gbg_unknown1 = unobstructibleGroupID;
+  pathSystem.mAI = mAI_arg;
+  pathSystem.gbg_unknown1 = gbg_arg;
   result = PathingSystem::findTilePath(
              &pathSystem,
              (__int64)this->world_x,
@@ -174325,9 +174310,9 @@ int __thiscall RGE_Moving_Object::canPathWithAdditionalPassability(RGE_Moving_Ob
              aRange,
              targetID,
              pathDistance,
-             (int)exceptionPath,
-             unobstructibleGroupIDa,
-             rPath,
+             unobstructiblePlayerID,
+             unobstructibleGroupID,
+             exceptionPath,
              0);
   pathSystem.mTerrainException1 = -1;
   pathSystem.mTerrainException2 = -1;
@@ -174443,7 +174428,7 @@ LABEL_12:
   }
   v11 = (__int64)v15;
   v12 = (__int64)sa;
-  if ( ((int (__thiscall *)(RGE_Moving_Object *, _DWORD, _DWORD))this->vfptr->passableTile_2)(
+  if ( ((int (__thiscall *)(RGE_Moving_Object *, _DWORD, _DWORD))this->vfptr->passableTile2)(
          this,
          LODWORD(v15),
          LODWORD(sa)) )
@@ -174502,7 +174487,7 @@ int __thiscall RGE_Moving_Object::canLinePath(RGE_Moving_Object *this, int sX, i
     {
       v11 = (__int64)*(float *)&sXa;
       v10 = (__int64)v16;
-      if ( !((int (__thiscall *)(RGE_Moving_Object *, _DWORD, int))this->vfptr->passableTile_2)(this, LODWORD(v16), sXa) )
+      if ( !((int (__thiscall *)(RGE_Moving_Object *, _DWORD, int))this->vfptr->passableTile2)(this, LODWORD(v16), sXa) )
         return 0;
       if ( sqrt(((double)dX - v16) * ((double)dX - v16) + ((double)dY - *(float *)&sXa) * ((double)dY - *(float *)&sXa)) <= range )
         break;
@@ -174563,7 +174548,7 @@ int __thiscall RGE_Moving_Object::firstTileAlongLine(RGE_Moving_Object *this, XY
       v17 = RGE_Map::get_terrain(v22, v15, v16);
       if ( (v17 == tType1 || v17 == tType2)
         && checkPassability == 1
-        && ((int (__thiscall *)(RGE_Moving_Object *, _DWORD, _DWORD))this->vfptr->passableTile_2)(
+        && ((int (__thiscall *)(RGE_Moving_Object *, _DWORD, _DWORD))this->vfptr->passableTile2)(
              this,
              LODWORD(da),
              LODWORD(sa)) == 1 )
@@ -302362,7 +302347,7 @@ LABEL_8:
               1,
               0,
               0)
-        && ((int (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD))obj->vfptr->passableTile_2)(
+        && ((int (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD))obj->vfptr->passableTile2)(
              obj,
              *(_DWORD *)x,
              *(_DWORD *)y) == 1 )
@@ -303957,7 +303942,7 @@ void __thiscall TRIBE_Building_Object::destroy_obj(TRIBE_Building_Object *this)
 }
 
 //----- (00554570) --------------------------------------------------------
-unsigned __int8 __thiscall TRIBE_Building_Object::heal2(TRIBE_Building_Object *this, float healing)
+unsigned __int8 __thiscall TRIBE_Building_Object::heal(TRIBE_Building_Object *this, float healing)
 {
   TRIBE_Master_Building_Object *v3; // ecx
   double v4; // st7
@@ -303974,7 +303959,7 @@ unsigned __int8 __thiscall TRIBE_Building_Object::heal2(TRIBE_Building_Object *t
     healinga = v4 - this->hp;
   modifier = healinga / (double)(2 * v3->hp);
   if ( TRIBE_Player::pay_obj_cost(this->owner, v3->id, modifier, 0) )
-    result = TRIBE_Combat_Object::heal2((TRIBE_Combat_Object *)this, healinga);
+    result = TRIBE_Combat_Object::heal((TRIBE_Combat_Object *)this, healinga);
   else
     result = 2;
   return result;
@@ -304781,7 +304766,7 @@ LABEL_26:
             {
               v31 = v28->List[v30];
               if ( v29 && (double)v31->master_obj->hp > v31->hp )
-                ((void (__thiscall *)(RGE_Static_Object *, _DWORD))v31->vfptr->heal_1)(
+                ((void (__thiscall *)(RGE_Static_Object *, _DWORD))v31->vfptr->heal2)(
                   v31,
                   LODWORD(this->master_obj->garrison_heal_rate));
               if ( v31->master_obj->object_group == 1 )
@@ -310753,7 +310738,7 @@ int __thiscall TRIBE_Combat_Object::convert(TRIBE_Combat_Object *this, int targe
 }
 
 //----- (0055CD30) --------------------------------------------------------
-int __thiscall TRIBE_Combat_Object::heal(TRIBE_Combat_Object *this, int targetID, int unconditional)
+int __thiscall TRIBE_Combat_Object::heal2(TRIBE_Combat_Object *this, int targetID, int unconditional)
 {
   int result; // eax
   int v5; // esi
@@ -311610,7 +311595,7 @@ unsigned __int8 __thiscall TRIBE_Combat_Object::area_attack(TRIBE_Combat_Object 
 }
 
 //----- (0055E000) --------------------------------------------------------
-unsigned __int8 __thiscall TRIBE_Combat_Object::heal2(TRIBE_Combat_Object *this, float healing)
+unsigned __int8 __thiscall TRIBE_Combat_Object::heal(TRIBE_Combat_Object *this, float healing)
 {
   TRIBE_Master_Combat_Object *v3; // ecx
   double v4; // st7
@@ -312502,7 +312487,7 @@ void __thiscall TRIBE_Combat_Object::work2(TRIBE_Combat_Object *this, RGE_Static
     {
       if ( ((int (*)(void))v12->computerPlayer)() == 1 && !this->owner->vfptr->isAlly(this->owner, v11->owner->id) )
       {
-        v13 = this->vfptr->inAttackRange_2(this, v11, (int *)&target_obj);
+        v13 = this->vfptr->inAttackRange2(this, v11, (int *)&target_obj);
         v14 = this->master_obj->object_group;
         if ( v14 == 36 && !v13 )
         {
@@ -313080,7 +313065,7 @@ int __thiscall TRIBE_Combat_Object::attack(TRIBE_Combat_Object *this, int target
     return RGE_Combat_Object::attack2((RGE_Combat_Object *)this, v4, unconditional);
   v10 = this->vfptr;
   targetID = 0;
-  if ( v10->inAttackRange_2(this, v9, &targetID) )
+  if ( v10->inAttackRange2(this, v9, &targetID) )
   {
     if ( this->master_obj->object_group == 34 )
     {
@@ -319829,7 +319814,7 @@ LABEL_29:
       v14 = v11->attributes[89];
       if ( v14 > 0.0 )
         v17 = v14 * v17;
-      v15 = v12->vfptr->heal_1(v12, COERCE_FLOAT(LODWORD(v17)));
+      v15 = v12->vfptr->heal2(v12, COERCE_FLOAT(LODWORD(v17)));
       if ( v15 == 1 )
         goto LABEL_10;
       if ( v15 == 2 )
@@ -323908,7 +323893,7 @@ LABEL_59:
         && (v16->master_obj->object_flags & 2) != 0
         && *(&v16[1].mROOAlreadyCalled + 1) == this->save_target_command_flag )
       {
-        ((void (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, _DWORD, _DWORD, int, _DWORD))v16->vfptr->moveTo_3)(
+        ((void (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, _DWORD, _DWORD, int, _DWORD))v16->vfptr->moveTo)(
           v16,
           LODWORD(this->obj->world_x),
           LODWORD(this->obj->world_y),
@@ -324082,7 +324067,7 @@ unsigned __int8 __thiscall TRIBE_Action_Repair::update(TRIBE_Action_Repair *this
           }
           else
           {
-            v13 = v7->vfptr->heal_1(v7, COERCE_FLOAT(LODWORD(v21)));
+            v13 = v7->vfptr->heal2(v7, COERCE_FLOAT(LODWORD(v21)));
           }
           if ( v13 == 1 )
           {
@@ -324264,7 +324249,7 @@ LABEL_8:
         this->target_x = v16;
         v15 = (double)v19[1] + 0.5;
         this->target_y = v15;
-        ((void (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, _DWORD, _DWORD, int, _DWORD))v9->vfptr->moveTo_3)(
+        ((void (__thiscall *)(RGE_Static_Object *, _DWORD, _DWORD, _DWORD, _DWORD, int, _DWORD))v9->vfptr->moveTo)(
           v9,
           LODWORD(v16),
           LODWORD(v15),
@@ -326688,7 +326673,7 @@ unsigned __int8 __thiscall TRIBE_Action_Unpack::update(TRIBE_Action_Unpack *this
         v14 = this->target_obj;
         v15 = v13;
         v16 = v13->vfptr;
-        v17 = ((double (__thiscall *)(RGE_Action_Object *, _DWORD, _DWORD, int))this->obj->vfptr->damageCapability_1)(
+        v17 = ((double (__thiscall *)(RGE_Action_Object *, _DWORD, _DWORD, int))this->obj->vfptr->weaponRange)(
                 this->obj,
                 0,
                 0,
@@ -339909,13 +339894,13 @@ LABEL_33:
 LABEL_30:
   v25 = (float)v39;
   v24 = (float)v38;
-  if ( !((int (__stdcall *)(_DWORD, _DWORD))unit->vfptr->passableTile_2)(LODWORD(v24), LODWORD(v25))
+  if ( !((int (__stdcall *)(_DWORD, _DWORD))unit->vfptr->passableTile2)(LODWORD(v24), LODWORD(v25))
     || RGE_Static_Object::lookupZone(unit, v10, v11) != v26 )
   {
     goto LABEL_32;
   }
   v23 = unit->master_obj->los - 1.0;
-  if ( ((int (__thiscall *)(RGE_Static_Object *, int, int, _DWORD, _DWORD, int, char *, int, int, _DWORD))unit->vfptr->canPath_1)(
+  if ( ((int (__thiscall *)(RGE_Static_Object *, int, int, _DWORD, _DWORD, int, char *, int, int, _DWORD))unit->vfptr->canPath2)(
          unit,
          v10,
          v11,
@@ -341095,11 +341080,11 @@ LABEL_51:
         if ( v3 )
         {
           v21 = v3->master_obj;
-          weaponRange = v3->vfptr->damageCapability_1(v3);
+          weaponRange = v3->vfptr->weaponRange(v3);
           weaponRangea = ((double (__thiscall *)(RGE_Static_Object *, _DWORD))v3->vfptr->rateOfFire)(
                            v3,
                            LODWORD(weaponRange));
-          damageCapability = ((double (__thiscall *)(RGE_Static_Object *))v3->vfptr->damageCapability_2)(v3);
+          damageCapability = ((double (__thiscall *)(RGE_Static_Object *))v3->vfptr->damageCapability)(v3);
           TribeInformationAIModule::addObjectMemory(
             this,
             v3->id,
@@ -344612,7 +344597,7 @@ void __thiscall TribeInformationAIModule::InfluenceTowerOutpostOrGroupPlacement(
 
   v6 = this;
   if ( a3 == 3 )
-    v25 = a2->vfptr->damageCapability_1(a2);
+    v25 = a2->vfptr->weaponRange(a2);
   else
     v25 = a2->master_obj->los;
   if ( a4 != 3 && a4 != 12 )
@@ -346122,7 +346107,7 @@ int __thiscall TribeInformationAIModule::InfluenceMapPart4(TribeInformationAIMod
               }
               else if ( !v10 && (v11 == 3 || v11 == 9 || v8->master_obj->id == 82) )
               {
-                v23 = v8->vfptr->damageCapability_1(v8);
+                v23 = v8->vfptr->weaponRange(v8);
                 minX.x = (__int64)((double)minX.x - v23 + 0.5);
                 minX.y = (__int64)((double)minX.y - v23 + 0.5);
                 maxX.x = (__int64)((double)maxX.x + v23 + 0.5);
@@ -347015,7 +347000,7 @@ int __thiscall TribeInformationAIModule::unexploredPlayerLocation(TribeInformati
   v16 = v6->y;
   v15->y = v16;
   v18 = v7->master_obj->los - 1.0;
-  if ( !((int (__thiscall *)(RGE_Static_Object *, int, int, _DWORD, _DWORD, int, int *, int, int, _DWORD))v7->vfptr->canPath_1)(
+  if ( !((int (__thiscall *)(RGE_Static_Object *, int, int, _DWORD, _DWORD, int, int *, int, int, _DWORD))v7->vfptr->canPath2)(
           v7,
           v15->x,
           v16,
@@ -347333,7 +347318,7 @@ LABEL_68:
             v50 = unit->vfptr;
             v51 = v49;
             v82[0] = x.x;
-            v52 = ((int (__thiscall *)(RGE_Static_Object *, int *, int *, int, char *, int))v50->canLinePath_1)(
+            v52 = ((int (__thiscall *)(RGE_Static_Object *, int *, int *, int, char *, int))v50->canLinePath2)(
                     unit,
                     v82,
                     &v78,
@@ -347371,7 +347356,7 @@ LABEL_68:
                 {
                   v57 = (float)j;
                   v56 = (float)v61;
-                  if ( !((int (__stdcall *)(_DWORD, _DWORD))unit->vfptr->passableTile_2)(LODWORD(v56), LODWORD(v57)) )
+                  if ( !((int (__stdcall *)(_DWORD, _DWORD))unit->vfptr->passableTile2)(LODWORD(v56), LODWORD(v57)) )
                     v43 = 0;
                 }
               }
@@ -347742,7 +347727,7 @@ LABEL_74:
             }
             v59 = (float)v79;
             v58 = (float)v76;
-            if ( ((int (__stdcall *)(_DWORD, _DWORD))unit->vfptr->passableTile_2)(LODWORD(v58), LODWORD(v59)) )
+            if ( ((int (__stdcall *)(_DWORD, _DWORD))unit->vfptr->passableTile2)(LODWORD(v58), LODWORD(v59)) )
               ++v82;
             else
               v71 = 0;
@@ -347764,7 +347749,7 @@ LABEL_97:
         v90[0] = v36;
         v56 = (__int64)sqrt((double)((v88 - v36) * (v88 - v36) + v75 * v75))
             + (__int64)sqrt((double)((a4.x - v36) * (a4.x - v36) + v63 * v63))
-            + (((int (__thiscall *)(RGE_Static_Object *, int *, int *, int, char *, int))v55->canLinePath_1)(
+            + (((int (__thiscall *)(RGE_Static_Object *, int *, int *, int, char *, int))v55->canLinePath2)(
                  unit,
                  v90,
                  &v77,
@@ -348524,7 +348509,7 @@ void __thiscall TribeInformationAIModule::enemyUnitsInRange(TribeInformationAIMo
           if ( v6->object_state <= 2u && v6->hp >= 1.0 )
           {
             v20 = RGE_Static_Object::distance_to_position(v6, position.x, position.y, 0.0);
-            if ( v7->vfptr->damageCapability_1(v7) >= v20 )
+            if ( v7->vfptr->weaponRange(v7) >= v20 )
             {
               v8 = rUnits->numberValue;
               v9 = v7->id;
@@ -349348,7 +349333,7 @@ void __thiscall AIBestUnitToAttackStatistics::addUnit(AIBestUnitToAttackStatisti
     {
       if ( !unit )
         unit = v17;
-      v18 = v17->vfptr->damageCapability_2(v17, target);
+      v18 = v17->vfptr->damageCapability(v17, target);
       if ( v18 <= 0.0000001 && (v19 = RGE_Static_Object::unitAI(v17), v19->vfptr->canConvert(v19, target->id, 0) == 1) )
       {
         v20 = target->hp * 0.1;
@@ -349428,7 +349413,7 @@ LABEL_69:
     v31 = v30;
     if ( v30 && RGE_Static_Object::unitAI(v30) )
     {
-      v32 = v31->vfptr->damageCapability_2(v31, memoryIndexb);
+      v32 = v31->vfptr->damageCapability(v31, memoryIndexb);
       if ( v32 <= 0.0000001
         && (v33 = RGE_Static_Object::unitAI(v31), v33->vfptr->canConvert(v33, memoryIndexb->id, 0) == 1) )
       {
@@ -350352,9 +350337,9 @@ LABEL_83:
         v51 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *v50);
         if ( v51 )
         {
-          v52 = ((double (__thiscall *)(RGE_Static_Object *))v51->vfptr->damageCapability_1)(v51);
+          v52 = ((double (__thiscall *)(RGE_Static_Object *))v51->vfptr->weaponRange)(v51);
           if ( v52 < *(float *)&referenceMonkID )
-            *(float *)&referenceMonkID = v51->vfptr->damageCapability_1(v51);
+            *(float *)&referenceMonkID = v51->vfptr->weaponRange(v51);
         }
         ++v49;
         ++v50;
@@ -350798,7 +350783,7 @@ void __thiscall TribeInformationAIModule::addUnitDeath(TribeInformationAIModule 
       {
         v6->mAttackingUnitID = v4->id;
         v6->mAttackingPlayerID = v4->owner->id;
-        v9 = (__int64)((double (__thiscall *)(RGE_Static_Object *))v4->vfptr->damageCapability_1)(v4);
+        v9 = (__int64)((double (__thiscall *)(RGE_Static_Object *))v4->vfptr->weaponRange)(v4);
         v6->mAttackingUnitRange = v9;
         if ( (int)v9 < 4 )
           v6->mAttackingUnitRange = 4;
@@ -351046,7 +351031,7 @@ LABEL_58:
       }
       if ( !v27
         || ((v17 = v11->master_obj->object_group, v17 == 10) || v17 == 9)
-        && v12->vfptr->weaponRange(v12) >= 0.0000001
+        && v12->vfptr->minimumWeaponRange(v12) >= 0.0000001
         && !TribeInformationAIModule::underInTownEnemyBuildingCoverFire(v2, v12->id) )
       {
         v32 = (float)TribeTacticalAIModule::buildingKillPriority(&v2->md->tacticalAI, v12->master_obj->id);
@@ -351343,7 +351328,7 @@ bool __thiscall TribeInformationAIModule::underInTownEnemyBuildingCoverFire(Trib
           if ( v9->object_state == 2 )
           {
             v33 = RGE_Static_Object::distance_to_object(v9, obj);
-            v12 = v10->vfptr->damageCapability_1(v10) + 1.0;
+            v12 = v10->vfptr->weaponRange(v10) + 1.0;
             v13 = v12 < v33;
             v14 = 0;
             v15 = v12 == v33;
@@ -351404,7 +351389,7 @@ LABEL_40:
           if ( v23 != 58 && v23 != 45 && v23 != 36 && v23 != 34 )
           {
             v34 = RGE_Static_Object::distance_to_object(v22, obj);
-            v24 = v22->vfptr->damageCapability_1(v22);
+            v24 = v22->vfptr->weaponRange(v22);
             if ( v24 < 6.0 )
               v24 = 6.0;
             v26 = v24 + 1.0;
@@ -354632,7 +354617,7 @@ LABEL_19:
                       || (v31 = RGE_Static_Object::unitAI(v25),
                           v31->vfptr->canAttackUnitAtNeutrality(v31, v27->master_obj->id)) )
                     {
-                      v45 = v25->vfptr->damageCapability_1(v25);
+                      v45 = v25->vfptr->weaponRange(v25);
                       v32 = ((int (__thiscall *)(RGE_Static_Object *, BVector *, _DWORD))v27->vfptr->position)(
                               v27,
                               &result,
@@ -358193,10 +358178,7 @@ LABEL_11:
       default:
         break;
     }
-    if ( ((int (__thiscall *)(RGE_Static_Object *, float, float))v8->vfptr->passableTile_2)(
-           v8,
-           COERCE_FLOAT(LODWORD(x)),
-           COERCE_FLOAT(LODWORD(y))) )
+    if ( v8->vfptr->passableTile2(v8, COERCE_FLOAT(LODWORD(x)), COERCE_FLOAT(LODWORD(y))) )
     {
       v11 = RGE_Static_Object::distance_to_position(v8, x, y, v8->world_z);
       if ( v14 == -1.0 || v11 < v14 )
@@ -359538,7 +359520,7 @@ void __thiscall TribeTacticalAIModule::checkForwardGatherers(TribeTacticalAIModu
         && (v7->vfptr->hasActionOfType(v7, 5) || v8->vfptr->hasActionOfType(v8, 110))
         && (v8->vfptr->actionState(v8) == 0xF4 || v8->vfptr->actionState(v8) == 0xF7) )
       {
-        v9 = v8->vfptr->actionState(v8) == 0xF7 ? v8->vfptr->currentTargetID(v8) : ((int (__thiscall *)(RGE_Static_Object *))v8->vfptr->passableTile_1)(v8);
+        v9 = v8->vfptr->actionState(v8) == 0xF7 ? v8->vfptr->currentTargetID2(v8) : v8->vfptr->currentTargetID(v8);
         v10 = v9;
         v11 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, v9);
         if ( !TribeTacticalAIModule::groupUnitIsIn(this, v8->id) )
@@ -361298,13 +361280,13 @@ LABEL_28:
                   {
                     v23 = v19->vfptr;
                     v24 = tag->targetValue;
-                    x_4 = ((double (__thiscall *)(RGE_Static_Object *, _DWORD, int, int, _DWORD))v19->vfptr->damageCapability_1)(
+                    x_4 = ((double (__thiscall *)(RGE_Static_Object *, _DWORD, int, int, _DWORD))v19->vfptr->weaponRange)(
                             v19,
                             0,
                             -1,
                             -1,
                             0);
-                    if ( ((int (__thiscall *)(RGE_Static_Object *, int, _DWORD))v23->canPath_2)(v19, v24, LODWORD(x_4)) == 1 )
+                    if ( ((int (__thiscall *)(RGE_Static_Object *, int, _DWORD))v23->canPath)(v19, v24, LODWORD(x_4)) == 1 )
                       TribeTacticalAIModule::taskAttacker(
                         this,
                         v19->id,
@@ -361385,7 +361367,7 @@ LABEL_54:
             v35 = v34;
             if ( v34
               && v29
-              && (v51 = v34->vfptr->damageCapability_1(v34),
+              && (v51 = v34->vfptr->weaponRange(v34),
                   v36 = ((int (__thiscall *)(RGE_Static_Object *, char *, _DWORD))v29->vfptr->position)(
                           v29,
                           v61,
@@ -363013,7 +362995,7 @@ LABEL_57:
                 v31 = v29->x;
                 v58 = v30->id;
                 v73 = v30->z;
-                if ( ((int (__thiscall *)(RGE_Static_Object *, int, int, int, int, int, char *, int, int, _DWORD))v27->vfptr->canPath_1)(
+                if ( ((int (__thiscall *)(RGE_Static_Object *, int, int, int, int, int, char *, int, int, _DWORD))v27->vfptr->canPath2)(
                        v27,
                        v31,
                        v72,
@@ -364171,7 +364153,7 @@ LABEL_144:
                       v89 = (__int64)RGE_Static_Object::distance_to_object((RGE_Static_Object *)mType, v79);
                       if ( (int)v89 <= this->sn[20] || ida )
                       {
-                        v99 = ((double (__fastcall *)(RGE_Static_Object *, _DWORD))v79->vfptr->damageCapability_1)(
+                        v99 = ((double (__fastcall *)(RGE_Static_Object *, _DWORD))v79->vfptr->weaponRange)(
                                 v79,
                                 HIDWORD(v89));
                         v90 = ((int (__thiscall *)(RGE_Static_Object *, char *, _DWORD))v20->vfptr->position)(
@@ -367422,7 +367404,7 @@ int __thiscall TribeTacticalAIModule::taskAttacker(TribeTacticalAIModule *this, 
     v21 = this->md->player;
     v22 = v13->vfptr;
     path = (Waypoint *)v21->vfptr;
-    v31 = ((double (__thiscall *)(RGE_Static_Object *, int, _DWORD, int))v22->damageCapability_1)(v13, 1, 0, priority);
+    v31 = ((double (__thiscall *)(RGE_Static_Object *, int, _DWORD, int))v22->weaponRange)(v13, 1, 0, priority);
     ((void (__thiscall *)(TRIBE_Player *, int, int, int, int, int, _DWORD, _DWORD, int, _DWORD, int, int, int))LODWORD(path[3].z))(
       v21,
       v21->id,
@@ -371760,7 +371742,7 @@ void __thiscall TribeTacticalAIModule::civilianUnderAttack(TribeTacticalAIModule
   v8 = RGE_Static_Object::unitAI(v5);
   UnitAIModule::unitsInSight(v8, v76, visibleUnits, &numberVisibleUnits, 50);
   v83 = 0;
-  v9 = v7->vfptr->damageCapability_1(v7);
+  v9 = v7->vfptr->weaponRange(v7);
   v96 = v9 > 0.0;
   v10 = 0;
   if ( numberVisibleUnits > 0 )
@@ -371771,7 +371753,7 @@ void __thiscall TribeTacticalAIModule::civilianUnderAttack(TribeTacticalAIModule
       v12 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *v11);
       if ( v12 )
       {
-        v9 = v12->vfptr->damageCapability_1(v12);
+        v9 = v12->vfptr->weaponRange(v12);
         if ( v9 > 0.0 )
           ++v83;
       }
@@ -371853,7 +371835,7 @@ void __thiscall TribeTacticalAIModule::civilianUnderAttack(TribeTacticalAIModule
               v25 = RGE_Static_Object::distance_to_object(v95, v19);
               v26 = v19->vfptr;
               *(float *)&v93 = v25;
-              v9 = v26->damageCapability_1(v19);
+              v9 = v26->weaponRange(v19);
               if ( v9 < 10.0 )
                 v9 = 10.0;
               if ( *(float *)&v93 <= v9 )
@@ -371944,7 +371926,7 @@ LABEL_49:
           v39 = RGE_Static_Object::distance_to_object(v95, v35);
           v40 = v35->vfptr;
           *(float *)&v93 = v39;
-          v9 = v40->damageCapability_1(v35);
+          v9 = v40->weaponRange(v35);
           if ( v9 < 10.0 )
             v9 = 10.0;
           if ( *(float *)&v93 <= v9 )
@@ -372941,7 +372923,7 @@ bool __thiscall TribeTacticalAIModule::taskOnInTownStructure(TribeTacticalAIModu
           LOBYTE(result) = 1;
           return result;
         }
-        v17 = ((double (__thiscall *)(RGE_Static_Object *, _DWORD, int, int, _DWORD))obj->vfptr->damageCapability_1)(
+        v17 = ((double (__thiscall *)(RGE_Static_Object *, _DWORD, int, int, _DWORD))obj->vfptr->weaponRange)(
                 obj,
                 0,
                 -1,
@@ -373443,14 +373425,14 @@ LABEL_100:
                                             }
                                           }
                                           v53 = v46->vfptr;
-                                          v54 = ((double (__fastcall *)(RGE_Static_Object *, int, _DWORD, int, int, _DWORD))v46->vfptr->damageCapability_1)(
+                                          v54 = ((double (__fastcall *)(RGE_Static_Object *, int, _DWORD, int, int, _DWORD))v46->vfptr->weaponRange)(
                                                   v46,
                                                   v51,
                                                   0,
                                                   -1,
                                                   -1,
                                                   0);
-                                          if ( ((int (__thiscall *)(RGE_Static_Object *, int, _DWORD))v53->canPath_2)(
+                                          if ( ((int (__thiscall *)(RGE_Static_Object *, int, _DWORD))v53->canPath)(
                                                  v46,
                                                  v37->id,
                                                  LODWORD(v54)) )
@@ -373727,7 +373709,7 @@ void __thiscall TribeTacticalAIModule::villagerAttackResponse(TribeTacticalAIMod
   if ( (double)v25->master_obj->hp * 0.2 < v25->hp )
   {
     obja = RGE_Static_Object::distance_to_object(v25, v5);
-    if ( v25->vfptr->damageCapability_1(v25) - 0.5 >= obja )
+    if ( v25->vfptr->weaponRange(v25) - 0.5 >= obja )
     {
       v26 = RGE_Static_Object::unitAI(v25);
       if ( v26->vfptr->canAttackUnit(v26, v5) )
@@ -373974,7 +373956,7 @@ LABEL_60:
               {
                 if ( v30 != 0x80 || v29->master_obj->fog_flag )
                 {
-                  v31 = unit->vfptr->damageCapability_1(unit);
+                  v31 = unit->vfptr->weaponRange(unit);
                   v43 = v31;
                   if ( v31 < 1.0 )
                     v43 = unit->master_obj->los;
@@ -374033,7 +374015,7 @@ LABEL_60:
               {
                 if ( v18 != 0x80 || v17->master_obj->fog_flag )
                 {
-                  v19 = unit->vfptr->damageCapability_1(unit);
+                  v19 = unit->vfptr->weaponRange(unit);
                   v42 = v19;
                   if ( v19 < 1.0 )
                     v42 = unit->master_obj->los;
@@ -375209,7 +375191,7 @@ LABEL_142:
               }
             }
             if ( v73 == -1
-              || ((int (__thiscall *)(RGE_Combat_Object *, int, int, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath_2)(
+              || ((int (__thiscall *)(RGE_Combat_Object *, int, int, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath)(
                    this->objectValue,
                    v73,
                    1036831949,
@@ -375326,7 +375308,7 @@ LABEL_164:
         return UnitAIModule::processNotify((UnitAIModule *)this, v3, uTime);
       if ( v8->object_state > 2u )
         return UnitAIModule::processNotify((UnitAIModule *)this, v3, uTime);
-      *(float *)&nEvent = this->objectValue->vfptr->damageCapability_1(this->objectValue);
+      *(float *)&nEvent = this->objectValue->vfptr->weaponRange(this->objectValue);
       v10 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->objectValue, v9);
       v11 = *(float *)&nEvent - v10;
       *(float *)&x = v11;
@@ -375946,7 +375928,7 @@ LABEL_3:
   v15 = v13->vfptr;
   v21 = v14;
   v23 = sqrt(v14 * v21 + v22 * v22);
-  v16 = v15->damageCapability_1(v13);
+  v16 = v15->weaponRange(v13);
   v17 = v16 - v23;
   if ( v17 <= 0.0 )
     return 5;
@@ -376166,7 +376148,7 @@ int __thiscall TribePriestUnitAIModule::canAttackUnit(TribePriestUnitAIModule *t
             this->statePositionXValue,
             this->statePositionYValue,
             v4->world_z);
-  v8 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 0.5;
+  v8 = this->objectValue->vfptr->weaponRange(this->objectValue) + 0.5;
   if ( !unit->owner->id )
     v8 = v8 + 1.5;
   v9 = this->stateValue;
@@ -376179,24 +376161,24 @@ int __thiscall TribePriestUnitAIModule::canAttackUnit(TribePriestUnitAIModule *t
   {
     v12 = this->objectValue->vfptr;
     v13 = unit->vfptr->position(unit, v16);
-    unitb = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD))v12->distanceToHighestLevelPath_2)(
+    unitb = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD))v12->distanceToHighestLevelPath)(
               this->objectValue,
               LODWORD(v13->x),
               LODWORD(v13->z),
               LODWORD(v13->y));
-    v14 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unitb;
+    v14 = this->objectValue->vfptr->weaponRange(this->objectValue) + 5.0 < unitb;
   }
   else
   {
     if ( UnitAIModule::hasPatrolInformation((UnitAIModule *)this) != 1 )
     {
-      if ( this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unita )
+      if ( this->objectValue->vfptr->weaponRange(this->objectValue) + 5.0 < unita )
         return 0;
       return UnitAIModule::canAttackUnit((UnitAIModule *)this, unit);
     }
     v15 = *unit->vfptr->position(unit, v16);
     unitc = BPath::distanceFromPath(this->mPatrolPath, v15);
-    v14 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unitc;
+    v14 = this->objectValue->vfptr->weaponRange(this->objectValue) + 5.0 < unitc;
   }
   if ( v14 )
     return 0;
@@ -376403,7 +376385,7 @@ LABEL_10:
     case 512:
       if ( v5 == 512
         && (!this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner)
-         || this->objectValue->vfptr->damageCapability_1(this->objectValue) < 1.0
+         || this->objectValue->vfptr->weaponRange(this->objectValue) < 1.0
          || UnitAIModule::currentTargetType((UnitAIModule *)this) == 18
          || UnitAIModule::currentTargetType((UnitAIModule *)this) == 6
          || UnitAIModule::currentTargetType((UnitAIModule *)this) == 8
@@ -376418,12 +376400,12 @@ LABEL_10:
       v28 = this->objectValue;
       if ( nEvent->mType == 510 )
       {
-        nEventb = v28->vfptr->weaponRange(v28);
+        nEventb = v28->vfptr->minimumWeaponRange(v28);
         v29 = 1;
       }
       else
       {
-        nEventb = v28->vfptr->damageCapability_1(v28);
+        nEventb = v28->vfptr->weaponRange(v28);
         v29 = 0;
       }
       v30 = nEvent->p1;
@@ -377214,7 +377196,7 @@ LABEL_46:
     }
   }
   if ( v15 == -1
-    || ((int (__thiscall *)(RGE_Combat_Object *, int, int, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath_2)(
+    || ((int (__thiscall *)(RGE_Combat_Object *, int, int, _DWORD, int, int, _DWORD))this->objectValue->vfptr->canPath)(
          this->objectValue,
          v15,
          1036831949,
@@ -377341,7 +377323,7 @@ LABEL_38:
       }
       if ( v14->object_state >= 2u && (maxWorkers == -1 || v18 && v18 != 2 || v13->worker_num < maxWorkers) )
       {
-        if ( ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD, _DWORD, int, int, char))v14->vfptr->canPath_2)(
+        if ( ((int (__thiscall *)(RGE_Combat_Object *, int, _DWORD, _DWORD, int, int, char))v14->vfptr->canPath)(
                v14,
                v12->object_id,
                0,
@@ -377603,7 +377585,7 @@ int __thiscall TribeSoldierUnitAIModule::canAttackUnit(TribeSoldierUnitAIModule 
             this->statePositionXValue,
             this->statePositionYValue,
             this->objectValue->world_z);
-  v13 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 0.5;
+  v13 = this->objectValue->vfptr->weaponRange(this->objectValue) + 0.5;
   if ( !unit->owner->id )
     v13 = v13 + 1.5;
   v14 = this->stateValue;
@@ -377616,24 +377598,24 @@ int __thiscall TribeSoldierUnitAIModule::canAttackUnit(TribeSoldierUnitAIModule 
   {
     v17 = this->objectValue->vfptr;
     v18 = unit->vfptr->position(unit, v21);
-    unitb = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD))v17->distanceToHighestLevelPath_2)(
+    unitb = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD))v17->distanceToHighestLevelPath)(
               this->objectValue,
               LODWORD(v18->x),
               LODWORD(v18->z),
               LODWORD(v18->y));
-    v19 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unitb;
+    v19 = this->objectValue->vfptr->weaponRange(this->objectValue) + 5.0 < unitb;
   }
   else
   {
     if ( UnitAIModule::hasPatrolInformation((UnitAIModule *)this) != 1 )
     {
-      if ( this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unita )
+      if ( this->objectValue->vfptr->weaponRange(this->objectValue) + 5.0 < unita )
         return 0;
       return UnitAIModule::canAttackUnit((UnitAIModule *)this, unit);
     }
     v20 = *unit->vfptr->position(unit, v21);
     unitc = BPath::distanceFromPath(this->mPatrolPath, v20);
-    v19 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unitc;
+    v19 = this->objectValue->vfptr->weaponRange(this->objectValue) + 5.0 < unitc;
   }
   if ( v19 )
     return 0;
@@ -377778,7 +377760,7 @@ int __thiscall TribeSoldierUnitAIModule::processNotify(TribeSoldierUnitAIModule 
   }
   if ( nEvent->mType == 512
     && (!this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner)
-     || this->objectValue->vfptr->damageCapability_1(this->objectValue) < 1.0
+     || this->objectValue->vfptr->weaponRange(this->objectValue) < 1.0
      || UnitAIModule::currentTargetType((UnitAIModule *)this) == 18
      || UnitAIModule::currentTargetType((UnitAIModule *)this) == 6
      || UnitAIModule::currentTargetType((UnitAIModule *)this) == 8
@@ -377793,12 +377775,12 @@ int __thiscall TribeSoldierUnitAIModule::processNotify(TribeSoldierUnitAIModule 
   v23 = this->objectValue;
   if ( nEvent->mType == 510 )
   {
-    nEventb = v23->vfptr->weaponRange(v23);
+    nEventb = v23->vfptr->minimumWeaponRange(v23);
     v24 = 1;
   }
   else
   {
-    nEventb = v23->vfptr->damageCapability_1(v23);
+    nEventb = v23->vfptr->weaponRange(v23);
     v24 = 0;
   }
   v25 = nEvent->p1;
@@ -378279,7 +378261,7 @@ int __thiscall TribeSiegeUnitAIModule::canAttackUnit(TribeSiegeUnitAIModule *thi
             this->statePositionXValue,
             this->statePositionYValue,
             this->objectValue->world_z);
-  v5 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 0.5;
+  v5 = this->objectValue->vfptr->weaponRange(this->objectValue) + 0.5;
   if ( !unit->owner->id )
     v5 = v5 + 1.5;
   v6 = this->stateValue;
@@ -378292,24 +378274,24 @@ int __thiscall TribeSiegeUnitAIModule::canAttackUnit(TribeSiegeUnitAIModule *thi
   {
     v9 = this->objectValue->vfptr;
     v10 = unit->vfptr->position(unit, v19);
-    unitb = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD))v9->distanceToHighestLevelPath_2)(
+    unitb = ((double (__thiscall *)(RGE_Combat_Object *, _DWORD, _DWORD, _DWORD))v9->distanceToHighestLevelPath)(
               this->objectValue,
               LODWORD(v10->x),
               LODWORD(v10->z),
               LODWORD(v10->y));
-    v11 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unitb;
+    v11 = this->objectValue->vfptr->weaponRange(this->objectValue) + 5.0 < unitb;
   }
   else
   {
     if ( UnitAIModule::hasPatrolInformation((UnitAIModule *)this) != 1 )
     {
-      if ( this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unita )
+      if ( this->objectValue->vfptr->weaponRange(this->objectValue) + 5.0 < unita )
         return 0;
       goto LABEL_22;
     }
     v18 = *unit->vfptr->position(unit, v19);
     unitc = BPath::distanceFromPath(this->mPatrolPath, v18);
-    v11 = this->objectValue->vfptr->damageCapability_1(this->objectValue) + 5.0 < unitc;
+    v11 = this->objectValue->vfptr->weaponRange(this->objectValue) + 5.0 < unitc;
   }
   if ( v11 )
     return 0;
@@ -378408,7 +378390,7 @@ int __thiscall TribeSiegeUnitAIModule::processNotify(TribeSiegeUnitAIModule *thi
     {
       if ( nEvent->mType != 512
         || this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner)
-        && (v3 = this->objectValue->vfptr->damageCapability_1(this->objectValue), v3 >= 1.0)
+        && (v3 = this->objectValue->vfptr->weaponRange(this->objectValue), v3 >= 1.0)
         && UnitAIModule::currentTargetType((UnitAIModule *)this) != 18
         && UnitAIModule::currentTargetType((UnitAIModule *)this) != 6
         && UnitAIModule::currentTargetType((UnitAIModule *)this) != 8
@@ -378421,12 +378403,12 @@ int __thiscall TribeSiegeUnitAIModule::processNotify(TribeSiegeUnitAIModule *thi
           if ( nEvent->mType == 510 )
           {
             v5 = 1;
-            this->objectValue->vfptr->weaponRange(this->objectValue);
+            this->objectValue->vfptr->minimumWeaponRange(this->objectValue);
           }
           else
           {
             v5 = 0;
-            v3 = this->objectValue->vfptr->damageCapability_1(this->objectValue);
+            v3 = this->objectValue->vfptr->weaponRange(this->objectValue);
           }
           v6 = nEvent->p1;
           if ( v6 == -1 || nEvent->mType != 510 )
