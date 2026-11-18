@@ -14496,13 +14496,12 @@
 .text:00408B80 ; =============== S U B R O U T I N E =======================================
 .text:00408B80
 .text:00408B80
-.text:00408B80 ; double __thiscall RGE_Moving_Object::getTurnRadius(RGE_Moving_Object *this)
-.text:00408B80 RGE_Moving_Object__getTurnRadius proc near
-.text:00408B80                                         ; DATA XREF: .rdata:RGE_Action_Object__vftable\u2193o
+.text:00408B80 ; double __thiscall RGE_Moving_Object::getAngle(RGE_Moving_Object *this)
+.text:00408B80 RGE_Moving_Object__getAngle proc near   ; DATA XREF: .rdata:RGE_Action_Object__vftable\u2193o
 .text:00408B80                                         ; .rdata:RGE_Combat_Object__vftable\u2193o ...
 .text:00408B80                 fld     dword ptr [ecx+0C8h]
 .text:00408B86                 retn
-.text:00408B86 RGE_Moving_Object__getTurnRadius endp
+.text:00408B86 RGE_Moving_Object__getAngle endp
 .text:00408B86
 .text:00408B86 ; ---------------------------------------------------------------------------
 .text:00408B87                 align 10h
@@ -276254,20 +276253,21 @@
 .text:004A21D0 ; =============== S U B R O U T I N E =======================================
 .text:004A21D0
 .text:004A21D0
-.text:004A21D0 ; int __thiscall RGE_Moving_Object::canPathWithAdditionalPassability(RGE_Moving_Object *this, XYZPoint p, float aRange, int targetID, float *pathDistance, int eTerrain1, int eTerrain2, int eTerrain3, int unobstructiblePlayerID, int unobstructibleGroupID, BPath *exceptionPath)
+.text:004A21D0 ; int __thiscall RGE_Moving_Object::canPathWithAdditionalPassability(RGE_Moving_Object *this, XYZPoint p, float aRange, int targetID, float *pathDistance, int eTerrain1, int eTerrain2, int eTerrain3, int mAI_arg, int gbg_arg, int unobstructiblePlayerID, int unobstructibleGroupID, BPath *exceptionPath)
 .text:004A21D0 RGE_Moving_Object__canPathWithAdditionalPassability proc near
 .text:004A21D0                                         ; DATA XREF: .rdata:RGE_Action_Object__vftable\u2193o
 .text:004A21D0                                         ; .rdata:RGE_Combat_Object__vftable\u2193o ...
 .text:004A21D0
 .text:004A21D0 goalX           = dword ptr  4
+.text:004A21D0 goalY           = dword ptr  8
 .text:004A21D0 range           = dword ptr  10h
 .text:004A21D0 targetID        = dword ptr  14h
 .text:004A21D0 rLength         = dword ptr  18h
 .text:004A21D0 eTerrain1       = dword ptr  1Ch
 .text:004A21D0 eTerrain2       = dword ptr  20h
 .text:004A21D0 eTerrain3       = dword ptr  24h
-.text:004A21D0 arg_24          = dword ptr  28h
-.text:004A21D0 arg_28          = dword ptr  2Ch
+.text:004A21D0 mAI_arg         = dword ptr  28h
+.text:004A21D0 gbg_arg         = dword ptr  2Ch
 .text:004A21D0 unobstructiblePlayerID= dword ptr  30h
 .text:004A21D0 unobstructibleGroupID= dword ptr  34h
 .text:004A21D0 rPath           = dword ptr  38h
@@ -276278,7 +276278,7 @@
 .text:004A21D7                 push    edi
 .text:004A21D8                 mov     esi, ecx
 .text:004A21DA                 jl      loc_4A22AE
-.text:004A21E0                 mov     edx, [esp+10h]
+.text:004A21E0                 mov     edx, [esp+8+goalY]
 .text:004A21E4                 test    edx, edx
 .text:004A21E6                 jl      loc_4A22AE
 .text:004A21EC                 mov     ecx, [esi+18h]
@@ -276306,11 +276306,11 @@
 .text:004A223F                 push    ecx             ; rLength
 .text:004A2240                 mov     ecx, [esp+1Ch+targetID]
 .text:004A2244                 mov     pathSystem.mTerrainException3, edi
-.text:004A224A                 mov     edi, [esp+1Ch+arg_24]
+.text:004A224A                 mov     edi, [esp+1Ch+mAI_arg]
 .text:004A224E                 push    ecx             ; targetID
 .text:004A224F                 mov     ecx, [esp+20h+range]
 .text:004A2253                 mov     pathSystem.mAI, edi
-.text:004A2259                 mov     edi, [esp+20h+arg_28]
+.text:004A2259                 mov     edi, [esp+20h+gbg_arg]
 .text:004A225D                 push    ecx             ; range
 .text:004A225E                 mov     pathSystem.gbg_unknown1, edi
 .text:004A2264                 fld     dword ptr [esi+4Ch]
@@ -280745,6 +280745,7 @@
 .text:004A47B0 var_40          = BVector ptr -40h
 .text:004A47B0 var_30          = BVector ptr -30h
 .text:004A47B0 var_24          = BVector ptr -24h
+.text:004A47B0 anonymous_0     = byte ptr -18h
 .text:004A47B0 var_C           = dword ptr -0Ch
 .text:004A47B0 var_4           = dword ptr -4
 .text:004A47B0
@@ -281076,7 +281077,7 @@
 .text:004A4BE6                 push    0               ; player
 .text:004A4BE8                 push    ecx             ; dest_radius
 .text:004A4BE9                 push    ecx             ; float
-.text:004A4BEA                 lea     ecx, [esp+278h]
+.text:004A4BEA                 lea     ecx, [esp+290h+anonymous_0]
 .text:004A4BF1                 fstp    [esp+290h+var_290] ; dest_target_radius
 .text:004A4BF4                 push    eax             ; wpIndex
 .text:004A4BF5                 push    ecx             ; outVector
@@ -563217,8 +563218,8 @@
 .text:00551A00
 .text:00551A00
 .text:00551A00 ; unsigned __int8 __thiscall RGE_Static_Object::heal(RGE_Static_Object *this, float healing)
-.text:00551A00 RGE_Static_Object__heal proc near       ; CODE XREF: TRIBE_Combat_Object__heal2+8A\u2193p
-.text:00551A00                                         ; TRIBE_Combat_Object__heal2+A2\u2193p ...
+.text:00551A00 RGE_Static_Object__heal proc near       ; CODE XREF: TRIBE_Combat_Object__heal+8A\u2193p
+.text:00551A00                                         ; TRIBE_Combat_Object__heal+A2\u2193p ...
 .text:00551A00
 .text:00551A00 healing         = dword ptr  4
 .text:00551A00
@@ -568002,8 +568003,8 @@
 .text:00554570 ; =============== S U B R O U T I N E =======================================
 .text:00554570
 .text:00554570
-.text:00554570 ; unsigned __int8 __thiscall TRIBE_Building_Object::heal2(TRIBE_Building_Object *this, float healing)
-.text:00554570 TRIBE_Building_Object__heal2 proc near  ; DATA XREF: .rdata:TRIBE_Building_Object__vftable\u2193o
+.text:00554570 ; unsigned __int8 __thiscall TRIBE_Building_Object::heal(TRIBE_Building_Object *this, float healing)
+.text:00554570 TRIBE_Building_Object__heal proc near   ; DATA XREF: .rdata:TRIBE_Building_Object__vftable\u2193o
 .text:00554570
 .text:00554570 modifier        = dword ptr -10h
 .text:00554570 var_4           = dword ptr -4
@@ -568032,10 +568033,10 @@
 .text:005545AF                 jmp     short loc_5545B3
 .text:005545B1 ; ---------------------------------------------------------------------------
 .text:005545B1
-.text:005545B1 loc_5545B1:                             ; CODE XREF: TRIBE_Building_Object__heal2+36\u2191j
+.text:005545B1 loc_5545B1:                             ; CODE XREF: TRIBE_Building_Object__heal+36\u2191j
 .text:005545B1                 fstp    st
 .text:005545B3
-.text:005545B3 loc_5545B3:                             ; CODE XREF: TRIBE_Building_Object__heal2+3F\u2191j
+.text:005545B3 loc_5545B3:                             ; CODE XREF: TRIBE_Building_Object__heal+3F\u2191j
 .text:005545B3                 add     edx, edx
 .text:005545B5                 mov     ax, [ecx+18h]
 .text:005545B9                 mov     [esp+8+var_4], edx
@@ -568052,18 +568053,18 @@
 .text:005545D8                 mov     ecx, [esp+8+healing]
 .text:005545DC                 push    ecx             ; healing
 .text:005545DD                 mov     ecx, esi        ; this
-.text:005545DF                 call    TRIBE_Combat_Object__heal2
+.text:005545DF                 call    TRIBE_Combat_Object__heal
 .text:005545E4                 pop     esi
 .text:005545E5                 pop     ecx
 .text:005545E6                 retn    4
 .text:005545E9 ; ---------------------------------------------------------------------------
 .text:005545E9
-.text:005545E9 loc_5545E9:                             ; CODE XREF: TRIBE_Building_Object__heal2+66\u2191j
+.text:005545E9 loc_5545E9:                             ; CODE XREF: TRIBE_Building_Object__heal+66\u2191j
 .text:005545E9                 mov     al, 2
 .text:005545EB                 pop     esi
 .text:005545EC                 pop     ecx
 .text:005545ED                 retn    4
-.text:005545ED TRIBE_Building_Object__heal2 endp
+.text:005545ED TRIBE_Building_Object__heal endp
 .text:005545ED
 .text:005545F0
 .text:005545F0 ; =============== S U B R O U T I N E =======================================
@@ -582284,8 +582285,8 @@
 .text:0055CD30 ; =============== S U B R O U T I N E =======================================
 .text:0055CD30
 .text:0055CD30
-.text:0055CD30 ; int __thiscall TRIBE_Combat_Object::heal(TRIBE_Combat_Object *this, int targetID, int unconditional)
-.text:0055CD30 TRIBE_Combat_Object__heal proc near     ; DATA XREF: .rdata:TRIBE_Building_Object__vftable\u2193o
+.text:0055CD30 ; int __thiscall TRIBE_Combat_Object::heal2(TRIBE_Combat_Object *this, int targetID, int unconditional)
+.text:0055CD30 TRIBE_Combat_Object__heal2 proc near    ; DATA XREF: .rdata:TRIBE_Building_Object__vftable\u2193o
 .text:0055CD30                                         ; .rdata:TRIBE_Combat_Object__vftable\u2193o
 .text:0055CD30
 .text:0055CD30 var_C           = dword ptr -0Ch
@@ -582322,7 +582323,7 @@
 .text:0055CD74                 retn    8
 .text:0055CD77 ; ---------------------------------------------------------------------------
 .text:0055CD77
-.text:0055CD77 loc_55CD77:                             ; CODE XREF: TRIBE_Combat_Object__heal+31\u2191j
+.text:0055CD77 loc_55CD77:                             ; CODE XREF: TRIBE_Combat_Object__heal2+31\u2191j
 .text:0055CD77                 mov     eax, [esp+18h+unconditional]
 .text:0055CD7B                 test    eax, eax
 .text:0055CD7D                 jnz     short loc_55CDC0
@@ -582345,8 +582346,8 @@
 .text:0055CDB6                 cmp     ax, 69h ; 'i'
 .text:0055CDBA                 jz      loc_55CEA0
 .text:0055CDC0
-.text:0055CDC0 loc_55CDC0:                             ; CODE XREF: TRIBE_Combat_Object__heal+4D\u2191j
-.text:0055CDC0                                         ; TRIBE_Combat_Object__heal+5C\u2191j ...
+.text:0055CDC0 loc_55CDC0:                             ; CODE XREF: TRIBE_Combat_Object__heal2+4D\u2191j
+.text:0055CDC0                                         ; TRIBE_Combat_Object__heal2+5C\u2191j ...
 .text:0055CDC0                 mov     ecx, [edi+13Ch] ; this
 .text:0055CDC6                 call    RGE_Action_List__have_action
 .text:0055CDCB                 cmp     al, 1
@@ -582373,8 +582374,8 @@
 .text:0055CE06                 jmp     loc_55CEA0
 .text:0055CE0B ; ---------------------------------------------------------------------------
 .text:0055CE0B
-.text:0055CE0B loc_55CE0B:                             ; CODE XREF: TRIBE_Combat_Object__heal+9D\u2191j
-.text:0055CE0B                                         ; TRIBE_Combat_Object__heal+B5\u2191j
+.text:0055CE0B loc_55CE0B:                             ; CODE XREF: TRIBE_Combat_Object__heal2+9D\u2191j
+.text:0055CE0B                                         ; TRIBE_Combat_Object__heal2+B5\u2191j
 .text:0055CE0B                 mov     eax, [esi+50h]
 .text:0055CE0E                 mov     ecx, [esi+4Ch]
 .text:0055CE11                 mov     edx, [edi]
@@ -582398,7 +582399,7 @@
 .text:0055CE3B                 retn    8
 .text:0055CE3E ; ---------------------------------------------------------------------------
 .text:0055CE3E
-.text:0055CE3E loc_55CE3E:                             ; CODE XREF: TRIBE_Combat_Object__heal+F8\u2191j
+.text:0055CE3E loc_55CE3E:                             ; CODE XREF: TRIBE_Combat_Object__heal2+F8\u2191j
 .text:0055CE3E                 push    40h ; '@'       ; size
 .text:0055CE40                 call    operator_new
 .text:0055CE45                 add     esp, 4
@@ -582415,10 +582416,10 @@
 .text:0055CE64                 jmp     short loc_55CE68
 .text:0055CE66 ; ---------------------------------------------------------------------------
 .text:0055CE66
-.text:0055CE66 loc_55CE66:                             ; CODE XREF: TRIBE_Combat_Object__heal+126\u2191j
+.text:0055CE66 loc_55CE66:                             ; CODE XREF: TRIBE_Combat_Object__heal2+126\u2191j
 .text:0055CE66                 xor     esi, esi
 .text:0055CE68
-.text:0055CE68 loc_55CE68:                             ; CODE XREF: TRIBE_Combat_Object__heal+134\u2191j
+.text:0055CE68 loc_55CE68:                             ; CODE XREF: TRIBE_Combat_Object__heal2+134\u2191j
 .text:0055CE68                 test    esi, esi
 .text:0055CE6A                 mov     [esp+18h+var_4], 0FFFFFFFFh
 .text:0055CE72                 jnz     short loc_55CE8A
@@ -582432,7 +582433,7 @@
 .text:0055CE87                 retn    8
 .text:0055CE8A ; ---------------------------------------------------------------------------
 .text:0055CE8A
-.text:0055CE8A loc_55CE8A:                             ; CODE XREF: TRIBE_Combat_Object__heal+142\u2191j
+.text:0055CE8A loc_55CE8A:                             ; CODE XREF: TRIBE_Combat_Object__heal2+142\u2191j
 .text:0055CE8A                 mov     ecx, [edi+13Ch] ; this
 .text:0055CE90                 call    RGE_Action_List__delete_list
 .text:0055CE95                 mov     edx, [edi]
@@ -582440,8 +582441,8 @@
 .text:0055CE98                 mov     ecx, edi
 .text:0055CE9A                 call    dword ptr [edx+39Ch]
 .text:0055CEA0
-.text:0055CEA0 loc_55CEA0:                             ; CODE XREF: TRIBE_Combat_Object__heal+8A\u2191j
-.text:0055CEA0                                         ; TRIBE_Combat_Object__heal+D6\u2191j
+.text:0055CEA0 loc_55CEA0:                             ; CODE XREF: TRIBE_Combat_Object__heal2+8A\u2191j
+.text:0055CEA0                                         ; TRIBE_Combat_Object__heal2+D6\u2191j
 .text:0055CEA0                 mov     ecx, [esp+18h+var_C]
 .text:0055CEA4                 pop     edi
 .text:0055CEA5                 pop     esi
@@ -582451,7 +582452,7 @@
 .text:0055CEB3                 add     esp, 0Ch
 .text:0055CEB6                 retn    8
 .text:0055CEB6 ; } // starts at 55CD30
-.text:0055CEB6 TRIBE_Combat_Object__heal endp
+.text:0055CEB6 TRIBE_Combat_Object__heal2 endp
 .text:0055CEB6
 .text:0055CEB6 ; ---------------------------------------------------------------------------
 .text:0055CEB9                 align 10h
@@ -584328,8 +584329,8 @@
 .text:0055E000 ; =============== S U B R O U T I N E =======================================
 .text:0055E000
 .text:0055E000
-.text:0055E000 ; unsigned __int8 __thiscall TRIBE_Combat_Object::heal2(TRIBE_Combat_Object *this, float healing)
-.text:0055E000 TRIBE_Combat_Object__heal2 proc near    ; CODE XREF: TRIBE_Building_Object__heal2+6F\u2191p
+.text:0055E000 ; unsigned __int8 __thiscall TRIBE_Combat_Object::heal(TRIBE_Combat_Object *this, float healing)
+.text:0055E000 TRIBE_Combat_Object__heal proc near     ; CODE XREF: TRIBE_Building_Object__heal+6F\u2191p
 .text:0055E000                                         ; DATA XREF: .rdata:TRIBE_Combat_Object__vftable\u2193o
 .text:0055E000
 .text:0055E000 modifier        = dword ptr -10h
@@ -584367,10 +584368,10 @@
 .text:0055E05A                 jmp     short loc_55E05E
 .text:0055E05C ; ---------------------------------------------------------------------------
 .text:0055E05C
-.text:0055E05C loc_55E05C:                             ; CODE XREF: TRIBE_Combat_Object__heal2+51\u2191j
+.text:0055E05C loc_55E05C:                             ; CODE XREF: TRIBE_Combat_Object__heal+51\u2191j
 .text:0055E05C                 fstp    st
 .text:0055E05E
-.text:0055E05E loc_55E05E:                             ; CODE XREF: TRIBE_Combat_Object__heal2+5A\u2191j
+.text:0055E05E loc_55E05E:                             ; CODE XREF: TRIBE_Combat_Object__heal+5A\u2191j
 .text:0055E05E                 add     edx, edx
 .text:0055E060                 mov     ax, [ecx+18h]
 .text:0055E064                 mov     [esp+8+var_4], edx
@@ -584393,15 +584394,15 @@
 .text:0055E091                 retn    4
 .text:0055E094 ; ---------------------------------------------------------------------------
 .text:0055E094
-.text:0055E094 loc_55E094:                             ; CODE XREF: TRIBE_Combat_Object__heal2+81\u2191j
+.text:0055E094 loc_55E094:                             ; CODE XREF: TRIBE_Combat_Object__heal+81\u2191j
 .text:0055E094                 mov     al, 2
 .text:0055E096                 pop     esi
 .text:0055E097                 pop     ecx
 .text:0055E098                 retn    4
 .text:0055E09B ; ---------------------------------------------------------------------------
 .text:0055E09B
-.text:0055E09B loc_55E09B:                             ; CODE XREF: TRIBE_Combat_Object__heal2+E\u2191j
-.text:0055E09B                                         ; TRIBE_Combat_Object__heal2+1D\u2191j
+.text:0055E09B loc_55E09B:                             ; CODE XREF: TRIBE_Combat_Object__heal+E\u2191j
+.text:0055E09B                                         ; TRIBE_Combat_Object__heal+1D\u2191j
 .text:0055E09B                 mov     edx, [esp+8+healing]
 .text:0055E09F                 mov     ecx, esi        ; this
 .text:0055E0A1                 push    edx             ; healing
@@ -584409,7 +584410,7 @@
 .text:0055E0A7                 pop     esi
 .text:0055E0A8                 pop     ecx
 .text:0055E0A9                 retn    4
-.text:0055E0A9 TRIBE_Combat_Object__heal2 endp
+.text:0055E0A9 TRIBE_Combat_Object__heal endp
 .text:0055E0A9
 .text:0055E0A9 ; ---------------------------------------------------------------------------
 .text:0055E0AC                 align 10h
@@ -605374,7 +605375,7 @@
 .text:00569A00
 .text:00569A00 ; TRIBE_Action_Heal *__thiscall TRIBE_Action_Heal::TRIBE_Action_Heal2(TRIBE_Action_Heal *this, RGE_Action_Object *obj_in, RGE_Task *task_in, RGE_Static_Object *target_obj_in)
 .text:00569A00 TRIBE_Action_Heal__TRIBE_Action_Heal2 proc near
-.text:00569A00                                         ; CODE XREF: TRIBE_Combat_Object__heal+12D\u2191p
+.text:00569A00                                         ; CODE XREF: TRIBE_Combat_Object__heal2+12D\u2191p
 .text:00569A00                                         ; TRIBE_Action_List__create_task_action+19B\u2193p
 .text:00569A00
 .text:00569A00 var_10          = dword ptr -10h
@@ -779566,7 +779567,7 @@
 .text:005D0D00
 .text:005D0D00
 .text:005D0D00 ; char __thiscall TRIBE_Player::pay_obj_cost(TRIBE_Player *this, __int16 obj_id, float modifier, int ignore_pop)
-.text:005D0D00 TRIBE_Player__pay_obj_cost proc near    ; CODE XREF: TRIBE_Building_Object__heal2+5F\u2191p
+.text:005D0D00 TRIBE_Player__pay_obj_cost proc near    ; CODE XREF: TRIBE_Building_Object__heal+5F\u2191p
 .text:005D0D00                                         ; TRIBE_Building_Object__heal_other+D7\u2191p ...
 .text:005D0D00
 .text:005D0D00 obj_id          = word ptr  4
@@ -959665,7 +959666,7 @@
 .text:00644A80 ; END OF FUNCTION CHUNK FOR TRIBE_Combat_Object__convert
 .text:00644A80 ; ---------------------------------------------------------------------------
 .text:00644A85                 align 10h
-.text:00644A90 ; START OF FUNCTION CHUNK FOR TRIBE_Combat_Object__heal
+.text:00644A90 ; START OF FUNCTION CHUNK FOR TRIBE_Combat_Object__heal2
 .text:00644A90
 .text:00644A90 loc_644A90:                             ; DATA XREF: .rdata:stru_683938\u2193o
 .text:00644A90 ; __unwind { // TRIBE_Combat_Object__heal_SEH
@@ -959676,11 +959677,11 @@
 .text:00644A9A                 retn
 .text:00644A9B ; ---------------------------------------------------------------------------
 .text:00644A9B
-.text:00644A9B TRIBE_Combat_Object__heal_SEH:          ; DATA XREF: TRIBE_Combat_Object__heal+8\u2191o
+.text:00644A9B TRIBE_Combat_Object__heal_SEH:          ; DATA XREF: TRIBE_Combat_Object__heal2+8\u2191o
 .text:00644A9B                 mov     eax, offset stru_683938
 .text:00644AA0                 jmp     ___CxxFrameHandler
 .text:00644AA0 ; } // starts at 644A90
-.text:00644AA0 ; END OF FUNCTION CHUNK FOR TRIBE_Combat_Object__heal
+.text:00644AA0 ; END OF FUNCTION CHUNK FOR TRIBE_Combat_Object__heal2
 .text:00644AA0 ; ---------------------------------------------------------------------------
 .text:00644AA5                 align 10h
 .text:00644AB0 ; START OF FUNCTION CHUNK FOR TRIBE_Combat_Object__repair
@@ -986482,7 +986483,7 @@ THIS_COD:006539D0
 .rdata:00654E54                                        offset RGE_Static_Object__setUnderAttack, \
 .rdata:00654E54                                        offset RGE_Static_Object__calc_attack_modifier,\
 .rdata:00654E54                                        offset RGE_Animated_Object__getSpeed, \
-.rdata:00654E54                                        offset RGE_Moving_Object__getTurnRadius, \
+.rdata:00654E54                                        offset RGE_Moving_Object__getAngle, \
 .rdata:00654E54                                        offset RGE_Moving_Object__maximumSpeed, \
 .rdata:00654E54                                        offset nullsub_28, offset nullsub_29, \
 .rdata:00654E54                                        offset nullsub_28, offset nullsub_28, \
@@ -987629,7 +987630,7 @@ THIS_COD:006539D0
 .rdata:00657544                                        offset RGE_Static_Object__setUnderAttack, \
 .rdata:00657544                                        offset RGE_Combat_Object__calc_attack_modifier,\
 .rdata:00657544                                        offset RGE_Animated_Object__getSpeed, \
-.rdata:00657544                                        offset RGE_Moving_Object__getTurnRadius, \
+.rdata:00657544                                        offset RGE_Moving_Object__getAngle, \
 .rdata:00657544                                        offset RGE_Moving_Object__maximumSpeed, \
 .rdata:00657544                                        offset RGE_Combat_Object__rateOfFire, \
 .rdata:00657544                                        offset RGE_Combat_Object__damageCapability, \
@@ -990155,7 +990156,7 @@ THIS_COD:006539D0
 .rdata:0065B808                                         offset RGE_Static_Object__setUnderAttack, \
 .rdata:0065B808                                         offset RGE_Combat_Object__calc_attack_modifier,\
 .rdata:0065B808                                         offset RGE_Animated_Object__getSpeed, \
-.rdata:0065B808                                         offset RGE_Moving_Object__getTurnRadius, \
+.rdata:0065B808                                         offset RGE_Moving_Object__getAngle, \
 .rdata:0065B808                                         offset RGE_Moving_Object__maximumSpeed, \
 .rdata:0065B808                                         offset RGE_Combat_Object__rateOfFire, \
 .rdata:0065B808                                         offset RGE_Combat_Object__damageCapability, \
@@ -990506,7 +990507,7 @@ THIS_COD:006539D0
 .rdata:0065BE14                                        offset RGE_Static_Object__setUnderAttack, \
 .rdata:0065BE14                                        offset RGE_Static_Object__calc_attack_modifier,\
 .rdata:0065BE14                                        offset RGE_Animated_Object__getSpeed, \
-.rdata:0065BE14                                        offset RGE_Moving_Object__getTurnRadius, \
+.rdata:0065BE14                                        offset RGE_Moving_Object__getAngle, \
 .rdata:0065BE14                                        offset RGE_Moving_Object__maximumSpeed, \
 .rdata:0065BE14                                        offset nullsub_28, offset nullsub_29, \
 .rdata:0065BE14                                        offset nullsub_28, offset nullsub_28, \
@@ -995019,8 +995020,8 @@ THIS_COD:006539D0
 .rdata:00663110                                            offset RGE_Combat_Object__can_attack, \
 .rdata:00663110                                            offset RGE_Static_Object__set_attribute, \
 .rdata:00663110                                            offset RGE_Static_Object__set_attribute_amount,\
-.rdata:00663110                                            offset TRIBE_Combat_Object__heal, \
-.rdata:00663110                                            offset TRIBE_Building_Object__heal2, \
+.rdata:00663110                                            offset TRIBE_Combat_Object__heal2, \
+.rdata:00663110                                            offset TRIBE_Building_Object__heal, \
 .rdata:00663110                                            offset TRIBE_Combat_Object__canRepair, \
 .rdata:00663110                                            offset TRIBE_Building_Object__notify_of_relation,\
 .rdata:00663110                                            offset RGE_Action_Object__do_command, \
@@ -995052,7 +995053,7 @@ THIS_COD:006539D0
 .rdata:00663110                                            offset RGE_Static_Object__setUnderAttack, \
 .rdata:00663110                                            offset TRIBE_Building_Object__calc_attack_modifier,\
 .rdata:00663110                                            offset RGE_Animated_Object__getSpeed, \
-.rdata:00663110                                            offset RGE_Moving_Object__getTurnRadius, \
+.rdata:00663110                                            offset RGE_Moving_Object__getAngle, \
 .rdata:00663110                                            offset TRIBE_Combat_Object__maximumSpeed, \
 .rdata:00663110                                            offset RGE_Combat_Object__rateOfFire, \
 .rdata:00663110                                            offset RGE_Combat_Object__damageCapability,\
@@ -995290,8 +995291,8 @@ THIS_COD:006539D0
 .rdata:006635B0                                          offset RGE_Combat_Object__can_attack, \
 .rdata:006635B0                                          offset RGE_Static_Object__set_attribute, \
 .rdata:006635B0                                          offset RGE_Static_Object__set_attribute_amount,\
-.rdata:006635B0                                          offset TRIBE_Combat_Object__heal, \
 .rdata:006635B0                                          offset TRIBE_Combat_Object__heal2, \
+.rdata:006635B0                                          offset TRIBE_Combat_Object__heal, \
 .rdata:006635B0                                          offset TRIBE_Combat_Object__canRepair, \
 .rdata:006635B0                                          offset TRIBE_Combat_Object__notify_of_relation,\
 .rdata:006635B0                                          offset RGE_Action_Object__do_command, \
@@ -995323,7 +995324,7 @@ THIS_COD:006539D0
 .rdata:006635B0                                          offset RGE_Static_Object__setUnderAttack, \
 .rdata:006635B0                                          offset TRIBE_Combat_Object__calc_attack_modifier,\
 .rdata:006635B0                                          offset RGE_Animated_Object__getSpeed, \
-.rdata:006635B0                                          offset RGE_Moving_Object__getTurnRadius, \
+.rdata:006635B0                                          offset RGE_Moving_Object__getAngle, \
 .rdata:006635B0                                          offset TRIBE_Combat_Object__maximumSpeed, \
 .rdata:006635B0                                          offset RGE_Combat_Object__rateOfFire, \
 .rdata:006635B0                                          offset RGE_Combat_Object__damageCapability, \
@@ -1062567,7 +1062568,7 @@ THIS_COD:006539D0
 .rdata:00683910                 dd          -1          ; Info.Id
 .rdata:00683910                 dd offset loc_644A70    ; Info.Proc
 .rdata:00683938 stru_683938     dd 19930520h            ; Magic
-.rdata:00683938                                         ; DATA XREF: TRIBE_Combat_Object__heal:TRIBE_Combat_Object__heal_SEH\u2191o
+.rdata:00683938                                         ; DATA XREF: TRIBE_Combat_Object__heal2:TRIBE_Combat_Object__heal_SEH\u2191o
 .rdata:00683938                 dd 1                    ; Count
 .rdata:00683938                 dd offset stru_683938.Info; InfoPtr
 .rdata:00683938                 dd 0                    ; CountDtr

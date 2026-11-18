@@ -94,6 +94,12 @@ Rules:
   in advcheat.cpp:77 (>=70) and advtriggereffect.cpp:415-426. IDA did
   not export this enum (unknown enums export as int typedefs).
    Registry now canonical in DECOMP_HIERARCHY.md.
+- 2026-11-18: PROJECT GOAL - full-binary replacement is the eventual
+  goal; the owned tree grows to cover the game's hot loops. Compile-
+  flag performance arguments are therefore framed PER FUNCTION (the
+  scoped float_control(precise) brackets + the /Fa audits scale with
+  the tree); project-wide flag changes are a future whole-tree
+  decision, not a present-day simplification.
 
 ## Verified type hierarchy
 
@@ -3825,3 +3831,459 @@ authoritative.)
     decode: when the asm's gates are a CHAIN, the C composite must
     preserve the gate ORDER and each gate's private operand set - never
     fold a later gate's operand into an earlier keep condition.
+
+  - M8b COMPLETE: the passableTile cluster (owner-approved + written
+    2026-11-18): passableTile2 @0x004A1B30 [0x4A1B30,0x4A1C29) and
+    passableTile @0x004A1C30 [0x4A1C30,0x4A1D42) - 2 new hooks (the
+    Moving installer now 67). GROUNDINGS RESOLVED: the OBSystem vtbl
+    slots (idb_types.h:9943/10146 - GetTerrainMask idx 7 @0x1C,
+    CheckForCollisions idx 19 @0x4C, SetIgnoreList idx 21 @0x54,
+    SetBufferRadius idx 23 @0x5C - the Airspace twin slot-identical);
+    the master word @+0x76 = terrain (i16 - the census-calibrated walk:
+    elevation_flag@116, fog_flag@117, terrain@118, movement_type@120 =
+    the registry's 0x78; 19 census hits en route); world->terrains
+    @+0x60 (the RGE_Game_World walk); THE SCRATCH GLOBALS ADDED
+    (owner-approved, names by proposal): OBSystem_Ignore_Scratch_Tile2 =
+    0x006AD134 / OBSystem_Ignore_Scratch_Tile = 0x006AD0AC (common.h/
+    common.cpp) - LOAD-BEARING: SetIgnoreList stores the ids POINTER
+    (the manager's IgnoreIDList @+0x9C) and neither function ever
+    disarms, so a stack local would dangle into later queries. OWNER
+    CLARIFICATION in force: approving these two is NOT a license to
+    auto-add missing globals - every future missing symbol comes to the
+    owner as its own approval. PASSABLETILE'S "positive sp" .C FLAG
+    RESOLVED: IDA frame confusion only - the raw esp arithmetic maps
+    every read (0x4A1CC6 = ignoreUnits, 0x4A1CCE = numberIgnoreUnits,
+    0x4A1CF4 = y, 0x4A1CFA = x), asm-primary per the standing ruling.
+    STRUCTURE: passableTile = passableTile2's ladder + the CONDITIONAL
+    ignore list (the caller's array when populated, else the scratch
+    fallback) - the asm's 0x4A1CED 2-inbound join preserved in the
+    written if/else (amendment A). The sideways cast
+    RGE_Airspace_Manager* -> RGE_Obstruction_Manager* is layout-proven
+    (the twin structs member-identical, the twin vtbls slot-identical).
+    Query constants 32/25/-2 -> the magic-constant registry (UNKNOWN;
+    approved this round). Gate: compile PASSED, /Fa slot-offset
+    verification PASS (28/92/84/76 = 0x1C/0x5C/0x54/0x4C; the field
+    offsets 20/120/118/140/96/12/16/32/60/16 all match the census),
+    sweeps clean, defs/refs 2/2 + 2/2, installer 67 hooks. IN-GAME
+    VALIDATION OWED: unit movement over blocked/open tiles, flyer
+    (movement_type 1) probes, the ignore-list behavior when callers
+    pass lists.
+
+  - M8c BATCH 1 (owner-approved + written 2026-11-18): canPathWith
+    AdditionalPassability @0x004A21D0 [0x4A21D0,0x4A22B2),
+    get_waypoint_checksum @0x4A3000 [0x4A3000,0x4A30E3), addCurrentPath
+    @0x4A34B0 [0x4A34B0,0x4A35B2) - 3 new hooks (the Moving installer
+    now 70). PROTOTYPE SUSPECT RESOLVED (canPathWithAdditional
+    Passability): the original idb prototype was missing TWO parameters
+    (retn 38h = 56 bytes vs 48 declared; the [E+0x28]/[E+0x2C] slots
+    armed pathSystem.mAI/gbg_unknown1 while [E+0x30]/[E+0x34]/[E+0x38]
+    fed findTilePath's p9/p10/p11 per the callee's own prototype,
+    idb_functions.h:2543, corroborated by the callee-derived push
+    annotations) - the owner corrected the IDB (the adopted names:
+    mAI_arg/gbg_arg) and REGENERATED .c/.lst; the decode restarted from
+    the regenerated files per the gate. pathSystem BOUND
+    (owner-approved): PathingSystem* const pathSystem = 0x006AEBB0
+    (common.h:119/common.cpp:24, direct-pointer style). STRUCTURE:
+    canPathWithAdditionalPassability = the bounds gates (XYZPoint ints
+    - idb_types.h:3923 - vs map_width/map_height @RGE_Map+8/+0xC), the
+    five pathSystem arms, findTilePath (the ftol-pair starts), the
+    bool-mask return, the five -1 disarms; get_waypoint_checksum = the
+    linkedPath chain walk (BPathData @+0x118, linkedPath @+4, the
+    cached path @+0x10 else RGE_Game_World__path) summing every
+    waypoint's three BVector slots into a FLOAT accumulator (per-step
+    fstp m32, rule (d)/(e) safe) + the ZERO-EXTENDED lastMoveTimeValue
+    (@+0x124, the fild qword) + ftol - the compiled u32->double
+    sign-bit idiom verified equivalent; addCurrentPath = the SEH
+    allocation shape (the chunk 0x642820 documented; the written ctor
+    call regenerates the unwind per the setVelocity precedent), the
+    mFuturePathData reset, operator_new_internal(0x34) = 52 =
+    sizeof(BPathData) (12 ints + BBitVector(int)) WALKED, the
+    waypointLevel/range/targetID stamps, the
+    setReadyToFollowPath/setReadyToPath routing on pathType. CAST FIX
+    at write: RGE_Game_World__path takes RGE_Game_World* while
+    owner->world is TRIBE_World* - the identical-prefix family cast
+    (C-style, cited at the call), the base_game precedent. Gate:
+    compile PASSED, /Fa slot-offset verification PASS (the pathSystem
+    arms at the compiler-computed 845884-845900 = the IDB fields; the
+    idb constants 0x4BD6A0/0x624610/0x4BC440/0x4BBE70/0x4BBD80/
+    0x4BC080/0x4BBFE0 all match), sweeps clean, defs/refs 2/2 x3,
+    installer 70 hooks. NOTE: the 2026-11-18 regeneration staled the
+    ledger's .lst LINE citations again (addresses authoritative).
+    IN-GAME VALIDATION OWED: pathing probes with terrain exceptions,
+    the checksum's monotonicity, path installs of both pathTypes.
+
+  - M8c BATCH 2 (owner-approved + written 2026-11-18): findFirstTerrain
+    AlongExceptionPath @0x004A22C0 [0x4A22C0,0x4A2412), canLinePath
+    @0x004A25B0 [0x4A25B0,0x4A270D), findAvoidancePath @0x004A2D80
+    [0x4A2D80,0x4A2EDF) - 3 new hooks (the Moving installer now 73).
+    findFirstTerrainAlongExceptionPath: the waypoint-pair walk (each
+    waypoint fetched TWICE per component through BPath__waypoint into
+    separate buffers), the firstTileAlongLine vtbl dispatch (idx 147
+    @0x24C, idb_types.h:10960 - routes to the original until its own
+    decode), the tile+0.5f center hit return, and the FAIL-PATH
+    ASYMMETRY preserved: the mid-loop exhaustion returns 0 with
+    rX/rY UNTOUCHED while the count<=1 and loop-exhausted paths write
+    -1.0f first (the .c's split correct; verified through compilation).
+    canLinePath: the per-step line walk (2*|(int)dominant-delta|
+    float steps, the float cursor accumulators with per-step fstp m32
+    stores, rule (d)/(e)), the new-tile test vs prev -999/-999, the
+    distance chain all-double (rule (a)), and the RECIPROCAL-MULTIPLY
+    FINDING: under /fp:fast MSVC compiled `(double)a / (double)t` into
+    (1.0/t)*a (two roundings vs the x87 fdiv's one - caught in the
+    first /Fa pass) -> TEMPLATE RULE (k) ADDED (the reciprocal /Fa
+    scan + the float_control(precise) function bracket) and the
+    FIRST USE applied: canLinePath_new bracketed
+    float_control(precise, on, push)/pop - the re-gate shows divsd x2
+    + __libm_sse2_sqrt_precise (bit-identical to sqrtsd; the CRT
+    wrapper's errno branch unreachable for sums-of-squares inputs).
+    PASSABLETILE_2 SLOT VERIFICATION: the canLinePath call site's
+    vtbl idx 104 @0x1A0 = the passableTile_2 member (the RGE_Moving_
+    ObjectVtbl member index walked) whose implementation in every
+    runtime vtable initializer = passableTile2 @0x4A1B30 (our hook)
+    - the idb-constant call form per the hook-routing ruling. IDB
+    CORRECTION CANDIDATE noted: the vtbl member passableTile_2's
+    declaration is 5-param (float, float, int*, int) vs the
+    implementation's retn 8 (2 params) - every .c call site casts to
+    2-arg; not blocking (the constant form used). findAvoidancePath:
+    the zone-map chain (map_zones @RGE_Map+0xBF7C, the cached
+    zoneMapIndex @+0x80 with the -1 gate + the
+    RGE_Zone_Map_List__get_zone_map resolution (the return discarded,
+    the out index kept), get_zone_map2, get_zone_info x2 (the u8
+    promotions), the withinRange XYPoint-by-value cross-zone gate),
+    operator_new(sizeof(BPath)) = 52 walked (13 dwords incl.
+    BBitVector), BPath__BPath(-1), the findTilePath BOOL DISCARDED
+    (the caller receives the path regardless). ALLOCATION-FORM RULING
+    (owner-flagged): the WRITTEN FORM is sizeof(allocated type) - a
+    verified literal with a walked comment is still a violation
+    (addCurrentPath/findAvoidancePath both corrected; the template
+    clarification applied). TEMPLATE AMENDMENTS this round: the
+    compile-gate CONCRETE INVOCATION (the v141_xp toolset form with
+    the /Fa emission requirement feeding rules (j)/(k)/C + the
+    slot-offset checks) and rule (k). Gate: compile PASSED, /Fa
+    verified (the Zone_Map constants 0x625E80/0x625FD0/0x625840/
+    0x625860; the field offsets 128/24/140/52/94/118/96/49020; the
+    BPath/BPathData offsets; the divsd forms), sweeps clean, defs/refs
+    2/2 x3, installer 73 hooks. IN-GAME VALIDATION OWED: the
+    exception-path terrain hits (the tile-center returns), line-path
+    probes across passable/impassable tiles, avoidance paths within
+    and across zones.
+
+  - M8c BATCH 3 + SESSION CLOSEOUT (owner-approved + written
+    2026-11-18): canQuickPath @0x004A1E80 [0x4A1E80,0x4A1FE1),
+    canLinePath2 @0x004A2420 [0x4A2420,0x4A25AD), addFuturePath
+    @0x004A35C0 [0x4A35C0,0x4A375E), firstTileAlongLine @0x004A2710
+    [0x4A2710,0x4A28B9), canPathWithObstructions @0x004A1FF0
+    [0x4A1FF0,0x4A21C1), turn_towards @0x004A11B0 [0x4A11B0,0x4A13B2)
+    - 6 new hooks (the Moving installer now 80). M8c 12/12 COMPLETE
+    (the batch-1 three + findFirstTerrainAlongExceptionPath + these
+    six = the full named set). canQuickPath: the target resolve (the
+    TRIBE_World family cast), the LOCAL BPath via the RAW-STORAGE
+    pattern (BPath's const member deletes the default ctor - the
+    aligned raw storage + the placement pointer + the raw ctor call;
+    EACH raw-storage application is owner-approval-gated per the new
+    ruling), the MShortPather arming (SetIgnoreList with the
+    ignoreList_3 global - ADDED to common per the owner approval,
+    0x6ACE98), FindShortPath (the 14 args; the RAW FLOAT
+    starts/targets - no truncation), the result gates (0 or 1 ->
+    success). canLinePath2: the hoisted step divisions (rule (k)
+    bracket - the .c's per-iteration render is source order), the
+    blocking tile reported via rPoint (y-first, no ++i on the
+    impassable exit), the shared ++i block (amendment A).
+    addFuturePath: the trimmed world-registered copy (createPath +
+    addWaypointAtStart/End + the world_time stamp @BPath+0x1C), the
+    second BPathData (waypointLevel 2 + setReadyToFollowPath + the
+    range/targetID stamps), the destroyPath2 on the second-allocation
+    failure, the setLinkedPath(lP, 1) guard. firstTileAlongLine: the
+    SIGNED PRE-ABS steps gate (a negative-dominant line walks nothing;
+    the .c's v10 <= 0 render misstates it - asm wins), the cursor
+    seeded ONE STEP BACK, the RGE_Map__get_terrain probe
+    (mapcol/maprow; the __int16 params), the exact-1 passableTile2
+    hit. canPathWithObstructions: the zone-map chain (the cached
+    zoneMapIndex), the cross-zone withinRange gate, the caller's
+    obstructions count pre-clear (ManagedArray_int_::numberValue @+4
+    - idb_types.h:1521, the .c's own +1-dword render), the
+    copyUnobstructibles on unobstructibleGroupID != -1. turn_towards:
+    the dead band [-0.5, 0.5] (the literal > MATCH row + the
+    X87_LT_NAN gate 2 - a NaN facet angle CONTINUES to the turn); the
+    turn_speed == 0 gradual path: the computed delta = turn_speed *
+    (dbl_65C1A0 / facets) = 0 - the angle re-stored UNCHANGED (the
+    .c's v7 render misassigns the x87 slot - the asm's fmulp
+    multiplies TURN_SPEED - asm wins; the wraps NaN-convergent); the
+    turn_speed != 0 rate-limited path: the scaled_time = world_time *
+    0.001 (the store-round, rule (e)), the elapsed gate, the
+    facet-sign step direction, the wraps, the turn_towards_time
+    re-stamp, the re-probe ({<, NaN} -> still turning). THE SIGNED-
+    GATE DECODE FIX (canLinePath/canLinePath2): the asm gates on the
+    SIGNED PRE-ABS (int)selected (test eax before the abs idiom; jle)
+    - the written post-abs two_steps gate diverged for
+    negative-dominant lines - corrected to steps <= 0 (a decode
+    correction restoring the exact copy; the .c's v8/v10 <= 0 renders
+    misstate the tested value). Gate: compile PASSED, /Fa verified
+    per function (the constants 0x623DB0/0x4A8F70/0x4AAA20/0x4BC380/
+    0x4BC400/0x4BC600/0x624640/0x624760/0x4BC490/0x4BC530/0x4BC100/
+    0x4BBE70/0x4BBFE0/0x4BC080/0x4BD6A0/0x495B50/0x625E80/0x625FD0/
+    0x625840/0x625860/0x4BEC70; the field offsets; the divsd forms
+    under the float_control brackets; the dbl_65C1A0 literal pool
+    qword 401921FB53C8D4F1 byte-exact - the owner-supplied bytes =
+    the nearest double to the decimal 6.2831853), sweeps clean,
+    defs/refs 2/2 x6, installer 79 hooks. IN-GAME VALIDATION OWED:
+    the facing manager (the dead band, the rate limits, the wraps),
+    the line walks (the blocking-tile reports), the quick paths, the
+    checksums, the avoidance paths.
+
+  - NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first. STATE: the runtime Moving methods COMPLETE
+    through the canPath/quick-path/turn cluster - the Moving installer
+    now 79 hooks; M8c 12/12 COMPLETE. THIS SESSION: 3 desyncs fixed
+    (angle_to_object, calculateReachedPoint, straightProjectedPosition
+    - the ledger has the full entries), the passableTile pair + the
+    M8c set written (12 functions), the template rules (j)/(k) + the
+    dd-constant rule C + the raw-storage pattern (per-application
+    approval) + the allocation WRITTEN-FORM sizeof ruling + the
+    compile-gate concrete invocation + the SESSION-CONVENTION note
+    applied, the passableTile vtbl member rename absorbed, the
+    PROJECT GOAL recorded (full-binary replacement - the compile-flag
+    arguments framed PER FUNCTION). PRIORITY 1 - CORRECT FIRST: the
+    three passableTile2 probe sites written as DIRECT calls where the
+    asm dispatches the vtbl slot 104 (0x1A0): canLinePath_new (asm
+    0x4A26B7), canLinePath2_new (asm 0x4A2541), firstTileAlongLine_new
+    (asm 0x4A2878) - convert to the named virtual dispatch.
+    PRIORITY 2: the rule-(j)/(k) retroactive sweep
+    (incrementWaypoint, calculateYawAngle, missile_move norm chains -
+    the divisions + the 53-bit-consumed chains). PRIORITY 3: the
+    capstone doIntelligentMovementUpdate (5819 bytes, @0x4A6800-
+    region; the bake inventory: checkAcceleration_patch @0x4A6569,
+    isMoving_v2 @0x4A3D90 already baked (M4); the decode applies the
+    clamp-chain lesson + rules (j)/(k) + the /Fa checks). ALSO OWED:
+    in-game validation for this session's functions (the 3 desync
+    fixes + the passableTile pair + the M8c set); the LTG (/GL) probe
+    gap (the NaN probe + the new rules ran non-LTCG); the remaining
+    Moving methods (re-count from the exports vs the 79 hooks).
+    PROTOCOL: the template rules (a)-(k) incl. the reciprocal-form
+    scan + the float_control(precise) brackets per function; the
+    dd-constant pool checks; the allocation WRITTEN-FORM sizeof; the
+    raw-storage pattern per-application approval; the asm-primary
+    rule for the .c/.lst conflicts; the vtbl member walks via the
+    line-arithmetic method (the member line - the first-member line)."
+
+  - P1 CONVERSION - THE PASSABLETILE2 PROBE SITES TO THE NAMED VIRTUAL
+    DISPATCH (owner-directed CORRECT FIRST; the IDB correction absorbed;
+    2026-11-19): canLinePath_new / canLinePath2_new / firstTileAlongLine_new
+    now call this_->vfptr->passableTile2(this_, cursor_x, cursor_y) at the
+    asm's three vtbl slot 104 (0x1A0) dispatches (asm 0x4A26B7 / 0x4A2541 /
+    0x4A2878, two float args each). THE BLOCKER FOUND FIRST: the
+    idb_types.h runtime-Vtbl member naming in the 101-106 window was
+    displaced one slot late in ALL TEN structs (the phantom
+    damageCapability_1 insert; struct passableTile@104 / passableTile2@105
+    vs the binary passableTile@103 / passableTile2@104 /
+    currentTargetID@105) - the clean `vfptr->passableTile2` form would
+    have compiled +0x1A4 = the currentTargetID slot. GROUND: the Combat
+    runtime initializer 0x657544 fully named through the window + the
+    retn forms (passableTile2 retn 8 @0x4A1B30, passableTile retn 10h
+    @0x4A1C30) + the push shapes at the +0x19C (4-arg) / +0x1A4 (0-arg)
+    sites + eight known slot calibrations (29/44/57/81/85/147/153/170).
+    The owner corrected the IDB + regenerated (passableTile2 @
+    idb_types.h:10917, idx 104 = 0x1A0; rateOfFire/damageCapability
+    aligned; currentTargetID2 surfaced). No slot-104 override exists in
+    any runtime initializer - the conversion is asm-faithfulness, not an
+    observable change. GATE 0 errors 0 warnings; /Fa per function:
+    exactly one mov eax, [eax+416] + call eax; residual direct
+    RGE_Moving_Object__passableTile2( calls 0; installer 79 hooks (the
+    M8c Batch 3 entry's "now 80" was a header typo - 79 = the
+    65->67->70->73->79 arithmetic); defs/refs 79/79 MATCH. Re-verify:
+    idb_types.h 10916/10917 (line arithmetic vs first-member 10813);
+    the /Fa +416 emission per function.
+
+  - P2 COMPLETE - THE RULE-(j)/(k) RETROACTIVE SWEEP (owner-directed,
+    2026-11-19): (1) incrementWaypoint_new - THE FLOAT-FINAL-STORE
+    SHRINK FIXED: the obj == 0 seed chain terminates in a float store,
+    which licenses the /fp:fast shrink - the emitted form was subss (a
+    24-bit (wd - range)) + cvtps2pd + subsd 0.1, a float rounding the
+    original never performs (asm 0x4A4323-0x4A4336: fld wd / fsub
+    [eax+20h] / fsub flt_6545BC both at 53-bit, ONE fstp m32). Two
+    interim forms FAILED to resist: the explicit (double) casts were
+    already in the shipped line and still shrank; a double local got
+    forwarded through by /Og. FIX: the float_control(precise, on,
+    push)/pop function bracket (the rule-(k) mechanism - precise
+    semantics removes the shrink license). Post-fix /Fa: ss-ops 0 in
+    the whole function; the seed emits cvtps2pd x2 + subsd x2 + one
+    cvtpd2ps; every other float form unchanged (the obj-seed chains,
+    the d-loop double local, the comiss gates). The function has no
+    divisions - no reciprocal-form risk introduced. PRECISION SCOPE
+    comment records the evidence + the re-gate obligation (verify no
+    subss in the seed block). (2) missile_move_new SWEPT - FAITHFUL:
+    the 3 addss sites = the per-component position sums; the original
+    store-rounds each sum via fstp m32 (0x49BF7F/8C/99) and reloads the
+    rounded m32 for every compare (fld var_8 @0x49BF9D, fcomp var_8
+    @0x49BFBD; same for ny/nz) - rule (d)/(e) exactly, no fix.
+    (3) FULL-TREE SHRINK SCAN (both /Fa listings, every PROC): 0
+    widen-after-round sites post-fix. GATE 0 errors 0 warnings x86.
+    Re-verify: the incrementWaypoint PRECISION SCOPE comment + the /Fa
+    seed form; the cvtps2pd-after-ss-op scan over both listings (= 0).
+
+  - X87 MACRO-MANDATE SWEEP COMPLETE (owner-directed 2026-11-19, "NaN
+    guards that do not use the macro"): 7 literal unordered-inclusive
+    forms corrected across 2 files. RGE_Missile_Object.cpp
+    make_object_collision_list_new: the radius gate's negated forms ->
+    X87_LE_NAN(radius_x/radius_y, 0.0f) (the {<=, NaN} set = test
+    ah,41h; jnz x2 -> the empty return). RGE_Moving_Object.cpp:
+    straightProjectedPosition_new's clamp chain -> `v10.y > cap ||
+    X87_LE_NAN(v10.y, 0.0f)` (gate 1 stays the literal > MATCH row -
+    its jz targets the keep path); turn_towards_new x4: the
+    turn_speed == 0 gate -> X87_EQ_NAN(turn_speed, 0.0f) (test ah,40h;
+    jz -> gradual = the {== 0, NaN} set), the three {<, NaN} wrap
+    gates -> X87_LT_NAN (new_angle @0x4A124B, the facet direction
+    @0x4A12F4, the reloaded store @0x4A1323), and the wrap gate
+    `!(angle <= 6.2831855f)` -> THE LITERAL > MATCH ROW (asm
+    0x4A1344-0x4A134F: test ah,41h; jnz -> the no-wrap SKIP - the
+    sanctioned literal form; the negated form had taken NaN into the
+    wrap: value-convergent (NaN - 2pi = NaN) but jcc-divergent from
+    the asm). /Fa CERTIFICATION per the mandate: every expansion emits
+    comiss/comisd + direct CF-reading jcc (ja/jae/jbe), NO setcc
+    folding; each gate's taken-set verified with operand orders +
+    targets (the EQ gate = two reversed comiss/ja, fall-through
+    {ts == 0, NaN}; the LT_NAN gates = jae -> skip, the wrap on
+    fall-through CF=1; the straightProjectedPosition chain preserves
+    the exact keep/clamp sets incl. the NaN-cap row). RESIDUAL: 0
+    literal negated-compare forms in code (the only grep hits left are
+    historical quotes in comments, refreshed); 39 macro call sites
+    tree-wide. GATE 0 errors 0 warnings x2 TUs; defs/refs 79/79 Moving
+    + 16/16 Missile MATCH; bare CRT 0; bare base_game 0. Re-verify:
+    grep the engine tree for `!(x <op> num)` code forms (= 0); the /Fa
+    jcc forms per macro site.
+
+  - TEMPLATE AMENDMENTS - THE VTABLE DISPATCH RULES (owner-directed
+    2026-11-19, written): (1) VIRTUAL-DISPATCH FIDELITY - virtual
+    sites (the vfptr load + `call dword ptr [reg+disp]` shape) MUST
+    use the named virtual dispatch `obj->vfptr->member(args)` through
+    the matching Vtbl struct member; NEVER a direct idb-constant/_new
+    call at that site; the hook-routing ruling scoped to asm-direct-
+    call sites only (the base-class-call case in derived
+    replacements); the member = the line-arithmetic index (member
+    line - first-member line) = the slot index; the /Fa gate check
+    verifies [reg+slot_offset] per function; converting a virtual
+    site to a direct call = a gate violation (origin case: the
+    passableTile2 probe conversion). (2) CAST-FORM VTABLE DISPATCH
+    FORBIDDEN - the IDA .c rendering's
+    `((ret (__thiscall *)(T *, args...))obj->vfptr->member)(...)` form
+    is explicitly forbidden even when it compiles with the right slot
+    offset; a member-declaration/call-shape mismatch = wrong member
+    naming = a type-definition suspicion = HARD STOP -> owner IDB
+    correction + regen (origin case: the displaced
+    passableTile/passableTile2 naming in all ten runtime Vtbl structs -
+    the cast-form interim was probed, emitted the right offset, and
+    REJECTED). Both rules in the Cleanup rules section after the
+    cross-class base calls bullet.
+
+  - DESYNC FIX #7 - turn_towards_new: THREE divergences (owner bisect +
+    root-caused via the strict instruction-level re-walk of
+    [0x4A11B0,0x4A13B2) + approved + fixed 2026-11-19; the function's
+    FIRST in-game test - the M8c validation had been owed). ALL THREE
+    predate the macro-mandate sweep (today's macro edits certified
+    behavior-neutral; the :3747 macro conversion incidentally FIXED the
+    gradual-path NaN-wrap to match the original). (1) THE GRADUAL-PATH
+    OPERAND (turn_speed == 0 units): the x87 stack walk proves the gate's
+    fcomp (0x4A121C) POPS turn_speed - the facet angle SURVIVES in st(1)
+    (it entered in st0 from angle_to_object; both dead-band compares were
+    fcom, no pop; the dead-band return's fstp st pops it) - so the
+    `fmulp st(1), st` (0x4A1237) multiplies THE ANGLE: new = facet_angle *
+    (2pi/facets) + this->angle = the target absolute angle (the
+    instant-face snap). The shipped form computed turn_speed * (...) = 0 +
+    this->angle ("re-stored UNCHANGED"). The M8c-era "fmulp multiplies
+    TURN_SPEED - asm wins" ruling was a wrong x87 stack model; the .c's
+    v7 render was right. FIX: the product operand -> `angle`
+    (/Fa: mulsd xmm1(the quotient), xmm2(the angle)). (2) THE
+    RATE-LIMITED NEGATIVE PATH (units turning counter-clockwise):
+    asm 0x4A130F `fsubr [esi+0C8h]` = st0 = THIS->ANGLE - facet_step (the
+    stored radians stepped); the shipped form computed the FACET-UNITS
+    local minus the radian step and STORED it as this->angle - unit
+    mixing, garbage facing every negative-direction window. FIX: `angle =
+    (double)this_->angle - facet_step`. (The sign test at 0x4A12F8 is
+    `fcomp` - POPS the facet angle; the x87 stack balances exactly: the
+    elapsed-gate jnz loc_4A13A7 shares the `fstp st` that pops the
+    stranded angle.) (3) THE ELAPSED CHAIN ROUNDING: asm 0x4A12DD `fst`
+    stores the scaled_time COPY while st0 stays UNROUNDED, and 0x4A12E1
+    `fsub [esi+0CCh]` consumes the UNROUNDED st0 - the shipped form
+    computed elapsed FROM THE ROUNDED float local (a rule-(e)
+    misapplication: the rounded copy is consumed ONLY by the re-stamp
+    0x4A136D-72, which the shipped form did correctly). FIX: scaled_time
+    as an UNROUNDED double for the elapsed chain + a scaled_time_stored
+    float for the re-stamp. EVERYTHING ELSE VERIFIED FAITHFUL in the
+    re-walk: the entry guards, the dead band (both fcom/no-pop; the
+    shared fstp st), the gradual/rate-limited gate sets (incl. the macro
+    forms), both wrap blocks (compare/wrap the correct values per path -
+    the gradual wraps on the UNROUNDED st0 per fcom-before-fst, the
+    rate-limited wraps on the RELOADED m32), the set_angle dispatch
+    (+0x378), the re-probe, all four exit paths, the full x87 stack
+    balance. GATE 0 errors 0 warnings x86; /Fa: divsd x2 (no reciprocal),
+    mulsd/subsd on the correct operands, 2 ss-ops = the ratified rule-(d)
+    float wrap forms, shrink-signature 0; defs/refs 79/79 MATCH; bare CRT
+    0; bare base_game 0. LESSON (rule (j)/(k) class): x87 stack-model
+    errors survive every text-level net - the operand-role verification
+    (which value each x87 op actually consumed) is only decidable by
+    tracking the stack slot-by-slot across the whole function; add the
+    per-slot stack audit to the capstone decode protocol. Re-verify: the
+    gradual product sources the angle; the negative path steps
+    this->angle; the elapsed subsd has no cvtpd2ps upstream; grep the
+    PRECISION SCOPE comments.
+
+  - IN-GAME VALIDATION (owner-reported 2026-11-19): the test run
+    against the current tree - ALL OK. The tested tree carried: DESYNC
+    FIX #7 (turn_towards: the gradual operand, the negative-path
+    operand, the elapsed chain), DESYNC FIX #8 (the three line-walk
+    steps gates -> two_steps == 0), the P1 passableTile2 named-dispatch
+    conversion, the incrementWaypoint float_control bracket, and the
+    x87 macro-mandate sweep corrections. Closes the owed in-game
+    validation for those items and the previously-owed M8-era items the
+    run covered (owner-reported as given).
+
+  - DESYNC FIX #8 - THE LINE-WALK STEPS GATES (owner bisect on
+    firstTileAlongLine + the same bug found in canLinePath/canLinePath2
+    by direct asm reading; root-caused + approved + fixed 2026-11-19;
+    all three functions' first in-game tests - the M8c validation had
+    been owed). THE BUG: all three written gates were `steps <= 0` (the
+    SIGNED PRE-ABS ftol value) per the M8c Batch 3 "SIGNED-GATE DECODE
+    FIX ... asm wins" ruling - but the asm tests the POST-ABS/SHL value
+    in every one: firstTileAlongLine `test eax, eax` @0x4A27BE (eax =
+    two_steps after the cdq/xor/sub/shl at 0x4A278F-0x4A2794, flags
+    persisting across the fild/fxch/fdiv/movs to the `jle` @0x4A27FB ->
+    return 0); canLinePath `test ebp, ebp` @0x4A2643 (ebp = two_steps;
+    `jle` @0x4A2669 -> return 1); canLinePath2 `test eax, eax` @0x4A24C9
+    (eax = two_steps; `jle` @0x4A24F1 -> return 1). two_steps = 2*|steps|
+    is always >= 0, so the true gate fires ONLY when the dominant delta
+    truncates to 0 - A NEGATIVE-DOMINANT LINE WALKS in the original
+    (the step divisions carry the sign; the cursor walks backward from
+    the seed). The shipped `steps <= 0` returned early on EVERY
+    negative-dominant walk (roughly half of all line queries) ->
+    desync. The M8c-era ruling was a REGISTER MISATTRIBUTION (the
+    `mov ebp, eax` right after ftol, before the abs, made the decoder
+    believe the later test saw the signed value); the .c's
+    `v10/v8 <= 0` renders were right - the same M8c pattern as the
+    turn_towards v7 case (DESYNC FIX #7). FIX: all three gates ->
+    `if (two_steps == 0)` with the corrected comments (the return
+    values unchanged: 1/1/0; semantically the gate equals the
+    loop-natural zero-iteration exhaustion, kept in the asm's shape).
+    EVERYTHING ELSE VERIFIED FAITHFUL in the firstTileAlongLine
+    re-walk: the degenerate gate, the |dX| vs |dY| selection (fcompp
+    C0), the cursor seeds (ONE STEP BACK - correctly distinct from
+    canLinePath's at-s seeds), the float cursor arithmetic, the ftol
+    pair on the rounded cursors, the new-tile test vs -999/-999, the
+    prev updates only on new tiles, get_terrain(map, col, row) (ecx =
+    the map; param1 = the last push = col), the tType1/tType2 u8
+    match, the exact-1 passableTile2 gate (the P1 named dispatch
+    included), the y-first rPoint store, all four exit paths, the x87
+    stack balance. GATE 0 errors 0 warnings x86; /Fa: divsd x2 x3
+    (the precise brackets), the gates emit test eax, eax + jle
+    (canLinePath2's literally the asm's own shape), shrink-signature 0;
+    residual `steps <= 0` = 0 tree-wide; defs/refs 79/79 MATCH. LEDGER
+    CORRECTION: the M8c Batch 3 entry's "SIGNED-GATE DECODE FIX" claim
+    is RETRACTED for all three functions (the pre-fix two_steps gates
+    were CORRECT; the "signed pre-abs" "fix" introduced the bug).
+    LESSON: an "asm wins" correction that OVERTURNS the .c must cite
+    the exact test instruction AND prove which value its operand
+    register holds at that address (the register-liveness walk) - a
+    pattern match across sibling functions is not evidence (the three
+    gates look identical but only the register CONTENT decides).
+    Re-verify: the three `two_steps == 0` gates + their comments; grep
+    `steps <= 0` (= 0); the /Fa test/jle shapes.

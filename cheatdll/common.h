@@ -113,6 +113,12 @@ extern ObsRecord* const obSystemCollisions;
 extern int* const numberObSystemCollisions;
 extern int* const numberObSystemIntersections;
 
+extern int* const OBSystem_Ignore_Scratch_Tile2;   // 0x006AD134 - passableTile2's persistent ignore-id scratch
+extern int* const OBSystem_Ignore_Scratch_Tile;    // 0x006AD0AC - passableTile's persistent ignore-id scratch
+extern int* const ignoreList_3;                    // 0x006ACE98 - canQuickPath's persistent ignore-id scratch
+
+extern PathingSystem* const pathSystem;
+
 extern HINSTANCE* const hInstance_dll;
 
 extern int* const VIEW_MAP_CheckVis;

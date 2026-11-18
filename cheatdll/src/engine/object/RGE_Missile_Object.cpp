@@ -423,8 +423,9 @@ RGE_Check_List* __fastcall RGE_Missile_Object__make_object_collision_list_new(
     // the x87 radius gate is test ah,41h; jnz -> the empty return: the taken
     // set includes UNORDERED, so a NaN master radius returns the empty list
     // in the original; the literal C <= is unordered-false and would run the
-    // whole scan - the faithful form is the negated > (precision sub-rule (i))
-    if (!(this_->master_obj->radius_x > 0.0f) || !(this_->master_obj->radius_y > 0.0f))
+    // whole scan - the faithful form is X87_LE_NAN (the {<=, NaN} set, per
+    // the macro mandate: unordered-inclusive compares are macro-only)
+    if (X87_LE_NAN(this_->master_obj->radius_x, 0.0f) || X87_LE_NAN(this_->master_obj->radius_y, 0.0f))
         return 0;                                         // asm 0x49C04E-0x49C070 (test ah,41h; jnz x2 -> loc_49C1A3)
     RGE_Check_List* list = (RGE_Check_List*)operator_new_internal(sizeof(RGE_Check_List));   // asm 0x49C0xx (4)
     if (list != 0)

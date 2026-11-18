@@ -408,6 +408,33 @@ no pseudocode restatements of the function body:
        float-float arithmetic result at 53-bit (incrementWaypoint,
        calculateYawAngle, missile_move's norm chains, the doIntelligent
        MovementUpdate decode; angle_to_object fixed 2026-11-18).
+   (k) RECIPROCAL-MULTIPLY /Fa SCAN + THE float_control(precise)
+       FUNCTION BRACKET (owner-directed 2026-11-18; the /Fa check that
+       caught canLinePath's step divisions): under /fp:fast MSVC
+       transforms `(double)a / (double)t` into (1.0/t)*a - the
+       reciprocal pre-rounded (rounding 1), the product re-rounded
+       (rounding 2) - diverging from the original's single-rounding
+       fdiv + fstp m32 whenever the reciprocal is inexact. EVERY owned
+       function containing a division on precision-relevant operands is
+       /Fa-scanned for the reciprocal form (a 1.0-constant + divsd +
+       mulsd chain instead of a plain divsd); when the transform
+       appears AND the divided value feeds a boundary-sensitive
+       consumer (tile truncations, compares, the rule-(e) store-
+       rounds), the function is bracketed at file scope:
+       #pragma float_control(precise, on, push) before it and
+       #pragma float_control(pop) after - pinning the divisions as
+       divisions (divsd). The project's first use: canLinePath_new,
+       2026-11-18 (the /Fa re-gate showed divsd x2 and
+       __libm_sse2_sqrt_precise replacing the inline sqrtsd -
+       bit-identical results: IEEE sqrt is correctly-rounded in both,
+       the CRT wrapper only adds a negative-input/errno branch
+       unreachable for sums-of-squares inputs; first-use performance:
+       two direct divsd + one precise-sqrt call per invocation -
+       immeasurable at pathing call rates). The /Fa gate check for
+       every bracketed function on every re-gate: verify divsd (no
+       reciprocal chain). The owed retroactive division sweep:
+       incrementWaypoint, findAvoidancePath (pre-write), the
+       doIntelligentMovementUpdate decode.
 - Allocation size verification (hard stop): every operator_new /
   operator_new_internal literal size must be mechanically verified as
   sizeof(allocated type) вЂ” recursive struct walk over idb_types.h with
@@ -417,7 +444,11 @@ no pseudocode restatements of the function body:
   is a HARD STOP: Information Request, no code вЂ” keeping the unverified
   literal is not permitted. Runtime-size allocations (arrays sized by
   parameters) are exempt from sizeof but must match the original's
-  allocation expression.
+  allocation expression. THE WRITTEN FORM is sizeof(allocated type)
+  - a verified literal with a walked-comment justification is still a
+  violation (owner ruling 2026-11-18, the addCurrentPath/
+  findAvoidancePath allocations); sizeof lets the compiler maintain
+  the verification across IDB struct changes.
 - Structured-I/O size verification (hard stop): every rge_read /
   rge_write / fread / fwrite-style size argument (the 3rd parameter)
   must be written as sizeof(target) вЂ” sizeof of the exact destination
@@ -467,6 +498,40 @@ no pseudocode restatements of the function body:
   base-pointer rule. Floating literals beyond the type range (e.g.
   3.4028235e38 > FLT_MAX) are rejected by MSVC (C2177) вЂ” use FLT_MAX
   or an exactly-representable literal.
+- VIRTUAL-DISPATCH FIDELITY (owner-directed 2026-11-19): when the asm
+   dispatches a call through a vtable slot (the vfptr load + `call
+   dword ptr [reg+disp]` shape), the replacement MUST use the NAMED
+   VIRTUAL DISPATCH `obj->vfptr->member(args)` through the matching
+   Vtbl struct member - NEVER a direct call to the idb-constant
+   function or to the `_new` replacement at that site. The
+   hook-routing ruling's "calling through an idb constant is
+   behaviorally identical" applies ONLY where the original asm itself
+   calls the constant directly (the base-class-call case in derived
+   replacements); a virtual site written as a direct call hard-codes
+   one implementation where the original resolved dynamically (a
+   derived override - present or future - would be bypassed) and the
+   /Fa record desyncs from the original's dispatch shape. The member
+   must be the struct member whose line-arithmetic index (member line
+   - first-member line) equals the slot index; the /Fa gate check
+   verifies the emitted offset ([reg+slot_offset]) per function.
+   Converting a virtual site to a direct call is a gate violation.
+   (Origin case: the passableTile2 probe sites in canLinePath /
+   canLinePath2 / firstTileAlongLine - the direct idb-constant calls
+   converted to the named dispatch, 2026-11-19.)
+- CAST-FORM VTABLE DISPATCH FORBIDDEN (owner-directed 2026-11-19):
+   NEVER call a vtbl member through a function-pointer cast of the
+   member pointer - the IDA .c rendering's
+   `((ret (__thiscall *)(T *, args...))obj->vfptr->member)(...)` form -
+   even when it compiles and the /Fa shows the right slot offset. If
+   the member's declaration does not match the call shape the asm
+   shows (argument count/types), the member naming is WRONG: that is a
+   type-definition suspicion - HARD STOP, Information Request, the
+   owner corrects the IDB and regenerates, and the decode/conversion
+   restarts from the regenerated files. (Origin case: the displaced
+   passableTile/passableTile2 vtbl member naming in all ten runtime
+   Vtbl structs - the cast-form interim was probed, emitted the right
+   offset, and REJECTED; the owner's IDB correction restored the clean
+   named form.)
 - CRT calls via *_internal wrappers (hard stop for bare CRT): the
   common.h/cpp wrapper family (malloc/calloc/operator_new/operator_
   delete/free/read/write/fopen/fscanf/fread/fwrite/fgets_internal...)
@@ -625,6 +690,21 @@ no pseudocode restatements of the function body:
 - Compile gate (hard requirement): after every batch write, each
    touched translation unit must pass a syntax-only compile (vcvars +
    `cl /c /std:c++17`, 0 errors) before the WRITTEN status is recorded
+   THE CONCRETE INVOCATION (owner-directed 2026-11-18 - the practiced
+   form, reproduce exactly): cmd /c '"<VS>\VC\Auxiliary\Build\
+   vcvarsall.bat" x86 -vcvars_ver=14.16 && cl /c /nologo /std:c++17
+   /O2 /arch:SSE2 /fp:fast /EHsc /DWIN32 /D_CRT_SECURE_NO_WARNINGS
+   /DEFPATCH_CURRENT_CONFIG=Release /DNDEBUG /D_WINDOWS /D_USRDLL
+   /DCHEATDLL_EXPORTS /I"<repo>\DoctorDumpSDK\include" /I"<Cpp
+   libs>\zlib" /I"<Cpp libs>\CImg" /I"<Cpp
+   libs>\zlib\contrib\minizip" /I"<repo>\cheatdll" /Fa<temp>\<TU>.asm
+   /Fo<temp>\<TU>.obj <TU>.cpp' (<VS> = the vswhere-located install;
+   -vcvars_ver=14.16 = the project's v141_xp toolset; non-/GL per the
+   known LTG gap; the "Cpp libs" env var = the include root). The /Fa
+   listing is NOT optional: it feeds the rule-(j) widen-before-op
+   check, the X87 macro /Fa gate check, the dd-constant pool check
+   (rule C), the vtbl slot-offset verification, and the reciprocal-
+   form scan (rule (k)).
    вЂ” the defs/refs sweep does not catch type errors (the Animated/
    Moving factory trios shipped 7 latent C2664/C2440 sites on
    2026-11-14, caught by the gate).

@@ -18,6 +18,12 @@ ObsRecord* const obSystemCollisions = (ObsRecord* const)0x006AD0C4;
 int* const numberObSystemCollisions = (int* const)0x006AD570;
 int* const numberObSystemIntersections = (int* const)0x006AD574;
 
+int* const OBSystem_Ignore_Scratch_Tile2 = (int* const)0x006AD134;
+int* const OBSystem_Ignore_Scratch_Tile = (int* const)0x006AD0AC;
+int* const ignoreList_3 = (int* const)0x006ACE98;
+
+PathingSystem* const pathSystem = (PathingSystem* const)0x006AEBB0;
+
 HINSTANCE* const hInstance_dll = (HINSTANCE* const)0x0078F81C;
 
 int* const VIEW_MAP_CheckVis = (int* const)0x007A1C6C;

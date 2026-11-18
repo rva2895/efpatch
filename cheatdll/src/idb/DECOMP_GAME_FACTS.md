@@ -225,6 +225,15 @@ the sections above and the entry is marked.
   the check_placement scan-rectangle margin (+-8.0 tiles) across the
   RGE Static / Combat(70) / Building scans and RGE_Command__do_command_
   order (DATA XREF, lst :987837).
+- **CheckForCollisions query parameters {32, 25, -2}** — the OBSystem
+  vtbl idx 19 call's int arguments as made by passableTile/passableTile2
+  (asm 0x4A1BF7/0x4A1BEB/0x4A1BE9 and the passableTile twins; vtbl
+  idb_types.h:9964/10167). UNKNOWN per-value: 32 (0x20) = the 5th int
+  arg, 25 (0x19) = the 8th int arg, -2 (0xFFFFFFFE) = the 9th int arg.
+  Positional guesses (a detail/level mask, a max-hits cap matching the
+  obSystemCollisions array, a player/exclusion code) are NOT grounded.
+  Re-verify: the callee's implementation body in the .lst fixes the
+  meanings - a future decode target.
 
 ## Open вЂ” meanings not yet supplied
 
