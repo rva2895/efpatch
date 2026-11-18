@@ -124,6 +124,12 @@ become state-file entries.
    applied only after the owner's explicit approval of that specific
    change. One approval per change; approvals are not cumulative.
 
+   STATE-FILE SESSION CONVENTION (owner-directed 2026-11-18): the NEXT
+   SESSION paste-prompt blocks in DECOMP_STATE.md are the CLOSED
+   handoff records of PREVIOUS sessions - they are never updated after
+   their session closes. A NEW block is appended at the END of a
+   session, summarizing that session's state for the next one.
+
 ## Information Request (the deliverable when the gate fails)
 When refusing, output ONLY the following вЂ” no code, no speculative snippets,
 no pseudocode restatements of the function body:
@@ -157,6 +163,19 @@ no pseudocode restatements of the function body:
   equivalent code.
 - Replace float/int bit-pattern constants (1065353216, 0x3F800000, doubles
   passed as __int64) with the exact float/double literal they denote.
+  DD-CONSTANT WIDENING MANDATE (owner-approved 2026-11-18, after the
+  angle_to_object desync): every constant consumed from a dd (float)
+  memory operand - arithmetic operand, compare operand, or X87_* macro
+  argument - is written with the f suffix; a bare double literal is a
+  DIFFERENT number (the binary's 6.2831855f = 6.2831854820251464844
+  widened; the bare double literal 6.2831855 sits 2e-8..4e-8 away -
+  every wrap-add, wrap-compare window, and the facet scale diverged).
+  Gate: mechanically compute [double](float)literal as hex and diff
+  against the /Fa literal pool __real@ names - the emitted pool must
+  carry the widened float's exact bit pattern (angle_to_object's pool:
+  401921FB60000000 / 400921FB60000000 / C00921FB60000000 /
+  3FC45F3060000000, verified 2026-11-18). In-file exemplar:
+  RGE_Moving_Object.cpp:775, (double)6.2831855f.
 - Replace sub_XXXX / off_XXXX with the exact `Class__method` function-
   pointer constant from idb_functions.h (address-verified per the lookup
   protocol). Resolve data globals through common.h / common.cpp per the
@@ -332,7 +351,15 @@ no pseudocode restatements of the function body:
        sites divergent; maximumSpeed/calculateMaximumSpeed's cap gates
        match; moveUnit's fabs >= 0.5 pair and incrementWaypoint/
        checkRange's 1e-7 gates are per-site polarity-checked at their
-       decode).
+       decode). MACRO MANDATE (owner-approved 2026-11-18): the
+       unordered-inclusive compares are written ONLY via the
+       X87_LE_NAN / X87_LT_NAN / X87_GE_NAN / X87_GT_NAN /
+       X87_EQ_NAN / X87_NE_ORD macros (cheatdll/x87_nan.h, included
+       from stdafx.h); the literal operators are reserved for the
+       polarity-table MATCH rows (the x87 jnz/jz targeting the
+       negative/skip path). Each macro call still carries its asm
+       citation; the /Fa gate check verifies the emitted jcc per
+       macro-using function (the expansion must not fold).
        PROBE-VERIFIED COMPLETE TABLE (owner-directed 2026-11-18; a
        compiled-and-EXECUTED probe under the project's real Release
        flags /O2 /arch:SSE2 /fp:fast - and /Od, results identical -
@@ -363,6 +390,24 @@ no pseudocode restatements of the function body:
        a runtime-seeded NaN (unfolding-able), both /O2 and /Od; asm
        listings (/Fa) verify the emitted jcc per form. The probe
        source is the reference implementation of this table.
+   (j) WIDEN-BEFORE-OP /Fa SIGNATURE (owner-approved 2026-11-18; the
+       /Fa check that caught angle_to_object's second desync class):
+       rule (a) is not satisfied by a double-DECLARED variable - the
+       written form `double d = floatA - floatB;` compiles under
+       /fp:fast to subss/addss/mulss + cvtps2pd AFTERWARD, a float
+       rounding the x87 original never performed (~6e-8 relative on
+       far-apart game coordinates, where the 53-bit exact difference
+       spans > 24 mantissa bits). The faithful x87 fsub/fadd/fmul of
+       two m32 floats feeding a 53-bit consumer (atan2/sqrt/cos
+       arguments, comparison operands, chains) must emit
+       cvtps2pd/cvtps2pd + subsd/addsd/mulsd. Every function's /Fa
+       gate check now includes this pattern scan: any ss op whose
+       result is cvtps2pd'd afterward and consumed at double is a
+       DIVERGENCE - write the operands with explicit (double) casts.
+       Owed retroactive sweep: every owned function consuming a
+       float-float arithmetic result at 53-bit (incrementWaypoint,
+       calculateYawAngle, missile_move's norm chains, the doIntelligent
+       MovementUpdate decode; angle_to_object fixed 2026-11-18).
 - Allocation size verification (hard stop): every operator_new /
   operator_new_internal literal size must be mechanically verified as
   sizeof(allocated type) вЂ” recursive struct walk over idb_types.h with
@@ -621,6 +666,35 @@ no pseudocode restatements of the function body:
    path where the original fell through to the shared teleport tail -
    asm loc_49BFE7 joins loc_49BFF1, exactly two return sites, both
    after the teleport). Script it alongside the store diff.
+- Join-convergence inventory (mandatory from 2026-11-18, owner-directed
+   after the angle_to_object desync): before drafting, mechanically
+   enumerate inbound edges per label from the asm range's own
+   instructions: every jcc/jmp instruction whose operand is a label
+   contributes one inbound edge to that label, and each label
+   additionally has one fall-through inbound edge if its immediately
+   preceding line is not an unconditional control transfer (jmp / ret /
+   retn / jmp reg). Any label with >= 2 inbound edges is a JOIN. The
+   .lst's CODE XREF annotations are hints only - NEVER the count (they
+   do not list all xrefs; owner ruling 2026-11-18). Every instruction
+   in a joined block is attributed to EVERY reaching path, and a value
+   produced before a join and consumed after it appears in the written
+   code once, positioned so all paths pass through it (duplicated only
+   with a path-exact proof). The join table (label -> inbound sites ->
+   the shared instructions -> the written statement covering them) goes
+   in the review artifact. The failure this closes: angle_to_object's
+   to-object path jmp'd over the fallback path into the shared
+   fsub [ecx+4Ch] tail @0x4A1146 - the fld was transcribed, the
+   converged fsub was not, and atan2 received the absolute y.
+- Total-instruction citation coverage (mandatory from 2026-11-18, the
+   same desync): upgrades the store-and-read diff's read-mapping to a
+   scripted, bidirectional ADDRESS-COVERAGE check: (1) enumerate every
+   memory-operand instruction address in the asm range (mov/cmp/fld/
+   fadd/fsub/fcom/... [reg+disp] and the [esp+...] parameter reads);
+   (2) every such address must be CITED in >= 1 written-code comment;
+   (3) every written-code citation must resolve to an address in the
+   range. An address in (1) absent from (2) is a stop-and-fix before
+   the write; a citation that resolves to nothing is removed. Scripted
+   alongside the store-and-read diff and the exit-path inventory.
 
 ## Deliverable (file layout and installers)
 1. Cleaned function(s) go to `cheatdll/src/engine/<subsystem>/<class_name>.cpp`.
