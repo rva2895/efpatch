@@ -2717,7 +2717,7 @@ int __fastcall RGE_Moving_Object__passableTile2_new(
         0.0f, 0.0f,
         32,                                                       // UNKNOWN query parameter (registry)
         numberObSystemCollisions,
-        (ObsRecord**)obSystemCollisions,                          // the slot the callee writes the results base into (the missile precedent)
+        obSystemCollisions,                                       // the slot the callee writes the results base into (the missile precedent; the owner's ObsRecord** listing correction - the cast dropped)
         25,                                                       // UNKNOWN query parameter (registry)
         -2,
         0,
@@ -2807,7 +2807,7 @@ int __fastcall RGE_Moving_Object__passableTile_new(
         0.0f, 0.0f,
         32,                                                       // UNKNOWN query parameter (registry)
         numberObSystemCollisions,
-        (ObsRecord**)obSystemCollisions,
+        obSystemCollisions,                                       // the owner's ObsRecord** listing correction - the cast dropped
         25,                                                       // UNKNOWN query parameter (registry)
         -2,
         0,

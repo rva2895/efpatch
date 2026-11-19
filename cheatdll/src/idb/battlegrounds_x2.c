@@ -44044,13 +44044,13 @@ TMousePointer *MouseSystem;
 IntersectRecord obSystemIntersections[25]; // weak
 int singleIgnoreList2; // weak
 int ignoreList_3; // idb
-int collisionUnits[]; // idb
+int ignoreUnits[128];
 int singleIgnoreList; // weak
 int dword_6AD0AC; // weak
-ObsRecord obSystemCollisions; // weak
+ObsRecord *obSystemCollisions[25];
 BVector upVector; // idb
 int dword_6AD134; // weak
-BPath unk_6AD170; // idb
+int collisionUnits[256];
 int numberObSystemCollisions; // idb
 int numberObSystemIntersections; // weak
 int ignoreListSize; // idb
@@ -170291,7 +170291,7 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
   RGE_Static_Object *v89; // eax
   RGE_Moving_Object *v90; // edx
   void *v91; // ecx
-  int v92; // eax
+  RGE_Static_Object *v92; // eax
   RGE_Static_Object *v93; // edi
   BPath *v94; // eax
   int v95; // eax
@@ -170347,7 +170347,7 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
   RGE_Airspace_Manager *v145; // [esp+38h] [ebp-264h]
   void *v146; // [esp+38h] [ebp-264h]
   int *v147; // [esp+38h] [ebp-264h]
-  ObsRecord *v148; // [esp+38h] [ebp-264h]
+  ObsRecord **v148; // [esp+38h] [ebp-264h]
   bool v149; // [esp+3Ch] [ebp-260h]
   RGE_Map_Analysis *v150; // [esp+3Ch] [ebp-260h]
   RGE_Map_Analysis *v151; // [esp+3Ch] [ebp-260h]
@@ -171105,7 +171105,7 @@ LABEL_156:
         v90,
         &this->mPosition.mPosition,
         (BVector *)&v178.z,
-        collisionUnits,
+        ignoreUnits,
         ignoreListSize,
         0,
         1.0);
@@ -171114,13 +171114,13 @@ LABEL_156:
       v159 = 0;
       v157 = 0;
       v155 = 0;
-      v148 = &obSystemCollisions;
+      v148 = obSystemCollisions;
       do
       {
-        v92 = *(_DWORD *)(v148->NodeProperties + 8);
+        v92 = (*v148)->Object;
         if ( v92 )
         {
-          v93 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)(v92 + 16));
+          v93 = RGE_Game_World::object((RGE_Game_World *)base_game->world, v92->id);
           if ( v93 )
           {
             if ( BPath::ignoreUnitsContain(v8, v93->id) != 1 )
@@ -171140,7 +171140,7 @@ LABEL_156:
         }
         v97 = (int)&v155->mip_maps + 1 < numberObSystemCollisions;
         v155 = (RGE_Map_Analysis *)((char *)v155 + 1);
-        v148 = (ObsRecord *)((char *)v148 + 4);
+        ++v148;
       }
       while ( v97 );
       if ( numberObSystemCollisions == 1 && v159 == 1 )
@@ -171244,7 +171244,6 @@ LABEL_209:
 // 689568: using guessed type int dword_689568;
 // 68956C: using guessed type int dword_68956C;
 // 68F494: using guessed type float flt_68F494;
-// 6AD0C4: using guessed type ObsRecord obSystemCollisions;
 
 //----- (0049E400) --------------------------------------------------------
 double __thiscall BMotion::calculateYawAngle(BMotion *this, BVector *curOF, BVector *newOF, float interval, int limit)
@@ -172774,7 +172773,7 @@ void __fastcall findObSystemCollisions(void *OB_System_To_Use, RGE_Moving_Object
           checkTerrain,
           COERCE_FLOAT(LODWORD(ignoreListSizeb)),
           v12);
-      (*(void (__thiscall **)(void *, int, BVector *, bool, float, int, int *, ObsRecord *, int, int, _DWORD))(*(_DWORD *)OB_System_To_Use + 76))(
+      (*(void (__thiscall **)(void *, int, BVector *, bool, float, int, int *, ObsRecord **, int, int, _DWORD))(*(_DWORD *)OB_System_To_Use + 76))(
         OB_System_To_Use,
         v17,
         p2,
@@ -172782,7 +172781,7 @@ void __fastcall findObSystemCollisions(void *OB_System_To_Use, RGE_Moving_Object
         COERCE_FLOAT(LODWORD(ignoreListSizeb)),
         16,
         &numberObSystemCollisions,
-        &obSystemCollisions,
+        obSystemCollisions,
         25,
         -2,
         0);
@@ -172794,7 +172793,6 @@ void __fastcall findObSystemCollisions(void *OB_System_To_Use, RGE_Moving_Object
 }
 // 6ACD00: using guessed type IntersectRecord obSystemIntersections[25];
 // 6ACE90: using guessed type int singleIgnoreList2;
-// 6AD0C4: using guessed type ObsRecord obSystemCollisions;
 // 6AD574: using guessed type int numberObSystemIntersections;
 
 //----- (004A0340) --------------------------------------------------------
@@ -172816,7 +172814,7 @@ bool __fastcall addToIgnoreList(RGE_Static_Object *obj)
   if ( ignoreListSize < 128 && obj )
   {
     result = obj->id;
-    collisionUnits[ignoreListSize] = result;
+    ignoreUnits[ignoreListSize] = result;
     v3 = v2 + 1;
     ignoreListSize = v3;
     if ( obj->type != 80 )
@@ -172831,7 +172829,7 @@ bool __fastcall addToIgnoreList(RGE_Static_Object *obj)
       if ( *i )
       {
         result = *(_DWORD *)(result + 16);
-        collisionUnits[v3++] = result;
+        ignoreUnits[v3++] = result;
         ignoreListSize = v3;
         if ( v3 >= 128 )
           break;
@@ -173984,7 +173982,7 @@ int __thiscall RGE_Moving_Object::passableTile2(RGE_Moving_Object *this, float x
   (*(void (__thiscall **)(_DWORD *, int, _DWORD))(*v5 + 92))(v5, 1, LODWORD(this->master_obj->radius_x));
   dword_6AD134 = this->id;
   (*(void (__thiscall **)(_DWORD *, int, int *, int))(*v5 + 84))(v5, 1, &dword_6AD134, 1);
-  (*(void (__thiscall **)(_DWORD *, _DWORD, _DWORD, _DWORD, _DWORD, int, int *, ObsRecord *, int, int, _DWORD, _DWORD))(*v5 + 76))(
+  (*(void (__thiscall **)(_DWORD *, _DWORD, _DWORD, _DWORD, _DWORD, int, int *, ObsRecord **, int, int, _DWORD, _DWORD))(*v5 + 76))(
     v5,
     LODWORD(x),
     LODWORD(y),
@@ -173992,7 +173990,7 @@ int __thiscall RGE_Moving_Object::passableTile2(RGE_Moving_Object *this, float x
     0,
     32,
     &numberObSystemCollisions,
-    &obSystemCollisions,
+    obSystemCollisions,
     25,
     -2,
     0,
@@ -174000,7 +173998,6 @@ int __thiscall RGE_Moving_Object::passableTile2(RGE_Moving_Object *this, float x
   (*(void (__thiscall **)(_DWORD *, _DWORD, _DWORD))(*v5 + 92))(v5, 0, 0);
   return numberObSystemCollisions <= 0;
 }
-// 6AD0C4: using guessed type ObsRecord obSystemCollisions;
 // 6AD134: using guessed type int dword_6AD134;
 
 //----- (004A1C30) --------------------------------------------------------
@@ -174071,7 +174068,7 @@ int __thiscall RGE_Moving_Object::passableTile(RGE_Moving_Object *this, float x,
     dword_6AD0AC = this->id;
     (*(void (__thiscall **)(_DWORD *, int, int *, int))(*v11 + 84))(v11, 1, &dword_6AD0AC, 1);
   }
-  (*(void (__thiscall **)(_DWORD *, int, int, _DWORD, _DWORD, int, int *, ObsRecord *, int, int, _DWORD, _DWORD))(*v11 + 76))(
+  (*(void (__thiscall **)(_DWORD *, int, int, _DWORD, _DWORD, int, int *, ObsRecord **, int, int, _DWORD, _DWORD))(*v11 + 76))(
     v11,
     v25,
     v26,
@@ -174079,7 +174076,7 @@ int __thiscall RGE_Moving_Object::passableTile(RGE_Moving_Object *this, float x,
     0,
     32,
     &numberObSystemCollisions,
-    &obSystemCollisions,
+    obSystemCollisions,
     25,
     -2,
     0,
@@ -174099,7 +174096,6 @@ int __thiscall RGE_Moving_Object::passableTile(RGE_Moving_Object *this, float x,
 // 4A1C30: variable 'v22' is possibly undefined
 // 4A1C3F: variable 'v23' is possibly undefined
 // 6AD0AC: using guessed type int dword_6AD0AC;
-// 6AD0C4: using guessed type ObsRecord obSystemCollisions;
 
 //----- (004A1D50) --------------------------------------------------------
 int __thiscall RGE_Moving_Object::canPath2(RGE_Moving_Object *this, XYZPoint point, float range, int targetID, float *pathDistance, int unobstructiblePlayerID, int unobstructibleGroupID, bool useRangeWithoutTarget)
@@ -176036,7 +176032,7 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   int v92; // edi
   int *v93; // edx
   _DWORD *v94; // ebp
-  int (__thiscall *v95)(RGE_Static_Object *); // eax
+  RGE_Static_Object *v95; // eax
   RGE_Static_Object *v96; // eax
   int *v97; // edi
   BPath *v98; // eax
@@ -176044,8 +176040,8 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   __int16 v100; // ax
   unsigned int v101; // ebx
   RGE_Map_Analysis *v102; // ecx
-  ObsRecord *v103; // ebx
-  int v104; // eax
+  ObsRecord **v103; // ebx
+  RGE_Static_Object *v104; // eax
   int v105; // ecx
   RGE_Static_Object *v106; // eax
   RGE_Static_Object *v107; // edi
@@ -176095,7 +176091,7 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   float v151; // [esp+38h] [ebp-25Ch]
   int v152; // [esp+38h] [ebp-25Ch]
   BPathData *obj; // [esp+3Ch] [ebp-258h]
-  RGE_Static_Object *obja; // [esp+3Ch] [ebp-258h]
+  ObsRecord **obja; // [esp+3Ch] [ebp-258h]
   RGE_Static_Object *targetObj; // [esp+40h] [ebp-254h] BYREF
   int numberCollisionUnits; // [esp+44h] [ebp-250h]
   RGE_Map_Analysis *v157; // [esp+48h] [ebp-24Ch]
@@ -176376,7 +176372,7 @@ LABEL_50:
           ignoreListSize = 0;
           if ( this )
           {
-            collisionUnits[0] = this->id;
+            ignoreUnits[0] = this->id;
             v37 = 1;
             ignoreListSize = 1;
             if ( this->type == 80 )
@@ -176387,7 +176383,7 @@ LABEL_50:
               {
                 if ( *v39 )
                 {
-                  collisionUnits[v37++] = *(_DWORD *)(*v39 + 16);
+                  ignoreUnits[v37++] = *(_DWORD *)(*v39 + 16);
                   ignoreListSize = v37;
                   if ( v37 >= 128 )
                     break;
@@ -176403,7 +176399,7 @@ LABEL_50:
           {
             if ( v37 < 128 )
             {
-              collisionUnits[v37++] = targetObj->id;
+              ignoreUnits[v37++] = targetObj->id;
               ignoreListSize = v37;
               if ( v40->type == 80 )
               {
@@ -176413,7 +176409,7 @@ LABEL_50:
                 {
                   if ( *v42 )
                   {
-                    collisionUnits[v37++] = *(_DWORD *)(*v42 + 16);
+                    ignoreUnits[v37++] = *(_DWORD *)(*v42 + 16);
                     ignoreListSize = v37;
                     if ( v37 >= 128 )
                       break;
@@ -176444,9 +176440,9 @@ LABEL_50:
                   v117,
                   v118,
                   v120,
-                  collisionUnits,
+                  ignoreUnits,
                   v122,
-                  (int *)&unk_6AD170,
+                  collisionUnits,
                   (int)v128,
                   v22,
                   v132,
@@ -176479,7 +176475,7 @@ LABEL_73:
               if ( this )
               {
                 v51 = 1;
-                collisionUnits[0] = this->id;
+                ignoreUnits[0] = this->id;
                 ignoreListSize = 1;
                 if ( this->type == 80 )
                 {
@@ -176489,7 +176485,7 @@ LABEL_73:
                   {
                     if ( *v53 )
                     {
-                      collisionUnits[v51++] = *(_DWORD *)(*v53 + 16);
+                      ignoreUnits[v51++] = *(_DWORD *)(*v53 + 16);
                       ignoreListSize = v51;
                       if ( v51 >= 128 )
                         break;
@@ -176505,7 +176501,7 @@ LABEL_73:
               {
                 if ( v51 < 128 )
                 {
-                  collisionUnits[v51++] = targetObj->id;
+                  ignoreUnits[v51++] = targetObj->id;
                   ignoreListSize = v51;
                   if ( v54->type == 80 )
                   {
@@ -176515,7 +176511,7 @@ LABEL_73:
                     {
                       if ( *v56 )
                       {
-                        collisionUnits[v51++] = *(_DWORD *)(*v56 + 16);
+                        ignoreUnits[v51++] = *(_DWORD *)(*v56 + 16);
                         ignoreListSize = v51;
                         if ( v51 >= 128 )
                           break;
@@ -176535,7 +176531,7 @@ LABEL_73:
                 this,
                 &this->positionValue,
                 v57,
-                collisionUnits,
+                ignoreUnits,
                 v133,
                 1,
                 1.0);
@@ -176833,7 +176829,7 @@ LABEL_151:
       if ( this )
       {
         v91 = 1;
-        collisionUnits[0] = this->id;
+        ignoreUnits[0] = this->id;
         ignoreListSize = 1;
         if ( this->type == 80 )
         {
@@ -176843,7 +176839,7 @@ LABEL_151:
           {
             if ( *v93 )
             {
-              collisionUnits[v91++] = *(_DWORD *)(*v93 + 16);
+              ignoreUnits[v91++] = *(_DWORD *)(*v93 + 16);
               ignoreListSize = v91;
               if ( v91 >= 128 )
                 break;
@@ -176859,7 +176855,7 @@ LABEL_151:
         this,
         &this->positionValue,
         (BVector *)&newPosition.z,
-        collisionUnits,
+        ignoreUnits,
         v91,
         0,
         1.0);
@@ -176869,13 +176865,13 @@ LABEL_151:
       v150 = 0;
       goalb = 0;
       v94 = (_DWORD *)(4 * (_DWORD)v157 + 7000432);
-      obja = (RGE_Static_Object *)&obSystemCollisions;
+      obja = obSystemCollisions;
       do
       {
-        v95 = obja->vfptr->gbg_get_civ_override;
+        v95 = (*obja)->Object;
         if ( v95 )
         {
-          v96 = RGE_Game_World::object((RGE_Game_World *)this->owner->world, *((_DWORD *)v95 + 4));
+          v96 = RGE_Game_World::object((RGE_Game_World *)this->owner->world, v95->id);
           if ( v96 )
           {
             if ( v96->type == 80 && v96[2].mMaximumPathingGroupSize )
@@ -176893,7 +176889,7 @@ LABEL_151:
                     v152 = 1;
                   if ( *(float *)&v159 == 0.0
                     || BUnitGroup::getSpecificMoveReason(v159, this->id)
-                    || (v100 = *(_WORD *)(*((_DWORD *)obja->vfptr->gbg_get_civ_override + 5) + 30), v100 == 18)
+                    || (v100 = (*obja)->Object->master_obj->object_group, v100 == 18)
                     || v100 == 6
                     || v100 == 8
                     || v100 == 10
@@ -176918,7 +176914,7 @@ LABEL_151:
           }
         }
         v72 = ++goalb < numberObSystemCollisions;
-        obja = (RGE_Static_Object *)((char *)obja + 4);
+        ++obja;
       }
       while ( v72 );
       RGE_Moving_Object::resolveCollisions(this, (BVector *)&newPosition.z);
@@ -176937,16 +176933,16 @@ LABEL_151:
         goalc = 0;
         if ( numberObSystemCollisions > 0 )
         {
-          v103 = &obSystemCollisions;
+          v103 = obSystemCollisions;
           do
           {
-            v104 = *(_DWORD *)(v103->NodeProperties + 8);
+            v104 = (*v103)->Object;
             if ( v104 )
             {
               v105 = this->pathData->targetID;
-              if ( v105 < 0 || *(_DWORD *)(v104 + 16) != v105 )
+              if ( v105 < 0 || v104->id != v105 )
               {
-                v106 = RGE_Game_World::object((RGE_Game_World *)this->owner->world, *(_DWORD *)(v104 + 16));
+                v106 = RGE_Game_World::object((RGE_Game_World *)this->owner->world, v104->id);
                 if ( v106 )
                 {
                   if ( v106->type == 80 && v106[2].mMaximumPathingGroupSize )
@@ -176961,7 +176957,7 @@ LABEL_151:
                 }
               }
             }
-            v103 = (ObsRecord *)((char *)v103 + 4);
+            ++v103;
             ++goalc;
           }
           while ( goalc < numberObSystemCollisions );
@@ -177009,18 +177005,17 @@ LABEL_239:
 // 689568: using guessed type int dword_689568;
 // 68956C: using guessed type int dword_68956C;
 // 68F494: using guessed type float flt_68F494;
-// 6AD0C4: using guessed type ObsRecord obSystemCollisions;
 
 //----- (004A5E70) --------------------------------------------------------
 int __thiscall RGE_Moving_Object::resolveCollisions(RGE_Moving_Object *this, BVector *newPosition)
 {
   int v3; // eax
   float v4; // edx
-  ObsRecord *v5; // ebx
+  ObsRecord **v5; // ebx
   RGE_Master_Moving_Object *v6; // eax
-  int v7; // edx
+  ObsRecord *v7; // edx
   double v8; // st7
-  int v9; // eax
+  RGE_Static_Object *v9; // eax
   RGE_Static_Object *v10; // eax
   RGE_Static_Object *v11; // esi
   RGE_Master_Static_Object *v12; // eax
@@ -177062,20 +177057,20 @@ int __thiscall RGE_Moving_Object::resolveCollisions(RGE_Moving_Object *this, BVe
   v.y = newPosition->y;
   if ( numberObSystemCollisions > 0 )
   {
-    v5 = &obSystemCollisions;
+    v5 = obSystemCollisions;
     while ( 1 )
     {
       v6 = this->master_obj;
-      v7 = v5->NodeProperties;
+      v7 = *v5;
       v34 = v.x - v6->radius_x;
       v35 = v.y - v6->radius_y;
       v28 = v.x + v6->radius_x;
       v8 = v.y + v6->radius_y;
-      v9 = *(_DWORD *)(v7 + 8);
+      v9 = v7->Object;
       v29 = v8;
       if ( !v9 )
         goto LABEL_39;
-      v10 = RGE_Game_World::object((RGE_Game_World *)this->owner->world, *(_DWORD *)(v9 + 16));
+      v10 = RGE_Game_World::object((RGE_Game_World *)this->owner->world, v9->id);
       if ( !v10 )
         goto LABEL_39;
       if ( v10->type == 80 && v10[2].mMaximumPathingGroupSize )
@@ -177090,7 +177085,7 @@ int __thiscall RGE_Moving_Object::resolveCollisions(RGE_Moving_Object *this, BVe
       v33 = v11->world_y - v12->radius_y;
       v36 = v12->radius_x + v11->world_x;
       v37 = v11->world_y + v12->radius_y;
-      if ( (int)v5 > (int)&obSystemCollisions
+      if ( (int)v5 > (int)obSystemCollisions
         && (v28 < (double)v32 || v29 < (double)v33 || v34 > (double)v36 || v35 > (double)v37) )
       {
         goto LABEL_39;
@@ -177144,14 +177139,13 @@ LABEL_40:
         return v3;
       }
 LABEL_39:
-      v5 = (ObsRecord *)((char *)v5 + 4);
+      ++v5;
       if ( ++v27 >= numberObSystemCollisions )
         goto LABEL_40;
     }
   }
   return v3;
 }
-// 6AD0C4: using guessed type ObsRecord obSystemCollisions;
 
 //----- (004A6250) --------------------------------------------------------
 // attributes: thunk

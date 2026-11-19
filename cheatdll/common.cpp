@@ -14,7 +14,7 @@ TChat** const tchat = (TChat** const)0x006A35D8;
 RGE_Obstruction_Manager** const OBSystem_Land = (RGE_Obstruction_Manager** const)0x006ACCDC;
 RGE_Airspace_Manager** const OBSystem_Air = (RGE_Airspace_Manager** const)0x006ACCE0;
 
-ObsRecord* const obSystemCollisions = (ObsRecord* const)0x006AD0C4;
+ObsRecord** const obSystemCollisions = (ObsRecord** const)0x006AD0C4;   // dd 19h dup(?) = 25 ObsRecord* entries (the owner's listing correction 2026-11-19)
 int* const numberObSystemCollisions = (int* const)0x006AD570;
 int* const numberObSystemIntersections = (int* const)0x006AD574;
 
@@ -402,3 +402,16 @@ char* (__cdecl* const fgets_internal)(char* Buf, int MaxCount, FILE* File) =
 
 char* (__cdecl* const mbsupr_internal)(char* str) =
     (char* (__cdecl* const)(char*))0x0063658F;
+
+// --- the owned pathing scratch globals (completely ours - the definitions,
+// NOT bound to the game's .data slots; the reference set is closed and all
+// four referencing functions are owned - see common.h) ----------------------
+int ignoreUnits[128] = {0};       // the game's 0x6ACEA4 ignore list (dd 80h dup)
+int collisionUnits[256] = {0};    // the game's 0x6AD170 collision-results array (bounded by &numberObSystemCollisions @0x6AD570)
+int ignoreListSize = 0;           // the game's 0x6AD578 ignore-count mirror
+
+// the pathing config globals (the bindings; the game's tuning block)
+int* const dword_689564 = (int* const)0x00689564;
+int* const dword_689568 = (int* const)0x00689568;
+int* const dword_68956C = (int* const)0x0068956C;
+float* const flt_68F494 = (float* const)0x0068F494;

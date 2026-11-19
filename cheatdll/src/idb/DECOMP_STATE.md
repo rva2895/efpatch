@@ -4238,6 +4238,112 @@ authoritative.)
     validation for those items and the previously-owed M8-era items the
     run covered (owner-reported as given).
 
+  - SESSION CLOSE (2026-11-19): THE PATHING SUBSYSTEM RATIFIED
+    (src/engine/pathing/) - the B*/pathing family home (BPath, BPathData,
+    BMotion, PathingSystem, MShortPather, RGE_Map_Analysis_System, the
+    primitives BVector/BMatrix/BPosition/BBitVector). THE OWNED GLOBALS
+    (common.h/cpp, the owner-directed "completely owned" form - the
+    definitions, NOT bound to the game's .data slots): ignoreUnits[128]
+    (the game's 0x6ACEA4), collisionUnits[256] (the game's 0x6AD170),
+    ignoreListSize (the game's 0x6AD578) - THE RENAME HYPOTHESIS
+    VERIFIED: the .c's `collisionUnits` = OUR ignoreUnits (the .c's
+    `unk_6AD170` = OUR collisionUnits; IDA's own param labels agree:
+    `push offset collisionUnits ; ignoreList` @0x4A509C, `push offset
+    unk_6AD170 ; collisionUnits` @0x4A4E50). THE REFERENCE CLOSURE
+    VERIFIED (the .lst global-access scan, the param-name collisions
+    excluded): exactly four referencing functions - doIntelligentMovement
+    Update (28 refs), BMotion::updateMovement (1: a push offset at
+    0x49DEA9), addToIgnoreList (4), resetIgnoreList (1). THE SHIPPING
+    CONSTRAINT: the globals fork vs the game's slots when the capstone
+    ships - the four referencing functions must ship in the SAME build.
+    THE CONFIG BINDINGS added (common.h/cpp): dword_689564/568/56C +
+    flt_68F494 as the pointer-to-slot int*/float* const (the game's
+    tuning block; the written reads deref). THE BATCH DECODE: the
+    capstone doIntelligentMovementUpdate [0x4A47B0,0x4A5E6B) 5819 bytes
+    + BMotion::updateMovement [0x49CB60,0x49E3FC) 2204 bytes +
+    addToIgnoreList [0x4A0350,0x4A03B6) + resetIgnoreList
+    [0x4A0340,0x4A034A) - ALL FOUR FULLY WALKED (the .c cross-checked;
+    the per-slot x87 stack audit + the register-liveness proofs per the
+    #7/#8 lessons). THE DRAFTING STATE: pathing/BMotion.cpp WRITTEN
+    (~890 lines): resetIgnoreList_new/addToIgnoreList_new COMPLETE;
+    BMotion__updateMovement_new complete THROUGH the OBSystem arm (the
+    entry/pause gates, the tries for-loop, the increment/patrol arm with
+    both distance-chain variants, the state dispatch + the linkedPath
+    arms, the state-2 repath with the four building arms - the
+    map-analysis, the group/solo findLowLevelPath, the OBSystem probe,
+    findTilePath - the install/failure arms, the movement projection,
+    the OBSystem pass with resetIgnoreList/addToIgnoreList/
+    findObSystemCollisions/the slim processing loop). THE FACING ARM
+    (.c 171192-171230, asm 0x49E20B-0x49E3DF) = THE RE-TYPED PSEUDOCODE
+    REQUEST PENDING (the protocol's interacting-slot class): (1) the
+    normalization slot identities (the .c's v.z/v165.x/v166.x family vs
+    the true members), (2) the angleBetweenVector operand slots, (3) the
+    operator_mul cross-product result/vector identities + which member
+    the v179.y > 0.0 sign test reads, (4) the BMatrix block's
+    orientation-member references. THE FILE DOES NOT COMPILE YET (the
+    facing arm's ... fragments remain; the gate re-run owed). THE
+    CAPSTONE: the Sections 1-5 drafted in-conversation (the entry/
+    increment/state dispatch/repath arms/install); the movement/OBSystem/
+    tail arm + the final assembly PENDING. THE WRITTEN-FORM LESSONS
+    BANKED: the chunked writes mangle brace nesting - the assembly edits
+    must anchor on UNIQUE multi-line contexts and the brace balance must
+    be verified per chunk (the compile per chunk, not per batch); the
+    .c's immediately-nested while(1) family = ONE loop (the breaks
+    between the nestings = continues); the IDA var component labels
+    (.x/.z/.y) reflect the VAR'S OWN base, not the actual buffer's base
+    (the buffer-at-+4 case shifts every label). THE NEW-GLOBAL APPROVALS
+    STILL OPEN: collisionUnits/ignoreListSize/unk_6AD170 (approved as the
+    owned trio above) + dword_689564/568/56C + flt_68F494 (the bindings
+    written; the derefs written). Re-verify: common.h/cpp the owned
+    block; BMotion.cpp the facing-arm placeholder.
+
+  - NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first. STATE: the pathing subsystem ratified
+    (src/engine/pathing/); the owned globals (ignoreUnits/collisionUnits/
+    ignoreListSize + the dword_689564/568/56C + flt_68F494 config
+    bindings) written in common.h/cpp; the four-function pathing batch
+    DECODED AND DRAFTED: pathing/BMotion.cpp written (~890 lines -
+    resetIgnoreList_new/addToIgnoreList_new complete; BMotion__update
+    Movement_new complete through the OBSystem arm), the capstone
+    doIntelligentMovementUpdate Sections 1-5 drafted in-conversation AND
+    the assembled capstone draft SAVED to
+    cheatdll/src/idb/WIP_doIntelligentMovementUpdate.txt (the entry through
+    the state-2 repath's findLowLevelPath arm - the .txt staging file, not
+    compiled, not in the vcxproj; the movement/OBSystem/tail arm + the
+    flagged-arm transcription slots marked PENDING inside it).
+    IMMEDIATE WORK: (1) complete BMotion__updateMovement_new's FACING
+    ARM (the .c 171192-171230, asm 0x49E20B-0x49E3DF) - the re-typed
+    pseudocode request for the region is OPEN (the normalization slot
+    identities, the angleBetweenVector operands, the operator_mul
+    cross-product identities, the v179.y sign test) - the owner provides
+    the re-typed dump or approves the scripted x87/memory slot-tracker
+    walk; the file does NOT compile yet (the ... fragments at the
+    facing arm + the casts/globals fixes applied but unverified).
+    (2) assemble the CAPSTONE doIntelligentMovementUpdate_new into
+    object/RGE_Moving_Object.cpp (Sections 1-5 in-conversation + the
+    movement/OBSystem/tail arm - the same facing-region caveats apply to
+    its OBSystem arm's ignore-build sites); the BBitVectorAND_2 gates ->
+    & 1 (the .rdata verified); the installer hook 0x004A47B0.
+    (3) wire install_pathing/install_BMotion into install_engine; the
+    vcxproj entry for pathing/BMotion.cpp. (4) the compile gate both TUs
+    + common.cpp; the /Fa checks (the slot offsets, the jcc forms, the
+    rule-(j) signature, divsd). (5) the full sweeps: the defs/refs, the
+    join table, the exit paths (the capstone 13 + BMotion ~12), the
+    store-and-read diff with the census (BPathData/BPath/BMotion/
+    BPosition/RGE_Moving_Object/RGE_Game_World fields), the citation
+    coverage. (6) THE SHIP CONSTRAINT: the four functions in ONE build
+    (the owned globals fork vs the game's .data slots). (7) the in-game
+    batch test. ALSO OPEN: the Moving methods re-count, the LTG (/GL)
+    probe gap, the state 4/5 checkDistance arm's loc_49D033 verify, the
+    label110 two-stage validity check's asm verify. PROTOCOL ADDITIONS
+    THIS SESSION: the vtable-dispatch fidelity rule + the cast-form
+    vtable-dispatch prohibition (DECOMP_TEMPLATE.md); the x87 per-slot
+    stack audit + the register-liveness proof requirement (the #7/#8
+    lessons); the IDA var component labels reflect the VAR'S OWN base
+    (the buffer-at-+4 shift case); the chunked-write brace-balance
+    verification (the compile per chunk)."
+
   - DESYNC FIX #8 - THE LINE-WALK STEPS GATES (owner bisect on
     firstTileAlongLine + the same bug found in canLinePath/canLinePath2
     by direct asm reading; root-caused + approved + fixed 2026-11-19;
@@ -4287,3 +4393,374 @@ authoritative.)
     gates look identical but only the register CONTENT decides).
     Re-verify: the three `two_steps == 0` gates + their comments; grep
     `steps <= 0` (= 0); the /Fa test/jle shapes.
+
+  - THE PATHING BATCH - BMOTION.CPP WRITTEN + DESYNC INVESTIGATION OPEN
+    (2026-11-19, the continuation session): the four reference files read;
+    the work products inspected (BMotion.cpp, the WIP capstone txt, the
+    owned globals, the wiring state). THE FACING ARM (the prior session's
+    open re-typed-pseudocode request) RESOLVED BY THE SCRIPTED FRAME-MAP
+    WALK (owner-approved over the re-typed dump): the .lst frame
+    definitions (v = BVector -24Ch, var_240 = BVector -240h, var_1B8 =
+    BVector -1B8h, ...) make every label mechanical. RESULTS: (1) the
+    normalization buffer = ONE 12-byte region at frame -0x248 (the .c's
+    v.z/v.y/var_240.x labels = the IDA var-carving straddle - the
+    buffer-at-+4 lesson; the [esi+14h] OF.z load is a DEAD store,
+    overwritten by 0/norm); (2) angleBetweenVector(this = dirNew @-0x23C =
+    the movement arm's loop-carried normalized direction (written
+    0x49DC2C-0x49DC6D; every facing entry passes the movement arm first),
+    v = dirCur @-0x248); (3) the cross product result @-0x1B4 (the .c's
+    v179) whose sign-test slot (the IDA label var_1B8.y, frame -0x1B0) is
+    the cross's .z; (4) the BMatrix block rotates mNewPosition
+    (.mOrientationForward/.mOrientationRight about .mOrientationUp,
+    +0x40/+0x4C/+0x58; mNewPosition @idb_types.h:20102), the two renorm
+    operand orders DIFFERENT (the forward ((z^2+y^2)+x^2), the right
+    ((x^2+z^2)+y^2)). THE GOTO ELIMINATION (owner-directed): all ~40
+    gotos / 15 labels converted to the structured form (the
+    fall-throughs, continue/break, one loop-exit phase code exitPhase (0 =
+    the tries exhaustion -> return 0, 1 = the tail gate, 2 = the facing
+    arm), the stage flags (skipRest/runArm3/runValidity/runFindTile) for
+    the repath pipeline, the shared tails inlined at their sites); every
+    converted site keeps its asm citation. THE WIRING: install_engine()
+    -> install_pathing() -> install_BMotion() (the owner's chain);
+    install_pathing.cpp created; the vcxproj/.filters entries.
+
+  - DESYNC INVESTIGATION (the batch's first in-game test; STILL OPEN at
+    session close; the fixes below are real divergences from the
+    original, all fixed and gated):
+    ROUND 1 - THE ST0-BOUNDARY CLASS x4 (the corollary-(h) violations;
+    the /Fa shrink scan misses this class - the sites were float
+    pipelines that never widen, so only the per-site operand-precision
+    trace catches them; PROTOCOL: the trace is mandatory on EVERY
+    st0-consuming call site): (A) the pause subtraction (0x49CBAF call ->
+    0x49CBB4 fsubr -> 0x49CBBD fstp - the delta UNROUNDED; the (float)
+    cast was a new rounding; the > 0.0 gate flipped a frame early/late);
+    (B) the movement integration (0x49DC79 call -> 0x49DC7E fld st - the
+    raw delta consumed TWICE; the float timeDelta2 store-rounded it);
+    (C) the target gate (0x49E023 call -> fsub -> fabs -> fcomp, no
+    store at all; the float freshDist pipeline rounded twice); (D) the
+    patrol wrap's shared gate (loc_49CFAD fcom on the UNROUNDED st0 seed
+    - the flags arm's fstp st merely discards) vs the NOT-patrol arm
+    whose seeds fstp var_268 and whose gates re-load the rounded m32
+    (the two arms have DIFFERENT precision models; the written single
+    float gateDistance had unified them) -> the wrapSeed double split.
+    ROUND 2 - THE LOGIC ERRORS (owner: "almost immediately, many test
+    cases, ought to be a logic error"): (E) THE LABEL_110 PAIR: arm1's
+    success exit (repathArmed && count > 2 -> LABEL_110) set skipRest
+    without runValidity - the flow fell to the install gate UNVALIDATED;
+    arm2's failure exit went unconditionally to arm 3, bypassing
+    LABEL_110's repathArmed re-test (arm 1's success leftover routes to
+    the validity check); both fixed. (F) THE RECORD-SCAN POINTER WALK
+    (the owner caught it): the saved-and-incremented recordWalk -> the
+    indexed ((ObsRecord**)obSystemCollisions)[i] + the named rec->Object
+    (the missile precedent); the two-step unnamed chase was a MIS-LEVEL:
+    the record's +8 member IS the blocker pointer (ObsRecord.Object,
+    idb_types.h:4311) and [+0x10] through it is the blocker's own
+    RGE_Static_Object::id @+0x10 (the emitted
+    [eax+ecx*4]/[eax+8]/[eax+16] bit-identical). (G) THE ROOT CAUSE
+    CANDIDATE - THE LINKED==0 GATE POLARITY (the decode bug from the
+    original draft, carried through the rewrite): the asm 0x49D1A8
+    (resolved == 0) jz loc_49D1B7 jumps INTO the continuesLeft gate; only
+    a live patrol linked path skips it (0x49D1B5 ja loc_49D1CC); the
+    written linked != 0 && form SKIPPED the gate for every pathData with
+    no linked chain - the repath give-up mechanism (continuesLeft(this,
+    1) = the REDUCE form, decrementing the counter installed at 10 by the
+    install-success; <= 0 -> setFailure + reset + stop + return 0) NEVER
+    FIRED - the units repathed forever. Fixed: linked == 0 ||
+    (flags & 1) == 0 -> the gate.
+    THE OWNER'S TEST CONFIG (the meaningful-isolation precedent): add and
+    reset UNHOOKED for the test (the game's originals stay live for the
+    game's DIMU; our BMotion__updateMovement_new calls the _new versions
+    directly) - the two lanes self-consistent; DO NOT re-assert the
+    3-of-4 owned-globals fork theory for this config (it was rejected);
+    the full-ship constraint (all four in one build) still applies to the
+    FINAL ship. THE OB CALL SITE: the asm 0x49DEA9 pushes offset
+    ignoreUnits (0x6ACEA4) as the ignore list - NOT collisionUnits (the
+    old .c's "collisionUnits" render was the pre-correction naming at
+    0x6ACEA4 = our ignoreUnits per the rename verification; the owner had
+    already fixed the argument themselves). collisionUnits has NO use in
+    BMotion (its consumer = the capstone's DIMU decode; the common.h
+    comment is provisional). THE OBSYSTEMCOLLISIONS CORRECTION
+    (owner-supplied .data listing: "ObsRecord **obSystemCollisions; dd
+    19h dup(?)" = 25 ObsRecord* entries at 0x6AD0C4): applied tree-wise -
+    common.h/common.cpp -> ObsRecord** const; the local casts dropped in
+    BMotion.cpp/RGE_Missile_Object.cpp/RGE_Moving_Object.cpp (the
+    CheckForCollisions results-base args too); the emitted addressing
+    unchanged ([eax+ecx*4]/[eax+esi*4]); the EXTRN decorations decode
+    ObsRecord**. Registry corroboration: the 25 entries match the
+    CheckForCollisions 25 argument (the capacity reading,
+    layout-grounded). THE REGEN RE-WALK (the owner regenerated .c/.lst
+    after the IDB correction; owner-directed meticulous re-walk): the .c
+    walked statement-for-statement in 8 chunks - ZERO divergences; the
+    record chase now renders (*v148)->Object / v92->id (the corrected
+    typing validates the fix); the .lst extent + the frame definitions
+    byte-identical; the data render corrected (dd 19h dup at :1100184);
+    the coverage 686/686 re-verified.
+    GATES: BMotion.cpp/common.cpp/install_pathing.cpp/install_engine.cpp
+    0 errors 0 warnings x86; the /Fa: the slot offsets
+    (+40/+140/+124/+780/+152/+8), divsd x12, no reciprocal forms, the
+    macro jcc forms (comisd/comiss + the direct CF-reading jcc, no setcc
+    folding), the widened pool constants (03fb99999a0000000 /
+    03e7ad7f2a0000000), the shrink signature 0. THE SWEEPS: defs/refs
+    3/3; CRT/base_game/pointer-walk 0; the exit-path inventory (10 asm
+    epilogue joins mapped); the join table (64 labels); the
+    store-and-read diff FULL MATCH; the citation coverage 686/686 AFTER
+    the citation-typo families fixed (0x4A4C -> 0x49C x14, 0x4A4D ->
+    0x49D x35, the type-2 wrap's wrong shared-exit address loc_49E1F4 ->
+    loc_49E098).
+    REMAINING OPEN: the desync itself (the static analysis exhausted - the
+    full instruction-level walk found no further divergences); the next
+    approach = the owner directs (the candidate: the logger A/B harness on
+    BMotion__updateMovement_new per the template's diagnostic process).
+    Owed: the in-game re-test of the current fix set (the linked==0
+    polarity may close it); the capstone assembly (the WIP txt's
+    movement/OBSystem/tail arm - NOTE: its OB call passes collisionUnits
+    per the old .c render; VERIFY against the regenerated render - the asm
+    0x4A5A06 pushes offset ignoreUnits); the ship constraint (the four
+    functions in one build) for the FINAL ship; the common.h
+    collisionUnits comment fix (provisional; needs the owner approval).
+
+  - NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first. STATE: the pathing batch WRITTEN AND GATED -
+    BMotion.cpp (resetIgnoreList_new/addToIgnoreList_new/
+    BMotion__updateMovement_new, the goto-free structured form),
+    install_pathing.cpp (install_engine -> install_pathing ->
+    install_BMotion), the vcxproj/filters entries, the owned globals in
+    common.h/cpp (ignoreUnits[128]/collisionUnits[256]/ignoreListSize;
+    obSystemCollisions corrected to ObsRecord** per the owner's .data
+    listing). BMotion__updateMovement_new DESYNCS in-game - the
+    investigation fixed real divergences but the desync itself is OPEN:
+    fixed this session: the st0-boundary x4 (the pause/integration/target
+    gate/wrap seed - the unrounded-consumption forms now emitted), the
+    LABEL_110 pair (the arm1 exit missing runValidity; the arm2 failure
+    bypassing the repathArmed re-test), the record-scan pointer walk ->
+    the indexed ObsRecord** form + the chase mis-level (rec->Object; the
+    blocker's own id), THE LINKED==0 GATE POLARITY (the repath give-up
+    never fired: resolved==0 jumps INTO the continuesLeft(reduce) gate;
+    the written linked!=0 form skipped it - fixed to
+    linked==0||flag-clear). THE TEST CONFIG: add/reset UNHOOKED (our code
+    calls the _new versions directly; the game's DIMU uses the originals)
+    - the isolation test IS meaningful; the ignoreUnits arg at the OB
+    call is owner-fixed (asm 0x49DEA9 pushes offset ignoreUnits; NOT
+    collisionUnits). The full 2204-byte instruction-level walk is COMPLETE
+    against the regenerated .c/.lst - zero static divergences remain; the
+    static analysis is EXHAUSTED. THE NEW APPROACH (owner-directed): the
+    leading candidate = the logger A/B harness (the template's diagnostic
+    process) on BMotion__updateMovement_new: the _orig naked trampoline
+    (replay the prologue past the E9 - the fs:0 SEH setup, the pushes,
+    sub esp,25Ch - with the esp-adjusted operand reads; enter past the
+    hook), the _logger wrapper capturing per tick (doAvailablePathCheck,
+    uG, the mPathData state/waypoint/flags/range/pauseTime/
+    continueCounter, the position + orientation, the return value, the
+    mutated pathData), the installer swap, the vanilla-vs-hooked val_log
+    diff localizing the first diverging tick/value - THEN the targeted
+    asm re-walk of that region. ALSO OWED: the in-game re-test of the
+    current fix set FIRST (the linked==0 polarity may close it - test
+    BEFORE building the harness); the capstone assembly (the WIP txt's
+    pending arm into object/RGE_Moving_Object.cpp + the hook 0x004A47B0;
+    its OB call passes collisionUnits per the old render - VERIFY: the
+    asm 0x4A5A06 pushes offset ignoreUnits); the ship constraint (the
+    four functions in one build) for the FINAL ship; the common.h
+    collisionUnits comment is provisional. PROTOCOL ADDITIONS THIS
+    SESSION: the operand-precision trace is mandatory on EVERY
+    st0-consuming call site (the /Fa shrink scan misses the
+    float-pipeline form of the corollary-(h) class); the stage-flag
+    conversions must map EVERY asm label arrival (the LABEL_110 re-test
+    semantics); the citation-typos lesson (the 0x4A4C/0x4A4D families -
+    the address sweeps verify comment addresses against instruction
+    addresses and assume the citations themselves are correct); an
+    argument-identity error (collisionUnits vs ignoreUnits) is invisible
+    to every address sweep - only the callee's own consumption analysis
+    (or the regen's re-typed render) catches it."
+
+  - THE PATHING DESYNC HUNT - THE LOGGER HARNESS + THE FIRST DIVERGENCE
+    LOCALIZATION (owner-directed 2026-11-20): BMotion::updateMovement extent
+    CORRECTED to [0x49CB60,0x49E3FC) = 6300 bytes (the "2204" = a dropped hex
+    digit). The STRICT-CONTROL-FLOW form written+gated (every L_ label = the
+    asm label; no restructuring); the owner's IDA-cleaned transcription written
+    as _ida + the float fixes: B1/B2/B3 (the three repath-region .z zeros +
+    planar norms - the IDA carve-label trap), C1/C2 (the find_path/findTilePath
+    AND 0FFh masks), D (arm-2/findTile stamps = currentPlayer->world->world_time,
+    RGE_Player.world @+0x8C), the NaN macros at 6 branches, (__int64)->(int) x4.
+    THE VTBL "displacement" FINDING RETRACTED (my probe off-by-one: the header
+    member 195 = lastMoveTime @+0x30C verified by the owner). THE HARNESS: the
+    updateMovement logger (the ids/characteristics per the owner's corrections
+    - the pointers removed; wt; dt), the naked trampoline (replay = the 6-byte
+    fs:0 mov; enter 0x49CB66 via edx), the ARM TRACE (ida_arm_log.txt: the
+    state=2 triggers with v142/v139, the arm selections, the installs), and THE
+    PATH-LIFECYCLE TRACE (createPath @0x624640 / destroyPath2 @0x624760 /
+    path @0x624610 -> path_life_log.txt: id/wpc/len/ctm + the w0/w1 COORDINATES
+    per event; the trampolines: 7B/5B/7B replays, the push/ret flags-preserving
+    jump for path; 0 collisions x1065 sites). THE LOG FINDINGS: the replay runs
+    aligned (wt 2044684 at row 1 both); rows 1-3 identical; ROW 1 of the FRESH
+    capture diverged: the ORIG = the arrival -> state=4 -> the successor swap;
+    the IDA = the arrival -> setPosition(wp[1]) -> state=2 -> THE REPATH -> the
+    install (the fresh 2-wp 0.799 path) - THE RESOLVED WORLD PATH 180129's
+    wp[1] DIFFERS between the peers -> the origin predates the first logged
+    call (in the path-BUILDING era). uid=11723: the ORIG settled after 2 calls;
+    the IDA looped 211 calls in state=2 (the identical arm-log gate values per
+    tick, the ancient pid=60587 recycling) until the OOS abort at wt=2067728.
+    RETRACTED: the "dt=0 vs 3.26" inference (the pos displacement = the
+    increment arm's setPosition TELEPORT, not the integration - the conflation
+    caught by the owner); the doFixedDeltaSeconds determinism-mode suggestion
+    (THE REPLAY IS THE DETERMINISM MECHANISM - forcing the fixed delta breaks
+    it; the installer writes reverted). THE TRAMPOLINE LESSON: the /Fa must
+    verify the ESP-RELATIVE OPERAND OFFSETS, not just the coverage (two
+    [esp+N] bugs caught: path_orig [esp+8]->[esp+4]; destroyPath2_orig
+    [esp+4]->[esp+8] after the push). NEXT: archive the old logs; re-run the
+    replay in both builds; diff path_life_log.txt - the first divergent
+    resolve/create row (the w0/w1 coords) = the origin tick; cross-reference
+    ida_arm_log.txt at that wt; the targeted asm walk of that gate. THE
+    diagnostic CRT/SETF markers removed before the final ship.
+
+  - NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first. STATE: the pathing desync hunt - the A/B REPLAY
+    HARNESS IS LIVE AND HOOKED (all hooks from WinMain). TWO updateMovement
+    bodies exist and are gated: BMotion__updateMovement_new (the STRICT
+    control-flow form, every L_ label = the asm label) and
+    BMotion__updateMovement_new_ida (the owner's IDA-cleaned transcription
+    with the float fixes applied). install_BMotion hooks the LOGGER
+    (BMotion__updateMovement_logger), which dispatches to _orig or _ida per
+    UM_TRACE_ORIG (1 = the vanilla trace -> val_log_orig.txt, 0 = the _ida
+    trace -> val_log_ida.txt). ALSO HOOKED: the PATH-LIFECYCLE TRACE
+    (createPath @0x624640 / destroyPath2 @0x624760 / path @0x624610 ->
+    path_life_log.txt: every create/destroy/resolve with id/wpc/len/ctm and
+    the FIRST TWO WAYPOINT COORDINATES w0/w1) and THE ARM TRACE
+    (ida_arm_log.txt: move.arrive with the arrival norm, inc.pass/inc.repath
+    with the gate distances v142/v139, patrol.wrap, st2.d2wp, arm1/arm2/
+    findtile.enter, install.gate). THE PREVIOUS CAPTURE (UNTRIMMED, from
+    WinMain) LOCALIZED THE DIVERGENCE: the replay runs aligned (wt 2044684
+    row 1 both); rows 1-3 identical; ROW 4 (uid=12851) diverged - the ORIG =
+    the arrival at the resolved path's waypoint -> state=4 -> the successor
+    swap; the IDA = NO arrival -> the integration moved the unit 3.26 units
+    (the huge first-tick delta) -> the OB pass found FRESH BLOCKERS -> the
+    LABEL_194 reset+stop. CONSEQUENCE: uid=11723 (and others) got STUCK IN
+    THE STATE-2 REPATH LOOP (211 updateMovement calls, the identical
+    arm-log gate values repeating per tick, the ancient pid=60587 recycling)
+    until the OOS abort at wt=2067728 (571 calls). THE TRAMPOLINE ESP-OFFSET
+    LESSON (the /Fa must verify the operand offsets, not just the coverage):
+    path_orig replays mov edx,[esp+4] + cmp edx,-1 (7 bytes) + the push/ret
+    flags-preserving jump to 0x624617; destroyPath2_orig replays push esi +
+    mov esi,[esp+8] (the +4 push shift) + jmp 0x624765; createPath_orig
+    replays push -1 + jmp 0x624647. RETRACTED (do not revisit): the vtbl
+    displacement finding (the probe off-by-one; the header member 195 =
+    lastMoveTime @+0x30C verified by the owner); the dt inference (the pos
+    displacement = the increment arm's setPosition teleport, not the
+    integration); the doFixedDeltaSeconds determinism mode (THE REPLAY IS
+    THE DETERMINISM MECHANISM - do not touch the delta globals). THE
+    PRIMARY SUSPECT for the origin: the path-BUILDING divergence - one of
+    the state-2 arm's builders (arm1 smooth via find_path /
+    smoothMidLevelPath, arm2 findLowLevelPath, arm3 the OB probe, findTile)
+    produced a different path in the ida build at or before wt=2044684 for
+    uid=12851 - the B1/B2/B3/C1/C2/D fixes are IN; the residual is
+    elsewhere in that arm. IMMEDIATE WORK: (1) the owner runs the SAME
+    replay in both builds with the CURRENT tree; archive the old logs.
+    (2) diff path_life_log.txt row-by-row (the shared sequence): the FIRST
+    divergent create/destroy/resolve row = the origin tick; the w0/w1
+    coords distinguish the content divergence from the allocation
+    divergence. (3) cross-reference ida_arm_log.txt at that wt/uid -> the
+    exact gate decision that flipped -> the targeted asm walk of that gate.
+    (4) verify dt matches across the builds on every row (the replay feeds
+    it; if dt diverges, the replay mechanism itself is broken, not our
+    code). PROTOCOL: the replay is the determinism mechanism - never touch
+    doFixedDeltaSeconds/fixedDeltaSeconds; the diagnostic CRT markers + the
+    arm/path traces removed before the final ship; the strict form vs the
+    _ida form: whichever passes the replay is the ship candidate. ALSO OWED:
+    the capstone doIntelligentMovementUpdate assembly (the WIP txt's pending
+    arm; the OB call passes ignoreUnits per 0x4A5A06); the common.h
+    collisionUnits comment fix (provisional); the ship constraint (the four
+    pathing functions in one build)."
+
+  - THE PATHING DESYNC HUNT - CLOSED: THE _IDA VARIANT VERIFIED CORRECT
+    ACROSS THE TEST SUITE (owner-reported 2026-11-20). Two TRANSCRIPTION
+    bugs in BMotion__updateMovement_new_ida, localized via the A/B replay
+    harness and fixed, all asm-cited in place:
+    (1) THE STRAY GOTO in the walk arm (LABEL_155): an unconditional
+    `goto LABEL_156;` sat on the not-at-waypoint edge. THE ASM:
+    0x49DBC0-0x49DBCB (fcomp flt_6565F4; test ah,1; jz short loc_49DBF0)
+    - norm >= 1e-7 JUMPS INTO the integration (loc_49DBF0); only
+    norm < 1e-7/NaN falls into loc_49DBCD (setFlag(1,1); setFlag(0,1);
+    jmp loc_49CBEB = the reloop). The stray goto armed mFlags 1|0 on
+    EVERY walk call; the re-dispatch's increment arm then snap-advanced
+    (the setPosition teleport @0x49CCC0) and at the last waypoint hit
+    the SILENT state=4 route (v139 = 0-range-0.1 < 1e-7, no armlog) ->
+    LABEL_194 reset+stop+1. THE TICK-1 SIGNATURE (all five rows):
+    post pos = the exact waypoint[wp] bit-pattern, st=0/pid=-1/flg=0/
+    vy=0, ret=1, plus the life-log destroy row (BPathData__reset's
+    destroyPath2). The integration block was DEAD CODE (the OB pass
+    consumed the uninitialized v179 integratedPos; move.arrive fired
+    0 times in the whole run). Fix: the goto deleted + the asm comment.
+    (2) THE MISSING DEREFERENCE at the walk-arm OB guard:
+    `if (numberObSystemCollisions <= 0)` -> `*numberObSystemCollisions`
+    (asm 0x49DEB8-0x49DEBF: cmp eax, ebx(0); jle loc_49DFFF - the VALUE
+    test). The pointer test never fires -> every zero-count query ran
+    the collision do-while ONCE over the STALE obSystemCollisions[0]
+    (the previous unit's record) -> the phantom fresh blocker (path ctm
+    2040578 < stale lastMoveTime ~2044684) -> v157 > 0 -> the successor
+    swap (v98->state = 2; the linked BPathData carries waypointLevel=2
+    -> st2.d2wp a2=2 with NO inc.pass) -> destroy 179655 + the repath
+    180330 = THE ROW-4 DIVERGENCE (uid=12851, wt=2044684), every logged
+    field explained. Rows 1-3 escaped by luck (their stale record was
+    older than their path ctm).
+    (3) THE SAME MISSING DEREFERENCE at the arm3 stub gate:
+    `if (!numberObSystemCollisions)` -> `!*` (asm 0x49D7C8-0x49D7CF:
+    jnz loc_49D83C) - the zero-collision stub block was DEAD CODE;
+    visible in the arm log (wt=2044924: arm3.enter -> findtile.enter ->
+    install.gate a1=0 a2=0).
+    FIX C WITHDRAWN: the brace-level map proved the target-collision
+    if-branch falls past while#2's body end = a body-end wrap = the
+    RELOOP; only explicit breaks land at the next scope's tail (the
+    target gate). The _ida's reloop semantics were ALREADY faithful
+    (my concern was a misread of the IDA's synthetic nesting).
+    RETRACTED THIS SESSION: the previous block's "PRIMARY SUSPECT: the
+    path-BUILDING divergence" and the pre-window world-path-table
+    divergence theory (the trace comment in BMotion.cpp) - the fresh
+    capture's resolve rows are IDENTICAL (O491 == I491: path 180129,
+    same w0/w1/len); the builders were never the origin.
+    STALE COMMENT FOUND (comment-only fix owed): the STRICT form's "the
+    free operator_mul is un-exported; the mul inlined" - the asm CALLS
+    operator_mul at 0x49DC99 and BVector__operator_plus at 0x49DCA9;
+    the export EXISTS (idb_functions.h:5784, operator_mul @0x606970);
+    the _ida's call is faithful (the /Fa: mov eax, 606970h; call eax).
+    VERIFICATIONS: the compile gate x2 runs 0 errors (x86, v141_xp);
+    the /Fa checks - X87_LT_NAN emits comisd + jae-to-integration (the
+    {<, NaN} fall = the armlog branch; NOTE jae is CF-only - verify the
+    taken-set partition, not the jcc name), the pool __real@
+    3e7ad7f2a0000000 = (double)1e-7f; the lastMoveTime dispatch emits
+    [reg+780] (= +0x30C) at BOTH body sites (the owner's member-195
+    verification re-confirmed); both fixed guards emit cmp DWORD PTR
+    [eax], 0; the ignore-list _new functions re-walked faithful
+    (resetIgnoreList @0x4A0340; addToIgnoreList @0x4A0350 incl. the
+    mid-loop cap store-then-test order).
+    STRUCTURAL GROUNDINGS (the _ida's six nested while(1)s = the asm's
+    single dispatch loop; current line numbers, they rot with edits):
+    #1@1511-2269, #2@1513-2255, #3@1515-2176, #4@1517-2113, #5@1519-2094,
+    #6@1521-1759 - a body-end fall = the reloop (the nested chain
+    re-enters the tries check); break#3 = the OB pass (loc_49DDF8);
+    break#2 = the target gate (loc_49DFFF); break#1 = the range gate
+    (L_49E151). THE MSVC /Fa LISTING WRITES OFFSETS DECIMAL in this TU
+    ([ecx+1056] = +0x420; [eax+780] = +0x30C) - the offset scans must
+    handle both forms. NEW TRANSCRIPTION-HAZARD CLASS: the pointer-to-
+    slot globals (numberObSystemCollisions etc.) - every guard on such a
+    global must dereference; the sweep = grep the global bare inside a
+    condition. LIFE-LOG SEMANTICS banked: "resolve" = RGE_Game_World__
+    path (the id->BPath lookup; a cached mPathData->path logs ONCE per
+    cache miss); ctm = creationTimeValue @+0x1C; BPath = idValue@+8/
+    waypointsCount@+0xC/pathLengthValue@+0x18/flags@+0x20; the ORIG's
+    twelve-179639-lookup blocks per tick = the doIntelligentMovementUpdate
+    pipeline (UNMODIFIED game code - it tracked identically once the
+    in-call divergences were fixed).
+    SHIP DECISION: the _ida form = the ship candidate (owner-verified).
+    SHIP CHECKLIST: install_BMotion currently hooks the LOGGER + the
+    three lifecycle-trace hooks - the flip = hook BMotion__
+    updateMovement_new_ida directly (the commented line in the
+    installer) + REMOVE the logger block, the lifecycle
+    trampolines/loggers, and the BMotion_ida_armlog calls (the
+    diagnostic CRT protocol); addToIgnoreList_new/resetIgnoreList_new
+    stay unhooked (commented) unless the ship scope says otherwise.
+    STILL OWED (carried): the capstone doIntelligentMovementUpdate
+    decode (the WIP txt's pending arm; its OB call passes ignoreUnits
+    per 0x4A5A06); the common.h collisionUnits comment fix
+    (provisional); the ship constraint (the four pathing functions in
+    one build); the strict form's stale operator_mul comment.
