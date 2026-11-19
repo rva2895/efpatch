@@ -643,6 +643,8 @@
     <ClCompile Include="src\engine\map\install_map.cpp" />
     <ClCompile Include="src\engine\map\RGE_Map.cpp" />
     <ClCompile Include="src\engine\map\RGE_Visible_Map.cpp" />
+    <ClCompile Include="src\engine\pathing\BMotion.cpp" />
+    <ClCompile Include="src\engine\pathing\install_pathing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res.rc" />

@@ -109,7 +109,7 @@ extern TChat** const tchat;
 extern RGE_Obstruction_Manager** const OBSystem_Land;
 extern RGE_Airspace_Manager** const OBSystem_Air;
 
-extern ObsRecord* const obSystemCollisions;
+extern ObsRecord** const obSystemCollisions;   // 0x006AD0C4 - dd 19h dup(?) = 25 ObsRecord* entries (the owner's .data listing correction 2026-11-19: "ObsRecord **obSystemCollisions")
 extern int* const numberObSystemCollisions;
 extern int* const numberObSystemIntersections;
 
@@ -164,3 +164,18 @@ extern size_t (__cdecl* const fwrite_internal)(const void* Str, size_t Size, siz
 extern int (__cdecl* const fscanf_internal)(FILE* File, const char* Format, ...);
 extern char* (__cdecl* const fgets_internal)(char* Buf, int MaxCount, FILE* File);
 extern char* (__cdecl* const mbsupr_internal)(char* str);
+
+// --- the owned pathing scratch globals -------------------------------------
+// The reference set (verified closed, the .lst global-access scan):
+// doIntelligentMovementUpdate, BMotion::updateMovement, addToIgnoreList,
+// resetIgnoreList - all owned. The game's original .data slots
+// (0x6ACEA4 / 0x6AD170 / 0x6AD578) have no other readers or writers.
+extern int ignoreUnits[128];      // the game's 0x6ACEA4 ignore list (dd 80h dup) - the units-to-ignore ids we build and hand to findLowLevelPath/findObSystemCollisions
+extern int collisionUnits[256];   // the game's 0x6AD170 collision-results array (bounded by &numberObSystemCollisions @0x6AD570) - the blocker ids the OBSystem arms collect
+extern int ignoreListSize;        // the game's 0x6AD578 ignore-count mirror (written at every ignoreUnits append)
+
+// --- the pathing config globals (the game's tuning block, read-only for us) -
+extern int* const dword_689564;   // 0x689564 - the doIntelligentMovementUpdate/BMotion::updateMovement findLowLevelPath arm gate (== 1 enables)
+extern int* const dword_689568;   // 0x689568 - the map-analysis smooth-path arm gate (== 1 enables)
+extern int* const dword_68956C;   // 0x68956C - the findTilePath arm gate (== 1 enables)
+extern float* const flt_68F494;   // 0x68F494 - the map-analysis arm's distance threshold
