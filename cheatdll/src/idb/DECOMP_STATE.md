@@ -4885,3 +4885,313 @@ authoritative.)
     approval-gated; the new-template bullets (the brace-depth stage
     walk, the deref sweep, the /Fa decimal offsets) are mandatory
     post-write checks."
+
+  - THE CAPSTONE PASS 1 DESYNC — THE HARNESS INVESTIGATION (2026-11-20,
+    ongoing; the state-2 arm's install-variant flip identified, the
+    volatile v149 fix applied + in-game tested + DOES NOT FIX the
+    desync, the root cause remains open):
+
+    PASS 1 WRITTEN: RGE_Moving_Object__doIntelligentMovementUpdate_new
+    @0x004A47B0 [0x4A47B0,0x4A5E6B) = 5819 bytes; installer hook 80
+    (the Moving installer 80); gate 0/0; the post-write checks pass.
+    The aligned transcription is the diff reference (the VCS commit
+    preceding the volatile fix).
+
+    THE DESYNC (owner bisect): uninstalling the hook eliminates it.
+    THE HARNESS (all DIAG-marked, to be removed at ship): the DIMU
+    logger (the IN/OUT/RET rows per call) + the PATH-LIFECYCLE TRACE
+    (createPath/destroyPath2/path hooked at 0x624640/0x624760/0x624610)
+    + the OBQ ARG TRACE (findObSystemCollisions hooked at 0x4A0110) +
+    the FPHOOK ARG TRACE (find_path hooked at 0x4982F0) + the MAGET/
+    MAPGET RETURN TRACE (get_map_analysis hooked at 0x49B470) + the
+    A2GATE/PREINST/INSTALL-OK/STUBSET/SMOOTHGATE DECISION TRACE (the
+    state-2 arm's build/install gates). 5 trampolines, all /Fa-verified
+    byte-boundary-checked. The volatile v149 fix applied. The installer
+    hooks the DIMU logger (the _new line commented in place).
+
+    THE v3.3 CAPTURE FINDINGS:
+    1. The OB queries: BIT-IDENTICAL args + results in both runs.
+    2. The find_path calls: BIT-IDENTICAL args + results. The rp
+       offset = the inherited counter shift.
+    3. The get_map_analysis calls: the SAME ma_obj, the SAME NULL/
+       non-NULL outcome. The raw POINTER bits differ (the heap-address
+       artifact — not comparable; the MAGET/MAPGET rows now log the
+       NULL flag 0/1 instead of the raw bits).
+    4. THE DIVERGENCE: unit 13738's st=2 call at wt=020081A. IDENTICAL
+       IN state. THE VANILLA: TWO creates (190709 + 190710), the
+       second installed. MINE: ONE create (190709), the first
+       installed. THE WORLD'S PATH-ID COUNTER OFFSET BY -1 → THE OOS.
+    5. THE DECISION TRACE: A2GATE v143=1 wpc=2 cfg=1 v151=19.0 — ALL
+       INPUTS CORRECT. PREINST v149=1 v143=1 — v149 IS 1 ✓. INSTALL-OK
+       v149=0 variant=FOLLOW — v149 READS 0 ✗. NO ARM2-entered row
+       between PREINST and INSTALL-OK. NO v149 write in the C++ source
+       between PREINST and INSTALL-OK. THE COMPILER READS A STALE COPY.
+    6. THE STUB SUB-BRANCH FIRED CORRECTLY (get_map_analysis=NULL →
+       the addWaypointAtStart/End stub → v149=1, v143=1) IN BOTH RUNS.
+    7. THE VANILLA'S OBSERVED TWO-CREATE BEHAVIOR: pass-1 → the stub
+       sub-branch → v149=1 → the install: wl==2 && v149==1 → THE
+       SETREADYTOPATH VARIANT (wl=1) → THE CONFIG-GATE RELOOP
+       (dword_689564==1) → PASS-2: createPath(190710) → the smooth
+       gate FAILED (wl(1)≠2) → arm 2 → findLowLevelPath → wpc=3 →
+       the install → the followPath variant (wl(1)≠2 → TRUE →
+       FOLLOW) → wl=0 → break → the walk arm → OBQ(n=0) → OUT(190710).
+       MY BODY: ONE create (the followPath variant, no reloop).
+
+    THE VOLATILE v149 FIX: applied, gated 0/0, IN-GAME TESTED —
+    **DOES NOT FIX THE DESYNC** (owner-tested 2026-11-20). The v149
+    stale-read is a SYMPTOM, not the root cause. Something upstream
+    sets v149=0 (or the stub's v149=1 write is lost by a mechanism
+    volatile cannot fix — e.g., the compiler's codegen restructured
+    the if/else so the stub's store lands on a path not taken, or
+    the opaque calls' side effects differ). THE ROOT CAUSE REMAINS
+    OPEN.
+
+    THE LESSONS:
+    - The E9's 5th byte can land INSIDE the next instruction (the
+      find_path trampoline: the fld is D9 44 24 28 = the disp8 form,
+      4B not 7B; the resume address comes from the .lst's NEXT-
+      INSTRUCTION address, not from a computed encoding length) —
+      the owner's fix.
+    - The owned globals fork between the runs — the ignSz field is
+      NOT comparable (the pollution).
+    - The volatile fix on a build-state flag does NOT fix a desync
+      when the flag's value is itself a SYMPTOM of an upstream
+      divergence. The volatile only fixes the compiler's stale-read;
+      the underlying state difference persists.
+    - The MAGET/MAPGET raw-pointer logging is meaningless between
+      runs (the heap-address artifact) — log the NULL flag 0/1
+      instead (the owner's correction).
+
+    THE COLLISION SCAN: 0 active-writer overlaps inside the capstone
+    range; the dead profiler table only. The pathing.cpp patches are
+    NOT USED (the owner's standing ruling — no bake, no note, no
+    further analysis).
+
+    ALSO IN THIS SESSION:
+    - The volatile fix on v149 (the install-variant flag) — DOES NOT
+      FIX.
+    - The STUBSET/PREINST/A2GATE/INSTALL-OK/SMOOTHGATE decision trace
+      rows + the ARM2-entered row.
+    - The MAGET/MAPGET/FPHOOK/OBQ/lifecycle trace rows (5 hooks + the
+      DIMU logger).
+    - The PATHING_CAP note (the never-baked ruling).
+    - The ignSz field demoted (the fork pollution).
+    - The v151=19.0/thr=5.0 smooth-gate values confirmed.
+    - The dword_65BD9C = 4 (the flag-2 mask) verified.
+    - The BPath field groundings re-verified against idb_types.h.
+    - The gate: 0/0 (the latest build with all the DIAG rows).
+
+    NEXT SESSION:
+    (1) The desync root cause remains OPEN. The volatile v149 fix
+        DOES NOT WORK. The next investigation candidates:
+        (a) Log the incrementWaypoint call's inputs + outputs (the
+            waypoint/step/state after each call) inside 13738's call —
+            the increment arm drives the state=2 transition that
+            triggers the second repath.
+        (b) Log the state-2 arm's arm-2 findLowLevelPath result (the
+            found/not-found + the path count + the length) — the
+            vanilla's pass-2 arm-2 produced wpc=3; if my pass-2 (or
+            the absence thereof) differs, the builder is the target.
+        (c) Log the smooth-arm's find_path result per unit per tick —
+            the vanilla's find_path succeeded for 13738's pass-1
+            (r=1) but my body's find_path may return a different
+            result (the map-analysis mip-level state may differ
+            per-unit per-tick in ways the FPHOOK args don't capture).
+    (2) Then: Pass 2 (the restructure) on the verified baseline.
+    (3) The carried items: the common.h collisionUnits comment fix;
+        the ship constraint (the four pathing functions in one build);
+        the LTG (/GL) probe gap; the DIAG instrumentation removal
+        before the final ship.
+
+    PROTOCOL: all edits approval-gated; the DIAG instrumentation removal
+    before the final ship; the braces-depth stage walk; the deref sweep;
+    the /Fa decimal offsets; the mask-fold documentation; the store-and-
+    read diff; the exit-path inventory; the join-convergence inventory;
+    the total-instruction citation coverage.
+
+  - NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first. STATE: the capstone doIntelligentMovementUpdate
+    Pass 1 is WRITTEN (gate 0/0, installer hook 80/80, the aligned
+    transcription = the diff reference) but DESYNCS in-game. The A/B
+    harness v3.3 is LIVE (all DIAG-marked, 5 trampolines + the DIMU
+    logger + the decision trace, all /Fa-verified). The volatile v149
+    fix DOES NOT FIX the desync (owner-tested). The desync root cause
+    is OPEN. THE DIAGNOSTIC INSTRUMENTATION REMAINS IN PLACE (all
+    DIAG-marked for removal at ship). THE COLLISION SCAN: pathing.cpp
+    patches are NOT USED (the owner's standing ruling — no bake, no
+    note, no further analysis). ALSO: the common.h collisionUnits
+    comment fix (provisional); the ship constraint (the four pathing
+    functions in one build); the LTG (/GL) probe gap.
+    THE V3.3 CAPTURE FINDINGS (the owner can re-run or provide fresh
+    logs): (1) The OB queries and the find_path calls: BIT-IDENTICAL
+    args + results in both runs through the aligned prefix. (2) The
+    get_map_analysis calls: the SAME ma_obj, the SAME NULL/non-NULL
+    outcome. (3) THE DIVERGENCE: unit 13738's st=2 call at wt=020081A.
+    IDENTICAL IN state. THE VANILLA: TWO creates (190709 + 190710),
+    the second installed. MINE: ONE create (190709), the first
+    installed. THE WORLD'S PATH-ID COUNTER OFFSET BY -1 FROM THAT
+    POINT → THE OOS. (4) THE DECISION TRACE: A2GATE v143=1 wpc=2
+    cfg=1 v151=19.0 — ALL INPUTS CORRECT. PREINST v149=1. INSTALL-OK
+    v149=0 variant=FOLLOW. NO ARM2-entered row between PREINST and
+    INSTALL-OK (arm 2 correctly skipped). NO v149 write in the C++
+    source between PREINST and INSTALL-OK. THE COMPILER READS A STALE
+    COPY. (5) THE STUB SUB-BRANCH FIRED CORRECTLY in both runs
+    (get_map_analysis=NULL → addWaypointAtStart/End → v149=1, v143=1).
+    (6) THE VANILLA'S OBSERVED TWO-CREATE BEHAVIOR: pass-1 → the stub
+    sub-branch → v149=1 → the install: wl==2 && v149==1 → THE
+    SETREADYTOPATH VARIANT (wl=1) → THE CONFIG-GATE RELOOP
+    (dword_689564==1) → PASS-2: createPath(190710) → the smooth gate
+    FAILED (wl(1)≠2) → arm 2 → findLowLevelPath → wpc=3, len=4199f0ee
+    → the install → the followPath variant → wl=0 → break → the walk
+    arm → OBQ(n=0) → OUT(190710) → RET=0. MY BODY: ONE create (the
+    followPath variant, no reloop).
+    THE VOLATILE v149 FIX DOES NOT WORK — the v149 stale-read is a
+    SYMPTOM, not the root cause. The root cause is deeper — something
+    upstream prevents the stub's v149=1 from surviving, or the
+    vanilla's two-create behavior comes from a different code path
+    entirely that my transcription doesn't capture.
+    IMMEDIATE WORK: (1) CONTINUE THE DESYNC INVESTIGATION using the
+    harness (the DIAG rows are live). The next candidates: (a) trace
+    incrementWaypoint's inputs/outputs per call (the waypoint/step/
+    state after each call) — the increment arm drives the state=2
+    transition that triggers the second repath; (b) trace arm-2's
+    findLowLevelPath result per call (the found/not-found + the path
+    count + the length) — the vanilla's pass-2 arm-2 produced wpc=3;
+    if my pass-2 (or the absence thereof) differs, the builder is the
+    target; (c) trace the smooth-arm's find_path result per unit per
+    tick — the vanilla's find_path succeeded for 13738's pass-1 but
+    my body's find_path may return a different result (the map-
+    analysis mip-level state may differ per-unit per-tick in ways the
+    FPHOOK args don't capture); (d) re-examine the .c/asm for a
+    SECOND createPath call site in the state-2 arm that my transcrip-
+    tion missed (the vanilla body has TWO creates with NO find_path
+    and NO get_map_analysis between them — the second create's caller
+    is unidentified); (e) check whether the vanilla body's state-2
+    arm has a SECOND ITERATION via a mechanism my transcription
+    doesn't capture (the .c's synthetic nesting may hide a loop-back
+    edge). PROTOCOL: the harness is the mechanism — never touch
+    doFixedDeltaSeconds/fixedDeltaSeconds; the DIAG rows are the
+    evidence; the volatile v149 fix stays (it fixes the stale-read
+    even if it doesn't fix the desync); the approval gate before
+    every write; the DIAG instrumentation removal before the final
+    ship. ALSO OWED: the common.h collisionUnits comment fix
+    (provisional); the ship constraint (the four pathing functions
+    in one build); the LTG (/GL) probe gap; Pass 2 (the restructure)
+    on the verified baseline (AFTER the desync is fixed).""
+
+  - THE CAPSTONE DESYNC - ROOT-CAUSED + FIXED + ALL TESTS PASSED (owner-
+    confirmed 2026-11-21): TWO stacked root causes in the capstone
+    doIntelligentMovementUpdate_new, both transcription-level, localized
+    by the paired-capture full-stream diff (see the methodology below):
+    (1) THE MISSING FALL-THROUGH (the first desync; the path-id counter
+        offset at unit 13738, wt=020081A): calculatePathLength + the ctm
+        stamp were transcribed INSIDE the ma!=NULL arm's else; the asm
+        joins BOTH arms at loc_4A4D16 and calls unconditionally
+        (0x4A4D12 the stub's v143=v35 falls through; lst :281179-281185;
+        the .c renders them after the ma if/else, inside the smooth-gate
+        block). The stub path skipped the length compute -> pathLength-
+        Value stayed 0.0 (the ctor zero; the CREATE row even logged
+        len=00000000) -> the $LN297 len gate (comiss 0.0, 0.01) failed ->
+        pass-1 wrongly ran the findTile arm (v149=0 its own legitimate
+        store 0x4A5376; wpc=3 its fill) -> FOLLOW -> one create -> the
+        world path-id counter offset -1 -> OOS. FIX (owner-approved): the
+        statement move to after the ma if/else, inside the smooth-gate
+        block; gate 0/0 re-run.
+    (2) THE V151 FLOAT-CHAIN SHRINK (the second desync, unit 5404,
+        wt=00022f7c): my v151 = the /fp:fast-shrunk SSE float chain
+        (mulss/addss/sqrtss - 24-bit per op) vs the orig's FLOAT(53-bit
+        x87 chain rounded once). At 5404 the increment arm's arrival
+        teleport put the unit EXACTLY at the old path's waypoint[1]
+        (sx=42d70000=107.0 exact), which EQUALS the ReturnPath's tail,
+        so v67 == v151 mathematically and the label_103 tail test
+        (st0 53-bit v67 vs var_25C float v151) flipped on the shrink's
+        ulp: the orig discarded (wpc=0 -> the install-FAILURE ->
+        destroyPath2(4297) + pause 0.25 + return 0), mine kept (the
+        findTile's fill -> FOLLOW -> path kept). The WPFETCH trace (the
+        new hook, below) PROVED every fetch input identical (the FPHOOK
+        rpc=2 lw=(107.0,28.0) rows matched; the v66/v140 fetches
+        matched) -> the divergence was the computation, not the data.
+    (3) THE FIX (owner-directed): THE WHOLE-FUNCTION PRECISE WRAP -
+        float_control(precise, on, push) before + float_control(pop)
+        after doIntelligentMovementUpdate_new. Reproduces the original's
+        uniform PC53 model (the widened chains emit cvtps2pd/mulsd/
+        addsd/__libm_sse2_sqrt_precise + one cvtsd2ss per store-round =
+        the orig's fld/fmul/faddp/fsqrt/fstp). Supersedes per-site
+        brackets for the capstone: covers the v151 site + the arm-2
+        tail-norm site + every unfound shrink site in the 5819 bytes.
+        /Fa census (the whole function): mulss=0, sqrtss=0, mulsd=15,
+        addsd=8, precise-sqrt calls=7; the 2 remaining addss = the arg7
+        radius-sums (v127/v129 = v164 + radius_x) - a two-float sum is
+        exact in 53 bits, so the orig's double-rounding collapses to the
+        identical addss result: provably equivalent, NOT a shrink (and
+        5404's dtr=3f000000 matched in both runs). The rule-(b) comiss
+        direct compares preserved; the macro/widened compares emit
+        comisd. Control flow unchanged (the pragma only - the exit-path/
+        join/store-and-read checks carry over).
+    THE THEORIES RETIRED (do not revisit): the "stale v149 read" (v149's
+        0 at the install gate was the findTile arm's legitimate store -
+        the PATH was wrong, not the value; the volatile was a no-op for
+        the desync); "arm 2 -> findLowLevelPath built the pass-2 path"
+        (the skip gate v151>10 skips arm 2 on pass-2 too - the pass-2
+        builder is the findTile arm, dword_68956C==1); the /GL codegen
+        as the cause (both /GL and non-/GL carried the same source bug);
+        the v143/v149 "shared stack slot" (a listing-syntax misread: the
+        MASM equate adds into the effective address - v143 = base+20,
+        v149 = base+44, DISTINCT, the volatile honored).
+    THE /GL DECISION (owner): WholeProgramOptimization OFF - the gated
+        listing = the shipped code; the LTG probe gap closes with it.
+    THE MODEL CORRECTIONS (the asm-verified 5404 flow, the WPFETCH rows):
+        the checkDistance swap verified faithful instruction-for-
+        instruction (the null -> dtor -> delete -> swap chains; 4124 =
+        pd->path, 3236 = pd->mFuturePathData, both destroyed by the dtor
+        chain; the surviving linked path = 3235, swapped in with
+        state=2); the increment arm's arrival teleport puts the unit
+        exactly at the old path's waypoint[1]; pass-2's builder = the
+        findTile arm (fills 3, returns FALSE -> v143=0 -> label_103);
+        the label_103's tail test verified faithful (the asm pulled:
+        fst goal; fcomp var_25C; test ah,41h; jnz -> KEEP at 0x4A5317-
+        0x4A5331); BPath::waypoint's negative/out-of-range index = the
+        DEFINED zero-fill (no garbage reads); setReadyToPath sets
+        waypoint=1 + state=2 (the reloop re-dispatch enters state 2);
+        the reloop = jz loc_4A48A2 (the resolve -> precalc -> increment
+        -> dispatch head).
+    THE NEW INSTRUMENTATION (all DIAG, remove at ship):
+    - the FPHOOK row extended with rpc (the ReturnPath count) + lw (the
+      last waypoint's raw bits) - proved find_path's outputs identical;
+    - the WPFETCH hook: BPath::waypoint (0x4BC440) hooked with a
+      caller-filtered logger (the filter: the game's DIMU body
+      [0x4A47B5, 0x4A5E6C) + the runtime-derived window over the
+      compiled _new body, set at install - the first filter attempt used
+      only the game range and filtered out ALL of my body's fetches in
+      the _new run: my body lives in the DLL's own .text, not the game's
+      range -> the new log had no WPFETCH rows at all);
+    - LINE_LOGGING_ENABLED (the owner's macro) gating the in-body
+      decision rows.
+    THE LESSONS: (a) the trampoline resume transfer = the esp-neutral
+      push/ret pair - the mov reg/jmp form clobbers live replay
+      registers (my mov eax,004BC446h clobbered EAX holding wpIndex;
+      every fetch through the hook returned the zero-fill until the
+      owner's fix - the fastcall-liveness rule extended to the resume
+      transfer itself); (b) the caller-filter ranges must include the
+      compiled body's own window; (c) the diff methodology: the
+      FULL-STREAM diff (all common rows - TICK/IN/OUT/RET/lifecycle/
+      OBQ/FPHOOK/MAGET/WPFETCH - decision rows excluded, mk+ignSz
+      stripped, first divergence only) - the lifecycle-only diff missed
+      the divergence position entirely (it sat in a decision-row-only
+      stretch).
+    GATE: 0/0 x86 after every write. Installer: 81 hooks (80 + the
+    WPFETCH DIAG hook). ALL TESTS PASSED (owner-confirmed).
+    NEXT: Pass 2 (the restructure) on the NOW-VERIFIED baseline (the
+    two-pass protocol; the precise wrap carries over; the aligned
+    transcription remains the diff reference); the DIAG instrumentation
+    removal + the LINE_LOGGING_ENABLED macro at ship; the common.h
+    collisionUnits comment fix (provisional); the Moving-methods
+    re-count; the model corrections above absorbed into the capstone
+    decode notes.
+
+  - STATE-RECORDING CONVENTION (owner-directed 2026-11-21): a request to
+    record the state is NOT a request to close the session - the session
+    remains open after a state recording; a close is a separate explicit
+    event. State blocks recorded mid-session are live checkpoints and are
+    superseded by later recordings in the same session.

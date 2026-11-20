@@ -143,13 +143,13 @@ bool collect_techqueue(std::vector<TechEntry>& entries)
     return collect_techqueue_for_player((TRIBE_Player*)RGE_Base_Game__get_player(*base_game), entries);
 }
 
-inline int pq_count_h(int icon_size)
+int pq_count_h(int icon_size)
 {
     return (icon_size <= 24) ? (cd.largeText ? COUNT_H_C_LARGE : COUNT_H_C) : COUNT_H;
 }
 inline int pq_bar_h(int icon_size) { return (icon_size <= 24) ? BAR_H_C : BAR_H; }
 // Cell step ≥ native SLP width + 8 px gutter so icons don't bleed into neighbours.
-inline int pq_cell_step(int icon_size) { return max(icon_size, 36) + 8; }
+int pq_cell_step(int icon_size) { return max(icon_size, 36) + 8; }
 
 void draw_prodqueue_overlay_pass(TDrawArea* da, int cell_x, int cell_w,
                                   const std::vector<PQEntry>& entries,
