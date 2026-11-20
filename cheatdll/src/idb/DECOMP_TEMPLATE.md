@@ -91,6 +91,56 @@ and request the owner correct the IDB; after the fix + regeneration,
 restart the decode from the regenerated files. Approved corrections
 become state-file entries.
 
+## THE TWO-PASS DECODE FOR LARGE FUNCTIONS (owner-directed 2026-11-20, from the BMotion::updateMovement ship)
+DECODING APPROACH BY FUNCTION SIZE/COMPLEXITY - the 0x49CB60 movement
+driver (6300 bytes, the 13-back-edge dispatch loop, the four path-building
+arms) established the two-pass form:
+
+PASS 1 - THE ALIGNED TRANSCRIPTION (the suite-verified artifact): the IDA
+rendering transcribed 1:1 into compilable code with NO control-flow
+changes - the IDA nesting (its synthetic multi-while loop nests, its
+label/goto rendering, its variable reuse v4..vNNN) preserved verbatim;
+only value-level fixes land in this pass (the named-finding classes: the
+float .z zeroing/carve slots, the AND 0FFh masks, the timestamp sources,
+the X87 NaN macros, the (__int64)->(int) conversions). The aligned
+transcription is THE test artifact: it is suite-verified against the
+vanilla trace first, and every later change is verified against IT.
+Rationale: a single-pass rewrite of a large function changes control
+flow, naming, AND value semantics simultaneously - a desync then has
+three suspect classes at once. The aligned pass isolates the value
+semantics: the suite run proves the transcription correct BEFORE any
+readability work exists.
+
+PASS 2 - THE RESTRUCTURE (the shipped artifact): built ON TOP of the
+verified aligned body - named locals (the v-names dissolved), staged
+control flow (gotos/labels dissolved into sequential stages plus
+`continue` for the asm back-edges), the IDA synthetic nests flattened.
+THE EQUIVALENCE BAR: the restructured body must be behaviorally identical
+to the verified baseline - proven by (a) the stage map (each stage = an
+asm dispatch region, each `continue` = a cited asm back-edge), (b) the
+brace-depth walk at every stage boundary, (c) the /Fa structural
+comparison (same call multiset; positional diffs expected - the compiler
+re-decides inlining and layout), and (d) THE RE-RUN: the deterministic
+replay must reproduce byte-identical traces. NOTE: "0 errors" proves the
+braces BALANCE, not that they close the right blocks - the brace-depth
+walk at each stage boundary is mandatory (a missing stage close silently
+nests the following stage inside the previous one's gate and passes every
+compile - the wt=2185372 lesson).
+
+THE RETIREMENT: the aligned transcription is the verification artifact,
+NOT a shipped body - at ship it is deleted and the restructured form is
+hooked (the `_new` name transfers to the shipped variant). Keep the
+aligned body in VCS history: the commit preceding the restructure is the
+diff reference for every later audit.
+
+SIMPLER FUNCTIONS (the majority): the single-pass approach per this
+template's main flow (asm-grounded decode -> the cleaned named form ->
+gate -> suite) remains sufficient and faster - the two-pass form pays for
+itself only when the function is large enough that a single-pass rewrite
+carries more than one suspect class at once (the working bar: multi-arm
+dispatch loops, several hundred decoded lines, or any function whose
+first suite run desynced).
+
 ## Hard constraints (do not violate)
 1. The function's external signature is FIXED: use the prototype given below
    exactly (rendered compilable per the project's conventions; the original
@@ -230,6 +280,20 @@ no pseudocode restatements of the function body:
   become indexed loops over the actual element type when the element
   layout is verified from the header (offset + stride vs the struct
   definition) вЂ” per-element equivalence is exact.
+- COPY-OUT GETTER ALIASING (owner-directed 2026-11-20, the BPath__waypoint
+   lesson): a getter of the form `T* f(this, T* out, index)` that COPIES
+   the internal element into `out` and RETURNS `out` (BPath__waypoint
+   @0x4BC440: mov ecx,[esp+outVector]; mov [ecx],esi; ...; retn 8 - eax =
+   the out-buffer's address) makes EACH FETCH'S RESULT LIVE IN ITS OWN
+   BUFFER until the next fetch overwrites it. NEVER collapse per-call-site
+   out-buffers into one shared scratch: any site holding TWO fetched
+   waypoints live together (the tail-quality checks - newTail from the
+   candidate path AND the original path's waypoint in one expression)
+   silently compares the second fetch against ITSELF and the discard
+   dies. The verified aligned transcription kept IDA's ~25 distinct carve
+   slots 1:1 - they were load-bearing. Collapse ONLY single-fetch sites
+   (fetch -> consume -> dead before the next fetch), and audit every fetch
+   site's liveness window when a scratch is shared.
 - Redundant-guard elimination: when a guard is provably subsumed by a
   later condition вЂ” an outer `if (count > 0)` around a loop whose own
   condition `i < count` already fails for count <= 0, a repeated test,
@@ -646,6 +710,30 @@ no pseudocode restatements of the function body:
    retn 10h pops the logger's arg block and returns to the logger).
    A/B OUTPUT: run both the hooked build and the unhooked build, diff
    val_log.txt - the first diverging value names the exact stage.
+   THE ESCALATION LADDER + THE MULTI-TRACE PAIRED CAPTURE (owner-directed
+   2026-11-20, from the updateMovement hunt): when the val_log diff
+   localizes a stage but the stage has multiple internal decisions,
+   escalate INWARD - hook the functions the stage calls (the pathfinder
+   loggers: the args, the return, the resulting rPath content) and the
+   world-object lifecycle (createPath/destroyPath2/path-resolve with the
+   resulting BPath characteristics). ALL TRACE PAIRS (val + arm +
+   lifecycle + pathfinder) diff line-by-line; the first divergent line
+   names the call. A matched OUTCOME does not prove a matched internal
+   call history (stateful callees - the tile/low-level pathfinders -
+   evolve per call), so the stateful callees' own logs are the evidence.
+   THE TRAMPOLINE BYTE-BOUNDARY LESSON (0x4BCDA8-vs-0x4BCDA7): the jump
+   target = the entry + THE REPLAYED BYTE LENGTH derived from the .lst
+   INSTRUCTION BOUNDARIES - an eyeballed instruction count is not a byte
+   count (mov eax,[esp+10h] is 4 bytes, not 5); a one-byte slip
+   mid-prologue resumes execution INSIDE a broken instruction and
+   corrupts the call. Verify the emitted replay + the jump address in the
+   /Fa. THE FASTCALL LIVENESS RULE: the jump-address register must be
+   DEAD at the jump target - if the convention puts a live arg in edx
+   (findLowLevelPath's start), use the esp-neutral push/ret pair instead
+   of mov edx/jmp. THE SHIP REMOVAL: at ship, delete the harness pieces
+   and hook the replacement directly (the updateMovement precedent);
+   re-run the suite once on the ship build - only the observer I/O
+   differs, but the project standard is one confirming pass.
 - SEMANTIC COMMENT HEADER (owner-directed 2026-11-17, style per
    check_placement_new / alignment_new / get_string_id_new): every
    replacement's decode comment OPENS with a short semantic summary -
@@ -708,6 +796,35 @@ no pseudocode restatements of the function body:
    вЂ” the defs/refs sweep does not catch type errors (the Animated/
    Moving factory trios shipped 7 latent C2664/C2440 sites on
    2026-11-14, caught by the gate).
+- BRACE-DEPTH STAGE WALK (mandatory for restructured bodies, owner-
+   directed 2026-11-20): after any multi-stage rewrite, mechanically walk
+   the brace depth from the function open through the end and assert the
+   depth at EVERY stage boundary comment (the dispatch loop body, each
+   sequential stage, each nested arm). "0 errors" proves the braces
+   BALANCE, not that they close the right blocks - a missing stage close
+   silently nests the following stage inside the previous one's gate (the
+   walk arm compiled inside the state-2 stage: state-3 units skipped the
+   walk, the loop spun to the tries guard, ret=0 - caught only by the
+   replay).
+- POINTER-TO-SLOT GLOBAL DEREF SWEEP (mandatory, owner-directed
+   2026-11-20): globals declared as pointer-to-slot (int*
+   numberObSystemCollisions etc.) must be DEREFERENCED in every guard and
+   condition - a bare pointer compare (`ptr <= 0` / `!ptr`) never fires
+   and silently disables the branch (the OB-pass guard ran the collision
+   loop once over the stale obSystemCollisions[0] on every zero-count
+   query - the phantom fresh-blocker successor swap). Sweep: grep the
+   global bare inside a condition; every hit is a stop-and-fix.
+- /Fa OFFSETS ARE DECIMAL in MSVC listings ([ecx+1056] = +0x420,
+   [eax+780] = +0x30C; small offsets render without any suffix): the
+   vtbl-slot and struct-offset verifications must convert before
+   comparing.
+- THE MASK-FOLD DOCUMENTATION (the C1/C2 class, owner-directed
+   2026-11-20): where the asm narrows a raw return (and eax, 0FFh at
+   0x49D3BF / 0x49D8CA) and the idb prototype's narrow return (u8/bool)
+   already reads AL, the source-level mask compiles as a FOLDED NO-OP -
+   cite the asm address, state the equivalence (the AL read IS the mask's
+   result: and eax,0FFh keeps exactly bits 0-7), and do not force
+   machinery to make the mask literally appear in the listing.
 - Store-and-read diff (mandatory for construction/teardown and store-heavy
    replacements): after drafting and again post-write, mechanically
    enumerate every memory store in the asm range вЂ” `mov [reg+disp]`

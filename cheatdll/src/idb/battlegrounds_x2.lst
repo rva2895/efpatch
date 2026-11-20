@@ -267665,7 +267665,7 @@
 .text:0049CB60 ; int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, BUnitGroup *uG)
 .text:0049CB60 BMotion__updateMovement proc near       ; CODE XREF: BMotion__update+13\u2191p
 .text:0049CB60
-.text:0049CB60 dest_target_radius= dword ptr -29Ch
+.text:0049CB60 var_29C         = dword ptr -29Ch
 .text:0049CB60 a               = dword ptr -28Ch
 .text:0049CB60 var_27C         = dword ptr -27Ch
 .text:0049CB60 rads            = dword ptr -278h
@@ -267677,10 +267677,10 @@
 .text:0049CB60 var_260         = dword ptr -260h
 .text:0049CB60 var_25C         = dword ptr -25Ch
 .text:0049CB60 var_258         = BVector ptr -258h
-.text:0049CB60 v               = BVector ptr -24Ch
-.text:0049CB60 var_240         = BVector ptr -240h
-.text:0049CB60 var_234         = BVector ptr -234h
-.text:0049CB60 var_228         = dword ptr -228h
+.text:0049CB60 var_24C         = dword ptr -24Ch
+.text:0049CB60 v               = BVector ptr -248h
+.text:0049CB60 var_23C         = BVector ptr -23Ch
+.text:0049CB60 var_230         = BVector ptr -230h
 .text:0049CB60 var_224         = BVector ptr -224h
 .text:0049CB60 var_218         = dword ptr -218h
 .text:0049CB60 var_214         = dword ptr -214h
@@ -267691,39 +267691,43 @@
 .text:0049CB60 var_1E8         = BVector ptr -1E8h
 .text:0049CB60 var_1DC         = BVector ptr -1DCh
 .text:0049CB60 p2              = BVector ptr -1D0h
-.text:0049CB60 var_1C4         = BVector ptr -1C4h
-.text:0049CB60 var_1B8         = BVector ptr -1B8h
-.text:0049CB60 var_1AC         = BVector ptr -1ACh
-.text:0049CB60 var_1A0         = BVector ptr -1A0h
-.text:0049CB60 var_194         = dword ptr -194h
+.text:0049CB60 var_1C4         = dword ptr -1C4h
+.text:0049CB60 var_1C0         = BVector ptr -1C0h
+.text:0049CB60 var_1B4         = BVector ptr -1B4h
+.text:0049CB60 var_1A8         = BVector ptr -1A8h
+.text:0049CB60 var_19C         = BVector ptr -19Ch
 .text:0049CB60 var_190         = BVector ptr -190h
 .text:0049CB60 var_184         = BVector ptr -184h
 .text:0049CB60 unitsToIgnore   = dword ptr -178h
 .text:0049CB60 ignoreList      = dword ptr -174h
 .text:0049CB60 var_170         = BVector ptr -170h
 .text:0049CB60 anonymous_0     = dword ptr -164h
-.text:0049CB60 var_160         = BVector ptr -160h
-.text:0049CB60 var_154         = dword ptr -154h
+.text:0049CB60 var_160         = dword ptr -160h
+.text:0049CB60 var_15C         = BVector ptr -15Ch
+.text:0049CB60 var_150         = BVector ptr -150h
 .text:0049CB60 var_144         = BVector ptr -144h
 .text:0049CB60 var_138         = BVector ptr -138h
 .text:0049CB60 var_12C         = BVector ptr -12Ch
 .text:0049CB60 var_120         = BVector ptr -120h
 .text:0049CB60 var_114         = BVector ptr -114h
-.text:0049CB60 var_100         = BVector ptr -100h
-.text:0049CB60 var_F4          = BVector ptr -0F4h
-.text:0049CB60 var_E8          = BVector ptr -0E8h
-.text:0049CB60 var_DC          = dword ptr -0DCh
-.text:0049CB60 var_C8          = dword ptr -0C8h
-.text:0049CB60 var_C4          = BVector ptr -0C4h
-.text:0049CB60 var_B8          = BVector ptr -0B8h
-.text:0049CB60 var_AC          = BVector ptr -0ACh
-.text:0049CB60 outVector       = BVector ptr -94h
-.text:0049CB60 var_88          = dword ptr -88h
+.text:0049CB60 var_108         = BVector ptr -108h
+.text:0049CB60 var_FC          = BVector ptr -0FCh
+.text:0049CB60 var_F0          = BVector ptr -0F0h
+.text:0049CB60 var_E4          = BVector ptr -0E4h
+.text:0049CB60 anonymous_2     = BVector ptr -0D8h
+.text:0049CB60 var_CC          = BVector ptr -0CCh
+.text:0049CB60 var_C0          = BVector ptr -0C0h
+.text:0049CB60 var_B4          = BVector ptr -0B4h
+.text:0049CB60 var_A8          = BVector ptr -0A8h
+.text:0049CB60 outVector       = BVector ptr -9Ch
+.text:0049CB60 var_90          = BVector ptr -90h
+.text:0049CB60 var_84          = BVector ptr -84h
 .text:0049CB60 var_78          = BVector ptr -78h
 .text:0049CB60 var_6C          = BVector ptr -6Ch
 .text:0049CB60 var_60          = BVector ptr -60h
 .text:0049CB60 var_54          = BVector ptr -54h
 .text:0049CB60 var_48          = BVector ptr -48h
+.text:0049CB60 anonymous_1     = BMatrix ptr -3Ch
 .text:0049CB60 var_C           = dword ptr -0Ch
 .text:0049CB60 var_4           = dword ptr -4
 .text:0049CB60 doAvailablePathCheck= dword ptr  4
@@ -267853,7 +267857,7 @@
 .text:0049CCBE                 jge     short loc_49CCEE
 .text:0049CCC0                 mov     edi, [esi]
 .text:0049CCC2                 mov     eax, edx
-.text:0049CCC4                 lea     ecx, [esp+278h+outVector.z]
+.text:0049CCC4                 lea     ecx, [esp+278h+var_90]
 .text:0049CCCB                 push    eax             ; wpIndex
 .text:0049CCCC                 push    ecx             ; outVector
 .text:0049CCCD                 mov     ecx, ebp        ; this
@@ -268025,7 +268029,7 @@
 .text:0049CEDA                 dec     eax
 .text:0049CEDB                 mov     [esp+278h+var_184.x], edx
 .text:0049CEE2                 push    eax             ; wpIndex
-.text:0049CEE3                 lea     eax, [esp+27Ch+var_C4.z]
+.text:0049CEE3                 lea     eax, [esp+27Ch+var_C0]
 .text:0049CEEA                 push    eax             ; outVector
 .text:0049CEEB                 mov     [esp+280h+var_184.z], 0
 .text:0049CEF6                 call    BPath__waypoint
@@ -268216,7 +268220,7 @@
 .text:0049D140                 mov     edi, [eax+18h]
 .text:0049D143                 mov     eax, [esp+278h+doAvailablePathCheck]
 .text:0049D14A                 cmp     eax, 1
-.text:0049D14D                 mov     [esp+278h+v.x], edi
+.text:0049D14D                 mov     [esp+278h+var_24C], edi
 .text:0049D151                 jnz     short loc_49D169
 .text:0049D153                 mov     ecx, [esi+0B4h]
 .text:0049D159                 push    ecx             ; numWaitDelays
@@ -268311,7 +268315,7 @@
 .text:0049D27B loc_49D27B:                             ; CODE XREF: BMotion__updateMovement+6D9\u2191j
 .text:0049D27B                 mov     edx, [esi+0A8h]
 .text:0049D281                 lea     ebx, [esi+4]
-.text:0049D284                 lea     ecx, [esp+278h+var_234.z]
+.text:0049D284                 lea     ecx, [esp+278h+var_230]
 .text:0049D288                 push    ebx             ; v
 .text:0049D289                 mov     eax, [edx+18h]
 .text:0049D28C                 push    ecx             ; result
@@ -268322,12 +268326,12 @@
 .text:0049D298                 call    BPath__waypoint
 .text:0049D29D                 mov     ecx, eax        ; this
 .text:0049D29F                 call    BVector__operator_minus
-.text:0049D2A4                 fld     [esp+278h+var_234.z]
-.text:0049D2A8                 fmul    [esp+278h+var_234.z]
-.text:0049D2AC                 fld     [esp+278h+var_228]
-.text:0049D2B0                 fmul    [esp+278h+var_228]
+.text:0049D2A4                 fld     [esp+278h+var_230.x]
+.text:0049D2A8                 fmul    [esp+278h+var_230.x]
+.text:0049D2AC                 fld     [esp+278h+var_230.y]
+.text:0049D2B0                 fmul    [esp+278h+var_230.y]
 .text:0049D2B4                 mov     edx, [esi+0A8h]
-.text:0049D2BA                 mov     [esp+278h+var_234.y], 0
+.text:0049D2BA                 mov     [esp+278h+var_230.z], 0
 .text:0049D2C2                 faddp   st(1), st
 .text:0049D2C4                 cmp     dword ptr [edx+0Ch], 2
 .text:0049D2C8                 fsqrt
@@ -268380,7 +268384,7 @@
 .text:0049D376                 push    edx             ; dest_radius
 .text:0049D377                 push    ecx             ; float
 .text:0049D378                 mov     ecx, [ecx+18h]
-.text:0049D37B                 lea     edx, [esp+28Ch+var_AC.z]
+.text:0049D37B                 lea     edx, [esp+28Ch+var_A8]
 .text:0049D382                 fstp    [esp+28Ch+a]    ; dest_target_radius
 .text:0049D385                 push    ecx             ; wpIndex
 .text:0049D386                 push    edx             ; outVector
@@ -268389,7 +268393,7 @@
 .text:0049D38E                 mov     ecx, [esi+0A8h]
 .text:0049D394                 mov     eax, [eax+8]
 .text:0049D397                 push    eax             ; dy
-.text:0049D398                 lea     eax, [esp+188h]
+.text:0049D398                 lea     eax, [esp+290h+var_108]
 .text:0049D39F                 mov     edx, [ecx+18h]
 .text:0049D3A2                 mov     ecx, ebp        ; this
 .text:0049D3A4                 push    edx             ; wpIndex
@@ -268426,22 +268430,22 @@
 .text:0049D407                 call    BPath__waypoint
 .text:0049D40C                 push    eax             ; v
 .text:0049D40D                 mov     eax, [esi+0A8h]
-.text:0049D413                 lea     edx, [esp+27Ch+var_1A0.z]
+.text:0049D413                 lea     edx, [esp+27Ch+var_19C]
 .text:0049D41A                 mov     ecx, [eax+18h]
 .text:0049D41D                 push    edx             ; result
-.text:0049D41E                 lea     edx, [esp+280h+var_F4.z]
+.text:0049D41E                 lea     edx, [esp+280h+var_F0]
 .text:0049D425                 push    ecx             ; wpIndex
 .text:0049D426                 push    edx             ; outVector
 .text:0049D427                 mov     ecx, ebp        ; this
 .text:0049D429                 call    BPath__waypoint
 .text:0049D42E                 mov     ecx, eax        ; this
 .text:0049D430                 call    BVector__operator_minus
-.text:0049D435                 fld     [esp+278h+var_194]
+.text:0049D435                 fld     [esp+278h+var_19C.y]
 .text:0049D43C                 fld     st
 .text:0049D43E                 fmulp   st(1), st
-.text:0049D440                 fld     [esp+278h+var_1A0.z]
-.text:0049D447                 fmul    [esp+278h+var_1A0.z]
-.text:0049D44E                 mov     [esp+278h+var_1A0.y], 0
+.text:0049D440                 fld     [esp+278h+var_19C.x]
+.text:0049D447                 fmul    [esp+278h+var_19C.x]
+.text:0049D44E                 mov     [esp+278h+var_19C.z], 0
 .text:0049D459                 faddp   st(1), st
 .text:0049D45B                 fsqrt
 .text:0049D45D                 fcomp   [esp+278h+var_258.y]
@@ -268458,7 +268462,7 @@
 .text:0049D470                 mov     ecx, edi        ; this
 .text:0049D472                 call    BPath__addWaypointAtStart
 .text:0049D477                 mov     eax, [esi+0A8h]
-.text:0049D47D                 lea     edx, [esp+278h+var_160.z]
+.text:0049D47D                 lea     edx, [esp+278h+var_15C]
 .text:0049D484                 mov     ecx, [eax+18h]
 .text:0049D487                 push    ecx             ; wpIndex
 .text:0049D488                 push    edx             ; outVector
@@ -268527,8 +268531,8 @@
 .text:0049D553                 mov     edx, base_game
 .text:0049D559                 mov     ecx, [edx+420h]
 .text:0049D55F                 mov     edx, [eax+0D0h]
-.text:0049D565                 mov     [esp+278h+var_1C4.x], edx
-.text:0049D56C                 mov     edx, [esp+278h+v.x]
+.text:0049D565                 mov     [esp+278h+var_1C4], edx
+.text:0049D56C                 mov     edx, [esp+278h+var_24C]
 .text:0049D570                 mov     ecx, [ecx+60h]
 .text:0049D573                 mov     eax, [eax+0D8h]
 .text:0049D579                 mov     edx, [edx+0A0h]
@@ -268539,7 +268543,7 @@
 .text:0049D58E                 push    0
 .text:0049D590                 movsx   edx, word ptr [edx+76h]
 .text:0049D594                 mov     edx, [ecx+edx*4]
-.text:0049D597                 mov     ecx, [esp+280h+var_1C4.x]
+.text:0049D597                 mov     ecx, [esp+280h+var_1C4]
 .text:0049D59E                 push    edx
 .text:0049D59F                 mov     edx, [esp+284h+var_258.z]
 .text:0049D5A3                 push    edi
@@ -268554,7 +268558,7 @@
 .text:0049D5B4                 mov     ecx, [esp+29Ch+var_264]
 .text:0049D5B8                 push    edx
 .text:0049D5B9                 mov     edx, [ecx+3Ch]
-.text:0049D5BC                 lea     ecx, [esp+2A0h+var_DC+4]
+.text:0049D5BC                 lea     ecx, [esp+2A0h+anonymous_2]
 .text:0049D5C3                 push    edx
 .text:0049D5C4                 push    eax             ; wpIndex
 .text:0049D5C5                 push    ecx             ; outVector
@@ -268585,7 +268589,7 @@
 .text:0049D601                 mov     edx, base_game
 .text:0049D607                 mov     eax, [esi+0A8h]
 .text:0049D60D                 mov     ecx, [edx+420h]
-.text:0049D613                 mov     edx, [esp+278h+v.x]
+.text:0049D613                 mov     edx, [esp+278h+var_24C]
 .text:0049D617                 mov     edx, [edx+0A0h]
 .text:0049D61D                 mov     ecx, [ecx+60h]
 .text:0049D620                 push    edx             ; playerID
@@ -268622,7 +268626,7 @@
 .text:0049D66D                 mov     ecx, edi        ; this
 .text:0049D66F                 mov     [esp+278h+var_264], eax
 .text:0049D673                 call    BPath__calculatePathLength
-.text:0049D678                 mov     ecx, [esp+278h+v.x]
+.text:0049D678                 mov     ecx, [esp+278h+var_24C]
 .text:0049D67C                 mov     edx, [ecx+8Ch]
 .text:0049D682                 mov     eax, [edx+10h]
 .text:0049D685                 mov     [edi+1Ch], eax
@@ -268685,7 +268689,7 @@
 .text:0049D740                 push    ecx
 .text:0049D741                 push    eax
 .text:0049D742                 mov     eax, [esi+0A8h]
-.text:0049D748                 lea     edx, [esp+288h+var_154+4]
+.text:0049D748                 lea     edx, [esp+288h+var_150]
 .text:0049D74F                 mov     ecx, [eax+18h]
 .text:0049D752                 push    ecx             ; wpIndex
 .text:0049D753                 push    edx             ; outVector
@@ -268795,7 +268799,7 @@
 .text:0049D884                 call    __ftol
 .text:0049D889                 mov     edx, [esi+0A8h]
 .text:0049D88F                 push    eax             ; goalY
-.text:0049D890                 lea     ecx, [esp+29Ch+var_100.z]
+.text:0049D890                 lea     ecx, [esp+29Ch+var_FC]
 .text:0049D897                 mov     eax, [edx+18h]
 .text:0049D89A                 push    eax             ; wpIndex
 .text:0049D89B                 push    ecx             ; outVector
@@ -268812,7 +268816,7 @@
 .text:0049D8BB                 push    eax             ; startX
 .text:0049D8BC                 mov     ecx, offset pathSystem ; this
 .text:0049D8C1                 call    PathingSystem__findTilePath
-.text:0049D8C6                 mov     edx, [esp+278h+v.x]
+.text:0049D8C6                 mov     edx, [esp+278h+var_24C]
 .text:0049D8CA                 and     eax, 0FFh
 .text:0049D8CF                 mov     [esp+278h+var_268], eax
 .text:0049D8D3                 mov     eax, [edx+8Ch]
@@ -268831,7 +268835,7 @@
 .text:0049D903
 .text:0049D903 loc_49D903:                             ; CODE XREF: BMotion__updateMovement+D94\u2191j
 .text:0049D903                 mov     eax, [edi+0Ch]
-.text:0049D906                 lea     edx, [esp+278h+var_E8.z]
+.text:0049D906                 lea     edx, [esp+278h+var_E4]
 .text:0049D90D                 dec     eax
 .text:0049D90E                 mov     ecx, edi        ; this
 .text:0049D910                 push    eax             ; wpIndex
@@ -268842,7 +268846,7 @@
 .text:0049D91E                 lea     eax, [esp+27Ch+var_190]
 .text:0049D925                 mov     edx, [ecx+18h]
 .text:0049D928                 push    eax             ; result
-.text:0049D929                 lea     eax, [esp+280h+var_DC+10h]
+.text:0049D929                 lea     eax, [esp+280h+var_CC]
 .text:0049D930                 push    edx             ; wpIndex
 .text:0049D931                 push    eax             ; outVector
 .text:0049D932                 mov     ecx, ebp        ; this
@@ -268854,16 +268858,16 @@
 .text:0049D94E                 fmul    [esp+278h+var_190.x]
 .text:0049D955                 fld     st(1)
 .text:0049D957                 fmul    st, st(2)
-.text:0049D959                 mov     edx, [esp+278h+var_228]
-.text:0049D95D                 mov     ecx, [esp+278h+var_234.y]
+.text:0049D959                 mov     edx, [esp+278h+var_230.y]
+.text:0049D95D                 mov     ecx, [esp+278h+var_230.z]
 .text:0049D961                 mov     [esp+278h+var_210.y], edx
 .text:0049D965                 mov     [esp+278h+var_204], ecx
 .text:0049D969                 faddp   st(1), st
 .text:0049D96B                 mov     [esp+278h+var_190.z], 0
 .text:0049D976                 fsqrt
 .text:0049D978                 fstp    st(1)
-.text:0049D97A                 fld     [esp+278h+var_234.z]
-.text:0049D97E                 fmul    [esp+278h+var_234.z]
+.text:0049D97A                 fld     [esp+278h+var_230.x]
+.text:0049D97E                 fmul    [esp+278h+var_230.x]
 .text:0049D982                 fld     [esp+278h+var_210.y]
 .text:0049D986                 fmul    [esp+278h+var_210.y]
 .text:0049D98A                 faddp   st(1), st
@@ -269028,7 +269032,7 @@
 .text:0049DB6A loc_49DB6A:                             ; CODE XREF: BMotion__updateMovement+5D4\u2191j
 .text:0049DB6A                                         ; BMotion__updateMovement+FB0\u2191j
 .text:0049DB6A                 mov     eax, [esi+0A8h]
-.text:0049DB70                 lea     edx, [esp+278h+var_B8.z]
+.text:0049DB70                 lea     edx, [esp+278h+var_B4]
 .text:0049DB77                 lea     edi, [esi+4]
 .text:0049DB7A                 mov     ecx, [eax+18h]
 .text:0049DB7D                 push    ecx             ; wpIndex
@@ -269036,16 +269040,16 @@
 .text:0049DB7F                 mov     ecx, ebp        ; this
 .text:0049DB81                 call    BPath__waypoint
 .text:0049DB86                 push    eax             ; v
-.text:0049DB87                 lea     eax, [esp+27Ch+var_1AC.z]
+.text:0049DB87                 lea     eax, [esp+27Ch+var_1A8]
 .text:0049DB8E                 push    eax             ; result
 .text:0049DB8F                 mov     ecx, edi        ; this
 .text:0049DB91                 call    BVector__operator_minus
-.text:0049DB96                 fld     [esp+278h+var_1A0.x]
-.text:0049DB9D                 fld     [esp+278h+var_1AC.z]
-.text:0049DBA4                 fmul    [esp+278h+var_1AC.z]
+.text:0049DB96                 fld     [esp+278h+var_1A8.y]
+.text:0049DB9D                 fld     [esp+278h+var_1A8.x]
+.text:0049DBA4                 fmul    [esp+278h+var_1A8.x]
 .text:0049DBAB                 fld     st(1)
 .text:0049DBAD                 fmul    st, st(2)
-.text:0049DBAF                 mov     [esp+278h+var_1AC.y], 0
+.text:0049DBAF                 mov     [esp+278h+var_1A8.z], 0
 .text:0049DBBA                 faddp   st(1), st
 .text:0049DBBC                 fsqrt
 .text:0049DBBE                 fstp    st(1)
@@ -269069,7 +269073,7 @@
 .text:0049DBF0
 .text:0049DBF0 loc_49DBF0:                             ; CODE XREF: BMotion__updateMovement+106B\u2191j
 .text:0049DBF0                 mov     ecx, [esi+0A8h]
-.text:0049DBF6                 lea     eax, [esp+278h+var_AC.z+0Ch]
+.text:0049DBF6                 lea     eax, [esp+278h+outVector]
 .text:0049DBFD                 mov     edx, [ecx+18h]
 .text:0049DC00                 mov     ecx, ebp        ; this
 .text:0049DC02                 push    edx             ; wpIndex
@@ -269086,47 +269090,47 @@
 .text:0049DC25                 fmul    [esp+278h+result.y]
 .text:0049DC2C                 mov     edx, [esp+278h+result.x]
 .text:0049DC30                 mov     eax, [esp+278h+result.z]
-.text:0049DC34                 mov     [esp+278h+var_240.z], edx
+.text:0049DC34                 mov     [esp+278h+var_23C.x], edx
 .text:0049DC38                 mov     ecx, [esp+278h+result.y]
 .text:0049DC3F                 faddp   st(1), st
-.text:0049DC41                 mov     [esp+278h+var_240.y], eax
-.text:0049DC45                 mov     [esp+278h+var_234.x], ecx
+.text:0049DC41                 mov     [esp+278h+var_23C.z], eax
+.text:0049DC45                 mov     [esp+278h+var_23C.y], ecx
 .text:0049DC49                 mov     edx, base_game
 .text:0049DC4F                 fsqrt
 .text:0049DC51                 fld     [esp+278h+result.x]
 .text:0049DC55                 fdiv    st, st(1)
-.text:0049DC57                 fstp    [esp+278h+var_240.z]
+.text:0049DC57                 fstp    [esp+278h+var_23C.x]
 .text:0049DC5B                 fld     ds:const_f_zero
 .text:0049DC61                 fdiv    st, st(1)
-.text:0049DC63                 fstp    [esp+278h+var_240.y]
-.text:0049DC67                 fld     [esp+278h+var_234.x]
+.text:0049DC63                 fstp    [esp+278h+var_23C.z]
+.text:0049DC67                 fld     [esp+278h+var_23C.y]
 .text:0049DC6B                 fdiv    st, st(1)
-.text:0049DC6D                 fstp    [esp+278h+var_234.x]
+.text:0049DC6D                 fstp    [esp+278h+var_23C.y]
 .text:0049DC71                 mov     ecx, [edx+420h] ; this
 .text:0049DC77                 fstp    st
 .text:0049DC79                 call    RGE_Game_World__getWorldTimeDeltaSeconds
 .text:0049DC7E                 fld     st
 .text:0049DC80                 fmul    dword ptr [esi+78h]
 .text:0049DC83                 push    ecx             ; float
-.text:0049DC84                 lea     edx, [esp+27Ch+var_240.z] ; v
-.text:0049DC88                 lea     ecx, [esp+27Ch+var_88+4] ; result
+.text:0049DC84                 lea     edx, [esp+27Ch+var_23C] ; v
+.text:0049DC88                 lea     ecx, [esp+27Ch+var_84] ; result
 .text:0049DC8F                 fadd    dword ptr [esi+6Ch]
 .text:0049DC92                 fmul    st, st(1)
 .text:0049DC94                 fstp    [esp+27Ch+var_27C] ; a
 .text:0049DC97                 fstp    st
 .text:0049DC99                 call    operator_mul
 .text:0049DC9E                 push    eax             ; v
-.text:0049DC9F                 lea     eax, [esp+27Ch+var_1B8.z]
+.text:0049DC9F                 lea     eax, [esp+27Ch+var_1B4]
 .text:0049DCA6                 push    eax             ; result
 .text:0049DCA7                 mov     ecx, edi        ; this
 .text:0049DCA9                 call    BVector__operator_plus
-.text:0049DCAE                 mov     ecx, [esp+278h+var_1B8.z]
-.text:0049DCB5                 mov     edx, [esp+278h+var_1B8.y]
-.text:0049DCBC                 mov     eax, [esp+278h+var_1AC.x]
-.text:0049DCC3                 mov     [esp+278h+var_1C4.z], ecx
+.text:0049DCAE                 mov     ecx, [esp+278h+var_1B4.x]
+.text:0049DCB5                 mov     edx, [esp+278h+var_1B4.z]
+.text:0049DCBC                 mov     eax, [esp+278h+var_1B4.y]
+.text:0049DCC3                 mov     [esp+278h+var_1C0.x], ecx
 .text:0049DCCA                 mov     ecx, [esi+0A8h]
-.text:0049DCD0                 mov     [esp+278h+var_1C4.y], edx
-.text:0049DCD7                 mov     [esp+278h+var_1B8.x], eax
+.text:0049DCD0                 mov     [esp+278h+var_1C0.z], edx
+.text:0049DCD7                 mov     [esp+278h+var_1C0.y], eax
 .text:0049DCDE                 lea     eax, [esp+278h+var_170]
 .text:0049DCE5                 mov     edx, [ecx+18h]
 .text:0049DCE8                 mov     ecx, ebp        ; this
@@ -269139,7 +269143,7 @@
 .text:0049DCFB                 push    ecx             ; result
 .text:0049DCFC                 mov     ecx, ebx        ; this
 .text:0049DCFE                 call    BVector__operator_minus
-.text:0049DD03                 lea     edx, [esp+278h+var_1C4.z]
+.text:0049DD03                 lea     edx, [esp+278h+var_1C0]
 .text:0049DD0A                 lea     eax, [esp+278h+var_224]
 .text:0049DD0E                 push    edx             ; v
 .text:0049DD0F                 push    eax             ; result
@@ -269148,7 +269152,7 @@
 .text:0049DD17                 push    edi             ; v
 .text:0049DD18                 lea     ecx, [esp+27Ch+var_1DC]
 .text:0049DD1F                 push    ecx             ; result
-.text:0049DD20                 lea     ecx, [esp+280h+var_1C4.z] ; this
+.text:0049DD20                 lea     ecx, [esp+280h+var_1C0] ; this
 .text:0049DD27                 call    BVector__operator_minus
 .text:0049DD2C                 fld     [esp+278h+p2.x]
 .text:0049DD33                 fmul    [esp+278h+p2.x]
@@ -269257,7 +269261,7 @@
 .text:0049DE9B                 push    1.0             ; radiusModifier
 .text:0049DEA0                 push    ebx             ; checkTerrain
 .text:0049DEA1                 push    eax             ; ignoreListSize
-.text:0049DEA2                 lea     eax, [esp+284h+var_1C4.z]
+.text:0049DEA2                 lea     eax, [esp+284h+var_1C0]
 .text:0049DEA9                 push    offset ignoreUnits ; ignoreList
 .text:0049DEAE                 push    eax             ; p2
 .text:0049DEAF                 lea     eax, [esi+4]
@@ -269568,33 +269572,33 @@
 .text:0049E20B                                         ; BMotion__updateMovement+15FC\u2191j ...
 .text:0049E20B                 lea     ecx, [esi+10h]
 .text:0049E20E                 mov     edx, [esi+10h]
-.text:0049E211                 mov     [esp+278h+v.z], edx
+.text:0049E211                 mov     [esp+278h+v.x], edx
 .text:0049E215                 mov     edx, base_game
 .text:0049E21B                 mov     eax, [ecx+4]
-.text:0049E21E                 fld     [esp+278h+v.z]
+.text:0049E21E                 fld     [esp+278h+v.x]
 .text:0049E222                 mov     ecx, [ecx+8]
-.text:0049E225                 mov     [esp+278h+v.y], eax
-.text:0049E229                 fmul    [esp+278h+v.z]
-.text:0049E22D                 mov     [esp+278h+var_240.x], ecx
-.text:0049E231                 fld     [esp+278h+var_240.x]
-.text:0049E235                 fmul    [esp+278h+var_240.x]
+.text:0049E225                 mov     [esp+278h+v.z], eax
+.text:0049E229                 fmul    [esp+278h+v.x]
+.text:0049E22D                 mov     [esp+278h+v.y], ecx
+.text:0049E231                 fld     [esp+278h+v.y]
+.text:0049E235                 fmul    [esp+278h+v.y]
 .text:0049E239                 faddp   st(1), st
 .text:0049E23B                 fsqrt
-.text:0049E23D                 fld     [esp+278h+v.z]
+.text:0049E23D                 fld     [esp+278h+v.x]
 .text:0049E241                 fdiv    st, st(1)
-.text:0049E243                 fstp    [esp+278h+v.z]
+.text:0049E243                 fstp    [esp+278h+v.x]
 .text:0049E247                 fld     ds:const_f_zero
 .text:0049E24D                 fdiv    st, st(1)
-.text:0049E24F                 fstp    [esp+278h+v.y]
-.text:0049E253                 fld     [esp+278h+var_240.x]
+.text:0049E24F                 fstp    [esp+278h+v.z]
+.text:0049E253                 fld     [esp+278h+v.y]
 .text:0049E257                 fdiv    st, st(1)
-.text:0049E259                 fstp    [esp+278h+var_240.x]
+.text:0049E259                 fstp    [esp+278h+v.y]
 .text:0049E25D                 mov     ecx, [edx+420h] ; this
 .text:0049E263                 fstp    st
 .text:0049E265                 call    RGE_Game_World__getWorldTimeDeltaSeconds
 .text:0049E26A                 fstp    [esp+278h+var_258.z]
-.text:0049E26E                 lea     eax, [esp+278h+v.z]
-.text:0049E272                 lea     ecx, [esp+278h+var_240.z] ; this
+.text:0049E26E                 lea     eax, [esp+278h+v]
+.text:0049E272                 lea     ecx, [esp+278h+var_23C] ; this
 .text:0049E276                 push    eax             ; v
 .text:0049E277                 call    BVector__angleBetweenVector
 .text:0049E27C                 fstp    [esp+278h+var_268]
@@ -269613,13 +269617,13 @@
 .text:0049E29D                 fstp    st
 .text:0049E29F
 .text:0049E29F loc_49E29F:                             ; CODE XREF: BMotion__updateMovement+173B\u2191j
-.text:0049E29F                 lea     ecx, [esp+278h+v.z]
-.text:0049E2A3                 lea     edx, [esp+278h+var_1B8.z]
+.text:0049E29F                 lea     ecx, [esp+278h+v]
+.text:0049E2A3                 lea     edx, [esp+278h+var_1B4]
 .text:0049E2AA                 push    ecx             ; v
 .text:0049E2AB                 push    edx             ; result
-.text:0049E2AC                 lea     ecx, [esp+280h+var_240.z] ; this
+.text:0049E2AC                 lea     ecx, [esp+280h+var_23C] ; this
 .text:0049E2B0                 call    BVector__operator_mul
-.text:0049E2B5                 fld     [esp+278h+var_1B8.y]
+.text:0049E2B5                 fld     [esp+278h+var_1B4.z]
 .text:0049E2BC                 fcomp   ds:const_f_zero
 .text:0049E2C2                 fnstsw  ax
 .text:0049E2C4                 test    ah, 41h
@@ -269639,13 +269643,13 @@
 .text:0049E2EE                 lea     eax, [esi+4Ch]
 .text:0049E2F1                 push    eax             ; axis
 .text:0049E2F2                 push    ecx             ; rads
-.text:0049E2F3                 lea     ecx, [esp+244h] ; this
+.text:0049E2F3                 lea     ecx, [esp+280h+anonymous_1] ; this
 .text:0049E2FA                 call    BMatrix__makeRotateArbitrary
 .text:0049E2FF                 lea     edi, [esi+40h]
 .text:0049E302                 lea     edx, [esp+278h+var_170]
 .text:0049E309                 push    edi             ; vec
 .text:0049E30A                 push    edx             ; result
-.text:0049E30B                 lea     ecx, [esp+244h] ; this
+.text:0049E30B                 lea     ecx, [esp+280h+anonymous_1] ; this
 .text:0049E312                 call    BMatrix__operator_mul
 .text:0049E317                 mov     edx, [eax]
 .text:0049E319                 mov     ecx, edi
@@ -269658,7 +269662,7 @@
 .text:0049E32A                 mov     [ecx+8], eax
 .text:0049E32D                 lea     ecx, [esp+27Ch+var_54]
 .text:0049E334                 push    ecx             ; result
-.text:0049E335                 lea     ecx, [esp+244h] ; this
+.text:0049E335                 lea     ecx, [esp+280h+anonymous_1] ; this
 .text:0049E33C                 call    BMatrix__operator_mul
 .text:0049E341                 mov     ecx, [eax]
 .text:0049E343                 mov     edx, ebx
@@ -280699,53 +280703,59 @@
 .text:004A47B0 var_25C         = dword ptr -25Ch
 .text:004A47B0 obj             = dword ptr -258h
 .text:004A47B0 targetObj       = dword ptr -254h
-.text:004A47B0 numberCollisionUnits= dword ptr -250h
+.text:004A47B0 obSystemToUse   = dword ptr -250h
 .text:004A47B0 var_24C         = dword ptr -24Ch
-.text:004A47B0 var_248         = BVector ptr -248h
+.text:004A47B0 var_248         = dword ptr -248h
+.text:004A47B0 var_244         = dword ptr -244h
+.text:004A47B0 a3              = dword ptr -240h
 .text:004A47B0 var_23C         = dword ptr -23Ch
-.text:004A47B0 var_238         = BVector ptr -238h
-.text:004A47B0 var_22C         = dword ptr -22Ch
+.text:004A47B0 var_238         = dword ptr -238h
+.text:004A47B0 var_234         = BVector ptr -234h
 .text:004A47B0 var_228         = dword ptr -228h
 .text:004A47B0 var_224         = dword ptr -224h
 .text:004A47B0 a4              = BVector ptr -220h
 .text:004A47B0 var_214         = BVector ptr -214h
 .text:004A47B0 var_208         = BVector ptr -208h
-.text:004A47B0 var_1F4         = BVector ptr -1F4h
-.text:004A47B0 p2              = BVector ptr -1E8h
-.text:004A47B0 var_1DC         = BVector ptr -1DCh
-.text:004A47B0 var_1D0         = BVector ptr -1D0h
-.text:004A47B0 newPosition     = BVector ptr -1C4h
+.text:004A47B0 var_1FC         = BVector ptr -1FCh
+.text:004A47B0 var_1F0         = BVector ptr -1F0h
+.text:004A47B0 a2              = BVector ptr -1E4h
+.text:004A47B0 var_1D8         = BVector ptr -1D8h
+.text:004A47B0 var_1CC         = BVector ptr -1CCh
+.text:004A47B0 p2              = BVector ptr -1C0h
 .text:004A47B0 result          = BVector ptr -1B4h
 .text:004A47B0 var_1A8         = BVector ptr -1A8h
 .text:004A47B0 var_19C         = BVector ptr -19Ch
 .text:004A47B0 ReturnPath      = BPath ptr -190h
 .text:004A47B0 var_15C         = BVector ptr -15Ch
 .text:004A47B0 var_150         = BVector ptr -150h
-.text:004A47B0 var_13C         = BVector ptr -13Ch
-.text:004A47B0 var_130         = BVector ptr -130h
-.text:004A47B0 var_124         = BVector ptr -124h
-.text:004A47B0 var_118         = BVector ptr -118h
+.text:004A47B0 var_144         = BVector ptr -144h
+.text:004A47B0 var_138         = BVector ptr -138h
+.text:004A47B0 var_12C         = BVector ptr -12Ch
+.text:004A47B0 var_120         = BVector ptr -120h
+.text:004A47B0 anonymous_1     = BVector ptr -114h
 .text:004A47B0 wpIndex         = dword ptr -108h
-.text:004A47B0 var_100         = BVector ptr -100h
-.text:004A47B0 var_F4          = BVector ptr -0F4h
-.text:004A47B0 var_E8          = BVector ptr -0E8h
-.text:004A47B0 var_DC          = BVector ptr -0DCh
-.text:004A47B0 var_D0          = BVector ptr -0D0h
-.text:004A47B0 var_C4          = BVector ptr -0C4h
-.text:004A47B0 var_B8          = BVector ptr -0B8h
-.text:004A47B0 outVector       = BVector ptr -0ACh
-.text:004A47B0 var_A0          = BVector ptr -0A0h
-.text:004A47B0 var_94          = BVector ptr -94h
-.text:004A47B0 var_88          = BVector ptr -88h
+.text:004A47B0 var_100         = dword ptr -100h
+.text:004A47B0 var_FC          = BVector ptr -0FCh
+.text:004A47B0 var_F0          = BVector ptr -0F0h
+.text:004A47B0 var_E4          = BVector ptr -0E4h
+.text:004A47B0 var_D8          = BVector ptr -0D8h
+.text:004A47B0 var_CC          = BVector ptr -0CCh
+.text:004A47B0 var_C0          = BVector ptr -0C0h
+.text:004A47B0 outVector       = BVector ptr -0B4h
+.text:004A47B0 var_A8          = BVector ptr -0A8h
+.text:004A47B0 var_9C          = BVector ptr -9Ch
+.text:004A47B0 var_90          = BVector ptr -90h
+.text:004A47B0 anonymous_2     = BVector ptr -84h
 .text:004A47B0 var_78          = BVector ptr -78h
 .text:004A47B0 var_6C          = BVector ptr -6Ch
 .text:004A47B0 var_60          = BVector ptr -60h
 .text:004A47B0 var_54          = BVector ptr -54h
 .text:004A47B0 var_48          = byte ptr -48h
-.text:004A47B0 var_40          = BVector ptr -40h
+.text:004A47B0 var_40          = dword ptr -40h
+.text:004A47B0 var_3C          = BVector ptr -3Ch
 .text:004A47B0 var_30          = BVector ptr -30h
 .text:004A47B0 var_24          = BVector ptr -24h
-.text:004A47B0 anonymous_0     = byte ptr -18h
+.text:004A47B0 anonymous_0     = BVector ptr -18h
 .text:004A47B0 var_C           = dword ptr -0Ch
 .text:004A47B0 var_4           = dword ptr -4
 .text:004A47B0
@@ -280777,9 +280787,9 @@
 .text:004A47EF                 call    RGE_Game_World__getWorldTimeDeltaSeconds
 .text:004A47F4                 mov     ecx, [esi+118h]
 .text:004A47FA                 xor     edx, edx
-.text:004A47FC                 fstp    [esp+27Ch+var_248.y]
+.text:004A47FC                 fstp    [esp+27Ch+a3]
 .text:004A4800                 cmp     ecx, edx
-.text:004A4802                 mov     [esp+27Ch+var_238.x], edx
+.text:004A4802                 mov     [esp+27Ch+var_238], edx
 .text:004A4806                 jz      short loc_4A484A
 .text:004A4808                 fld     dword ptr [ecx+28h]
 .text:004A480B                 fcomp   ds:const_f_zero
@@ -280787,7 +280797,7 @@
 .text:004A4813                 test    ah, 41h
 .text:004A4816                 jnz     short loc_4A484A
 .text:004A4818                 fld     dword ptr [ecx+28h]
-.text:004A481B                 fsub    [esp+27Ch+var_248.y]
+.text:004A481B                 fsub    [esp+27Ch+a3]
 .text:004A481F                 fstp    dword ptr [ecx+28h]
 .text:004A4822                 mov     ecx, [esi+118h]
 .text:004A4828                 fld     dword ptr [ecx+28h]
@@ -280808,16 +280818,16 @@
 .text:004A484A                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+66\u2191j
 .text:004A484A                 mov     eax, OBSystem_Land
 .text:004A484F                 mov     ecx, [esi+14h]
-.text:004A4852                 mov     [esp+27Ch+numberCollisionUnits], eax
+.text:004A4852                 mov     [esp+27Ch+obSystemToUse], eax
 .text:004A4856                 cmp     byte ptr [ecx+78h], 1
 .text:004A485A                 jnz     short loc_4A4865
 .text:004A485C                 mov     eax, OBSystem_Air
-.text:004A4861                 mov     [esp+27Ch+numberCollisionUnits], eax
+.text:004A4861                 mov     [esp+27Ch+obSystemToUse], eax
 .text:004A4865
 .text:004A4865 loc_4A4865:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+AA\u2191j
-.text:004A4865                 mov     [esp+27Ch+p2.z], 0
-.text:004A4870                 mov     [esp+27Ch+p2.y], 0
-.text:004A487B                 mov     [esp+27Ch+var_1DC.x], 0
+.text:004A4865                 mov     [esp+27Ch+a2.x], 0
+.text:004A4870                 mov     [esp+27Ch+a2.z], 0
+.text:004A487B                 mov     [esp+27Ch+a2.y], 0
 .text:004A4886                 mov     [esp+27Ch+a4.x], 0
 .text:004A488E                 mov     [esp+27Ch+a4.z], 0
 .text:004A4896                 mov     [esp+27Ch+a4.y], 0
@@ -280914,14 +280924,14 @@
 .text:004A49B9                 call    RGE_Player__availablePathingAttempts
 .text:004A49BE                 test    eax, eax
 .text:004A49C0                 jz      loc_4A5CE5
-.text:004A49C6                 cmp     [esp+27Ch+var_238.x], 3
+.text:004A49C6                 cmp     [esp+27Ch+var_238], 3
 .text:004A49CB                 jge     loc_4A5CE5
 .text:004A49D1                 mov     ecx, [esi+18h]  ; this
 .text:004A49D4                 call    RGE_Player__incrementPathingAttempts
-.text:004A49D9                 mov     eax, [esp+27Ch+var_238.x]
+.text:004A49D9                 mov     eax, [esp+27Ch+var_238]
 .text:004A49DD                 mov     byte ptr [esi+0E5h], 0
 .text:004A49E4                 inc     eax
-.text:004A49E5                 mov     [esp+27Ch+var_238.x], eax
+.text:004A49E5                 mov     [esp+27Ch+var_238], eax
 .text:004A49E9
 .text:004A49E9 loc_4A49E9:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+1FB\u2191j
 .text:004A49E9                 mov     ecx, [esi+118h] ; this
@@ -280959,7 +280969,7 @@
 .text:004A4A49                 push    34h ; '4'       ; size
 .text:004A4A4B                 call    operator_new
 .text:004A4A50                 add     esp, 4
-.text:004A4A53                 mov     [esp+27Ch+var_248.x], eax
+.text:004A4A53                 mov     [esp+27Ch+var_248], eax
 .text:004A4A57                 test    eax, eax
 .text:004A4A59                 mov     [esp+27Ch+var_4], 0
 .text:004A4A64                 jz      short loc_4A4A6F
@@ -281012,9 +281022,9 @@
 .text:004A4AFB
 .text:004A4AFB loc_4A4AFB:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+309\u2191j
 .text:004A4AFB                 mov     eax, [esi+118h]
-.text:004A4B01                 lea     edx, [esp+280h+var_238.z]
+.text:004A4B01                 lea     edx, [esp+280h+var_234]
 .text:004A4B05                 push    edx             ; result
-.text:004A4B06                 lea     edx, [esp+284h+var_F4.z]
+.text:004A4B06                 lea     edx, [esp+284h+var_F0]
 .text:004A4B0D                 mov     ecx, [eax+18h]
 .text:004A4B10                 push    ecx             ; wpIndex
 .text:004A4B11                 push    edx             ; outVector
@@ -281022,12 +281032,12 @@
 .text:004A4B14                 call    BPath__waypoint
 .text:004A4B19                 mov     ecx, eax        ; this
 .text:004A4B1B                 call    BVector__operator_minus
-.text:004A4B20                 fld     [esp+27Ch+var_22C]
-.text:004A4B24                 fmul    [esp+27Ch+var_22C]
-.text:004A4B28                 fld     [esp+27Ch+var_238.z]
-.text:004A4B2C                 fmul    [esp+27Ch+var_238.z]
+.text:004A4B20                 fld     [esp+27Ch+var_234.y]
+.text:004A4B24                 fmul    [esp+27Ch+var_234.y]
+.text:004A4B28                 fld     [esp+27Ch+var_234.x]
+.text:004A4B2C                 fmul    [esp+27Ch+var_234.x]
 .text:004A4B30                 mov     eax, [esi+118h]
-.text:004A4B36                 mov     [esp+27Ch+var_238.y], 0
+.text:004A4B36                 mov     [esp+27Ch+var_234.z], 0
 .text:004A4B3E                 faddp   st(1), st
 .text:004A4B40                 cmp     dword ptr [eax+0Ch], 2
 .text:004A4B44                 fsqrt
@@ -281047,7 +281057,7 @@
 .text:004A4B82                 mov     ecx, [eax+74h]  ; this
 .text:004A4B85                 call    RGE_Map_Analysis_System__get_map_analysis
 .text:004A4B8A                 test    eax, eax
-.text:004A4B8C                 mov     [esp+27Ch+var_248.x], eax
+.text:004A4B8C                 mov     [esp+27Ch+var_248], eax
 .text:004A4B90                 jz      loc_4A4CE0
 .text:004A4B96                 mov     eax, [esi+118h]
 .text:004A4B9C                 mov     [esp+27Ch+var_224], 0
@@ -281086,7 +281096,7 @@
 .text:004A4BFD                 mov     edx, [eax+8]
 .text:004A4C00                 mov     eax, [esi+118h]
 .text:004A4C06                 push    edx             ; dy
-.text:004A4C07                 lea     edx, [esp+150h]
+.text:004A4C07                 lea     edx, [esp+294h+var_144]
 .text:004A4C0E                 mov     ecx, [eax+18h]
 .text:004A4C11                 push    ecx             ; wpIndex
 .text:004A4C12                 push    edx             ; outVector
@@ -281097,7 +281107,7 @@
 .text:004A4C22                 mov     edx, [ebx]
 .text:004A4C24                 push    eax             ; dx
 .text:004A4C25                 push    ecx             ; sy
-.text:004A4C26                 mov     ecx, [esp+29Ch+var_248.x] ; this
+.text:004A4C26                 mov     ecx, [esp+29Ch+var_248] ; this
 .text:004A4C2A                 push    edx             ; sx
 .text:004A4C2B                 push    edi             ; ReturnPath
 .text:004A4C2C                 call    RGE_Map_Analysis__find_path
@@ -281118,26 +281128,26 @@
 .text:004A4C69                 mov     ecx, edi        ; this
 .text:004A4C6B                 dec     eax
 .text:004A4C6C                 push    eax             ; wpIndex
-.text:004A4C6D                 lea     eax, [esp+280h+var_40.z]
+.text:004A4C6D                 lea     eax, [esp+280h+var_3C]
 .text:004A4C74                 push    eax             ; outVector
 .text:004A4C75                 call    BPath__waypoint
 .text:004A4C7A                 mov     edx, [esi+118h]
-.text:004A4C80                 lea     ecx, [esp+27Ch+var_1F4.z]
+.text:004A4C80                 lea     ecx, [esp+27Ch+var_1F0]
 .text:004A4C87                 push    eax             ; v
 .text:004A4C88                 push    ecx             ; result
 .text:004A4C89                 mov     eax, [edx+18h]
-.text:004A4C8C                 lea     ecx, [esp+284h+var_130.z]
+.text:004A4C8C                 lea     ecx, [esp+284h+var_12C]
 .text:004A4C93                 push    eax             ; wpIndex
 .text:004A4C94                 push    ecx             ; outVector
 .text:004A4C95                 mov     ecx, ebp        ; this
 .text:004A4C97                 call    BPath__waypoint
 .text:004A4C9C                 mov     ecx, eax        ; this
 .text:004A4C9E                 call    BVector__operator_minus
-.text:004A4CA3                 fld     [esp+27Ch+p2.x]
-.text:004A4CAA                 fmul    [esp+27Ch+p2.x]
-.text:004A4CB1                 fld     [esp+27Ch+var_1F4.z]
-.text:004A4CB8                 fmul    [esp+27Ch+var_1F4.z]
-.text:004A4CBF                 mov     [esp+27Ch+var_1F4.y], 0
+.text:004A4CA3                 fld     [esp+27Ch+var_1F0.y]
+.text:004A4CAA                 fmul    [esp+27Ch+var_1F0.y]
+.text:004A4CB1                 fld     [esp+27Ch+var_1F0.x]
+.text:004A4CB8                 fmul    [esp+27Ch+var_1F0.x]
+.text:004A4CBF                 mov     [esp+27Ch+var_1F0.z], 0
 .text:004A4CCA                 faddp   st(1), st
 .text:004A4CCC                 fsqrt
 .text:004A4CCE                 fcomp   [esp+27Ch+var_25C]
@@ -281154,7 +281164,7 @@
 .text:004A4CE1                 mov     ecx, edi        ; this
 .text:004A4CE3                 call    BPath__addWaypointAtStart
 .text:004A4CE8                 mov     edx, [esi+118h]
-.text:004A4CEE                 lea     ecx, [esp+27Ch+var_A0.z]
+.text:004A4CEE                 lea     ecx, [esp+27Ch+var_9C]
 .text:004A4CF5                 mov     eax, [edx+18h]
 .text:004A4CF8                 push    eax             ; wpIndex
 .text:004A4CF9                 push    ecx             ; outVector
@@ -281183,7 +281193,7 @@
 .text:004A4D2C                 mov     eax, [esp+27Ch+var_268]
 .text:004A4D30                 xor     ebp, ebp
 .text:004A4D32                 cmp     eax, ebp
-.text:004A4D34                 mov     [esp+27Ch+var_248.z], SINGLE_MAXIMUM_VALUE
+.text:004A4D34                 mov     [esp+27Ch+var_244], SINGLE_MAXIMUM_VALUE
 .text:004A4D3C                 jz      short loc_4A4D48
 .text:004A4D3E                 cmp     dword ptr [edi+0Ch], 2
 .text:004A4D42                 jg      loc_4A4F26
@@ -281290,11 +281300,11 @@
 .text:004A4E63                 mov     edx, [eax+18h]
 .text:004A4E66                 push    ecx             ; unitRadius
 .text:004A4E67                 mov     ecx, [esp+2A8h+var_26C] ; this
-.text:004A4E6B                 lea     eax, [esp+2A8h+var_118.z]
+.text:004A4E6B                 lea     eax, [esp+2A8h+anonymous_1]
 .text:004A4E72                 push    edx             ; wpIndex
 .text:004A4E73                 push    eax             ; outVector
 .text:004A4E74                 call    BPath__waypoint
-.text:004A4E79                 mov     ecx, [esp+2A8h+numberCollisionUnits] ; obstruction_manager
+.text:004A4E79                 mov     ecx, [esp+2A8h+obSystemToUse] ; obstruction_manager
 .text:004A4E7D                 lea     ebx, [esi+0F4h]
 .text:004A4E83                 push    eax             ; goal
 .text:004A4E84                 mov     edx, ebx        ; start
@@ -281328,7 +281338,7 @@
 .text:004A4EE3                 push    eax             ; v
 .text:004A4EE4                 push    ecx             ; result
 .text:004A4EE5                 mov     eax, [edx+18h]
-.text:004A4EE8                 lea     ecx, [esp+284h+var_100.z]
+.text:004A4EE8                 lea     ecx, [esp+284h+var_FC]
 .text:004A4EEF                 push    eax             ; wpIndex
 .text:004A4EF0                 push    ecx             ; outVector
 .text:004A4EF1                 mov     ecx, [esp+28Ch+var_26C] ; this
@@ -281342,7 +281352,7 @@
 .text:004A4F11                 mov     [esp+27Ch+var_214.z], 0
 .text:004A4F19                 faddp   st(1), st
 .text:004A4F1B                 fsqrt
-.text:004A4F1D                 fstp    [esp+27Ch+var_248.z]
+.text:004A4F1D                 fstp    [esp+27Ch+var_244]
 .text:004A4F21                 jmp     loc_4A511F
 .text:004A4F26 ; ---------------------------------------------------------------------------
 .text:004A4F26
@@ -281364,7 +281374,7 @@
 .text:004A4F58
 .text:004A4F58 loc_4A4F58:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+791\u2191j
 .text:004A4F58                 mov     edx, [esi+118h]
-.text:004A4F5E                 lea     ecx, [esp+27Ch+var_1D0.z]
+.text:004A4F5E                 lea     ecx, [esp+27Ch+var_1CC]
 .text:004A4F65                 mov     [esp+27Ch+var_260], 0
 .text:004A4F6D                 mov     eax, [edx+18h]
 .text:004A4F70                 push    eax             ; wpIndex
@@ -281372,12 +281382,12 @@
 .text:004A4F72                 mov     ecx, [esp+284h+var_26C] ; this
 .text:004A4F76                 call    BPath__waypoint
 .text:004A4F7B                 mov     ecx, [esi+14h]
-.text:004A4F7E                 fld     [esp+27Ch+var_1D0.z]
+.text:004A4F7E                 fld     [esp+27Ch+var_1CC.x]
 .text:004A4F85                 fcomp   dword ptr [ecx+3Ch]
 .text:004A4F88                 fnstsw  ax
 .text:004A4F8A                 test    ah, 1
 .text:004A4F8D                 jnz     loc_4A5135
-.text:004A4F93                 fld     [esp+27Ch+newPosition.x]
+.text:004A4F93                 fld     [esp+27Ch+var_1CC.y]
 .text:004A4F9A                 fcomp   dword ptr [ecx+40h]
 .text:004A4F9D                 fnstsw  ax
 .text:004A4F9F                 test    ah, 1
@@ -281387,13 +281397,13 @@
 .text:004A4FB1                 mov     edx, [eax+34h]
 .text:004A4FB4                 fild    dword ptr [edx+8]
 .text:004A4FB7                 fsub    dword ptr [ecx+3Ch]
-.text:004A4FBA                 fcomp   [esp+27Ch+var_1D0.z]
+.text:004A4FBA                 fcomp   [esp+27Ch+var_1CC.x]
 .text:004A4FC1                 fnstsw  ax
 .text:004A4FC3                 test    ah, 1
 .text:004A4FC6                 jnz     loc_4A5135
 .text:004A4FCC                 fild    dword ptr [edx+0Ch]
 .text:004A4FCF                 fsub    dword ptr [ecx+40h]
-.text:004A4FD2                 fcomp   [esp+27Ch+newPosition.x]
+.text:004A4FD2                 fcomp   [esp+27Ch+var_1CC.y]
 .text:004A4FD9                 fnstsw  ax
 .text:004A4FDB                 test    ah, 1
 .text:004A4FDE                 jnz     loc_4A5135
@@ -281469,12 +281479,12 @@
 .text:004A5098                 push    eax             ; ignoreListSize
 .text:004A5099                 mov     eax, [edx+18h]
 .text:004A509C                 push    offset ignoreUnits ; ignoreList
-.text:004A50A1                 lea     ecx, [esp+28Ch+var_88.z]
+.text:004A50A1                 lea     ecx, [esp+28Ch+anonymous_2]
 .text:004A50A8                 push    eax             ; wpIndex
 .text:004A50A9                 push    ecx             ; outVector
 .text:004A50AA                 mov     ecx, [esp+294h+var_26C] ; this
 .text:004A50AE                 call    BPath__waypoint
-.text:004A50B3                 mov     ecx, [esp+28Ch+numberCollisionUnits] ; OB_System_To_Use
+.text:004A50B3                 mov     ecx, [esp+28Ch+obSystemToUse] ; OB_System_To_Use
 .text:004A50B7                 lea     ebx, [esi+0F4h]
 .text:004A50BD                 push    eax             ; p2
 .text:004A50BE                 push    ebx             ; p1
@@ -281488,7 +281498,7 @@
 .text:004A50D2                 mov     dword ptr [edi+0Ch], 0
 .text:004A50D9                 call    BPath__addWaypointAtStart
 .text:004A50DE                 mov     edx, [esi+118h]
-.text:004A50E4                 lea     ecx, [esp+27Ch+var_E8.z]
+.text:004A50E4                 lea     ecx, [esp+27Ch+var_E4]
 .text:004A50EB                 mov     eax, [edx+18h]
 .text:004A50EE                 push    eax             ; wpIndex
 .text:004A50EF                 push    ecx             ; outVector
@@ -281611,7 +281621,7 @@
 .text:004A5264                 mov     edx, [eax+8]
 .text:004A5267                 mov     eax, [esi+118h]
 .text:004A526D                 push    edx             ; dy
-.text:004A526E                 lea     edx, [esp+294h+var_13C.z]
+.text:004A526E                 lea     edx, [esp+294h+var_138]
 .text:004A5275                 mov     ecx, [eax+18h]
 .text:004A5278                 push    ecx             ; wpIndex
 .text:004A5279                 push    edx             ; outVector
@@ -281630,7 +281640,7 @@
 .text:004A529F                 mov     ecx, [esp+27Ch+ReturnPath.waypointsCount]
 .text:004A52A6                 and     eax, 0FFh
 .text:004A52AB                 dec     ecx
-.text:004A52AC                 lea     edx, [esp+27Ch+var_124.z]
+.text:004A52AC                 lea     edx, [esp+27Ch+var_120]
 .text:004A52B3                 push    ecx             ; wpIndex
 .text:004A52B4                 push    edx             ; outVector
 .text:004A52B5                 lea     ecx, [esp+284h+ReturnPath] ; this
@@ -281638,7 +281648,7 @@
 .text:004A52BE                 call    BPath__waypoint
 .text:004A52C3                 mov     ecx, [esi+118h]
 .text:004A52C9                 push    eax             ; v
-.text:004A52CA                 lea     eax, [esp+84h]
+.text:004A52CA                 lea     eax, [esp+280h+var_1FC]
 .text:004A52D1                 mov     edx, [ecx+18h]
 .text:004A52D4                 push    eax             ; result
 .text:004A52D5                 lea     eax, [esp+284h+var_1A8]
@@ -281648,11 +281658,11 @@
 .text:004A52E0                 call    BPath__waypoint
 .text:004A52E5                 mov     ecx, eax        ; this
 .text:004A52E7                 call    BVector__operator_minus
-.text:004A52EC                 fld     [esp+27Ch+var_1F4.x]
-.text:004A52F3                 fmul    [esp+27Ch+var_1F4.x]
-.text:004A52FA                 fld     dword ptr [esp+80h]
-.text:004A5301                 fmul    dword ptr [esp+80h]
-.text:004A5308                 mov     dword ptr [esp+84h], 0
+.text:004A52EC                 fld     [esp+27Ch+var_1FC.y]
+.text:004A52F3                 fmul    [esp+27Ch+var_1FC.y]
+.text:004A52FA                 fld     [esp+27Ch+var_1FC.x]
+.text:004A5301                 fmul    [esp+27Ch+var_1FC.x]
+.text:004A5308                 mov     [esp+27Ch+var_1FC.z], 0
 .text:004A5313                 faddp   st(1), st
 .text:004A5315                 fsqrt
 .text:004A5317                 fst     [esp+27Ch+goal]
@@ -281702,7 +281712,7 @@
 .text:004A5397                 call    __ftol
 .text:004A539C                 mov     edx, [esi+118h]
 .text:004A53A2                 push    eax             ; goalY
-.text:004A53A3                 lea     ecx, [esp+2A0h+var_D0.z]
+.text:004A53A3                 lea     ecx, [esp+2A0h+var_CC]
 .text:004A53AA                 mov     eax, [edx+18h]
 .text:004A53AD                 push    eax             ; wpIndex
 .text:004A53AE                 push    ecx             ; outVector
@@ -281749,7 +281759,7 @@
 .text:004A5433                 lea     edx, [esp+280h+var_208]
 .text:004A5437                 mov     ecx, [eax+18h]
 .text:004A543A                 push    edx             ; result
-.text:004A543B                 lea     edx, [esp+284h+var_B8.z]
+.text:004A543B                 lea     edx, [esp+284h+outVector]
 .text:004A5442                 push    ecx             ; wpIndex
 .text:004A5443                 push    edx             ; outVector
 .text:004A5444                 mov     ecx, ebp        ; this
@@ -281763,21 +281773,21 @@
 .text:004A5462                 mov     [esp+27Ch+var_208.z], 0
 .text:004A546A                 faddp   st(1), st
 .text:004A546C                 fsqrt
-.text:004A546E                 fst     [esp+27Ch+var_248.x]
-.text:004A5472                 fld     [esp+27Ch+var_22C]
-.text:004A5476                 fmul    [esp+27Ch+var_22C]
-.text:004A547A                 fld     [esp+27Ch+var_238.y]
-.text:004A547E                 fmul    [esp+27Ch+var_238.y]
+.text:004A546E                 fst     [esp+27Ch+var_248]
+.text:004A5472                 fld     [esp+27Ch+var_234.y]
+.text:004A5476                 fmul    [esp+27Ch+var_234.y]
+.text:004A547A                 fld     [esp+27Ch+var_234.z]
+.text:004A547E                 fmul    [esp+27Ch+var_234.z]
 .text:004A5482                 faddp   st(1), st
-.text:004A5484                 fld     [esp+27Ch+var_238.z]
-.text:004A5488                 fmul    [esp+27Ch+var_238.z]
+.text:004A5484                 fld     [esp+27Ch+var_234.x]
+.text:004A5488                 fmul    [esp+27Ch+var_234.x]
 .text:004A548C                 faddp   st(1), st
 .text:004A548E                 fsqrt
 .text:004A5490                 fcomp   st(1)
 .text:004A5492                 fnstsw  ax
 .text:004A5494                 test    ah, 1
 .text:004A5497                 jz      short loc_4A54AA
-.text:004A5499                 fstp    [esp+27Ch+var_248.z]
+.text:004A5499                 fstp    [esp+27Ch+var_244]
 .text:004A549D                 xor     eax, eax
 .text:004A549F                 mov     [edi+0Ch], eax
 .text:004A54A2                 mov     [edi+18h], eax
@@ -281797,7 +281807,7 @@
 .text:004A54C3                 test    ebx, ebx
 .text:004A54C5                 jz      loc_4A5564
 .text:004A54CB                 fld     [esp+27Ch+goal]
-.text:004A54CF                 fld     [esp+27Ch+var_248.z]
+.text:004A54CF                 fld     [esp+27Ch+var_244]
 .text:004A54D3                 fcomp   st(1)
 .text:004A54D5                 fnstsw  ax
 .text:004A54D7                 test    ah, 41h
@@ -281949,7 +281959,7 @@
 .text:004A569F                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+E91\u2191j
 .text:004A569F                 mov     eax, [esi+118h]
 .text:004A56A5                 mov     ebp, [esp+27Ch+var_26C]
-.text:004A56A9                 lea     edx, [esp+27Ch+outVector.z]
+.text:004A56A9                 lea     edx, [esp+27Ch+var_A8]
 .text:004A56B0                 lea     ebx, [esi+0F4h]
 .text:004A56B6                 mov     ecx, [eax+18h]
 .text:004A56B9                 push    ecx             ; wpIndex
@@ -281957,16 +281967,16 @@
 .text:004A56BB                 mov     ecx, ebp        ; this
 .text:004A56BD                 call    BPath__waypoint
 .text:004A56C2                 push    eax             ; v
-.text:004A56C3                 lea     eax, [esp+280h+var_1DC.z]
+.text:004A56C3                 lea     eax, [esp+280h+var_1D8]
 .text:004A56CA                 push    eax             ; result
 .text:004A56CB                 mov     ecx, ebx        ; this
 .text:004A56CD                 call    BVector__operator_minus
-.text:004A56D2                 fld     [esp+27Ch+var_1D0.x]
+.text:004A56D2                 fld     [esp+27Ch+var_1D8.y]
 .text:004A56D9                 fld     st
 .text:004A56DB                 fmulp   st(1), st
-.text:004A56DD                 fld     [esp+27Ch+var_1DC.z]
-.text:004A56E4                 fmul    [esp+27Ch+var_1DC.z]
-.text:004A56EB                 mov     [esp+27Ch+var_1DC.y], 0
+.text:004A56DD                 fld     [esp+27Ch+var_1D8.x]
+.text:004A56E4                 fmul    [esp+27Ch+var_1D8.x]
+.text:004A56EB                 mov     [esp+27Ch+var_1D8.z], 0
 .text:004A56F6                 faddp   st(1), st
 .text:004A56F8                 fsqrt
 .text:004A56FA                 fcomp   ds:flt_6565F4
@@ -282000,7 +282010,7 @@
 .text:004A574E                 call    RGE_Game_World__destroyPath2
 .text:004A5753                 mov     ecx, [esi+118h]
 .text:004A5759                 push    0               ; z
-.text:004A575B                 lea     eax, [esp+280h+var_DC.z]
+.text:004A575B                 lea     eax, [esp+280h+var_D8]
 .text:004A5762                 mov     edx, [ecx+18h]
 .text:004A5765                 mov     ecx, ebp        ; this
 .text:004A5767                 dec     edx
@@ -282010,7 +282020,7 @@
 .text:004A576F                 mov     edx, [esi+118h]
 .text:004A5775                 mov     ecx, [eax+8]
 .text:004A5778                 push    ecx             ; y
-.text:004A5779                 lea     ecx, [esp+284h+var_C4.z]
+.text:004A5779                 lea     ecx, [esp+284h+var_C0]
 .text:004A5780                 mov     eax, [edx+18h]
 .text:004A5783                 dec     eax
 .text:004A5784                 push    eax             ; wpIndex
@@ -282093,10 +282103,10 @@
 .text:004A586B loc_4A586B:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+F55\u2191j
 .text:004A586B                 mov     edx, [esi+118h]
 .text:004A5871                 mov     edi, [esi]
-.text:004A5873                 lea     ecx, [esp+27Ch+p2.z]
+.text:004A5873                 lea     ecx, [esp+27Ch+a2]
 .text:004A587A                 mov     eax, [edx+18h]
 .text:004A587D                 push    ecx
-.text:004A587E                 lea     ecx, [esp+280h+var_94.z]
+.text:004A587E                 lea     ecx, [esp+280h+var_90]
 .text:004A5885                 push    eax             ; wpIndex
 .text:004A5886                 push    ecx             ; outVector
 .text:004A5887                 mov     ecx, ebp        ; this
@@ -282105,18 +282115,18 @@
 .text:004A588F                 push    ebx
 .text:004A5890                 mov     ecx, esi
 .text:004A5892                 call    dword ptr [edi+320h]
-.text:004A5898                 mov     eax, [esp+27Ch+var_248.y]
+.text:004A5898                 mov     eax, [esp+27Ch+a3]
 .text:004A589C                 mov     edx, [esi]
 .text:004A589E                 push    eax
-.text:004A589F                 lea     ecx, [esp+280h+p2.z]
-.text:004A58A6                 lea     eax, [esp+280h+newPosition.z]
+.text:004A589F                 lea     ecx, [esp+280h+a2]
+.text:004A58A6                 lea     eax, [esp+280h+p2]
 .text:004A58AD                 push    ecx
 .text:004A58AE                 push    eax
 .text:004A58AF                 mov     ecx, esi
 .text:004A58B1                 call    dword ptr [edx+334h]
 .text:004A58B7                 mov     edx, [esi+118h]
 .text:004A58BD                 mov     edi, [esi]
-.text:004A58BF                 lea     ecx, [esp+27Ch+newPosition.z]
+.text:004A58BF                 lea     ecx, [esp+27Ch+p2]
 .text:004A58C6                 mov     eax, [edx+18h]
 .text:004A58C9                 push    ecx
 .text:004A58CA                 push    ebx
@@ -282224,12 +282234,12 @@
 .text:004A59F2
 .text:004A59F2 loc_4A59F2:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+11F9\u2191j
 .text:004A59F2                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+1212\u2191j ...
-.text:004A59F2                 mov     ecx, [esp+27Ch+numberCollisionUnits] ; OB_System_To_Use
+.text:004A59F2                 mov     ecx, [esp+27Ch+obSystemToUse] ; OB_System_To_Use
 .text:004A59F6                 xor     edi, edi
 .text:004A59F8                 push    1.0             ; radiusModifier
 .text:004A59FD                 push    edi             ; checkTerrain
 .text:004A59FE                 push    eax             ; ignoreListSize
-.text:004A59FF                 lea     edx, [esp+288h+newPosition.z]
+.text:004A59FF                 lea     edx, [esp+288h+p2]
 .text:004A5A06                 push    offset ignoreUnits ; ignoreList
 .text:004A5A0B                 push    edx             ; p2
 .text:004A5A0C                 push    ebx             ; p1
@@ -282353,7 +282363,7 @@
 .text:004A5B65                 mov     [esp+27Ch+goal], eax
 .text:004A5B69                 mov     [esp+27Ch+obj], edx
 .text:004A5B6D                 jl      loc_4A5A40
-.text:004A5B73                 lea     ecx, [esp+27Ch+newPosition.z]
+.text:004A5B73                 lea     ecx, [esp+27Ch+p2]
 .text:004A5B7A                 push    ecx             ; newPosition
 .text:004A5B7B                 mov     ecx, esi        ; this
 .text:004A5B7D                 call    RGE_Moving_Object__resolveCollisions
@@ -282617,10 +282627,10 @@
 .text:004A5E38
 .text:004A5E38 loc_4A5E38:                             ; CODE XREF: RGE_Moving_Object__doIntelligentMovementUpdate+1515\u2191j
 .text:004A5E38                                         ; RGE_Moving_Object__doIntelligentMovementUpdate+15FC\u2191j ...
-.text:004A5E38                 mov     ecx, [esp+27Ch+var_248.y]
+.text:004A5E38                 mov     ecx, [esp+27Ch+a3]
 .text:004A5E3C                 lea     eax, [esp+27Ch+a4]
 .text:004A5E40                 push    eax             ; a4
-.text:004A5E41                 lea     edx, [esp+280h+p2.z]
+.text:004A5E41                 lea     edx, [esp+280h+a2]
 .text:004A5E48                 push    ecx             ; a3
 .text:004A5E49                 push    edx             ; a2
 .text:004A5E4A                 mov     ecx, esi        ; this

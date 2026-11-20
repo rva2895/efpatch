@@ -170261,17 +170261,17 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
   RGE_Moving_Object *v59; // eax
   BUnitGroup *v60; // eax
   TRIBE_World *v61; // ecx
-  int *v62; // eax
+  BPathData *v62; // eax
   BVector *v63; // eax
   int v64; // eax
-  int *v65; // eax
+  BPathData *v65; // eax
   BVector *v66; // eax
   RGE_Moving_Object *v67; // eax
   BUnitGroup *v68; // eax
   BVector *v69; // eax
   BVector *v70; // eax
   BVector *v71; // eax
-  int *v72; // eax
+  BPathData *v72; // eax
   BVector *v73; // eax
   BPathData *v74; // ecx
   BPathData *v75; // ecx
@@ -170345,7 +170345,7 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
   float v143; // [esp+38h] [ebp-264h]
   RGE_Master_Moving_Object *v144; // [esp+38h] [ebp-264h]
   RGE_Airspace_Manager *v145; // [esp+38h] [ebp-264h]
-  void *v146; // [esp+38h] [ebp-264h]
+  int v146; // [esp+38h] [ebp-264h]
   int *v147; // [esp+38h] [ebp-264h]
   ObsRecord **v148; // [esp+38h] [ebp-264h]
   bool v149; // [esp+3Ch] [ebp-260h]
@@ -170354,63 +170354,65 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
   RGE_Master_Moving_Object *v152; // [esp+3Ch] [ebp-260h]
   RGE_Map_Analysis *v153; // [esp+3Ch] [ebp-260h]
   RGE_Map_Analysis *v154; // [esp+3Ch] [ebp-260h]
-  RGE_Map_Analysis *v155; // [esp+3Ch] [ebp-260h]
+  int v155; // [esp+3Ch] [ebp-260h]
   BPathData *v156; // [esp+40h] [ebp-25Ch]
-  BPathData *v157; // [esp+40h] [ebp-25Ch]
+  int v157; // [esp+40h] [ebp-25Ch]
   int v158; // [esp+44h] [ebp-258h]
   int v159; // [esp+44h] [ebp-258h]
   int *v160; // [esp+48h] [ebp-254h]
   float v161; // [esp+48h] [ebp-254h]
   float v162; // [esp+48h] [ebp-254h]
   float v163; // [esp+4Ch] [ebp-250h]
-  BVector v; // [esp+50h] [ebp-24Ch] BYREF
-  BVector v165; // [esp+5Ch] [ebp-240h] BYREF
-  BVector v166; // [esp+68h] [ebp-234h] BYREF
-  float v167; // [esp+74h] [ebp-228h]
+  RGE_Player *v164; // [esp+50h] [ebp-24Ch]
+  BVector v; // [esp+54h] [ebp-248h] BYREF
+  BVector v166; // [esp+60h] [ebp-23Ch] BYREF
+  BVector v167; // [esp+6Ch] [ebp-230h] BYREF
   BVector v168; // [esp+78h] [ebp-224h] BYREF
   RGE_Static_Object *v169; // [esp+84h] [ebp-218h]
   int v170; // [esp+88h] [ebp-214h]
   BVector v171; // [esp+8Ch] [ebp-210h]
   float v172; // [esp+98h] [ebp-204h]
-  BVector result; // [esp+9Ch] [ebp-200h] BYREF
+  BVector v173; // [esp+9Ch] [ebp-200h] BYREF
   BVector v174; // [esp+A8h] [ebp-1F4h] BYREF
   BVector v175; // [esp+B4h] [ebp-1E8h] BYREF
   BVector v176; // [esp+C0h] [ebp-1DCh] BYREF
   BVector p2; // [esp+CCh] [ebp-1D0h] BYREF
-  BVector v178; // [esp+D8h] [ebp-1C4h] BYREF
-  BVector v179; // [esp+E4h] [ebp-1B8h] BYREF
-  BVector v180; // [esp+F0h] [ebp-1ACh] BYREF
-  BVector v181; // [esp+FCh] [ebp-1A0h] BYREF
-  float v182; // [esp+108h] [ebp-194h]
+  int v178; // [esp+D8h] [ebp-1C4h]
+  BVector v179; // [esp+DCh] [ebp-1C0h] BYREF
+  BVector v180; // [esp+E8h] [ebp-1B4h] BYREF
+  BVector v181; // [esp+F4h] [ebp-1A8h] BYREF
+  BVector v182; // [esp+100h] [ebp-19Ch] BYREF
   BVector v183; // [esp+10Ch] [ebp-190h] BYREF
   BVector v184; // [esp+118h] [ebp-184h] BYREF
   int unitsToIgnore; // [esp+124h] [ebp-178h] BYREF
   BVector v186; // [esp+12Ch] [ebp-170h] BYREF
   int v187; // [esp+138h] [ebp-164h] BYREF
-  BVector v188; // [esp+13Ch] [ebp-160h] BYREF
-  int v189[4]; // [esp+148h] [ebp-154h] BYREF
+  BVector v188; // [esp+140h] [ebp-15Ch] BYREF
+  BVector v189; // [esp+14Ch] [ebp-150h] BYREF
   BVector v190; // [esp+158h] [ebp-144h] BYREF
   BVector v191; // [esp+164h] [ebp-138h] BYREF
   BVector v192; // [esp+170h] [ebp-12Ch] BYREF
   BVector v193; // [esp+17Ch] [ebp-120h] BYREF
   BVector v194; // [esp+188h] [ebp-114h] BYREF
-  int v195; // [esp+194h] [ebp-108h] BYREF
-  BVector v196; // [esp+19Ch] [ebp-100h] BYREF
-  BVector v197; // [esp+1A8h] [ebp-F4h] BYREF
-  BVector v198; // [esp+1B4h] [ebp-E8h] BYREF
-  int v199[5]; // [esp+1C0h] [ebp-DCh] BYREF
-  BVector v200; // [esp+1D8h] [ebp-C4h] BYREF
-  BVector v201; // [esp+1E4h] [ebp-B8h] BYREF
-  BVector v202[2]; // [esp+1F0h] [ebp-ACh] BYREF
-  BVector outVector; // [esp+208h] [ebp-94h] BYREF
-  int v204[4]; // [esp+214h] [ebp-88h] BYREF
-  BVector v205; // [esp+224h] [ebp-78h] BYREF
-  BVector v206; // [esp+230h] [ebp-6Ch] BYREF
-  BVector v207; // [esp+23Ch] [ebp-60h] BYREF
-  BVector v208; // [esp+248h] [ebp-54h] BYREF
-  BVector v209; // [esp+254h] [ebp-48h] BYREF
-  BMatrix v210; // [esp+260h] [ebp-3Ch] BYREF
-  int v211; // [esp+298h] [ebp-4h]
+  BVector v195; // [esp+194h] [ebp-108h] BYREF
+  BVector v196; // [esp+1A0h] [ebp-FCh] BYREF
+  BVector v197; // [esp+1ACh] [ebp-F0h] BYREF
+  BVector v198; // [esp+1B8h] [ebp-E4h] BYREF
+  BVector v199; // [esp+1C4h] [ebp-D8h] BYREF
+  BVector v200; // [esp+1D0h] [ebp-CCh] BYREF
+  BVector v201; // [esp+1DCh] [ebp-C0h] BYREF
+  BVector v202; // [esp+1E8h] [ebp-B4h] BYREF
+  BVector v203; // [esp+1F4h] [ebp-A8h] BYREF
+  BVector outVector; // [esp+200h] [ebp-9Ch] BYREF
+  BVector v205; // [esp+20Ch] [ebp-90h] BYREF
+  BVector v206; // [esp+218h] [ebp-84h] BYREF
+  BVector v207; // [esp+224h] [ebp-78h] BYREF
+  BVector v208; // [esp+230h] [ebp-6Ch] BYREF
+  BVector v209; // [esp+23Ch] [ebp-60h] BYREF
+  BVector v210; // [esp+248h] [ebp-54h] BYREF
+  BVector v211; // [esp+254h] [ebp-48h] BYREF
+  BMatrix v212; // [esp+260h] [ebp-3Ch] BYREF
+  int v213; // [esp+298h] [ebp-4h]
 
   v4 = this->mPathData;
   if ( !v4 )
@@ -170476,7 +170478,7 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
                   if ( v11->waypoint < v8->waypointsCount )
                   {
                     v13 = this->vfptr;
-                    v14 = BPath::waypoint(v8, (BVector *)&outVector.z, v11->waypoint);
+                    v14 = BPath::waypoint(v8, &v205, v11->waypoint);
                     ((void (__thiscall *)(BMotion *, _DWORD, _DWORD, _DWORD))v13->setPosition)(
                       this,
                       LODWORD(v14->x),
@@ -170500,7 +170502,7 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
                     v184.y = v20;
                     v184.x = v21;
                     v184.z = 0.0;
-                    v23 = BPath::waypoint(v8, (BVector *)&v200.z, v22 - 1);
+                    v23 = BPath::waypoint(v8, &v201, v22 - 1);
                     BVector::operator_minus(&v184, &v175, v23);
                     v143 = sqrt(v175.x * v175.x + v175.z * v175.z + v175.y * v175.y);
                     if ( v10 )
@@ -170552,7 +170554,7 @@ int __thiscall BMotion::updateMovement(BMotion *this, int doAvailablePathCheck, 
                 }
                 else
                 {
-                  v15 = BPath::waypoint(v8, &v206, this->mPathData->waypoint - 1);
+                  v15 = BPath::waypoint(v8, &v208, this->mPathData->waypoint - 1);
                   BVector::operator_minus(&this->mPosition.mPosition, &v174, v15);
                   v142 = sqrt(v174.x * v174.x + v174.z * v174.z + v174.y * v174.y);
                   if ( v10 )
@@ -170679,7 +170681,7 @@ LABEL_194:
             if ( v26->state != 2 )
               goto LABEL_155;
             v37 = (RGE_Player *)this->mPathUnit->owner;
-            LODWORD(v.x) = v37;
+            v164 = v37;
             if ( doAvailablePathCheck == 1 && !RGE_Player::availablePathingAttempts(v37, this->mNumberWaitDelays) )
             {
               this->vfptr->stopMoving(this);
@@ -170701,11 +170703,11 @@ LABEL_194:
                 goto LABEL_198;
             }
             v43 = (BPathData *)operator_new(0x34u);
-            v211 = 0;
+            v213 = 0;
             if ( v43 )
               v39 = BPathData::BPathData(v43);
             v156 = v39;
-            v211 = -1;
+            v213 = -1;
             if ( !v39 )
             {
               BPathData::setFailure(this->mPathData);
@@ -170730,7 +170732,7 @@ LABEL_199:
             if ( !RGE_Static_Object::isFlagSet((RGE_Static_Object *)this->mPathUnit, 1) )
             {
               BPath::addWaypointAtStart(v44, &this->mPosition.mPosition);
-              v45 = BPath::waypoint(v8, &v205, this->mPathData->waypoint);
+              v45 = BPath::waypoint(v8, &v207, this->mPathData->waypoint);
               BPath::addWaypointAtEnd(v44, v45);
               BPath::calculatePathLength(v44);
               v140 = 1;
@@ -170738,10 +170740,10 @@ LABEL_199:
             }
             v46 = &this->mPosition;
             v47 = BPath::waypoint(v8, &v193, this->mPathData->waypoint);
-            BVector::operator_minus(v47, (BVector *)&v166.z, &this->mPosition.mPosition);
+            BVector::operator_minus(v47, &v167, &this->mPosition.mPosition);
             v48 = this->mPathData;
-            v166.y = 0.0;
-            v163 = sqrt(v166.z * v166.z + v167 * v167);
+            v167.z = 0.0;
+            v163 = sqrt(v167.x * v167.x + v167.y * v167.y);
             if ( v48->waypointLevel == 2 && dword_689568 == 1 && v163 > (double)flt_68F494 )
             {
               v150 = RGE_Map_Analysis_System::get_map_analysis(
@@ -170763,8 +170765,8 @@ LABEL_199:
                 v128 = (RGE_Player *)v52->owner;
                 v126 = v53->range;
                 a = v171.z + v52->master_obj->radius_x;
-                v123 = BPath::waypoint(v8, (BVector *)&v202[0].z, v53->waypoint)->y;
-                v54 = BPath::waypoint(v8, (BVector *)&v195, this->mPathData->waypoint);
+                v123 = BPath::waypoint(v8, &v203, v53->waypoint)->y;
+                v54 = BPath::waypoint(v8, &v195, this->mPathData->waypoint);
                 v55 = RGE_Map_Analysis::find_path(
                         v150,
                         v44,
@@ -170784,11 +170786,11 @@ LABEL_199:
                     v158 = 1;
                     v140 = 1;
                     smoothMidLevelPath(this->mPathUnit, v44);
-                    v132 = BPath::waypoint(v44, &v209, v44->waypointsCount - 1);
-                    v56 = BPath::waypoint(v8, (BVector *)&v197.z, this->mPathData->waypoint);
-                    BVector::operator_minus(v56, (BVector *)&v181.z, v132);
-                    v181.y = 0.0;
-                    if ( sqrt(v182 * v182 + v181.z * v181.z) > v163 )
+                    v132 = BPath::waypoint(v44, &v211, v44->waypointsCount - 1);
+                    v56 = BPath::waypoint(v8, &v197, this->mPathData->waypoint);
+                    BVector::operator_minus(v56, &v182, v132);
+                    v182.z = 0.0;
+                    if ( sqrt(v182.y * v182.y + v182.x * v182.x) > v163 )
                     {
                       v57 = 0;
                       v44->waypointsCount = 0;
@@ -170800,7 +170802,7 @@ LABEL_199:
               else
               {
                 BPath::addWaypointAtStart(v44, &this->mPosition.mPosition);
-                v58 = BPath::waypoint(v8, (BVector *)&v188.z, this->mPathData->waypoint);
+                v58 = BPath::waypoint(v8, &v188, this->mPathData->waypoint);
                 BPath::addWaypointAtEnd(v44, v58);
                 v57 = 1;
                 v158 = 1;
@@ -170824,16 +170826,16 @@ LABEL_93:
                 v144 = this->mPathUnit->master_obj;
                 v151 = (RGE_Map_Analysis *)(v144->movement_type == 1 ? OBSystem_Air : OBSystem_Land);
                 v61 = base_game->world;
-                LODWORD(v178.x) = v60->mNumberUnits;
+                v178 = v60->mNumberUnits;
                 v160 = v60->mUnits;
-                v133 = *(_DWORD *)(LODWORD(v.x) + 160);
-                v62 = &this->mPathData->id;
+                v133 = v164->id;
+                v62 = this->mPathData;
                 v129 = v61->terrains[v144->terrain];
-                v121 = LODWORD(v178.x);
-                dest_target_radius = v62[9];
-                v114 = *((float *)v62 + 8);
+                v121 = v178;
+                dest_target_radius = v62->targetID;
+                v114 = v62->range;
                 v112 = v144->radius_x;
-                v63 = BPath::waypoint(v8, (BVector *)&v199[1], v62[6]);
+                v63 = BPath::waypoint(v8, &v199, v62->waypoint);
                 v64 = findLowLevelPath(
                         v151,
                         &this->mPosition.mPosition,
@@ -170854,13 +170856,13 @@ LABEL_93:
               {
                 v152 = this->mPathUnit->master_obj;
                 v145 = v152->movement_type == 1 ? OBSystem_Air : OBSystem_Land;
-                v65 = &this->mPathData->id;
-                v134 = *(_DWORD *)(LODWORD(v.x) + 160);
+                v65 = this->mPathData;
+                v134 = v164->id;
                 v130 = base_game->world->terrains[v152->terrain];
-                dest_target_radiusa = v65[9];
-                v115 = *((float *)v65 + 8);
+                dest_target_radiusa = v65->targetID;
+                v115 = v65->range;
                 v113 = v152->radius_x;
-                v66 = BPath::waypoint(v8, &v207, v65[6]);
+                v66 = BPath::waypoint(v8, &v209, v65->waypoint);
                 v64 = findLowLevelPath(
                         v145,
                         &this->mPosition.mPosition,
@@ -170877,10 +170879,10 @@ LABEL_93:
                         0,
                         v134);
               }
-              v146 = (void *)v64;
+              v146 = v64;
               BPath::calculatePathLength(v44);
-              v44->creationTimeValue = *(_DWORD *)(*(_DWORD *)(LODWORD(v.x) + 140) + 16);
-              if ( v146 != (void *)3 && v146 != (void *)4 && v44->pathLengthValue > 0.0000001 )
+              v44->creationTimeValue = v164->world->world_time;
+              if ( v146 != 3 && v146 != 4 && v44->pathLengthValue > 0.0000001 )
                 goto LABEL_124;
             }
 LABEL_110:
@@ -170896,7 +170898,7 @@ LABEL_110:
                 v153 = (RGE_Map_Analysis *)(this->mPathUnit->master_obj->movement_type == 1 ? OBSystem_Air : OBSystem_Land);
                 v131 = v68->mNumberUnits;
                 v127 = v68->mUnits;
-                v69 = BPath::waypoint(v8, (BVector *)&v189[1], this->mPathData->waypoint);
+                v69 = BPath::waypoint(v8, &v189, this->mPathData->waypoint);
                 findObSystemCollisions(v153, this->mPathUnit, &this->mPosition.mPosition, v69, v127, v131, 1, 1.0);
               }
               else
@@ -170925,12 +170927,12 @@ LABEL_127:
             if ( dword_68956C == 1 )
             {
               v44->waypointsCount = 0;
-              v72 = &this->mPathData->id;
-              v124 = v72[9];
-              v122 = *((float *)v72 + 8);
+              v72 = this->mPathData;
+              v124 = v72->targetID;
+              v122 = v72->range;
               v120 = this->mPathUnit;
-              dest_target_radiusb = (__int64)BPath::waypoint(v8, &v194, v72[6])->y;
-              v116 = (__int64)BPath::waypoint(v8, (BVector *)&v196.z, this->mPathData->waypoint)->x;
+              dest_target_radiusb = (__int64)BPath::waypoint(v8, &v194, v72->waypoint)->y;
+              v116 = (__int64)BPath::waypoint(v8, &v196, this->mPathData->waypoint)->x;
               v140 = PathingSystem::findTilePath(
                        &pathSystem,
                        (__int64)v46->mPosition.x,
@@ -170945,17 +170947,17 @@ LABEL_127:
                        -1,
                        v44,
                        0);
-              v44->creationTimeValue = *(_DWORD *)(*(_DWORD *)(LODWORD(v.x) + 140) + 16);
+              v44->creationTimeValue = v164->world->world_time;
               BPath::calculatePathLength(v44);
               if ( v44->pathLengthValue >= 0.0000001 )
               {
-                v135 = BPath::waypoint(v44, (BVector *)&v198.z, v44->waypointsCount - 1);
-                v73 = BPath::waypoint(v8, (BVector *)&v199[4], this->mPathData->waypoint);
+                v135 = BPath::waypoint(v44, &v198, v44->waypointsCount - 1);
+                v73 = BPath::waypoint(v8, &v200, this->mPathData->waypoint);
                 BVector::operator_minus(v73, &v183, v135);
-                v171.y = v167;
-                v172 = v166.y;
+                v171.y = v167.y;
+                v172 = v167.z;
                 v183.z = 0.0;
-                if ( sqrt(v166.z * v166.z + v167 * v167 + v166.y * v166.y) < sqrt(v183.x * v183.x + v183.y * v183.y) )
+                if ( sqrt(v167.x * v167.x + v167.y * v167.y + v167.z * v167.z) < sqrt(v183.x * v183.x + v183.y * v183.y) )
                 {
                   v44->waypointsCount = 0;
                   v44->pathLengthValue = 0.0;
@@ -171033,29 +171035,29 @@ LABEL_132:
         this->mPathData = v156;
         v8 = v44;
 LABEL_155:
-        v77 = BPath::waypoint(v8, (BVector *)&v201.z, this->mPathData->waypoint);
-        BVector::operator_minus(&this->mPosition.mPosition, (BVector *)&v180.z, v77);
-        v180.y = 0.0;
-        if ( sqrt(v180.z * v180.z + v181.x * v181.x) < 0.0000001 )
+        v77 = BPath::waypoint(v8, &v202, this->mPathData->waypoint);
+        BVector::operator_minus(&this->mPosition.mPosition, &v181, v77);
+        v181.z = 0.0;
+        if ( sqrt(v181.x * v181.x + v181.y * v181.y) < 0.0000001 )
           goto LABEL_156;
-        v78 = BPath::waypoint(v8, (BVector *)&v202[1].z, this->mPathData->waypoint);
-        BVector::operator_minus(v78, &result, &this->mPosition.mPosition);
-        v79 = sqrt(result.x * result.x + result.y * result.y);
-        v165.z = result.x / v79;
-        v165.y = 0.0 / v79;
-        v166.x = result.y / v79;
+        v78 = BPath::waypoint(v8, &outVector, this->mPathData->waypoint);
+        BVector::operator_minus(v78, &v173, &this->mPosition.mPosition);
+        v79 = sqrt(v173.x * v173.x + v173.y * v173.y);
+        v166.x = v173.x / v79;
+        v166.z = 0.0 / v79;
+        v166.y = v173.y / v79;
         v80 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world);
         v138 = (v80 * this->mAcceleration.y + this->mVelocity.y) * v80;
-        v81 = operator_mul((BVector *)&v204[1], v138, (BVector *)&v165.z);
-        BVector::operator_plus(&this->mPosition.mPosition, (BVector *)&v179.z, v81);
-        v178.z = v179.z;
-        v82 = this->mPathData;
-        v178.y = v179.y;
+        v81 = operator_mul(&v206, v138, &v166);
+        BVector::operator_plus(&this->mPosition.mPosition, &v180, v81);
         v179.x = v180.x;
+        v82 = this->mPathData;
+        v179.z = v180.z;
+        v179.y = v180.y;
         v83 = BPath::waypoint(v8, &v186, v82->waypoint);
         BVector::operator_minus(v83, &p2, &this->mPosition.mPosition);
-        BVector::operator_minus(v83, &v168, (BVector *)&v178.z);
-        BVector::operator_minus((BVector *)&v178.z, &v176, &this->mPosition.mPosition);
+        BVector::operator_minus(v83, &v168, &v179);
+        BVector::operator_minus(&v179, &v176, &this->mPosition.mPosition);
         p2.z = 0.0;
         v168.z = 0.0;
         v84 = sqrt(p2.x * p2.x + p2.y * p2.y);
@@ -171100,15 +171102,7 @@ LABEL_156:
       v91 = OBSystem_Air;
       if ( v90->master_obj->movement_type != 1 )
         v91 = OBSystem_Land;
-      findObSystemCollisions(
-        v91,
-        v90,
-        &this->mPosition.mPosition,
-        (BVector *)&v178.z,
-        ignoreUnits,
-        ignoreListSize,
-        0,
-        1.0);
+      findObSystemCollisions(v91, v90, &this->mPosition.mPosition, &v179, ignoreUnits, ignoreListSize, 0, 1.0);
       if ( numberObSystemCollisions <= 0 )
         break;
       v159 = 0;
@@ -171133,13 +171127,12 @@ LABEL_156:
                   v159 = 1;
                 v96 = v8->creationTimeValue;
                 if ( v96 < v93->vfptr->lastMoveTime(v93) )
-                  v157 = (BPathData *)((char *)v157 + 1);
+                  ++v157;
               }
             }
           }
         }
-        v97 = (int)&v155->mip_maps + 1 < numberObSystemCollisions;
-        v155 = (RGE_Map_Analysis *)((char *)v155 + 1);
+        v97 = ++v155 < numberObSystemCollisions;
         ++v148;
       }
       while ( v97 );
@@ -171150,7 +171143,7 @@ LABEL_156:
       }
       else
       {
-        if ( (int)v157 <= 0 )
+        if ( v157 <= 0 )
           break;
         v98 = this->mPathData->linkedPath;
         if ( !v98 )
@@ -171189,29 +171182,29 @@ LABEL_156:
         sqrt(v168.y * v168.y + v168.z * v168.z + v168.x * v168.x) - v106->range >= 0.0000001) )
   {
 LABEL_209:
-    v.z = this->mPosition.mOrientationForward.x;
-    v165.x = this->mPosition.mOrientationForward.y;
-    v107 = sqrt(v.z * v.z + v165.x * v165.x);
-    v.z = v.z / v107;
-    v.y = 0.0 / v107;
-    v165.x = v165.x / v107;
+    v.x = this->mPosition.mOrientationForward.x;
+    v.y = this->mPosition.mOrientationForward.y;
+    v107 = sqrt(v.x * v.x + v.y * v.y);
+    v.x = v.x / v107;
+    v.z = 0.0 / v107;
+    v.y = v.y / v107;
     v162 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)base_game->world);
-    v141 = BVector::angleBetweenVector((BVector *)&v165.z, (BVector *)&v.z);
+    v141 = BVector::angleBetweenVector(&v166, &v);
     v108 = v162 * this->mMaximumYawPerSecondMoving;
     if ( v141 > v108 )
       v141 = v108;
-    BVector::operator_mul((BVector *)&v165.z, (BVector *)&v179.z, (BVector *)&v.z);
-    if ( v179.y > 0.0 )
+    BVector::operator_mul(&v166, &v180, &v);
+    if ( v180.z > 0.0 )
       v141 = -v141;
     if ( fabs(v141) > 0.0000001000000011686097 )
     {
-      BMatrix::makeRotateArbitrary(&v210, v141, &this->mNewPosition.mOrientationUp);
+      BMatrix::makeRotateArbitrary(&v212, v141, &this->mNewPosition.mOrientationUp);
       v109 = &this->mNewPosition.mOrientationForward;
       this->mNewPosition.mOrientationForward = *BMatrix::operator_mul(
-                                                  &v210,
+                                                  &v212,
                                                   &v186,
                                                   &this->mNewPosition.mOrientationForward);
-      this->mNewPosition.mOrientationRight = *BMatrix::operator_mul(&v210, &v208, &this->mNewPosition.mOrientationRight);
+      this->mNewPosition.mOrientationRight = *BMatrix::operator_mul(&v212, &v210, &this->mNewPosition.mOrientationRight);
       v110 = sqrt(v109->z * v109->z + v109->y * v109->y + v109->x * v109->x);
       this->mNewPosition.mOrientationForward.x = this->mNewPosition.mOrientationForward.x / v110;
       this->mNewPosition.mOrientationForward.z = this->mNewPosition.mOrientationForward.z / v110;
@@ -175953,11 +175946,11 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   int v13; // eax
   BVector *v14; // ebx
   BVector *v15; // eax
-  float v16; // eax
+  int v16; // eax
   BPath *v17; // eax
   RGE_Game_World *v18; // edi
   int v19; // eax
-  BPathData *v20; // eax
+  RGE_Map_Analysis *v20; // eax
   BPathData *v21; // eax
   BPath *v22; // edi
   int v23; // eax
@@ -175977,12 +175970,12 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   int v37; // ecx
   int v38; // ebx
   int *v39; // edx
-  RGE_Static_Object *v40; // eax
+  TRIBE_Building_Object *v40; // eax
   int v41; // ebx
-  int *v42; // edx
+  TRIBE_Building_Object **v42; // edx
   TRIBE_Player *v43; // edx
   RGE_Master_Moving_Object *v44; // ebp
-  int *v45; // eax
+  BPathData *v45; // eax
   BVector *v46; // eax
   int v47; // ebp
   BVector *v48; // eax
@@ -176005,7 +175998,7 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   int v65; // ebx
   BVector *v66; // eax
   long double v67; // st7
-  int *v68; // eax
+  BPathData *v68; // eax
   BVector *v69; // eax
   long double v70; // st7
   int v71; // ebx
@@ -176043,7 +176036,7 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   ObsRecord **v103; // ebx
   RGE_Static_Object *v104; // eax
   int v105; // ecx
-  RGE_Static_Object *v106; // eax
+  TRIBE_Building_Object *v106; // eax
   RGE_Static_Object *v107; // edi
   int v108; // ebp
   BPathData *v109; // edi
@@ -176093,66 +176086,68 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   BPathData *obj; // [esp+3Ch] [ebp-258h]
   ObsRecord **obja; // [esp+3Ch] [ebp-258h]
   RGE_Static_Object *targetObj; // [esp+40h] [ebp-254h] BYREF
-  int numberCollisionUnits; // [esp+44h] [ebp-250h]
+  RGE_Obstruction_Manager *obSystemToUse; // [esp+44h] [ebp-250h]
   RGE_Map_Analysis *v157; // [esp+48h] [ebp-24Ch]
-  BVector v158; // [esp+4Ch] [ebp-248h]
-  BUnitGroup *v159; // [esp+58h] [ebp-23Ch]
-  BVector v160; // [esp+5Ch] [ebp-238h] BYREF
-  float v161; // [esp+68h] [ebp-22Ch]
-  float v162; // [esp+6Ch] [ebp-228h]
-  float v163; // [esp+70h] [ebp-224h]
+  RGE_Map_Analysis *v158; // [esp+4Ch] [ebp-248h]
+  float v159; // [esp+50h] [ebp-244h]
+  float a3; // [esp+54h] [ebp-240h]
+  float v161; // [esp+58h] [ebp-23Ch]
+  int v162; // [esp+5Ch] [ebp-238h]
+  BVector v163; // [esp+60h] [ebp-234h] BYREF
+  float v164; // [esp+6Ch] [ebp-228h]
+  float v165; // [esp+70h] [ebp-224h]
   BVector a4; // [esp+74h] [ebp-220h] BYREF
-  BVector v165; // [esp+80h] [ebp-214h] BYREF
-  BVector v166; // [esp+8Ch] [ebp-208h] BYREF
-  float v167[2]; // [esp+98h] [ebp-1FCh] BYREF
-  BVector v168; // [esp+A0h] [ebp-1F4h] BYREF
-  BVector p2; // [esp+ACh] [ebp-1E8h] BYREF
-  BVector v170; // [esp+B8h] [ebp-1DCh] BYREF
-  BVector v171; // [esp+C4h] [ebp-1D0h] BYREF
-  BVector newPosition; // [esp+D0h] [ebp-1C4h] BYREF
+  BVector v167; // [esp+80h] [ebp-214h] BYREF
+  BVector v168; // [esp+8Ch] [ebp-208h] BYREF
+  BVector v169; // [esp+98h] [ebp-1FCh] BYREF
+  BVector v170; // [esp+A4h] [ebp-1F0h] BYREF
+  BVector a2; // [esp+B0h] [ebp-1E4h] BYREF
+  BVector v172; // [esp+BCh] [ebp-1D8h] BYREF
+  BVector v173; // [esp+C8h] [ebp-1CCh] BYREF
+  BVector p2; // [esp+D4h] [ebp-1C0h] BYREF
   BVector result; // [esp+E0h] [ebp-1B4h] BYREF
-  BVector v174; // [esp+ECh] [ebp-1A8h] BYREF
-  BVector v175; // [esp+F8h] [ebp-19Ch] BYREF
+  BVector v176; // [esp+ECh] [ebp-1A8h] BYREF
+  BVector v177; // [esp+F8h] [ebp-19Ch] BYREF
   BPath ReturnPath; // [esp+104h] [ebp-190h] BYREF
-  BVector v177; // [esp+138h] [ebp-15Ch] BYREF
-  BVector v178; // [esp+144h] [ebp-150h] BYREF
-  int v179; // [esp+150h] [ebp-144h] BYREF
-  BVector v180; // [esp+158h] [ebp-13Ch] BYREF
-  BVector v181; // [esp+164h] [ebp-130h] BYREF
-  BVector v182; // [esp+170h] [ebp-124h] BYREF
-  BVector v183; // [esp+17Ch] [ebp-118h] BYREF
-  int wpIndex; // [esp+18Ch] [ebp-108h] BYREF
-  BVector v185; // [esp+194h] [ebp-100h] BYREF
-  BVector v186; // [esp+1A0h] [ebp-F4h] BYREF
-  BVector v187; // [esp+1ACh] [ebp-E8h] BYREF
-  BVector v188; // [esp+1B8h] [ebp-DCh] BYREF
-  BVector v189; // [esp+1C4h] [ebp-D0h] BYREF
-  BVector v190; // [esp+1D0h] [ebp-C4h] BYREF
-  BVector v191; // [esp+1DCh] [ebp-B8h] BYREF
-  BVector outVector; // [esp+1E8h] [ebp-ACh] BYREF
-  BVector v193; // [esp+1F4h] [ebp-A0h] BYREF
-  BVector v194; // [esp+200h] [ebp-94h] BYREF
-  BVector v195; // [esp+20Ch] [ebp-88h] BYREF
-  BVector v196; // [esp+21Ch] [ebp-78h] BYREF
-  BVector v197; // [esp+228h] [ebp-6Ch] BYREF
-  BVector v198; // [esp+234h] [ebp-60h] BYREF
-  BVector v199; // [esp+240h] [ebp-54h] BYREF
-  char v200; // [esp+24Ch] [ebp-48h] BYREF
-  BVector v201; // [esp+254h] [ebp-40h] BYREF
-  BVector v202; // [esp+264h] [ebp-30h] BYREF
-  BVector v203; // [esp+270h] [ebp-24h] BYREF
-  BVector v204; // [esp+27Ch] [ebp-18h] BYREF
-  int v205; // [esp+290h] [ebp-4h]
+  BVector v179; // [esp+138h] [ebp-15Ch] BYREF
+  BVector v180; // [esp+144h] [ebp-150h] BYREF
+  BVector v181; // [esp+150h] [ebp-144h] BYREF
+  BVector v182; // [esp+15Ch] [ebp-138h] BYREF
+  BVector v183; // [esp+168h] [ebp-12Ch] BYREF
+  BVector v184; // [esp+174h] [ebp-120h] BYREF
+  BVector v185; // [esp+180h] [ebp-114h] BYREF
+  BVector wpIndex; // [esp+18Ch] [ebp-108h] BYREF
+  BVector v187; // [esp+198h] [ebp-FCh] BYREF
+  BVector v188; // [esp+1A4h] [ebp-F0h] BYREF
+  BVector v189; // [esp+1B0h] [ebp-E4h] BYREF
+  BVector v190; // [esp+1BCh] [ebp-D8h] BYREF
+  BVector v191; // [esp+1C8h] [ebp-CCh] BYREF
+  BVector v192; // [esp+1D4h] [ebp-C0h] BYREF
+  BVector outVector; // [esp+1E0h] [ebp-B4h] BYREF
+  BVector v194; // [esp+1ECh] [ebp-A8h] BYREF
+  BVector v195; // [esp+1F8h] [ebp-9Ch] BYREF
+  BVector v196; // [esp+204h] [ebp-90h] BYREF
+  BVector v197; // [esp+210h] [ebp-84h] BYREF
+  BVector v198; // [esp+21Ch] [ebp-78h] BYREF
+  BVector v199; // [esp+228h] [ebp-6Ch] BYREF
+  BVector v200; // [esp+234h] [ebp-60h] BYREF
+  BVector v201; // [esp+240h] [ebp-54h] BYREF
+  BVector v202; // [esp+24Ch] [ebp-48h] BYREF
+  BVector v203; // [esp+258h] [ebp-3Ch] BYREF
+  BVector v204; // [esp+264h] [ebp-30h] BYREF
+  BVector v205; // [esp+270h] [ebp-24h] BYREF
+  BVector v206; // [esp+27Ch] [ebp-18h] BYREF
+  int v207; // [esp+290h] [ebp-4h]
 
   if ( RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 2) )
     return 1;
   v3 = RGE_Game_World::getWorldTimeDeltaSeconds((RGE_Game_World *)this->owner->world);
   v4 = this->pathData;
-  v158.y = v3;
-  v160.x = 0.0;
+  a3 = v3;
+  v162 = 0;
   if ( v4 && v4->pauseTime > 0.0 )
   {
-    v4->pauseTime = v4->pauseTime - v158.y;
+    v4->pauseTime = v4->pauseTime - a3;
     v5 = this->pathData;
     if ( v5->pauseTime > 0.0 )
     {
@@ -176162,12 +176157,12 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
     v5->pauseTime = 0.0;
   }
   v6 = this->master_obj;
-  numberCollisionUnits = (int)OBSystem_Land;
+  obSystemToUse = OBSystem_Land;
   if ( v6->movement_type == 1 )
-    numberCollisionUnits = (int)OBSystem_Air;
-  p2.z = 0.0;
-  p2.y = 0.0;
-  v170.x = 0.0;
+    obSystemToUse = (RGE_Obstruction_Manager *)OBSystem_Air;
+  a2.x = 0.0;
+  a2.z = 0.0;
+  a2.y = 0.0;
   a4.x = 0.0;
   a4.z = 0.0;
   a4.y = 0.0;
@@ -176201,7 +176196,7 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
             goal = RGE_Moving_Object::precalcDistToTarget(this, &targetObj);
             v10 = RGE_Moving_Object::precalcDistToGoal(this, targetObj, goal);
             v11 = this->pathData;
-            *(float *)&v159 = v10;
+            v161 = v10;
             if ( (BBitVectorAND_2 & v11->mFlags.valueValue) != 0
               && !RGE_Moving_Object::incrementWaypoint(this, v8, targetObj) )
             {
@@ -176217,22 +176212,21 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
           if ( v13 != 2 )
             break;
           v14 = &this->positionValue;
-          v15 = BPath::waypoint(v8, (BVector *)&wpIndex, v12->waypoint);
+          v15 = BPath::waypoint(v8, &wpIndex, v12->waypoint);
           BVector::operator_minus(&this->positionValue, &result, v15);
           result.z = 0.0;
           if ( RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 1) )
           {
-            if ( !RGE_Player::availablePathingAttempts((RGE_Player *)this->owner, this->numberWaitDelays)
-              || SLODWORD(v160.x) >= 3 )
+            if ( !RGE_Player::availablePathingAttempts((RGE_Player *)this->owner, this->numberWaitDelays) || v162 >= 3 )
             {
               this->vfptr->stopMoving(this);
               ++this->numberWaitDelays;
               return 0;
             }
             RGE_Player::incrementPathingAttempts((RGE_Player *)this->owner);
-            v16 = v160.x;
+            v16 = v162;
             this->numberWaitDelays = 0;
-            LODWORD(v160.x) = LODWORD(v16) + 1;
+            v162 = v16 + 1;
           }
           v17 = BPathData::highestLinkedPathPointer(this->pathData);
           if ( !v17
@@ -176249,15 +176243,15 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
             }
           }
           this->vfptr->setWaitingToMove(this, 0);
-          v20 = (BPathData *)operator_new(0x34u);
-          LODWORD(v158.x) = v20;
-          v205 = 0;
-          if ( v20 )
-            v21 = BPathData::BPathData(v20);
-          else
+          *(float *)&v20 = COERCE_FLOAT(operator_new(0x34u));
+          v158 = v20;
+          v207 = 0;
+          if ( *(float *)&v20 == 0.0 )
             v21 = 0;
+          else
+            v21 = BPathData::BPathData((BPathData *)v20);
           obj = v21;
-          v205 = -1;
+          v207 = -1;
           if ( !v21 )
           {
 LABEL_232:
@@ -176285,41 +176279,52 @@ LABEL_229:
           if ( !v23 )
           {
             BPath::addWaypointAtStart(v22, v136);
-            v24 = BPath::waypoint(v8, &v177, this->pathData->waypoint);
+            v24 = BPath::waypoint(v8, &v179, this->pathData->waypoint);
             BPath::addWaypointAtEnd(v22, v24);
             BPath::calculatePathLength(v22);
             v25 = v142;
             v143 = 1;
             goto LABEL_129;
           }
-          v26 = BPath::waypoint(v8, (BVector *)&v186.z, this->pathData->waypoint);
-          BVector::operator_minus(v26, (BVector *)&v160.z, v136);
+          v26 = BPath::waypoint(v8, &v188, this->pathData->waypoint);
+          BVector::operator_minus(v26, &v163, v136);
           v27 = this->pathData;
-          v160.y = 0.0;
-          v151 = sqrt(v161 * v161 + v160.z * v160.z);
+          v163.z = 0.0;
+          v151 = sqrt(v163.y * v163.y + v163.x * v163.x);
           if ( v27->waypointLevel == 2 && dword_689568 == 1 && v151 > (double)flt_68F494 )
           {
-            LODWORD(v158.x) = RGE_Map_Analysis_System::get_map_analysis(
-                                base_game->world->map_analysis_system,
-                                (RGE_Master_Static_Object *)this->master_obj);
-            if ( LODWORD(v158.x) )
+            *(float *)&v158 = COERCE_FLOAT(
+                                RGE_Map_Analysis_System::get_map_analysis(
+                                  base_game->world->map_analysis_system,
+                                  (RGE_Master_Static_Object *)this->master_obj));
+            if ( *(float *)&v158 == 0.0 )
+            {
+              BPath::addWaypointAtStart(v22, &this->positionValue);
+              v36 = BPath::waypoint(v8, &v195, this->pathData->waypoint);
+              BPath::addWaypointAtEnd(v22, v36);
+              v35 = 1;
+              v149 = 1;
+LABEL_50:
+              v143 = v35;
+            }
+            else
             {
               v28 = this->pathData;
-              v163 = 0.0;
+              v165 = 0.0;
               v29 = v28->targetID;
               if ( v29 != -1 )
               {
                 v30 = RGE_Game_World::object((RGE_Game_World *)base_game->world, v29);
                 if ( v30 )
-                  v163 = v30->master_obj->radius_x;
+                  v165 = v30->master_obj->radius_x;
               }
               v31 = this->pathData;
               v130 = v31->range;
-              v127 = v163 + this->master_obj->radius_x;
-              dest_target_radius = BPath::waypoint(v8, &v204, v31->waypoint)->y;
-              v32 = BPath::waypoint(v8, (BVector *)&v179, this->pathData->waypoint);
+              v127 = v165 + this->master_obj->radius_x;
+              dest_target_radius = BPath::waypoint(v8, &v206, v31->waypoint)->y;
+              v32 = BPath::waypoint(v8, &v181, this->pathData->waypoint);
               v33 = RGE_Map_Analysis::find_path(
-                      (RGE_Map_Analysis *)LODWORD(v158.x),
+                      v158,
                       v22,
                       v14->x,
                       this->positionValue.y,
@@ -176337,11 +176342,11 @@ LABEL_229:
                   v149 = 1;
                   v143 = 1;
                   smoothMidLevelPath(this, v22);
-                  v137 = BPath::waypoint(v22, (BVector *)&v201.z, v22->waypointsCount - 1);
-                  v34 = BPath::waypoint(v8, (BVector *)&v181.z, this->pathData->waypoint);
-                  BVector::operator_minus(v34, (BVector *)&v168.z, v137);
-                  v168.y = 0.0;
-                  if ( sqrt(p2.x * p2.x + v168.z * v168.z) > v151 )
+                  v137 = BPath::waypoint(v22, &v203, v22->waypointsCount - 1);
+                  v34 = BPath::waypoint(v8, &v183, this->pathData->waypoint);
+                  BVector::operator_minus(v34, &v170, v137);
+                  v170.z = 0.0;
+                  if ( sqrt(v170.y * v170.y + v170.x * v170.x) > v151 )
                   {
                     v35 = 0;
                     v22->waypointsCount = 0;
@@ -176350,20 +176355,10 @@ LABEL_229:
                 }
               }
             }
-            else
-            {
-              BPath::addWaypointAtStart(v22, &this->positionValue);
-              v36 = BPath::waypoint(v8, (BVector *)&v193.z, this->pathData->waypoint);
-              BPath::addWaypointAtEnd(v22, v36);
-              v35 = 1;
-              v149 = 1;
-LABEL_50:
-              v143 = v35;
-            }
             BPath::calculatePathLength(v22);
             v22->creationTimeValue = this->owner->world->world_time;
           }
-          v158.z = 3.4028235e38;
+          v159 = 3.4028235e38;
           if ( v143 && v22->waypointsCount > 2 || dword_689564 != 1 || v151 > 10.0 )
             goto LABEL_73;
           v37 = 0;
@@ -176394,7 +176389,7 @@ LABEL_50:
               while ( v38 < 4 );
             }
           }
-          v40 = targetObj;
+          v40 = (TRIBE_Building_Object *)targetObj;
           if ( targetObj )
           {
             if ( v37 < 128 )
@@ -176404,12 +176399,12 @@ LABEL_50:
               if ( v40->type == 80 )
               {
                 v41 = 0;
-                v42 = &v40[2].damaged_lately_timer;
+                v42 = v40->linked_child;
                 do
                 {
                   if ( *v42 )
                   {
-                    ignoreUnits[v37++] = *(_DWORD *)(*v42 + 16);
+                    ignoreUnits[v37++] = (*v42)->id;
                     ignoreListSize = v37;
                     if ( v37 >= 128 )
                       break;
@@ -176423,18 +176418,18 @@ LABEL_50:
           }
           v43 = this->owner;
           v44 = this->master_obj;
-          v45 = &this->pathData->id;
+          v45 = this->pathData;
           v138 = v43->id;
           v132 = v43->world->terrains[v44->terrain];
           v128 = (BPath *)v157;
           v122 = v37;
-          v120 = v45[9];
-          v118 = *((float *)v45 + 8);
+          v120 = v45->targetID;
+          v118 = v45->range;
           v117 = v44->radius_x;
-          v46 = BPath::waypoint(v142, (BVector *)&v183.z, v45[6]);
+          v46 = BPath::waypoint(v142, &v185, v45->waypoint);
           v14 = &this->positionValue;
           v47 = findLowLevelPath(
-                  (void *)numberCollisionUnits,
+                  obSystemToUse,
                   &this->positionValue,
                   v46,
                   v117,
@@ -176458,18 +176453,15 @@ LABEL_73:
               if ( v151 >= 1.0 && goal >= 1.0 )
                 goto LABEL_97;
               v149 = 0;
-              BPath::waypoint(v142, (BVector *)&v171.z, this->pathData->waypoint);
+              BPath::waypoint(v142, &v173, this->pathData->waypoint);
               v49 = this->master_obj;
-              if ( v171.z < (double)v49->radius_x )
+              if ( v173.x < (double)v49->radius_x )
                 goto LABEL_97;
-              if ( newPosition.x < (double)v49->radius_y )
+              if ( v173.y < (double)v49->radius_y )
                 goto LABEL_97;
               v50 = this->owner->world->map;
-              if ( (double)v50->map_width - v49->radius_x < v171.z
-                || (double)v50->map_height - v49->radius_y < newPosition.x )
-              {
+              if ( (double)v50->map_width - v49->radius_x < v173.x || (double)v50->map_height - v49->radius_y < v173.y )
                 goto LABEL_97;
-              }
               v51 = 0;
               ignoreListSize = 0;
               if ( this )
@@ -176524,22 +176516,14 @@ LABEL_73:
                 }
               }
               v133 = v51;
-              v57 = BPath::waypoint(v142, (BVector *)&v195.z, this->pathData->waypoint);
+              v57 = BPath::waypoint(v142, &v197, this->pathData->waypoint);
               v14 = &this->positionValue;
-              findObSystemCollisions(
-                (void *)numberCollisionUnits,
-                this,
-                &this->positionValue,
-                v57,
-                ignoreUnits,
-                v133,
-                1,
-                1.0);
+              findObSystemCollisions(obSystemToUse, this, &this->positionValue, v57, ignoreUnits, v133, 1, 1.0);
               if ( numberObSystemCollisions )
                 goto LABEL_97;
               v22->waypointsCount = 0;
               BPath::addWaypointAtStart(v22, &this->positionValue);
-              v58 = BPath::waypoint(v142, (BVector *)&v187.z, this->pathData->waypoint);
+              v58 = BPath::waypoint(v142, &v189, this->pathData->waypoint);
               BPath::addWaypointAtEnd(v22, v58);
               v22->creationTimeValue = this->owner->world->world_time;
               BPath::calculatePathLength(v22);
@@ -176549,11 +176533,11 @@ LABEL_73:
           else
           {
             v143 = 1;
-            v139 = BPath::waypoint(v22, &v199, v22->waypointsCount - 1);
-            v48 = BPath::waypoint(v142, (BVector *)&v185.z, this->pathData->waypoint);
-            BVector::operator_minus(v48, &v165, v139);
-            v165.z = 0.0;
-            v158.z = sqrt(v165.y * v165.y + v165.x * v165.x);
+            v139 = BPath::waypoint(v22, &v201, v22->waypointsCount - 1);
+            v48 = BPath::waypoint(v142, &v187, this->pathData->waypoint);
+            BVector::operator_minus(v48, &v167, v139);
+            v167.z = 0.0;
+            v159 = sqrt(v167.y * v167.y + v167.x * v167.x);
           }
           if ( v22->waypointsCount >= 2 && v22->pathLengthValue >= 0.0099999998 )
             goto LABEL_99;
@@ -176572,12 +176556,12 @@ LABEL_97:
           {
             v25 = v142;
             v22->waypointsCount = 0;
-            v68 = &this->pathData->id;
+            v68 = this->pathData;
             v149 = 0;
-            dest_target_radiusb = v68[9];
-            v123 = *((float *)v68 + 8);
-            v121 = (__int64)BPath::waypoint(v142, &v203, v68[6])->y;
-            v119 = (__int64)BPath::waypoint(v142, (BVector *)&v189.z, this->pathData->waypoint)->x;
+            dest_target_radiusb = v68->targetID;
+            v123 = v68->range;
+            v121 = (__int64)BPath::waypoint(v142, &v205, v68->waypoint)->y;
+            v119 = (__int64)BPath::waypoint(v142, &v191, this->pathData->waypoint)->x;
             v143 = PathingSystem::findTilePath(
                      &pathSystem,
                      (__int64)v14->x,
@@ -176604,23 +176588,23 @@ LABEL_103:
                           base_game->world->map_analysis_system,
                           (RGE_Master_Static_Object *)this->master_obj);
                 BPath::BPath(&ReturnPath, -1);
-                v205 = 1;
+                v207 = 1;
                 if ( goala )
                 {
                   v60 = this->pathData;
-                  v162 = 0.0;
+                  v164 = 0.0;
                   v61 = v60->targetID;
                   if ( v61 != -1 )
                   {
                     v62 = RGE_Game_World::object((RGE_Game_World *)base_game->world, v61);
                     if ( v62 )
-                      v162 = v62->master_obj->radius_x;
+                      v164 = v62->master_obj->radius_x;
                   }
                   v63 = this->pathData;
                   v131 = v63->range;
-                  v129 = v162 + this->master_obj->radius_x;
-                  dest_target_radiusa = BPath::waypoint(v25, &v178, v63->waypoint)->y;
-                  v64 = BPath::waypoint(v25, (BVector *)&v180.z, this->pathData->waypoint);
+                  v129 = v164 + this->master_obj->radius_x;
+                  dest_target_radiusa = BPath::waypoint(v25, &v180, v63->waypoint)->y;
+                  v64 = BPath::waypoint(v25, &v182, this->pathData->waypoint);
                   v65 = RGE_Map_Analysis::find_path(
                           goala,
                           &ReturnPath,
@@ -176633,11 +176617,11 @@ LABEL_103:
                           0,
                           0,
                           0);
-                  v140 = BPath::waypoint(&ReturnPath, (BVector *)&v182.z, ReturnPath.waypointsCount - 1);
-                  v66 = BPath::waypoint(v25, &v174, this->pathData->waypoint);
-                  BVector::operator_minus(v66, (BVector *)v167, v140);
-                  v167[1] = 0.0;
-                  v67 = sqrt(v168.x * v168.x + v167[0] * v167[0]);
+                  v140 = BPath::waypoint(&ReturnPath, &v184, ReturnPath.waypointsCount - 1);
+                  v66 = BPath::waypoint(v25, &v176, this->pathData->waypoint);
+                  BVector::operator_minus(v66, &v169, v140);
+                  v169.z = 0.0;
+                  v67 = sqrt(v169.y * v169.y + v169.x * v169.x);
                   if ( v67 <= v151 )
                   {
                     if ( v65 != 3 && v65 != 4 )
@@ -176645,7 +176629,7 @@ LABEL_103:
                       if ( v65 )
                       {
                         goald = v67;
-                        if ( v158.z > (double)goald )
+                        if ( v159 > (double)goald )
                         {
                           v71 = 0;
                           v72 = ReturnPath.waypointsCount <= 0;
@@ -176654,7 +176638,7 @@ LABEL_103:
                           {
                             do
                             {
-                              v73 = BPath::waypoint(&ReturnPath, &v175, v71);
+                              v73 = BPath::waypoint(&ReturnPath, &v177, v71);
                               BPath::addWaypointAtEnd(v22, v73);
                               ++v71;
                             }
@@ -176680,20 +176664,20 @@ LABEL_103:
                     v22->waypointsCount = 0;
                   }
                 }
-                v205 = -1;
+                v207 = -1;
                 BPath::destructor(&ReturnPath);
               }
               goto LABEL_129;
             }
-            v141 = BPath::waypoint(v22, &v197, v22->waypointsCount - 1);
-            v69 = BPath::waypoint(v142, (BVector *)&v191.z, this->pathData->waypoint);
-            BVector::operator_minus(v69, &v166, v141);
-            v166.z = 0.0;
-            v70 = sqrt(v166.y * v166.y + v166.x * v166.x);
-            v158.x = v70;
-            if ( sqrt(v161 * v161 + v160.y * v160.y + v160.z * v160.z) < v70 )
+            v141 = BPath::waypoint(v22, &v199, v22->waypointsCount - 1);
+            v69 = BPath::waypoint(v142, &outVector, this->pathData->waypoint);
+            BVector::operator_minus(v69, &v168, v141);
+            v168.z = 0.0;
+            v70 = sqrt(v168.y * v168.y + v168.x * v168.x);
+            *(float *)&v158 = v70;
+            if ( sqrt(v163.y * v163.y + v163.z * v163.z + v163.x * v163.x) < v70 )
             {
-              v158.z = v70;
+              v159 = v70;
               v22->waypointsCount = 0;
               v22->pathLengthValue = 0.0;
             }
@@ -176710,8 +176694,8 @@ LABEL_129:
             BPathData::destructor(obj);
             operator_delete(obj);
             RGE_Game_World::destroyPath2((RGE_Game_World *)base_game->world, v22);
-            v134 = BPath::waypoint(v25, (BVector *)&v188.z, this->pathData->waypoint - 1)->y;
-            v78 = BPath::waypoint(v25, (BVector *)&v190.z, this->pathData->waypoint - 1);
+            v134 = BPath::waypoint(v25, &v190, this->pathData->waypoint - 1)->y;
+            v78 = BPath::waypoint(v25, &v192, this->pathData->waypoint - 1);
             RGE_Static_Object::distance_to_position((RGE_Static_Object *)this, v78->x, v134, 0.0);
             if ( targetObj )
             {
@@ -176720,7 +176704,7 @@ LABEL_129:
               if ( (v79->mFlags.valueValue & 4) != 0 )
                 BPathData::setFlag(v79, 2, 0);
             }
-            if ( v143 && (v80 = this->pathData, *(float *)&v159 <= (double)v80->range) )
+            if ( v143 && (v80 = this->pathData, v161 <= (double)v80->range) )
             {
               if ( (v25->flags.valueValue & BBitVectorAND_2) == 0 )
                 goto LABEL_239;
@@ -176783,22 +176767,22 @@ LABEL_151:
           }
         }
         v76 = v142;
-        v77 = BPath::waypoint(v142, (BVector *)&outVector.z, this->pathData->waypoint);
-        BVector::operator_minus(&this->positionValue, (BVector *)&v170.z, v77);
-        v170.y = 0.0;
-        if ( sqrt(v171.x * v171.x + v170.z * v170.z) >= 0.0000001 )
+        v77 = BPath::waypoint(v142, &v194, this->pathData->waypoint);
+        BVector::operator_minus(&this->positionValue, &v172, v77);
+        v172.z = 0.0;
+        if ( sqrt(v172.y * v172.y + v172.x * v172.x) >= 0.0000001 )
         {
           v82 = this->vfptr;
-          v83 = BPath::waypoint(v142, (BVector *)&v194.z, this->pathData->waypoint);
-          v82->calculateForward(this, &this->positionValue, v83, (BVector *)&p2.z);
-          ((void (__thiscall *)(RGE_Moving_Object *, float *, float *, _DWORD))this->vfptr->straightProjectedPosition)(
+          v83 = BPath::waypoint(v142, &v196, this->pathData->waypoint);
+          v82->calculateForward(this, &this->positionValue, v83, &a2);
+          ((void (__thiscall *)(RGE_Moving_Object *, BVector *, BVector *, _DWORD))this->vfptr->straightProjectedPosition)(
             this,
-            &newPosition.z,
-            &p2.z,
-            LODWORD(v158.y));
+            &p2,
+            &a2,
+            LODWORD(a3));
           v84 = this->vfptr;
-          v85 = BPath::waypoint(v142, &v196, this->pathData->waypoint);
-          v86 = v84->calculateReachedPoint(this, v85, &this->positionValue, (BVector *)&newPosition.z);
+          v85 = BPath::waypoint(v142, &v198, this->pathData->waypoint);
+          v86 = v84->calculateReachedPoint(this, v85, &this->positionValue, &p2);
           if ( v86 != 2 )
             break;
         }
@@ -176810,7 +176794,7 @@ LABEL_151:
         BPathData::setFlag(this->pathData, 1, 1);
         BPathData::setFlag(this->pathData, 0, 1);
       }
-      v87 = BPath::waypoint(v142, &v198, this->pathData->waypoint);
+      v87 = BPath::waypoint(v142, &v200, this->pathData->waypoint);
       a4.x = v87->x;
       a4.z = v87->z;
       v88 = v87->y;
@@ -176818,10 +176802,10 @@ LABEL_151:
       a4.y = v88;
       v90 = v89->waypoint;
       if ( v90 < v142->waypointsCount - 1 )
-        BPath::waypoint(v142, &v202, v89->waypoint + 1);
+        BPath::waypoint(v142, &v204, v89->waypoint + 1);
       else
-        BPath::waypoint(v142, (BVector *)&v200, v90);
-      *(float *)&v159 = COERCE_FLOAT(RGE_Game_World::getUnitGroup((RGE_Game_World *)this->owner->world, this->mGroupID));
+        BPath::waypoint(v142, &v202, v90);
+      v161 = COERCE_FLOAT(RGE_Game_World::getUnitGroup((RGE_Game_World *)this->owner->world, this->mGroupID));
       if ( !RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 1) )
         break;
       v91 = 0;
@@ -176850,15 +176834,7 @@ LABEL_151:
           while ( v92 < 4 );
         }
       }
-      findObSystemCollisions(
-        (void *)numberCollisionUnits,
-        this,
-        &this->positionValue,
-        (BVector *)&newPosition.z,
-        ignoreUnits,
-        v91,
-        0,
-        1.0);
+      findObSystemCollisions(obSystemToUse, this, &this->positionValue, &p2, ignoreUnits, v91, 0, 1.0);
       if ( numberObSystemCollisions <= 0 )
         break;
       v152 = 0;
@@ -176887,8 +176863,8 @@ LABEL_151:
                   v99 = this->pathData->targetID;
                   if ( v99 >= 0 && v97[4] == v99 )
                     v152 = 1;
-                  if ( *(float *)&v159 == 0.0
-                    || BUnitGroup::getSpecificMoveReason(v159, this->id)
+                  if ( v161 == 0.0
+                    || BUnitGroup::getSpecificMoveReason((BUnitGroup *)LODWORD(v161), this->id)
                     || (v100 = (*obja)->Object->master_obj->object_group, v100 == 18)
                     || v100 == 6
                     || v100 == 8
@@ -176917,7 +176893,7 @@ LABEL_151:
         ++obja;
       }
       while ( v72 );
-      RGE_Moving_Object::resolveCollisions(this, (BVector *)&newPosition.z);
+      RGE_Moving_Object::resolveCollisions(this, &p2);
       if ( numberObSystemCollisions == 1 && v152 == numberObSystemCollisions )
       {
         BPathData::setFlag(this->pathData, 0, numberObSystemCollisions);
@@ -176942,12 +176918,12 @@ LABEL_151:
               v105 = this->pathData->targetID;
               if ( v105 < 0 || v104->id != v105 )
               {
-                v106 = RGE_Game_World::object((RGE_Game_World *)this->owner->world, v104->id);
+                v106 = (TRIBE_Building_Object *)RGE_Game_World::object((RGE_Game_World *)this->owner->world, v104->id);
                 if ( v106 )
                 {
-                  if ( v106->type == 80 && v106[2].mMaximumPathingGroupSize )
-                    v106 = (RGE_Static_Object *)v106[2].mMaximumPathingGroupSize;
-                  v107 = v106;
+                  if ( v106->type == 80 && v106->linked_owner )
+                    v106 = v106->linked_owner;
+                  v107 = (RGE_Static_Object *)v106;
                   if ( v106 )
                   {
                     v108 = v106->vfptr->movementPriority(v106);
@@ -176986,12 +176962,12 @@ LABEL_151:
     || (v112 = BPathData::highestLinkedPathPointer(v111), (v113 = v112) == 0)
     || (v114 = v112->waypointsCount,
         v115 = this->pathData,
-        v135 = BPath::waypoint(v112, &v175, v114 - 1)->y,
-        v116 = BPath::waypoint(v113, &v174, v114 - 1),
+        v135 = BPath::waypoint(v112, &v177, v114 - 1)->y,
+        v116 = BPath::waypoint(v113, &v176, v114 - 1),
         RGE_Static_Object::distance_to_position((RGE_Static_Object *)this, v116->x, v135, 0.0) - v115->range >= 0.0000001) )
   {
 LABEL_241:
-    RGE_Moving_Object::moveUnit(this, (BVector *)&p2.z, v158.y, &a4);
+    RGE_Moving_Object::moveUnit(this, &a2, a3, &a4);
     return 0;
   }
   BPathData::reset(v115);
