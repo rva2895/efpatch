@@ -4760,7 +4760,128 @@ authoritative.)
     diagnostic CRT protocol); addToIgnoreList_new/resetIgnoreList_new
     stay unhooked (commented) unless the ship scope says otherwise.
     STILL OWED (carried): the capstone doIntelligentMovementUpdate
-    decode (the WIP txt's pending arm; its OB call passes ignoreUnits
-    per 0x4A5A06); the common.h collisionUnits comment fix
+    decode - RESTARTING FRESH (the owner deleted
+    WIP_doIntelligentMovementUpdate.txt; no WIP arm carries over - the
+    decode runs anew under the two-pass protocol); its OB call passes
+    ignoreUnits per 0x4A5A06 (the state-file lead - RE-VERIFY against
+    the .lst); the common.h collisionUnits comment fix
     (provisional); the ship constraint (the four pathing functions in
     one build); the strict form's stale operator_mul comment.
+
+  - THE UPDATEMOVEMENT SHIP - THE TWO-PASS DECODE ESTABLISHED (owner-
+    directed 2026-11-20; all tests clean on the ship build): the _ida
+    variant was RESTRUCTURED into the shipped form and renamed
+    BMotion__updateMovement_new (the strict BMotion__updateMovement_new
+    - the asm-label form - DELETED; the `_new` name transferred to the
+    shipped variant; install_BMotion hooks 0x49CB60 ->
+    BMotion__updateMovement_new directly; all instrumentation deleted -
+    the updateMovement logger + UM_TRACE_ORIG trampoline, the armlog +
+    its 10 call sites, the path-lifecycle loggers, the
+    findTilePath/findLowLevelPath harness; zero diagnostic symbols in
+    the /Fa; zero fopen/fprintf/sprintf/fwrite in the file). THE
+    RESTRUCTURE DESYNCS, both caught by the paired-capture protocol and
+    fixed: (1) ROW 1 - the R2 region replacement was one close brace
+    short: the walk arm compiled INSIDE the state-2 stage - state-3
+    units skipped the walk, the loop spun to the tries guard, ret=0
+    (everything else in the row identical). LESSON: "0 errors" proves
+    braces BALANCE, not that they close the right blocks - the
+    brace-depth walk at every stage boundary is now a mandatory
+    post-write bullet. (2) LINE 13603 - the scratch collapse: the
+    restructure collapsed IDA's ~25 per-call-site BPath__waypoint
+    out-buffers into ONE scratch, but BPath__waypoint COPIES the
+    internal waypoint into the out-buffer and RETURNS THE OUT-BUFFER'S
+    ADDRESS (0x4BC440) - the findTile tail check holds TWO fetched
+    waypoints live (newTail + originalWaypoint); the second fetch
+    overwrote the first, the discard compared 0.308 vs 0 instead of
+    0.5, never fired, and a tile path the vanilla correctly rejected
+    (its tail 0.5 from the intended waypoint vs the unit's remaining
+    0.308) was installed. THE CLASS: copy-out getters make each fetch's
+    result live in its buffer - collapse ONLY single-fetch sites; the
+    arm1 smooth-tail check had the same defect (both fixed with a
+    dedicated waypointScratch2; the findtile/findlow loggers pinpointed
+    the mechanism: the orig's install gate saw wpc=0 = the discard
+    fired, mine saw wpc=2). (3) THE FINDLOW LOGGER CORRUPTION - the
+    trampoline byte-boundary slip: findLowLevelPath's prologue is
+    mov eax,[esp+10h] (4 bytes) + sub esp,8 (3) + cmp eax,-1 (3); the
+    jump target was entry+8 - ONE BYTE INTO the cmp - the original
+    resumed at F8 FF = clc + a wild call through eax. Fixed to
+    entry+7. LESSON: the jump target = the entry + THE REPLAYED BYTE
+    LENGTH from the .lst instruction boundaries, never an eyeballed
+    instruction count; verify the emitted replay in the /Fa. ALSO
+    FOUND + FIXED during the hunt: (a) the missing deref at the
+    walk-arm OB-pass guard (*numberObSystemCollisions <= 0 - the bare
+    pointer never fires; the collision loop ran once over the stale
+    obSystemCollisions[0] on zero-count queries - the phantom
+    fresh-blocker successor swap, destroy 179655/repath 180330), (b)
+    the same deref at the arm3 stub gate, (c) THE STRAY GOTO in the
+    walk arm (the armlog signature: inc.pass a1=0/a2=-0.1 = the
+    post-snap norm/gate; move.arrive firing 0 times; the integration
+    block dead) - all three were TRANSCRIPTION bugs in the _ida form,
+    fixed pre-restructure. THE MASKS: C1/C2 APPLIED to the shipped
+    body (find_path & 0xFF literal - the u8 return reads al, so the
+    mask folds in the /Fa, documented; findTilePath bool - the asm's
+    and eax,0FFh keeps exactly AL = the bool read, so the direct bool
+    read IS the mask, the literal & rejected as a C4806 no-op, the
+    equivalence cited at the site). THE STRICT FORM'S stale
+    operator_mul comment - RESOLVED BY DELETION (the form is gone; the
+    export exists: operator_mul @0x606970, called at asm 0x49DC99).
+    THE TEMPLATE FORMALIZED (owner-directed): the TWO-PASS DECODE
+    section (the aligned transcription = the suite-verified artifact,
+    no control-flow changes; the restructure built on top of it; the
+    retirement at ship; the single-pass form stays for simpler
+    functions) + the new bullets (COPY-OUT GETTER ALIASING, BRACE-DEPTH
+    STAGE WALK, POINTER-TO-SLOT GLOBAL DEREF SWEEP, /Fa OFFSETS ARE
+    DECIMAL, THE MASK-FOLD DOCUMENTATION, THE LOGGER ESCALATION LADDER
+    + the trampoline byte-boundary + the fastcall liveness rule). THE
+    ALIGNED TRANSCRIPTION lives in VCS at commit 3e0c753 (the diff
+    reference for every later audit).
+
+  - NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first. STATE: BMotion::updateMovement is SHIPPED
+    - the restructured body renamed BMotion__updateMovement_new, hooked
+    at 0x49CB60, suite-verified on the ship build; the strict form and
+    all instrumentation deleted; the aligned transcription (the diff
+    reference) is VCS commit 3e0c753; the two-pass decode + the new
+    verification bullets are in DECOMP_TEMPLATE.md - READ THEM FIRST
+    (the two-pass form applies to this session's target). TARGET:
+    RGE_Moving_Object::doIntelligentMovementUpdate - THE CAPSTONE AND
+    THE CALLER OF BMotion__updateMovement. ITS CALLS ROUTE THROUGH OUR
+    HOOKED REPLACEMENT (0x49CB60) - the suite exercises our shipped
+    body, and per the hook-routing ruling the decode's constant calls
+    are faithful. THE DECODE RESTARTS ANEW: the old WIP
+    (WIP_doIntelligentMovementUpdate.txt) was DELETED by the owner -
+    no pending arm carries over; the decode runs the TWO-PASS PROTOCOL
+    from scratch (Pass 1 = the aligned transcription straight from the
+    fresh pseudocode/.lst, no control-flow changes, value-level fixes
+    only; Pass 2 = the restructure). LEADS from the earlier session
+    (state-file entries - LEADS ONLY, re-verify against the .lst
+    before grounding): the OB call passes ignoreUnits per 0x4A5A06;
+    the candidate hook 0x004A47B0 (RE-VERIFY the entry and extent from
+    the .lst). THE
+    FUNCTION IS THE FIRST APPLICANT OF THE TWO-PASS DECODE: Pass 1 =
+    the aligned transcription (no control-flow changes, value-level
+    fixes only), suite-verified against the vanilla trace; Pass 2 =
+    the restructure on top; the aligned pass retires at ship. THE
+    DETERMINISM PROTOCOL UNCHANGED: the paired capture is the
+    determinism mechanism - never touch
+    doFixedDeltaSeconds/fixedDeltaSeconds; dt must match on every row
+    (if dt diverges, the replay mechanism is broken, not our code). THE
+    UPDATEMOVEMENT LOGGERS ARE GONE (removed at ship) - if the capstone
+    hunt needs them, re-add per the template harness protocol (the
+    trampoline byte-boundary + fastcall liveness rules apply).
+    findLowLevelPath/findTilePath are NOT owned - their calls from our
+    body execute the originals (correct). BPath field groundings banked:
+    idValue@+8, waypointsCount@+0xC, pathLengthValue@+0x18,
+    creationTimeValue@+0x1C, flags@+0x20; BPath__waypoint copies into
+    the out-buffer and RETURNS THE OUT-BUFFER'S ADDRESS (the
+    multi-fetch aliasing rule: DECOMP_TEMPLATE.md). ALSO OWED (carried):
+    the common.h collisionUnits comment fix (provisional); the ship
+    constraint (the four pathing functions in one build) - the
+    definition needs the owner's ruling (updateMovement is shipped;
+    addToIgnoreList_new/resetIgnoreList_new are owned but unhooked -
+    their only binary callers are inside updateMovement itself);
+    findLowLevelPath/findTilePath are not owned. PROTOCOL: all edits
+    approval-gated; the new-template bullets (the brace-depth stage
+    walk, the deref sweep, the /Fa decimal offsets) are mandatory
+    post-write checks."
