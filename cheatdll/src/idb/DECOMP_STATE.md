@@ -5334,3 +5334,142 @@ authoritative.)
         approval gate before every write; a state recording is NOT a
         session close; the full-stream diff methodology (the common rows
         only, mk+ignSz stripped, FIRST divergence only)."
+
+  - THE CAPSTONE SHIPPED - PASS 2 + SCOPE/NAME PASS + DIAG REMOVAL COMPLETE
+    (owner-verified: the paired capture byte-identical on the readability
+    build; the ship-build confirming pass CLEAN 2026-11-21):
+    THE READABILITY RESTRUCTURE (house style, owner-directed after the
+    first pass kept the baseline's declaration topology): the ~170-line
+    function-scope declaration block dissolved - every local declared at
+    first use, minimal enclosing scope; the head region 170 -> 52 lines;
+    only six locals loop-scoped ahead of the dispatch (newPath/successor/
+    pathFound/smoothUsed/repathDist/bestTailDist - the install gate reads
+    them at loop level) plus topPath (the range gate's read); the true
+    accumulators stay function-scope (collisionCount - accumulated across
+    passes; passCounter; deltaTime; fwdDir/moveTarget zeroed in S0;
+    ReturnPath moved INTO the label_103 block - its only use). The
+    redundant locals inlined at their single consumption with the asm
+    citations preserved at the sites: rawDt, masterHead, precalcGoalRaw,
+    topPathId, v16, argUnitRadius/argRange/argTargetId/argOwnerId/
+    terrainTable/tileGoalX-Y/argFindTileRange/dest_target_radiusb (the
+    findLowLevelPath/findTilePath arg slots - each a pure read consumed
+    once), moveTargetY, smoothedLen, activeCtm, pausePriority (the two
+    movementPriority dispatches kept, the cmp fed by the first call's
+    return), ~25 single-consumption BPath__waypoint fetch Refs folded
+    into `BVector* x = BPath__waypoint(...)` at use. ALL loops for-form:
+    the four linked_child walks, the OB record loop, the pause loop, the
+    ReturnPath copy loop (0 do-while, 10 for); the re-read-per-iteration
+    conditions (the faithful live reloads) preserved and cited. KEPT
+    deliberately: the asm-faithful dead stores (normCopy @0x4A546E,
+    deadWalkPath @0x4A56A5/0x4A5CAB, goalSlotDead @0x4A5BB4-region,
+    linkWalk 0x4A48E4-F3) - each a real instruction in the original,
+    required by the store-and-read diff, each dead-noted.
+    THE SCOPE/NAME PASS (owner-directed "not verified scopes, not
+    named"): every remaining v-name dissolved or role-named - zero
+    v-tokens in the DIMU body's code; the goal/goalDist collision hazard
+    (two desyncs) ELIMINATED: goal -> precalcTargetDist, goalDist ->
+    precalcGoalDist, goalDistRaw -> precalcGoalRaw, goala/goald/goalb/
+    goalc -> maLabel103/tailNormStored/recordIdx/goalSlotDead; the
+    v37 mid-block local merged into the function-scope ignoreCountArm2;
+    the duplicate v106/v107 declarations removed (pauseBldg/pauseTarget
+    carry them); v23/v136 dead declarations dropped (zero sites); the
+    scope/liveness audit table generated (the NEVER-READ set = the four
+    documented dead stores + proceedToWalk - the handoff marker, dead
+    after DCE, covered by the instruction identity); the v25-alias open
+    item RESOLVED (the asm loads ebp = the resolved path at 0x4A48B5 in
+    S1; the stub path never overwrites ebp before the failure-arm fetches
+    - the alias holds on every read path).
+    DESYNC #9 - THE INSTALL-GATE PLACEMENT REGRESSION (owner-report:
+    the readability build desynced; unit 10499 st=2 wl=2 flg=0, cc=9
+    vs the orig's cc=10): the readability rewrite of s7 placed the
+    install gate BACK INSIDE the flagged-pipeline else - the stub path
+    (no-flag units) fell past the install straight into the walk arm
+    (the log: six 180368-wp1 fetches at mk=8, st never left 2, no
+    INSTALL row, no DESTROY row, then the target/range gates fired on
+    rng=0 -> moveUnit -> RET=0; the ORIG: the stub -> INSTALL SUCCESS/
+    FOLLOW -> cc=10, st=3, the walk arm on 180369 -> moveUnit). The
+    same placement bug class as the R2 walk-arm and the first rebuild's
+    gate placement - fixed (the gate moved out of the pipeline else,
+    dedented; the pipeline-close comments corrected). LESSON (stated in
+    the record): a structural-placement regression is INVISIBLE to the
+    compile gate and the /Fa listing (the gate's calls exist in the
+    listing regardless of reachability); the stage-map walk (each
+    region's entry/exit traced to its asm label) is mandatory BEFORE
+    the compile, and the paired capture is the detector.
+    VERIFICATION CHAIN per pass: 9/9 per-chunk compile + pp-balance;
+    the TU gate 0/0; the /Fa classified-call alignment (the readability
+    build aligns 1:1 with the verified build except ONE inserted
+    reg-unresolved instruction - the walk-arm takeover's BPathData__
+    destructor (0x4BBDD0) materialized twice after the scoping un-shared
+    a merged call site: same callee/args, each path calls once -
+    codegen-neutral); the token/call-arg multisets vs 2fc06f1 with the
+    final maps (every delta decoded into the documented classes); the
+    precise census identical (mulss=0 sqrtss=0 addss=2 mulsd=15 addsd=8
+    precise_sqrt=7); the paired capture on the readability build
+    BYTE-IDENTICAL (owner-verified).
+    THE DIAG REMOVAL AT SHIP (the updateMovement-ship protocol):
+    intrin.h include, the DIAG globals (g_dimuLog/g_dimuMark/
+    g_dimuTraceOrig/g_wpNewLo-Hi/g_wpGameLo-Hi), the M7-era
+    calculateYawAngle_orig/_logger dead harness, the LINE_LOGGING_
+    ENABLED block + the fprintf_logger macro, the 15 in-body mark rows
+    + the 12 decision rows, the whole harness region (the _orig
+    trampoline, the DIMU logger + DIMU_logOpen/DIMU_logRow, the
+    createPath/destroyPath2/path lifecycle trampolines+loggers, the
+    OBQ/FPHOOK/MAGET arg trampolines+loggers, the WPFETCH caller-
+    filtered logger), the installer trace hooks - 5745 -> 5222 lines.
+    THE INSTALLER FLIPPED: 0x004A47B0 -> doIntelligentMovementUpdate_new
+    directly; 80 real class hooks (defs/refs 80/80 exact). THE
+    ZERO-DIAGNOSTIC-SYMBOL SWEEP (the updateMovement standard): the
+    whole listing _fopen=0, _logger PROCs=0, _orig PROCs=0, val_log=0;
+    the DIMU PROC fopen=0/fprintf=0/sprintf=0/g_dimuMark=0. THE
+    GAME-BEHAVIOR CALL MULTISET vs the verified capture build (the DIAG
+    I/O - fprintf + the rows' __ftoui3 casts - excluded): 153/153 FULLY
+    IDENTICAL with the register carriers normalized; the census
+    identical. THE SHIP-BUILD CONFIRMING PASS: CLEAN (owner-confirmed).
+    THE CAPSTONE IS SHIPPED.
+    CARRIED/NEXT: the common.h collisionUnits comment fix (provisional;
+    needs the owner ruling - the rename verification stands: the .c's
+    collisionUnits = our ignoreUnits); the Moving-methods re-count (the
+    stale M-era counts); the four-pathing-functions ship constraint is
+    SATISFIED for the current form (updateMovement + DIMU shipped and
+    hooked; addToIgnoreList/resetIgnoreList owned-but-unhooked - their
+    binary callers are inside updateMovement itself); the LTG (/GL)
+    probe gap CLOSED (the owner's WPO-off decision - the gated listing
+    = the shipped code). The state-file's line citations for the DIMU
+    body are stale (the readability pass moved lines; the addresses
+    authoritative per the citation protocol).
+
+  - NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first. STATE: the capstone doIntelligentMovementUpdate
+    is SHIPPED (pass 2 + the scope/name pass + the readability restructure +
+    the DIAG removal; the paired capture byte-identical on the readability
+    build; the ship-build confirming pass CLEAN 2026-11-21; the installer
+    0x004A47B0 -> _new directly, 80 hooks, the zero-diagnostic-symbol sweep
+    clean). BMotion::updateMovement shipped earlier (the _ida variant ->
+    bc41627); the four-pathing-functions ship constraint is satisfied for
+    the current form (addToIgnoreList/resetIgnoreList owned-but-unhooked -
+    their binary callers are inside updateMovement itself). The DIMU
+    desync lessons stand: the goal/goalDist collision class (two desyncs),
+    the install-gate placement class (DESYNC #9 - the stage-map walk is
+    mandatory BEFORE the compile), the /Fa call-sequence alignment as the
+    first detector. IMMEDIATE WORK: (1) the Moving-methods re-count FIRST -
+    the M-era per-class remaining counts are stale; recount from the
+    runtime-class exports vs the installed hooks per class (the inventory
+    regex handles multi-word returns + Attributes:thunk exports); (2) then
+    the remaining Moving methods smallest-first per the roadmap (decode ->
+    present -> approve -> write; the large bodies under the two-pass
+    protocol; the scope/name discipline AT WRITE TIME per the capstone
+    readability precedent - locals at first use, minimal enclosing scope,
+    for-loops, no surviving v-names; the stage-map walk before the compile
+    for any structural restructure); (3) then the other members of the
+    object family per the roadmap: Action, Combat, Static, TRIBE_Combat,
+    TRIBE_Building runtime methods, smallest-first per class. CARRIED:
+    the common.h collisionUnits comment fix (provisional - needs the
+    owner ruling; the rename verification stands: the .c's collisionUnits
+    = our ignoreUnits). PROTOCOL: all edits approval-gated; the template
+    rules (a)-(k) incl. the X87 macro mandate + the probe protocol; the
+    two-pass decode for the large bodies; the /Fa call-sequence + census
+    gates; the paired capture for the sim-relevant big bodies; the
+    zero-diagnostic-symbol sweep at ship; the citation protocol (addresses
+    + function names - the line citations rot)."
