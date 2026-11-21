@@ -3806,7 +3806,7 @@ unsigned __int8 __fastcall RGE_Moving_Object__turn_towards_new(
     return 1;                                                 // asm 0x4A139B-0x4A13B2 (al = 1 - facing achieved)
 }
 
-//#define LINE_LOGGING_ENABLED
+#define LINE_LOGGING_ENABLED
 
 #ifdef LINE_LOGGING_ENABLED
 #define fprintf_logger fprintf
@@ -3882,72 +3882,36 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
     RGE_Moving_Object* this_, DWORD dummy)
 {
     (void)dummy;
-    // ---- the IDA locals (the .c rendering, verbatim names; all declared at
-    // function scope so no goto skips an initialization) ----
-    double v3;             // st7 - the raw dt (the store-round lands in a3)
-    BPathData* v4;
-    BPathData* v5;
-    RGE_Master_Moving_Object* v6;
-    BPathData* v7;
-    BPath* v8;             // ebp - the active path
-    BPathData* i;
-    double v10;            // st7 - the precalcDistToGoal raw return
-    BPathData* v11;
-    BPathData* v12;
-    int v13;
-    BVector* v14;          // ebx - &positionValue
-    BVector* v15;
-    int v16;
-    BPath* v17;
-    RGE_Game_World* v18;
-    int v19;
-    BPath* v22;            // edi - the candidate path
-    int v23;
-    BVector* v24;
-    BPath* v25;            // ebp - the reference path
-    BVector* v26;
-    BPathData* v27;
-    BPathData* v28;
-    int v29;
-    RGE_Static_Object* v30;
-    BPathData* v31;
-    BVector* v32;
-    int v33;
-    BVector* v34;
-    int v35;
-    BVector* v36;
-    int v37;               // ecx - the ignore count
-    TRIBE_Building_Object* v40;
-    RGE_Player* v43;       // the .c's TRIBE_Player* owner (the dual-naming cast)
-    RGE_Master_Moving_Object* v44;
-    BPathData* v45;
-    BVector* v46;
-    int v47;               // ebp - the findLowLevelPath status
-    BVector* v48;
-    RGE_Master_Moving_Object* v49;
-    RGE_Map* v50;
-    int v51;
-    RGE_Static_Object* v54;
-    BVector* v57;
-    BVector* v58;
-    double v59;            // st7 - the distance_to_object return (UNROUNDED st0)
-    BPathData* v60;
-    int v61;
-    RGE_Static_Object* v62;
-    BPathData* v63;
-    BVector* v64;
-    int v65;               // ebx - the find_path #2 status
-    BVector* v66;
-    double v67;            // st7 - the ReturnPath tail norm (UNROUNDED st0)
-    BPathData* v68;
-    BVector* v69;
-    double v70;            // st7 - the findTile tail norm (UNROUNDED st0)
-    int v71;
-    int v72;               // _BOOL1
-    BVector* v73;
-    double v74;            // st7
+    // ---- the pass-2 locals: the roles named (the v-names dissolved; the
+    // draft's mapping, site-verified against the baseline carve slots);
+    // every carve buffer remains a DISTINCT object (the copy-out aliasing
+    // rule). v25 is dropped: both its assignments are `= activePath`
+    // (0x4A5360/0x4A5164) - it aliases the loop-carried path exactly.
+    // v35 dissolves into the two pathFound stores at its LABEL_50 sites.
+    double rawDt;                     // st7 - the raw dt (the store-round lands in deltaTime)
+    RGE_Master_Moving_Object* masterHead;   // v6 - the master object (the OB-system domain select)
+    BPath* resolvedPath;              // v8 - the loop-resolved BPath (the pre-install active path)
+    BPathData* linkWalk;              // i - the dead linkedPath walk cursor (the final value unread)
+    double goalDistRaw;               // v10 - the precalcDistToGoal raw return
+    int pathState;                    // v13 - the pathData->state read at the dispatch
+    BVector* unitPos;                 // v14 - ebx, = &positionValue
+    BPath* topPath;                   // v17/v112/v113 - the highestLinkedPath result (BPath*)
+    RGE_Game_World* worldNow;         // v18
+    int topPathId;                    // v19
+    BPath* newPath;                   // v22 - edi, the repath candidate (createPath's product)
+    int fp1Result;                    // v33 - the find_path #1 status
+    int ignoreCountArm2;              // v37 - the arm-2 ignore-list build count
+    RGE_Player* ownerNow;             // v43 - the .c's TRIBE_Player* owner (the dual-naming cast)
+    int lowResult;                    // v47 - the findLowLevelPath status
+    double targetDist;                // v59 - the distance_to_object return (UNROUNDED st0)
+    int fp2Result;                    // v65 - the find_path #2 status
+    double tailNorm;                  // v67 - the ReturnPath tail norm (UNROUNDED st0)
+    double tileTailDist;              // v70 - the findTile tail norm (UNROUNDED st0)
+    int v71;                          // the ReturnPath copy-loop counter
+    int v72;                          // _BOOL1 - the copy-loop pre-test
+    double v74;                       // st7 - the post-smooth length read
     BPathData* v75;
-    BPath* v76;            // ebp - the walk-arm path
+    BPath* v76;                       // ebp - DEAD WALK-ARM PATH store (never read; 1:1)
     BVector* v77;
     BVector* v78;
     BPathData* v79;
@@ -3955,30 +3919,23 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
     BPathData* v81;
     BVector* v83;
     BVector* v85;
-    int v86;               // eax - the calculateReachedPoint result
+    int reachedResult;                // v86 - the calculateReachedPoint result
     BVector* v87;
-    float v88;
-    BPathData* v89;
-    int v90;
-    int v91;
-    RGE_Static_Object* v95;
-    RGE_Static_Object* v96;
-    BPath* v98;
-    int v99;
-    unsigned __int16 v100; // ax - the blocker's master object_group
-    unsigned int v101;     // ebx - the path creationTimeValue
-    RGE_Static_Object* v104;
-    int v105;
-    TRIBE_Building_Object* v106;
+    float v88;                        // the moveTarget .y component temp
+    int v90;                          // the walk-arm waypoint index
+    int v91;                          // the walk-arm OB build count
+    RGE_Static_Object* v95;           // the OB-pass record's blocker
+    RGE_Static_Object* v96;           // the blocker's world object (+ the linked_owner swap)
+    BPath* v98;                       // the highestLinkedPathPointer in the OB pass
+    int v99;                          // the pathData->targetID in the OB pass
+    unsigned __int16 v100;            // ax - the blocker's master object_group
+    unsigned int v101;                // ebx - the path creationTimeValue
+    TRIBE_Building_Object* v106;      // the pause-loop blocker object
     RGE_Static_Object* v107;
-    int v108;              // ebp - the blocker's movementPriority
-    BPathData* v109;
-    BPathData* v110;
-    BPathData* v111;
-    BPath* v112;
-    BPath* v113;           // edi
-    int v114;
-    BPathData* v115;
+    int pausePriority;                // v108 - ebp - the blocker's movementPriority
+    BPathData* linkedNow;             // v109 - the linkedPath takeover pointer
+    int v114;                         // the range-gate topPath waypoint count
+    BPathData* v115;                  // the range-gate pathData read
     BVector* v116;
     float v117;            // the unitRadius arg slot
     float v118;            // the range arg slot
@@ -4004,1176 +3961,1355 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
     BVector* v139;
     BVector* v140;
     BVector* v141;         // the findTile tail fetched buffer
-    BPath* v142;           // var_26C - the current BPath
-    int v143;              // var_268 - the path-found flag
+    int pathFound;                    // v143 - var_268 - the path-found flag
     float goal;            // var_264 - the precalcDistToTarget store
     RGE_Map_Analysis* goala;    // the analysis-pointer live of the goal slot
     float goald;           // the fst tail-norm copy live of the goal slot
     int goalb;             // the record-loop counter live of the goal slot
     int goalc;             // the pause-loop counter live of the goal slot
-    volatile int v149;     // var_260 - the smooth-used flag; VOLATILE: the /Ogtpy compiler coalescing
-                           // was reading a stale copy at the install variant check
-                           // (the STUBSET=1 → PREINST=1 → INSTALL-OK=0 trace, 2026-11-20)
-    int v150;              // DEVIATION (B): int - the fresh-blocker count
-    float v151;            // var_25C - the repath distance (store-rounded)
-    float v159;            // var_244 - the best-tail norm (FLT_MAX-seeded,
-                           //  store-rounded at each write)
-    int v152;              // the target-collision flag live of var_25C
-    int v157;              // DEVIATION (B): int - the collisionUnits accumulator
-    RGE_Map_Analysis* v158;     // var_248 - the analysis-pointer live
-    float v158_normCopy;   // DEVIATION (C): the dead float live of var_248
-    float a3;              // var_240 - the dt (STORE-ROUNDED at 0x4A47FA)
-    float v161;            // var_23C - the precalcDistToGoal store
-    BUnitGroup* v161_group;// the group-pointer live of var_23C (the .c's
-                           // COERCE_FLOAT pun, typed at the reuse site)
-    int v162;              // var_238 - the pass counter
-    BVector v163;          // the repath delta carve
-    float v164;            // the target radius #2
-    float v165;            // the target radius #1
-    BVector a4;            // the current waypoint copy (the moveUnit arg)
-    BVector a2;            // the calculateForward direction out
-    BVector v172;
-    BVector v167;
-    BVector v168;          // the findTile tail-quality delta carve
-    BVector v173;          // the LABEL_73 bounds-gate waypoint carve
-    BVector p2;            // the straightProjectedPosition result
-    BVector result;
-    BVector v169;
-    BVector v170;
-    BVector v176;
-    BVector v177;
+    volatile int smoothUsed;          // v149 - var_260 - the smooth-used flag; VOLATILE: the /Ogtpy
+                                      // compiler coalescing was reading a stale copy at the
+                                      // install variant check (the STUBSET=1 -> PREINST=1 ->
+                                      // INSTALL-OK=0 trace, 2026-11-20)
+    int freshBlockers;                // v150 - DEVIATION (B): int - the fresh-blocker count
+    float repathDist;                 // v151 - var_25C - the repath distance (store-rounded)
+    float bestTailDist;               // v159 - var_244 - the best-tail norm (FLT_MAX-seeded,
+                                      //  store-rounded at each write)
+    int targetBlocked;                // v152 - the target-collision flag live of var_25C
+    int collisionCount;               // v157 - DEVIATION (B): int - the collisionUnits accumulator
+    RGE_Map_Analysis* mapAnalysis;    // v158 - var_248 - the analysis-pointer live
+    float normCopy;                   // v158_normCopy - DEVIATION (C): the dead float live of var_248
+    float deltaTime;                  // a3 - var_240 - the dt (STORE-ROUNDED at 0x4A47FA)
+    float goalDist;                   // v161 - var_23C - the precalcDistToGoal store
+    BUnitGroup* unitGroup;            // v161_group - the group-pointer live of var_23C (the .c's
+                                      //  COERCE_FLOAT pun, typed at the reuse site)
+    int passCounter;                  // v162 - var_238 - the pass counter
+    BVector repathDelta;              // v163 - the repath delta carve
+    float fp2TargetRadius;            // v164 - the target radius #2
+    float fp1TargetRadius;            // v165 - the target radius #1
+    BVector moveTarget;               // a4 - the current waypoint copy (the moveUnit arg)
+    BVector fwdDir;                   // a2 - the calculateForward direction out
+    BVector v172;                     // the walk-arm delta carve
+    BVector arm2TailDelta;            // v167 - the arm-2 tail delta carve
+    BVector tileTailDelta;            // v168 - the findTile tail-quality delta carve
+    BVector headDelta;                // result - the state-2 head delta carve
+    BVector maTailDelta;              // v169 - the label_103 tail delta carve
+    BVector smoothTailDelta;          // v170 - the smooth-arm tail delta carve
+    BVector boundsWp;                 // v173 - the LABEL_73 bounds-gate waypoint carve
+    BVector projectedPos;             // p2 - the straightProjectedPosition result
+    BVector maIntendedWp;             // v176 - the label_103 intended-waypoint fetch
+    BVector maCopyWp;                 // v177 - the label_103 copy-loop fetch (REUSED by the
+                                      //  range-gate .y fetch - the live reuse of the dead
+                                      //  carve slot, cited there)
     alignas(BPath) unsigned char returnPathStorage[sizeof(BPath)];
     BPath* const ReturnPath = (BPath*)returnPathStorage;   // DEVIATION (A)
-    BVector v179;
-    BVector v180;
-    BVector v181;
-    BVector v182;
-    BVector v183;
-    BVector v184;
-    BVector v185;
-    BVector wpIndex;
-    BVector v187;
-    BVector v188;
-    BVector v189;
-    BVector v190;
-    BVector v191;
-    BVector v192;
-    BVector outVector;
-    BVector v194;
-    BVector v195;
-    BVector v196;
-    BVector v197;
-    BVector v198;
-    BVector v199;
-    BVector v200;
-    BVector v201;
-    BVector v202;
-    BVector v203;
-    BVector v204;
-    BVector v205;
-    BVector v206;          // the map-analysis arm's dy waypoint carve
+    BVector fp2TailWp;                // v184 - the find_path #2 tail waypoint fetch
+    BVector fp2DyWp;                  // v180 - the find_path #2 dy waypoint fetch
+    BVector fp2DxWp;                  // v182 - the find_path #2 dx waypoint fetch
+    BVector headWp;                   // wpIndex - the state-2 head waypoint fetch
+    BVector noFlagWp;                 // v179 - the no-flag rebuild's waypoint fetch
+    BVector prepWp;                   // v188 - the flagged-arm head waypoint fetch
+    BVector stubEndWp;                // v195 - the stub end waypoint fetch
+    BVector smoothDyWp;               // v206 - the map-analysis arm's dy waypoint carve
+    BVector fp1DxWp;                  // v181 - the find_path #1 dx waypoint fetch
+    BVector smoothLastWp;             // v203 - the smooth-arm last waypoint fetch
+    BVector fp1TailWp;                // v183 - the find_path #1 tail waypoint fetch
+    BVector lowStartWp;               // v185 - the findLowLevelPath start waypoint fetch
+    BVector arm2LastWp;               // v201 - the arm-2 last-waypoint fetch
+    BVector arm2CurWp;                // v187 - the arm-2 current waypoint fetch
+    BVector obProbeWp;                // v197 - the OB-probe waypoint fetch
+    BVector rebuildEndWp;             // v189 - the rebuild end waypoint fetch
+    BVector tileGoalYWp;              // v205 - the findTile goal-y waypoint fetch
+    BVector tileGoalXWp;              // v191 - the findTile goal-x waypoint fetch
+    BVector tileLastWp;               // v199 - the findTile last-waypoint fetch
+    BVector findTileCurWp;            // outVector - the findTile current waypoint reload
+    BVector failWpDy;                 // v190 - the failure-arm dy waypoint fetch
+    BVector failReloadWp;             // v192 - the failure-arm waypoint reload
+    BVector walkWp;                   // v194 - the walk-arm waypoint fetch
+    BVector fwdWp;                    // v196 - the calculateForward waypoint fetch
+    BVector reachedWp;                // v198 - the calculateReachedPoint waypoint fetch
+    BVector moveTargetSrcWp;          // v200 - the moveTarget source fetch
+    BVector nextWpNext;               // v204 - the next-waypoint fetch (the index+1 case)
+    BVector nextWpCur;                // v202 - the next-waypoint fetch (the index case)
     RGE_Obstruction_Manager* obSystemToUse;
     RGE_Static_Object* targetObj;      // the out-param of precalcDistToTarget
-    BPathData* obj;                    // var_258 - the successor BPathData
-    ObsRecord* record;                 // the OB-pass record (the .c's *obja)
+    BPathData* successor;              // obj - var_258 - the successor BPathData
+    ObsRecord* obRecord;               // record - the OB-pass record (the .c's *obja)
     int pauseIdx;                      // the pause-loop index (the .c's v103)
-    size_t v92;            // the OB-pass linked_child segment counter
-    size_t v38;            // the linked_child segment counters (the loop-bound
-    size_t v41;            // rule: _countof with size_t counters)
-    size_t v52;
-    size_t v55;
+    int pauseTargetId;                // v105 - the pause-loop targetID read
+    TRIBE_Building_Object* pauseBldg;  // v106
+    RGE_Static_Object* pauseTarget;    // v107
+    size_t bldgChildA;     // v38 - the arm-2 linked_child segment counter (the loop-bound
+    size_t tgtChildA;      // v41 - the arm-2 target linked_child counter (rule: _countof
+    size_t bldgChildB;     // v52 - the OB-probe own linked_child counter (with size_t
+    size_t tgtChildB;      // v55 - the OB-probe target linked_child counter (counters))
+    size_t bldgChildW;     // v92 - the walk-arm linked_child segment counter
+    bool proceedToWalk;               // the pass-2 handoff flag (per-iteration; the install
+                                      // arms' walk transfers set it - see the walk arm)
+    bool runArm2;                     // the arm-2 stage flag (the LABEL_73 skip-gate dissolution)
+    bool toLabel97;                   // the LABEL_97 stage flag (the LABEL_73 body's goto dissolution)
+    bool arm2GateFailed;              // the arm-2 failure-gate flag (the LABEL_73-entry dissolution)
+    bool atLabel99Fall;               // the LABEL_99 fall flag (the wpc/len-gate taken-path)
+    bool toLabel103;                  // the LABEL_103 entry flag (the findTile len-fail + the LABEL_100 gate)
 
     // ---- the head (asm 0x4A47B0-0x4A48A0) ----
     if (RGE_Static_Object__isFlagSet((RGE_Static_Object*)this_, 2))   // asm 0x4A47D1-0x4A47DA
         return 1;                                                     // 0x4A47DC-0x4A47E1
-    v3 = RGE_Game_World__getWorldTimeDeltaSeconds((RGE_Game_World*)((RGE_Player*)this_->owner)->world);
+    rawDt = RGE_Game_World__getWorldTimeDeltaSeconds((RGE_Game_World*)((RGE_Player*)this_->owner)->world);
                                                                       // 0x4A47E6-0x4A47EF (owner @+0x18 ->
                                                                       //  world @+0x8C; the dt fetch via the OWNER's
                                                                       //  world - NOT base_game)
-    v4 = this_->pathData;                                             // 0x4A47F4 (+0x118)
-    a3 = (float)v3;                                                   // 0x4A47FA (fstp a3 - the store-round)
-    v162 = 0;                                                         // 0x4A47FA-0x4A4802 (var_238 = edx)
-    if (v4 && v4->pauseTime > 0.0)                                    // 0x4A4800-0x4A4816 (fcomp const_f_zero;
+    deltaTime = (float)rawDt;                                         // 0x4A47FA (fstp a3 - the store-round)
+    passCounter = 0;                                                  // 0x4A47FA-0x4A4802 (var_238 = edx)
+    if (this_->pathData && this_->pathData->pauseTime > 0.0)          // 0x4A4800-0x4A4816 (fcomp const_f_zero;
     {                                                                 //  test ah,41h; jnz - the literal > MATCH row)
-        v4->pauseTime = v4->pauseTime - a3;                           // 0x4A4818-0x4A481F (float-float fsub; ONE
+        this_->pathData->pauseTime = this_->pathData->pauseTime - deltaTime;
+                                                                      // 0x4A4818-0x4A481F (float-float fsub; ONE
                                                                       //  fstp m32 - rule (d))
-        v5 = this_->pathData;
-        if (v5->pauseTime > 0.0)                                      // 0x4A4822-0x4A4836 (literal > MATCH row)
+        if (this_->pathData->pauseTime > 0.0)                         // 0x4A4822-0x4A4836 (literal > MATCH row)
         {
             this_->vfptr->stopMoving(this_);                          // 0x4A4838-0x4A483C (slot +0x304 = 193)
             return 0;                                                 // 0x4A4842
         }
-        v5->pauseTime = 0.0;                                          // 0x4A4847 ([ecx+28h] = edx = 0)
+        this_->pathData->pauseTime = 0.0;                             // 0x4A4847 ([ecx+28h] = edx = 0)
     }
-    v6 = this_->master_obj;                                           // 0x4A484F (+0x14)
+    masterHead = this_->master_obj;                                   // 0x4A484F (+0x14)
     obSystemToUse = (RGE_Obstruction_Manager*)*OBSystem_Land;         // 0x4A484A-0x4A4852 (the slot deref)
-    if (v6->movement_type == 1)                                       // 0x4A4856 (byte @+0x78)
+    if (masterHead->movement_type == 1)                               // 0x4A4856 (byte @+0x78)
         obSystemToUse = (RGE_Obstruction_Manager*)*OBSystem_Air;      // 0x4A485C-0x4A4861
-    a2.x = 0.0f;                                                      // 0x4A4865-0x4A4880
-    a2.z = 0.0f;
-    a2.y = 0.0f;
-    a4.x = 0.0f;                                                      // 0x4A4886-0x4A4896
-    a4.z = 0.0f;
-    a4.y = 0.0f;
-    v157 = 0;                                                         // 0x4A489E (ONCE per call - the accumulator
+    fwdDir.x = 0.0f;                                                  // 0x4A4865-0x4A4880
+    fwdDir.z = 0.0f;
+    fwdDir.y = 0.0f;
+    moveTarget.x = 0.0f;                                              // 0x4A4886-0x4A4896
+    moveTarget.z = 0.0f;
+    moveTarget.y = 0.0f;
+    collisionCount = 0;                                               // 0x4A489E (ONCE per call - the accumulator
                                                                       //  feeds the next findLowLevelPath's count)
 
-    // ---- the dispatch loop (asm loc_4A48A2; every back-edge lands here) ----
-loop_head:
-    v7 = this_->pathData;                                             // 0x4A48A2-0x4A48A8
-    if (!v7)
-        return 1;                                                     // 0x4A48AA (jz loc_4A5D97)
-    v8 = v7->path;                                                    // 0x4A48B0 (+0x10)
-    v142 = v8;                                                        // 0x4A48B5 (var_26C)
-    if (!v8)
+    // =====================================================================
+    // THE DISPATCH LOOP (asm loc_4A48A2; every back-edge lands here; the
+    // reloop joins J1-J7 + the arrival + the state-4/5 + the config are the
+    // `continue` sites)
+    // =====================================================================
+    for (;;)
     {
-        v8 = RGE_Game_World__path((RGE_Game_World*)(*base_game)->world, v7->pathID);
+        // ---- S1: the resolve + the dead linked walk (loc_4A48A2-loc_4A48F3) ----
+        if (!this_->pathData)
+            return 1;                                                 // 0x4A48AA (jz loc_4A5D97)
+        resolvedPath = this_->pathData->path;                         // 0x4A48B0 (+0x10)
+        BPath* activePath = resolvedPath;                             // 0x4A48B5 (v8 = var_26C)
+        if (!activePath)
+        {
+            resolvedPath = RGE_Game_World__path((RGE_Game_World*)(*base_game)->world, this_->pathData->pathID);
                                                                       // 0x4A48BB-0x4A48C8 (pathID @+0x14;
                                                                       //  (*base_game)->world @0x420)
-        v142 = v8;
-        if (!v8)
-            return 1;                                                 // 0x4A48D5
-        this_->pathData->path = v8;                                   // 0x4A48DB-0x4A48E1 (the cache)
-    }
-    // asm 0x4A48E4-0x4A48F3: the linkedPath walk - the final eax is NEVER
-    // consumed (loc_4A48EE self-loop; the next live read is targetObj);
-    // genuinely dead in the original - transcribed 1:1.
-    for (i = this_->pathData; i; i = i->linkedPath)
-        ;
-    targetObj = 0;                                                    // 0x4A48F9
-    goal = (float)RGE_Moving_Object__precalcDistToTarget(this_, &targetObj);
+            activePath = resolvedPath;
+            if (!activePath)
+                return 1;                                             // 0x4A48D5
+            this_->pathData->path = resolvedPath;                     // 0x4A48DB-0x4A48E1 (the cache)
+        }
+        // asm 0x4A48E4-0x4A48F3: the linkedPath walk - the final eax is NEVER
+        // consumed (loc_4A48EE self-loop; the next live read is targetObj);
+        // genuinely dead in the original - transcribed 1:1.
+        for (linkWalk = this_->pathData; linkWalk; linkWalk = linkWalk->linkedPath)
+            ;
+        // ---- S2: the precalc pair (0x4A48F5-0x4A492A) ----
+        targetObj = 0;                                                // 0x4A48F9
+        goal = (float)RGE_Moving_Object__precalcDistToTarget(this_, &targetObj);
                                                                       // 0x4A48F5-0x4A490D (owned; fstp goal - the
                                                                       //  double return's store-round)
-    v10 = RGE_Moving_Object__precalcDistToGoal(this_, targetObj, goal);
+        goalDistRaw = RGE_Moving_Object__precalcDistToGoal(this_, targetObj, goal);
                                                                       // 0x4A4911-0x4A4919 (owned)
-    v161 = (float)v10;                                                // 0x4A492A (fstp var_23C - the store-round)
-    v11 = this_->pathData;
-    if ((v11->mFlags.valueValue & 1) != 0)                            // 0x4A492E (test [eax+30h], ecx; the mask
-    {                                                                 //  BBitVectorAND_2 = 1 (.rdata:0065BD94,
-        g_dimuMark = 14;                                              // DIAG
+        goalDist = (float)goalDistRaw;                                // 0x4A492A (fstp var_23C - the store-round)
+        // ---- S3: the increment arm (0x4A492E-0x4A4942) ----
+        if ((this_->pathData->mFlags.valueValue & 1) != 0)            // 0x4A492E (test [eax+30h], ecx; the mask
+        {                                                             //  BBitVectorAND_2 = 1 (.rdata:0065BD94,
+            g_dimuMark = 14;                                          // DIAG
                                                                       //  dd 1) = the mFlags bit-0 test)
-        if (!RGE_Moving_Object__incrementWaypoint(this_, v8, targetObj))
+            if (!RGE_Moving_Object__incrementWaypoint(this_, activePath, targetObj))
                                                                       // 0x4A4933-0x4A4940 (owned; test al,al)
-            return 1;                                                 // 0x4A4942
-    }
-    v12 = this_->pathData;
-    v13 = v12->state;                                                 // 0x4A494E (+0x1C)
-    if (v13 == 4 || v13 == 5)                                         // 0x4A4951-0x4A495D
-    {
-        g_dimuMark = 13;                                              // DIAG
-        if (RGE_Moving_Object__checkDistance(this_, goal) == 1)       // 0x4A5CD0-0x4A5CDA (owned; push edi = goal)
-            return 2;                                                 // 0x4A5E31
-        goto loop_head;                                               // 0x4A5CE0 (reloop)
-    }
-    if (v13 != 2)
-        goto walk_arm;                                                // 0x4A4963 (jnz loc_4A569F)
-
-    // ================= THE STATE-2 REPATH ARM (asm 0x4A496C-0x4A569D) ======
-    g_dimuMark = 5;                                                   // DIAG
-    v14 = &this_->positionValue;                                      // 0x4A497A (lea ebx,[esi+0F4h]; +0xF4)
-    v15 = BPath__waypoint(v8, &wpIndex, v12->waypoint);               // 0x4A496F-0x4A4980 (waypoint @+0x18)
-    BVector__operator_minus(v14, &result, v15);                       // 0x4A4985-0x4A4990 (this = positionValue)
-    result.z = 0.0f;                                                  // 0x4A4999
-    if (RGE_Static_Object__isFlagSet((RGE_Static_Object*)this_, 1))   // 0x4A4995-0x4A49AB
-    {
-        // PATHING_CAP (owner-ruled never-baked, 2026-11-20): pathing.cpp:109
-        // setHook(0x004A49B9, pathing_moving_object) hooks THIS call site
-        // mid-function, re-routing the availablePathingAttempts call to
-        // RGE_Player__availablePathingAttempts_new2 (the cap-extension logic;
-        // the stub reuses the on-stack numWaitDelays push as its arg3). The
-        // family is INACTIVE (setPathingHooks commented, dllmain.cpp:345); if
-        // re-enabled it writes into dead original bytes under this hook, and
-        // the new2 cap semantics are intentionally not carried here. Its
-        // sibling pathing.cpp:105 (0x49D15C) sits inside the shipped
-        // BMotion::updateMovement range with the same disposition.
-        if (!RGE_Player__availablePathingAttempts((RGE_Player*)this_->owner,
-                this_->numberWaitDelays) || v162 >= 3)                // 0x4A49AD-0x4A49CB (numWaitDelays: the
-        {                                                             //  zero-extended byte @+0xE5)
-            this_->vfptr->stopMoving(this_);                          // 0x4A5CE5-0x4A5CE9 (slot +0x304)
-            ++this_->numberWaitDelays;                                // 0x4A5CEF (inc byte @+0xE5)
-            return 0;                                                 // 0x4A5CF5
+                return 1;                                             // 0x4A4942
         }
-        RGE_Player__incrementPathingAttempts((RGE_Player*)this_->owner);  // 0x4A49D1-0x4A49D4
-        v16 = v162;
-        this_->numberWaitDelays = 0;                                  // 0x4A49DD
-        v162 = v16 + 1;                                               // 0x4A49E4-0x4A49E5
-    }
-    v17 = BPathData__highestLinkedPathPointer(this_->pathData);       // 0x4A49E9-0x4A49EF
-    if (!v17
-        && (v18 = (RGE_Game_World*)(*base_game)->world,               // 0x4A49F8-0x4A49FE
-            v19 = BPathData__highestLinkedPath(this_->pathData),      // 0x4A4A04-0x4A4A0A
-            (v17 = RGE_Game_World__path(v18, v19)) == 0)              // 0x4A4A0F-0x4A4A19
-        || (v17->flags.valueValue & 1) == 0)                          // 0x4A4A1B-0x4A4A26 (ja = nonzero skips;
-    {                                                                 //  BBitVectorAND_2 = 1; BPath flags @+0x20)
-        if (BPathData__continuesLeft(this_->pathData, 1) <= 0)        // 0x4A4A28-0x4A4A37
+        // ---- S4: the state dispatch (0x4A494E-0x4A4963) ----
+        pathState = this_->pathData->state;                           // 0x4A494E (+0x1C)
+        if (pathState == 4 || pathState == 5)                         // 0x4A4951-0x4A495D
         {
-            BPathData__setFailure(this_->pathData);                   // 0x4A5CFA-0x4A5D00
-            this_->vfptr->stopMoving(this_);                          // 0x4A5D05-0x4A5D09 (slot +0x304)
-            return 1;                                                 // 0x4A5D0F-0x4A5D14
+            g_dimuMark = 13;                                          // DIAG
+            if (RGE_Moving_Object__checkDistance(this_, goal) == 1)   // 0x4A5CD0-0x4A5CDA (owned; push edi = goal)
+                                                                      //  TRANSCRIPTION FIX (the paired-capture
+                                                                      //  divergence): the argument is `goal`
+                                                                      //  (var_264, the precalcDistToTarget store)
+                                                                      //  - NOT goalDist (v161, the
+                                                                      //  precalcDistToGoal store); the rename slip
+                                                                      //  made checkDistance#1 return 1 one cycle
+                                                                      //  early (the linked-chain one swap short)
+                return 2;                                             // 0x4A5E31
+            continue;                                                 // 0x4A5CE0 (reloop - the ASM RELOOP join)
         }
-    }
-    this_->vfptr->setWaitingToMove(this_, 0);                         // 0x4A4A3D-0x4A4A43 (slot +0x1B8 = 110)
-    // asm 0x4A4A49-0x4A4A71: operator_new(0x34) = sizeof(BPathData) (walked);
-    // the SEH scope (var_4 = 0 @0x4A4A59, -1 @0x4A4A77) is regenerated by the
-    // guarded-ctor form (the addCurrentPath/setVelocity precedent). The CRT
-    // wrapper rule: operator_new_internal. The .c's v20/v21 intermediates
-    // collapse: obj = the ctor's return = the same pointer (asm 0x4A4A71
-    // re-stores eax).
-    obj = (BPathData*)operator_new_internal(sizeof(BPathData));       // 0x4A4A49-0x4A4A53
-    if (obj != 0)                                                     // 0x4A4A57
-        obj = BPathData__BPathData(obj);                              // 0x4A4A66-0x4A4A68 (returns this)
-    if (obj == 0)
-    {
-LABEL_232:
-        BPathData__setFailure(this_->pathData);                       // 0x4A5D82-0x4A5D88
-        this_->vfptr->stopMoving(this_);                              // 0x4A5D8D-0x4A5D91 (slot +0x304)
-        return 1;                                                     // 0x4A5D97
-    }
-    g_dimuMark = 8;                                                   // DIAG
-    v22 = RGE_Game_World__createPath((RGE_Game_World*)(*base_game)->world);  // 0x4A4A88-0x4A4A94
-    if (!v22)
-    {
-        if (obj)
-        {
-            BPathData__destructor(obj);                               // 0x4A5D19-0x4A5D23
-            operator_delete_internal(obj);                            // 0x4A5D28-0x4A5D29
-        }
-        BPathData__setFailure(this_->pathData);                       // 0x4A5D31-0x4A5D37
-LABEL_229:
-        this_->vfptr->stopMoving(this_);                              // 0x4A5D3C-0x4A5D40 (slot +0x304)
-        return 1;                                                     // 0x4A5D46-0x4A5D4B
-    }
-    v143 = 0;                                                         // 0x4A4AA9 (var_268)
-    v149 = 0;                                                         // 0x4A4AAD (var_260)
-    if (!RGE_Static_Object__isFlagSet((RGE_Static_Object*)this_, 1))  // 0x4A4AA5-0x4A4AB9 (the compiler pushes
-    {                                                                 //  ebx = v14 BEFORE the jnz - the arg is
-                                                                      //  shared by both arms)
-        BPath__addWaypointAtStart(v22, v14);                          // 0x4A4ABB-0x4A4ABD
-        v24 = BPath__waypoint(v8, &v179, this_->pathData->waypoint);  // 0x4A4AC2-0x4A4AD6 (var_15C)
-        BPath__addWaypointAtEnd(v22, v24);                            // 0x4A4ADB-0x4A4ADE
-        BPath__calculatePathLength(v22);                              // 0x4A4AE3-0x4A4AE5
-        v25 = v142;                                                   // 0x4A4AEA
-        v143 = 1;                                                     // 0x4A4AEE
-        goto LABEL_129;                                               // 0x4A4AF6
-    }
-    // ---- the flagged arm (asm loc_4A4AFB) ----
-    v26 = BPath__waypoint(v8, &v188, this_->pathData->waypoint);      // 0x4A4B06-0x4A4B14 (var_F0)
-    BVector__operator_minus(v26, &v163, v14);                         // 0x4A4B19-0x4A4B1B (this = the fetched
-                                                                      //  buffer; v = ebx)
-    v27 = this_->pathData;
-    v163.z = 0.0f;                                                    // 0x4A4B36
-    v151 = (float)sqrt((double)v163.y * v163.y + (double)v163.x * v163.x);
-                                                                      // 0x4A4B20-0x4A4B46 (the x87 chain at 53-bit;
-                                                                      //  ONE fstp m32 - rule (d)/(j))
-    if (v27->waypointLevel == 2                                       // 0x4A4B40 ([eax+0Ch] == 2)
-        && *dword_689568 == 1                                         // 0x4A4B50
-        && v151 > *flt_68F494)                                        // 0x4A4B5D-0x4A4B6C (fcomp ds:flt_68F494;
-    {                                                                 //  test ah,41h; jnz - the literal > MATCH row)
-        fprintf_logger(g_dimuLog, "SMOOTHGATE taken wl=%d v151=%08x thr=%08x\n",   // DIAG
-            v27->waypointLevel, (unsigned int)v151, (unsigned int)*flt_68F494); // DIAG
-        v158 = RGE_Map_Analysis_System__get_map_analysis(             // 0x4A4B72-0x4A4B85
-            (*base_game)->world->map_analysis_system,                 // world @0x420 -> +0x74
-            (RGE_Master_Static_Object*)this_->master_obj);
-        fprintf_logger(g_dimuLog, "MAPGET ma_null=%d mk=%d\n",                   // DIAG
-            (v158 != 0) ? 1 : 0, g_dimuMark);                             // DIAG
-        if (v158 == 0)
-        {
-            BPath__addWaypointAtStart(v22, &this_->positionValue);    // 0x4A4CE0-0x4A4CE3
-            v36 = BPath__waypoint(v8, &v195, this_->pathData->waypoint);  // 0x4A4CE8-0x4A4CFC (var_9C)
-            BPath__addWaypointAtEnd(v22, v36);                        // 0x4A4D01-0x4A4D04
-            v35 = 1;
-            v149 = 1;                                                 // 0x4A4D0E
-            fprintf_logger(g_dimuLog, "STUBSET v149=%d\n", v149);            // DIAG
-LABEL_50:
-            v143 = v35;                                               // 0x4A4D12 (var_268 = eax)
-        }
+        proceedToWalk = false;                                        // the pass-2 handoff flag (fresh per pass)
+        if (pathState != 2)
+            proceedToWalk = true;                                     // 0x4A4963 (jnz loc_4A569F -> the walk arm)
         else
         {
-            v28 = this_->pathData;
-            v165 = 0.0f;                                              // 0x4A4B9C (var_224)
-            v29 = v28->targetID;                                      // 0x4A4BA4 (+0x24)
-            if (v29 != -1)
+            // ================= THE STATE-2 REPATH ARM (asm 0x4A496C-0x4A569D) ======
+            g_dimuMark = 5;                                               // DIAG
+            unitPos = &this_->positionValue;                              // 0x4A497A (lea ebx,[esi+0F4h]; +0xF4)
+            BVector* v15 = BPath__waypoint(resolvedPath, &headWp, this_->pathData->waypoint);
+                                                                          // 0x4A496F-0x4A4980 (waypoint @+0x18)
+            BVector__operator_minus(unitPos, &headDelta, v15);            // 0x4A4985-0x4A4990 (this = positionValue)
+            headDelta.z = 0.0f;                                           // 0x4A4999
+            if (RGE_Static_Object__isFlagSet((RGE_Static_Object*)this_, 1))   // 0x4A4995-0x4A49AB
             {
-                v30 = RGE_Game_World__object((RGE_Game_World*)(*base_game)->world, v29);
-                                                                      // 0x4A4BAC-0x4A4BB9
-                if (v30)
-                    v165 = v30->master_obj->radius_x;                 // 0x4A4BC2-0x4A4BC8 ([+0x14] -> [+0x3C])
+                // PATHING_CAP (owner-ruled never-baked, 2026-11-20): pathing.cpp:109
+                // setHook(0x004A49B9, pathing_moving_object) hooks THIS call site
+                // mid-function, re-routing the availablePathingAttempts call to
+                // RGE_Player__availablePathingAttempts_new2 (the cap-extension logic;
+                // the stub reuses the on-stack numWaitDelays push as its arg3). The
+                // family is INACTIVE (setPathingHooks commented, dllmain.cpp:345); if
+                // re-enabled it writes into dead original bytes under this hook, and
+                // the new2 cap semantics are intentionally not carried here. Its
+                // sibling pathing.cpp:105 (0x49D15C) sits inside the shipped
+                // BMotion::updateMovement range with the same disposition.
+                if (!RGE_Player__availablePathingAttempts((RGE_Player*)this_->owner,
+                        this_->numberWaitDelays) || passCounter >= 3)     // 0x4A49AD-0x4A49CB (numWaitDelays: the
+                {                                                         //  zero-extended byte @+0xE5)
+                    this_->vfptr->stopMoving(this_);                      // 0x4A5CE5-0x4A5CE9 (slot +0x304)
+                    ++this_->numberWaitDelays;                            // 0x4A5CEF (inc byte @+0xE5)
+                    return 0;                                             // 0x4A5CF5
+                }
+                RGE_Player__incrementPathingAttempts((RGE_Player*)this_->owner);  // 0x4A49D1-0x4A49D4
+                int v16 = passCounter;
+                this_->numberWaitDelays = 0;                              // 0x4A49DD
+                passCounter = v16 + 1;                                    // 0x4A49E4-0x4A49E5
             }
-            v31 = this_->pathData;
-            v130 = v31->range;                                        // 0x4A4BD9 ([eax+20h])
-            v127 = v165 + this_->master_obj->radius_x;                // 0x4A4BD5-0x4A4BE2 (fld var_224 +
-                                                                      //  fadd [edx+3Ch]; fstp var_290 = the arg7
-                                                                      //  slot; the 53-bit add, one store - rule (d))
-            dest_target_radius = BPath__waypoint(v8, &v206, v31->waypoint)->y;
-                                                                      // 0x4A4BE4-0x4A4BF8 (var_138; .y @+8)
-            v32 = BPath__waypoint(v8, &v181, this_->pathData->waypoint);  // 0x4A4BFD-0x4A4C15 (var_144)
-            v33 = RGE_Map_Analysis__find_path(                        // 0x4A4C16-0x4A4C2C
-                        v158, v22,
-                        v14->x,                                       // 0x4A4C22 ([ebx])
-                        this_->positionValue.y,                       // 0x4A4C1C ([esi+0FCh] = the .y member)
-                        v32->x,                                       // 0x4A4C1A ([eax])
-                        dest_target_radius,
-                        v127, v130, 0, 0, 0);
-                                                                      // asm 0x4A4C31 (and eax,0FFh) - FINDING C1:
-                                                                      // the u8 return reads AL; the assignment IS
-                                                                      // the mask's result (the literal mask folds
-                                                                      // as the AL narrowing itself)
-            fprintf_logger(g_dimuLog, "FP sx=%08x sy=%08x dx=%08x dy=%08x dtr=%08x dr=%08x r=%d\n",  // DIAG
-                (unsigned int)v14->x, (unsigned int)this_->positionValue.y,          // DIAG
-                (unsigned int)v32->x, (unsigned int)dest_target_radius,              // DIAG
-                (unsigned int)v127, (unsigned int)v130, v33);                        // DIAG
-            fprintf_logger(g_dimuLog, "FP sx=%08x sy=%08x dx=%08x dy=%08x dtr=%08x dr=%08x r=%d\n",  // DIAG
-                (unsigned int)v14->x, (unsigned int)this_->positionValue.y,          // DIAG
-                (unsigned int)v32->x, (unsigned int)dest_target_radius,              // DIAG
-                (unsigned int)v127, (unsigned int)v130, v33);                        // DIAG
-            if (v33 != 3 && v33 != 4)                                 // 0x4A4C36-0x4A4C42
-            {
-                if (v33)
+            topPath = BPathData__highestLinkedPathPointer(this_->pathData);   // 0x4A49E9-0x4A49EF
+            if (!topPath
+                && (worldNow = (RGE_Game_World*)(*base_game)->world,      // 0x4A49F8-0x4A49FE
+                    topPathId = BPathData__highestLinkedPath(this_->pathData),  // 0x4A4A04-0x4A4A0A
+                    (topPath = RGE_Game_World__path(worldNow, topPathId)) == 0)  // 0x4A4A0F-0x4A4A19
+                || (topPath->flags.valueValue & 1) == 0)                  // 0x4A4A1B-0x4A4A26 (ja = nonzero skips;
+            {                                                             //  BBitVectorAND_2 = 1; BPath flags @+0x20)
+                if (BPathData__continuesLeft(this_->pathData, 1) <= 0)    // 0x4A4A28-0x4A4A37
                 {
-                    v149 = 1;                                         // 0x4A4C55-0x4A4C59
-                    v143 = 1;                                         // 0x4A4C5D
-                    smoothMidLevelPath(this_, v22);                   // 0x4A4C61 (__fastcall ecx=esi, edx=edi)
-                    v137 = BPath__waypoint(v22, &v203, v22->waypointsCount - 1);
-                                                                      // 0x4A4C66-0x4A4C75 (var_3C; count @+0xC)
-                    v34 = BPath__waypoint(v8, &v183, this_->pathData->waypoint);
-                                                                      // 0x4A4C7A-0x4A4C97 (var_12C)
-                    BVector__operator_minus(v34, &v170, v137);        // 0x4A4C9C-0x4A4C9E
-                    v170.z = 0.0f;                                    // 0x4A4CBF
-                    if (sqrt((double)v170.y * v170.y + (double)v170.x * v170.x) > (double)v151)
-                                                                      // 0x4A4CA3-0x4A4CD7 (fcomp var_25C on the
-                                                                      //  UNROUNDED st0; test ah,41h; jnz - the
-                                                                      //  literal > MATCH row)
-                    {
-                        v35 = 0;
-                        v22->waypointsCount = 0;                      // 0x4A4CDB
-                        goto LABEL_50;                                // 0x4A4CDE
-                    }
+                    BPathData__setFailure(this_->pathData);               // 0x4A5CFA-0x4A5D00
+                    this_->vfptr->stopMoving(this_);                      // 0x4A5D05-0x4A5D09 (slot +0x304)
+                    return 1;                                             // 0x4A5D0F-0x4A5D14
                 }
             }
-        }
-        // THE STUB-PATH FALL-THROUGH FIX (the capstone pass-1 desync root
-        // cause, 2026-11-20): these two statements were transcribed inside
-        // the ma!=NULL arm; the asm joins BOTH arms at loc_4A4D16 and calls
-        // unconditionally (0x4A4D12 the stub's v143=v35 falls through;
-        // 0x4A4D16 joins the find_path exits; lst :281179-281185; the .c
-        // renders them after the ma if/else, inside the smooth-gate block).
-        // Without it the stub path's pathLengthValue stayed 0.0 (the ctor
-        // zero), the $LN297 len gate failed, and pass-1 wrongly ran the
-        // findTile arm (v149=0, wpc=3 -> FOLLOW) instead of READY + the
-        // config reloop.
-        BPath__calculatePathLength(v22);                              // 0x4A4D16-0x4A4D18 (loc_4A4D12 fall +
-                                                                      //  loc_4A4D16 join - BOTH arms)
-        v22->creationTimeValue = ((RGE_Player*)this_->owner)->world->world_time;
-                                                                      // 0x4A4D1D-0x4A4D29 (FINDING D: owner->world
-                                                                      //  @+0x8C -> world_time @+0x10)
-    }
-    else
-    {
-        fprintf_logger(g_dimuLog, "SMOOTHGATE skipped wl=%d v151=%08x thr=%08x\n",  // DIAG
-            v27->waypointLevel, (unsigned int)v151, (unsigned int)*flt_68F494); // DIAG
-    }
-    v159 = FLT_MAX;                                                   // 0x4A4D34 (var_244 = SINGLE_MAXIMUM_VALUE;
-                                                                      //  FLT_MAX per the C2177 rule)
-    fprintf_logger(g_dimuLog, "A2GATE v143=%d wpc=%d cfg=%d v151=%08x\n",    // DIAG
-        v143, v22->waypointsCount, *dword_689564, (unsigned int)v151); // DIAG
-    fprintf_logger(g_dimuLog, "PREINST v149=%d v143=%d\n", v149, v143);      // DIAG
-    if (v143 && v22->waypointsCount > 2                               // 0x4A4D2C-0x4A4D42 (cmp var_268,0 - jz skips
-        || *dword_689564 != 1                                         //  the count test; cmp [edi+0Ch],2; jg)
-        || v151 > 10.0f)                                              // 0x4A4D55-0x4A4D64 (flt_6565F0; test ah,41h;
-            goto LABEL_73;                                            //  jz -> the literal > MATCH row)
-
-    // ---- arm 2: findLowLevelPath (asm 0x4A4D6A-0x4A4F1D) ----
-    g_dimuMark = 6;                                                   // DIAG
-    fprintf_logger(g_dimuLog, "ARM2 entered v149=%d\n", v149);               // DIAG
-    v37 = 0;
-    v22->waypointsCount = 0;                                          // 0x4A4D6C ([edi+0Ch] = ebp = 0)
-    v149 = 0;                                                         // 0x4A4D71
-    ignoreListSize = 0;                                               // 0x4A4D75 (the owned global)
-    if (this_)                                                        // 0x4A4D6F-0x4A4D7B (the dead self-test;
-    {                                                                 //  cmp esi,ebp - kept faithful)
-        ignoreUnits[0] = this_->id;                                   // 0x4A4D7D-0x4A4D80 (id @+0x10)
-        v37 = 1;
-        ignoreListSize = 1;
-        if (this_->type == 80)                                        // 0x4A4D91-0x4A4D96 (byte @+0x5E == 0x50)
-        {
-            // BASE-POINTER FIX: the .c's &this[1].ei.y2 = +0x13C (sizeof
-            // RGE_Moving_Object) + offsetof(ei.y2) (= +0xA4: ei @+0x90,
-            // y2 @+0x14) = +0x1E0 = TRIBE_Building_Object::linked_child
-            // (walker-confirmed; asm 0x4A4D9A lea edx,[esi+1E0h]). The
-            // type-80 guard is the runtime-type evidence.
-            TRIBE_Building_Object* buildingObj = (TRIBE_Building_Object*)this_;
-            v38 = 0;
-            do
+            this_->vfptr->setWaitingToMove(this_, 0);                     // 0x4A4A3D-0x4A4A43 (slot +0x1B8 = 110)
+            // asm 0x4A4A49-0x4A4A71: operator_new(0x34) = sizeof(BPathData) (walked);
+            // the SEH scope (var_4 = 0 @0x4A4A59, -1 @0x4A4A77) is regenerated by the
+            // guarded-ctor form (the addCurrentPath/setVelocity precedent). The CRT
+            // wrapper rule: operator_new_internal. The .c's v20/v21 intermediates
+            // collapse: successor = the ctor's return = the same pointer (asm 0x4A4A71
+            // re-stores eax).
+            successor = (BPathData*)operator_new_internal(sizeof(BPathData));   // 0x4A4A49-0x4A4A53
+            if (successor != 0)                                           // 0x4A4A57
+                successor = BPathData__BPathData(successor);              // 0x4A4A66-0x4A4A68 (returns this)
+            if (successor == 0)
             {
-                RGE_Static_Object* child =
-                    (RGE_Static_Object*)buildingObj->linked_child[v38];
-                if (child)                                            // 0x4A4DA0-0x4A4DA4
-                {
-                    ignoreUnits[v37++] = child->id;                   // 0x4A4DA6-0x4A4DA9 (id @+0x10)
-                    ignoreListSize = v37;
-                    if (v37 >= _countof(ignoreUnits))                 // 0x4A4DB1-0x4A4DB7 (cmp 80h; jge - the
-                        break;                                        //  cap AFTER the store + count update)
-                }
-                ++v38;
-            } while (v38 < _countof(buildingObj->linked_child));      // 0x4A4DC3-0x4A4DC6 (cmp ebx,4)
-        }
-    }
-    v40 = (TRIBE_Building_Object*)targetObj;                          // 0x4A4DC8-0x4A4DCC
-    if (targetObj)
-    {
-        if (v37 < _countof(ignoreUnits))                              // 0x4A4DD0-0x4A4DD6 (the gate BEFORE the append)
-        {
-            ignoreUnits[v37++] = targetObj->id;                       // 0x4A4DD8-0x4A4DDB
-            ignoreListSize = v37;
-            if (v40->type == 80)                                      // 0x4A4DE9-0x4A4DEF
-            {
-                v41 = 0;
-                do
-                {
-                    RGE_Static_Object* child =
-                        (RGE_Static_Object*)v40->linked_child[v41];   // 0x4A4DF3 (lea edx,[eax+1E0h])
-                    if (child)                                        // 0x4A4DF9-0x4A4DFD
-                    {
-                        ignoreUnits[v37++] = child->id;               // 0x4A4DFF-0x4A4E02
-                        ignoreListSize = v37;
-                        if (v37 >= _countof(ignoreUnits))
-                            break;
-                    }
-                    ++v41;
-                } while (v41 < _countof(v40->linked_child));
+                // RESTRUCTURE: LABEL_232 (asm 0x4A4A57 region) inlined at its
+                // first site; the second site (the install-failure tail gate,
+                // 0x4A584B-0x4A585F) carries its own identical copy below -
+                // asm-distinct sites, byte-identical statements.
+                BPathData__setFailure(this_->pathData);                   // 0x4A5D82-0x4A5D88
+                this_->vfptr->stopMoving(this_);                          // 0x4A5D8D-0x4A5D91 (slot +0x304)
+                return 1;                                                 // 0x4A5D97
             }
-        }
-    }
-    v43 = (RGE_Player*)this_->owner;                                  // 0x4A4E21 (the dual-naming cast)
-    v44 = this_->master_obj;                                          // 0x4A4E24
-    v45 = this_->pathData;                                            // 0x4A4E27
-    v138 = v43->id;                                                   // 0x4A4E2D ([edx+0A0h])
-    v132 = v43->world->terrains[v44->terrain];                        // 0x4A4E33-0x4A4E43 (world @+0x8C ->
-                                                                      //  terrains @+0x60; the asm movsx reads the
-                                                                      //  i16 terrain @+0x76)
-    v122 = v37;
-    v120 = v45->targetID;                                             // 0x4A4E56 ([eax+24h])
-    v118 = v45->range;                                                // 0x4A4E4D ([eax+20h])
-    v117 = v44->radius_x;                                             // 0x4A4E5F ([ebp+3Ch])
-    v46 = BPath__waypoint(v142, &v185, v45->waypoint);                // 0x4A4E63-0x4A4E74 (var_114)
-    v14 = &this_->positionValue;                                      // 0x4A4E7D (the ebx reload)
-    v47 = findLowLevelPath(                                           // 0x4A4E7C-0x4A4E86 (__fastcall; ecx = the
-            obSystemToUse,                                            //  OB system, edx = start)
-            v14,
-            v46,
-            v117, v118, v120,
-            ignoreUnits, v122,
-            collisionUnits,                                           // 0x4A4E50 (push offset collisionUnits - arg9;
-                                                                      //  THE LEAD RE-VERIFIED: the .lst's param
-                                                                      //  label agrees)
-            v157,                                                     // 0x4A4E47 (arg10 = the accumulated count;
-                                                                      //  the .c's v128 = (BPath*)v157 round-trip)
-            v22, v132,
-            0,                                                        // 0x4A4E3A (useHulledArea)
-            v138);
-    BPath__calculatePathLength(v22);                                  // 0x4A4E8B-0x4A4E8D
-    v22->creationTimeValue = ((RGE_Player*)this_->owner)->world->world_time;
-                                                                      // 0x4A4E94-0x4A4EA3 (FINDING D; stored
-                                                                      //  UNCONDITIONALLY before the checks)
-    if (v47 == 3 || v47 == 4                                          // 0x4A4E97-0x4A4EAB
-        || X87_LE_NAN(v22->pathLengthValue, 1.0e-7f))                 // 0x4A4EAD-0x4A4EBB (fld [edi+18h]; fcomp
-    {                                                                 //  flt_6565F4; test ah,41h; jnz - the
-LABEL_73:                                                             //  {<=, NaN} set fails; literal <= would
-        if (!v143)                                                    //  skip NaN: rule (i) DIVERGENT)
-        {                                                             // 0x4A4F26-0x4A4F2C (test var_268; jnz
-            if (v151 >= 1.0 && goal >= 1.0)                           //  -> the gate below; two test ah,1 gates -
-                goto LABEL_97;                                        //  the literal >= MATCH rows)
-            v149 = 0;                                                 // 0x4A4F58-0x4A4F65
-            BPath__waypoint(v142, &v173, this_->pathData->waypoint);  // 0x4A4F6D-0x4A4F76 (var_1CC)
-            v49 = this_->master_obj;                                  // 0x4A4F7B
-            if (X87_LT_NAN(v173.x, v49->radius_x)                     // 0x4A4F7E-0x4A4F8D (fld var; fcomp [ecx+3Ch];
-                || X87_LT_NAN(v173.y, v49->radius_y))                 //  test ah,1; jnz - the {<, NaN} sets ->
-                goto LABEL_97;                                        //  DIVERGENT; radius_y @+0x40)
-            v50 = ((RGE_Player*)this_->owner)->world->map;            // 0x4A4FA8-0x4A4FB4 (world @+0x8C -> map @+0x34)
-            if (X87_LT_NAN((double)v50->map_width - (double)v49->radius_x, v173.x)
-                                                                      // 0x4A4FB4-0x4A4FC6 (fild [edx+8]; fsub
-                                                                      //  [ecx+3Ch]; fcomp var - the 53-bit
-                                                                      //  arithmetic feeds fcomp (rule (a)); test
-                                                                      //  ah,1; jnz - the {<, NaN} set -> DIVERGENT)
-                || X87_LT_NAN((double)v50->map_height - (double)v49->radius_y, v173.y))
-                                                                      // 0x4A4FCC-0x4A4FDE (fild [edx+0Ch] -
-                                                                      //  map_height @+0xC)
-                goto LABEL_97;                                        // 0x4A5135
-            g_dimuMark = 7;                                           // DIAG
-            v51 = 0;
-            ignoreListSize = 0;                                       // 0x4A4FE4-0x4A4FE8
-            if (this_)                                                // 0x4A4FE6-0x4A4FED (the dead self-test)
+            g_dimuMark = 8;                                               // DIAG
+            newPath = RGE_Game_World__createPath((RGE_Game_World*)(*base_game)->world);  // 0x4A4A88-0x4A4A94
+            if (!newPath)
             {
-                v51 = 1;
-                ignoreUnits[0] = this_->id;                           // 0x4A4FEF-0x4A4FF7
-                ignoreListSize = 1;
-                if (this_->type == 80)                                // 0x4A5002-0x4A5006
+                if (successor)
                 {
-                    TRIBE_Building_Object* buildingObj2 = (TRIBE_Building_Object*)this_;
-                    v52 = 0;
-                    do
-                    {
-                        RGE_Static_Object* child2 =
-                            (RGE_Static_Object*)buildingObj2->linked_child[v52];
-                        if (child2)                                   // 0x4A5010-0x4A5014
-                        {
-                            ignoreUnits[v51++] = child2->id;          // 0x4A5016-0x4A5019
-                            ignoreListSize = v51;
-                            if (v51 >= _countof(ignoreUnits))         // 0x4A5021-0x4A502B
-                                break;
-                        }
-                        ++v52;
-                    } while (v52 < _countof(buildingObj2->linked_child));
+                    BPathData__destructor(successor);                     // 0x4A5D19-0x4A5D23
+                    operator_delete_internal(successor);                  // 0x4A5D28-0x4A5D29
                 }
+                BPathData__setFailure(this_->pathData);                   // 0x4A5D31-0x4A5D37
+                // RESTRUCTURE: LABEL_229 (asm 0x4A5D3C) inlined at both its sites
+                // (here and in the walk arm's linkedNow-null path below) -
+                // region-distinct sites, identical statements.
+                this_->vfptr->stopMoving(this_);                          // 0x4A5D3C-0x4A5D40 (slot +0x304)
+                return 1;                                                 // 0x4A5D46-0x4A5D4B
             }
-            v54 = targetObj;                                          // 0x4A5036-0x4A503C
-            if (targetObj)
-            {
-                if (v51 < _countof(ignoreUnits))                      // 0x4A503E-0x4A5043
-                {
-                    ignoreUnits[v51++] = targetObj->id;               // 0x4A5045-0x4A5048
-                    ignoreListSize = v51;
-                    if (v54->type == 80)                              // 0x4A5055-0x4A505B
-                    {
-                        // BASE-POINTER FIX: the .c's &v54[2].damaged_lately_
-                        // timer = +0x168 (2*sizeof RGE_Static_Object) + 0x78
-                        // = +0x1E0 = linked_child (asm 0x4A505F lea edx,[ecx+1E0h]).
-                        TRIBE_Building_Object* targetBuilding = (TRIBE_Building_Object*)v54;
-                        v55 = 0;
-                        do
-                        {
-                            RGE_Static_Object* child3 =
-                                (RGE_Static_Object*)targetBuilding->linked_child[v55];
-                            if (child3)                               // 0x4A5065-0x4A5069
-                            {
-                                ignoreUnits[v51++] = child3->id;      // 0x4A506B-0x4A506E
-                                ignoreListSize = v51;
-                                if (v51 >= _countof(ignoreUnits))
-                                    break;
-                            }
-                            ++v55;
-                        } while (v55 < _countof(targetBuilding->linked_child));
-                    }
-                }
+            pathFound = 0;                                                // 0x4A4AA9 (var_268)
+            smoothUsed = 0;                                               // 0x4A4AAD (var_260)
+            if (!RGE_Static_Object__isFlagSet((RGE_Static_Object*)this_, 1))  // 0x4A4AA5-0x4A4AB9 (the compiler pushes
+            {                                                             //  ebx = unitPos BEFORE the jnz - the arg is
+                                                                          //  shared by both arms)
+                BPath__addWaypointAtStart(newPath, unitPos);              // 0x4A4ABB-0x4A4ABD
+                BVector* v24 = BPath__waypoint(resolvedPath, &noFlagWp, this_->pathData->waypoint);
+                                                                          // 0x4A4AC2-0x4A4AD6 (var_15C)
+                BPath__addWaypointAtEnd(newPath, v24);                    // 0x4A4ADB-0x4A4ADE
+                BPath__calculatePathLength(newPath);                      // 0x4A4AE3-0x4A4AE5
+                pathFound = 1;                                            // 0x4A4AEE
+                                                                          // 0x4A4AF6 - RESTRUCTURE: the LABEL_129
+                                                                          //  jump dissolved - the stub arm is the
+                                                                          //  if-arm of the flagged-pipeline if/else,
+                                                                          //  and both arms converge at the install
+                                                                          //  gate below (every pipeline path provably
+                                                                          //  reaches LABEL_129; see the stage map)
             }
-            v133 = v51;
-            v57 = BPath__waypoint(v142, &v197, this_->pathData->waypoint);
-                                                                      // 0x4A5099-0x4A50AE (var_84)
-            v14 = &this_->positionValue;                              // 0x4A50B7
-            findObSystemCollisions(obSystemToUse,                     // 0x4A50B3-0x4A50C1 (__fastcall; p1 =
-                    this_,                                            //  positionValue, p2 = the fetched
-                    v14, v57,                                         //  waypoint; checkTerrain = 1;
-                    ignoreUnits, v133, 1, 1.0f);                      //  radiusModifier = 1.0f)
-            if (*numberObSystemCollisions)                            // 0x4A50C6-0x4A50CD (mov eax,[global]; test -
-                goto LABEL_97;                                        //  the VALUE test: the deref sweep)
-            v22->waypointsCount = 0;                                  // 0x4A50D2
-            BPath__addWaypointAtStart(v22, v14);                      // 0x4A50CF-0x4A50D9
-            v58 = BPath__waypoint(v142, &v189, this_->pathData->waypoint);
-                                                                      // 0x4A50DE-0x4A50F4 (var_E4)
-            BPath__addWaypointAtEnd(v22, v58);                        // 0x4A50F9-0x4A50FC
-            v22->creationTimeValue = ((RGE_Player*)this_->owner)->world->world_time;
-                                                                      // 0x4A5101-0x4A510F (FINDING D)
-            BPath__calculatePathLength(v22);                          // 0x4A510C-0x4A5112
-            v143 = 1;                                                 // 0x4A5117
-        }
-    }
-    else
-    {
-        // the arm-2 success (asm 0x4A4EBD-0x4A4F21): the flag pair and the
-        // shared tail norm; the tail jmp 0x4A4F21 lands at the gate below.
-        v143 = 1;                                                     // 0x4A4EC3
-        v139 = BPath__waypoint(v22, &v201, v22->waypointsCount - 1);  // 0x4A4EBD-0x4A4ED4 (var_54)
-        v48 = BPath__waypoint(v142, &v187, this_->pathData->waypoint);// 0x4A4ED9-0x4A4EF5 (var_FC)
-        BVector__operator_minus(v48, &v167, v139);                    // 0x4A4EFA-0x4A4EFC
-        v167.z = 0.0f;                                                // 0x4A4F11
-        v159 = (float)sqrt((double)v167.y * v167.y + (double)v167.x * v167.x);
-                                                                      // 0x4A4F01-0x4A4F1D (fsqrt; fstp var_244)
-    }
-    if (v22->waypointsCount >= 2                                      // 0x4A511F-0x4A5123 (cmp [edi+0Ch],2; jl)
-        && v22->pathLengthValue >= 0.01f)                             // 0x4A5125-0x4A5133 (fld [edi+18h]; fcomp
-            goto LABEL_99;                                            //  flt_654978 = 0.01f; test ah,1; jz - the
-                                                                      //  literal >= MATCH row)
-
-    // ---- LABEL_97 (asm loc_4A5135-0x4A5351) ----
-LABEL_97:
-    v59 = RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_, targetObj);
-                                                                      // 0x4A5135-0x4A513C (double return -
-                                                                      //  consumed UNROUNDED in st0 at loc_4A5336)
-    if (targetObj)
-    {
-        if (X87_LT_NAN(v59, 1.0)                                      // 0x4A5336-0x4A5341 (fcomp const_f_one on the
-            && targetObj->master_obj->id != 45)                       //  UNROUNDED st0; test ah,1; jz skip - the
-            goto LABEL_99;                                            //  {<, NaN} set falls to the id test ->
-    }                                                                 //  DIVERGENT; the master id word @+0x18 ==
-    else if (X87_LT_NAN(v151, 1.0f))                                  //  45 = Cargo Trader; 0x4A514D-0x4A515E
-        goto LABEL_99;                                                //  (fstp st discards v59; fld var_25C; test
-                                                                      //  ah,1; jz skip - DIVERGENT)
-    if (*dword_68956C == 1)                                           // 0x4A5351-0x4A5358
-    {
-        // ---- the findTilePath arm (asm 0x4A535E-0x4A54AC) ----
-        v25 = v142;                                                   // 0x4A5360
-        v22->waypointsCount = 0;                                      // 0x4A5365
-        v68 = this_->pathData;
-        v149 = 0;                                                     // 0x4A5376
-        dest_target_radiusb = v68->targetID;                          // 0x4A537B
-        v123 = v68->range;                                            // 0x4A5373
-        v121 = (int)BPath__waypoint(v142, &v205, v68->waypoint)->y;   // 0x4A5384-0x4A539C (var_24; .y @+8;
-                                                                      //  __ftol @0x4A5397 -> the (int) form)
-        v119 = (int)BPath__waypoint(v142, &v191, this_->pathData->waypoint)->x;
-                                                                      // 0x4A53A3-0x4A53C3 (var_CC; .x @+0; __ftol
-                                                                      //  @0x4A53B8)
-        v143 = PathingSystem__findTilePath(                           // 0x4A53C4-0x4A53D7 (the direct pointer per
-                    pathSystem,                                       //  common.h:120; the four tile coords are the
-                    (int)v14->x,                                      //  __ftol conversions: 0x4A53CC ([ebx]) and
-                    (int)this_->positionValue.y,                      //  0x4A53C4 ([esi+0FCh]))
-                    v119, v121,
-                    this_, v123, dest_target_radiusb,
-                    0, -1, -1,                                        // rLength = 0; the two -1 unobstructible ids
-                    v22, 0);
-                                                                      // asm 0x4A53DF (and eax,0FFh) - FINDING C2:
-                                                                      // the bool return's AL IS the mask's result;
-                                                                      // the direct bool read is the same narrowing
-                                                                      // (the literal & was rejected: a C4806 no-op)
-        v22->creationTimeValue = ((RGE_Player*)this_->owner)->world->world_time;
-                                                                      // 0x4A53DC-0x4A53F3 (FINDING D)
-        BPath__calculatePathLength(v22);                              // 0x4A53F6
-        if (X87_LT_NAN(v22->pathLengthValue, 1.0e-7f))                // 0x4A53FB-0x4A5409 (test ah,1; jz keeps - the
-        {                                                             //  {<, NaN} set fails -> DIVERGENT)
-            v143 = 0;                                                 // 0x4A540B
-LABEL_103:
-            if (this_->pathData->waypointLevel == 2                   // 0x4A518A-0x4A5194
-                && *dword_689568 == 1                                 // 0x4A519A-0x4A51A1
-                && X87_LT_NAN(v151, *flt_68F494))                     // 0x4A51A7-0x4A51B6 (test ah,1; jz -> the
-            {                                                         //  LABEL_129 gate; the {<, NaN} set continues
-                                                                      //  into the pass -> DIVERGENT)
-                goala = RGE_Map_Analysis_System__get_map_analysis(    // 0x4A51BC-0x4A51CF
-                    (*base_game)->world->map_analysis_system,
-                    (RGE_Master_Static_Object*)this_->master_obj);
-                BPath__BPath(ReturnPath, -1);                         // 0x4A51D4-0x4A51E1 (the stack BPath; the SEH
-                                                                      //  cookie var_4 = 1 @0x4A51EA regenerates
-                                                                      //  with the ctor call - the raw-storage form)
-                if (goala)
+                else
                 {
-                    v60 = this_->pathData;
-                    v164 = 0.0f;                                      // 0x4A5203 (var_228)
-                    v61 = v60->targetID;
-                    if (v61 != -1)
+                // ---- the flagged arm (asm loc_4A4AFB) - THE FLAGGED BUILDER
+                // PIPELINE: every path here provably reaches the install gate
+                // (LABEL_129) below - the pipeline if/else convergence is the
+                // dissolution of the stub's goto LABEL_129 (0x4A4AF6) ----
+                BVector* v26 = BPath__waypoint(resolvedPath, &prepWp, this_->pathData->waypoint);
+                                                                          // 0x4A4B06-0x4A4B14 (var_F0)
+                BVector__operator_minus(v26, &repathDelta, unitPos);      // 0x4A4B19-0x4A4B1B (this = the fetched
+                                                                          //  buffer; v = ebx)
+                repathDelta.z = 0.0f;                                     // 0x4A4B36
+                repathDist = (float)sqrt((double)repathDelta.y * repathDelta.y + (double)repathDelta.x * repathDelta.x);
+                                                                          // 0x4A4B20-0x4A4B46 (the x87 chain at 53-bit;
+                                                                          //  ONE fstp m32 - rule (d)/(j))
+                if (this_->pathData->waypointLevel == 2                   // 0x4A4B40 ([eax+0Ch] == 2)
+                    && *dword_689568 == 1                                 // 0x4A4B50
+                    && repathDist > *flt_68F494)                          // 0x4A4B5D-0x4A4B6C (fcomp ds:flt_68F494;
+                {                                                         //  test ah,41h; jnz - the literal > MATCH row)
+                    fprintf_logger(g_dimuLog, "SMOOTHGATE taken wl=%d v151=%08x thr=%08x\n",   // DIAG
+                        this_->pathData->waypointLevel, (unsigned int)repathDist, (unsigned int)*flt_68F494);  // DIAG
+                    mapAnalysis = RGE_Map_Analysis_System__get_map_analysis(  // 0x4A4B72-0x4A4B85
+                        (*base_game)->world->map_analysis_system,         // world @0x420 -> +0x74
+                        (RGE_Master_Static_Object*)this_->master_obj);
+                    fprintf_logger(g_dimuLog, "MAPGET ma_null=%d mk=%d\n",           // DIAG
+                        (mapAnalysis != 0) ? 1 : 0, g_dimuMark);                     // DIAG
+                    if (mapAnalysis == 0)
                     {
-                        v62 = RGE_Game_World__object((RGE_Game_World*)(*base_game)->world, v61);
-                                                                      // 0x4A5213-0x4A5220
-                        if (v62)
-                            v164 = v62->master_obj->radius_x;         // 0x4A5229-0x4A522F
-                    }
-                    v63 = this_->pathData;
-                    v131 = v63->range;                                // 0x4A5240
-                    v129 = v164 + this_->master_obj->radius_x;        // 0x4A523C-0x4A5258 (fld var_228 + fadd
-                                                                      //  [edx+3Ch]; fstp var_290 = arg7; rule (d))
-                    dest_target_radiusa = BPath__waypoint(v25, &v180, v63->waypoint)->y;
-                                                                      // 0x4A5251-0x4A5264 (var_150; .y @+8)
-                    v64 = BPath__waypoint(v25, &v182, this_->pathData->waypoint);
-                                                                      // 0x4A526E-0x4A527C (var_138)
-                    v65 = RGE_Map_Analysis__find_path(                // 0x4A5281-0x4A529A
-                                goala, ReturnPath,
-                                v14->x,                               // 0x4A528D ([ebx])
-                                this_->positionValue.y,               // 0x4A5283
-                                v64->x,
-                                dest_target_radiusa,
-                                v129, v131, 0, 0, 0);
-                                                                      // asm 0x4A52A6 (and eax,0FFh) - FINDING C1 #2
-                    fprintf_logger(g_dimuLog, "FP2 sx=%08x sy=%08x dx=%08x dy=%08x dtr=%08x dr=%08x r=%d\n",  // DIAG
-                (unsigned int)v14->x, (unsigned int)this_->positionValue.y,          // DIAG
-                (unsigned int)v64->x, (unsigned int)dest_target_radiusa,             // DIAG
-                (unsigned int)v129, (unsigned int)v131, v65);                        // DIAG
-            v140 = BPath__waypoint(ReturnPath, &v184, ReturnPath->waypointsCount - 1);
-                                                                      // 0x4A529F-0x4A52BE (var_120; count @+0xC)
-                    v66 = BPath__waypoint(v25, &v176, this_->pathData->waypoint);
-                                                                      // 0x4A52C3-0x4A52E0 (var_1A8)
-                    BVector__operator_minus(v66, &v169, v140);        // 0x4A52E5-0x4A52E7
-                    v169.z = 0.0f;                                    // 0x4A5308
-                    v67 = sqrt((double)v169.y * v169.y + (double)v169.x * v169.x);
-                                                                      // 0x4A52EC-0x4A5315 (fsqrt; st0 KEPT unrounded)
-                    goald = (float)v67;                               // 0x4A5317 (fst goal - the store-round COPY;
-                                                                      //  st0 stays unrounded for the fcomp below)
-                    if (X87_LE_NAN(v67, (double)v151))                // 0x4A5317-0x4A5324 (fcomp var_25C on the
-                    {                                                 //  UNROUNDED st0; test ah,41h; jnz = the
-                                                                      //  {<=, NaN} KEEP set - the literal <= would
-                                                                      //  send NaN to the discard: DIVERGENT)
-                        if (v65 != 3 && v65 != 4                      // 0x4A54B1-0x4A54C5 (cmp ebx,3/4; test
-                            && v65 != 0)                              //  ebx,ebx - all three -> the tail)
-                        {
-                            if (v159 > (double)goald)                 // 0x4A54C9-0x4A54DC (fld goal; fld var_244;
-                                                                      //  fcomp st(1); test ah,41h; fstp st; jnz -
-                                                                      //  the literal > MATCH row; both float m32)
-                            {
-                                v71 = 0;
-                                v72 = ReturnPath->waypointsCount <= 0;// 0x4A54E2-0x4A54ED
-                                v22->waypointsCount = 0;
-                                if (!v72)
-                                {
-                                    do
-                                    {
-                                        v73 = BPath__waypoint(ReturnPath, &v177, v71);
-                                                                      // 0x4A54F6-0x4A5506 (var_19C)
-                                        BPath__addWaypointAtEnd(v22, v73);  // 0x4A550B-0x4A550E
-                                        ++v71;
-                                    } while (v71 < ReturnPath->waypointsCount);
-                                                                      // 0x4A5513-0x4A551D (the count RE-READ per
-                                                                      //  iteration - the live reload, faithful)
-                                }
-                                v149 = 1;                             // 0x4A5528
-                                v143 = 1;                             // 0x4A552C
-                                smoothMidLevelPath(this_, v22);       // 0x4A5530
-                                BPath__calculatePathLength(v22);      // 0x4A5537
-                                v74 = v22->pathLengthValue;           // 0x4A553F (fld BEFORE the stamp store -
-                                                                      //  the compiler's schedule; semantically
-                                                                      //  identical)
-                                v22->creationTimeValue = ((RGE_Player*)this_->owner)->world->world_time;
-                                                                      // 0x4A553C-0x4A554B (FINDING D)
-                                if (X87_LT_NAN(v74, *flt_68F494))     // 0x4A554E-0x4A5559 (test ah,1; jz tail; the
-                                {                                     //  {<, NaN} set zeroes -> DIVERGENT)
-                                    v22->waypointsCount = 0;          // 0x4A555D
-                                    v143 = 0;                         // 0x4A5560
-                                }
-                            }
-                        }
+                        BPath__addWaypointAtStart(newPath, &this_->positionValue);   // 0x4A4CE0-0x4A4CE3
+                        BVector* v36 = BPath__waypoint(resolvedPath, &stubEndWp, this_->pathData->waypoint);
+                                                                          // 0x4A4CE8-0x4A4CFC (var_9C)
+                        BPath__addWaypointAtEnd(newPath, v36);            // 0x4A4D01-0x4A4D04
+                        smoothUsed = 1;                                   // 0x4A4D0E
+                        fprintf_logger(g_dimuLog, "STUBSET v149=%d\n", smoothUsed);  // DIAG
+                        pathFound = 1;                                    // 0x4A4D12 via LABEL_50 (var_268 = v35 = 1)
+                                                                          //  RESTRUCTURE: the LABEL_50 fall inlined
+                                                                          //  (v35 = 1 here)
                     }
                     else
                     {
-                        v22->waypointsCount = 0;                      // 0x4A532A (the ordered tail > v151 discard)
-                        goto the_returnpath_tail;                     // 0x4A5331
+                        fp1TargetRadius = 0.0f;                           // 0x4A4B9C (var_224 - the unconditional zero)
+                        int v29 = this_->pathData->targetID;              // 0x4A4BA4 (+0x24)
+                        if (v29 != -1)
+                        {
+                            RGE_Static_Object* v30 = RGE_Game_World__object((RGE_Game_World*)(*base_game)->world, v29);
+                                                                          // 0x4A4BAC-0x4A4BB9
+                            if (v30)
+                                fp1TargetRadius = v30->master_obj->radius_x;   // 0x4A4BC2-0x4A4BC8 ([+0x14] -> [+0x3C])
+                        }
+                        v130 = this_->pathData->range;                    // 0x4A4BD9 ([eax+20h])
+                        v127 = fp1TargetRadius + this_->master_obj->radius_x;  // 0x4A4BD5-0x4A4BE2 (fld var_224 +
+                                                                          //  fadd [edx+3Ch]; fstp var_290 = the arg7
+                                                                          //  slot; the 53-bit add, one store - rule (d))
+                        dest_target_radius = BPath__waypoint(resolvedPath, &smoothDyWp, this_->pathData->waypoint)->y;
+                                                                          // 0x4A4BE4-0x4A4BF8 (var_138; .y @+8)
+                        BVector* v32 = BPath__waypoint(resolvedPath, &fp1DxWp, this_->pathData->waypoint);
+                                                                          // 0x4A4BFD-0x4A4C15 (var_144)
+                        fp1Result = RGE_Map_Analysis__find_path(          // 0x4A4C16-0x4A4C2C
+                                    mapAnalysis, newPath,
+                                    unitPos->x,                           // 0x4A4C22 ([ebx])
+                                    this_->positionValue.y,               // 0x4A4C1C ([esi+0FCh] = the .y member)
+                                    v32->x,                               // 0x4A4C1A ([eax])
+                                    dest_target_radius,
+                                    v127, v130, 0, 0, 0);
+                                                                          // asm 0x4A4C31 (and eax,0FFh) - FINDING C1:
+                                                                          // the u8 return reads AL; the assignment IS
+                                                                          // the mask's result (the literal mask folds
+                                                                          // as the AL narrowing itself)
+                        fprintf_logger(g_dimuLog, "FP sx=%08x sy=%08x dx=%08x dy=%08x dtr=%08x dr=%08x r=%d\n",  // DIAG
+                            (unsigned int)unitPos->x, (unsigned int)this_->positionValue.y,          // DIAG
+                            (unsigned int)v32->x, (unsigned int)dest_target_radius,              // DIAG
+                            (unsigned int)v127, (unsigned int)v130, fp1Result);                  // DIAG
+                        fprintf_logger(g_dimuLog, "FP sx=%08x sy=%08x dx=%08x dy=%08x dtr=%08x dr=%08x r=%d\n",  // DIAG
+                            (unsigned int)unitPos->x, (unsigned int)this_->positionValue.y,          // DIAG
+                            (unsigned int)v32->x, (unsigned int)dest_target_radius,              // DIAG
+                            (unsigned int)v127, (unsigned int)v130, fp1Result);                  // DIAG
+                        if (fp1Result != 3 && fp1Result != 4)             // 0x4A4C36-0x4A4C42
+                        {
+                            if (fp1Result)
+                            {
+                                smoothUsed = 1;                           // 0x4A4C55-0x4A4C59
+                                pathFound = 1;                            // 0x4A4C5D
+                                smoothMidLevelPath(this_, newPath);       // 0x4A4C61 (__fastcall ecx=esi, edx=edi)
+                                v137 = BPath__waypoint(newPath, &smoothLastWp, newPath->waypointsCount - 1);
+                                                                          // 0x4A4C66-0x4A4C75 (var_3C; count @+0xC)
+                                BVector* v34 = BPath__waypoint(resolvedPath, &fp1TailWp, this_->pathData->waypoint);
+                                                                          // 0x4A4C7A-0x4A4C97 (var_12C)
+                                BVector__operator_minus(v34, &smoothTailDelta, v137);   // 0x4A4C9C-0x4A4C9E
+                                smoothTailDelta.z = 0.0f;                 // 0x4A4CBF
+                                if (sqrt((double)smoothTailDelta.y * smoothTailDelta.y + (double)smoothTailDelta.x * smoothTailDelta.x) > (double)repathDist)
+                                                                          // 0x4A4CA3-0x4A4CD7 (fcomp var_25C on the
+                                                                          //  UNROUNDED st0; test ah,41h; jnz - the
+                                                                          //  literal > MATCH row)
+                                {
+                                    newPath->waypointsCount = 0;          // 0x4A4CDB
+                                    pathFound = 0;                        // 0x4A4CDE via LABEL_50 (var_268 = v35 = 0)
+                                                                          //  RESTRUCTURE: the LABEL_50 jump inlined
+                                                                          //  (the discard's v35 = 0)
+                                }
+                            }
+                        }
+                    }
+                    // THE STUB-PATH FALL-THROUGH FIX (the capstone pass-1 desync root
+                    // cause, 2026-11-20): these two statements were transcribed inside
+                    // the ma!=NULL arm; the asm joins BOTH arms at loc_4A4D16 and calls
+                    // unconditionally (0x4A4D12 the stub's v143=v35 falls through;
+                    // 0x4A4D16 joins the find_path exits; lst :281179-281185; the .c
+                    // renders them after the ma if/else, inside the smooth-gate block).
+                    // Without it the stub path's pathLengthValue stayed 0.0 (the ctor
+                    // zero), the $LN297 len gate failed, and pass-1 wrongly ran the
+                    // findTile arm (v149=0, wpc=3 -> FOLLOW) instead of READY + the
+                    // config reloop.
+                    BPath__calculatePathLength(newPath);                  // 0x4A4D16-0x4A4D18 (loc_4A4D12 fall +
+                                                                          //  loc_4A4D16 join - BOTH arms)
+                    newPath->creationTimeValue = ((RGE_Player*)this_->owner)->world->world_time;
+                                                                          // 0x4A4D1D-0x4A4D29 (FINDING D: owner->world
+                                                                          //  @+0x8C -> world_time @+0x10)
+                }
+                else
+                {
+                    fprintf_logger(g_dimuLog, "SMOOTHGATE skipped wl=%d v151=%08x thr=%08x\n",  // DIAG
+                        this_->pathData->waypointLevel, (unsigned int)repathDist, (unsigned int)*flt_68F494);  // DIAG
+                }
+                bestTailDist = FLT_MAX;                                   // 0x4A4D34 (var_244 = SINGLE_MAXIMUM_VALUE;
+                                                                          //  FLT_MAX per the C2177 rule)
+                fprintf_logger(g_dimuLog, "A2GATE v143=%d wpc=%d cfg=%d v151=%08x\n",    // DIAG
+                    pathFound, newPath->waypointsCount, *dword_689564, (unsigned int)repathDist);  // DIAG
+                fprintf_logger(g_dimuLog, "PREINST v149=%d v143=%d\n", smoothUsed, pathFound);     // DIAG
+                // the arm-2 skip gate (0x4A4D2C-0x4A4D64) - RESTRUCTURE: the goto
+                // LABEL_73 becomes the runArm2 stage flag (taken = arm 2 skipped,
+                // the LABEL_73 body runs directly below).
+                runArm2 = !(pathFound && newPath->waypointsCount > 2      // 0x4A4D2C-0x4A4D42 (cmp var_268,0 - jz skips
+                    || *dword_689564 != 1                                 //  the count test; cmp [edi+0Ch],2; jg)
+                    || repathDist > 10.0f);                               // 0x4A4D55-0x4A4D64 (flt_6565F0; test ah,41h;
+                                                                          //  jz - the literal > MATCH row)
+                toLabel103 = false;                                   // per-iteration flag init (the findTile
+                arm2GateFailed = false;                               //  len-fail + the LABEL_100 gate set it)
+                atLabel99Fall = false;                                // per-iteration flag init (the wpc/len gate)
+                if (runArm2)
+                {
+                    // ---- arm 2: findLowLevelPath (asm 0x4A4D6A-0x4A4F1D) ----
+                    g_dimuMark = 6;                                       // DIAG
+                    fprintf_logger(g_dimuLog, "ARM2 entered v149=%d\n", smoothUsed);  // DIAG
+                    int v37 = 0;
+                    newPath->waypointsCount = 0;                          // 0x4A4D6C ([edi+0Ch] = ebp = 0)
+                    smoothUsed = 0;                                       // 0x4A4D71
+                    ignoreListSize = 0;                                   // 0x4A4D75 (the owned global)
+                    if (this_)                                            // 0x4A4D6F-0x4A4D7B (the dead self-test;
+                    {                                                     //  cmp esi,ebp - kept faithful)
+                        ignoreUnits[0] = this_->id;                       // 0x4A4D7D-0x4A4D80 (id @+0x10)
+                        v37 = 1;
+                        ignoreListSize = 1;
+                        if (this_->type == 80)                            // 0x4A4D91-0x4A4D96 (byte @+0x5E == 0x50)
+                        {
+                            // BASE-POINTER FIX: the .c's &this[1].ei.y2 = +0x13C (sizeof
+                            // RGE_Moving_Object) + offsetof(ei.y2) (= +0xA4: ei @+0x90,
+                            // y2 @+0x14) = +0x1E0 = TRIBE_Building_Object::linked_child
+                            // (walker-confirmed; asm 0x4A4D9A lea edx,[esi+1E0h]). The
+                            // type-80 guard is the runtime-type evidence.
+                            TRIBE_Building_Object* buildingObj = (TRIBE_Building_Object*)this_;
+                            bldgChildA = 0;
+                            do
+                            {
+                                RGE_Static_Object* child =
+                                    (RGE_Static_Object*)buildingObj->linked_child[bldgChildA];
+                                if (child)                                // 0x4A4DA0-0x4A4DA4
+                                {
+                                    ignoreUnits[v37++] = child->id;       // 0x4A4DA6-0x4A4DA9 (id @+0x10)
+                                    ignoreListSize = v37;
+                                    if (v37 >= _countof(ignoreUnits))     // 0x4A4DB1-0x4A4DB7 (cmp 80h; jge - the
+                                        break;                            //  cap AFTER the store + count update)
+                                }
+                                ++bldgChildA;
+                            } while (bldgChildA < _countof(buildingObj->linked_child));   // 0x4A4DC3-0x4A4DC6 (cmp ebx,4)
+                        }
+                    }
+                    TRIBE_Building_Object* v40 = (TRIBE_Building_Object*)targetObj;   // 0x4A4DC8-0x4A4DCC
+                    if (targetObj)
+                    {
+                        if (v37 < _countof(ignoreUnits))                  // 0x4A4DD0-0x4A4DD6 (the gate BEFORE the append)
+                        {
+                            ignoreUnits[v37++] = targetObj->id;           // 0x4A4DD8-0x4A4DDB
+                            ignoreListSize = v37;
+                            if (v40->type == 80)                          // 0x4A4DE9-0x4A4DEF
+                            {
+                                tgtChildA = 0;
+                                do
+                                {
+                                    RGE_Static_Object* child =
+                                        (RGE_Static_Object*)v40->linked_child[tgtChildA];   // 0x4A4DF3 (lea edx,[eax+1E0h])
+                                    if (child)                            // 0x4A4DF9-0x4A4DFD
+                                    {
+                                        ignoreUnits[v37++] = child->id;   // 0x4A4DFF-0x4A4E02
+                                        ignoreListSize = v37;
+                                        if (v37 >= _countof(ignoreUnits))
+                                            break;
+                                    }
+                                    ++tgtChildA;
+                                } while (tgtChildA < _countof(v40->linked_child));
+                            }
+                        }
+                    }
+                    ownerNow = (RGE_Player*)this_->owner;                 // 0x4A4E21 (the dual-naming cast)
+                    RGE_Master_Moving_Object* v44 = this_->master_obj;    // 0x4A4E24
+                    BPathData* v45 = this_->pathData;                     // 0x4A4E27
+                    v138 = ownerNow->id;                                  // 0x4A4E2D ([edx+0A0h])
+                    v132 = ownerNow->world->terrains[v44->terrain];       // 0x4A4E33-0x4A4E43 (world @+0x8C ->
+                                                                          //  terrains @+0x60; the asm movsx reads the
+                                                                          //  i16 terrain @+0x76)
+                    v122 = v37;
+                    v120 = v45->targetID;                                 // 0x4A4E56 ([eax+24h])
+                    v118 = v45->range;                                    // 0x4A4E4D ([eax+20h])
+                    v117 = v44->radius_x;                                 // 0x4A4E5F ([ebp+3Ch])
+                    BVector* v46 = BPath__waypoint(activePath, &lowStartWp, v45->waypoint);
+                                                                          // 0x4A4E63-0x4A4E74 (var_114)
+                    unitPos = &this_->positionValue;                      // 0x4A4E7D (the ebx reload)
+                    lowResult = findLowLevelPath(                         // 0x4A4E7C-0x4A4E86 (__fastcall; ecx = the
+                            obSystemToUse,                                //  OB system, edx = start)
+                            unitPos,
+                            v46,
+                            v117, v118, v120,
+                            ignoreUnits, v122,
+                            collisionUnits,                               // 0x4A4E50 (push offset collisionUnits - arg9;
+                                                                          //  THE LEAD RE-VERIFIED: the .lst's param
+                                                                          //  label agrees)
+                            collisionCount,                               // 0x4A4E47 (arg10 = the accumulated count;
+                                                                          //  the .c's v128 = (BPath*)v157 round-trip)
+                            newPath, v132,
+                            0,                                            // 0x4A4E3A (useHulledArea)
+                            v138);
+                    BPath__calculatePathLength(newPath);                  // 0x4A4E8B-0x4A4E8D
+                    newPath->creationTimeValue = ((RGE_Player*)this_->owner)->world->world_time;
+                                                                          // 0x4A4E94-0x4A4EA3 (FINDING D; stored
+                                                                          //  UNCONDITIONALLY before the checks)
+                    if (lowResult == 3 || lowResult == 4                  // 0x4A4E97-0x4A4EAB
+                        || X87_LE_NAN(newPath->pathLengthValue, 1.0e-7f)) // 0x4A4EAD-0x4A4EBB (fld [edi+18h]; fcomp
+                        arm2GateFailed = true;                            //  flt_6565F4; test ah,41h; jnz - the
+                    else                                                  //  {<=, NaN} set fails; literal <= would
+                    {                                                     //  skip NaN: rule (i) DIVERGENT)
+                        // the arm-2 success (asm 0x4A4EBD-0x4A4F21): the flag pair and the
+                        // shared tail norm; the tail jmp 0x4A4F21 lands at the gate below.
+                        pathFound = 1;                                    // 0x4A4EC3
+                        v139 = BPath__waypoint(newPath, &arm2LastWp, newPath->waypointsCount - 1);
+                                                                          // 0x4A4EBD-0x4A4ED4 (var_54)
+                        BVector* v48 = BPath__waypoint(activePath, &arm2CurWp, this_->pathData->waypoint);
+                                                                          // 0x4A4ED9-0x4A4EF5 (var_FC)
+                        BVector__operator_minus(v48, &arm2TailDelta, v139);   // 0x4A4EFA-0x4A4EFC
+                        arm2TailDelta.z = 0.0f;                           // 0x4A4F11
+                        bestTailDist = (float)sqrt((double)arm2TailDelta.y * arm2TailDelta.y + (double)arm2TailDelta.x * arm2TailDelta.x);
+                                                                          // 0x4A4F01-0x4A4F1D (fsqrt; fstp var_244)
                     }
                 }
-the_returnpath_tail: ;
-                BPath__destructor(ReturnPath);                        // 0x4A5564-0x4A5576 (the cookie var_4 = -1
-            }                                                         //  @0x4A556B regenerates)
-            goto LABEL_129;                                           // 0x4A5564 -> 0x4A557B (the fall)
-        }
-        // ---- the findTile tail-quality check (asm 0x4A5418-0x4A54AC) ----
-        v141 = BPath__waypoint(v22, &v199, v22->waypointsCount - 1);  // 0x4A5418-0x4A5427 (var_6C)
-        v69 = BPath__waypoint(v142, &outVector, this_->pathData->waypoint);
-                                                                      // 0x4A542D-0x4A5446
-        BVector__operator_minus(v69, &v168, v141);                    // 0x4A544B-0x4A544D
-        v168.z = 0.0f;                                                // 0x4A5462
-        v70 = sqrt((double)v168.y * v168.y + (double)v168.x * v168.x);
-                                                                      // 0x4A5452-0x4A546C (fsqrt; st0 KEPT unrounded)
-        v158_normCopy = (float)v70;                                   // 0x4A546E (fst var_248 - the float copy;
-                                                                      //  DEAD: never read - the discard path
-                                                                      //  re-stores v159 from st0 @0x4A5499)
-        if (X87_LT_NAN(                                               // 0x4A5472-0x4A5494 (the 3-comp chain y^2+
-                sqrt((double)v163.y * v163.y                          //  z^2 + x^2 vs the UNROUNDED st(1);
-                        + (double)v163.z * v163.z                     //  fcomp st(1); test ah,1; jz keeps - the
-                        + (double)v163.x * v163.x),                   //  {<, NaN} set discards -> DIVERGENT;
-                    v70))                                             //  v163.z was zeroed at 0x4A4B36)
-        {
-            v159 = (float)v70;                                        // 0x4A5499 (fstp var_244)
-            v22->waypointsCount = 0;                                  // 0x4A549F
-            v22->pathLengthValue = 0.0f;                              // 0x4A54A2
-            goto LABEL_100;                                           // 0x4A54A5
-        }
-        goto LABEL_100;                                               // 0x4A54AA (fstp st; jmp loc_4A5168)
-    }
-    // ---- LABEL_99 / LABEL_100 (asm loc_4A5164 / loc_4A5168) ----
-LABEL_99:
-    v25 = v142;                                                       // 0x4A5164 (ebp = var_26C)
-LABEL_100:
-    if (!v143 || v22->waypointsCount < 2                              // 0x4A5168-0x4A5184 (test var_268; cmp
-        || v22->pathLengthValue < 0.01f)                              //  [edi+0Ch],2; fcomp flt_654978; test ah,1;
-        goto LABEL_103;                                               //  the literal forms - the MATCH rows)
-    goto LABEL_129;
-
-    // ---- LABEL_129: the install gate (asm loc_4A557B-0x4A569D) ----
-LABEL_129:
-    if (v22->waypointsCount <= 1                                      // 0x4A557B-0x4A5585 (cmp eax,1; jle)
-        || X87_LT_NAN(v22->pathLengthValue, 1.0e-7f))                 // 0x4A558B-0x4A5598 (test cl,ah with cl = 1 =
-    {                                                                 //  test ah,1; jnz - the {<, NaN} set fails;
-        fprintf_logger(g_dimuLog, "INSTALL-FAIL wpc=%d len=%08x\n",                // DIAG
-            v22->waypointsCount, (unsigned int)v22->pathLengthValue);       // DIAG
-        // ---- the install-FAILURE arm (asm loc_4A572E-0x4A5866) ---- //  literal < would skip NaN: DIVERGENT)
-        g_dimuMark = 10;                                              // DIAG
-        BPathData__destructor(obj);                                   // 0x4A572E-0x4A5734
-        operator_delete_internal(obj);                                // 0x4A5739-0x4A573A
-        RGE_Game_World__destroyPath2((RGE_Game_World*)(*base_game)->world, v22);
-                                                                      // 0x4A573F-0x4A574E
-        v134 = BPath__waypoint(v25, &v190, this_->pathData->waypoint - 1)->y;
-                                                                      // 0x4A5753-0x4A5775 (var_D8; .y @+8)
-        v78 = BPath__waypoint(v25, &v192, this_->pathData->waypoint - 1);
-                                                                      // 0x4A5779-0x4A5788 (var_C0; the waypoint
-                                                                      //  RELOADED - the .c's second waypoint fetch)
-        RGE_Static_Object__distance_to_position((RGE_Static_Object*)this_,
-                v78->x, v134, 0.0);                                   // 0x4A578D-0x4A5792 (the result DISCARDED:
-                                                                      //  asm 0x4A579D fstp st)
-        if (targetObj)
-        {
-            RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_, targetObj);
-                                                                      // 0x4A57A1-0x4A57A4 (the result DISCARDED:
-                                                                      //  asm 0x4A57B4 fstp st)
-            v79 = this_->pathData;
-            if ((v79->mFlags.valueValue & 4) != 0)                    // 0x4A57AF-0x4A57B9 (test [ecx+30h], eax;
-                BPathData__setFlag(v79, 2, 0);                        //  dword_65BD9C = 4, .rdata:0065BD9C dd 4)
-        }
-        if (v143 && (v80 = this_->pathData, X87_LE_NAN(v161, (double)v80->range)))
-                                                                      // 0x4A57C4-0x4A57DD (fld var_23C; fcomp
-                                                                      //  [ecx+20h]; test ah,41h; jz - the fall-
-                                                                      //  through set is {<=, NaN}: DIVERGENT)
-        {
-            if ((v25->flags.valueValue & 1) == 0)                     // 0x4A57DF-0x4A57EA (test edx,eax; jbe;
-                                                                      //  BBitVectorAND_2 = 1)
-                goto LABEL_239;
-LABEL_151:
-            BPathData__setFlag(v80, 0, 1);                            // 0x4A57F0-0x4A57F4 (the v161-arm site)
-            goto loop_head;                                           // 0x4A57F9 - ASM RELOOP (join J4: the .c's
-                                                                      //  fall-to-the-walk-arm is superseded)
-        }
-        else
-        {
-            v80 = this_->pathData;
-            if (v80->waypoint < v25->waypointsCount - 1)              // 0x4A57FE-0x4A580B ([ebp+0Ch] dec; cmp [ecx+18h])
-                goto LABEL_151;                                       // 0x4A580D-0x4A5816 - the setFlag + ASM RELOOP
-                                                                      //  (join J5)
-            if (BPathData__continuesLeft(v80, 0) > 0)                 // 0x4A581B-0x4A5824 (push 0; test; jg)
-            {
-                this_->vfptr->pauseMovement(this_, 0.25f);            // 0x4A5D50-0x4A5D59 (slot +0x310 = 196;
-                                                                      //  push 0.25 = the .c's 1048576000 bits)
-                this_->vfptr->stopMoving(this_);                      // 0x4A5D5F-0x4A5D63 (slot +0x304)
-                return 0;                                             // 0x4A5D69
-            }
-            if ((v25->flags.valueValue & 1) != 0)                     // 0x4A582A-0x4A5835 (test ecx,eax; ja;
-                                                                      //  BBitVectorAND_2 = 1)
-            {
-                this_->vfptr->pauseMovement(this_, 0.5f);             // 0x4A5D6E-0x4A5D77 (push 0.5 = the .c's
-                return 0;                                             //  1056964608 bits)
-            }
-            v81 = this_->pathData;
-            if (v81->waypointLevel >= 2                               // 0x4A583B-0x4A5845 (cmp [ecx+0Ch],2; jge)
-                || BPathData__highestLinkedPathHasMoreWaypoints(v81) != 1)
-                                                                      // 0x4A584B-0x4A5853 (cmp eax,1; jnz)
-                goto LABEL_232;
-            this_->pathData->state = 5;                               // 0x4A585F ([edx+1Ch] = 5)
-            goto loop_head;                                           // 0x4A5866 - ASM RELOOP (join J6)
-        }
-    }
-    else
-    {
-        // ---- the install-SUCCESS arm (asm 0x4A559E-0x4A569D) ----
-        fprintf_logger(g_dimuLog, "INSTALL-OK wpc=%d len=%08x v149=%d variant=%s\n",  // DIAG
-            v22->waypointsCount, (unsigned int)v22->pathLengthValue, v149,     // DIAG
-            (this_->pathData->waypointLevel != 2 || v149 != 1) ? "FOLLOW" : "READY"); // DIAG
-        g_dimuMark = 9;                                               // DIAG
-        this_->pathData->state = 0;                                   // 0x4A55A4 ([edx+1Ch] = 0)
-        this_->pathData->continueCounter = 10;                        // 0x4A55B1 ([eax+2Ch] = 0Ah)
-        v75 = this_->pathData;
-        if (v75->waypointLevel != 2 || v149 != 1)                     // 0x4A55BE-0x4A55CC (cmp [eax+0Ch],2; jnz;
-        {                                                             //  cmp var_260,1; jnz)
-            BPathData__setReadyToFollowPath(obj, v22);                // 0x4A5648-0x4A564F
-            if (v143)                                                 // 0x4A5654-0x4A5659
-                BPathData__setLinkedPath(obj, this_->pathData, 1);    // 0x4A5661-0x4A5671
-            else
-                BPathData__setLinkedPath(obj, this_->pathData, 2);
-            obj->waypointLevel = 0;                                   // 0x4A5676 ([ebx+0Ch] = 0)
-            v142 = v22;                                               // 0x4A5683 (var_26C = edi)
-            obj->range = this_->pathData->range;                      // 0x4A5687-0x4A568A (+0x20)
-            obj->targetID = this_->pathData->targetID;                // 0x4A568D-0x4A5696 (+0x24)
-            this_->pathData = obj;                                    // 0x4A5699 ([esi+118h] = ebx)
-            goto walk_arm;  /* the .c's break; the asm falls to loc_4A569F */
-        }
-        BPathData__setReadyToPath(obj, v22, v75->range, v75->targetID);
-                                                                      // 0x4A55CE-0x4A55DD (push tID, r, p)
-        if (v143)                                                     // 0x4A55E2-0x4A55ED
-            BPathData__setLinkedPath(obj, this_->pathData, 1);        // 0x4A55EF-0x4A5604
-        else
-            BPathData__setLinkedPath(obj, this_->pathData, 2);
-        obj->waypointLevel = 1;                                       // 0x4A5609 ([ebx+0Ch] = ebp = 1)
-        v142 = v22;                                                   // 0x4A5612
-        obj->range = this_->pathData->range;
-        obj->targetID = this_->pathData->targetID;
-        this_->pathData = obj;                                        // 0x4A5628
-        if (*dword_689564 != 1 && *dword_68956C != 1)                 // 0x4A562E-0x4A5641 (cmp/jz -> reloop;
-            goto walk_arm;  /* the .c's break */                      //  cmp/jnz -> the walk arm)
-        goto loop_head;                                               // 0x4A5634/0x4A5643 (the config-on reloop)
-    }
-
-    // ================= THE WALK ARM (asm loc_4A569F-0x4A5917) =============
-walk_arm:
-    v76 = v142;                                                       // 0x4A56A5 (ebp = var_26C)
-    v77 = BPath__waypoint(v142, &v194, this_->pathData->waypoint);    // 0x4A56A9-0x4A56BD (var_A8)
-    BVector__operator_minus(&this_->positionValue, &v172, v77);       // 0x4A56C2-0x4A56CD (this = ebx = positionValue)
-    v172.z = 0.0f;                                                    // 0x4A56EB
-    if (sqrt((double)v172.y * v172.y + (double)v172.x * v172.x) >= 1.0e-7f)
-                                                                      // 0x4A56D2-0x4A5705 (test ah,1; jz loc_4A570B
-    {                                                                 //  - the {<, NaN} set goes to the flag pair;
-                                                                      //  the literal >= MATCH row)
-        // ---- the movement integration (the three named virtual dispatches;
-        // slots +0x320 = 200 / +0x334 = 205 / +0x328 = 202) ----
-        v83 = BPath__waypoint(v142, &v196, this_->pathData->waypoint);// 0x4A5873-0x4A5889 (var_90)
-        this_->vfptr->calculateForward(this_, &this_->positionValue, v83, &a2);
-                                                                      // 0x4A588E-0x4A5892 (slot +0x320)
-        this_->vfptr->straightProjectedPosition(this_, &p2, &a2, a3); // 0x4A5898-0x4A58B1 (slot +0x334; the dt
-                                                                      //  arg = a3's float bits, LODWORD(a3))
-        v85 = BPath__waypoint(v142, &v198, this_->pathData->waypoint);// 0x4A58CB-0x4A58D6 (var_78)
-        v86 = this_->vfptr->calculateReachedPoint(this_, v85, &this_->positionValue, &p2);
-                                                                      // 0x4A58DB-0x4A58DE (slot +0x328)
-        if (v86 != 2)                                                 // 0x4A58E4-0x4A58E7 (cmp eax,2; jz loc_4A570B)
-        {
-            // asm 0x4A58ED-0x4A58F9: v86 == 1 or mConsecutiveSubstituteCount
-            // > 2 -> the flag pair then FALL to the a4 fetch (0x4A5919);
-            // otherwise no pair, fall directly.
-            if (v86 == 1 || this_->mConsecutiveSubstituteCount > 2)   // (+0x138; cmp ...,2; jle skips)
-            {
-                BPathData__setFlag(this_->pathData, 1, 1);            // 0x4A58FB-0x4A5905
-                BPathData__setFlag(this_->pathData, 0, 1);            // 0x4A590A-0x4A5914
-            }
-        }
-        else
-        {
-            // asm join J7 (0x4A570B-0x4A5729): the flag pair + RELOOP - the
-            // .c's fall-to-the-a4-fetch rendering is superseded by the asm.
-            g_dimuMark = 2;                                           // DIAG
-            BPathData__setFlag(this_->pathData, 1, 1);                // 0x4A570B-0x4A5715
-            BPathData__setFlag(this_->pathData, 0, 1);                // 0x4A571A-0x4A5724
-            goto loop_head;                                           // 0x4A5729
-        }
-    }
-    else
-    {
-        g_dimuMark = 1;                                               // DIAG (the arrival pair + reloop)
-        BPathData__setFlag(this_->pathData, 1, 1);                    // 0x4A570B (the arrival path - the shared tail)
-        BPathData__setFlag(this_->pathData, 0, 1);
-        goto loop_head;                                               // 0x4A5729 (reloop)
-    }
-
-    // ---- the a4 waypoint + the next-waypoint fetch (asm 0x4A5919-0x4A5973) ----
-    v87 = BPath__waypoint(v142, &v200, this_->pathData->waypoint);    // 0x4A5919-0x4A592D (var_60)
-    a4.x = v87->x;                                                    // 0x4A5932-0x4A5948 (the component copies
-    a4.z = v87->z;                                                    //  in the asm's order: [+eax] / [+4] / [+8])
-    v88 = v87->y;
-    v89 = this_->pathData;
-    a4.y = v88;
-    v90 = v89->waypoint;
-    if (v90 < v142->waypointsCount - 1)                               // 0x4A594C-0x4A5955 (cmp edx,ecx; jl)
-        BPath__waypoint(v142, &v204, v90 + 1);                        // 0x4A5962-0x4A596D (var_30; the fetch is
-    else                                                              //  DISCARDED (eax dead at 0x4A5976) -
-        BPath__waypoint(v142, &v202, v90);                            //  0x4A5957-0x4A5960 (var_48; dead) -
-                                                                      //  transcribed 1:1
-    // the .c's v161 = COERCE_FLOAT(getUnitGroup(...)) - the pointer typed at
-    // the reuse site (the null test at 0x4A5ADE is the pointer test).
-    v161_group = RGE_Game_World__getUnitGroup(                        // 0x4A5976-0x4A5986 (mGroupID @+0x88)
-            (RGE_Game_World*)(*base_game)->world, this_->mGroupID);
-    if (!RGE_Static_Object__isFlagSet((RGE_Static_Object*)this_, 1))  // 0x4A598B-0x4A599A (jz loc_4A5CAF)
-        goto target_gate;                                             // (the .c's break of the synthetic nest)
-
-    // ---- the OB pass (asm 0x4A59A0-0x4A5CAB) ----
-    g_dimuMark = 3;                                                   // DIAG
-    v91 = 0;
-    ignoreListSize = 0;                                               // 0x4A59A0-0x4A59A4
-    if (this_)
-    {
-        v91 = 1;
-        ignoreUnits[0] = this_->id;
-        ignoreListSize = 1;
-        if (this_->type == 80)                                        // 0x4A59BE-0x4A59C2
-        {
-            TRIBE_Building_Object* buildingObj3 = (TRIBE_Building_Object*)this_;
-            v92 = 0;
-            do
-            {
-                RGE_Static_Object* child4 =
-                    (RGE_Static_Object*)buildingObj3->linked_child[v92];
-                if (child4)                                           // 0x4A59CC-0x4A59D0
+                toLabel97 = false;
+                if (!runArm2 || arm2GateFailed)
                 {
-                    ignoreUnits[v91++] = child4->id;                  // 0x4A59D2-0x4A59D5
-                    ignoreListSize = v91;
-                    if (v91 >= _countof(ignoreUnits))                 // 0x4A59DD-0x4A59E7
-                        break;
-                }
-                ++v92;
-            } while (v92 < _countof(buildingObj3->linked_child));
-        }
-    }
-    findObSystemCollisions(obSystemToUse,                             // 0x4A59F2-0x4A5A0F (__fastcall; THE LEAD
-            this_,                                                    //  CONFIRMED: push offset ignoreUnits
-            &this_->positionValue, &p2,                               //  @0x4A5A06; p1 = positionValue, p2 = the
-            ignoreUnits, v91, 0, 1.0f);                               //  projected position; checkTerrain = 0)
-    if (*numberObSystemCollisions <= 0)                               // 0x4A5A14-0x4A5A1B (cmp eax,edi(0); jle -
-        goto target_gate;                                             //  the VALUE test: the deref sweep)
-    v152 = 0;                                                         // 0x4A5A25 (var_25C)
-    v150 = 0;                                                         // 0x4A5A29 (var_260)
-    goalb = 0;                                                        // 0x4A5A2D (the goal slot)
-    do
-    {
-        record = obSystemCollisions[goalb];                           // 0x4A5A38-0x4A5A44 (the .c's obja walk ->
-                                                                      //  the indexed form)
-        v95 = record->Object;                                         // 0x4A5A46 ([ecx+8])
-        if (v95)
-        {
-            v96 = RGE_Game_World__object((RGE_Game_World*)this_->owner->world, v95->id);
-                                                                      // 0x4A5A51-0x4A5A5E
-            if (v96)
-            {
-                if (v96->type == 80 && ((TRIBE_Building_Object*)v96)->linked_owner)
-                                                                      // 0x4A5A6B-0x4A5A79 (byte @+0x5E; BASE-
-                                                                      //  POINTER FIX: the .c's v96[2].mMaximum-
-                                                                      //  PathingGroupSize = +0x168+0x74 = +0x1DC =
-                                                                      //  linked_owner (asm [eax+1DCh]))
-                    v96 = (RGE_Static_Object*)((TRIBE_Building_Object*)v96)->linked_owner;
-                if (v96)                                              // 0x4A5A7D-0x4A5A81
-                {
-                    if (BPath__ignoreUnitsContain(v142, v96->id) != 1)// 0x4A5A87-0x4A5A97
-                    {
-                        v98 = BPathData__highestLinkedPathPointer(this_->pathData);
-                                                                      // 0x4A5A9D-0x4A5AA3
-                        if (!v98 || BPath__ignoreUnitsContain(v98, v96->id) != 1)
-                                                                      // 0x4A5AAC-0x4A5ABA (the .c's v97[4] = the
-                                                                      //  id @+0x10; the named field form)
+                    // ---- the LABEL_73 body (asm loc_4A4F26-0x4A5117; entered both
+                    // from the skip gate above - arm 2 skipped - and from the arm-2
+                    // failure gate) ----
+                    if (!pathFound)                                       // 0x4A4F26-0x4A4F2C (test var_268; jnz
+                    {                                                     //  -> the gate below; two test ah,1 gates -
+                        if (repathDist >= 1.0 && goal >= 1.0)             //  the literal >= MATCH rows; the operand is
+                                                                          //  `goal` (var_264, the precalcDistToTarget
+                                                                          //  store) - TRANSCRIPTION FIX (the second
+                                                                          //  paired-capture divergence): NOT goalDist
+                                                                          //  (v161); the slip skipped the gate, ran
+                                                                          //  the OB probe the original never ran, and
+                                                                          //  forked the repath flow (unit 13871)
+                            toLabel97 = true;                             // 0x4A4F58 -> LABEL_97
+                        else
                         {
-                            v99 = this_->pathData->targetID;          // 0x4A5AC0-0x4A5AC6
-                            if (v99 >= 0 && v96->id == v99)           // 0x4A5ACD-0x4A5AD0
-                                v152 = 1;                             // 0x4A5AD2
-                            if (v161_group == 0                       // 0x4A5ADA-0x4A5AE0 (test ecx,ecx - the
-                                                                      //  NULL test; the .c's v161 == 0.0 pun)
-                                || BUnitGroup__getSpecificMoveReason(v161_group, this_->id)
-                                                                      // 0x4A5AE2-0x4A5AED
-                                || (v100 = v95->master_obj->object_group, v100 == 18)
-                                                                      // 0x4A5AEF-0x4A5AFF (word @+0x1E;
-                                                                      //  18 = Building)
-                                || v100 == 6                          // 6 = Wall
-                                || v100 == 8                          // 8 = Gate
-                                || v100 == 10                         // 10 = Turret
-                                || v100 == 9)                         // 9 = Fortress/AA Turret
+                            smoothUsed = 0;                               // 0x4A4F58-0x4A4F65
+                            BPath__waypoint(activePath, &boundsWp, this_->pathData->waypoint);   // 0x4A4F6D-0x4A4F76 (var_1CC)
+                            RGE_Master_Moving_Object* v49 = this_->master_obj;   // 0x4A4F7B
+                            if (X87_LT_NAN(boundsWp.x, v49->radius_x)     // 0x4A4F7E-0x4A4F8D (fld var; fcomp [ecx+3Ch];
+                                || X87_LT_NAN(boundsWp.y, v49->radius_y)) //  test ah,1; jnz - the {<, NaN} sets ->
+                                toLabel97 = true;                         //  DIVERGENT; radius_y @+0x40) -> LABEL_97
+                            else
                             {
-                                v101 = v142->creationTimeValue;       // 0x4A5B1D-0x4A5B21 ([eax+1Ch])
-                                if (v101 < v96->vfptr->lastMoveTime(v96))
-                                                                      // 0x4A5B1D-0x4A5B2C (slot +0x30C = 195;
-                                                                      //  cmp ebx,eax; jnb skips)
+                                RGE_Map* v50 = ((RGE_Player*)this_->owner)->world->map;   // 0x4A4FA8-0x4A4FB4 (world @+0x8C -> map @+0x34)
+                                if (X87_LT_NAN((double)v50->map_width - (double)v49->radius_x, boundsWp.x)
+                                                                          // 0x4A4FB4-0x4A4FC6 (fild [edx+8]; fsub
+                                                                          //  [ecx+3Ch]; fcomp var - the 53-bit
+                                                                          //  arithmetic feeds fcomp (rule (a)); test
+                                                                          //  ah,1; jnz - the {<, NaN} set -> DIVERGENT)
+                                    || X87_LT_NAN((double)v50->map_height - (double)v49->radius_y, boundsWp.y))
+                                                                          // 0x4A4FCC-0x4A4FDE (fild [edx+0Ch] -
+                                                                          //  map_height @+0xC)
+                                    toLabel97 = true;                     // 0x4A5135 -> LABEL_97
+                                else
                                 {
-                                    ++v150;                           // 0x4A5B2E-0x4A5B32
-                                    if (v157 < _countof(collisionUnits))
-                                                                      // 0x4A5B33-0x4A5B3D (cmp ebp, offset
-                                                                      //  numberObSystemCollisions = the array
-                                                                      //  end = _countof(collisionUnits) = 256)
+                                    g_dimuMark = 7;                       // DIAG
+                                    int v51 = 0;
+                                    ignoreListSize = 0;                   // 0x4A4FE4-0x4A4FE8
+                                    if (this_)                            // 0x4A4FE6-0x4A4FED (the dead self-test)
                                     {
-                                        collisionUnits[v157] = v96->id;
-                                                                      // 0x4A5B43-0x4A5B47 ([ebp+0] = [edi+10h];
-                                                                      //  the walker and v157 advance in lockstep
-                                                                      //  - the indexed form is exact)
-                                        ++v157;                       // 0x4A5B46-0x4A5B4A (inc ecx; var_24C)
+                                        v51 = 1;
+                                        ignoreUnits[0] = this_->id;       // 0x4A4FEF-0x4A4FF7
+                                        ignoreListSize = 1;
+                                        if (this_->type == 80)            // 0x4A5002-0x4A5006
+                                        {
+                                            TRIBE_Building_Object* buildingObj2 = (TRIBE_Building_Object*)this_;
+                                            bldgChildB = 0;
+                                            do
+                                            {
+                                                RGE_Static_Object* child2 =
+                                                    (RGE_Static_Object*)buildingObj2->linked_child[bldgChildB];
+                                                if (child2)               // 0x4A5010-0x4A5014
+                                                {
+                                                    ignoreUnits[v51++] = child2->id;   // 0x4A5016-0x4A5019
+                                                    ignoreListSize = v51;
+                                                    if (v51 >= _countof(ignoreUnits))  // 0x4A5021-0x4A502B
+                                                        break;
+                                                }
+                                                ++bldgChildB;
+                                            } while (bldgChildB < _countof(buildingObj2->linked_child));
+                                        }
+                                    }
+                                    RGE_Static_Object* v54 = targetObj;   // 0x4A5036-0x4A503C
+                                    if (targetObj)
+                                    {
+                                        if (v51 < _countof(ignoreUnits))  // 0x4A503E-0x4A5043
+                                        {
+                                            ignoreUnits[v51++] = targetObj->id;   // 0x4A5045-0x4A5048
+                                            ignoreListSize = v51;
+                                            if (v54->type == 80)          // 0x4A5055-0x4A505B
+                                            {
+                                                // BASE-POINTER FIX: the .c's &v54[2].damaged_lately_
+                                                // timer = +0x168 (2*sizeof RGE_Static_Object) + 0x78
+                                                // = +0x1E0 = linked_child (asm 0x4A505F lea edx,[ecx+1E0h]).
+                                                TRIBE_Building_Object* targetBuilding = (TRIBE_Building_Object*)v54;
+                                                tgtChildB = 0;
+                                                do
+                                                {
+                                                    RGE_Static_Object* child3 =
+                                                        (RGE_Static_Object*)targetBuilding->linked_child[tgtChildB];
+                                                    if (child3)           // 0x4A5065-0x4A5069
+                                                    {
+                                                        ignoreUnits[v51++] = child3->id;   // 0x4A506B-0x4A506E
+                                                        ignoreListSize = v51;
+                                                        if (v51 >= _countof(ignoreUnits))
+                                                            break;
+                                                    }
+                                                    ++tgtChildB;
+                                                } while (tgtChildB < _countof(targetBuilding->linked_child));
+                                            }
+                                        }
+                                    }
+                                    v133 = v51;
+                                    BVector* v57 = BPath__waypoint(activePath, &obProbeWp, this_->pathData->waypoint);
+                                                                          // 0x4A5099-0x4A50AE (var_84)
+                                    unitPos = &this_->positionValue;      // 0x4A50B7
+                                    findObSystemCollisions(obSystemToUse, // 0x4A50B3-0x4A50C1 (__fastcall; p1 =
+                                            this_,                        //  positionValue, p2 = the fetched
+                                            unitPos, v57,                 //  waypoint; checkTerrain = 1;
+                                            ignoreUnits, v133, 1, 1.0f);  //  radiusModifier = 1.0f)
+                                    if (*numberObSystemCollisions)        // 0x4A50C6-0x4A50CD (mov eax,[global]; test -
+                                        toLabel97 = true;                 //  the VALUE test: the deref sweep) -> LABEL_97
+                                    else
+                                    {
+                                        newPath->waypointsCount = 0;      // 0x4A50D2
+                                        BPath__addWaypointAtStart(newPath, unitPos);   // 0x4A50CF-0x4A50D9
+                                        BVector* v58 = BPath__waypoint(activePath, &rebuildEndWp, this_->pathData->waypoint);
+                                                                          // 0x4A50DE-0x4A50F4 (var_E4)
+                                        BPath__addWaypointAtEnd(newPath, v58);   // 0x4A50F9-0x4A50FC
+                                        newPath->creationTimeValue = ((RGE_Player*)this_->owner)->world->world_time;
+                                                                          // 0x4A5101-0x4A510F (FINDING D)
+                                        BPath__calculatePathLength(newPath);   // 0x4A510C-0x4A5112
+                                        pathFound = 1;                    // 0x4A5117
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
-        }
-        ++goalb;                                                      // 0x4A5B51-0x4A5B6D (the count RE-READ per
-    } while (goalb < *numberObSystemCollisions);                      //  iteration - faithful)
-    RGE_Moving_Object__resolveCollisions(this_, &p2);                 // 0x4A5B73-0x4A5B7D (unowned - the idb
-                                                                      //  constant executes the original)
-    if (*numberObSystemCollisions == 1 && v152 == *numberObSystemCollisions)
-                                                                      // 0x4A5B82-0x4A5B90
-    {
-        BPathData__setFlag(this_->pathData, 0, *numberObSystemCollisions);
-                                                                      // 0x4A5B92-0x4A5B9B (push eax = the loaded
-                                                                      //  count value, guarded == 1)
-        BPathData__setFlag(this_->pathData, 2, 1);                    // 0x4A5BA0-0x4A5BAA
-        goto loop_head;                                               // 0x4A5BAF - ASM RELOOP (join J1: the .c's
-                                                                      //  fall-to-the-target-gate is superseded)
-    }
-    if (v150 <= 0)                                                    // 0x4A5BB4-0x4A5BBA (test ecx; jle)
-    {
-        v76 = v142;                                                   // 0x4A5CAB (ebp = var_26C)
-        goto target_gate;                                             // (the .c's break)
-    }
-    goalc = 0;
-    if (*numberObSystemCollisions > 0)                                // 0x4A5BC0-0x4A5BCA
-    {
-        pauseIdx = 0;
-        do
-        {
-            v104 = obSystemCollisions[pauseIdx]->Object;              // 0x4A5BD5-0x4A5BDA ([ebx] -> [+8])
-            if (v104)
-            {
-                v105 = this_->pathData->targetID;                     // 0x4A5BDE-0x4A5BE4
-                if (v105 < 0 || v104->id != v105)                     // 0x4A5BE7-0x4A5BEE (the target skip)
+                if (!toLabel97)
                 {
-                    v106 = (TRIBE_Building_Object*)RGE_Game_World__object(
-                            (RGE_Game_World*)this_->owner->world, v104->id);
-                                                                      // 0x4A5BF0-0x4A5BFD
-                    if (v106)
-                    {
-                        if (v106->type == 80 && v106->linked_owner)   // 0x4A5C06-0x4A5C16 (+0x1DC - as above)
-                            v106 = v106->linked_owner;
-                        v107 = (RGE_Static_Object*)v106;
-                        if (v106)
+                    if (newPath->waypointsCount >= 2                      // 0x4A511F-0x4A5123 (cmp [edi+0Ch],2; jl)
+                        && newPath->pathLengthValue >= 0.01f)             // 0x4A5125-0x4A5133 (fld [edi+18h]; fcomp
+                    {                                                     //  flt_654978 = 0.01f; test ah,1; jz - the
+                        // LABEL_99 (0x4A5164): v25 = var_26C (activePath alias - the
+                        // assignment is identity; dropped) - then jumps past LABEL_97
+                        // straight to LABEL_100's gate below.
+                        atLabel99Fall = true;
+                    }                                                     //  literal >= MATCH row)
+                }
+                if (!atLabel99Fall)
+                {
+                        // ---- LABEL_97 (asm loc_4A5135-0x4A5351) ----
+                        targetDist = RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_, targetObj);
+                                                                          // 0x4A5135-0x4A513C (double return -
+                                                                          //  consumed UNROUNDED in st0 at loc_4A5336)
+                        bool toLabel99;
+                        if (targetObj)
+                            toLabel99 = X87_LT_NAN(targetDist, 1.0)       // 0x4A5336-0x4A5341 (fcomp const_f_one on the
+                                && targetObj->master_obj->id != 45;       //  UNROUNDED st0; test ah,1; jz skip - the
+                                                                          //  {<, NaN} set falls to the id test ->
+                        else                                              //  DIVERGENT; the master id word @+0x18 ==
+                            toLabel99 = X87_LT_NAN(repathDist, 1.0f);     //  45 = Cargo Trader; 0x4A514D-0x4A515E
+                                                                          //  (fstp st discards v59; fld var_25C; test
+                                                                          //  ah,1; jz skip - DIVERGENT)
+                        if (!toLabel99 && *dword_68956C == 1)             // 0x4A5351-0x4A5358 (the LABEL_99 fall when
+                        {                                                 //  the gate passes; the findTile arm when
+                                                                          //  cfg56C is on)
+                            // ---- the findTilePath arm (asm 0x4A535E-0x4A54AC) ----
+                            newPath->waypointsCount = 0;                  // 0x4A5365 (v25 = v142 at 0x4A5360 - the
+                                                                          //  activePath alias, dropped)
+                            BPathData* v68 = this_->pathData;
+                            smoothUsed = 0;                               // 0x4A5376
+                            dest_target_radiusb = v68->targetID;          // 0x4A537B
+                            v123 = v68->range;                            // 0x4A5373
+                            v121 = (int)BPath__waypoint(activePath, &tileGoalYWp, v68->waypoint)->y;
+                                                                          // 0x4A5384-0x4A539C (var_24; .y @+8;
+                                                                          //  __ftol @0x4A5397 -> the (int) form)
+                            v119 = (int)BPath__waypoint(activePath, &tileGoalXWp, this_->pathData->waypoint)->x;
+                                                                          // 0x4A53A3-0x4A53C3 (var_CC; .x @+0; __ftol
+                                                                          //  @0x4A53B8)
+                            pathFound = PathingSystem__findTilePath(      // 0x4A53C4-0x4A53D7 (the direct pointer per
+                                        pathSystem,                       //  common.h:120; the four tile coords are the
+                                        (int)unitPos->x,                  //  __ftol conversions: 0x4A53CC ([ebx]) and
+                                        (int)this_->positionValue.y,      //  0x4A53C4 ([esi+0FCh]))
+                                        v119, v121,
+                                        this_, v123, dest_target_radiusb,
+                                        0, -1, -1,                        // rLength = 0; the two -1 unobstructible ids
+                                        newPath, 0);
+                                                                          // asm 0x4A53DF (and eax,0FFh) - FINDING C2:
+                                                                          // the bool return's AL IS the mask's result;
+                                                                          // the direct bool read is the same narrowing
+                                                                          // (the literal & was rejected: a C4806 no-op)
+                            newPath->creationTimeValue = ((RGE_Player*)this_->owner)->world->world_time;
+                                                                          // 0x4A53DC-0x4A53F3 (FINDING D)
+                            BPath__calculatePathLength(newPath);          // 0x4A53F6
+                            if (X87_LT_NAN(newPath->pathLengthValue, 1.0e-7f))   // 0x4A53FB-0x4A5409 (test ah,1; jz keeps - the
+                            {                                             //  {<, NaN} set fails -> DIVERGENT)
+                                pathFound = 0;                            // 0x4A540B
+                                toLabel103 = true;                        // 0x4A518A-region - RESTRUCTURE: the
+                                                                          //  LABEL_103 entry (the body runs below,
+                                                                          //  after the LABEL_100 gate stage)
+                            }
+                            else
+                            {
+                                // ---- the findTile tail-quality check (asm 0x4A5418-0x4A54AC) ----
+                                v141 = BPath__waypoint(newPath, &tileLastWp, newPath->waypointsCount - 1);
+                                                                          // 0x4A5418-0x4A5427 (var_6C)
+                                BVector* v69 = BPath__waypoint(activePath, &findTileCurWp, this_->pathData->waypoint);
+                                                                          // 0x4A542D-0x4A5446
+                                BVector__operator_minus(v69, &tileTailDelta, v141);   // 0x4A544B-0x4A544D
+                                tileTailDelta.z = 0.0f;                   // 0x4A5462
+                                tileTailDist = sqrt((double)tileTailDelta.y * tileTailDelta.y + (double)tileTailDelta.x * tileTailDelta.x);
+                                                                          // 0x4A5452-0x4A546C (fsqrt; st0 KEPT unrounded)
+                                normCopy = (float)tileTailDist;           // 0x4A546E (fst var_248 - the float copy;
+                                                                          //  DEAD: never read - the discard path
+                                                                          //  re-stores v159 from st0 @0x4A5499)
+                                if (X87_LT_NAN(                           // 0x4A5472-0x4A5494 (the 3-comp chain y^2+
+                                        sqrt((double)repathDelta.y * repathDelta.y   //  z^2 + x^2 vs the UNROUNDED st(1);
+                                                + (double)repathDelta.z * repathDelta.z   //  fcomp st(1); test ah,1; jz keeps - the
+                                                + (double)repathDelta.x * repathDelta.x),   //  {<, NaN} set discards -> DIVERGENT;
+                                        tileTailDist))                    //  repathDelta.z was zeroed at 0x4A4B36)
+                                {
+                                    bestTailDist = (float)tileTailDist;   // 0x4A5499 (fstp var_244)
+                                    newPath->waypointsCount = 0;          // 0x4A549F
+                                    newPath->pathLengthValue = 0.0f;      // 0x4A54A2
+                                }                                         // 0x4A54A5/0x4A54AA - RESTRUCTURE: both
+                                                                          //  ends goto LABEL_100 = the common fall
+                                                                          //  into the gate below (the discard's
+                                                                          //  goto inlined at its site)
+                            }
+                        }
+                        // the cfg56C-off fall + the LABEL_99-pass fall + the findTile
+                        // tail-quality fall ALL converge at LABEL_100's gate (0x4A5168).
+                    }
+                if (!toLabel103)
+                {
+                    // ---- LABEL_100's gate (asm loc_4A5168-0x4A5184) ----
+                    if (!pathFound || newPath->waypointsCount < 2         // 0x4A5168-0x4A5184 (test var_268; cmp
+                        || newPath->pathLengthValue < 0.01f)              //  [edi+0Ch],2; fcomp flt_654978; test ah,1;
+                        toLabel103 = true;                                //  the literal forms - the MATCH rows)
+                }
+                if (toLabel103)
+                {
+                    // ---- LABEL_103 (asm loc_4A518A-0x4A557B) ----
+                    if (this_->pathData->waypointLevel == 2               // 0x4A518A-0x4A5194
+                        && *dword_689568 == 1                             // 0x4A519A-0x4A51A1
+                        && X87_LT_NAN(repathDist, *flt_68F494))           // 0x4A51A7-0x4A51B6 (test ah,1; jz -> the
+                    {                                                     //  LABEL_129 gate; the {<, NaN} set continues
+                                                                          //  into the pass -> DIVERGENT)
+                        goala = RGE_Map_Analysis_System__get_map_analysis(    // 0x4A51BC-0x4A51CF
+                            (*base_game)->world->map_analysis_system,
+                            (RGE_Master_Static_Object*)this_->master_obj);
+                        BPath__BPath(ReturnPath, -1);                     // 0x4A51D4-0x4A51E1 (the stack BPath; the SEH
+                                                                          //  cookie var_4 = 1 @0x4A51EA regenerates
+                                                                          //  with the ctor call - the raw-storage form;
+                                                                          //  UNCONDITIONAL in the wl-gate-taken path)
+                        if (goala)
                         {
-                            v108 = v106->vfptr->movementPriority(v106);
-                                                                      // 0x4A5C1E-0x4A5C28 (slot +0x314 = 197)
-                            if (v108 > this_->vfptr->movementPriority(this_))
-                                                                      // 0x4A5C2A-0x4A5C36 (cmp ebp,eax; jle skips)
-                                v107->vfptr->pauseMovement(v107, 0.5f);
-                                                                      // 0x4A5C38-0x4A5C41 (slot +0x310 = 196;
-                                                                      //  push 0.5 = the .c's 1056964608 bits)
+                            fp2TargetRadius = 0.0f;                       // 0x4A5203 (var_228 - the unconditional zero;
+                                                                          //  precedes the id gate)
+                            int v61 = this_->pathData->targetID;          // 0x4A5207-0x4A520D
+                            if (v61 != -1)
+                            {
+                                RGE_Static_Object* v62 = RGE_Game_World__object((RGE_Game_World*)(*base_game)->world, v61);
+                                                                          // 0x4A5213-0x4A5220
+                                if (v62)
+                                    fp2TargetRadius = v62->master_obj->radius_x;   // 0x4A5229-0x4A522F
+                            }
+                            v131 = this_->pathData->range;                // 0x4A5240
+                            v129 = fp2TargetRadius + this_->master_obj->radius_x;   // 0x4A523C-0x4A5258 (fld var_228 + fadd
+                                                                          //  [edx+3Ch]; fstp var_290 = arg7; rule (d))
+                            dest_target_radiusa = BPath__waypoint(activePath, &fp2DyWp, this_->pathData->waypoint)->y;
+                                                                          // 0x4A5251-0x4A5264 (var_150; .y @+8)
+                            BVector* v64 = BPath__waypoint(activePath, &fp2DxWp, this_->pathData->waypoint);
+                                                                          // 0x4A526E-0x4A527C (var_138)
+                            fp2Result = RGE_Map_Analysis__find_path(      // 0x4A5281-0x4A529A
+                                        goala, ReturnPath,
+                                        unitPos->x,                       // 0x4A528D ([ebx])
+                                        this_->positionValue.y,           // 0x4A5283
+                                        v64->x,
+                                        dest_target_radiusa,
+                                        v129, v131, 0, 0, 0);
+                                                                          // asm 0x4A52A6 (and eax,0FFh) - FINDING C1 #2
+                            fprintf_logger(g_dimuLog, "FP2 sx=%08x sy=%08x dx=%08x dy=%08x dtr=%08x dr=%08x r=%d\n",  // DIAG
+                        (unsigned int)unitPos->x, (unsigned int)this_->positionValue.y,          // DIAG
+                        (unsigned int)v64->x, (unsigned int)dest_target_radiusa,             // DIAG
+                        (unsigned int)v129, (unsigned int)v131, fp2Result);                  // DIAG
+                            v140 = BPath__waypoint(ReturnPath, &fp2TailWp, ReturnPath->waypointsCount - 1);
+                                                                          // 0x4A529F-0x4A52BE (var_120; count @+0xC)
+                            BVector* v66 = BPath__waypoint(activePath, &maIntendedWp, this_->pathData->waypoint);
+                                                                          // 0x4A52C3-0x4A52E0 (var_1A8)
+                            BVector__operator_minus(v66, &maTailDelta, v140);   // 0x4A52E5-0x4A52E7
+                            maTailDelta.z = 0.0f;                         // 0x4A5308
+                            tailNorm = sqrt((double)maTailDelta.y * maTailDelta.y + (double)maTailDelta.x * maTailDelta.x);
+                                                                          // 0x4A52EC-0x4A5315 (fsqrt; st0 KEPT unrounded)
+                            goald = (float)tailNorm;                      // 0x4A5317 (fst goal - the store-round COPY;
+                                                                          //  st0 stays unrounded for the fcomp below)
+                            if (X87_LE_NAN(tailNorm, (double)repathDist)) // 0x4A5317-0x4A5324 (fcomp var_25C on the
+                            {                                             //  UNROUNDED st0; test ah,41h; jnz = the
+                                                                          //  {<=, NaN} KEEP set - the literal <= would
+                                                                          //  send NaN to the discard: DIVERGENT)
+                                if (fp2Result != 3 && fp2Result != 4      // 0x4A54B1-0x4A54C5 (cmp ebx,3/4; test
+                                    && fp2Result != 0)                    //  ebx,ebx - all three -> the tail)
+                                {
+                                    if (bestTailDist > (double)goald)     // 0x4A54C9-0x4A54DC (fld goal; fld var_244;
+                                                                          //  fcomp st(1); test ah,41h; fstp st; jnz -
+                                                                          //  the literal > MATCH row; both float m32)
+                                    {
+                                        v71 = 0;
+                                        v72 = ReturnPath->waypointsCount <= 0;   // 0x4A54E2-0x4A54ED
+                                        newPath->waypointsCount = 0;
+                                        if (!v72)
+                                        {
+                                            do
+                                            {
+                                                BVector* v73 = BPath__waypoint(ReturnPath, &maCopyWp, v71);
+                                                                          // 0x4A54F6-0x4A5506 (var_19C)
+                                                BPath__addWaypointAtEnd(newPath, v73);   // 0x4A550B-0x4A550E
+                                                ++v71;
+                                            } while (v71 < ReturnPath->waypointsCount);
+                                                                          // 0x4A5513-0x4A551D (the count RE-READ per
+                                                                          //  iteration - the live reload, faithful)
+                                        }
+                                        smoothUsed = 1;                   // 0x4A5528
+                                        pathFound = 1;                    // 0x4A552C
+                                        smoothMidLevelPath(this_, newPath);   // 0x4A5530
+                                        BPath__calculatePathLength(newPath);   // 0x4A5537
+                                        v74 = newPath->pathLengthValue;   // 0x4A553F (fld BEFORE the stamp store -
+                                                                          //  the compiler's schedule; semantically
+                                                                          //  identical)
+                                        newPath->creationTimeValue = ((RGE_Player*)this_->owner)->world->world_time;
+                                                                          // 0x4A553C-0x4A554B (FINDING D)
+                                        if (X87_LT_NAN(v74, *flt_68F494)) // 0x4A554E-0x4A5559 (test ah,1; jz tail; the
+                                        {                                 //  {<, NaN} set zeroes -> DIVERGENT)
+                                            newPath->waypointsCount = 0;  // 0x4A555D
+                                            pathFound = 0;                // 0x4A5560
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                newPath->waypointsCount = 0;              // 0x4A532A (the ordered tail > v151 discard)
+                                                                          //  0x4A5331 - RESTRUCTURE: the discard's
+                                                                          //  goto the_returnpath_tail = the common
+                                                                          //  fall into the destructor below
+                            }
+                        }
+                        // the_returnpath_tail (0x4A5331 target): the destructor runs on
+                        // EVERY wl-gate-taken path (goala-taken or not, found or discard) -
+                        // the label sits between the if(goala) close and the wl-gate close.
+                        BPath__destructor(ReturnPath);                    // 0x4A5564-0x4A5576 (the cookie var_4 = -1
+                                                                          //  @0x4A556B regenerates)
+                    }
+                    // the wl-gate-fail fall + the LABEL_103 body's common exit: straight
+                    // to the install gate (0x4A5564 -> 0x4A557B the fall). RESTRUCTURE:
+                    // the LABEL_129 goto dissolved into the fall.
+                    }
+                } // the flagged-pipeline else closes - every pipeline path reached
+                  // the install gate below (the stage-map proof); the stub arm
+                  // above joins it here too (the goto LABEL_129 dissolution)
+                // ---- LABEL_129: the install gate (asm loc_4A557B-0x4A569D) ----
+                if (newPath->waypointsCount <= 1                      // 0x4A557B-0x4A5585 (cmp eax,1; jle)
+                    || X87_LT_NAN(newPath->pathLengthValue, 1.0e-7f)) // 0x4A558B-0x4A5598 (test cl,ah with cl = 1 =
+                {                                                     //  test ah,1; jnz - the {<, NaN} set fails;
+                    fprintf_logger(g_dimuLog, "INSTALL-FAIL wpc=%d len=%08x\n",    // DIAG
+                        newPath->waypointsCount, (unsigned int)newPath->pathLengthValue);   // DIAG
+                    // ---- the install-FAILURE arm (asm loc_4A572E-0x4A5866) ---- //  literal < would skip NaN: DIVERGENT)
+                    g_dimuMark = 10;                                  // DIAG
+                    BPathData__destructor(successor);                 // 0x4A572E-0x4A5734
+                    operator_delete_internal(successor);              // 0x4A5739-0x4A573A
+                    RGE_Game_World__destroyPath2((RGE_Game_World*)(*base_game)->world, newPath);
+                                                                      // 0x4A573F-0x4A574E
+                    v134 = BPath__waypoint(activePath, &failWpDy, this_->pathData->waypoint - 1)->y;
+                                                                      // 0x4A5753-0x4A5775 (var_D8; .y @+8)
+                    BVector* v78 = BPath__waypoint(activePath, &failReloadWp, this_->pathData->waypoint - 1);
+                                                                      // 0x4A5779-0x4A5788 (var_C0; the waypoint
+                                                                      //  RELOADED - the .c's second waypoint fetch)
+                    RGE_Static_Object__distance_to_position((RGE_Static_Object*)this_,
+                            v78->x, v134, 0.0);                       // 0x4A578D-0x4A5792 (the result DISCARDED:
+                                                                      //  asm 0x4A579D fstp st)
+                    if (targetObj)
+                    {
+                        RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_, targetObj);
+                                                                      // 0x4A57A1-0x4A57A4 (the result DISCARDED:
+                                                                      //  asm 0x4A57B4 fstp st)
+                        BPathData* v79 = this_->pathData;
+                        if ((v79->mFlags.valueValue & 4) != 0)        // 0x4A57AF-0x4A57B9 (test [ecx+30h], eax;
+                            BPathData__setFlag(v79, 2, 0);            //  dword_65BD9C = 4, .rdata:0065BD9C dd 4)
+                    }
+                    if (pathFound && (v80 = this_->pathData, X87_LE_NAN(goalDist, (double)v80->range)))
+                                                                      // 0x4A57C4-0x4A57DD (fld var_23C; fcomp
+                                                                      //  [ecx+20h]; test ah,41h; jz - the fall-
+                                                                      //  through set is {<=, NaN}: DIVERGENT)
+                    {
+                        if ((activePath->flags.valueValue & 1) == 0)  // 0x4A57DF-0x4A57EA (test edx,eax; jbe;
+                                                                      //  BBitVectorAND_2 = 1)
+                        {
+                            // RESTRUCTURE: LABEL_239 (0x4A5E27 shared tail) inlined -
+                            // the second copy sits at the range-gate tail below
+                            // (region-distinct sites, identical statements).
+                            this_->vfptr->stopMoving(this_);          // 0x4A5E27-0x4A5E2B (slot +0x304)
+                            return 2;                                 // 0x4A5E31
+                        }
+                        // LABEL_151 (0x4A57F0): the setFlag + the ASM RELOOP - inlined
+                        // at both its sites (the second: the waypoint gate below).
+                        BPathData__setFlag(this_->pathData, 0, 1);    // 0x4A57F0-0x4A57F4 (the v161-arm site)
+                        continue;                                     // 0x4A57F9 - ASM RELOOP (join J4: the .c's
+                                                                      //  fall-to-the-walk-arm is superseded)
+                    }
+                    else
+                    {
+                        v80 = this_->pathData;                        // 0x4A57FE (the else-arm's own read)
+                        if (v80->waypoint < activePath->waypointsCount - 1)   // 0x4A57FE-0x4A580B ([ebp+0Ch] dec;
+                                                                      //  cmp [ecx+18h])
+                        {
+                            // LABEL_151's second site (0x4A580D-0x4A5816 - the setFlag
+                            // + the ASM RELOOP, join J5)
+                            BPathData__setFlag(v80, 0, 1);
+                            continue;                                 // 0x4A580D-0x4A5816 - ASM RELOOP (join J5)
+                        }
+                        if (BPathData__continuesLeft(this_->pathData, 0) > 0)   // 0x4A581B-0x4A5824 (push 0; test; jg)
+                        {
+                            this_->vfptr->pauseMovement(this_, 0.25f);   // 0x4A5D50-0x4A5D59 (slot +0x310 = 196;
+                                                                      //  push 0.25 = the .c's 1048576000 bits)
+                            this_->vfptr->stopMoving(this_);          // 0x4A5D5F-0x4A5D63 (slot +0x304)
+                            return 0;                                 // 0x4A5D69
+                        }
+                        if ((activePath->flags.valueValue & 1) != 0)  // 0x4A582A-0x4A5835 (test ecx,eax; ja;
+                                                                      //  BBitVectorAND_2 = 1)
+                        {
+                            this_->vfptr->pauseMovement(this_, 0.5f); // 0x4A5D6E-0x4A5D77 (push 0.5 = the .c's
+                            return 0;                                 //  1056964608 bits)
+                        }
+                        BPathData* v81 = this_->pathData;
+                        if (v81->waypointLevel >= 2                   // 0x4A583B-0x4A5845 (cmp [ecx+0Ch],2; jge)
+                            || BPathData__highestLinkedPathHasMoreWaypoints(v81) != 1)
+                                                                      // 0x4A584B-0x4A5853 (cmp eax,1; jnz)
+                        {
+                            // RESTRUCTURE: LABEL_232's second site (0x4A584B region) -
+                            // identical statements to the allocation-failure site above
+                            // (asm-distinct sites, byte-identical statements).
+                            BPathData__setFailure(this_->pathData);   // 0x4A5D82-0x4A5D88
+                            this_->vfptr->stopMoving(this_);          // 0x4A5D8D-0x4A5D91 (slot +0x304)
+                            return 1;                                 // 0x4A5D97
+                        }
+                        this_->pathData->state = 5;                   // 0x4A585F ([edx+1Ch] = 5)
+                        continue;                                     // 0x4A5866 - ASM RELOOP (join J6)
+                    }
+                }
+                else
+                {
+                    // ---- the install-SUCCESS arm (asm 0x4A559E-0x4A569D) ----
+                    fprintf_logger(g_dimuLog, "INSTALL-OK wpc=%d len=%08x v149=%d variant=%s\n",  // DIAG
+                        newPath->waypointsCount, (unsigned int)newPath->pathLengthValue, smoothUsed,     // DIAG
+                        (this_->pathData->waypointLevel != 2 || smoothUsed != 1) ? "FOLLOW" : "READY");  // DIAG
+                    g_dimuMark = 9;                                   // DIAG
+                    this_->pathData->state = 0;                       // 0x4A55A4 ([edx+1Ch] = 0)
+                    this_->pathData->continueCounter = 10;            // 0x4A55B1 ([eax+2Ch] = 0Ah)
+                    BPathData* v75 = this_->pathData;
+                    if (v75->waypointLevel != 2 || smoothUsed != 1)   // 0x4A55BE-0x4A55CC (cmp [eax+0Ch],2; jnz;
+                    {                                                 //  cmp var_260,1; jnz)
+                        BPathData__setReadyToFollowPath(successor, newPath);   // 0x4A5648-0x4A564F
+                        if (pathFound)                                // 0x4A5654-0x4A5659
+                            BPathData__setLinkedPath(successor, this_->pathData, 1);   // 0x4A5661-0x4A5671
+                        else
+                            BPathData__setLinkedPath(successor, this_->pathData, 2);
+                        successor->waypointLevel = 0;                 // 0x4A5676 ([ebx+0Ch] = 0)
+                        activePath = newPath;                         // 0x4A5683 (var_26C = edi)
+                        successor->range = this_->pathData->range;    // 0x4A5687-0x4A568A (+0x20)
+                        successor->targetID = this_->pathData->targetID;   // 0x4A568D-0x4A5696 (+0x24)
+                        this_->pathData = successor;                  // 0x4A5699 ([esi+118h] = ebx)
+                        proceedToWalk = true;   /* the .c's break; the asm falls to loc_4A569F */
+                                              // 0x4A569F - RESTRUCTURE: the goto walk_arm handoff
+                    }
+                    else
+                    {
+                        BPathData__setReadyToPath(successor, newPath, v75->range, v75->targetID);
+                                                                      // 0x4A55CE-0x4A55DD (push tID, r, p)
+                        if (pathFound)                                // 0x4A55E2-0x4A55ED
+                            BPathData__setLinkedPath(successor, this_->pathData, 1);   // 0x4A55EF-0x4A5604
+                        else
+                            BPathData__setLinkedPath(successor, this_->pathData, 2);
+                        successor->waypointLevel = 1;                 // 0x4A5609 ([ebx+0Ch] = ebp = 1)
+                        activePath = newPath;                         // 0x4A5612
+                        successor->range = this_->pathData->range;
+                        successor->targetID = this_->pathData->targetID;
+                        this_->pathData = successor;                  // 0x4A5628
+                        if (*dword_689564 != 1 && *dword_68956C != 1) // 0x4A562E-0x4A5641 (cmp/jz -> reloop;
+                            proceedToWalk = true;   /* the .c's break */   //  cmp/jnz -> the walk arm)
+                                                                      //  0x4A569F - the goto walk_arm handoff
+                        else
+                            continue;                                 // 0x4A5634/0x4A5643 (the config-on reloop)
+                    }
+                }
+                } // the state-2 arm's else closes - every arm path returned, continued,
+                  // or set proceedToWalk (the two install-success handoffs)
+                // ================= THE WALK ARM (asm loc_4A569F-0x4A5917) =============
+                // Dispatch-loop level: reached from the state!=2 dispatch (0x4A4963
+                // jnz) and from the two install-success handoffs above (proceedToWalk).
+                v76 = activePath;                                             // 0x4A56A5 (ebp = var_26C; DEAD store -
+                                                                              //  v76 is never read; transcribed 1:1)
+                BVector* v77 = BPath__waypoint(activePath, &walkWp, this_->pathData->waypoint);
+                                                                              // 0x4A56A9-0x4A56BD (var_A8)
+                BVector__operator_minus(&this_->positionValue, &v172, v77);   // 0x4A56C2-0x4A56CD (this = ebx = positionValue)
+                v172.z = 0.0f;                                                // 0x4A56EB
+                if (sqrt((double)v172.y * v172.y + (double)v172.x * v172.x) >= 1.0e-7f)
+                                                                              // 0x4A56D2-0x4A5705 (test ah,1; jz loc_4A570B
+                {                                                             //  - the {<, NaN} set goes to the flag pair;
+                                                                              //  the literal >= MATCH row)
+                    // ---- the movement integration (the three named virtual dispatches;
+                    // slots +0x320 = 200 / +0x334 = 205 / +0x328 = 202) ----
+                    BVector* v83 = BPath__waypoint(activePath, &fwdWp, this_->pathData->waypoint);   // 0x4A5873-0x4A5889 (var_90)
+                    this_->vfptr->calculateForward(this_, &this_->positionValue, v83, &fwdDir);
+                                                                              // 0x4A588E-0x4A5892 (slot +0x320)
+                    this_->vfptr->straightProjectedPosition(this_, &projectedPos, &fwdDir, deltaTime);
+                                                                              // 0x4A5898-0x4A58B1 (slot +0x334; the dt
+                                                                              //  arg = deltaTime's float bits, LODWORD(a3))
+                    BVector* v85 = BPath__waypoint(activePath, &reachedWp, this_->pathData->waypoint);   // 0x4A58CB-0x4A58D6 (var_78)
+                    reachedResult = this_->vfptr->calculateReachedPoint(this_, v85, &this_->positionValue, &projectedPos);
+                                                                              // 0x4A58DB-0x4A58DE (slot +0x328)
+                    if (reachedResult == 2)                                   // 0x4A58E4-0x4A58E7 (cmp eax,2; jz loc_4A570B)
+                    {
+                        // asm join J7 (0x4A570B-0x4A5729): the flag pair + RELOOP - the
+                        // .c's fall-to-the-a4-fetch rendering is superseded by the asm.
+                        g_dimuMark = 2;                                       // DIAG
+                        BPathData__setFlag(this_->pathData, 1, 1);            // 0x4A570B-0x4A5715
+                        BPathData__setFlag(this_->pathData, 0, 1);            // 0x4A571A-0x4A5724
+                        continue;                                             // 0x4A5729
+                    }
+                    // asm 0x4A58ED-0x4A58F9: reachedResult == 1 or mConsecutiveSubstituteCount
+                    // > 2 -> the flag pair then FALL to the a4 fetch (0x4A5919);
+                    // otherwise no pair, fall directly.
+                    if (reachedResult == 1 || this_->mConsecutiveSubstituteCount > 2)   // (+0x138; cmp ...,2; jle skips)
+                    {
+                        BPathData__setFlag(this_->pathData, 1, 1);            // 0x4A58FB-0x4A5905
+                        BPathData__setFlag(this_->pathData, 0, 1);            // 0x4A590A-0x4A5914
+                    }
+                }
+                else
+                {
+                    g_dimuMark = 1;                                           // DIAG (the arrival pair + reloop)
+                    BPathData__setFlag(this_->pathData, 1, 1);                // 0x4A570B (the arrival path - the shared tail)
+                    BPathData__setFlag(this_->pathData, 0, 1);
+                    continue;                                                 // 0x4A5729 (reloop)
+                }
+
+                // ---- the a4 waypoint + the next-waypoint fetch (asm 0x4A5919-0x4A5973) ----
+                BVector* v87 = BPath__waypoint(activePath, &moveTargetSrcWp, this_->pathData->waypoint);   // 0x4A5919-0x4A592D (var_60)
+                moveTarget.x = v87->x;                                        // 0x4A5932-0x4A5948 (the component copies
+                moveTarget.z = v87->z;                                        //  in the asm's order: [+eax] / [+4] / [+8])
+                v88 = v87->y;
+                BPathData* v89 = this_->pathData;
+                moveTarget.y = v88;
+                v90 = v89->waypoint;
+                if (v90 < activePath->waypointsCount - 1)                     // 0x4A594C-0x4A5955 (cmp edx,ecx; jl)
+                    BPath__waypoint(activePath, &nextWpNext, v90 + 1);        // 0x4A5962-0x4A596D (var_30; the fetch is
+                else                                                          //  DISCARDED (eax dead at 0x4A5976) -
+                    BPath__waypoint(activePath, &nextWpCur, v90);             //  0x4A5957-0x4A5960 (var_48; dead) -
+                                                                              //  transcribed 1:1
+                // the .c's v161 = COERCE_FLOAT(getUnitGroup(...)) - the pointer typed at
+                // the reuse site (the null test at 0x4A5ADE is the pointer test).
+                unitGroup = RGE_Game_World__getUnitGroup(                     // 0x4A5976-0x4A5986 (mGroupID @+0x88)
+                        (RGE_Game_World*)(*base_game)->world, this_->mGroupID);
+                if (!RGE_Static_Object__isFlagSet((RGE_Static_Object*)this_, 1))   // 0x4A598B-0x4A599A (jz loc_4A5CAF)
+                {
+                    // 0x4A5CAF - RESTRUCTURE: the goto target_gate = the common fall
+                    // into the target gate below (the .c's break of the synthetic nest)
+                }
+                else
+                {
+                // ---- the OB pass (asm 0x4A59A0-0x4A5CAB) ----
+                    g_dimuMark = 3;                                           // DIAG
+                    v91 = 0;
+                    ignoreListSize = 0;                                       // 0x4A59A0-0x4A59A4
+                    if (this_)
+                    {
+                        v91 = 1;
+                        ignoreUnits[0] = this_->id;
+                        ignoreListSize = 1;
+                        if (this_->type == 80)                                // 0x4A59BE-0x4A59C2
+                        {
+                            TRIBE_Building_Object* buildingObj3 = (TRIBE_Building_Object*)this_;
+                            bldgChildW = 0;
+                            do
+                            {
+                                RGE_Static_Object* child4 =
+                                    (RGE_Static_Object*)buildingObj3->linked_child[bldgChildW];
+                                if (child4)                                   // 0x4A59CC-0x4A59D0
+                                {
+                                    ignoreUnits[v91++] = child4->id;          // 0x4A59D2-0x4A59D5
+                                    ignoreListSize = v91;
+                                    if (v91 >= _countof(ignoreUnits))         // 0x4A59DD-0x4A59E7
+                                        break;
+                                }
+                                ++bldgChildW;
+                            } while (bldgChildW < _countof(buildingObj3->linked_child));
+                        }
+                    }
+                    findObSystemCollisions(obSystemToUse,                     // 0x4A59F2-0x4A5A0F (__fastcall; THE LEAD
+                            this_,                                            //  CONFIRMED: push offset ignoreUnits
+                            &this_->positionValue, &projectedPos,             //  @0x4A5A06; p1 = positionValue, p2 = the
+                            ignoreUnits, v91, 0, 1.0f);                       //  projected position; checkTerrain = 0)
+                    if (*numberObSystemCollisions <= 0)                       // 0x4A5A14-0x4A5A1B (cmp eax,edi(0); jle -
+                    {                                                         //  the VALUE test: the deref sweep)
+                        // 0x4A5CAF - the goto target_gate = the fall below (the OB-pass
+                        // zero-count exit; the if-block's end converges there)
+                    }
+                    else
+                    {
+                        targetBlocked = 0;                                    // 0x4A5A25 (var_25C)
+                        freshBlockers = 0;                                    // 0x4A5A29 (var_260)
+                        goalb = 0;                                            // 0x4A5A2D (the goal slot)
+                        do
+                        {
+                            obRecord = obSystemCollisions[goalb];             // 0x4A5A38-0x4A5A44 (the .c's obja walk ->
+                                                                              //  the indexed form)
+                            v95 = obRecord->Object;                           // 0x4A5A46 ([ecx+8])
+                            if (v95)
+                            {
+                                v96 = RGE_Game_World__object((RGE_Game_World*)this_->owner->world, v95->id);
+                                                                              // 0x4A5A51-0x4A5A5E
+                                if (v96)
+                                {
+                                    if (v96->type == 80 && ((TRIBE_Building_Object*)v96)->linked_owner)
+                                                                              // 0x4A5A6B-0x4A5A79 (byte @+0x5E; BASE-
+                                                                              //  POINTER FIX: the .c's v96[2].mMaximum-
+                                                                              //  PathingGroupSize = +0x168+0x74 = +0x1DC =
+                                                                              //  linked_owner (asm [eax+1DCh]))
+                                        v96 = (RGE_Static_Object*)((TRIBE_Building_Object*)v96)->linked_owner;
+                                    if (v96)                                  // 0x4A5A7D-0x4A5A81
+                                    {
+                                        if (BPath__ignoreUnitsContain(activePath, v96->id) != 1)   // 0x4A5A87-0x4A5A97
+                                        {
+                                            v98 = BPathData__highestLinkedPathPointer(this_->pathData);
+                                                                              // 0x4A5A9D-0x4A5AA3
+                                            if (!v98 || BPath__ignoreUnitsContain(v98, v96->id) != 1)
+                                                                              // 0x4A5AAC-0x4A5ABA (the .c's v97[4] = the
+                                                                              //  id @+0x10; the named field form)
+                                            {
+                                                v99 = this_->pathData->targetID;   // 0x4A5AC0-0x4A5AC6
+                                                if (v99 >= 0 && v96->id == v99)   // 0x4A5ACD-0x4A5AD0
+                                                    targetBlocked = 1;    // 0x4A5AD2
+                                                if (unitGroup == 0        // 0x4A5ADA-0x4A5AE0 (test ecx,ecx - the
+                                                                              //  NULL test; the .c's v161 == 0.0 pun)
+                                                    || BUnitGroup__getSpecificMoveReason(unitGroup, this_->id)
+                                                                              // 0x4A5AE2-0x4A5AED
+                                                    || (v100 = v95->master_obj->object_group, v100 == 18)
+                                                                              // 0x4A5AEF-0x4A5AFF (word @+0x1E;
+                                                                              //  18 = Building)
+                                                    || v100 == 6          // 6 = Wall
+                                                    || v100 == 8          // 8 = Gate
+                                                    || v100 == 10         // 10 = Turret
+                                                    || v100 == 9)         // 9 = Fortress/AA Turret
+                                                {
+                                                    v101 = activePath->creationTimeValue;   // 0x4A5B1D-0x4A5B21 ([eax+1Ch])
+                                                    if (v101 < v96->vfptr->lastMoveTime(v96))
+                                                                              // 0x4A5B1D-0x4A5B2C (slot +0x30C = 195;
+                                                                              //  cmp ebx,eax; jnb skips)
+                                                    {
+                                                        ++freshBlockers;  // 0x4A5B2E-0x4A5B32
+                                                        if (collisionCount < _countof(collisionUnits))
+                                                                              // 0x4A5B33-0x4A5B3D (cmp ebp, offset
+                                                                              //  numberObSystemCollisions = the array
+                                                                              //  end = _countof(collisionUnits) = 256)
+                                                        {
+                                                            collisionUnits[collisionCount] = v96->id;
+                                                                              // 0x4A5B43-0x4A5B47 ([ebp+0] = [edi+10h];
+                                                                              //  the walker and v157 advance in lockstep
+                                                                              //  - the indexed form is exact)
+                                                            ++collisionCount;   // 0x4A5B46-0x4A5B4A (inc ecx; var_24C)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            ++goalb;                                          // 0x4A5B51-0x4A5B6D (the count RE-READ per
+                        } while (goalb < *numberObSystemCollisions);          //  iteration - faithful)
+                        RGE_Moving_Object__resolveCollisions(this_, &projectedPos);   // 0x4A5B73-0x4A5B7D (unowned - the idb
+                                                                              //  constant executes the original)
+                        if (*numberObSystemCollisions == 1 && targetBlocked == *numberObSystemCollisions)
+                                                                              // 0x4A5B82-0x4A5B90
+                        {
+                            BPathData__setFlag(this_->pathData, 0, *numberObSystemCollisions);
+                                                                              // 0x4A5B92-0x4A5B9B (push eax = the loaded
+                                                                              //  count value, guarded == 1)
+                            BPathData__setFlag(this_->pathData, 2, 1);        // 0x4A5BA0-0x4A5BAA
+                            continue;                                         // 0x4A5BAF - ASM RELOOP (join J1: the .c's
+                                                                              //  fall-to-the-target-gate is superseded)
+                        }
+                        if (freshBlockers <= 0)                               // 0x4A5BB4-0x4A5BBA (test ecx; jle)
+                        {
+                            v76 = activePath;                                 // 0x4A5CAB (ebp = var_26C; DEAD store - 1:1)
+                                                                              // 0x4A5CAF - the goto target_gate = the fall
+                        }
+                        else
+                        {
+                            goalc = 0;
+                            if (*numberObSystemCollisions > 0)                // 0x4A5BC0-0x4A5BCA
+                            {
+                                pauseIdx = 0;
+                                do
+                                {
+                                    RGE_Static_Object* v104 = obSystemCollisions[pauseIdx]->Object;   // 0x4A5BD5-0x4A5BDA ([ebx] -> [+8])
+                                    if (v104)
+                                    {
+                                        pauseTargetId = this_->pathData->targetID;   // 0x4A5BDE-0x4A5BE4
+                                        if (pauseTargetId < 0 || v104->id != pauseTargetId)   // 0x4A5BE7-0x4A5BEE (the target skip)
+                                        {
+                                            pauseBldg = (TRIBE_Building_Object*)RGE_Game_World__object(
+                                                    (RGE_Game_World*)this_->owner->world, v104->id);
+                                                                          // 0x4A5BF0-0x4A5BFD
+                                            if (pauseBldg)
+                                            {
+                                                if (pauseBldg->type == 80 && pauseBldg->linked_owner)   // 0x4A5C06-0x4A5C16 (+0x1DC - as above)
+                                                    pauseBldg = pauseBldg->linked_owner;
+                                                pauseTarget = (RGE_Static_Object*)pauseBldg;
+                                                if (pauseBldg)
+                                                {
+                                                    pausePriority = pauseTarget->vfptr->movementPriority(pauseTarget);
+                                                                          // 0x4A5C1E-0x4A5C28 (slot +0x314 = 197)
+                                                    if (pausePriority > this_->vfptr->movementPriority(this_))
+                                                                          // 0x4A5C2A-0x4A5C36 (cmp ebp,eax; jle skips)
+                                                        pauseTarget->vfptr->pauseMovement(pauseTarget, 0.5f);
+                                                                          // 0x4A5C38-0x4A5C41 (slot +0x310 = 196;
+                                                                          //  push 0.5 = the .c's 1056964608 bits)
+                                                }
+                                            }
+                                        }
+                                    }
+                                    ++pauseIdx;
+                                } while (pauseIdx < *numberObSystemCollisions);
+                            }
+                            linkedNow = this_->pathData->linkedPath;          // 0x4A5C61-0x4A5C67 (+0x4)
+                            if (!linkedNow)
+                            {
+                                // RESTRUCTURE: LABEL_229's second site (0x4A5D3C) - identical
+                                // statements to the createPath-failure site in the state-2 arm
+                                // (region-distinct sites, identical statements).
+                                this_->vfptr->stopMoving(this_);              // 0x4A5D3C-0x4A5D40 (LABEL_229 inlined;
+                                                                              //  slot +0x304)
+                                return 1;                                     // 0x4A5D46-0x4A5D4B
+                            }
+                            linkedNow->state = 2;                             // 0x4A5C72 ([edi+1Ch] = 2)
+                            this_->pathData->linkedPath = 0;                  // 0x4A5C7F ([ecx+4] = 0)
+                            if (this_->pathData)
+                            {
+                                BPathData__destructor(this_->pathData);       // 0x4A5C90-0x4A5C92
+                                operator_delete_internal(this_->pathData);    // 0x4A5C97-0x4A5C98
+                            }
+                            this_->pathData = linkedNow;                      // 0x4A5CA0
+                            continue;                                         // 0x4A5CA6 - ASM RELOOP (join J2: the .c's
+                                                                              //  fall-to-the-target-gate is superseded)
                         }
                     }
                 }
-            }
-            ++pauseIdx;
-        } while (pauseIdx < *numberObSystemCollisions);
-    }
-    v109 = this_->pathData->linkedPath;                               // 0x4A5C61-0x4A5C67 (+0x4)
-    if (!v109)
-        goto LABEL_229;                                               // 0x4A5C6C (jz loc_4A5D3C)
-    v109->state = 2;                                                  // 0x4A5C72 ([edi+1Ch] = 2)
-    this_->pathData->linkedPath = 0;                                  // 0x4A5C7F ([ecx+4] = 0)
-    v110 = this_->pathData;
-    if (v110)
-    {
-        BPathData__destructor(this_->pathData);                       // 0x4A5C90-0x4A5C92
-        operator_delete_internal(v110);                               // 0x4A5C97-0x4A5C98
-    }
-    this_->pathData = v109;                                           // 0x4A5CA0
-    goto loop_head;                                                   // 0x4A5CA6 - ASM RELOOP (join J2: the .c's
-                                                                      //  fall-to-the-target-gate is superseded)
-
-    // ---- the target gate (asm loc_4A5CAF-0x4A5CCB) ----
-target_gate:
-    g_dimuMark = 15;                                                  // DIAG
-    if (!targetObj)                                                   // 0x4A5CAF-0x4A5CB5 (test eax; jz)
-        goto range_gate;
-    if (RGE_Moving_Object__checkRange(this_, targetObj) != 1)         // 0x4A5CBB-0x4A5CC5 (owned; cmp al,1; jnz)
-        goto LABEL_241;
-    goto loop_head;                                                   // 0x4A5CCB - ASM RELOOP (join J3: checkRange
-                                                                      //  == 1 re-dispatches; the .c's fall to the
-                                                                      //  range gate is superseded - the range gate
-                                                                      //  runs only when targetObj == 0)
-
-    // ---- the range gate (asm loc_4A5DA1-0x4A5E4C) ----
-range_gate:
-    if ((v76->flags.valueValue & 1) != 0                              // 0x4A5DA1-0x4A5DAC (test ecx,eax; ja;
-                                                                      //  BBitVectorAND_2 = 1)
-        || (v111 = this_->pathData, X87_LE_NAN(v111->range, 0.1f))    // 0x4A5DB2-0x4A5DC6 (mov ecx,[esi+118h] =
-                                                                      //  v111; fld [ecx+20h]; fcomp flt_6545BC =
-                                                                      //  0.1f; test ah,41h; jnz - the {<=, NaN}
-                                                                      //  set -> moveUnit: DIVERGENT)
-        || (v112 = BPathData__highestLinkedPathPointer(v111),         // 0x4A5DC8-0x4A5DD1
-            (v113 = v112) == 0)
-        || (v114 = v112->waypointsCount,
-            v115 = this_->pathData,
-            v135 = BPath__waypoint(v112, &v177, v114 - 1)->y,         // 0x4A5DDE-0x4A5DF8 (var_19C; .y @+8)
-            v116 = BPath__waypoint(v113, &v176, v114 - 1),            // 0x4A5DF6-0x4A5E01 (var_1A8)
-            RGE_Static_Object__distance_to_position((RGE_Static_Object*)this_,
-                    v116->x, v135, 0.0) - (double)v115->range         // 0x4A5E0B-0x4A5E10 (fsub [ebp+20h] on the
-                >= 1.0e-7f))                                          //  53-bit st0; fcomp flt_6565F4; test ah,1;
-        goto LABEL_241;                                               //  jz -> moveUnit: the literal >= MATCH row
-    BPathData__reset(v115);                                           // 0x4A5E20-0x4A5E22 (owned)
-    g_dimuMark = 12;                                                  // DIAG (fully arrived)
-LABEL_239:
-    this_->vfptr->stopMoving(this_);                                  // 0x4A5E27-0x4A5E2B (slot +0x304)
-    return 2;                                                         // 0x4A5E31
-LABEL_241:
-    g_dimuMark = 11;                                                  // DIAG (the moveUnit tail)
-    RGE_Moving_Object__moveUnit(this_, &a2, a3, &a4);                 // 0x4A5E38-0x4A5E4C (owned - hook-routed)
-    return 0;                                                         // 0x4A5E51
-}
+                // ---- the target gate (asm loc_4A5CAF-0x4A5CCB) ----
+                // Reached: the walk arm's !isFlagSet fall, the OB-pass zero-count
+                // exit, and the freshBlockers<=0 exit (all fall through from above).
+                g_dimuMark = 15;                                                  // DIAG
+                if (!targetObj)                                                   // 0x4A5CAF-0x4A5CB5 (test eax; jz)
+                {
+                    // -> the range gate (0x4A5DA1): RESTRUCTURE - the goto range_gate =
+                    // the else-branch below (the gate is the target gate's only other
+                    // exit besides the reloop and the moveUnit tail)
+                }
+                else if (RGE_Moving_Object__checkRange(this_, targetObj) != 1)    // 0x4A5CBB-0x4A5CC5 (owned; cmp al,1; jnz)
+                {
+                    // RESTRUCTURE: LABEL_241 (0x4A5E38 shared moveUnit tail) inlined -
+                    // the second copy sits in the range gate below (both sites carry
+                    // mark=11; the baseline's single shared label emits the identical
+                    // mark/call/return sequence on each path).
+                    g_dimuMark = 11;                                              // DIAG (the moveUnit tail; LABEL_241)
+                    RGE_Moving_Object__moveUnit(this_, &fwdDir, deltaTime, &moveTarget);
+                                                                                  // 0x4A5E38-0x4A5E4C (owned - hook-routed)
+                    return 0;                                                     // 0x4A5E51
+                }
+                else
+                {
+                    continue;                                                     // 0x4A5CCB - ASM RELOOP (join J3: checkRange
+                                                                                  //  == 1 re-dispatches; the .c's fall to the
+                                                                                  //  range gate is superseded - the range gate
+                                                                                  //  runs only when targetObj == 0)
+                }
+                // ---- the range gate (asm loc_4A5DA1-0x4A5E4C) ----
+                if ((activePath->flags.valueValue & 1) != 0                       // 0x4A5DA1-0x4A5DAC (test ecx,eax; ja;
+                                                                                  //  BBitVectorAND_2 = 1)
+                    || (v115 = this_->pathData, X87_LE_NAN(v115->range, 0.1f))    // 0x4A5DB2-0x4A5DC6 (mov ecx,[esi+118h] =
+                                                                                  //  v115; fld [ecx+20h]; fcomp flt_6545BC =
+                                                                                  //  0.1f; test ah,41h; jnz - the {<=, NaN}
+                                                                                  //  set -> moveUnit: DIVERGENT)
+                    || (topPath = BPathData__highestLinkedPathPointer(v115),      // 0x4A5DC8-0x4A5DD1
+                        topPath == 0)
+                    || (v114 = topPath->waypointsCount,
+                        v115 = this_->pathData,
+                        v135 = BPath__waypoint(topPath, &maCopyWp, v114 - 1)->y,  // 0x4A5DDE-0x4A5DF8 (var_19C; .y @+8)
+                        v116 = BPath__waypoint(topPath, &maIntendedWp, v114 - 1),   // 0x4A5DF6-0x4A5E01 (var_1A8;
+                                                                          //  the REUSE of the maIntendedWp carve
+                                                                          //  slot - the live reuse of the dead
+                                                                          //  carve slots, faithful; TRANSCRIPTION
+                                                                          //  FIX: this second fetch reuses v176/
+                                                                          //  maIntendedWp, NOT boundsWp)
+                        RGE_Static_Object__distance_to_position((RGE_Static_Object*)this_,
+                                v116->x, v135, 0.0) - (double)v115->range       // 0x4A5E0B-0x4A5E10 (fsub [ebp+20h] on the
+                            >= 1.0e-7f))                                          //  53-bit st0; fcomp flt_6565F4; test
+                {                                                                 //  ah,1; jz -> moveUnit: the literal >= MATCH
+                    // RESTRUCTURE: LABEL_241's second site (the range-gate moveUnit
+                    // tail; the shared-label mark/call/return sequence per path)
+                    g_dimuMark = 11;                                              // DIAG (the moveUnit tail; LABEL_241)
+                    RGE_Moving_Object__moveUnit(this_, &fwdDir, deltaTime, &moveTarget);
+                                                                                  // 0x4A5E38-0x4A5E4C (owned - hook-routed)
+                    return 0;                                                     // 0x4A5E51
+                }
+                BPathData__reset(v115);                                           // 0x4A5E20-0x4A5E22 (owned)
+                g_dimuMark = 12;                                                  // DIAG (fully arrived)
+                // RESTRUCTURE: LABEL_239 (0x4A5E27 shared tail) inlined - the first
+                // copy sits in the install-FAILURE arm above (region-distinct sites,
+                // identical statements).
+                this_->vfptr->stopMoving(this_);                                  // 0x4A5E27-0x4A5E2B (slot +0x304)
+                return 2;                                                         // 0x4A5E31
+    } // the dispatch loop
+} // the function
 #pragma float_control(pop)
 
 // ---------------------------------------------------------------------------
