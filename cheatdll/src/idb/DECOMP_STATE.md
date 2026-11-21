@@ -5195,3 +5195,142 @@ authoritative.)
     remains open after a state recording; a close is a separate explicit
     event. State blocks recorded mid-session are live checkpoints and are
     superseded by later recordings in the same session.
+
+  - SESSION CLOSE (2026-11-21, owner-directed closure): THE CAPSTONE DESYNC
+    RESOLVED AND VERIFIED EARLIER THIS SESSION; THE PASS-2 RESTRUCTURE
+    ATTEMPTED AND LEFT INCOMPLETE - THE WORKING TREE IS IN A BROKEN
+    INTERMEDIATE STATE. READ THIS BLOCK FULLY BEFORE TOUCHING
+    RGE_Moving_Object.cpp.
+    COMPLETED + OWNER-VERIFIED THIS SESSION (all tests passed):
+    - THE CAPSTONE DESYNC ROOT CAUSE #1 (the missing fall-through):
+      calculatePathLength + the ctm stamp were transcribed inside the
+      ma!=NULL arm; the asm joins BOTH arms unconditionally (0x4A4D12 ->
+      0x4A4D16 -> 0x4A4D18, lst :281179-281185). The stub path skipped the
+      length compute -> the len gate failed -> pass-1 ran the findTile arm
+      -> FOLLOW -> the path-id counter offset. FIXED (the statement move,
+      owner-approved) + CONFIRMED.
+    - THE CAPSTONE DESYNC ROOT CAUSE #2 (the v151 float-chain shrink):
+      my v151 = the /fp:fast shrunk SSE float chain vs the orig's
+      FLOAT(53-bit x87 chain); at unit 5404 the position == the
+      ReturnPath's tail exactly (the arrival teleport) -> v67 == v151
+      mathematically -> the tail test flipped on the shrink's ulp. FIXED
+      (owner-directed): THE WHOLE-FUNCTION PRECISE WRAP -
+      float_control(precise, on, push) before + pop after
+      doIntelligentMovementUpdate_new. /Fa census: mulss=0, sqrtss=0,
+      mulsd=15, addsd=8, precise-sqrt=7. CONFIRMED.
+    - THE THEORIES RETIRED (do not revisit): the stale v149 read (v149's 0
+      was the findTile arm's legitimate store - the PATH was wrong, not
+      the value); arm-2/findLowLevelPath as the pass-2 builder (the skip
+      gate v151>10 skips arm 2 on pass-2 too - the pass-2 builder is the
+      findTile arm, dword_68956C==1); /GL codegen as the cause (the same
+      source bug in both); the v143/v149 shared-slot claim (RETRACTED - a
+      listing-syntax misread: the MASM equate adds into the effective
+      address; v143/v149 distinct, the volatile honored).
+    - THE /GL DECISION (owner): WholeProgramOptimization OFF - the gated
+      listing = the shipped code; the LTG probe gap closes with it.
+    - THE NEW INSTRUMENTATION (all DIAG, remove at ship): the FPHOOK row
+      extended with rpc (the ReturnPath count) + lw (the last waypoint's
+      bits); the WPFETCH hook (BPath::waypoint 0x4BC440, caller-filtered:
+      the game's DIMU body range + the runtime-derived _new window, set at
+      install); LINE_LOGGING_ENABLED (the owner's macro) gating the
+      in-body decision rows; g_dimuTraceOrig = 0 (the _new dispatch).
+    - THE MODEL CORRECTIONS: the checkDistance swap verified faithful
+      instruction-for-instruction (4124 = pd->path, 3236 =
+      pd->mFuturePathData, the surviving linked path = 3235, swapped in
+      with state=2); the increment arm's arrival teleport puts the unit
+      exactly at the old path's waypoint[1]; pass-2's builder = the
+      findTile arm; BPath::waypoint's negative index = the DEFINED
+      zero-fill; the reloop = jz loc_4A48A2.
+    - THE METHODOLOGY: the FULL-STREAM diff (all common rows, decision
+      rows excluded, mk+ignSz stripped, FIRST divergence only) - the
+      lifecycle-only diff missed the position entirely.
+    THE PASS-2 RESTRUCTURE (this session's final work): STATUS =
+    INCOMPLETE - THE FILE DOES NOT COMPILE. What was done: the full
+    doIntelligentMovementUpdate_new body rewritten in the staged chunks
+    (temp dimu_pass2.cpp, 9 chunks) and spliced into the TU: the
+    dispatch loop = for(;;) with continue for the reloops (J1-J7 + the
+    arrival + the state-4/5 + the config); the state-2 arm in
+    if(pathState == 2){...} else proceedToWalk = true; the walk arm
+    unguarded after the arm's close; the v-names dissolved to the role
+    names (newPath/activePath/resolvedPath/successor/pathFound/
+    smoothUsed/repathDist/bestTailDist/collisionCount/...); the carve
+    buffers renamed per-role (every buffer DISTINCT - the aliasing rule);
+    the goal/var_264 and var_23C slot lives kept as the separate typed
+    variables (verified benign). THE FAILURE: the compile ends with the
+    C2267/C2601 cascade ("local function definitions illegal" from the
+    _orig trampoline at ~5191 onward) - the compiler's note says the
+    fn's opening brace (line 3883) never closes. THE CONTRADICTION: the
+    textual brace count (the // comments stripped) = BALANCED (final
+    depth 0); the preprocessed .i walk (RGE_Moving_Object.i, 7.8MB, on
+    disk) = the DIMU region pp-393436-394910 never returns to depth 0
+    (one net-open inside) - THE SOURCE-LEVEL COUNT AND THE COMPILER
+    DISAGREE AND THE CAUSE WAS NOT FOUND THIS SESSION. The gate logs:
+    temp pass2_gate*.log; the preprocessed: RGE_Moving_Object.i; the
+    staged: temp dimu_pass2.cpp. The bisect: the walk arm #if 0'd -> the
+    cascade PERSISTED (the imbalance is upstream, in the state-2 arm or
+    the loop/dispatch region).
+    RECOVERY OPTIONS FOR THE NEXT SESSION (the owner's choice):
+    (a) THE VERIFIED BASELINE RESTORATION (DONE 2026-11-21): the verified
+        pass-1 source IS committed - commit 2fc06f1 "RGE_Moving_Object::
+        doIntelligentMovementUpdate strict form confirmed correct" - and
+        was RESTORED into the working tree via git checkout of
+        RGE_Moving_Object.cpp from that commit; gate 0/0 re-run on the
+        restored file. The broken restructure = preserved in temp
+        dimu_pass2.cpp (+ the gate logs pass2_gate*.log and the
+        preprocessed RGE_Moving_Object.i - untracked, cleanable). The
+        earlier "NOT in VCS" claim below in this entry = superseded.
+    (b) CONTINUE THE RESTRUCTURE DEBUG: the imbalance = one brace-pair
+        ambiguity invisible to the textual count - the tools on disk:
+        the .i (the compiler's actual parse input), the gate logs, the
+        staged dimu_pass2.cpp. The suspected region: the state-2 arm's
+        install-gate nesting (the LABEL_129 region) - the arm's else
+        close placement vs the walk arm (the walk arm was originally
+        written INSIDE the arm's else scope; the depths prove it).
+    PROTOCOL NOTES CARRIED: the state-recording convention (a state
+    recording is NOT a session close - the owner-directed note
+    2026-11-21); the full-stream diff methodology; the pp-scan technique
+    (the .i brace-depth walk = the compiler's-parse-level verification -
+    USE IT FIRST next time: it caught what the source-level count
+    missed).
+
+  - NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first. STATE: the capstone doIntelligentMovementUpdate
+    desync is FIXED and ALL TESTS PASSED (owner-confirmed 2026-11-21); the
+    verified pass-1 baseline (the strict aligned form + both desync fixes +
+    the whole-function precise wrap + the DIAG harness) = commit 2fc06f1,
+    restored into the working tree, gate 0/0. THE PASS-2 RESTRUCTURE WAS
+    ATTEMPTED AND REVERTED: the full-body rewrite (the staged draft = temp
+    dimu_pass2.cpp, 9 chunks) spliced into the TU produced a non-compiling
+    C2267 cascade (the compiler: the fn brace at 3883 never closes) while
+    the textual brace count said balanced - the contradiction was NOT
+    resolved; the attempt was reverted via git checkout and the draft is
+    preserved at temp dimu_pass2.cpp. THE LESSONS FOR THE NEXT ATTEMPT:
+    (1) COMPILE PER CHUNK - the 9-chunk batch spliced once hid the
+        imbalance until the end (the BMotion per-chunk lesson
+        re-confirmed); (2) VERIFY THE BRACE DEPTH WITH THE PP-SCAN (the
+        .i brace walk) DURING the restructure, not after - the pp-level
+        count sees what the source-level count misses; (3) THE WALK ARM
+        PLACEMENT: the draft nested the walk arm INSIDE the state-2 arm's
+        else scope - the state!=2 route never reaches it; the walk arm
+        must sit at the dispatch-loop level with proceedToWalk as the
+        handoff from the install arms; (4) the LINE_LOGGING_ENABLED macro
+        and every DIAG row must be preserved verbatim in sequence for the
+        paired-capture verification. IMMEDIATE WORK: (1) the pass-2
+        restructure, restarted from the verified baseline (commit
+        2fc06f1), compiled per chunk with the pp-scan depth check at each
+        stage; the stage map + the brace-depth walk + the exit-path
+        inventory + the /Fa call-multiset comparison; then the paired
+        capture - the restructured traces must be BYTE-IDENTICAL to the
+        pass-1 baseline logs (the owner holds the 22:51/22:52 pair).
+        (2) AFTER the pass-2 verification: the DIAG instrumentation
+        removal at ship (the WPFETCH hook 0x4BC440, the FPHOOK rpc/lw
+        fields, the decision rows via LINE_LOGGING_ENABLED,
+        g_dimuTraceOrig + the DIMU logger flip). THE CARRIED ITEMS: the
+        common.h collisionUnits comment fix (provisional); the
+        Moving-methods re-count; the model corrections absorbed into the
+        capstone notes (the pass-2 builder = the findTile arm, NOT
+        arm-2/findLowLevelPath; the retired-theories list). PROTOCOL: the
+        approval gate before every write; a state recording is NOT a
+        session close; the full-stream diff methodology (the common rows
+        only, mk+ignSz stripped, FIRST divergence only)."
