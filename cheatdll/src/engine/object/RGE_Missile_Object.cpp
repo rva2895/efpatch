@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "RGE_Master_Static_Object.h"
 
 // .rdata vftable of RGE_Missile_Object (lst :990078)
 static RGE_Missile_ObjectVtbl* const rge_missile_object_vftable =
@@ -37,9 +38,9 @@ RGE_Missile_Object* __fastcall RGE_Missile_Object__RGE_Missile_Object_new(
             this_->fired_from_id = -1;                   // asm 0x49BAAE (@+0x184)
             RGE_Combat_Object__setup((RGE_Combat_Object*)this_, tobj, obj_owner, x, y, z);   // asm 0x49BAB8 (:1074)
             this_->own_master = 0;                       // asm 0x49BABF (byte @+0x188)
-            this_->type = 60;                            // asm 0x49BAC6 (inner store)
+            this_->type = RGE_MASTER_TYPE_MISSILE;                            // asm 0x49BAC6 (inner store)
         }
-        this_->type = 60;                                // asm 0x49BAC9/0x49BACE (outer store, both paths)
+        this_->type = RGE_MASTER_TYPE_MISSILE;                                // asm 0x49BAC9/0x49BACE (outer store, both paths)
         result = this_;
     }
     __except (RGE_Combat_Object__destructor((RGE_Combat_Object*)this_), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x642550
@@ -87,7 +88,7 @@ RGE_Missile_Object* __fastcall RGE_Missile_Object__RGE_Missile_Object_read_new(
         this_->vfptr = rge_missile_object_vftable;       // asm 0x49BB4E
         if (do_setup != 0)
             RGE_Missile_Object__setup_read(this_, infile, gworld);   // asm 0x49BB5A
-        this_->type = 60;                                // asm 0x49BB63 - unconditional
+        this_->type = RGE_MASTER_TYPE_MISSILE;                                // asm 0x49BB63 - unconditional
         result = this_;
     }
     __except (RGE_Combat_Object__destructor((RGE_Combat_Object*)this_), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x642570
@@ -172,7 +173,7 @@ int __fastcall RGE_Missile_Object__setup_new(
     this_->ghost_mode = 1;                           // asm 0x49BC5E (byte @+0x180)
     this_->fired_from_id = -1;                       // asm 0x49BC65 (@+0x184)
     RGE_Combat_Object__setup((RGE_Combat_Object*)this_, tobj, obj_owner, x, y, z);   // asm 0x49BC6F (:1074)
-    this_->type = 60;                                // asm 0x49BC74
+    this_->type = RGE_MASTER_TYPE_MISSILE;                                // asm 0x49BC74
     this_->own_master = 0;                           // asm 0x49BC78 (@+0x188)
     return 1;
 }
@@ -205,7 +206,7 @@ int __fastcall RGE_Missile_Object__setup_read_new(
     {
         this_->ghost_mode = 1;                       // asm 0x49BCB4 (byte @+0x180)
         RGE_Combat_Object__setup_read((RGE_Combat_Object*)this_, infile, gworld);   // asm 0x49BCBB (:1075)
-        this_->type = 60;                            // asm 0x49BCCA
+        this_->type = RGE_MASTER_TYPE_MISSILE;                            // asm 0x49BCCA
         rge_read(infile, &this_->max_range, sizeof(this_->max_range));               // asm 0x49BCCE (4)
         rge_read(infile, &this_->fired_from_id, sizeof(this_->fired_from_id));       // asm 0x49BCE1 (4)
         rge_read(infile, &this_->own_master, sizeof(this_->own_master));             // asm 0x49BCEE (1)

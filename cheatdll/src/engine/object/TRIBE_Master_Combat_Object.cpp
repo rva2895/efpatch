@@ -832,7 +832,7 @@ RGE_Master_Static_Object* __fastcall TRIBE_Master_Combat_Object__make_new_master
 //   on obstruction: obstructionObject = obj->id @+16; prog_mode @476 ==
 //              7 -> RGE_Game_World__object (:6086) re-fetch; master_
 //              obj_id (base_game @+0x428, i16) != -1 AND fetched master_
-//              obj->master_type >= 70 -> TRIBE_Combat_Object__
+//              obj->master_type >= RGE_MASTER_TYPE_COMBAT -> TRIBE_Combat_Object__
 //              canPlayerObjectBeEntered (:4033, obj, get_player
 //              (:689), master_obj_id, 0) == 1 -> return 9; blocker
 //              can_be_built_on == 0 -> return 6; else continue scanning.
@@ -988,7 +988,7 @@ unsigned __int8 __fastcall TRIBE_Master_Combat_Object__check_placement_new(
                             TRIBE_Combat_Object* runtime = (TRIBE_Combat_Object*)RGE_Game_World__object(
                                 (RGE_Game_World*)(*base_game)->world, obj->id);
                             if ((*base_game)->master_obj_id != -1
-                                && runtime->master_obj->master_type >= 70)
+                                && runtime->master_obj->master_type >= RGE_MASTER_TYPE_COMBAT)
                             {
                                 if (TRIBE_Combat_Object__canPlayerObjectBeEntered(
                                         runtime, (TRIBE_Player*)RGE_Base_Game__get_player((*base_game)),

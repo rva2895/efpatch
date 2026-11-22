@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "RGE_Master_Static_Object.h"
 #include "RGE_Action_Types.h"
 
 // .rdata vftable of RGE_Action_Object (lst :986405)
@@ -37,7 +38,7 @@ RGE_Action_Object* __fastcall RGE_Action_Object__RGE_Action_Object_new(
         {
             RGE_Moving_Object__setup(
                 (RGE_Moving_Object*)this_, (RGE_Master_Moving_Object*)tobj, obj_owner, x, y, z);
-            this_->type = 40;                                        // asm 0x4089F0 - runtime tier mirror
+            this_->type = RGE_MASTER_TYPE_ACTION;                                        // asm 0x4089F0 - runtime tier mirror
             this_->waiting = 0;                                      // asm 0x4089F4
             this_->actions = this_->vfptr->create_action_list(this_);   // slot +0x3B0 (asm 0x4089FB)
             this_->command_flag = 0;                                 // asm 0x408A07
@@ -93,7 +94,7 @@ RGE_Action_Object* __fastcall RGE_Action_Object__RGE_Action_Object_read_new(
         if (do_setup != 0)
         {
             RGE_Moving_Object__setup_read((RGE_Moving_Object*)this_, infile, gworld);
-            this_->type = 40;                                        // asm 0x408CC9 - runtime tier mirror
+            this_->type = RGE_MASTER_TYPE_ACTION;                                        // asm 0x408CC9 - runtime tier mirror
             rge_read(infile, &this_->waiting, sizeof(this_->waiting));                        // asm 0x408CCD (1)
             rge_read(infile, &this_->command_flag, sizeof(this_->command_flag));              // asm 0x408CDC (1)
             rge_read(infile, &this_->Selected_Group_Info, sizeof(this_->Selected_Group_Info)); // asm 0x408CEB (2)
@@ -657,7 +658,7 @@ int __fastcall RGE_Action_Object__setup_new(
 {
     RGE_Moving_Object__setup((RGE_Moving_Object*)this_,
         (RGE_Master_Moving_Object*)tobj, obj_owner, x, y, z);    // asm 0x408DFE - HOOKED, routes
-    this_->type = 40;                                            // asm 0x408E07
+    this_->type = RGE_MASTER_TYPE_ACTION;                                            // asm 0x408E07
     this_->waiting = 0;                                          // asm 0x408E0B
     this_->actions = this_->vfptr->create_action_list(this_);    // asm 0x408E12 (slot +0x3B0)
     this_->command_flag = 0;                                     // asm 0x408E1E
@@ -793,7 +794,7 @@ int __fastcall RGE_Action_Object__setup_read_new(
     RGE_Action_Object* this_, DWORD dummy, int infile, RGE_Game_World* gworld)
 {
     RGE_Moving_Object__setup_read((RGE_Moving_Object*)this_, infile, gworld);   // asm 0x408E4E (:2128) - HOOKED, routes
-    this_->type = 40;                                                            // asm 0x408E5D
+    this_->type = RGE_MASTER_TYPE_ACTION;                                                            // asm 0x408E5D
     rge_read(infile, &this_->waiting, sizeof(this_->waiting));                   // asm 0x408E61 (1)
     rge_read(infile, &this_->command_flag, sizeof(this_->command_flag));         // asm 0x408E70 (1)
     rge_read(infile, &this_->Selected_Group_Info, sizeof(this_->Selected_Group_Info));   // asm 0x408E7F (2)

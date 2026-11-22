@@ -28,6 +28,7 @@
 //   flt_6565F0 = 10.0f, flt_654978 = 0.01f, dbl_6545B0 =
 //   (double)float32(1e-7), SINGLE_MAXIMUM_VALUE = FLT_MAX.
 #include "stdafx.h"
+#include "../object/RGE_Master_Static_Object.h"
 
 #pragma float_control(precise, on, push)
 
@@ -58,7 +59,7 @@ bool __fastcall addToIgnoreList_new(RGE_Static_Object* obj)
     ignoreUnits[count] = obj->id;                      // asm 0x4A0363-0x4A0366 ([+0x10])
     ++count;                                           // asm 0x4A036D
     ignoreListSize = count;                            // asm 0x4A036E
-    if (obj->type == 80)                               // asm 0x4A0374-0x4A0379 (byte @+0x5E; the runtime-type evidence for the cast)
+    if (obj->type == RGE_MASTER_TYPE_BUILDING)                               // asm 0x4A0374-0x4A0379 (byte @+0x5E; the runtime-type evidence for the cast)
     {
         TRIBE_Building_Object* buildingObj = (TRIBE_Building_Object*)obj;
         for (size_t li = 0; li < _countof(buildingObj->linked_child); ++li)   // asm 0x4A037F-0x4A03AD (the linked walk: 4 entries)

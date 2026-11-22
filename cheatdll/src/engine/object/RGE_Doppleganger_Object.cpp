@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "RGE_Master_Static_Object.h"
 
 // .rdata vftable of RGE_Doppleganger_Object (lst :989403)
 static RGE_Doppleganger_ObjectVtbl* const rge_doppleganger_object_vftable =
@@ -62,7 +63,7 @@ RGE_Doppleganger_Object* __fastcall RGE_Doppleganger_Object__RGE_Doppleganger_Ob
         {
             RGE_Animated_Object__setup(
                 (RGE_Animated_Object*)this_, (RGE_Master_Animated_Object*)tobj, obj_owner, x, y, z);
-            this_->type = 25;                                     // asm 0x46FCAD - runtime tier mirror
+            this_->type = RGE_MASTER_TYPE_DOPPELGANGER;                                     // asm 0x46FCAD - runtime tier mirror
             this_->LastMapValue = 0;                              // asm 0x46FCC8
             this_->CantSeeBits = 0;                               // asm 0x46FCCE
             this_->MapAddress = (unsigned int*)(                  // MAP_SIZE - asm 0x46FCC1-0x46FCD7:
@@ -77,14 +78,14 @@ RGE_Doppleganger_Object* __fastcall RGE_Doppleganger_Object__RGE_Doppleganger_Ob
             this_->sprite = obj_to_dopple->sprite;                              // asm 0x46FD10-0x46FD13
             RGE_Master_Static_Object* src_master = obj_to_dopple->master_obj;
             int swap_flag = 0;                                                  // asm dl (xor dl, dl @0x46FD19)
-            if (src_master->master_type == 80 &&                                // asm 0x46FD1B (byte @+4)
+            if (src_master->master_type == RGE_MASTER_TYPE_BUILDING &&                                // asm 0x46FD1B (byte @+4)
                 src_master->object_group != 8 &&                                // asm 0x46FD21 (word @+0x1E)
                 src_master->id != 335)                                          // asm 0x46FD28 (word @+0x18)
             {
                 // Base-pointer rule: the pseudocode's v10[2].construction_radius_x
                 // = 2*0xD0 + 0x6C = 0x20C = 524 -> the Building-tier construction_id
                 // (TRIBE_Master_Building_Object, i16). Runtime-type evidence for the
-                // base->derived cast: the master_type == 80 gate (factory identity).
+                // base->derived cast: the master_type == RGE_MASTER_TYPE_BUILDING gate (factory identity).
                 __int16 construction_id =
                     ((TRIBE_Master_Building_Object*)src_master)->construction_id;   // asm 0x46FD30
                 if (construction_id > -1)                                           // asm 0x46FD37 (signed word cmp)
@@ -121,12 +122,12 @@ RGE_Doppleganger_Object* __fastcall RGE_Doppleganger_Object__RGE_Doppleganger_Ob
                 this_->map_color = this_->doppled_object->master_obj->map_color;   // asm 0x46FDE7-0x46FDF0 (@0xA0 = 160)
             else
                 this_->map_color = 0;                                           // asm 0x46FDF8
-            if (this_->doppled_master_obj->master_type >= 50)                   // asm 0x46FE04 (byte @+4, jb skips)
+            if (this_->doppled_master_obj->master_type >= RGE_MASTER_TYPE_COMBAT_BASE)                   // asm 0x46FE04 (byte @+4, jb skips)
                 // Base-pointer rule: the pseudocode's v20[2].gbg_civ_override
                 // = 2*0xB4 + 0x4 = 0x16C = 364 -> RGE_Combat_Object::
                 // Multi_Unified_Points (u8 @364; present in every Combat-tier
                 // runtime struct prefix). Runtime-type evidence: the
-                // master_type >= 50 gate (factory identity, Combat(70)
+                // master_type >= RGE_MASTER_TYPE_COMBAT_BASE gate (factory identity, Combat(70)
                 // check_placement precedent).
                 this_->Multi_Unified_Points =
                     ((RGE_Combat_Object*)this_->doppled_object)->Multi_Unified_Points;   // asm 0x46FE0A
@@ -195,7 +196,7 @@ RGE_Doppleganger_Object* __fastcall RGE_Doppleganger_Object__RGE_Doppleganger_Ob
         if (do_setup != 0)
         {
             RGE_Animated_Object__setup_read((RGE_Animated_Object*)this_, infile, gworld);
-            this_->type = 25;                                     // asm 0x46FF2D - runtime tier mirror
+            this_->type = RGE_MASTER_TYPE_DOPPELGANGER;                                     // asm 0x46FF2D - runtime tier mirror
             this_->LastMapValue = 0;                              // asm 0x46FF47
             this_->CantSeeBits = 0;                               // asm 0x46FF51
             this_->MapAddress = (unsigned int*)(                  // MAP_SIZE - asm 0x46FF35-0x46FF5B:
@@ -241,7 +242,7 @@ int __fastcall RGE_Doppleganger_Object__setup_new(
 {
     RGE_Animated_Object__setup((RGE_Animated_Object*)this_,
         (RGE_Master_Animated_Object*)tobj, obj_owner, x, y, z);   // .c:133747
-    this_->type = 25;                                // .c:133748
+    this_->type = RGE_MASTER_TYPE_DOPPELGANGER;                                // .c:133748
     // MAP_SIZE: mapsize.cpp:1748 re-points this disp32 (0x47026F) at
     // mapptr. NOT baked (owner-directed MAP_SIZE rule).
     this_->MapAddress = (unsigned int*)((int)unified_map_offsets[(int)y] + 4 * (int)x);   // .c:133749
@@ -259,7 +260,7 @@ int __fastcall RGE_Doppleganger_Object__setup_read_new(
     RGE_Doppleganger_Object* this_, DWORD dummy, int infile, RGE_Game_World* gworld)
 {
     RGE_Animated_Object__setup_read((RGE_Animated_Object*)this_, infile, gworld);   // .c:133760
-    this_->type = 25;                                // .c:133762
+    this_->type = RGE_MASTER_TYPE_DOPPELGANGER;                                // .c:133762
     // MAP_SIZE: mapsize.cpp:1749 (disp32 0x4702CE). NOT baked.
     this_->MapAddress = (unsigned int*)((int)unified_map_offsets[(int)this_->world_y]
         + 4 * (int)this_->world_x);                  // .c:133763
@@ -291,7 +292,7 @@ void __fastcall RGE_Doppleganger_Object__recycle_in_to_game_new(
     this_->Multi_Unified_Points = 0;                 // .c:133663
     this_->Destroy_Next_Turn = 0;                    // .c:133664
     RGE_Animated_Object__recycle_in_to_game((RGE_Animated_Object*)this_, tobj, obj_owner, x, y, z);   // .c:133665
-    this_->type = 25;                                // .c:133666
+    this_->type = RGE_MASTER_TYPE_DOPPELGANGER;                                // .c:133666
     this_->doppled_object = obj_to_dopple;           // .c:133667
     if (obj_to_dopple != 0)                          // .c:133668
     {
@@ -301,7 +302,7 @@ void __fastcall RGE_Doppleganger_Object__recycle_in_to_game_new(
         this_->sprite = obj_to_dopple->sprite;                        // .c:133673
         RGE_Master_Static_Object* master = obj_to_dopple->master_obj; // .c:133674
         int installed = 0;                                            // .c:133675 (v9)
-        if (master->master_type == 80 && master->object_group != 8 && master->id != 335)   // .c:133676
+        if (master->master_type == RGE_MASTER_TYPE_BUILDING && master->object_group != 8 && master->id != 335)   // .c:133676
         {
             __int16 construction_id = ((TRIBE_Master_Building_Object*)master)->construction_id;   // .c:133678 (v10; +0x20C render)
             if (construction_id > -1)                                 // .c:133679
@@ -340,7 +341,7 @@ void __fastcall RGE_Doppleganger_Object__recycle_in_to_game_new(
         this_->MapAddress = (unsigned int*)((int)unified_map_offsets[(int)y] + 4 * (int)x);   // .c:133715-133720
         this_->LastMapValue = 0;                                  // .c:133718
         this_->CantSeeBits = 0;                                   // .c:133719
-        if (this_->doppled_master_obj->master_type >= 50)         // .c:133721
+        if (this_->doppled_master_obj->master_type >= RGE_MASTER_TYPE_COMBAT_BASE)         // .c:133721
             this_->Multi_Unified_Points =
                 ((RGE_Combat_Object*)this_->doppled_object)->Multi_Unified_Points;   // .c:133722
         if (this_->doppled_object->object_state >= 7)             // .c:133723
@@ -485,7 +486,7 @@ void __fastcall RGE_Doppleganger_Object__validate_new(RGE_Doppleganger_Object* t
         {
             RGE_Static_Object* found = tile->Object_List[i];   // .c:133955
             if (found != 0                               // .c:133956
-                && found->type == 25                     // .c:133957
+                && found->type == RGE_MASTER_TYPE_DOPPELGANGER                     // .c:133957
                 && found->id != this_->id                // .c:133958
                 && ((RGE_Doppleganger_Object*)found)->doppledObjectID == this_->doppledObjectID   // .c:133959 (base-pointer)
                 && found->object_state == 2)             // .c:133960

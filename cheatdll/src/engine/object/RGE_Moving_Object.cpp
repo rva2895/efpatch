@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "RGE_Master_Static_Object.h"
 
 // .rdata vftable of RGE_Moving_Object (lst :990431)
 static RGE_Moving_ObjectVtbl* const rge_moving_object_vftable =
@@ -300,7 +301,7 @@ void __fastcall RGE_Moving_Object__new_sprite_new(
 // Replacement for RGE_Moving_Object::spawn_death_obj. Original:
 // @ 0x004A1050 (idb_functions.h). Range [0x4A1050, 0x4A1090),
 // returns RGE_Static_Object*. Decode (.c:173444-173457): Static
-// spawn_death_obj; IF the spawned object && its master_type >= 30
+// spawn_death_obj; IF the spawned object && its master_type >= RGE_MASTER_TYPE_MOVING
 // (0x1E - the MOVING tier): spawned->vfptr->new_angle(spawned,
 // this->angle) (Static vtbl member, asm-confirmed .c render) +
 // Static set_facet (:1166-region) with this->facet.
@@ -308,7 +309,7 @@ RGE_Static_Object* __fastcall RGE_Moving_Object__spawn_death_obj_new(
     RGE_Moving_Object* this_, DWORD dummy)
 {
     RGE_Static_Object* spawned = RGE_Static_Object__spawn_death_obj((RGE_Static_Object*)this_);   // .c:173449
-    if (spawned != 0 && spawned->master_obj->master_type >= 30)   // .c:173451 (0x1E)
+    if (spawned != 0 && spawned->master_obj->master_type >= RGE_MASTER_TYPE_MOVING)   // .c:173451 (0x1E)
     {
         spawned->vfptr->new_angle(spawned, this_->angle);   // .c:173453 (Static vtbl new_angle)
         RGE_Static_Object__set_facet(spawned, this_->facet);   // .c:173454
@@ -4194,7 +4195,7 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
                         ignoreUnits[0] = this_->id;                       // 0x4A4D7D-0x4A4D80 (id @+0x10)
                         ignoreCountArm2 = 1;
                         ignoreListSize = 1;
-                        if (this_->type == 80)                            // 0x4A4D91-0x4A4D96 (byte @+0x5E == 0x50)
+                        if (this_->type == RGE_MASTER_TYPE_BUILDING)                            // 0x4A4D91-0x4A4D96 (byte @+0x5E == 0x50)
                         {
                             // BASE-POINTER FIX: the .c's &this[1].ei.y2 = +0x13C (sizeof
                             // RGE_Moving_Object) + offsetof(ei.y2) (= +0xA4: ei @+0x90,
@@ -4225,7 +4226,7 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
                         {
                             ignoreUnits[ignoreCountArm2++] = targetObj->id;   // 0x4A4DD8-0x4A4DDB
                             ignoreListSize = ignoreCountArm2;
-                            if (arm2TargetBldg->type == 80)               // 0x4A4DE9-0x4A4DEF
+                            if (arm2TargetBldg->type == RGE_MASTER_TYPE_BUILDING)               // 0x4A4DE9-0x4A4DEF
                             {
                                 for (size_t tgtChildA = 0; tgtChildA < _countof(arm2TargetBldg->linked_child); tgtChildA++)
                                 {
@@ -4347,7 +4348,7 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
                                         probeIgnoreCount = 1;
                                         ignoreUnits[0] = this_->id;       // 0x4A4FEF-0x4A4FF7
                                         ignoreListSize = 1;
-                                        if (this_->type == 80)            // 0x4A5002-0x4A5006
+                                        if (this_->type == RGE_MASTER_TYPE_BUILDING)            // 0x4A5002-0x4A5006
                                         {
                                             TRIBE_Building_Object* buildingObj2 = (TRIBE_Building_Object*)this_;
                                             for (size_t bldgChildB = 0; bldgChildB < _countof(buildingObj2->linked_child); bldgChildB++)
@@ -4371,7 +4372,7 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
                                         {
                                             ignoreUnits[probeIgnoreCount++] = targetObj->id;   // 0x4A5045-0x4A5048
                                             ignoreListSize = probeIgnoreCount;
-                                            if (probeTargetObj->type == 80)   // 0x4A5055-0x4A505B
+                                            if (probeTargetObj->type == RGE_MASTER_TYPE_BUILDING)   // 0x4A5055-0x4A505B
                                             {
                                                 // BASE-POINTER FIX: the .c's &v54[2].damaged_lately_
                                                 // timer = +0x168 (2*sizeof RGE_Static_Object) + 0x78
@@ -4882,7 +4883,7 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
                         ignoreCountWalk = 1;
                         ignoreUnits[0] = this_->id;
                         ignoreListSize = 1;
-                        if (this_->type == 80)                                // 0x4A59BE-0x4A59C2
+                        if (this_->type == RGE_MASTER_TYPE_BUILDING)                                // 0x4A59BE-0x4A59C2
                         {
                             TRIBE_Building_Object* buildingObj3 = (TRIBE_Building_Object*)this_;
                             for (size_t bldgChildW = 0; bldgChildW < _countof(buildingObj3->linked_child); bldgChildW++)
@@ -4929,7 +4930,7 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
                                                                               // 0x4A5A51-0x4A5A5E
                                 if (obObj)
                                 {
-                                    if (obObj->type == 80 && ((TRIBE_Building_Object*)obObj)->linked_owner)
+                                    if (obObj->type == RGE_MASTER_TYPE_BUILDING && ((TRIBE_Building_Object*)obObj)->linked_owner)
                                                                               // 0x4A5A6B-0x4A5A79 (byte @+0x5E; BASE-
                                                                               //  POINTER FIX: the .c's v96[2].mMaximum-
                                                                               //  PathingGroupSize = +0x168+0x74 = +0x1DC =
@@ -5022,7 +5023,7 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
                                                                           // 0x4A5BF0-0x4A5BFD
                                             if (pauseBldg)
                                             {
-                                                if (pauseBldg->type == 80 && pauseBldg->linked_owner)   // 0x4A5C06-0x4A5C16 (+0x1DC - as above)
+                                                if (pauseBldg->type == RGE_MASTER_TYPE_BUILDING && pauseBldg->linked_owner)   // 0x4A5C06-0x4A5C16 (+0x1DC - as above)
                                                     pauseBldg = pauseBldg->linked_owner;
                                                 RGE_Static_Object* pauseTarget = (RGE_Static_Object*)pauseBldg;
                                                 if (pauseBldg)
@@ -5372,7 +5373,7 @@ int __fastcall RGE_Moving_Object__setup_new(RGE_Moving_Object* this_, DWORD dumm
     RGE_Moving_Object__initMovementData(this_);                 // asm 0x4A0943 call RGE_Moving_Object__initMovementData (owned - hook-routed)
     RGE_Animated_Object__setup((RGE_Animated_Object *)this_, (RGE_Master_Animated_Object *)tobj, obj_owner, x, y, z);  // asm 0x4A0963 call RGE_Animated_Object__setup (HOOKED - routes; tobj Moving-master -> Animated-master cast)
     RGE_Sprite *sprite = this_->sprite;                         // asm 0x4A0968 mov eax,[esi+1Ch]
-    this_->type = 30;                                           // asm 0x4A096B mov byte ptr [esi+5Eh],1Eh
+    this_->type = RGE_MASTER_TYPE_MOVING;                                           // asm 0x4A096B mov byte ptr [esi+5Eh],1Eh
     if (sprite != 0 && (sprite->flag & 2) != 0 && sprite->facet_num > 1)  // asm 0x4A096F test eax,eax / 0x4A0971 jz loc_4A0A2C; 0x4A0977 test byte ptr [eax+80h],2 / 0x4A097E jz; 0x4A0984 cmp word ptr [eax+70h],1 / 0x4A0989 jle
     {
         int facetCount = sprite->facet_num;                     // asm 0x4A0992 movsx edi,word ptr [edx+70h]
@@ -5610,7 +5611,7 @@ int __fastcall RGE_Moving_Object__setup_read_new(RGE_Moving_Object* this_, DWORD
 {
     RGE_Moving_Object__initMovementData(this_);                 // asm (owned - hook-routed)
     RGE_Animated_Object__setup_read((RGE_Animated_Object *)this_, infile, gworld);  // asm (HOOKED - routes)
-    this_->type = 30;                                           // asm mov byte ptr [esi+5Eh],1Eh
+    this_->type = RGE_MASTER_TYPE_MOVING;                                           // asm mov byte ptr [esi+5Eh],1Eh
     rge_read(infile, &this_->trail_remainder, sizeof(this_->trail_remainder));
     rge_read(infile, &this_->velocity_x, sizeof(this_->velocity_x));
     rge_read(infile, &this_->velocity_y, sizeof(this_->velocity_y));
@@ -5878,7 +5879,7 @@ int __fastcall RGE_Moving_Object__resolveCollisions_new(RGE_Moving_Object *this_
 		if (blocker == 0)
 			continue;                                              // asm 0x4A5F04 jz
 
-		if (blocker->type == 80 && ((TRIBE_Building_Object *)blocker)->linked_owner != 0)
+		if (blocker->type == RGE_MASTER_TYPE_BUILDING && ((TRIBE_Building_Object *)blocker)->linked_owner != 0)
 			// asm 0x4A5F0A-0x4A5F18 (type @+0x5E byte; linked_owner @+0x1DC, idb_types.h:9862 - the runtime-type evidence = the type-80 gate)
 			blocker = (RGE_Static_Object *)((TRIBE_Building_Object *)blocker)->linked_owner;   // asm 0x4A5F1A (the Building -> Static cast, layout-safe prefix)
 		if (blocker == 0)

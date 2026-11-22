@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "RGE_Master_Static_Object.h"
 
 // .rdata vftable of RGE_Animated_Object (lst :987149)
 static RGE_Animated_ObjectVtbl* const rge_animated_object_vftable =
@@ -37,7 +38,7 @@ RGE_Animated_Object* __fastcall RGE_Animated_Object__RGE_Animated_Object_new(
         if (do_setup != 0)
         {
             RGE_Static_Object__setup((RGE_Static_Object*)this_, (RGE_Master_Static_Object*)tobj, obj_owner, x, y, z);
-            this_->type = 0x14;                                   // asm 0x4229F1 ? runtime tier mirror
+            this_->type = RGE_MASTER_TYPE_ANIMATED;                                   // asm 0x4229F1 ? runtime tier mirror
             this_->speed = 0.0f;                                  // asm 0x4229F5 ? the Animated extension @0xB4
             RGE_Static_Object__set_sleep_flag((RGE_Static_Object*)this_, 0);          // idb_functions.h:3891
             if (this_->sprite_list == 0)                          // @+0x24 (asm 0x422A00)
@@ -89,7 +90,7 @@ int __fastcall RGE_Animated_Object__setup_new(
 {
     RGE_Static_Object__setup((RGE_Static_Object*)this_,
         (RGE_Master_Static_Object*)tobj, obj_owner, x, y, z);
-    this_->type = 20;                                // .c:73966
+    this_->type = RGE_MASTER_TYPE_ANIMATED;                                // .c:73966
     this_->speed = 0.0f;                             // .c:73967
     RGE_Static_Object__set_sleep_flag((RGE_Static_Object*)this_, 0);   // .c:73968
     if (this_->sprite_list == 0)                     // .c:73969
@@ -111,7 +112,7 @@ int __fastcall RGE_Animated_Object__setup_read_new(
     RGE_Animated_Object* this_, DWORD dummy, int infile, RGE_Game_World* gworld)
 {
     RGE_Static_Object__setup_read((RGE_Static_Object*)this_, infile, gworld);   // .c:73985
-    this_->type = 20;                                // .c:73986
+    this_->type = RGE_MASTER_TYPE_ANIMATED;                                // .c:73986
     rge_read(infile, &this_->speed, sizeof(this_->speed));   // .c:73987
     return 1;
 }
@@ -255,7 +256,7 @@ void __fastcall RGE_Animated_Object__RGE_Animated_Object_read_new(
         if (do_setup != 0)                                    // asm 0x422BAC-0x422BB4
         {
             RGE_Static_Object__setup_read((RGE_Static_Object*)this_, infile, gworld);   // asm 0x422BBA (:3804)
-            this_->type = 0x14;                               // asm 0x422BC9 (byte @+0x5E = 20)
+            this_->type = RGE_MASTER_TYPE_ANIMATED;                               // asm 0x422BC9 (byte @+0x5E = 20)
             rge_read(infile, &this_->speed, sizeof(this_->speed));   // asm 0x422BBF-0x422BCD (sizeof = 4)
         }
     }

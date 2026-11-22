@@ -6937,6 +6937,35 @@ authoritative.)
     dispatch slot 171 = +0x2AC (M12-verified), unitAIValue @+0x7C).
     In-game validation owed for A1-A7.
 
+  - RGE_MASTER_TYPE RETROFIT (owner-directed 2026-11-22, "go back to
+    our owned tree and apply"): the runtime-side tier stores/gates
+    still carried raw literals after the master-side ctor/setup tier
+    was enum-ified on 2026-11-14. RETROFITTED (~40 sites, 9 TUs):
+    the runtime type stores (RGE_ACTION_OBJECT type=40 x4 ->
+    RGE_MASTER_TYPE_ACTION; Moving type=30 x2 + the spawned
+    master_type >= 30 gate -> MOVING; Missile type=60 x5 -> MISSILE;
+    Doppleganger type=25 x5 + found->type == 25 -> DOPPELGANGER;
+    Combat type=50 -> COMBAT_BASE; Animated 0x14/20 x3 -> ANIMATED;
+    the Static setups' master_type = 10 x4 -> STATIC) and the tier
+    gates (the runtime type == 80 Building checks x8 in Moving +
+    BMotion x1; Dopple master_type == 80 x2 -> BUILDING and >= 50
+    x2 -> COMBAT_BASE; Static's master_type == 80 -> BUILDING;
+    TRIBE_Master_Combat master_type >= 70 x2 -> COMBAT). The touched
+    runtime files gained #include "RGE_Master_Static_Object.h"
+    (BMotion: ../object/ relative). NOT retrofitted (distinct
+    namespaces): the RGE_Armor_Weapon_Info::type 3/4 checks (the
+    armor/weapon-type namespace), Moving's local type == 1/2 params,
+    the comment-only mentions (comments now name the enums too).
+    Compile gate 9/9 TUs 0 errors; /Fa codegen-identity verified
+    per TU (the tier stores [reg+94] 40/30/60/25/50/20 and the
+    master_type [esi+4], 10 stores + the 80/70/50/30 gates - all
+    byte-for-byte identical to the pre-retrofit listings; the enums
+    are pure renames). Also in this cycle: RGE_Action_Types.h (the
+    three registry enums + RGE_ACTION_STATE, owner-supplied) and
+    the registry retrofit above; DECOMP_GAME_FACTS.md gained the
+    action_type / UnitAI-action / UnitAI-order (derived) /
+    action-state registries.
+
   - ENUMS + REGISTRIES (owner-supplied 2026-11-22): NEW HEADER
     src/engine/object/RGE_Action_Types.h (the RGE_MASTER_TYPE precedent
     style) - RGE_ACTION_TYPE (31 values 1-149; 131 Offboard trade and

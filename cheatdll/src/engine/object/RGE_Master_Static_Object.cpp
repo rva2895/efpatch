@@ -1260,7 +1260,7 @@ unsigned __int8 __fastcall RGE_Master_Static_Object__check_placement_new(
                 const __int16 grp = master->object_group;
                 if (grp == 27 || (this_->object_group == 31 && grp == 7))
                     rz = 1.0f;
-                else if (rz == 0.0f && master->master_type == 80 && master->id != 50)
+                else if (rz == 0.0f && master->master_type == RGE_MASTER_TYPE_BUILDING && master->id != 50)
                     rz = 1.0f;
                 if (orx > 0.0f && ory > 0.0f && rz > 0.0f && this_->radius_z > 0.0f)
                 {
@@ -1354,7 +1354,7 @@ int __fastcall RGE_Master_Static_Object__setup_new(
     RGE_Master_Static_Object* this_, DWORD dummy,
     RGE_Master_Static_Object* other_object)
 {
-    this_->master_type = 10;
+    this_->master_type = RGE_MASTER_TYPE_STATIC;
     this_->recyclable = other_object->recyclable;
     this_->string_id = other_object->string_id;
     this_->string_id2 = other_object->string_id2;
@@ -1476,7 +1476,7 @@ int __fastcall RGE_Master_Static_Object__setup2_new(
     RGE_Master_Static_Object* this_, DWORD dummy,
     int infile, RGE_Sprite** sprites, RGE_Sound** sounds)
 {
-    this_->master_type = 10;
+    this_->master_type = RGE_MASTER_TYPE_STATIC;
     __int16 name_len;
     rge_read(infile, &name_len, sizeof(name_len));
     rge_read(infile, &this_->id, sizeof(this_->id));
@@ -1641,7 +1641,7 @@ int __fastcall RGE_Master_Static_Object__setup3_new(
     RGE_Master_Static_Object* this_, DWORD dummy,
     FILE* infile, RGE_Sprite** sprites, RGE_Sound** sounds, __int16 in_id)
 {
-    this_->master_type = 10;
+    this_->master_type = RGE_MASTER_TYPE_STATIC;
     this_->id = in_id;
     char name_buf[120];
     char gbg_name_buf[120];
@@ -1852,7 +1852,7 @@ int __fastcall RGE_Master_Static_Object__setup4_new(
     if (this_->object_group == 3)
         this_->object_group = 2;
     RGE_Master_Static_Object* other = list[this_->copy_id];
-    this_->master_type = 10;
+    this_->master_type = RGE_MASTER_TYPE_STATIC;
     if (other)
     {
         this_->recyclable = other->recyclable;

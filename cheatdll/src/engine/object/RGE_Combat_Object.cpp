@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "RGE_Master_Static_Object.h"
 
 // .rdata vftable of RGE_Combat_Object (lst :987552; slot 0 =
 // scalar_deleting_destructor, lst :117479 XREF)
@@ -54,7 +55,7 @@ RGE_Combat_Object* __fastcall RGE_Combat_Object__RGE_Combat_Object_new(
             this_->attack_count = 0;                                 // asm 0x443A2F (@0x170)
             RGE_Action_Object__setup(
                 (RGE_Action_Object*)this_, (RGE_Master_Action_Object*)tobj, obj_owner, x, y, z);
-            this_->type = 50;                                        // asm 0x443A3A - runtime tier mirror
+            this_->type = RGE_MASTER_TYPE_COMBAT_BASE;                                        // asm 0x443A3A - runtime tier mirror
             this_->attack_timer = 0.0f;                              // asm 0x443A3E (@0x174)
             this_->capture_flag = 0;                                 // asm 0x443A44 (@0x178)
         }
