@@ -3599,8 +3599,8 @@ struct RGE_Master_Static_ObjectVtbl
   unsigned __int8 (__thiscall *check_placement)(RGE_Master_Static_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
   unsigned __int8 (__thiscall *alignment)(RGE_Master_Static_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
   int (__thiscall *calc_base_damage_ability)(RGE_Master_Static_Object *, RGE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(RGE_Master_Static_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(RGE_Master_Static_Object *, RGE_Player *);
+  void (__thiscall *play_command_sound)(RGE_Master_Static_Object *, RGE_Static_Object *);
+  void (__thiscall *play_move_sound)(RGE_Master_Static_Object *, RGE_Static_Object *);
   void (__thiscall *draw)(RGE_Master_Static_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
   double (__thiscall *maximumSpeed)(RGE_Master_Static_Object *, int);
   double (__thiscall *acceleration)(RGE_Master_Static_Object *, int);
@@ -11230,8 +11230,8 @@ struct RGE_Master_Combat_ObjectVtbl
   unsigned __int8 (__thiscall *check_placement)(RGE_Master_Combat_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
   unsigned __int8 (__thiscall *alignment)(RGE_Master_Combat_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
   int (__thiscall *calc_base_damage_ability)(RGE_Master_Combat_Object *, RGE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(RGE_Master_Combat_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(RGE_Master_Combat_Object *, RGE_Player *);
+  void (__thiscall *play_command_sound)(RGE_Master_Combat_Object *, RGE_Static_Object *);
+  void (__thiscall *play_move_sound)(RGE_Master_Combat_Object *, RGE_Static_Object *);
   void (__thiscall *draw)(RGE_Master_Combat_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
   double (__thiscall *maximumSpeed)(RGE_Master_Combat_Object *, int);
   double (__thiscall *acceleration)(RGE_Master_Combat_Object *, int);
@@ -11558,7 +11558,7 @@ struct RGE_Combat_ObjectVtbl
   int (__thiscall *canLinePath4)(RGE_Combat_Object *, XYPoint *, XYPoint *, float, XYPoint *);
   int (__thiscall *setup4)(RGE_Combat_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
   int (__thiscall *addMove)(RGE_Combat_Object *, int, float, float, float, float, int, int, int, unsigned __int8);
-  void (__thiscall *work2)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
+  void (__thiscall *work2)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, int, __int16);
   void (__thiscall *set_task)(RGE_Combat_Object *, __int16);
   void (__thiscall *setTaskByTaskID)(RGE_Combat_Object *, int);
   void (__thiscall *set_action)(RGE_Combat_Object *, RGE_Action *);
@@ -11822,7 +11822,7 @@ struct RGE_Action_ObjectVtbl
   int (__thiscall *canLinePath4)(RGE_Action_Object *, XYPoint *, XYPoint *, float, XYPoint *);
   int (__thiscall *setup4)(RGE_Action_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
   int (__thiscall *addMove)(RGE_Action_Object *, int, float, float, float, float, int, int, int, unsigned __int8);
-  void (__thiscall *work2)(RGE_Action_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
+  void (__thiscall *work2)(RGE_Action_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, int, __int16);
   void (__thiscall *set_task)(RGE_Action_Object *, __int16);
   void (__thiscall *setTaskByTaskID)(RGE_Action_Object *, int);
   void (__thiscall *set_action)(RGE_Action_Object *, RGE_Action *);
@@ -14133,7 +14133,7 @@ struct TRIBE_Building_ObjectVtbl
   int (__thiscall *canLinePath4)(TRIBE_Building_Object *, XYPoint *, XYPoint *, float, XYPoint *);
   int (__thiscall *setup4)(TRIBE_Building_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
   int (__thiscall *addMove)(TRIBE_Building_Object *, int, float, float, float, float, int, int, int, unsigned __int8);
-  void (__thiscall *work2)(TRIBE_Building_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
+  void (__thiscall *work2)(TRIBE_Building_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, int, __int16);
   void (__thiscall *set_task)(TRIBE_Building_Object *, __int16);
   void (__thiscall *setTaskByTaskID)(TRIBE_Building_Object *, int);
   void (__thiscall *set_action)(TRIBE_Building_Object *, RGE_Action *);
@@ -14871,8 +14871,8 @@ struct RGE_Master_Action_ObjectVtbl
   unsigned __int8 (__thiscall *check_placement)(RGE_Master_Action_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
   unsigned __int8 (__thiscall *alignment)(RGE_Master_Action_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
   int (__thiscall *calc_base_damage_ability)(RGE_Master_Action_Object *, RGE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(RGE_Master_Action_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(RGE_Master_Action_Object *, RGE_Player *);
+  void (__thiscall *play_command_sound)(RGE_Master_Action_Object *, RGE_Static_Object *);
+  void (__thiscall *play_move_sound)(RGE_Master_Action_Object *, RGE_Static_Object *);
   void (__thiscall *draw)(RGE_Master_Action_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
   double (__thiscall *maximumSpeed)(RGE_Master_Action_Object *, int);
   double (__thiscall *acceleration)(RGE_Master_Action_Object *, int);
@@ -14996,8 +14996,8 @@ struct RGE_Master_Moving_ObjectVtbl
   unsigned __int8 (__thiscall *check_placement)(RGE_Master_Moving_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
   unsigned __int8 (__thiscall *alignment)(RGE_Master_Moving_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
   int (__thiscall *calc_base_damage_ability)(RGE_Master_Moving_Object *, RGE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(RGE_Master_Moving_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(RGE_Master_Moving_Object *, RGE_Player *);
+  void (__thiscall *play_command_sound)(RGE_Master_Moving_Object *, RGE_Static_Object *);
+  void (__thiscall *play_move_sound)(RGE_Master_Moving_Object *, RGE_Static_Object *);
   void (__thiscall *draw)(RGE_Master_Moving_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
   double (__thiscall *maximumSpeed)(RGE_Master_Moving_Object *, int);
   double (__thiscall *acceleration)(RGE_Master_Moving_Object *, int);
@@ -15045,7 +15045,7 @@ struct RGE_Action_ListVtbl
 {
   void *(__thiscall *__vecDelDtor)(RGE_Action_List *, unsigned int);
   RGE_Action *(__thiscall *create_action)(RGE_Action_List *, int, __int16);
-  RGE_Action *(__thiscall *create_task_action)(RGE_Action_List *, RGE_Task *, RGE_Static_Object *, float, float, float);
+  RGE_Action *(__thiscall *create_task_action)(RGE_Action_List *, RGE_Task *, RGE_Static_Object *, float, float, float, int);
   unsigned __int8 (__thiscall *inside_obj_update)(RGE_Action_List *);
   unsigned __int8 (__thiscall *update)(RGE_Action_List *);
   void (__thiscall *get_action_name)(RGE_Action_List *, char *);
@@ -15878,8 +15878,8 @@ struct TRIBE_Master_Building_ObjectVtbl
   unsigned __int8 (__thiscall *check_placement)(TRIBE_Master_Building_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
   unsigned __int8 (__thiscall *alignment)(TRIBE_Master_Building_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
   int (__thiscall *calc_base_damage_ability)(TRIBE_Master_Building_Object *, TRIBE_Master_Building_Object *);
-  void (__thiscall *play_command_sound)(TRIBE_Master_Building_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(TRIBE_Master_Building_Object *, RGE_Player *);
+  void (__thiscall *play_command_sound)(TRIBE_Master_Building_Object *, RGE_Static_Object *);
+  void (__thiscall *play_move_sound)(TRIBE_Master_Building_Object *, RGE_Static_Object *);
   void (__thiscall *draw)(TRIBE_Master_Building_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
   double (__thiscall *maximumSpeed)(TRIBE_Master_Building_Object *, int);
   double (__thiscall *acceleration)(TRIBE_Master_Building_Object *, int);
@@ -15939,8 +15939,8 @@ struct RGE_Master_Animated_ObjectVtbl
   unsigned __int8 (__thiscall *check_placement)(RGE_Master_Animated_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
   unsigned __int8 (__thiscall *alignment)(RGE_Master_Animated_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
   int (__thiscall *calc_base_damage_ability)(RGE_Master_Animated_Object *, RGE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(RGE_Master_Animated_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(RGE_Master_Animated_Object *, RGE_Player *);
+  void (__thiscall *play_command_sound)(RGE_Master_Animated_Object *, RGE_Static_Object *);
+  void (__thiscall *play_move_sound)(RGE_Master_Animated_Object *, RGE_Static_Object *);
   void (__thiscall *draw)(RGE_Master_Animated_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
   double (__thiscall *maximumSpeed)(RGE_Master_Animated_Object *, int);
   double (__thiscall *acceleration)(RGE_Master_Animated_Object *, int);
@@ -16034,8 +16034,8 @@ struct TRIBE_Master_Combat_ObjectVtbl
   unsigned __int8 (__thiscall *check_placement)(TRIBE_Master_Combat_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
   unsigned __int8 (__thiscall *alignment)(TRIBE_Master_Combat_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
   int (__thiscall *calc_base_damage_ability)(TRIBE_Master_Combat_Object *, TRIBE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(TRIBE_Master_Combat_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(TRIBE_Master_Combat_Object *, RGE_Player *);
+  void (__thiscall *play_command_sound)(TRIBE_Master_Combat_Object *, RGE_Static_Object *);
+  void (__thiscall *play_move_sound)(TRIBE_Master_Combat_Object *, RGE_Static_Object *);
   void (__thiscall *draw)(TRIBE_Master_Combat_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
   double (__thiscall *maximumSpeed)(TRIBE_Master_Combat_Object *, int);
   double (__thiscall *acceleration)(TRIBE_Master_Combat_Object *, int);
@@ -16692,7 +16692,7 @@ struct TRIBE_Combat_ObjectVtbl
   int (__thiscall *canLinePath4)(TRIBE_Combat_Object *, XYPoint *, XYPoint *, float, XYPoint *);
   int (__thiscall *setup4)(TRIBE_Combat_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
   int (__thiscall *addMove)(TRIBE_Combat_Object *, int, float, float, float, float, int, int, int, unsigned __int8);
-  void (__thiscall *work2)(TRIBE_Combat_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
+  void (__thiscall *work2)(TRIBE_Combat_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, int, __int16);
   void (__thiscall *set_task)(TRIBE_Combat_Object *, __int16);
   void (__thiscall *setTaskByTaskID)(TRIBE_Combat_Object *, int);
   void (__thiscall *set_action)(TRIBE_Combat_Object *, RGE_Action *);
@@ -20877,7 +20877,7 @@ struct TRIBE_Action_ListVtbl
 {
   void *(__thiscall *__vecDelDtor)(TRIBE_Action_List *, unsigned int);
   RGE_Action *(__thiscall *create_action)(TRIBE_Action_List *, int, __int16);
-  RGE_Action *(__thiscall *create_task_action)(TRIBE_Action_List *, RGE_Task *, RGE_Static_Object *, float, float, float);
+  RGE_Action *(__thiscall *create_task_action)(TRIBE_Action_List *, RGE_Task *, RGE_Static_Object *, float, float, float, int);
   unsigned __int8 (__thiscall *inside_obj_update)(TRIBE_Action_List *);
   unsigned __int8 (__thiscall *update)(TRIBE_Action_List *);
   void (__thiscall *get_action_name)(TRIBE_Action_List *, char *);
@@ -21291,7 +21291,7 @@ struct RGE_Missile_ObjectVtbl
   int (__thiscall *canLinePath4)(RGE_Missile_Object *, XYPoint *, XYPoint *, float, XYPoint *);
   int (__thiscall *setup4)(RGE_Missile_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
   int (__thiscall *addMove)(RGE_Missile_Object *, int, float, float, float, float, int, int, int, unsigned __int8);
-  void (__thiscall *work2)(RGE_Missile_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
+  void (__thiscall *work2)(RGE_Missile_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, int, __int16);
   void (__thiscall *set_task)(RGE_Missile_Object *, __int16);
   void (__thiscall *setTaskByTaskID)(RGE_Missile_Object *, int);
   void (__thiscall *set_action)(RGE_Missile_Object *, RGE_Action *);
@@ -21475,8 +21475,8 @@ struct RGE_Master_Missile_ObjectVtbl
   unsigned __int8 (__thiscall *check_placement)(RGE_Master_Missile_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
   unsigned __int8 (__thiscall *alignment)(RGE_Master_Missile_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
   int (__thiscall *calc_base_damage_ability)(RGE_Master_Missile_Object *, RGE_Master_Missile_Object *);
-  void (__thiscall *play_command_sound)(RGE_Master_Missile_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(RGE_Master_Missile_Object *, RGE_Player *);
+  void (__thiscall *play_command_sound)(RGE_Master_Missile_Object *, RGE_Static_Object *);
+  void (__thiscall *play_move_sound)(RGE_Master_Missile_Object *, RGE_Static_Object *);
   void (__thiscall *draw)(RGE_Master_Missile_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
   double (__thiscall *maximumSpeed)(RGE_Master_Missile_Object *, int);
   double (__thiscall *acceleration)(RGE_Master_Missile_Object *, int);
@@ -21903,8 +21903,8 @@ struct RGE_Master_Doppleganger_ObjectVtbl
   unsigned __int8 (__thiscall *check_placement)(RGE_Master_Doppleganger_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
   unsigned __int8 (__thiscall *alignment)(RGE_Master_Doppleganger_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
   int (__thiscall *calc_base_damage_ability)(RGE_Master_Doppleganger_Object *, RGE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(RGE_Master_Doppleganger_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(RGE_Master_Doppleganger_Object *, RGE_Player *);
+  void (__thiscall *play_command_sound)(RGE_Master_Doppleganger_Object *, RGE_Static_Object *);
+  void (__thiscall *play_move_sound)(RGE_Master_Doppleganger_Object *, RGE_Static_Object *);
   void (__thiscall *draw)(RGE_Master_Doppleganger_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
   double (__thiscall *maximumSpeed)(RGE_Master_Doppleganger_Object *, int);
   double (__thiscall *acceleration)(RGE_Master_Doppleganger_Object *, int);
@@ -22310,8 +22310,8 @@ struct TRIBE_Master_Tree_ObjectVtbl
   unsigned __int8 (__thiscall *check_placement)(TRIBE_Master_Tree_Object *, RGE_Player *, float, float, int *, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, RGE_Static_Object *, unsigned __int8);
   unsigned __int8 (__thiscall *alignment)(TRIBE_Master_Tree_Object *, float *, float *, RGE_Game_World *, unsigned __int8);
   int (__thiscall *calc_base_damage_ability)(TRIBE_Master_Tree_Object *, RGE_Master_Combat_Object *);
-  void (__thiscall *play_command_sound)(TRIBE_Master_Tree_Object *, RGE_Player *);
-  void (__thiscall *play_move_sound)(TRIBE_Master_Tree_Object *, RGE_Player *);
+  void (__thiscall *play_command_sound)(TRIBE_Master_Tree_Object *, RGE_Static_Object *);
+  void (__thiscall *play_move_sound)(TRIBE_Master_Tree_Object *, RGE_Static_Object *);
   void (__thiscall *draw)(TRIBE_Master_Tree_Object *, TDrawArea *, __int16, __int16, RGE_Color_Table *, int, int, int, unsigned __int8);
   double (__thiscall *maximumSpeed)(TRIBE_Master_Tree_Object *, int);
   double (__thiscall *acceleration)(TRIBE_Master_Tree_Object *, int);

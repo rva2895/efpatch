@@ -45,6 +45,8 @@ buildingconv_action_type_if_ordered_continue:
 void setBuildingConvHooks()
 {
     setHook((void*)0x00568156, buildingconv_first_in_stack);
-    setHook((void*)0x0040912D, buildingconv_action_type_if_ordered);
+    // retired 2026-11-22: baked into RGE_Action_Object__actionTypeIfOrdered_new
+    // (RGE_Action_Object.cpp), see 0x0040912D
+    // setHook((void*)0x0040912D, buildingconv_action_type_if_ordered);
 }
 #pragma optimize( "", on )

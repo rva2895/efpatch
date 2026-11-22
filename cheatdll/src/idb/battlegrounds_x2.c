@@ -76,7 +76,7 @@ void __thiscall RGE_Action_List::rehook(RGE_Action_List *this);
 void __thiscall RGE_Action_List::save(RGE_Action_List *this, int outfile);
 void __thiscall RGE_Action_List::delete_list(RGE_Action_List *this);
 RGE_Action *__thiscall RGE_Action_List::create_action2(RGE_Action_List *this, int infile, __int16 action_type);
-RGE_Action *__thiscall RGE_Action_List::create_task_action(RGE_Action_List *this, RGE_Task *task, RGE_Static_Object *target_obj, float target_x, float target_y, float target_z, int);
+RGE_Action *__thiscall RGE_Action_List::create_task_action(RGE_Action_List *this, RGE_Task *task, RGE_Static_Object *target_obj, float target_x, float target_y, float target_z, int gather_flag);
 unsigned __int8 __thiscall RGE_Action_List::inside_obj_update(RGE_Action_List *this);
 unsigned __int8 __thiscall RGE_Action_List::update(RGE_Action_List *this);
 void __thiscall RGE_Action_List::add_action(RGE_Action_List *this, RGE_Action *action);
@@ -163,7 +163,7 @@ void __thiscall RGE_Action_Object::do_command(RGE_Action_Object *this, RGE_Stati
 int __thiscall RGE_Action_Object::actionTypeIfOrdered(RGE_Action_Object *this, RGE_Static_Object *obj, float x, float y, float z, float *range);
 unsigned __int8 __thiscall RGE_Action_Object::move_to(RGE_Action_Object *this, RGE_Static_Object *obj, float x, float y, float z);
 void __thiscall RGE_Action_Object::work(RGE_Action_Object *this, RGE_Static_Object *obj, float x, float y, float z, int unk);
-void __thiscall RGE_Action_Object::work2(RGE_Action_Object *this, RGE_Static_Object *obj, float x, float y, float z, char work_flag, __int16 certain_action, int unk);
+void __thiscall RGE_Action_Object::work2(RGE_Action_Object *this, RGE_Static_Object *obj, float x, float y, float z, char work_flag, int gather_flag, __int16 certain_action);
 void __thiscall RGE_Action_Object::play_command_sound(RGE_Action_Object *this);
 void __thiscall RGE_Action_Object::play_move_sound(RGE_Action_Object *this);
 RGE_Master_Static_Object *__thiscall RGE_Action_Object::get_command_master(RGE_Action_Object *this, RGE_Static_Object *obj, float x, float y, float z);
@@ -1896,8 +1896,8 @@ void __thiscall RGE_Master_Action_Object::modify_delta(RGE_Master_Action_Object 
 void __thiscall RGE_Master_Action_Object::modify_percent(RGE_Master_Action_Object *this, float amount, unsigned __int8 flag);
 void __thiscall RGE_Master_Action_Object::small_save(RGE_Master_Action_Object *this, int outfile);
 void __thiscall RGE_Master_Action_Object::save(RGE_Master_Action_Object *this, int outfile);
-void __thiscall RGE_Master_Action_Object::play_command_sound(RGE_Master_Action_Object *this, RGE_Player *player);
-void __thiscall RGE_Master_Action_Object::play_move_sound(RGE_Master_Action_Object *this, RGE_Player *player);
+void __thiscall RGE_Master_Action_Object::play_command_sound(RGE_Master_Action_Object *this, RGE_Static_Object *obj);
+void __thiscall RGE_Master_Action_Object::play_move_sound(RGE_Master_Action_Object *this, RGE_Static_Object *obj);
 RGE_Master_Animated_Object *__thiscall RGE_Master_Animated_Object::RGE_Master_Animated_Object(RGE_Master_Animated_Object *this, RGE_Master_Animated_Object *other_object, int do_setup);
 double __cdecl nullsub_40();
 void *__thiscall RGE_Master_Animated_Object::vector_deleting_destructor(RGE_Master_Animated_Object *this, unsigned int flags);
@@ -4156,7 +4156,7 @@ void __thiscall TRIBE_Combat_Object::remove_obj(TRIBE_Combat_Object *this, RGE_S
 void __thiscall TRIBE_Combat_Object::remove_volley_info(TRIBE_Combat_Object *this);
 void __thiscall TRIBE_Combat_Object::add_volley_info(TRIBE_Combat_Object *this);
 void __thiscall TRIBE_Combat_Object::new_sprite(TRIBE_Combat_Object *this, RGE_Sprite *nsprite);
-void __thiscall TRIBE_Combat_Object::work2(TRIBE_Combat_Object *this, RGE_Static_Object *target_obj, float x, float y, float z, unsigned __int8 work_flag, __int16 certain_action);
+void __thiscall TRIBE_Combat_Object::work2(TRIBE_Combat_Object *this, RGE_Static_Object *target_obj, float x, float y, float z, unsigned __int8 work_flag, int gather_flag, __int16 certain_action);
 int __thiscall TRIBE_Combat_Object::enter(RGE_Combat_Object *this, int targetID, int unconditional);
 unsigned __int8 __thiscall TRIBE_Combat_Object::move_to(TRIBE_Combat_Object *this, RGE_Static_Object *target, float x, float y, float z);
 int __thiscall TRIBE_Combat_Object::work_status(TRIBE_Combat_Object *this, __int16 *work_type, __int16 *work_target, __int16 *progress, char *name, __int16 name_size);
@@ -4303,7 +4303,7 @@ TRIBE_Action_List *__thiscall TRIBE_Action_List::TRIBE_Action_List(TRIBE_Action_
 void *__thiscall TRIBE_Action_List::scalar_deleting_destructor(TRIBE_Action_List *this, unsigned int);
 void __thiscall TRIBE_Action_List::destructor(TRIBE_Action_List *this);
 RGE_Action *__thiscall TRIBE_Action_List::create_action(TRIBE_Action_List *this, int infile, __int16 action_type);
-RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *this, RGE_Task *task, RGE_Static_Object *target_obj, float target_x, float target_y, float target_z);
+RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *this, RGE_Task *task, RGE_Static_Object *target_obj, float target_x, float target_y, float target_z, int gather_flag);
 int __thiscall TRIBE_Action_List::update_all(TRIBE_Action_List *this);
 TRIBE_Action_Deliver_Relic *__thiscall TRIBE_Action_Deliver_Relic::TRIBE_Action_Deliver_Relic(TRIBE_Action_Deliver_Relic *this, int infile, RGE_Action_Object *obj_in);
 void *__thiscall TRIBE_Action_Deliver_Relic::vector_deleting_destructor(TRIBE_Action_Deliver_Relic *this, unsigned int);
@@ -38016,7 +38016,7 @@ int dword_689564 = 1; // weak
 int dword_689568 = 1; // weak
 int dword_68956C = 1; // weak
 int do_autogroupunits = 1; // weak
-int dword_68957C = 1; // weak
+int walk_tile_particles_enabled = 1; // weak
 char dirName[] = "Screenshots"; // idb
 int id_in = 4; // idb
 int dword_689590 = 4; // weak
@@ -49461,7 +49461,7 @@ LABEL_20:
 }
 
 //----- (004067E0) --------------------------------------------------------
-RGE_Action *__thiscall RGE_Action_List::create_task_action(RGE_Action_List *this, RGE_Task *task, RGE_Static_Object *target_obj, float target_x, float target_y, float target_z, int a7)
+RGE_Action *__thiscall RGE_Action_List::create_task_action(RGE_Action_List *this, RGE_Task *task, RGE_Static_Object *target_obj, float target_x, float target_y, float target_z, int gather_flag)
 {
   RGE_Action_Bird *v8; // eax
   RGE_Action *result; // eax
@@ -49516,7 +49516,7 @@ RGE_Action *__thiscall RGE_Action_List::create_task_action(RGE_Action_List *this
 LABEL_21:
       if ( result )
       {
-        if ( a7 )
+        if ( gather_flag )
           result[1].target2ID = 1;
       }
       return result;
@@ -51778,7 +51778,7 @@ void __thiscall RGE_Action_Object::work(RGE_Action_Object *this, RGE_Static_Obje
 }
 
 //----- (004092B0) --------------------------------------------------------
-void __thiscall RGE_Action_Object::work2(RGE_Action_Object *this, RGE_Static_Object *obj, float x, float y, float z, char work_flag, __int16 certain_action, int unk)
+void __thiscall RGE_Action_Object::work2(RGE_Action_Object *this, RGE_Static_Object *obj, float x, float y, float z, char work_flag, int gather_flag, __int16 certain_action)
 {
   float v10; // ebx
   int v11; // eax
@@ -51800,14 +51800,14 @@ void __thiscall RGE_Action_Object::work2(RGE_Action_Object *this, RGE_Static_Obj
   RGE_Action *v27; // eax
   __int16 v28; // ax
   int v29; // [esp+64h] [ebp-4h]
-  RGE_Static_Object *obja; // [esp+6Ch] [ebp+4h]
-  int unka; // [esp+84h] [ebp+1Ch]
+  RGE_Static_Object *obj_in; // [esp+6Ch] [ebp+4h]
+  int certain_actiona[4]; // [esp+84h] [ebp+1Ch]
   int v32; // [esp+94h] [ebp+2Ch]
 
   if ( obj == (RGE_Static_Object *)this )
     return;
   v10 = z;
-  v11 = ((int (__thiscall *)(RGE_Task_List *, RGE_Action_Object *, RGE_Master_Action_Object *, RGE_Static_Object *, _DWORD, _DWORD, _DWORD, int, _DWORD))this->master_obj->tasks->vfptr->get_target_task)(
+  v11 = ((int (__thiscall *)(RGE_Task_List *, RGE_Action_Object *, RGE_Master_Action_Object *, RGE_Static_Object *, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD))this->master_obj->tasks->vfptr->get_target_task)(
           this->master_obj->tasks,
           this,
           this->master_obj,
@@ -51815,13 +51815,13 @@ void __thiscall RGE_Action_Object::work2(RGE_Action_Object *this, RGE_Static_Obj
           LODWORD(x),
           LODWORD(y),
           LODWORD(z),
-          unk,
+          certain_action,
           0);
   v12 = v11;
   if ( v11 && *(_WORD *)(v11 + 6) != 7 )
   {
 LABEL_20:
-    if ( v12 || (_WORD)unk == 0xFFFF )
+    if ( v12 || certain_action == -1 )
       goto LABEL_22;
     return;
   }
@@ -51830,7 +51830,7 @@ LABEL_20:
     goto LABEL_18;
   v13 = this->owner;
   v14 = 0;
-  obja = 0;
+  obj_in = 0;
   if ( v13->master_object_num <= 0 )
     goto LABEL_18;
   while ( 1 )
@@ -51845,7 +51845,7 @@ LABEL_20:
     {
       goto LABEL_14;
     }
-    v12 = (*(int (__thiscall **)(_DWORD, RGE_Action_Object *, RGE_Master_Action_Object *, RGE_Static_Object *, _DWORD, _DWORD, _DWORD, int, _DWORD))(*(_DWORD *)LODWORD(v15[1].los) + 4))(
+    v12 = (*(int (__thiscall **)(_DWORD, RGE_Action_Object *, RGE_Master_Action_Object *, RGE_Static_Object *, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD))(*(_DWORD *)LODWORD(v15[1].los) + 4))(
             LODWORD(v15[1].los),
             this,
             v16,
@@ -51853,17 +51853,17 @@ LABEL_20:
             LODWORD(x),
             LODWORD(y),
             LODWORD(z),
-            unk,
+            certain_action,
             0);
     if ( v12 )
     {
       if ( !v29 || *(_WORD *)(v29 + 6) != *(_WORD *)(v12 + 6) )
         break;
     }
-    v14 = (int)obja;
+    v14 = (int)obj_in;
 LABEL_14:
     v13 = this->owner;
-    obja = (RGE_Static_Object *)++v14;
+    obj_in = (RGE_Static_Object *)++v14;
     if ( v14 >= v13->master_object_num )
       goto LABEL_17;
   }
@@ -51878,7 +51878,7 @@ LABEL_18:
   }
 LABEL_22:
   v17 = RGE_Action_List::get_task(this->actions);
-  unka = 0;
+  certain_actiona[0] = 0;
   if ( v17
     && (RGE_Task *)v12 == v17
     && RGE_Action_List::get_action(this->actions)->action_type == v17->action_type
@@ -51893,7 +51893,7 @@ LABEL_22:
             COERCE_FLOAT(LODWORD(v10)));
     (*(void (__thiscall **)(RGE_Action_Object *, int))(v32 + 936))(this, v19);
     v10 = z;
-    unka = 1;
+    certain_actiona[0] = 1;
   }
   if ( RGE_Action_List::have_action(this->actions) == 1
     && (v20 = RGE_Action_List::get_action(this->actions), v20->vfptr->get_target_obj(v20) == obj)
@@ -51917,17 +51917,17 @@ LABEL_22:
     ((void (__thiscall *)(RGE_Action_Object *, _DWORD))v24->setUnitAIAction)(this, v25);
     RGE_Static_Object::unitAI((RGE_Static_Object *)this)->autoAttackOrderFlag = 0;
   }
-  else if ( !unka )
+  else if ( !certain_actiona[0] )
   {
     if ( v12
-      && (v26 = (RGE_Action *)((int (__thiscall *)(RGE_Action_List *, int, RGE_Static_Object *, _DWORD, _DWORD, _DWORD, _DWORD))this->actions->vfptr->create_task_action)(
+      && (v26 = (RGE_Action *)((int (__thiscall *)(RGE_Action_List *, int, RGE_Static_Object *, _DWORD, _DWORD, _DWORD, int))this->actions->vfptr->create_task_action)(
                                 this->actions,
                                 v12,
                                 obj,
                                 LODWORD(x),
                                 LODWORD(y),
                                 LODWORD(v10),
-                                certain_action)) != 0 )
+                                gather_flag)) != 0 )
     {
       if ( this->master_obj->object_group == 1 && this->vfptr->hasActionOfType(this, 107) )
       {
@@ -51942,7 +51942,7 @@ LABEL_22:
                 LODWORD(x),
                 LODWORD(y),
                 COERCE_FLOAT(LODWORD(v10)));
-        (*(void (__thiscall **)(RGE_Action_Object *, _DWORD))(certain_action + 936))(this, v28);
+        (*(void (__thiscall **)(RGE_Action_Object *, _DWORD))(gather_flag + 936))(this, v28);
         this->vfptr->set_only_action(this, v26);
         RGE_Static_Object::unitAI((RGE_Static_Object *)this)->autoAttackOrderFlag = 0;
       }
@@ -51969,13 +51969,13 @@ LABEL_22:
 //----- (00409610) --------------------------------------------------------
 void __thiscall RGE_Action_Object::play_command_sound(RGE_Action_Object *this)
 {
-  this->master_obj->vfptr->play_command_sound(this->master_obj, (RGE_Player *)this);
+  this->master_obj->vfptr->play_command_sound(this->master_obj, (RGE_Static_Object *)this);
 }
 
 //----- (00409620) --------------------------------------------------------
 void __thiscall RGE_Action_Object::play_move_sound(RGE_Action_Object *this)
 {
-  this->master_obj->vfptr->play_move_sound(this->master_obj, (RGE_Player *)this);
+  this->master_obj->vfptr->play_move_sound(this->master_obj, (RGE_Static_Object *)this);
 }
 
 //----- (00409630) --------------------------------------------------------
@@ -75722,13 +75722,13 @@ int __thiscall RGE_Base_Game::setup(RGE_Base_Game *this)
         graphics_detail = 2;
         this->prog_info->graphics_detail_level = 2;
       }
-      dword_68957C = 1;
+      walk_tile_particles_enabled = 1;
     }
     else
     {
       graphics_detail = 1;
       this->prog_info->graphics_detail_level = 1;
-      dword_68957C = 0;
+      walk_tile_particles_enabled = 0;
     }
     TRegistry::RegSetInt(this->registry, 1, aGraphicsDetail, this->prog_info->graphics_detail_level);
   }
@@ -75736,7 +75736,7 @@ int __thiscall RGE_Base_Game::setup(RGE_Base_Game *this)
   {
     graphics_detail = v4;
     this->prog_info->graphics_detail_level = v4;
-    dword_68957C = v4 >= 2;
+    walk_tile_particles_enabled = v4 >= 2;
   }
   this->rollover = TRegistry::RegGetInt(this->registry, 1, aRolloverText) != 2;
   v6 = TRegistry::RegGetInt(this->registry, 1, aMouseStyle);
@@ -76001,7 +76001,7 @@ int __thiscall RGE_Base_Game::setup(RGE_Base_Game *this)
   }
   return result;
 }
-// 68957C: using guessed type int dword_68957C;
+// 68957C: using guessed type int walk_tile_particles_enabled;
 // 69B54C: using guessed type int graphics_detail;
 // 6A35F0: using guessed type int show_low_memory_warning;
 // 6A3634: using guessed type int do_fps_log;
@@ -81354,9 +81354,9 @@ void __thiscall RGE_Base_Game::set_detail_level(RGE_Base_Game *this, int level)
 {
   graphics_detail = level;
   this->prog_info->graphics_detail_level = level;
-  dword_68957C = level >= 2;
+  walk_tile_particles_enabled = level >= 2;
 }
-// 68957C: using guessed type int dword_68957C;
+// 68957C: using guessed type int walk_tile_particles_enabled;
 // 69B54C: using guessed type int graphics_detail;
 
 //----- (0042CA00) --------------------------------------------------------
@@ -153782,7 +153782,7 @@ void __thiscall RGE_Master_Action_Object::save(RGE_Master_Action_Object *this, i
 // 4883EC: variable 'v3' is possibly undefined
 
 //----- (00488480) --------------------------------------------------------
-void __thiscall RGE_Master_Action_Object::play_command_sound(RGE_Master_Action_Object *this, RGE_Player *player)
+void __thiscall RGE_Master_Action_Object::play_command_sound(RGE_Master_Action_Object *this, RGE_Static_Object *obj)
 {
   RGE_Sound *v3; // ecx
   __int16 v4; // ax
@@ -153790,9 +153790,9 @@ void __thiscall RGE_Master_Action_Object::play_command_sound(RGE_Master_Action_O
   v3 = this->command_sound;
   if ( v3 )
   {
-    if ( player )
+    if ( obj )
     {
-      v4 = ((int (__thiscall *)(RGE_Player *))player->vfptr->set_game_status)(player);
+      v4 = obj->vfptr->gbg_get_civ_override(obj);
       RGE_Sound::play(this->command_sound, 1, 0, 0, v4, -1);
     }
     else
@@ -153803,7 +153803,7 @@ void __thiscall RGE_Master_Action_Object::play_command_sound(RGE_Master_Action_O
 }
 
 //----- (004884D0) --------------------------------------------------------
-void __thiscall RGE_Master_Action_Object::play_move_sound(RGE_Master_Action_Object *this, RGE_Player *player)
+void __thiscall RGE_Master_Action_Object::play_move_sound(RGE_Master_Action_Object *this, RGE_Static_Object *obj)
 {
   RGE_Sound *v3; // ecx
   __int16 v4; // ax
@@ -153811,9 +153811,9 @@ void __thiscall RGE_Master_Action_Object::play_move_sound(RGE_Master_Action_Obje
   v3 = this->move_sound;
   if ( v3 )
   {
-    if ( player )
+    if ( obj )
     {
-      v4 = ((int (__thiscall *)(RGE_Player *))player->vfptr->set_game_status)(player);
+      v4 = obj->vfptr->gbg_get_civ_override(obj);
       RGE_Sound::play(this->move_sound, 1, 0, 0, v4, -1);
     }
     else
@@ -173790,7 +173790,7 @@ LABEL_46:
   }
   if ( v28 == v25 )
   {
-    if ( !dword_68957C )
+    if ( !walk_tile_particles_enabled )
       goto LABEL_47;
     v31 = &v27[v25];
     v32 = v31->walk_tile_sprite_id;
@@ -173850,7 +173850,7 @@ LABEL_47:
   }
   return za;
 }
-// 68957C: using guessed type int dword_68957C;
+// 68957C: using guessed type int walk_tile_particles_enabled;
 
 //----- (004A1970) --------------------------------------------------------
 double __thiscall RGE_Moving_Object::handle_teleport_z_correction(RGE_Moving_Object *this, float ground_z)
@@ -312399,88 +312399,88 @@ void __thiscall TRIBE_Combat_Object::new_sprite(TRIBE_Combat_Object *this, RGE_S
 }
 
 //----- (0055EEC0) --------------------------------------------------------
-void __thiscall TRIBE_Combat_Object::work2(TRIBE_Combat_Object *this, RGE_Static_Object *target_obj, float x, float y, float z, unsigned __int8 work_flag, __int16 certain_action)
+// local variable allocation has failed, the output may be wrong!
+void __thiscall TRIBE_Combat_Object::work2(TRIBE_Combat_Object *this, RGE_Static_Object *target_obj, float x, float y, float z, unsigned __int8 work_flag, int gather_flag, __int16 certain_action)
 {
-  __int16 v8; // ax
-  RGE_Action *v9; // eax
-  __int16 v10; // ax
-  RGE_Static_Object *v11; // edi
-  TRIBE_PlayerVtbl *v12; // edx
-  int v13; // eax
-  __int16 v14; // cx
-  RGE_Static_Object *v15; // eax
-  RGE_Action *v16; // eax
-  TRIBE_Action_Unpack *v17; // eax
-  TRIBE_Player *v18; // eax
-  TRIBE_Player *v19; // ecx
-  RGE_Master_Static_Object *v20; // ecx
-  TRIBE_Master_Combat_Object *v21; // eax
-  double v22; // st6
-  double v23; // st4
-  TRIBE_Action_Charge *v24; // eax
-  RGE_Action *v25; // edi
-  RGE_Master_Static_Object *v26; // eax
-  __int16 v27; // cx
-  __int16 v28; // ax
-  int unk; // [esp+4Ch] [ebp+1Ch]
+  __int16 v9; // ax
+  RGE_Action *v10; // eax
+  __int16 v11; // ax
+  RGE_Static_Object *v12; // edi
+  TRIBE_PlayerVtbl *v13; // edx
+  int v14; // eax
+  __int16 v15; // cx
+  RGE_Static_Object *v16; // eax
+  RGE_Action *v17; // eax
+  TRIBE_Action_Unpack *v18; // eax
+  TRIBE_Player *v19; // eax
+  TRIBE_Player *v20; // ecx
+  RGE_Master_Static_Object *v21; // ecx
+  TRIBE_Master_Combat_Object *v22; // eax
+  double v23; // st6
+  double v24; // st4
+  TRIBE_Action_Charge *v25; // eax
+  RGE_Action *v26; // edi
+  RGE_Master_Static_Object *v27; // eax
+  __int16 v28; // cx
+  __int16 v29; // ax
 
-  v8 = this->master_obj->object_group;
-  if ( v8 != 36 && v8 != 34
-    || (v9 = RGE_Action_List::get_action(this->actions)) == 0
-    || (v10 = v9->action_type, v10 != 125) && v10 != 124 )
+  v9 = this->master_obj->object_group;
+  if ( v9 != 36 && v9 != 34
+    || (v10 = RGE_Action_List::get_action(this->actions)) == 0
+    || (v11 = v10->action_type, v11 != 125) && v11 != 124 )
   {
-    v11 = target_obj;
-    v12 = this->owner->vfptr;
+    v12 = target_obj;
+    v13 = this->owner->vfptr;
     if ( target_obj )
     {
-      if ( ((int (*)(void))v12->computerPlayer)() == 1 && !this->owner->vfptr->isAlly(this->owner, v11->owner->id) )
+      if ( ((int (*)(void))v13->computerPlayer)() == 1 && !this->owner->vfptr->isAlly(this->owner, v12->owner->id) )
       {
-        v13 = this->vfptr->inAttackRange2(this, v11, (int *)&target_obj);
-        v14 = this->master_obj->object_group;
-        if ( v14 == 36 && !v13 )
+        v14 = this->vfptr->inAttackRange2(this, v12, (int *)&target_obj);
+        v15 = this->master_obj->object_group;
+        if ( v15 == 36 && !v14 )
         {
-          v15 = (RGE_Static_Object *)operator_new(0x48u);
-          unk = (int)v15;
+          v16 = (RGE_Static_Object *)operator_new(0x48u);
+          *(_DWORD *)&certain_action = v16;
           goto LABEL_12;
         }
-        if ( v14 == 34 && v13 )
+        if ( v15 == 34 && v14 )
         {
-          v17 = (TRIBE_Action_Unpack *)operator_new(0x4Cu);
-          unk = (int)v17;
-          if ( v17 )
+          v18 = (TRIBE_Action_Unpack *)operator_new(0x4Cu);
+          *(_DWORD *)&certain_action = v18;
+          if ( v18 )
           {
-            v16 = (RGE_Action *)TRIBE_Action_Unpack::TRIBE_Action_Unpack2(
-                                  v17,
+            v17 = (RGE_Action *)TRIBE_Action_Unpack::TRIBE_Action_Unpack2(
+                                  v18,
                                   (RGE_Action_Object *)this,
-                                  v11,
+                                  v12,
                                   this->world_x,
                                   this->world_y,
                                   -1);
             goto LABEL_24;
           }
 LABEL_23:
-          v16 = 0;
+          v17 = 0;
 LABEL_24:
-          if ( v16 )
-            this->vfptr->set_only_action(this, v16);
+          if ( v17 )
+            this->vfptr->set_only_action(this, v17);
           return;
         }
         if ( target_obj )
         {
-          this->vfptr->notify(this, this->id, this->id, 510, v11->id, -1, -1);
+          this->vfptr->notify(this, this->id, this->id, 510, v12->id, -1, -1);
           return;
         }
       }
     }
-    else if ( ((int (*)(void))v12->computerPlayer)() == 1 && this->master_obj->object_group == 36 )
+    else if ( ((int (*)(void))v13->computerPlayer)() == 1 && this->master_obj->object_group == 36 )
     {
-      v15 = (RGE_Static_Object *)operator_new(0x48u);
-      target_obj = v15;
+      v16 = (RGE_Static_Object *)operator_new(0x48u);
+      target_obj = v16;
 LABEL_12:
-      if ( v15 )
+      if ( v16 )
       {
-        v16 = (RGE_Action *)TRIBE_Action_Pack::TRIBE_Action_Pack2(
-                              (TRIBE_Action_Pack *)v15,
+        v17 = (RGE_Action *)TRIBE_Action_Pack::TRIBE_Action_Pack2(
+                              (TRIBE_Action_Pack *)v16,
                               (RGE_Action_Object *)this,
                               -1);
         goto LABEL_24;
@@ -312489,32 +312489,32 @@ LABEL_12:
     }
     if ( this->master_obj->special_attack_flag == 3 )
     {
-      if ( !v11 )
+      if ( !v12 )
         goto LABEL_46;
-      if ( v11->object_state < 3u )
+      if ( v12->object_state < 3u )
       {
-        v18 = v11->owner;
-        v19 = this->owner;
-        if ( v18 != v19 && !v19->vfptr->isAlly(v19, v18->id) )
+        v19 = v12->owner;
+        v20 = this->owner;
+        if ( v19 != v20 && !v20->vfptr->isAlly(v20, v19->id) )
         {
-          v20 = v11->master_obj;
-          if ( v20->object_group != 21 )
+          v21 = v12->master_obj;
+          if ( v21->object_group != 21 )
           {
-            v21 = this->master_obj;
-            if ( v21->special_attack_flag == 3 )
+            v22 = this->master_obj;
+            if ( v22->special_attack_flag == 3 )
             {
-              v22 = v11->world_y - this->world_y;
-              v23 = v11->world_x - this->world_x;
-              if ( sqrt(v22 * v22 + v23 * v23) - v21->radius_x - v20->radius_x >= 2.0 )
+              v23 = v12->world_y - this->world_y;
+              v24 = v12->world_x - this->world_x;
+              if ( sqrt(v23 * v23 + v24 * v24) - v22->radius_x - v21->radius_x >= 2.0 )
               {
-                v24 = (TRIBE_Action_Charge *)operator_new(0x40u);
-                unk = (int)v24;
-                if ( v24 )
-                  v25 = (RGE_Action *)TRIBE_Action_Charge::TRIBE_Action_Charge2(v24, (RGE_Action_Object *)this, v11);
+                v25 = (TRIBE_Action_Charge *)operator_new(0x40u);
+                *(_DWORD *)&certain_action = v25;
+                if ( v25 )
+                  v26 = (RGE_Action *)TRIBE_Action_Charge::TRIBE_Action_Charge2(v25, (RGE_Action_Object *)this, v12);
                 else
-                  v25 = 0;
+                  v26 = 0;
                 RGE_Action_List::delete_list(this->actions);
-                RGE_Action_List::add_action(this->actions, v25);
+                RGE_Action_List::add_action(this->actions, v26);
                 return;
               }
             }
@@ -312522,19 +312522,19 @@ LABEL_12:
         }
       }
     }
-    if ( v11 )
+    if ( v12 )
     {
       if ( this->master_obj->object_group == 58 )
       {
-        if ( this->owner->vfptr->isAlly(this->owner, v11->owner->id) )
+        if ( this->owner->vfptr->isAlly(this->owner, v12->owner->id) )
         {
-          v26 = v11->master_obj;
-          v27 = v26->object_group;
-          if ( v27 == 9 || v27 == 10 || (v28 = v26->id, v28 == 109) || v28 == 82 )
+          v27 = v12->master_obj;
+          v28 = v27->object_group;
+          if ( v28 == 9 || v28 == 10 || (v29 = v27->id, v29 == 109) || v29 == 82 )
           {
             TRIBE_Combat_Object::save_alarm_info(this, 1u);
 LABEL_47:
-            RGE_Action_Object::work2((RGE_Action_Object *)this, v11, x, y, z, work_flag, certain_action, unk);
+            RGE_Action_Object::work2((RGE_Action_Object *)this, v12, x, y, z, work_flag, gather_flag, certain_action);
             return;
           }
         }
@@ -312545,6 +312545,9 @@ LABEL_46:
     goto LABEL_47;
   }
 }
+// 55EF76: inconsistent variable size for '^50.2(certain_action)'
+// 55EFAD: inconsistent variable size for '^50.2(certain_action)'
+// 55F109: inconsistent variable size for '^50.2(certain_action)'
 
 //----- (0055F1F0) --------------------------------------------------------
 int __thiscall TRIBE_Combat_Object::enter(RGE_Combat_Object *this, int targetID, int unconditional)
@@ -321735,52 +321738,51 @@ LABEL_4:
 }
 
 //----- (0056CF40) --------------------------------------------------------
-RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *this, RGE_Task *task, RGE_Static_Object *target_obj, float target_x, float target_y, float target_z)
+RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *this, RGE_Task *task, RGE_Static_Object *target_obj, float target_x, float target_y, float target_z, int gather_flag)
 {
-  TRIBE_Action_Build *v7; // eax
+  TRIBE_Action_Build *v8; // eax
   RGE_Action *result; // eax
-  TRIBE_Action_Build *v9; // eax
-  TRIBE_Action_Convert *v10; // eax
+  TRIBE_Action_Build *v10; // eax
   TRIBE_Action_Convert *v11; // eax
-  TRIBE_Action_Heal *v12; // eax
+  TRIBE_Action_Convert *v12; // eax
   TRIBE_Action_Heal *v13; // eax
-  TRIBE_Action_Housing *v14; // eax
-  TRIBE_Action_Artifact *v15; // eax
+  TRIBE_Action_Heal *v14; // eax
+  TRIBE_Action_Housing *v15; // eax
   TRIBE_Action_Artifact *v16; // eax
-  TRIBE_Action_Wonder *v17; // eax
-  TRIBE_Action_Discovery_Artifact *v18; // eax
+  TRIBE_Action_Artifact *v17; // eax
+  TRIBE_Action_Wonder *v18; // eax
   TRIBE_Action_Discovery_Artifact *v19; // eax
-  TRIBE_Action_Farm *v20; // eax
-  TRIBE_Action_Shepherd *v21; // eax
-  TRIBE_Action_Hunt *v22; // eax
+  TRIBE_Action_Discovery_Artifact *v20; // eax
+  TRIBE_Action_Farm *v21; // eax
+  TRIBE_Action_Shepherd *v22; // eax
   TRIBE_Action_Hunt *v23; // eax
-  TRIBE_Action_Repair *v24; // eax
+  TRIBE_Action_Hunt *v24; // eax
   TRIBE_Action_Repair *v25; // eax
-  TRIBE_Action_Trade *v26; // eax
+  TRIBE_Action_Repair *v26; // eax
   TRIBE_Action_Trade *v27; // eax
-  RGE_Action_Enter *v28; // eax
-  RGE_Action_Transport *v29; // eax
-  TRIBE_Action_Offboard_Trade *v30; // eax
-  TRIBE_Action_Pickup_Relic *v31; // eax
-  TRIBE_Action_Unpack *v32; // eax
-  TRIBE_Action_Capture *v33; // eax
-  TRIBE_Action_Deliver_Relic *v34; // eax
-  int v35; // [esp+30h] [ebp+18h]
+  TRIBE_Action_Trade *v28; // eax
+  RGE_Action_Enter *v29; // eax
+  RGE_Action_Transport *v30; // eax
+  TRIBE_Action_Offboard_Trade *v31; // eax
+  TRIBE_Action_Pickup_Relic *v32; // eax
+  TRIBE_Action_Unpack *v33; // eax
+  TRIBE_Action_Capture *v34; // eax
+  TRIBE_Action_Deliver_Relic *v35; // eax
 
   switch ( task->action_type )
   {
     case 3:
-      v28 = (RGE_Action_Enter *)operator_new(0x44u);
-      if ( !v28 )
-        goto LABEL_5;
-      result = (RGE_Action *)RGE_Action_Enter::RGE_Action_Enter(v28, this->obj, task, target_obj);
-      break;
-    case 0xC:
-      v29 = (RGE_Action_Transport *)operator_new(0x40u);
+      v29 = (RGE_Action_Enter *)operator_new(0x44u);
       if ( !v29 )
         goto LABEL_5;
+      result = (RGE_Action *)RGE_Action_Enter::RGE_Action_Enter(v29, this->obj, task, target_obj);
+      break;
+    case 0xC:
+      v30 = (RGE_Action_Transport *)operator_new(0x40u);
+      if ( !v30 )
+        goto LABEL_5;
       result = (RGE_Action *)RGE_Action_Transport::RGE_Action_Transport(
-                               v29,
+                               v30,
                                this->obj,
                                task,
                                target_x,
@@ -321790,18 +321792,18 @@ RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *
     case 0x65:
       if ( target_obj )
       {
-        v7 = (TRIBE_Action_Build *)operator_new(0x44u);
-        if ( !v7 )
+        v8 = (TRIBE_Action_Build *)operator_new(0x44u);
+        if ( !v8 )
           goto LABEL_5;
-        result = (RGE_Action *)TRIBE_Action_Build::TRIBE_Action_Build2(v7, this->obj, task, target_obj);
+        result = (RGE_Action *)TRIBE_Action_Build::TRIBE_Action_Build2(v8, this->obj, task, target_obj);
       }
       else
       {
-        v9 = (TRIBE_Action_Build *)operator_new(0x44u);
-        if ( !v9 )
+        v10 = (TRIBE_Action_Build *)operator_new(0x44u);
+        if ( !v10 )
           goto LABEL_5;
         result = (RGE_Action *)TRIBE_Action_Build::TRIBE_Action_Build3(
-                                 v9,
+                                 v10,
                                  this->obj,
                                  task,
                                  target_x,
@@ -321812,18 +321814,18 @@ RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *
     case 0x68:
       if ( target_obj )
       {
-        v10 = (TRIBE_Action_Convert *)operator_new(0x60u);
-        if ( !v10 )
-          goto LABEL_5;
-        result = (RGE_Action *)TRIBE_Action_Convert::TRIBE_Action_Convert2(v10, this->obj, task, target_obj);
-      }
-      else
-      {
         v11 = (TRIBE_Action_Convert *)operator_new(0x60u);
         if ( !v11 )
           goto LABEL_5;
+        result = (RGE_Action *)TRIBE_Action_Convert::TRIBE_Action_Convert2(v11, this->obj, task, target_obj);
+      }
+      else
+      {
+        v12 = (TRIBE_Action_Convert *)operator_new(0x60u);
+        if ( !v12 )
+          goto LABEL_5;
         result = (RGE_Action *)TRIBE_Action_Convert::TRIBE_Action_Convert3(
-                                 v11,
+                                 v12,
                                  this->obj,
                                  task,
                                  target_x,
@@ -321834,34 +321836,34 @@ RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *
     case 0x69:
       if ( target_obj )
       {
-        v12 = (TRIBE_Action_Heal *)operator_new(0x40u);
-        if ( !v12 )
-          goto LABEL_5;
-        result = (RGE_Action *)TRIBE_Action_Heal::TRIBE_Action_Heal2(v12, this->obj, task, target_obj);
-      }
-      else
-      {
         v13 = (TRIBE_Action_Heal *)operator_new(0x40u);
         if ( !v13 )
           goto LABEL_5;
-        result = (RGE_Action *)TRIBE_Action_Heal::TRIBE_Action_Heal3(v13, this->obj, task, target_x, target_y, target_z);
+        result = (RGE_Action *)TRIBE_Action_Heal::TRIBE_Action_Heal2(v13, this->obj, task, target_obj);
+      }
+      else
+      {
+        v14 = (TRIBE_Action_Heal *)operator_new(0x40u);
+        if ( !v14 )
+          goto LABEL_5;
+        result = (RGE_Action *)TRIBE_Action_Heal::TRIBE_Action_Heal3(v14, this->obj, task, target_x, target_y, target_z);
       }
       break;
     case 0x6A:
       if ( target_obj )
       {
-        v24 = (TRIBE_Action_Repair *)operator_new(0x48u);
-        if ( !v24 )
-          goto LABEL_5;
-        result = (RGE_Action *)TRIBE_Action_Repair::TRIBE_Action_Repair2(v24, this->obj, task, target_obj);
-      }
-      else
-      {
         v25 = (TRIBE_Action_Repair *)operator_new(0x48u);
         if ( !v25 )
           goto LABEL_5;
+        result = (RGE_Action *)TRIBE_Action_Repair::TRIBE_Action_Repair2(v25, this->obj, task, target_obj);
+      }
+      else
+      {
+        v26 = (TRIBE_Action_Repair *)operator_new(0x48u);
+        if ( !v26 )
+          goto LABEL_5;
         result = (RGE_Action *)TRIBE_Action_Repair::TRIBE_Action_Repair3(
-                                 v25,
+                                 v26,
                                  this->obj,
                                  task,
                                  target_x,
@@ -321872,18 +321874,18 @@ RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *
     case 0x6B:
       if ( target_obj )
       {
-        v15 = (TRIBE_Action_Artifact *)operator_new(0x40u);
-        if ( !v15 )
-          goto LABEL_5;
-        result = (RGE_Action *)TRIBE_Action_Artifact::TRIBE_Action_Artifact2(v15, this->obj, task, target_obj);
-      }
-      else
-      {
         v16 = (TRIBE_Action_Artifact *)operator_new(0x40u);
         if ( !v16 )
           goto LABEL_5;
+        result = (RGE_Action *)TRIBE_Action_Artifact::TRIBE_Action_Artifact2(v16, this->obj, task, target_obj);
+      }
+      else
+      {
+        v17 = (TRIBE_Action_Artifact *)operator_new(0x40u);
+        if ( !v17 )
+          goto LABEL_5;
         result = (RGE_Action *)TRIBE_Action_Artifact::TRIBE_Action_Artifact3(
-                                 v16,
+                                 v17,
                                  this->obj,
                                  task,
                                  target_x,
@@ -321894,22 +321896,22 @@ RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *
     case 0x6C:
       if ( target_obj )
       {
-        v18 = (TRIBE_Action_Discovery_Artifact *)operator_new(0x44u);
-        if ( !v18 )
+        v19 = (TRIBE_Action_Discovery_Artifact *)operator_new(0x44u);
+        if ( !v19 )
           goto LABEL_5;
         result = (RGE_Action *)TRIBE_Action_Discovery_Artifact::TRIBE_Action_Discovery_Artifact2(
-                                 v18,
+                                 v19,
                                  this->obj,
                                  task,
                                  target_obj);
       }
       else
       {
-        v19 = (TRIBE_Action_Discovery_Artifact *)operator_new(0x44u);
-        if ( !v19 )
+        v20 = (TRIBE_Action_Discovery_Artifact *)operator_new(0x44u);
+        if ( !v20 )
           goto LABEL_5;
         result = (RGE_Action *)TRIBE_Action_Discovery_Artifact::TRIBE_Action_Discovery_Artifact3(
-                                 v19,
+                                 v20,
                                  this->obj,
                                  task,
                                  target_x,
@@ -321920,34 +321922,34 @@ RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *
     case 0x6E:
       if ( target_obj )
       {
-        v22 = (TRIBE_Action_Hunt *)operator_new(0x58u);
-        if ( !v22 )
-          goto LABEL_5;
-        result = (RGE_Action *)TRIBE_Action_Hunt::TRIBE_Action_Hunt2(v22, this->obj, task, target_obj);
-      }
-      else
-      {
         v23 = (TRIBE_Action_Hunt *)operator_new(0x58u);
         if ( !v23 )
           goto LABEL_5;
-        result = (RGE_Action *)TRIBE_Action_Hunt::TRIBE_Action_Hunt3(v23, this->obj, task, target_x, target_y, target_z);
+        result = (RGE_Action *)TRIBE_Action_Hunt::TRIBE_Action_Hunt2(v23, this->obj, task, target_obj);
+      }
+      else
+      {
+        v24 = (TRIBE_Action_Hunt *)operator_new(0x58u);
+        if ( !v24 )
+          goto LABEL_5;
+        result = (RGE_Action *)TRIBE_Action_Hunt::TRIBE_Action_Hunt3(v24, this->obj, task, target_x, target_y, target_z);
       }
       break;
     case 0x6F:
       if ( target_obj )
       {
-        v26 = (TRIBE_Action_Trade *)operator_new(0x54u);
-        if ( !v26 )
-          goto LABEL_5;
-        result = (RGE_Action *)TRIBE_Action_Trade::TRIBE_Action_Trade2(v26, this->obj, task, target_obj);
-      }
-      else
-      {
         v27 = (TRIBE_Action_Trade *)operator_new(0x54u);
         if ( !v27 )
           goto LABEL_5;
+        result = (RGE_Action *)TRIBE_Action_Trade::TRIBE_Action_Trade2(v27, this->obj, task, target_obj);
+      }
+      else
+      {
+        v28 = (TRIBE_Action_Trade *)operator_new(0x54u);
+        if ( !v28 )
+          goto LABEL_5;
         result = (RGE_Action *)TRIBE_Action_Trade::TRIBE_Action_Trade3(
-                                 v27,
+                                 v28,
                                  this->obj,
                                  task,
                                  target_x,
@@ -321956,29 +321958,29 @@ RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *
       }
       break;
     case 0x78:
-      v17 = (TRIBE_Action_Wonder *)operator_new(0x48u);
-      if ( !v17 )
+      v18 = (TRIBE_Action_Wonder *)operator_new(0x48u);
+      if ( !v18 )
         goto LABEL_5;
-      result = (RGE_Action *)TRIBE_Action_Wonder::TRIBE_Action_Wonder2(v17, this->obj);
+      result = (RGE_Action *)TRIBE_Action_Wonder::TRIBE_Action_Wonder2(v18, this->obj);
       break;
     case 0x79:
-      v20 = (TRIBE_Action_Farm *)operator_new(0x40u);
-      if ( !v20 )
+      v21 = (TRIBE_Action_Farm *)operator_new(0x40u);
+      if ( !v21 )
         goto LABEL_5;
-      result = (RGE_Action *)TRIBE_Action_Farm::TRIBE_Action_Farm2(v20, this->obj, task);
+      result = (RGE_Action *)TRIBE_Action_Farm::TRIBE_Action_Farm2(v21, this->obj, task);
       break;
     case 0x7B:
-      v14 = (TRIBE_Action_Housing *)operator_new(0x44u);
-      if ( !v14 )
+      v15 = (TRIBE_Action_Housing *)operator_new(0x44u);
+      if ( !v15 )
         goto LABEL_5;
-      result = (RGE_Action *)TRIBE_Action_Housing::TRIBE_Action_Housing2(v14, this->obj, -1);
+      result = (RGE_Action *)TRIBE_Action_Housing::TRIBE_Action_Housing2(v15, this->obj, -1);
       break;
     case 0x7D:
-      v32 = (TRIBE_Action_Unpack *)operator_new(0x4Cu);
-      if ( !v32 )
+      v33 = (TRIBE_Action_Unpack *)operator_new(0x4Cu);
+      if ( !v33 )
         goto LABEL_5;
       result = (RGE_Action *)TRIBE_Action_Unpack::TRIBE_Action_Unpack2(
-                               v32,
+                               v33,
                                this->obj,
                                target_obj,
                                target_x,
@@ -321986,11 +321988,11 @@ RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *
                                -1);
       break;
     case 0x83:
-      v30 = (TRIBE_Action_Offboard_Trade *)operator_new(0x48u);
-      if ( !v30 )
+      v31 = (TRIBE_Action_Offboard_Trade *)operator_new(0x48u);
+      if ( !v31 )
         goto LABEL_5;
       result = (RGE_Action *)TRIBE_Action_Offboard_Trade::TRIBE_Action_Offboard_Trade2(
-                               v30,
+                               v31,
                                this->obj,
                                task,
                                target_x,
@@ -321998,27 +322000,27 @@ RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *
                                target_z);
       break;
     case 0x84:
-      v31 = (TRIBE_Action_Pickup_Relic *)operator_new(0x40u);
-      if ( !v31 )
+      v32 = (TRIBE_Action_Pickup_Relic *)operator_new(0x40u);
+      if ( !v32 )
         goto LABEL_5;
-      result = (RGE_Action *)TRIBE_Action_Pickup_Relic::TRIBE_Action_Pickup_Relic2(v31, this->obj, task, target_obj);
+      result = (RGE_Action *)TRIBE_Action_Pickup_Relic::TRIBE_Action_Pickup_Relic2(v32, this->obj, task, target_obj);
       break;
     case 0x87:
-      v33 = (TRIBE_Action_Capture *)operator_new(0x40u);
-      if ( !v33 )
-        goto LABEL_5;
-      result = (RGE_Action *)TRIBE_Action_Capture::TRIBE_Action_Capture2(v33, this->obj, target_obj);
-      break;
-    case 0x88:
-      v34 = (TRIBE_Action_Deliver_Relic *)operator_new(0x40u);
+      v34 = (TRIBE_Action_Capture *)operator_new(0x40u);
       if ( !v34 )
         goto LABEL_5;
-      result = (RGE_Action *)TRIBE_Action_Deliver_Relic::TRIBE_Action_Deliver_Relic2(v34, this->obj, task, target_obj);
+      result = (RGE_Action *)TRIBE_Action_Capture::TRIBE_Action_Capture2(v34, this->obj, target_obj);
+      break;
+    case 0x88:
+      v35 = (TRIBE_Action_Deliver_Relic *)operator_new(0x40u);
+      if ( !v35 )
+        goto LABEL_5;
+      result = (RGE_Action *)TRIBE_Action_Deliver_Relic::TRIBE_Action_Deliver_Relic2(v35, this->obj, task, target_obj);
       break;
     case 0x95:
-      v21 = (TRIBE_Action_Shepherd *)operator_new(0x40u);
-      if ( v21 )
-        result = (RGE_Action *)TRIBE_Action_Shepherd::TRIBE_Action_Shepherd2(v21, this->obj, task, target_obj);
+      v22 = (TRIBE_Action_Shepherd *)operator_new(0x40u);
+      if ( v22 )
+        result = (RGE_Action *)TRIBE_Action_Shepherd::TRIBE_Action_Shepherd2(v22, this->obj, task, target_obj);
       else
 LABEL_5:
         result = 0;
@@ -322031,7 +322033,7 @@ LABEL_5:
                  target_x,
                  target_y,
                  target_z,
-                 v35);
+                 gather_flag);
       break;
   }
   return result;
@@ -397518,7 +397520,7 @@ LABEL_17:
       }
     }
     if ( v3 < list_num[0] )
-      v2->vfptr->play_command_sound(v2, (RGE_Player *)unit[v3]);
+      v2->vfptr->play_command_sound(v2, unit[v3]);
   }
 LABEL_22:
   TRIBE_Command::command_unit_order(this->world->commands, unit, list_num[0], 6u, 0, 0, -1.0, -1.0, -1);

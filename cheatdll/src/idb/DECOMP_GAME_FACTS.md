@@ -108,6 +108,116 @@ Owner-supplied 2026-11-15:
 Other master_id values: added here as the owner designates them (see the
 awaiting-designation list below).
 
+## action_type registry (RGE_Action::action_type @+4 / RGE_Task::action_type @+6, __int16)
+
+Owner-supplied 2026-11-22 (Pickup unit corrected to 132 same day).
+Consumers in owned code: work2 (the task-acceptance gate == 7 Attack;
+the confirm block == 9 Attack2), is_idle (the type-107 Artifact
+placeholder check), setUnitAIAction (the 12-entry table), create_task_
+action (the construction switch: 4 Explore / 5 Gather / 7 Attack /
+0xA Bird / 0xD Guard / 0x15 Make), actionTypeIfOrdered (the 104
+Convert range logic).
+
+| value | meaning |
+|---|---|
+| 1   | Move to |
+| 2   | Follow |
+| 3   | Enter |
+| 4   | Explore |
+| 5   | Gather |
+| 7   | Attack |
+| 9   | Attack2 |
+| 10  | Bird |
+| 12  | Transport |
+| 13  | Guard |
+| 21  | Make |
+| 101 | Build |
+| 102 | Make unit |
+| 103 | Make tech |
+| 104 | Convert |
+| 105 | Heal |
+| 106 | Repair |
+| 107 | Artifact |
+| 108 | Discovery artifact |
+| 110 | Hunt |
+| 111 | Trade |
+| 120 | Wonder |
+| 121 | Farm |
+| 123 | Housing |
+| 125 | Unpack |
+| 131 | Offboard trade |
+| 132 | Pickup unit |
+| 135 | Capture |
+| 136 | Deliver unit |
+| 149 | Shepherd |
+
+## UnitAI action registry (UnitAIModule::currentActionValue, int)
+
+Owner-supplied 2026-11-22. The module's current-action id
+(setUnitAIAction's second resolved value; work2's type()==9 attack
+confirm pairs it with the autoAttackOrderFlag clear).
+
+| value | meaning |
+|---|---|
+| 600 | attack |
+| 601 | defend |
+| 602 | build |
+| 603 | heal |
+| 604 | convert |
+| 605 | explore |
+| 606 | stop |
+| 607 | run away |
+| 608 | retreat |
+| 609 | gather |
+| 610 | move |
+| 611 | patrol |
+| 612 | follow |
+| 613 | hunt |
+| 614 | transport |
+| 615 | trade |
+| 616 | evasive move |
+| 617 | enter |
+| 618 | repair |
+| 619 | train |
+| 620 | research |
+| 621 | unload |
+| 622 | seek and destroy |
+| 623 | explore and destroy |
+| 624 | group gather |
+| 628 | wait |
+| 629 | attack roundup |
+| 630 | scout |
+| 631 | control |
+| 632 | shepherd |
+| 699 | released |
+
+## UnitAI order registry (UnitAIModule::currentOrderValue, int) - DERIVED
+
+Decode-derived 2026-11-22 (NOT owner-supplied): every setUnitAIAction
+table pair satisfies order = action + 100 (all 12 pairs, asm
+0x409C57-0x409CE3: 1->710/610, 3->717/617, 4->705/605, 5->709/609,
+9->700/600, 12->714/614, 101->702/602, 104->704/604, 105->703/603,
+106->718/618, 110->713/613, 111->715/615). The order names mirror the
+action names:
+
+| value | meaning (= action + 100) |
+|---|---|
+| 700 | attack order |
+| 702 | build order |
+| 703 | heal order |
+| 704 | convert order |
+| 705 | explore order |
+| 709 | gather order |
+| 710 | move order |
+| 713 | hunt order |
+| 714 | transport order |
+| 715 | trade order |
+| 717 | enter order |
+| 718 | repair order |
+
+Enums: RGE_ACTION_TYPE / RGE_UNITAI_ACTION / RGE_UNITAI_ORDER in
+src/engine/object/RGE_Action_Types.h (the RGE_MASTER_TYPE precedent).
+
 Re-verify hint: game semantics, not layout вЂ” do not rot with
 idb_types.h regenerations. The FIELD (name/type/offset @+24) re-verifies
 in the master structs.
@@ -174,6 +284,42 @@ Each entry accumulates observations with asm citations; entries graduate
 to full meanings as knowledge accumulates. Status per entry: CONFIRMED /
 PARTIAL / UNKNOWN. Owner-supplied meanings, when they arrive, move into
 the sections above and the entry is marked.
+
+- **RGE_Action::state idle set {0, 1, 2, 3, 13, 14}** - CONFIRMED
+  (owner-supplied state registry 2026-11-22, below): the is_idle
+  no-op set reads as None / Done / Wait / Failed / Search /
+  Invalidated - an action that is absent, finished, waiting, failed,
+  (re)searching, or invalidated leaves the unit idle (asm jz chain
+  0x4099F5-0x409A10). The update-removal pair in update_new
+  (state == Search || Done -> remove_action, asm 0x4098EF-0x4098F5)
+  reads on the same registry. Enum: RGE_ACTION_STATE in
+  src/engine/object/RGE_Action_Types.h.
+
+## RGE_Action::state registry (RGE_Action::state, unsigned __int8 @+0xC)
+
+Owner-supplied 2026-11-22. The per-action state machine (is_idle's
+idle set; the list-update removal pair Search/Done in update_new;
+conversion.cpp's check_meditation_and_purge tests {7 Work2, 6 Work,
+4 Goto} - unowned site, registry context only).
+
+| value | meaning |
+|---|---|
+| 0  | None |
+| 1  | Done |
+| 2  | Wait |
+| 3  | Search |
+| 4  | Goto |
+| 5  | Goto2 |
+| 6  | Work |
+| 7  | Work2 |
+| 8  | Return |
+| 9  | Turn |
+| 10 | Delay |
+| 11 | Move |
+| 12 | Attack |
+| 13 | Failed |
+| 14 | Invalidated |
+| 15 | MoveNoSearch |
 
 - **prog_mode** вЂ” RGE_Base_Game::prog_mode @+476 (0x1DC). PARTIAL:
   compared `== 7` to gate live-world lookups вЂ” RGE Master Static

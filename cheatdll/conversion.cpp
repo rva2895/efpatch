@@ -164,6 +164,8 @@ void setConversionHooks()
     setHook((void*)0x00568BE4, onPurged);
     setHook((void*)0x00568BF7, onUnitConverted);
     setHook((void*)0x00568139, meleeRangeFirstInStack);
-    setHook((void*)0x00409104, meleeRangeActionTypeIfOrdered);
+    // retired 2026-11-22: baked into RGE_Action_Object__actionTypeIfOrdered_new
+    // (RGE_Action_Object.cpp), see 0x00409104
+    // setHook((void*)0x00409104, meleeRangeActionTypeIfOrdered);
 }
 #pragma optimize( "", on )

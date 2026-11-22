@@ -6592,4 +6592,437 @@ authoritative.)
     load-bearing twice this session: the M12a norms and the teleport
     trail); the citation protocol (addresses + function names)."
 
+  - RGE_Action_Object RUNTIME BATCH A1 (owner-approved + WRITTEN
+    2026-11-22): 10 hooks — rehook @0x00408F10 [0x408F10,0x408F24),
+    transform @0x00408F80 [..,0x408F99), destroy_obj @0x00408FA0
+    [..,0x408FB6), set_action @0x004097E0 [..,0x4097F4), set_end_action
+    @0x00409830 [..,0x409844), have_action @0x00409970 [..,0x409980),
+    gameActionType @0x00409990 [..,0x4099A7), get_target_obj @0x00409A40
+    [..,0x409A58), searchRadius @0x00409B70 [..,0x409B79), hasActionOfType
+    @0x00409BD0 [..,0x409BE9). Groundings: actions @0x13C, master_obj
+    @0x14, action_type @+4 (i16, movsx), search_radius @268=0x10C
+    (RGE_Master_Action_Object total 300=0x12C; the twin master's
+    move_sound @+0x124=292 corroborates the walk); RGE_ActionVtbl::
+    get_target_obj member 20 = +0x50 (line-arith 15982-15962).
+    Callees: RGE_Static_Object__rehook :3827 @0x54F4B0 + destroy_obj
+    :3843 @0x5506B0 UNHOOKED (originals); RGE_Moving_Object__transform
+    :2132 @0x4A1090 HOOKED (routes); RGE_Action_List__{rehook :60,
+    delete_list :62, add_action :67, add_action_at_end :68, have_action
+    :72, get_action :78, have_action2 :73} UNHOOKED. Compile gate 0/0
+    (x86 v141_xp) + /Fa census clean: searchRadius kept the NATIVE x87
+    form (fld DWORD PTR [eax+268]; ret - bit-identical to the original,
+    no cvtss2sd), the get_target_obj dispatch emitted [eax+80] = +0x50
+    verified, x0.0-fold scan 0, no ss-op->cvt chains; several wrappers
+    compile to tail-jmp forms (behaviorally identical - the callees'
+    own retn performs the cleanup). Exit paths mapped; store-and-read
+    diff: object-field store sets empty both sides (the two
+    _action$[esp-4] self-stores = compiler tail-call bookkeeping on the
+    wrapper's own local); return types 10/10; casts 3/3 derived->
+    ancestor cased; CRT/base_game/pointer-walk/loops all 0; installer
+    18 unique addresses 0 dupes. Collision scan 0 overlaps (dead
+    profiler table only, functionlist.cpp :286-:317). DEFERRED:
+    play_command_sound @0x409610 / play_move_sound @0x409620 —
+    INFORMATION REQUEST 2026-11-22 (owner-enforced after the illegal
+    (RGE_Player*)this_ cast was caught at presentation): the master
+    vtbl slots 17/18 type arg 2 RGE_Player* (idb_types.h:3602-:3603
+    RGE_Master_Static_ObjectVtbl; :14874-:14875 RGE_Master_Action_
+    ObjectVtbl) but every real argument in the binary is a runtime
+    unit — the callees (0x488480/:1806, 0x4884D0/:1807) dispatch slot
+    +8 OF THE ARGUMENT (asm 0x48849B/0x4884EB): on units that is
+    gbg_get_civ_override (RGE_Static_ObjectVtbl :3937 / RGE_Action_
+    ObjectVtbl :11600, int return feeding RGE_Sound__play player_id);
+    on players it is set_game_status (:7129) - the master body itself
+    cast-form-renders the mismatch. Caller census (only 4
+    implementations exist): the two runtime wrappers (pass this), the
+    unit-side dispatches, TRIBE_Screen_Game__do_button_action @0x4FB4F0
+    (passes 0, .c:245740), TRIBE_Player__command_drop_off_resources
+    @0x5D05E0 (passes a unit, .c:397521 - second pun render). NO
+    caller passes a genuine RGE_Player. DEDUCED TRUE TYPE arg 2 =
+    RGE_Static_Object* (the runtime-unit base; verified layout prefix
+    in every runtime struct). Owner to re-type the slots and
+    regenerate; the pair's decode restarts from the regenerated files.
+    Re-verify: the regenerated vtbl members. ROADMAP: Action runtime
+    38 -> 28 unowned (17/45 exports owned; installer 18). In-game
+    validation owed (owner's standard test).
+
+  - BATCH A2 + SOUND PAIR (owner-approved + WRITTEN 2026-11-22): A2 = 10
+    hooks — set_only_action @0x409800 [0x409800,0x409823), stop @0x409850
+    [..,0x40986E), change_ownership @0x409910 [..,0x409934), copy_obj
+    @0x409940 [..,0x40995E), actionState @0x409B40 [..,0x409B65),
+    get_action_checksum @0x409B80 [..,0x409BA8), actionType @0x409BB0
+    [..,0x409BCF), hasSubActionOfType @0x409BF0 [..,0x409C12),
+    get_next_selected_group @0x409EB0 [..,0x409ED7), get_num_Selected_
+    groups @0x409EE0 [..,0x409EFE). Groundings: RGE_Action_ObjectVtbl::
+    stop member 72 = +0x120, set_only_action member 231 = +0x39C
+    (line-arith; NAMED dispatches, /Fa-verified [eax+288]/[eax+924]);
+    RGE_Action_ListVtbl::copy_obj member 6 = +0x18 (/Fa [eax+24]);
+    Selected_Group_Info movsx + sar/jle signed forms both sites; RGE_
+    Action::state u8 @+0xC (movzx in the checksum, direct AL load in
+    actionState), action_type i16 @+4 (movsx); actionState's EXACT == 1
+    guard (cmp al,1 - literal transcription, not != 0). copy_obj's
+    (RGE_Master_Action_Object*)source DOWNCAST owner-approved with the
+    layout-prefix grounding (every arriving master tier carries the
+    300-byte Action-master prefix; consumer 0x406EF0 = a forwarder to the
+    queued actions' copy_obj; IDA's own render carries the same cast).
+    Compile gate 0/0; /Fa census clean; defs/refs 28/28 unique at the A2
+    gate; pointer-walk 2 benign int counters; CRT/base_game 0. Collision
+    scan 0 overlaps (dead profiler rows functionlist.cpp :302-:321 only).
+    IDB REGEN 2026-11-22 (type-only, in place; same line totals 37087/
+    6415; the cited anchors re-verified UNSHIFTED): the master sound
+    slots re-typed RGE_Player* -> RGE_Static_Object* per the Information
+    Request (idb_types.h :3602-:3603 RGE_Master_Static_ObjectVtbl,
+    :14874-:14875 RGE_Master_Action_ObjectVtbl, + all sibling master
+    vtbls; master prototypes :1806/:1807); the master bodies now render
+    obj->vfptr->gbg_get_civ_override(obj) NAMED-form (cast-form artifact
+    gone). RGE_Action_List__copy_obj (:81) NOT re-typed - the approved
+    downcast stands. SOUND PAIR WRITTEN (decode restarted from the
+    regenerated files per the suspicion-gate protocol): play_command_
+    sound_new / play_move_sound_new - named dispatches slots 17/18 (/Fa
+    [eax+68]=+0x44 / [eax+72]=+0x48 verified), argument cast = the
+    VERIFIED derived->ancestor (RGE_Static_Object*)this_, matching the
+    post-regen rendering. File totals: 30 defs / 30 unique installer
+    refs. Roadmap: Action runtime 38 -> 16 unowned. In-game validation
+    owed for A1+A2 (owner's standard test).
+
+  - BATCH A3 (owner-approved + WRITTEN 2026-11-22, PARTIAL - 3 of 7
+    presented): setup @0x00408DE0 [0x408DE0,0x408E34), create_action_list
+    @0x00408EB0 [0x408EB0,0x408F0C), save @0x00408F30 [0x408F30,0x408F79).
+    Groundings: Moving setup :2127 @0x4A0940 + save :2129 (both HOOKED ->
+    routes); the Action extension stores type@94(0x28=40)/waiting@320/
+    actions@316/command_flag@321/Selected_Group_Info@322 (word); the
+    create_action_list NAMED dispatch slot 236 = +0x3B0 (line-arith
+    11834-11598 = 236; /Fa [eax+944]); RGE_Action_List alloc
+    sizeof = 12 = 0xC (:11587-11591 vfptr/obj/list) via
+    operator_new_internal + ctor :56 @0x4062B0 + the SEH fold chunk
+    0x640A90 = operator_delete on the raw alloc (make_new_obj precedent;
+    compiled to the standard __except_handler4 scope-table form); save's
+    rge_write (:3005) x3 sizeof-exact 1/1/2 + RGE_Action_List__save (:61
+    @0x406480 UNHOOKED). Compile gate 0/0 after TWO GATE CATCHES:
+    (1) operator_new_internal returns void* - explicit cast added;
+    (2) THE MISSED SUSPICION: set_task/setTaskByTaskID were presented
+    WITH code dispatching RGE_Action_ListVtbl::create_task_action with 6
+    stack args - the member (idb_types.h:15048; TRIBE twin :20880)
+    declares only 5. The cast-form render in the .c (:52060/:52082) was
+    the mismatch tell, missed at decode; the compile gate caught it
+    (C2197 too many arguments). INFORMATION REQUEST #3: add the trailing
+    `int` to create_task_action in both list Vtbls (the callees retn 18h
+    = 24 = 6 stack args, asm 0x406AA2; every dispatcher pushes 6: task,
+    obj, -1.0f, -1.0f, -1.0f, flag; the flag lands in RGE_Action_Gather::
+    gbg_unknown_1 @+0x5C when nonzero - asm 0x406A29-0x406A31 - a
+    game-facts registry item). DEFERRED on IR#3: set_task @0x409720,
+    setTaskByTaskID @0x409780 (decode records complete in the session;
+    restart from regenerated files). ALSO DEFERRED on IR#2 (work2
+    member): work @0x409270, do_command @0x408FD0 - IR#2 AMENDED after
+    the owner-directed width analysis: the corrected member form is
+    (RGE_Action_Object*, RGE_Static_Object*, float, float, float, int
+    work_flag, int certain_action) - the 7th param must be INT (bit-
+    faithful): it is pushed raw-dword by every caller (asm 0x409281/
+    0x408FE3), re-pushed raw-dword by work2 (asm 0x409513/0x40951D), and
+    consumed as a 32-BIT truthiness test (asm 0x406A2D test ecx,ecx);
+    the IDB's __int16 typing is narrower than the consumption. The 8th
+    param (deduced name certain_action) is INT and consumed strictly
+    16-bit (work2 gate cmp word ptr [esp+..],0FFFFh @0x4093BB;
+    get_target_task mov ax + 16-bit cmps @0x5B9790-0x5B97A3, 0x5B97E4,
+    0x5B983A, 0x5B98E5) - it feeds RGE_Task_List__get_target_task's
+    certain_action slot (:4921/:5674; the filter is certain_action == -1
+    || certain_action == task->action_type) with the 0xFFFF wildcard
+    sentinel; the IDB name certain_action for the 7th is a misnomer
+    (sole real consumption = the gather flag). Aligning the :135 extern
+    prototype's 7th to int is an optional same-pass edit. /Fa census
+    clean: slot [eax+944]; the save widths 1/1/2; the SEH scope table
+    present. defs/refs 33/33 unique. Collision scan over all 7 A3
+    ranges: 0 writer overlaps (canonical + dead profiler rows only).
+    Roadmap: Action runtime 38 -> 13 unowned (18/45 owned; installer
+    33). In-game validation owed for A1-A3.
+  - PROTOCOL AMENDMENT (owner-directed lesson, 2026-11-22, the A3
+    round): a CAST-FORM render at a VTBL DISPATCH site in the .c is the
+    member-typing mismatch tell - it MUST trigger the suspicion gate at
+    DECODE time (member param-count/width check vs the asm pushes and
+    the callee retn), not merely be transcribed. The set_task round
+    transcribed a 6-arg dispatch through a 5-arg member because the
+    cast-form was read as an IDA artifact; the compile gate caught it
+    (C2197). Every future vtbl dispatch decode: count the asm pushes,
+    read the callee retn, count the member params - all three must
+    agree before the named dispatch is written.
+
+  - BATCH A4 (owner-approved + WRITTEN 2026-11-22): setup_read
+    @0x00408E40 [0x408E40,0x408EA3), update @0x00409870 [0x409870,
+    0x40990D), is_idle @0x004099B0 [0x4099B0,0x409A3F). Groundings:
+    Moving setup_read :2128 @0x4A0A40 / update :2142 @0x4A1A00 /
+    updateEnd :2143 @0x4A1AC0 (all HOOKED -> routes); setup_read's
+    rge_read (:3003 @0x4D5550) x3 sizeof-exact 1/1/2 + the
+    create_action_list slot 236 (+0x3B0, /Fa [eax+944]) + RGE_Action_
+    List__load (:59 @0x4063B0); update's dispatch fan: list members
+    inside_obj_update 3 (+0xC, /Fa [eax+12]) / update 4 (+0x10,
+    [eax+16]), runtime set_task slot 228 (+0x390, [eax+912]),
+    delete_list (:62) / remove_action (:69 @0x406CC0); default_task
+    @+0x108 word (movzx + cmp cx,-1); object_state @+0x58,
+    inside_obj @+0x2C, list @+8. is_idle: mGroupID @+0x88;
+    RGE_Game_World__getUnitGroup (:6099 @0x624920) on owner->world
+    (world @+0x8C VERIFIED by the alignment-corrected hand-walk
+    :699-:727 - u8 checksum + 3 pad before mLineRatio; the walk
+    cross-corroborates master_objects @+0x74); BUnitGroup::
+    mCurrentCommand @+0x33C = 828 (hand-walk :3346-:3397 with
+    BPosition = 48 = 4xBVector (:3247-3253), BPointLine = 68
+    (:3271-3277, BPointLineElement = 56), BUnitTypeStatisticManager =
+    444 (:3301-3305, BUnitTypeStatistic = 440 incl. int[50] x2);
+    /Fa [eax+828] = the struct verified); the idle state set
+    {0,1,2,13,3,14} (the asm jz chain); action_type 107 (word cmp
+    6Bh) + get_target_obj (RGE_ActionVtbl slot 20, [eax+80]) +
+    THE X87 SITE: targetX (:186 @0x40B040, double return) vs
+    flt_6545C8 = dd -1.0 - test ah,40h / jnz = {equal, NaN} -> the
+    X87_EQ_NAN macro (x87_nan.h :21); /Fa: comisd x2 + ja/jbe, the
+    jbe unordered-taken (NaN -> idle) - byte-faithful, NO fold; the
+    pool __real@bff0000000000000 = the exact widened -1.0 (dd-pool
+    check pass). MACRO NOTE: X87_EQ_NAN evaluates its operand twice
+    (inherent to the mandated !(x<c) && !(x>c) form) - value-safe,
+    targetX is a pure field getter; recorded in the census. Compile
+    gate 0/0. Collision scan over the 3 ranges: 4 writer-context
+    hits ALL DEAD (test.cpp :1652/:1653 setHooks inside /*...*/,
+    test.cpp :1755 //writeNops, worlddump.cpp :566 //setHook -
+    diagnostic-era commented sites; 0 active, no bake-ins; the dead
+    lines stay per the retirement rule). defs/refs 36/36 unique;
+    bare CRT 0; uncased casts 0 (the dual-naming world cast
+    (RGE_Game_World*) per the Combat(70) precedent). Roadmap: Action
+    runtime 38 -> 10 unowned (21/45 exports owned; installer 36).
+    DEFERRED (IR#2 work2 member + IR#3 create_task_action member,
+    owner corrections in preparation): work, do_command, set_task,
+    setTaskByTaskID. In-game validation owed for A1-A4.
+
+  - BATCH A6 (owner-approved + WRITTEN 2026-11-22): do_command
+    @0x00408FD0 [0x408FD0,0x409002) + work @0x00409270 [0x409270,
+    0x4092A5) - the work2 forwarders, unblocked by IR#2 (the work2
+    member corrected in all five runtime vtbls to (.., unsigned
+    __int8, int, __int16) = 7 stack args; the extern :135 adopted the
+    gather_flag naming: char work_flag, int gather_flag, __int16
+    certain_action). Both: the obj==this guard, the work2 NAMED
+    dispatch slot 227 = +0x38C (line-arith 11825-11598 = 227;
+    /Fa [eax+908] verified x2), command_flag byte inc @+0x141.
+    do_command passes the neutral set (0, 0, -1); work forwards the
+    caller's gather_flag RAW dword (the width-verified bit-faithful
+    int form) with work_flag 1. Restart-verified from the regenerated
+    files. Compile gate 0/0; defs/refs 44/44 unique. Collision scan
+    over both ranges: 0 overlaps (canonical + dead-profiler only).
+    Roadmap: Action runtime 6 -> 4 unowned (27/45 exports owned;
+    installer 44). REMAINING: work2 (848 - decode complete, the
+    body/asm from the width-analysis round), setUnitAIAction (480 -
+    decode pending). In-game validation owed for A1-A6.
+
+  - BATCH A5 (owner-approved + WRITTEN 2026-11-22): actionTypeIfOrdered
+    @0x00409010 [0x409010,0x40915B), move_to @0x00409160 [0x409160,
+    0x409265), get_command_master @0x00409630 [0x409630,0x409710), getTask
+    @0x00409A60 [0x409A60,0x409B3B). Groundings: the RGE_Task_ListVtbl::
+    get_target_task NAMED dispatch member 1 = +0x4 (line-arith 6580-6579;
+    /Fa [eax+4] at all six sites) with the 9-arg form (this, master, obj,
+    x, y, z, certain_action, alt_task); tasks @+0x104 = 260 on the
+    candidate masters (/Fa [ecx+260]); task_by_group @+0x11C = 284;
+    the sibling loops gate on object_group word @+0x1E / master_type
+    byte @+4 / task_by_group byte; the candidates re-typed
+    (RGE_Master_Action_Object*) per the base-pointer rule (the .c's
+    v11[1].los = 208 + 52 = +260 = tasks renders). actionTypeIfOrdered:
+    *range = attributes[5] / attributes[28] (= +0xAC+0x70) tests, group
+    set {18,9,10}, task->action_type word @+6 (RGE_Task, distinct
+    struct), movsx int return; move_to: sizeof(RGE_Action_Move_To) =
+    68 = 0x44 (:20756-:20776, the Action mirror + float range @64),
+    the two Move_To ctors (:100/:101 = 0x408220/0x4082C0), SEH chunk
+    0x640AB0 = operator_delete fold, action_move_to (:76 @0x406E40
+    UNHOOKED), the type() dispatch slot 6 (+0x18) with the RESTRUCTURE:
+    RGE_Action__type @0x40AC70 ends BARE-retn (caller-clean, reads only
+    action_type) - the original's 4 pre-pushed args are setUnitAIAction's
+    args 2-5 staged across the call; the written named forms are
+    net-identical; setUnitAIAction named dispatch slot 234 (+0x3A8,
+    /Fa [edx+936]) FULL 5-arg form, set_only_action slot 231 (+0x39C),
+    command_flag byte inc; getTask: the transform dispatch slot 51
+    (+0xCC, /Fa [eax+204]), the caller's certain_action word forwarded
+    (callee consumes the low word only). GATE CATCH + /Fa CENSUS CATCH:
+    the first draft mis-named the *range source work_val2 - the hand-
+    walk inserted a phantom pad (attribute_type4 ends at 28, already
+    4-aligned; work_val1@28/work_val2@32/work_range@36) and the /Fa
+    emitted [eax+32] vs the original [ecx+24h]=36 - CORRECTED to
+    task->work_range, re-gated, [eax+36] verified (the census
+    store-and-read class working as designed). BAKED PATCHES x2
+    (mandatory, call sites retired in place): conversion.cpp:167
+    @0x00409104 - the group gate is is_class_melee_range_convertable
+    (conversion.cpp:105, extern-declared: {9,10,18} + 57 at
+    current_loaded_version >= 6) replacing {18,9,10}; buildingconv.cpp
+    :48 @0x40912D - the zero-range block: ordered attributes[28] > 0 ->
+    *range = 1.0f else *range = attributes[28] * *range (the stub's
+    branch on the surviving test ah,41h flags; the literal > is
+    unordered-false so NaN takes the multiply arm = the stub). Both
+    retiree TUs re-gated (buildingconv.cpp / conversion.cpp, absolute
+    paths). Compile gate 3/3 TUs 0 errors; /Fa census clean. defs/refs
+    40/40 unique; bare CRT 0; bare base_game 0. Collision scan: the 2
+    active sites baked (above) + canonical/dead-profiler literals only.
+    Roadmap: Action runtime 38 -> 6 unowned (25/45 exports owned;
+    installer 40). REMAINING: setUnitAIAction (480), work2 (848), +
+    work / do_command / set_task / setTaskByTaskID (all four unblocked:
+    IR#2 work2 member FIXED in all five runtime vtbls (:11561/:11825/
+    :14136/:16695/:21294 - (.., unsigned __int8, int, __int16); IR#3
+    create_task_action FIXED in both list vtbls (:15048/:20880 -
+    trailing int); the owner adopted the gather_flag naming for work2's
+    7th (:135 extern: char work_flag, int gather_flag, __int16
+    certain_action)). In-game validation owed for A1-A5.
+
+  - IR#3 CLOSED + SET_TASK/SETTASKBYTASKID WRITTEN (restart-verified
+    2026-11-22): the owner's correction pass landed create_task_action
+    with the trailing int in BOTH list vtbls (idb_types.h:15048/:20880;
+    type-only, lines/totals unchanged). The two functions (code drafted
+    + approved in the A3 round) restarted from the regenerated files per
+    the suspicion-gate protocol: the regenerated renderings match the
+    recorded asm decode (the create_task_action cast-form persists in
+    the .c only as the dint-vs-float rendering; the member now accepts
+    the 6-arg shape). WRITTEN + gated: get_task :1798 @0x488170 /
+    getTaskByTaskID :1799 @0x4881A0 (UNHOOKED originals), have_action2
+    (:73), the create_task_action NAMED dispatch slot +0x8 (/Fa [eax+8],
+    the 6-arg form with bf800000 x3 = float -1.0 exact), set_only_action
+    slot 231 (+0x39C). Compile gate 0/0; defs/refs 42/42 unique.
+    REMAINING UNOWNED: work, do_command (unblocked by IR#2 - presented
+    this round), work2 (unblocked by IR#2 + IR#3 - decode complete from
+    the width-analysis round, presentation next).
+
+  - BATCH A7 (owner-approved + WRITTEN 2026-11-22): work2 @0x004092B0
+    [0x4092B0,0x409600) - the 848-byte order resolver, single-pass.
+    Signature per the IR#2-corrected extern :135 (char work_flag,
+    int gather_flag, __int16 certain_action); work_flag UNCONSUMED
+    (zero reads of the +0x14 slot in the asm range - noted at the
+    site). Structure: the own get_target_task dispatch (slot +0x4)
+    accepted unless null or action_type == 7 (Attack; word @+6);
+    the task_by_group sibling loop (the triple gate; candidates
+    re-typed RGE_Master_Action_Object* per the base-pointer rule;
+    the sibling dispatch forwards certain_action NOT -1; a hit with
+    a DIFFERENT action_type -> the transform dispatch slot 51 =
+    +0xCC); LABEL_18 fallback to the own task; the certain_action
+    gate (no task AND certain_action != 0xFFFF -> return; the 16-bit
+    cmp); the RE-DRIVE block (get_task :80 UNHOOKED, the current-task
+    + action_type match + action_work :77 -> type(slot +0x18) ->
+    setUnitAIAction (slot 234 = +0x3A8) 5-arg, worked = 1); the
+    ATTACK-CONFIRM block (have_action == 1 exact guard; get_target_obj
+    slot 20 == obj; type == 9; work slot 13 (obj,x/y,z) -> type ->
+    setUnitAIAction -> unitAI(:261)->autoAttackOrderFlag = 0 ->
+    return); the CREATE block (worked -> return; create_task_action
+    slot 2 (+0x8, IR#3 6-arg) with gather_flag as the 7th (the Gather
+    gbg_unknown_1 flag); group 1 (Herd Animal) + hasActionOfType(107)
+    (slot 174 = +0x2B8) -> add_sub_action(:191, current, action, 1)
+    -> return; else type -> setUnitAIAction -> set_only_action
+    (slot 231) -> flag = 0 -> return); the SPEED FALLBACK (speed
+    @+0xD0 = 208: fld/fcomp const_f_zero/test ah,41h/jnz -> the
+    {>0 ordered} set runs the move path - the polarity MATCH row,
+    the literal `speed > 0.0` kept (NaN -> skip = return, the
+    maximumSpeed cap-gate precedent); setUnitAIAction(this, 1, ...)
+    FULL 5-arg + the move_to NAMED dispatch slot 70 = +0x118).
+    Scheduling RESTRUCTURE: the original pre-stages setUnitAIAction's
+    args 2-5 across each type() call (the type callees are caller-
+    clean bare-retn - RGE_Action__type @0x40AC70 reads only
+    action_type); the written named forms build each frame at its
+    own call site - identical callees/values/net stack. GATE CATCH:
+    unitAI(this_) needed the (RGE_Static_Object*) ancestor cast x2
+    (C2664), fixed. /Fa census: ALL FOURTEEN dispatch offsets
+    verified ([eax+4] x8, [eax+24] x5 type, [eax+52] work,
+    [eax+80] get_target_obj, [eax+204] transform x2, [eax+260]
+    tasks x6, [eax+280] move_to, [eax+696] hasActionOfType,
+    [eax+908] x2 (do_command/work), [eax+924] x4, [eax+936] x6) +
+    autoAttackOrderFlag [eax+401] (the UnitAIModule walk :4391-:4444
+    with ManagedArray_int_ = 16; mFormationType @0x190 immediately
+    prior - the consecutive-byte corroboration) + speed [eax+208]
+    comiss + the group-1 [ecx+30] cmp. Compile gate 0/0 (after the
+    unitAI cast catch). Collision scan [0x4092B0,0x409600): 0
+    overlaps. defs/refs 45/45 unique. Roadmap: Action runtime 4 ->
+    3 unowned (28/45 exports owned; installer 45). REMAINING:
+    setUnitAIAction (480 - the last; body + asm pulled, the decode
+    in progress: the 12-entry actionType->(order,action) table
+    {1->710/610, 3->717/617, 4->705/605, 5->709/609, 9->700/600,
+    12->714/614, 101->702/602, 104->704/604, 105->703/603,
+    106->718/618, 110->713/613, 111->715/615}, the UnitAIModule
+    call family (:449/:450/:503/:508/:534), the position copy-out
+    dispatch slot 171 = +0x2AC (M12-verified), unitAIValue @+0x7C).
+    In-game validation owed for A1-A7.
+
+  - ENUMS + REGISTRIES (owner-supplied 2026-11-22): NEW HEADER
+    src/engine/object/RGE_Action_Types.h (the RGE_MASTER_TYPE precedent
+    style) - RGE_ACTION_TYPE (31 values 1-149; 131 Offboard trade and
+    132 Pickup unit per the owner's correction), RGE_UNITAI_ACTION
+    (600-699, 31 values), RGE_UNITAI_ORDER (DERIVED, NOT
+    owner-supplied: order = action + 100, all 12 setUnitAIAction table
+    pairs asm-verified 0x409C57-0x409CE3; only the 12 table-reachable
+    values enumerated). DECOMP_GAME_FACTS.md gained the three registry
+    tables + the consumers notes + the RGE_Action::state idle-set
+    PARTIAL entry ({0,1,2,3,13,14}: 1/2/3/13 align with Move to /
+    Follow / Enter / Guard; 14 UNKNOWN - the state namespace is
+    DISTINCT from action_type). RETROFIT (owner-directed): the written
+    A1-A7 literals now use the enum names - work2 (ATTACK gate,
+    ARTIFACT hasActionOfType, ATTACK2 confirm, MOVE_TO speed
+    fallback), is_idle (ARTIFACT), actionTypeIfOrdered (CONVERT);
+    /Fa re-verified CODEGEN-IDENTICAL (all immediates byte-for-byte:
+    cmp [ecx+6],7 / cmp ax,9 / push 107 / cmp [esi+4],107 / push 1).
+    NOT retrofitted (distinct namespaces): the is_idle state set
+    literals (RGE_Action::state), work2's object_group == 1 (Herd
+    Animal - the object_group registry). game-facts notations: 104
+    Convert = actionTypeIfOrdered's attributes-range logic; 107
+    Artifact = is_idle's placeholder check + work2's add_sub_action
+    gate; 9 Attack2 = work2's confirm block. setUnitAIAction (A8,
+    pending approval) will be written with the enum switch.
+
+  - RGE_ACTION_STATE (owner-supplied 2026-11-22, the third registry):
+    RGE_Action::state (u8 @+0xC) - 16 values None/Done/Wait/Search/
+    Goto/Goto2/Work/Work2/Return/Turn/Delay/Move/Attack/Failed/
+    Invalidated/MoveNoSearch; added to RGE_Action_Types.h +
+    DECOMP_GAME_FACTS.md (the game-facts PARTIAL idle-set entry
+    upgraded to CONFIRMED: the is_idle set reads None/Done/Wait/
+    Failed/Search/Invalidated; update_new's removal pair reads
+    Search/Done). RETROFIT: is_idle's six state literals + update's
+    removal pair now use RGE_ACTION_STATE names (the update site
+    carries the namespace inference - the list update propagates the
+    current action's state - flagged in the site comment); /Fa
+    re-verified codegen-identical (cmp cl,1/3, cmp al,3/1). NOT
+    retrofitted: update_new's object_state <= 2 / == 2 literals (the
+    UNIT object_state registry @+0x58 - a fourth namespace,
+    game-facts PARTIAL). game-facts notations: the state registry
+    also illuminates conversion.cpp's {7 Work2, 6 Work, 4 Goto}
+    purge gate (unowned site).
+
+  - BATCH A8 (owner-approved + WRITTEN 2026-11-22): setUnitAIAction
+    @0x00409C20 [0x409C20,0x409E00) - THE FINAL ACTION EXPORT. Decode
+    basis ASM-ONLY (owner-directed: the .c render of the
+    addOrderToHistory argument block unreliable - overlapping
+    by-value-BVector locals v10-v16 + the (int)v16 artifact).
+    Groundings: module = unitAIValue @+0x7C = 124 (:7478); the
+    111-case two-level switch (off_409E04 + byte_409E38, lst-verified)
+    = 12 actionType -> {order, action} pairs (the enum-named switch;
+    default keeps -1/-1); setCurrentOrder (:449, saveLast = 1) /
+    setCurrentAction (:450); the OBJ PATH: setCurrentTarget2 (:503;
+    obj->id @+0x10, movsx group @+0x1E), position(obj, &bufA) +
+    position(this, &bufB) (slot 171 = +0x2AC, /Fa [eax+684] x2 - the
+    copy-out getter, M12-verified; the .c's 1-arg cast-render at
+    :52477 hid the out-buffer); targetID = obj->id staged by the
+    LINGERING PUSH (asm 0x409D4D/0x409D54: push id, push out-buffer,
+    the position callees pop only 4 - the id remains as the next
+    call's targetID slot; the .c's (int)v16 was this slot);
+    the NO-OBJ PATH: setCurrentTarget2(-1, -1, x, y, z);
+    targetPosition = {y, y, y} (the setCurrentTarget2 arg-push
+    leftovers {x, y, z} with x/z overwritten by y: asm 0x409DBD/
+    0x409DC2, the middle slot the untouched y push - mechanical
+    triple-confirmation; the .c's {x, y, z} v13 render WRONG);
+    targetID = -1; position(this, &bufD). SHARED TAIL:
+    addOrderToHistory (:534; order, action, own_position, target_id,
+    target_position - by-value BVectors the compiler stages) +
+    setTaskedByPlayer (:508); both paths join at loc_409DE7. GATE:
+    0/0. /Fa census: [eax+684] x2, the five UnitAIModule constants
+    (:449/:450/:503/:508/:534), the compiler-rebuilt byte-table
+    switch (positional diff expected). defs/refs 46/46 unique;
+    bare CRT 0. Collision scan [0x409C20,0x409E00): 0 overlaps.
+    /Fa/ GAME FACTS UPGRADES this batch cycle: the action_type +
+    UnitAI-action + UnitAI-order (DERIVED: order = action + 100)
+    registries + the RGE_Action::state registry (all owner-supplied;
+    the state PARTIAL entry CONFIRMED) -> RGE_Action_Types.h (new
+    header, three enums) + DECOMP_GAME_FACTS.md; the written A1-A7
+    literals retrofitted to the enum names, /Fa re-verified
+    codegen-identical. ACTION RUNTIME PROJECT COMPLETE: 45/45
+    exports owned (installer 46 hooks in RGE_Action_Object.cpp -
+    45 exports + set_Selected_Groups). In-game validation owed for
+    A1-A8 (the owner's standard test). NEXT: the roadmap continues
+    Combat 48 / Static 133 / TRIBE_Combat 75 / TRIBE_Building 70
+    runtime methods (smallest-first per class); the Action-family
+    classes (RGE_Action + the 25 subclasses behind
+    create_task_action's switch) are a candidate follow-on.
+
 

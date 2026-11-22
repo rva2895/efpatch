@@ -10071,7 +10071,7 @@
 .text:004067E0 ; =============== S U B R O U T I N E =======================================
 .text:004067E0
 .text:004067E0
-.text:004067E0 ; RGE_Action *__thiscall RGE_Action_List::create_task_action(RGE_Action_List *this, RGE_Task *task, RGE_Static_Object *target_obj, float target_x, float target_y, float target_z, int)
+.text:004067E0 ; RGE_Action *__thiscall RGE_Action_List::create_task_action(RGE_Action_List *this, RGE_Task *task, RGE_Static_Object *target_obj, float target_x, float target_y, float target_z, int gather_flag)
 .text:004067E0 RGE_Action_List__create_task_action proc near
 .text:004067E0                                         ; CODE XREF: TRIBE_Action_List__create_task_action+7E5\u2193p
 .text:004067E0                                         ; DATA XREF: .rdata:RGE_Action_List__vftable\u2193o
@@ -10083,7 +10083,7 @@
 .text:004067E0 x               = dword ptr  0Ch
 .text:004067E0 y               = dword ptr  10h
 .text:004067E0 z               = dword ptr  14h
-.text:004067E0 arg_14          = dword ptr  18h
+.text:004067E0 gather_flag     = dword ptr  18h
 .text:004067E0
 .text:004067E0 ; FUNCTION CHUNK AT .text:006408C0 SIZE 00000062 BYTES
 .text:004067E0
@@ -10310,7 +10310,7 @@
 .text:00406A25                                         ; RGE_Action_List__create_task_action+241\u2191j
 .text:00406A25                 test    eax, eax
 .text:00406A27                 jz      short loc_406A90
-.text:00406A29                 mov     ecx, [esp+1Ch+arg_14]
+.text:00406A29                 mov     ecx, [esp+1Ch+gather_flag]
 .text:00406A2D                 test    ecx, ecx
 .text:00406A2F                 jz      short loc_406A90
 .text:00406A31                 mov     dword ptr [eax+5Ch], 1
@@ -15499,30 +15499,30 @@
 .text:004092B0 ; =============== S U B R O U T I N E =======================================
 .text:004092B0
 .text:004092B0
-.text:004092B0 ; void __thiscall RGE_Action_Object::work2(RGE_Action_Object *this, RGE_Static_Object *obj, float x, float y, float z, char work_flag, __int16 certain_action, int unk)
+.text:004092B0 ; void __thiscall RGE_Action_Object::work2(RGE_Action_Object *this, RGE_Static_Object *obj, float x, float y, float z, char work_flag, int gather_flag, __int16 certain_action)
 .text:004092B0 RGE_Action_Object__work2 proc near      ; CODE XREF: TRIBE_Combat_Object__work2+311\u2193p
 .text:004092B0                                         ; DATA XREF: .rdata:RGE_Action_Object__vftable\u2193o ...
 .text:004092B0
 .text:004092B0 var_4           = dword ptr -4
-.text:004092B0 obj             = dword ptr  4
+.text:004092B0 obj_in          = dword ptr  4
 .text:004092B0 x               = dword ptr  8
 .text:004092B0 y               = dword ptr  0Ch
 .text:004092B0 z               = dword ptr  10h
 .text:004092B0 work_flag       = byte ptr  14h
-.text:004092B0 certain_action  = word ptr  18h
-.text:004092B0 unk             = dword ptr  1Ch
+.text:004092B0 gather_flag     = dword ptr  18h
+.text:004092B0 certain_action  = word ptr  1Ch
 .text:004092B0 arg_28          = dword ptr  2Ch
 .text:004092B0
 .text:004092B0                 push    ecx
 .text:004092B1                 push    ebx
 .text:004092B2                 push    ebp
-.text:004092B3                 mov     ebp, [esp+0Ch+obj]
+.text:004092B3                 mov     ebp, [esp+0Ch+obj_in]
 .text:004092B7                 push    esi
 .text:004092B8                 mov     esi, ecx
 .text:004092BA                 push    edi
 .text:004092BB                 cmp     ebp, esi
 .text:004092BD                 jz      loc_4095FB
-.text:004092C3                 mov     edi, [esp+14h+unk]
+.text:004092C3                 mov     edi, dword ptr [esp+14h+certain_action]
 .text:004092C7                 mov     ebx, [esp+14h+z]
 .text:004092CB                 mov     eax, [esi+14h]
 .text:004092CE                 push    0
@@ -15552,7 +15552,7 @@
 .text:0040930A                 jz      loc_4093AF
 .text:00409310                 mov     eax, [esi+18h]
 .text:00409313                 xor     ecx, ecx
-.text:00409315                 mov     [esp+14h+obj], ecx
+.text:00409315                 mov     [esp+14h+obj_in], ecx
 .text:00409319                 mov     edx, [eax+70h]
 .text:0040931C                 test    edx, edx
 .text:0040931E                 jle     loc_4093AF
@@ -15572,7 +15572,7 @@
 .text:00409343                 mov     dl, [ebx+11Ch]
 .text:00409349                 cmp     dl, [eax+11Ch]
 .text:0040934F                 jnz     short loc_409391
-.text:00409351                 mov     edi, [esp+14h+unk]
+.text:00409351                 mov     edi, dword ptr [esp+14h+certain_action]
 .text:00409355                 push    0
 .text:00409357                 mov     ecx, [ebx+104h]
 .text:0040935D                 push    edi
@@ -15598,13 +15598,13 @@
 .text:0040938B                 jnz     short loc_4093A0
 .text:0040938D
 .text:0040938D loc_40938D:                             ; CODE XREF: RGE_Action_Object__work2+C9\u2191j
-.text:0040938D                 mov     ecx, [esp+14h+obj]
+.text:0040938D                 mov     ecx, [esp+14h+obj_in]
 .text:00409391
 .text:00409391 loc_409391:                             ; CODE XREF: RGE_Action_Object__work2+7C\u2191j
 .text:00409391                                         ; RGE_Action_Object__work2+89\u2191j ...
 .text:00409391                 mov     eax, [esi+18h]
 .text:00409394                 inc     ecx
-.text:00409395                 mov     [esp+14h+obj], ecx
+.text:00409395                 mov     [esp+14h+obj_in], ecx
 .text:00409399                 cmp     ecx, [eax+70h]
 .text:0040939C                 jl      short loc_409324
 .text:0040939E                 jmp     short loc_4093AB
@@ -15629,7 +15629,7 @@
 .text:004093B7 loc_4093B7:                             ; CODE XREF: RGE_Action_Object__work2+45\u2191j
 .text:004093B7                 test    edi, edi
 .text:004093B9                 jnz     short loc_4093C7
-.text:004093BB                 cmp     word ptr [esp+14h+unk], 0FFFFh
+.text:004093BB                 cmp     [esp+14h+certain_action], 0FFFFh
 .text:004093C1                 jnz     loc_4095FB
 .text:004093C7
 .text:004093C7 loc_4093C7:                             ; CODE XREF: RGE_Action_Object__work2+101\u2191j
@@ -15637,14 +15637,14 @@
 .text:004093C7                 mov     ecx, [esi+13Ch] ; this
 .text:004093CD                 call    RGE_Action_List__get_task
 .text:004093D2                 test    eax, eax
-.text:004093D4                 mov     [esp+14h+obj], eax
-.text:004093D8                 mov     [esp+14h+unk], 0
+.text:004093D4                 mov     [esp+14h+obj_in], eax
+.text:004093D8                 mov     dword ptr [esp+14h+certain_action], 0
 .text:004093E0                 jz      short loc_40945A
 .text:004093E2                 cmp     edi, eax
 .text:004093E4                 jnz     short loc_40945A
 .text:004093E6                 mov     ecx, [esi+13Ch] ; this
 .text:004093EC                 call    RGE_Action_List__get_action
-.text:004093F1                 mov     ecx, [esp+14h+obj]
+.text:004093F1                 mov     ecx, [esp+14h+obj_in]
 .text:004093F5                 mov     ax, [eax+4]
 .text:004093F9                 cmp     ax, [ecx+6]
 .text:004093FD                 jnz     short loc_40945A
@@ -15669,7 +15669,7 @@
 .text:00409433                 push    ecx
 .text:00409434                 push    ebp
 .text:00409435                 mov     ecx, eax
-.text:00409437                 mov     [esp+24h+unk], edx
+.text:00409437                 mov     dword ptr [esp+24h+certain_action], edx
 .text:0040943B                 call    dword ptr [ebx+18h]
 .text:0040943E                 movsx   edx, ax
 .text:00409441                 mov     eax, [esp+14h+arg_28]
@@ -15677,7 +15677,7 @@
 .text:00409446                 mov     ecx, esi
 .text:00409448                 call    dword ptr [eax+3A8h]
 .text:0040944E                 mov     ebx, [esp+14h+z]
-.text:00409452                 mov     [esp+14h+unk], 1
+.text:00409452                 mov     dword ptr [esp+14h+certain_action], 1
 .text:0040945A
 .text:0040945A loc_40945A:                             ; CODE XREF: RGE_Action_Object__work2+130\u2191j
 .text:0040945A                                         ; RGE_Action_Object__work2+134\u2191j ...
@@ -15741,12 +15741,12 @@
 .text:004094FF
 .text:004094FF loc_4094FF:                             ; CODE XREF: RGE_Action_Object__work2+1B7\u2191j
 .text:004094FF                                         ; RGE_Action_Object__work2+1D1\u2191j ...
-.text:004094FF                 mov     eax, [esp+14h+unk]
+.text:004094FF                 mov     eax, dword ptr [esp+14h+certain_action]
 .text:00409503                 test    eax, eax
 .text:00409505                 jnz     loc_4095FB
 .text:0040950B                 test    edi, edi
 .text:0040950D                 jz      loc_4095BB
-.text:00409513                 mov     eax, dword ptr [esp+14h+certain_action]
+.text:00409513                 mov     eax, [esp+14h+gather_flag]
 .text:00409517                 mov     ecx, [esi+13Ch]
 .text:0040951D                 push    eax
 .text:0040951E                 mov     eax, [esp+18h+y]
@@ -15797,7 +15797,7 @@
 .text:00409581                 mov     ecx, edi
 .text:00409583                 mov     [esp+24h+x], edx
 .text:00409587                 call    dword ptr [eax+18h]
-.text:0040958A                 mov     edx, dword ptr [esp+14h+certain_action]
+.text:0040958A                 mov     edx, [esp+14h+gather_flag]
 .text:0040958E                 movsx   ecx, ax
 .text:00409591                 push    ecx
 .text:00409592                 mov     ecx, esi
@@ -66718,7 +66718,7 @@
 .text:00424BEB                 cmp     eax, 2
 .text:00424BEE                 setnl   dl
 .text:00424BF1                 mov     [ecx+8F8h], ax
-.text:00424BF8                 mov     dword_68957C, edx
+.text:00424BF8                 mov     walk_tile_particles_enabled, edx
 .text:00424BFE                 jmp     loc_424CB5
 .text:00424C03 ; ---------------------------------------------------------------------------
 .text:00424C03
@@ -66745,7 +66745,7 @@
 .text:00424C43                 mov     graphics_detail, edi
 .text:00424C49                 mov     eax, [ebp+24h]
 .text:00424C4C                 mov     [eax+8F8h], di
-.text:00424C53                 mov     dword_68957C, 0
+.text:00424C53                 mov     walk_tile_particles_enabled, 0
 .text:00424C5D                 jmp     short loc_424C99
 .text:00424C5F ; ---------------------------------------------------------------------------
 .text:00424C5F
@@ -66765,7 +66765,7 @@
 .text:00424C8C                 mov     [edx+8F8h], ax
 .text:00424C93
 .text:00424C93 loc_424C93:                             ; CODE XREF: RGE_Base_Game__setup+15D\u2191j
-.text:00424C93                 mov     dword_68957C, edi
+.text:00424C93                 mov     walk_tile_particles_enabled, edi
 .text:00424C99
 .text:00424C99 loc_424C99:                             ; CODE XREF: RGE_Base_Game__setup+13D\u2191j
 .text:00424C99                 mov     eax, [ebp+24h]
@@ -80671,7 +80671,7 @@
 .text:0042C9DE                 cmp     eax, 2
 .text:0042C9E1                 setnl   dl
 .text:0042C9E4                 mov     [ecx+8F8h], ax
-.text:0042C9EB                 mov     dword_68957C, edx
+.text:0042C9EB                 mov     walk_tile_particles_enabled, edx
 .text:0042C9F1                 retn    4
 .text:0042C9F1 RGE_Base_Game__set_detail_level endp
 .text:0042C9F1
@@ -231312,19 +231312,19 @@
 .text:00488480 ; =============== S U B R O U T I N E =======================================
 .text:00488480
 .text:00488480
-.text:00488480 ; void __thiscall RGE_Master_Action_Object::play_command_sound(RGE_Master_Action_Object *this, RGE_Player *player)
+.text:00488480 ; void __thiscall RGE_Master_Action_Object::play_command_sound(RGE_Master_Action_Object *this, RGE_Static_Object *obj)
 .text:00488480 RGE_Master_Action_Object__play_command_sound proc near
 .text:00488480                                         ; DATA XREF: .rdata:RGE_Master_Action_Object__vftable\u2193o
 .text:00488480                                         ; .rdata:RGE_Master_Combat_Object__vftable\u2193o ...
 .text:00488480
-.text:00488480 player          = dword ptr  4
+.text:00488480 obj             = dword ptr  4
 .text:00488480
 .text:00488480                 push    esi
 .text:00488481                 mov     esi, ecx
 .text:00488483                 mov     ecx, [esi+120h] ; this
 .text:00488489                 test    ecx, ecx
 .text:0048848B                 jz      short loc_4884C1
-.text:0048848D                 mov     eax, [esp+4+player]
+.text:0048848D                 mov     eax, [esp+4+obj]
 .text:00488491                 push    0FFFFFFFFh      ; culture
 .text:00488493                 test    eax, eax
 .text:00488495                 jz      short loc_4884B4
@@ -231359,19 +231359,19 @@
 .text:004884D0 ; =============== S U B R O U T I N E =======================================
 .text:004884D0
 .text:004884D0
-.text:004884D0 ; void __thiscall RGE_Master_Action_Object::play_move_sound(RGE_Master_Action_Object *this, RGE_Player *player)
+.text:004884D0 ; void __thiscall RGE_Master_Action_Object::play_move_sound(RGE_Master_Action_Object *this, RGE_Static_Object *obj)
 .text:004884D0 RGE_Master_Action_Object__play_move_sound proc near
 .text:004884D0                                         ; DATA XREF: .rdata:RGE_Master_Action_Object__vftable\u2193o
 .text:004884D0                                         ; .rdata:RGE_Master_Combat_Object__vftable\u2193o ...
 .text:004884D0
-.text:004884D0 player          = dword ptr  4
+.text:004884D0 obj             = dword ptr  4
 .text:004884D0
 .text:004884D0                 push    esi
 .text:004884D1                 mov     esi, ecx
 .text:004884D3                 mov     ecx, [esi+124h] ; this
 .text:004884D9                 test    ecx, ecx
 .text:004884DB                 jz      short loc_488511
-.text:004884DD                 mov     eax, [esp+4+player]
+.text:004884DD                 mov     eax, [esp+4+obj]
 .text:004884E1                 push    0FFFFFFFFh      ; culture
 .text:004884E3                 test    eax, eax
 .text:004884E5                 jz      short loc_488504
@@ -275129,7 +275129,7 @@
 .text:004A17D7 ; ---------------------------------------------------------------------------
 .text:004A17D7
 .text:004A17D7 loc_4A17D7:                             ; CODE XREF: RGE_Moving_Object__teleport+308\u2191j
-.text:004A17D7                 mov     eax, dword_68957C
+.text:004A17D7                 mov     eax, walk_tile_particles_enabled
 .text:004A17DC                 test    eax, eax
 .text:004A17DE                 jz      loc_4A18E7
 .text:004A17E4                 mov     eax, [esp+30h+x]
@@ -586071,7 +586071,7 @@
 .text:0055EEC0 ; =============== S U B R O U T I N E =======================================
 .text:0055EEC0
 .text:0055EEC0
-.text:0055EEC0 ; void __thiscall TRIBE_Combat_Object::work2(TRIBE_Combat_Object *this, RGE_Static_Object *target_obj, float x, float y, float z, unsigned __int8 work_flag, __int16 certain_action)
+.text:0055EEC0 ; void __thiscall TRIBE_Combat_Object::work2(TRIBE_Combat_Object *this, RGE_Static_Object *target_obj, float x, float y, float z, unsigned __int8 work_flag, int gather_flag, __int16 certain_action)
 .text:0055EEC0 TRIBE_Combat_Object__work2 proc near    ; DATA XREF: .rdata:TRIBE_Building_Object__vftable\u2193o
 .text:0055EEC0                                         ; .rdata:TRIBE_Combat_Object__vftable\u2193o
 .text:0055EEC0
@@ -586082,8 +586082,8 @@
 .text:0055EEC0 y               = dword ptr  0Ch
 .text:0055EEC0 z               = dword ptr  10h
 .text:0055EEC0 work_flag       = byte ptr  14h
-.text:0055EEC0 certain_action  = word ptr  18h
-.text:0055EEC0 unk             = dword ptr  1Ch
+.text:0055EEC0 gather_flag     = dword ptr  18h
+.text:0055EEC0 certain_action  = word ptr  1Ch
 .text:0055EEC0
 .text:0055EEC0 ; FUNCTION CHUNK AT .text:00644BC0 SIZE 00000036 BYTES
 .text:0055EEC0
@@ -586148,7 +586148,7 @@
 .text:0055EF6C                 push    48h ; 'H'       ; size
 .text:0055EF6E                 call    operator_new
 .text:0055EF73                 add     esp, 4
-.text:0055EF76                 mov     [esp+18h+unk], eax
+.text:0055EF76                 mov     dword ptr [esp+18h+certain_action], eax
 .text:0055EF7A                 mov     [esp+18h+var_4], 0
 .text:0055EF82
 .text:0055EF82 loc_55EF82:                             ; CODE XREF: TRIBE_Combat_Object__work2+176\u2193j
@@ -586170,7 +586170,7 @@
 .text:0055EFA3                 push    4Ch ; 'L'       ; size
 .text:0055EFA5                 call    operator_new
 .text:0055EFAA                 add     esp, 4
-.text:0055EFAD                 mov     [esp+18h+unk], eax
+.text:0055EFAD                 mov     dword ptr [esp+18h+certain_action], eax
 .text:0055EFB1                 test    eax, eax
 .text:0055EFB3                 mov     [esp+18h+var_4], 1
 .text:0055EFBB                 jz      short loc_55F03B
@@ -586295,7 +586295,7 @@
 .text:0055F0FF                 push    40h ; '@'       ; size
 .text:0055F101                 call    operator_new
 .text:0055F106                 add     esp, 4
-.text:0055F109                 mov     [esp+18h+unk], eax
+.text:0055F109                 mov     dword ptr [esp+18h+certain_action], eax
 .text:0055F10D                 test    eax, eax
 .text:0055F10F                 mov     [esp+18h+var_4], ebx
 .text:0055F113                 jz      short loc_55F122
@@ -586366,12 +586366,12 @@
 .text:0055F1A9                 mov     byte ptr [esi+191h], 0
 .text:0055F1B0
 .text:0055F1B0 loc_55F1B0:                             ; CODE XREF: TRIBE_Combat_Object__work2+2E7\u2191j
-.text:0055F1B0                 mov     ecx, [esp+18h+unk]
-.text:0055F1B4                 mov     edx, dword ptr [esp+18h+certain_action]
+.text:0055F1B0                 mov     ecx, dword ptr [esp+18h+certain_action]
+.text:0055F1B4                 mov     edx, [esp+18h+gather_flag]
 .text:0055F1B8                 mov     eax, dword ptr [esp+18h+work_flag]
-.text:0055F1BC                 push    ecx             ; unk
+.text:0055F1BC                 push    ecx             ; certain_action
 .text:0055F1BD                 mov     ecx, [esp+1Ch+z]
-.text:0055F1C1                 push    edx             ; certain_action
+.text:0055F1C1                 push    edx             ; gather_flag
 .text:0055F1C2                 mov     edx, [esp+20h+y]
 .text:0055F1C6                 push    eax             ; work_flag
 .text:0055F1C7                 mov     eax, [esp+24h+x]
@@ -611208,7 +611208,7 @@
 .text:0056CF40 ; =============== S U B R O U T I N E =======================================
 .text:0056CF40
 .text:0056CF40
-.text:0056CF40 ; RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *this, RGE_Task *task, RGE_Static_Object *target_obj, float target_x, float target_y, float target_z)
+.text:0056CF40 ; RGE_Action *__thiscall TRIBE_Action_List::create_task_action(TRIBE_Action_List *this, RGE_Task *task, RGE_Static_Object *target_obj, float target_x, float target_y, float target_z, int gather_flag)
 .text:0056CF40 TRIBE_Action_List__create_task_action proc near
 .text:0056CF40                                         ; DATA XREF: .rdata:TRIBE_Action_List__vftable\u2193o
 .text:0056CF40
@@ -611219,7 +611219,7 @@
 .text:0056CF40 x               = dword ptr  0Ch
 .text:0056CF40 y               = dword ptr  10h
 .text:0056CF40 z               = dword ptr  14h
-.text:0056CF40 arg_14          = dword ptr  18h
+.text:0056CF40 gather_flag     = dword ptr  18h
 .text:0056CF40
 .text:0056CF40 ; FUNCTION CHUNK AT .text:00645140 SIZE 00000133 BYTES
 .text:0056CF40
@@ -611969,10 +611969,10 @@
 .text:0056D709 def_56CF78:                             ; CODE XREF: TRIBE_Action_List__create_task_action+2A\u2191j
 .text:0056D709                                         ; TRIBE_Action_List__create_task_action+38\u2191j
 .text:0056D709                                         ; DATA XREF: ...
-.text:0056D709                 mov     eax, [esp+18h+arg_14] ; jumptable 0056CF78 default case, cases 4-11,13-100,102,103,109,112-119,122,124,126-130,133,134,137-148
+.text:0056D709                 mov     eax, [esp+18h+gather_flag] ; jumptable 0056CF78 default case, cases 4-11,13-100,102,103,109,112-119,122,124,126-130,133,134,137-148
 .text:0056D70D                 mov     ecx, [esp+18h+z]
 .text:0056D711                 mov     edx, [esp+18h+y]
-.text:0056D715                 push    eax             ; int
+.text:0056D715                 push    eax             ; gather_flag
 .text:0056D716                 mov     eax, [esp+1Ch+x]
 .text:0056D71A                 push    ecx             ; target_z
 .text:0056D71B                 mov     ecx, [esp+20h+target_obj_in]
@@ -1067328,7 +1067328,7 @@ THIS_COD:006539D0
 .data:00689570                 dd 1
 .data:00689574                 dd 1
 .data:00689578 do_autogroupunits dd 1                  ; DATA XREF: RGE_Player__RGE_Player2+10B\u2191r
-.data:0068957C dword_68957C    dd 1                    ; DATA XREF: RGE_Base_Game__setup+D8\u2191w
+.data:0068957C walk_tile_particles_enabled dd 1        ; DATA XREF: RGE_Base_Game__setup+D8\u2191w
 .data:0068957C                                         ; RGE_Base_Game__setup+133\u2191w ...
 .data:00689580 ; char dirName[]
 .data:00689580 dirName         db 'Screenshots',0      ; DATA XREF: RGE_Base_Game__Take_ScreenShot+57\u2191o
