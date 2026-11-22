@@ -7054,4 +7054,292 @@ authoritative.)
     classes (RGE_Action + the 25 subclasses behind
     create_task_action's switch) are a candidate follow-on.
 
+  - IN-GAME VALIDATION (owner-confirmed 2026-11-22): all tests clean
+    on the current tree - A1-A8 + the four earlier runtime ladder
+    batches validated together.
+
+  - COMBAT RUNTIME OPENED (2026-11-22): 53 RGE_Combat_Object__ procs
+    in the .lst; 5 owned (batch 1b-4: ctor/scalar-dtor/ctor_read/
+    destructor/recycle_in_to_game); 48 remaining = the roadmap count
+    EXACT. Smallest-first tiers established (sizes from the
+    proc->endp extents).
+
+  - BATCH C1 (owner-approved + WRITTEN 2026-11-22): 14 Combat runtime
+    hooks - stop @0x00443DF0 [0x443DF0,0x443E0F), calc_attack_modifier
+    @0x00443E10 [..,0x443E16), can_attack @0x00444AE0 [..,0x444AF8),
+    reset_attack_timer @0x00444B00 [..,0x444B0F), get_weapon_range
+    @0x00444C80 [..,0x444C9E), get_speed_of_attack @0x00444CB0
+    [..,0x444CCE), moveTo3 @0x00445510 [..,0x445527), pause
+    @0x00445F30 [..,0x445F4F), rateOfFire @0x00445F50 [..,0x445F59),
+    weaponRange @0x00446090 [..,0x446099), minimumWeaponRange
+    @0x004460A0 [..,0x4460A9), currentTargetX/Y/Z @0x00446150/
+    0x00446180/0x004461B0 ([..,0x44617D]/[..,0x4461AD]/[..,0x4461DD]).
+    Groundings: the base stop HOOKED (0x409850 -> routes);
+    unitAIValue @+0x7C = 124; the stopObject NAMED dispatch
+    (UnitAIModuleVtbl member 21 = +0x54, line-arith 7588-7567 = 21;
+    /Fa [eax+84]) argument 0; UnitAIModule__removeCurrentTarget
+    (:501 UNHOOKED); attack_timer @+0x174 = 372 (batch 1b-4 map);
+    speed_of_attack @+0x150 = 336 / weapon_range @+0x144 = 324 /
+    orig_weapon_range @+0x170 = 368 / orig_speed_of_attack @+0x174
+    = 372 (the master walk); the can_attack X87 SITE (test ah,41h /
+    jnz taken {<=0, NaN} -> the X87_LE_NAN macro; /Fa: comiss +
+    setbe - the unordered-inclusive predicate, NOT folded); moveTo2
+    slot 124 = +0x1F0 (/Fa [eax+496]) with the 1.0f default minimum
+    range (the dd rule); the master get_sprite dispatch slot 1
+    (+0x4; the Building-draw precedent) + the new_sprite slot 44
+    (+0xB0, batch 1b-1); the currentTargetXYZ have_action == 1
+    exact guards + targetX/Y/Z (:186/:187/:188) st0 passthroughs
+    (/Fa: the -1.0 arm fld __real@bff0000000000000, the tail
+    jmp targetX). Compile gate 0/0. Collision scan over the 14
+    ranges: 0 overlaps (canonical + dead-profiler rows only).
+    defs/refs 19/19 unique (5 pre-existing + 14 C1). Roadmap:
+    Combat runtime 48 -> 34 unowned. REMAINING TIERS: C2 =
+    release_being_worked_on (55 - notifies 699
+    RGE_UNITAI_ACTION_RELEASED, the registry's first owned
+    consumer), copy_obj (63), currentTargetID/ID2 (67),
+    get_visibility (86), inAttackRange (107), teleport (114),
+    notify (116), enter_obj (120), setup (120); then the larger
+    tiers up to attack3 (857). In-game validation owed for C1.
+
+
+
+  - BATCH C2 (owner-approved + WRITTEN 2026-11-22): 10 Combat runtime
+    hooks - release_being_worked_on @0x00444CE0 [0x444CE0,0x444D17),
+    copy_obj @0x004450C0 [..,0x445103), currentTargetID @0x004460B0
+    [..,0x4460F3), currentTargetID2 @0x00446100 [..,0x446143),
+    get_visibility @0x00446260 [..,0x4462B6), inAttackRange
+    @0x00446020 [..,0x44608B), teleport @0x004461E0 [..,0x446252),
+    notify @0x00445110 [..,0x445184), enter_obj @0x00444D20
+    [..,0x444D98), setup @0x00443C20 [..,0x443C98).
+    release_being_worked_on: the base Animated release + the caller->id
+    >= 0 gate -> the notify dispatch (slot 120 = +0x1E0, /Fa
+    [edx+480]) with (caller_id, this->id, 699
+    RGE_UNITAI_ACTION_RELEASED, movsx group @+0x1E, 0, 0). copy_obj:
+    the get_fight_sprite NAMED dispatch slot 33 = +0x84 on the OWN
+    master (/Fa [eax+132]) vs the unit sprite @+0x1C, then on source2
+    (cast RGE_Master_Combat_Object* per the Combat-tier identity; the
+    .c's vfptr[1].get_death_sprite name = the vfptr[1] ARTIFACT - both
+    asm calls hit slot +0x84 = get_fight_sprite per the CONCRETE
+    vftable walk @0x0065AFF8 slot 33, .lst 989852 - the idb member 33
+    = :11249 agrees) -> new_sprite (slot 44 = +0xB0); then the base
+    Action copy_obj HOOKED. get_visibility: the map col/row convention
+    VERIFIED (map_col = ftol(world_x @+0x48), map_row = ftol(world_y
+    @+0x4C); the owned get_visible_new signature (map_col, map_row) at
+    RGE_Visible_Map.cpp:13; /Fa cvttss2si [esi+72]/[esi+76]; the
+    mutual-mask upgrade (mutualVisibleMask @+0x130 = 304,
+    mutualExploredMask @+0x12C = 300; /Fa [edi+304]/[edi+300]);
+    MUP @+0x16C = 364 gate + UMV @+0x168 = 360 mask (/Fa
+    [esi+364]/[esi+360]); the result 15/0x80/0. inAttackRange: the
+    distance_to_object DOUBLE return (:3871) captured into a float
+    (the rule-(e) store-round); minimumWeaponRange slot 102 = +0x198
+    (/Fa [eax+408]) with the fstp m32 store-round; weaponRange slot
+    101 = +0x194 (/Fa [eax+404]) the st0 consumed UNROUNDED (the
+    double capture); X87_LT_NAN(distance, minimum) flag (test ah,1 =
+    the C0-only {<, NaN} set -> the negated-opposite form) and
+    X87_LE_NAN(distance, weapon) && flag == 0 return (test ah,41h /
+    jz = the {<=, NaN} proceed set - NaN proceeds, byte-faithful).
+    teleport: the ftol old/new x/y (cvttss2si); the VUR_Ptrs[9]
+    byte-patch loop pos_x @+6 / pos_y @+7 - VISIBLE_UNIT_REC
+    :10338-10345 /Fa [edx+6]/[edx+7] x9; the .c int renders were
+    IDA artifacts); the base Moving teleport HOOKED (:2133).
+    notify: the object_state FILTER (== 2 pass any; == 0 pass
+    mType == 500 only; else block - asm cmp al,2 / test al,al /
+    cmp 1F4h); the module notify NAMED dispatch (UnitAIModuleVtbl
+    member 5 = +0x14, /Fa [eax+20]) truthy -> return; the 699
+    RGE_UNITAI_ACTION_RELEASED filter (asm cmp 2BBh); else the
+    owner notify NAMED dispatch (TRIBE_PlayerVtbl member 75 =
+    +0x12C, line-arith 1168-1093 = 75; /Fa [eax+300]). mType
+    500 UNKNOWN (the registry candidate). enter_obj: the base
+    Static enter_obj UNHOOKED; the inside_obj @+0x2C && id @+0x10
+    gate -> the Update_Unit_Info call (the batch 1b-4 destructor's
+    arg pattern: id, owner->id, ftol x/y, LOR @+0x16D, movsx
+    group @+0x1E, UMV, 0, VUR_Ptrs @+0x144; the manager slot
+    0x007A1CB8 = game_visible_unit_manager) + UMV @+0x168 = 0
+    (/Fa [esi+360]). setup: the VUR_Ptrs[9] zero loop (_countof
+    form, the ctor precedent) + the extension clears (MUP byte
+    @+0x16C, UMV dword @+0x168, LOR byte @+0x16D, formation
+    triple @+0x179/17A/17B, attack_count dword @+0x170 - ALL
+    BEFORE the base call per the asm order) + the base Action
+    setup HOOKED (:124); return 1.
+    MAP COL/ROW/X/Y TEMPLATE AMENDMENT (owner-directed, the C2
+    verify round): DECOMP_TEMPLATE.md gained the MAP COL/ROW/X/Y
+    CONVENTION rule - the map-indexed getters take (map_col,
+    map_row) in that stack order (map_col = ftol(world_x),
+    map_row = ftol(world_y), the row = the OUTER dimension of
+    unified_map_offsets); the IDA push comments are artifacts
+    (the first-pushed = the last parameter). The verify anchor:
+    the owned get_visible_new signature (map_col, map_row) at
+    RGE_Visible_Map.cpp:13. The Combat get_visibility caller:
+    push ftol(y) first, push ftol(x) second -> [esp+4] = world_x
+    = map_col. GATE CATCH: RGE_UNITAI_ACTION_RELEASED needed the
+    RGE_Action_Types.h include in RGE_Combat_Object.cpp (C2065),
+    fixed. Compile gate 0/0. /Fa census clean. defs/refs 29/29
+    unique (19 pre-existing + 10 C2). Collision scan over the 10
+    ranges: 0 overlaps. Roadmap: Combat runtime 48 -> 24 unowned
+    (29/53 owned; installer 29). REMAINING TIERS: C3 = save (136),
+    get_armor (174), transform (178), damageCapability (180),
+    setup_read (186), transport (227), do_attack (244), unload
+    (251), calculateDamage (283), explore (295), moveTo2 (301),
+    attack (385), moveTo (389), gather (390), damage (401),
+    attack2 (487), attack4 (575), enter (589), area_attack (645),
+    update (791), attack3 (857). In-game validation owed for
+    C1-C2.
+
+  - BATCH C3 (owner-approved + WRITTEN 2026-11-22): 5 Combat runtime
+    hooks - setup_read @0x00443CA0 [0x443CA0,0x443D5A), save
+    @0x00443D60 [0x443D60,0x443DE8), get_armor @0x00444B10
+    [0x444B10,0x444BBE), transform @0x00443E20 [0x443E20,0x443ED2),
+    damageCapability @0x00445F60 [0x445F60,0x446014).
+    setup_read: VUR_Ptrs[9] zero loop + MUP/UMV/LOR clears BEFORE
+    the base Action setup_read HOOKED (:125 @0x4A0A40 per the
+    C1 grounding) + type @+94 = COMBAT_BASE + 8 extension reads
+    sizeof-exact (formation_row @378, formation_col @379,
+    formation_id @377, attack_timer @372 x4, capture_flag @376,
+    MUP @364, LOR @365, attack_count @368 x4; /Fa [ebp+377..368]).
+    save: the base Action save HOOKED + 8 extension writes sizeof-
+    exact (the mirror of setup_read; /Fa [esi+378..368]).
+    get_armor: the two-phase search - phase 1: the armor ptr
+    (@+0x134 = 308) non-null + armor_num @+0x132 = 306 loop,
+    type == 4 word cmp, the value @+2 word max; the -1 fallback:
+    base_armor @+0x130 = 304 + the all-values scan (no type
+    filter); then orig_armor @+0x16C = 364 (/Fa [ecx+364]).
+    The element stride = 4 bytes (RGE_Armor_Weapon_Info).
+    transform: the Update_Unit_Info bracket (PRE: PriorUMV = UMV,
+    NewUMV = 0; POST: PriorUMV = 0, NewUMV = UMV; the game slot
+    0x007A1CB8 = game_visible_unit_manager; /Fa [esi+360] UMV,
+    [esi+365] LOR, cvttss2si [esi+76]/[esi+72] y/x, [eax+160]
+    owner->id) around the base Action transform HOOKED (:126).
+    damageCapability: the dual path - PATH A (module + attacker:
+    canAttackUnit slot 19 = +0x4C (/Fa [ecx+76]), the calc_attack_
+    modifier NAMED dispatch slot 95 = +0x17C (/Fa [eax+380]; the
+    double return captured into a float local = the rule-(e)
+    store-round, /Fa fstp m32), the calculateDamage dispatch on
+    the ATTACKER's vtbl slot 59 = +0xEC (/Fa [edx+236]) with
+    (weapon_num @+0x138 movsx, weapon @+0x13C, the float modifier,
+    owner, this) - the return DISCARDED; PATH B (the weapon-sum
+    fallback): the weapon array @+0x13C scanned for positive
+    __int16 values (the x87 fild + fcom + test ah,41h / jnz ->
+    discard = the {<=0, NaN} discard set - byte-faithful), the
+    element stepped by 4 bytes (the RGE_Armor_Weapon_Info stride);
+    the double result returned UNROUNDED per rule (h) (the /Fa
+    fld qword result). GATE CATCHES: the calculateDamage dispatch
+    needed (RGE_Player*)owner and (RGE_Static_Object*)this_
+    ancestor casts (C2664 x2), fixed. Compile gate 0/0. defs/refs
+    34/34 unique (29 pre-existing + 5 C3). Collision scan over
+    the 5 ranges: 0 overlaps. Roadmap: Combat runtime 24 -> 19
+    unowned (34/53 owned; installer 34). REMAINING: transport
+    (227), do_attack (244), unload (251), calculateDamage (283),
+    explore (295), moveTo2 (301), attack (385), moveTo (389),
+    gather (390), damage (401), attack2 (487), attack4 (575),
+    enter (589), area_attack (645), update (791), attack3 (857).
+    In-game validation owed for C1-C3.
+
+  - DESYNC FIX — damageCapability_new (owner-reported desync
+    2026-11-22, ROOT-CAUSED + fixed): the TRUE path (canAttackUnit ==
+    true) returned result (0.0) instead of the calc_attack_modifier's
+    double — the `result = modifier` assignment was DROPPED in the
+    first write (the .c's `result = this->vfptr->calc_attack_modifier`
+    assignment missed; the modifier was captured into a local but
+    result was never updated). The written code returned 0.0 on the
+    TRUE path, causing the desync. FIX: `result = modifier;` added
+    after the calculateDamage dispatch. Compile gate 0/0; /Fa
+    verified the TRUE path now stores the modifier into _result
+    (movsd _result, xmm0 after the calculateDamage call).
+    LESSON: when a function has a `double result = 0.0` variable +
+    multiple assignment paths, VERIFY each path assigns result
+    before the return — the store-and-read diff has no return-value
+    coverage (the diff tracks memory stores, not the C variable
+    flow). A return-value flow check is needed for multi-path
+    functions.
+
+  - DESYNC FIX #2 - damageCapability_new (owner-reported second desync
+    2026-11-22, ROOT-CAUSED + fixed): the TRUE path returned the
+    calc_attack_modifier's double instead of calculateDamage's double.
+    The ORIGINAL asm: calc_attack_modifier's st0 was POPPED by fstp
+    (the float store), then calculateDamage was CALLED (its st0 = the
+    damage), then retn 4 returned with calculateDamage's st0 UNTOUCHED
+    - the transparent st0 passthrough. The .c's void cast-form render
+    was the artifact (calculateDamage RETURNS double per the idb vtbl
+    member). The .c's `result = calc_attack_modifier` + `return result`
+    was the x87-tracking artifact (IDA assigned the st0 at the CALL
+    site, not at the RETURN site). FIX: the calculateDamage call
+    changed from a discarded statement to `return attackingUnit->
+    vfptr->calculateDamage(...)` - the double return IS damageCapability's
+    return. The prior `result = modifier` fix was SUPERSEDED (the
+    modifier = the attack modifier, NOT the damage amount). Compile
+    gate 0/0; /Fa: the ret 4 immediately after the calculateDamage
+    call, no intervening st0/xmm management. PROTOCOL NOTE: the .c's
+    void cast-form at a vtbl dispatch is a DUAL signal - (1) the member
+    typing mismatch (the work2/create_task_action lesson) AND (2) the
+    return type the .c doesn't propagate (this case). When the asm shows
+    NO x87 management between the call and retn, the callee's return IS
+    the caller's return - the .c's void/discard render must be
+    cross-checked against the idb vtbl member's declared return type.
+    Also in this cycle: the RGE_Master_Combat_Object vftable slot 33
+    (+0x84) CONCRETE walk = get_fight_sprite (.lst 989852; the idb
+    member 33 = :11249 agrees) - copy_obj's second sprite dispatch is
+    get_fight_sprite, NOT the .c's get_death_sprite (the vfptr[1]
+    render artifact).
+
+  - SESSION CLOSEOUT (2026-11-22): all tests clean on the final tree.
+    The Action runtime + the Combat runtime partial + the registry
+    infrastructure are recorded above. The next session continues
+    the Combat runtime (24 remaining) or opens Static/TRIBE_Combat/
+    TRIBE_Building per the roadmap.
+    NEXT_SESSION_PASTE_PROMPT:
+"""
+Read DECOMP_STATE.md, DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md,
+DECOMP_GAME_FACTS.md in cheatdll/src/idb/ first. STATE: THE ACTION
+RUNTIME IS COMPLETE (45/45 exports, installer 46 hooks, all tests
+clean). THE COMBAT RUNTIME IS PARTIAL (34/53 owned, installer 34
+hooks, all tests clean on the current tree; 19 remaining). THE
+REGISTRY INFRASTRUCTURE IS IN PLACE: RGE_Action_Types.h (four enums:
+RGE_ACTION_TYPE, RGE_UNITAI_ACTION, RGE_UNITAI_ORDER (derived:
+order = action + 100), RGE_ACTION_STATE), DECOMP_GAME_FACTS.md (four
+registry tables + the consumers notes). THE COMBAT REMAINING 19:
+transport (227), do_attack (244), unload (251), calculateDamage
+(283), explore (295), moveTo2 (301), attack (385), moveTo (389),
+gather (390), damage (401), attack2 (487), attack4 (575), enter
+(589), area_attack (645), update (791), attack3 (857) + is_invisible
+(57) + get_weapon (170). AFTER COMBAT: Static 133 / TRIBE_Combat 75
+/ TRIBE_Building 70 runtime methods, smallest-first per class. THE
+FOLLOW-ON CANDIDATE: the RGE_Action family (the action subclasses
+behind create_task_action's switch - the 25 RGE_Action_* classes
+with their vtbl dispatches). PROTOCOL AMENDMENTS THIS SESSION:
+(1) the cast-form tell at a vtbl dispatch MUST trigger the suspicion
+gate at DECODE time (the member param-count/width check vs the asm
+pushes and the callee retn); (2) the map col/row/x/y convention
+(map_col = ftol(world_x), map_row = ftol(world_y), the row = the
+OUTER dimension of unified_map_offsets; the IDA push comments are
+artifacts); (3) when the asm shows NO x87 management between a
+vtbl call and retn, the callee's return IS the caller's return
+(the .c's void/discard render must be cross-checked against the
+idb vtbl member's declared return type); (4) the return-value flow
+check: when a function has a result variable + multiple assignment
+paths, VERIFY each path assigns the result before the return. THREE
+IDB CORRECTIONS THIS SESSION (all landed): IR#2 work2 member (7
+stack args: .., unsigned __int8, int, __int16) in all five runtime
+vtbls; IR#3 create_task_action member (trailing int) in both list
+vtbls; the master sound slots re-typed RGE_Player* -> RGE_Static_
+Object* (arg 2). IR REMAINING: NONE (all resolved). REGISTRY
+CANDIDATES AWAITING OWNER SUPPLY: object_state (the unit lifecycle
+state @+0x58 - PARTIAL: 0-2 the early lifecycle, >=7 the terminal
+phase, 3-6 the settled range), mType 500 (the notify type),
+RGE_Action::state 14 (the is_idle set), RGE_Armor_Weapon_Info::type
+3/4 (the armor/weapon-type namespace), the UnitAI order/action full
+ranges beyond the 12 table pairs. PROTOCOL: all edits approval-
+gated; the template rules (a)-(k) incl. the X87 macro mandate +
+the precise brackets + the rule-(j) widen-before-product + the
+map col/row/x/y convention + the cast-form dual signal + the
+return-value flow check; the citation protocol (addresses +
+function names). CARRIED: the common.h collisionUnits comment fix
+(provisional). DESYNC FIXES THIS SESSION: damageCapability #1
+(the dropped result assignment) + #2 (the calculateDamage return
+passthrough) - both fixed and gated. THE TWO-PASS BAR: size >=
+4096, or gotos >= 12 AND back-edges >= 12, or the desync fallback,
+or the owner override. THE TWO-PASS BAR CANDIDATES IN THE COMBAT
+REMAINING: attack3 (857), update (791), area_attack (645) - all
+NEED the mechanical gotos/back-edges check at decode-planning time.
+"""
+
 

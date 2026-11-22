@@ -1369,3 +1369,20 @@ remaining context, token budgets, or output length when deciding what
 to decode, verify, present, or write - every session point has
 sufficient context for the full protocol; deferrals must be justified
 by protocol gates or decode blockers only, never by size.
+
+## MAP COL/ROW/X/Y CONVENTION (owner-directed 2026-11-22, the C2 get_visibility verify round)
+
+The map-indexed getters take **(map_col, map_row)** in that stack order -
+map_col = ftol(world_x), map_row = ftol(world_y), and the 2-D lookup is
+`unified_map_offsets[map_row][map_col]` (the row = the OUTER dimension).
+The IDA push comments (`; map_row` on a push) are ARTIFACTS - the
+FIRST-pushed argument is the LAST parameter (the right-to-left push
+order). When decoding a caller of a map-indexed function: trace the ftol
+sources to world_x/world_y, then map the stack-slot order through the
+owned replacement's SIGNATURE - never through the push comments. The
+verify anchor: the owned get_visible_new signature (map_col, map_row) at
+RGE_Visible_Map.cpp:13 and its `unified_map_offsets[map_row][map_col]`
+body. The Combat get_visibility caller: push ftol(y) first, push ftol(x)
+second, so [esp+4] = world_x = map_col and [esp+8] = world_y = map_row -
+matching the owned signature. This applies to EVERY map-indexed
+function (get_visible, get_terrain, any unified_map_offsets consumer).
