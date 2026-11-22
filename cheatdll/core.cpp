@@ -1281,7 +1281,7 @@ void setCoreHooks()
     setHook((void*)0x006069C0, core2);
     setHook((void*)0x00606A10, core3);
     setHook((void*)0x00606A60, core4);
-    setHook((void*)0x00606AB0, core5); //keep an eye on this
+    //setHook((void*)0x00606AB0, core5); //keep an eye on this. Update: removed because it clobbers ebx
     setHook((void*)0x00606B00, core6);
     setHook((void*)0x00606970, core7);
 
@@ -1387,12 +1387,17 @@ void setCoreHooks()
     setHook((void*)0x004A9FE0, addShapeToHulls_2);
     setHook((void*)0x004A9FD8, addShapeToHulls_1);
     
-    setHook((void*)0x004A3D90, isMoving_v2);
+    // retired 2026-11-21: baked into RGE_Moving_Object__isMoving_new (cheatdll/src/engine/object/RGE_Moving_Object.cpp), see 0x004A3D90
+    //setHook((void*)0x004A3D90, isMoving_v2);
 
     //calculate_future_velocity
-    writeByte(0x004A3E59, 0x16);
+    // retired 2026-11-21: the write lands in dead original-body bytes under the calculateFutureVelocity hook (the speed3 fold is baked in the replacement; the M3c ledger retirement now applied), see 0x004A3E59
+    //writeByte(0x004A3E59, 0x16);
 
-    setHook((void*)0x004A6569, checkAcceleration_patch);
+    // A/B (checkaccel): ACTIVE for the trace-orig build (the stub reference
+    // flow); retire for the trace-new build.  See the DIAG block in
+    // RGE_Moving_Object.cpp.
+    //setHook((void*)0x004A6569, checkAcceleration_patch);
     
     //find_path
     writeDword(0x004984D2, 0x0002405A);

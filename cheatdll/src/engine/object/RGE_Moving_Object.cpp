@@ -5137,6 +5137,1286 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
 } // the function
 #pragma float_control(pop)
 
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::onPatrol @ 0x004A6980 [0x4A6980,0x4A69A7) - int
+// __thiscall.  Patrol-flag query: 1 iff the object carries an active path
+// whose path-level flag word carries the patrol bit.  Reads pathData @+0x118,
+// the BPathData.path pointer @+0x10, the BPath.flags BBitVector @+0x20, and
+// masks the flag word with the BBitVectorAND_2 constant (.rdata:0065BD94 =
+// dd 1 - the .lst data listing; the capstone's dword_65BD9C = 4 form: the
+// verified literal).  The asm returns the masked word as 0/1 through the
+// sbb/neg pair.
+int __fastcall RGE_Moving_Object__onPatrol_new(RGE_Moving_Object* this_)
+{
+    BPathData *patrolPathData = this_->pathData;            // asm 0x4A6980 mov eax,[ecx+118h]
+    if (patrolPathData == 0)                                // asm 0x4A6986 test eax,eax / 0x4A6988 jz short loc_4A69A5
+        return 0;                                           // asm 0x4A69A5 xor eax,eax (exit 1)
+    BPath *patrolPath = patrolPathData->path;               // asm 0x4A698A mov eax,[eax+10h]
+    if (patrolPath == 0)                                    // asm 0x4A698D test eax,eax / 0x4A698F jz short loc_4A69A5
+        return 0;                                           // asm 0x4A69A5 xor eax,eax (exit 2)
+    return (1 & patrolPath->flags.valueValue) != 0;         // asm 0x4A6991-0x4A69A2: mov eax,[eax+20h]; mov ecx,ds:BBitVectorAND_2 (=1); and; cmp 0; sbb/neg 0-1 pair
+}
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::isMoving @ 0x004A3D90 [0x4A3D90,0x4A3DCF) - int
+// __thiscall.
+// BAKED (ISMOVING_V2): core.cpp:1390 setHook(0x004A3D90, isMoving_v2) hooks
+// this entry with a full-function replacement stub (core.cpp:968-982).  Our
+// installer runs after the core hooks (the SPEED2 install-order precedent),
+// so without the bake our hook would silently retire the patch - per the
+// mandatory-bake rule the patch semantics are folded in and the call site is
+// presented for retirement.
+// The v2 body drops the original's velocity-norm gate (asm 0x4A3D9A-0x4A3DC5:
+// x*x + z*z + y*y at x87 53-bit, fsqrt, fcomp const_f_zero, test ah,41h;
+// jnz -> 0) and returns movementData != 0 && the RAW BITS of
+// movementData->velocity.y ([edx+8]; BMovementData = {BVector velocity @0,
+// BVector acceleration @12}, idb_types.h:11143) != 0.  The bit compare is
+// deliberate: -0.0f has nonzero bits (0x80000000) and the stub reports
+// MOVING for it; a float != 0.0f compare would report NOT moving.  Read via
+// the 4-byte memcpy form (the maximumSpeed SPEED2 precedent; the punned-
+// conversion ruling).
+int __fastcall RGE_Moving_Object__isMoving_new(RGE_Moving_Object* this_)
+{
+    BMovementData *movementData = this_->movementData;      // asm (v2 stub) mov edx,[ecx+120h]
+    if (movementData == 0)                                  // asm (v2) and edx,edx / jz short locret
+        return 0;
+    unsigned int velocityForwardBits;                       // the stub's cmp eax(0),[edx+8] = a raw bit test, not a float compare
+    memcpy(&velocityForwardBits, &movementData->velocity.y, sizeof(velocityForwardBits));
+    return velocityForwardBits != 0;                        // asm (v2) setnz al
+}
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::copy_obj @ 0x004A2EF0 [0x4A2EF0,0x4A2F41) - void
+// __thiscall, 1 stack arg (retn 4).
+// Sprite-follow on copy: when this object's current sprite (@+0x1C) equals
+// its own master's move sprite (master vtbl slot 30, +0x78) the SAME getter
+// runs on the SOURCE master; otherwise, when it equals the run sprite (slot
+// 31, +0x7C), that getter runs on the source master.  A non-null result is
+// pushed through this->vfptr->new_sprite (runtime vtbl slot 44, +0xB0 -
+// the M1 calibration) BEFORE the base RGE_Static_Object::copy_obj call (the
+// idb constant, asm-direct - hook-routed per the routing ruling).
+// master_obj and source are Moving+ masters here: the function sits in the
+// Moving+ runtime vtables, so its objects and their masters are Moving+ per
+// the factory identity; slots 30/31 are declared only in the derived master
+// vtbls (the M4 setRunSprite/setMoveSprite grounding) - hence the explicit
+// casts to the lowest declaring tier (base-ward, layout-safe vfptr@0).
+void __fastcall RGE_Moving_Object__copy_obj_new(RGE_Moving_Object* this_, DWORD dummy, RGE_Master_Static_Object *source2)
+{
+    RGE_Master_Moving_Object *master = (RGE_Master_Moving_Object *)this_->master_obj;  // asm 0x4A2EF5 mov ecx,[esi+14h]
+    RGE_Sprite *sprite = master->vfptr->get_move_sprite(master, (RGE_Static_Object *)this_);  // asm 0x4A2EF8 mov eax,[ecx] / 0x4A2EFA call [eax+78h]
+    RGE_Sprite *newSprite = 0;
+    if (this_->sprite == sprite) {                          // asm 0x4A2EFD mov ecx,[esi+1Ch] / 0x4A2F04 cmp ecx,eax / 0x4A2F06 jnz short loc_4A2F12
+        newSprite = ((RGE_Master_Moving_Object *)source2)->vfptr->get_move_sprite((RGE_Master_Moving_Object *)source2, (RGE_Static_Object *)this_);  // asm 0x4A2F08-0x4A2F0D call [edx+78h] / 0x4A2F10 jmp loc_4A2F28
+    }
+    else {
+        sprite = master->vfptr->get_run_sprite(master, (RGE_Static_Object *)this_);  // asm 0x4A2F12-0x4A2F18 call [eax+7Ch]
+        if (this_->sprite == sprite)                        // asm 0x4A2F1B cmp [esi+1Ch],eax / 0x4A2F1E jnz short loc_4A2F37
+            newSprite = ((RGE_Master_Moving_Object *)source2)->vfptr->get_run_sprite((RGE_Master_Moving_Object *)source2, (RGE_Static_Object *)this_);  // asm 0x4A2F20-0x4A2F25 call [edx+7Ch]
+    }
+    if (newSprite != 0) {                                   // asm 0x4A2F28 test eax,eax / 0x4A2F2A jz short loc_4A2F37
+        this_->vfptr->new_sprite(this_, newSprite);         // asm 0x4A2F2C mov edx,[esi] / 0x4A2F2E push eax / 0x4A2F31 call [edx+0B0h]
+    }
+    RGE_Static_Object__copy_obj((RGE_Static_Object *)this_, source2);  // asm 0x4A2F37 loc_4A2F37: push edi (source) / 0x4A2F3A call RGE_Static_Object__copy_obj
+}
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::updateEnd @ 0x004A1AC0 [0x4A1AC0,0x4A1B23) - void
+// __thiscall.
+// End-of-update obstruction refresh: while MOVING (the isMoving vtable slot,
+// 192 = byte offset 0x300; slot verified by the line arithmetic
+// idb_types.h:11005 - first member 10813 = 192, by IDA's own rendering of
+// this dispatch, and against the binary vftable initializer lst :990594) the
+// obstruction manager is told the object still occupies its region (mode
+// 16); a stopped object is released (mode 0).  The manager is keyed on the
+// master's movement_type (u8 @+120; 1 = air/flyer).  The manager pointers
+// are the pointer-to-slot globals (common.h:109-110 - deref mandatory, the
+// pointer-to-slot sweep); the call is the manager vtbl slot 12
+// (ModifyObjectObstruction, +0x30, member walked in both manager vtbls).
+// BAKE INTERACTION: the dispatch routes to our hooked isMoving_new, whose
+// body is the BAKED v2 form - exactly the behavior the game exhibits today
+// (the v2 patch hooks the entry the vtable targets).
+void __fastcall RGE_Moving_Object__updateEnd_new(RGE_Moving_Object* this_)
+{
+    if (this_->vfptr->isMoving(this_) == 1) {               // asm 0x4A1AC3 mov eax,[esi] / 0x4A1AC5 call [eax+300h] / 0x4A1ACB mov ecx,1 / 0x4A1AD0 cmp / 0x4A1AD2 jnz loc_4A1AFC
+        if (this_->master_obj->movement_type == 1) {        // asm 0x4A1AD4 mov edx,[esi+14h] / 0x4A1AD7 cmp [edx+78h],cl / 0x4A1ADA jnz loc_4A1AEC
+            (*OBSystem_Air)->vfptr->ModifyObjectObstruction(*OBSystem_Air, (RGE_Static_Object *)this_, 16);   // asm 0x4A1ADC mov ecx,OBSystem_Air / 0x4A1AE2 push 10h / 0x4A1AE7 call [eax+30h]
+        }
+        else {
+            (*OBSystem_Land)->vfptr->ModifyObjectObstruction(*OBSystem_Land, (RGE_Static_Object *)this_, 16); // asm 0x4A1AEC mov ecx,OBSystem_Land / 0x4A1AF2 push 10h / 0x4A1AF7 call [edx+30h]
+        }
+    }
+    else if (this_->master_obj->movement_type == 1) {       // asm 0x4A1AFC mov eax,[esi+14h] / 0x4A1AFF cmp [eax+78h],cl / 0x4A1B02 jnz loc_4A1B14
+        (*OBSystem_Air)->vfptr->ModifyObjectObstruction(*OBSystem_Air, (RGE_Static_Object *)this_, 0);    // asm 0x4A1B04 mov ecx,OBSystem_Air / 0x4A1B0A push 0 / 0x4A1B0F call [edx+30h]
+    }
+    else {
+        (*OBSystem_Land)->vfptr->ModifyObjectObstruction(*OBSystem_Land, (RGE_Static_Object *)this_, 0);  // asm 0x4A1B14 mov ecx,OBSystem_Land / 0x4A1B1A push 0 / 0x4A1B1F call [eax+30h]
+    }
+}
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::canPath2 @ 0x004A1D50 [0x4A1D50,0x4A1DCA) - int
+// __thiscall; XYZPoint by value (retn 24h = 36 stack-arg bytes: XYZPoint 12
+// + range 4 + targetID 4 + pathDistance 4 + two ids 8 + the bool 4).
+// Thin wrapper: builds the goal BVector from the XYZPoint tile coords with
+// the height slot zeroed - {x=(float)point.x, z=0, y=(float)point.y} (the
+// BVector {x,z,y} offset order; the same goal shape as try_evac_tile's
+// totalCanPath call) - snapshots positionValue (@+0xF4) as the start, and
+// forwards to totalCanPath (idb_functions.h:2537, __fastcall: ecx = unit,
+// edx = targetID) with tryMidLevelPathing = 1 and useLowLevelHulledArea = 0.
+int __fastcall RGE_Moving_Object__canPath2_new(RGE_Moving_Object* this_, DWORD dummy, XYZPoint point, float range, int targetID, float *pathDistance, int unobstructiblePlayerID, int unobstructibleGroupID, bool useRangeWithoutTarget)
+{
+    BVector goal;                                           // asm 0x4A1D59 sub esp,0Ch (the goal region)
+    goal.x = (float)point.x;                                // asm 0x4A1D5E fild [esp+14h+point.x] / 0x4A1D74 fstp var_C
+    goal.z = 0.0f;                                          // asm 0x4A1D84 mov [esp+38h+var_8],0
+    goal.y = (float)point.y;                                // asm 0x4A1D78 fild [esp+28h+point.y] / 0x4A1D8C fstp var_4
+    BVector start = this_->positionValue;                   // asm 0x4A1DA5 lea edx,[ecx+0F4h] + the 12-byte copy into the second region (0x4A1DAD-0x4A1DBA)
+    return totalCanPath(this_, targetID, start, goal, range, pathDistance, unobstructiblePlayerID, unobstructibleGroupID, 1, useRangeWithoutTarget, 0);  // asm 0x4A1DBD mov edx,[esp+44h+targetID] / 0x4A1DC1 call totalCanPath
+}
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::set_angle @ 0x004A13C0 [0x4A13C0,0x4A143B) - void
+// __thiscall.
+// Facing resync from the radians angle: converts this->angle (@+0xC8) into a
+// facet index over the sprite's facet count (RGE_Sprite::facet_num __int16,
+// the .c's typed member; the asm word reads are at +0x70), floored at 8,
+// offset by pi/4 (flt_65ABE8 = dd 0.78539819, .rdata listing) and scaled by
+// 1/(2*pi) (flt_65C1A8 = dd 0.15915494f - the shared angle_to_object
+// constant, widened-pool verified 2026-11-18), plus the +0.5 round.  A
+// negative result wraps by one full facet count (the x87 test ah,1 branch's
+// taken set is {<0, NaN} -> X87_LT_NAN; a NaN angle wraps to NaN, stored via
+// __ftol as the original).  A missing sprite or a non-positive facet count
+// sets facet 0 instead (both guards re-read their operands - the faithful
+// live reloads).  TRIBE_Building_Object__set_angle tail-jumps here (+0xA,
+// lst :274742 CODE XREF), so this hook covers that dispatch too.
+void __fastcall RGE_Moving_Object__set_angle_new(RGE_Moving_Object* this_)
+{
+    RGE_Sprite *sprite = this_->sprite;                     // asm 0x4A13C4 mov eax,[esi+1Ch]
+    int facetCount = 8;                                     // asm 0x4A13D8 loc_4A13D8 mov [esp+8+var_4],8
+    if (sprite != 0 && sprite->facet_num >= 8)              // asm 0x4A13C7 test eax,eax / 0x4A13C9 jz loc_4A13D8; 0x4A13CB movsx ecx,word ptr [eax+70h] / 0x4A13CF cmp ecx,8 / 0x4A13D6 jge loc_4A13E0
+        facetCount = sprite->facet_num;                     // asm 0x4A13D2 mov [esp+8+var_4],ecx
+    if (sprite == 0 || sprite->facet_num <= 0) {            // asm 0x4A13E0 test eax,eax / 0x4A13E2 jz loc_4A1430; 0x4A13E4 cmp word ptr [eax+70h],0 / 0x4A13E9 jle loc_4A1430
+        RGE_Static_Object__set_facet((RGE_Static_Object *)this_, 0);  // asm 0x4A1430 push 0 / 0x4A1432 mov ecx,esi / 0x4A1434 call RGE_Static_Object__set_facet
+        return;                                             // asm 0x4A143B retn
+    }
+    float facetsF = (float)facetCount;                      // asm 0x4A13EB fild [esp+8+var_4] / 0x4A13EF fstp [esp+8+var_4] (the m32 store-round, rule (e))
+    double shifted = ((double)this_->angle - (double)0.78539819f) * (double)facetsF * (double)0.15915494f + 0.5;  // asm 0x4A13F3-0x4A140F: fld [esi+0C8h] / fsub ds:flt_65ABE8 / fmul var_4 / fmul ds:flt_65C1A8 / fadd ds:const_f_half - the x87 53-bit chain, no intermediate store
+    if (X87_LT_NAN(shifted, 0.0))                           // asm 0x4A140F fcom ds:const_f_zero / 0x4A1415 fnstsw ax / 0x4A1417 test ah,1 / 0x4A141A jz loc_4A1420 - the taken set is {<0, NaN}
+        shifted = shifted + (double)facetsF;                // asm 0x4A141C fadd [esp+8+var_4]
+    int newFacet = (int)shifted;                            // asm 0x4A1420 call __ftol
+    RGE_Static_Object__set_facet((RGE_Static_Object *)this_, (char)newFacet);  // asm 0x4A1425 push eax / 0x4A1426 mov ecx,esi / 0x4A1428 call RGE_Static_Object__set_facet (the char param consumes AL; the upper bytes unobservable)
+}
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::recycle_in_to_game @ 0x004A0850 [0x4A0850,0x4A0939) -
+// void __thiscall, 5 stack args (retn 14h).
+// Recycle arrival: resets the movement state (initMovementData - owned,
+// hook-routed), then the base Animated recycle re-binds master/owner/sprite;
+// if the new sprite is multi-faceted (flag bit 1 set, facet_num > 1) the
+// facing is randomized over the facet count - the integer quotient
+// (rand()*facets)/0x7FFF (the asm's 80010003h magic-imul signed divide) times
+// 2pi/facets (dbl_65C1A0 = the verified double 6.2831853, turn_towards pool
+// bytes 401921FB53C8D4F1) - stored to angle via the fst m32 store-round while
+// st0 keeps the unrounded 53-bit value for BOTH wrap compares (rule (e)):
+// a negative-or-NaN result wraps up one 2pi (const_f_2pi, the dd widened
+// exact); a result strictly above 2pi wraps down (the literal > MATCH row -
+// the asm's jnz targets the skip, so {<,=,NaN} all skip); then the vtbl
+// set_angle (slot 222 = +0x378) re-derives the facet.  The rand comes through
+// rand_internal (common.h:154, @0x632BDD - the game's CRT state; the
+// owner-directed rand form).
+// Division: dbl_65C1A0/facetCount is the asm's fdivr - bracketed precise per
+// rule (k) so /fp:fast cannot reciprocal-transform it (the canLinePath
+// precedent); /Fa gate check: divsd, no 1.0/x chain.
+#pragma float_control(precise, on, push)
+void __fastcall RGE_Moving_Object__recycle_in_to_game_new(RGE_Moving_Object* this_, DWORD dummy, RGE_Master_Static_Object *tobj, RGE_Player *obj_owner, float x, float y, float z)
+{
+    RGE_Moving_Object__initMovementData(this_);                 // asm 0x4A0853 call RGE_Moving_Object__initMovementData (owned - hook-routed)
+    RGE_Animated_Object__recycle_in_to_game((RGE_Animated_Object *)this_, tobj, obj_owner, x, y, z);  // asm 0x4A0873 call RGE_Animated_Object__recycle_in_to_game (HOOKED - routes; tobj already the constant's param type)
+    RGE_Sprite *sprite = this_->sprite;                         // asm 0x4A0878 mov eax,[esi+1Ch]
+    if (sprite != 0 && (sprite->flag & 2) != 0 && sprite->facet_num > 1)  // asm 0x4A087B test eax,eax / 0x4A087D jz loc_4A092E; 0x4A0883 test byte ptr [eax+80h],2 / 0x4A088A jz; 0x4A0890 cmp word ptr [eax+70h],1 / 0x4A0895 jle
+    {
+        int facetCount = sprite->facet_num;                     // asm 0x4A089E movsx edi,word ptr [edx+70h]
+        int randFacets = rand_internal() * facetCount / 0x7FFF;  // asm 0x4A08A6 call _rand; 0x4A08AD-0x4A08C4 (the 80010003h magic-imul signed divide by 0x7FFF)
+        double spawnAngle = (double)randFacets * (6.2831853 / (double)facetCount);  // asm 0x4A08C8-0x4A08D8: fild z / fild y / fdivr ds:dbl_65C1A0 / fmulp st(1),st - st0 = quotient * (dbl/facets), UNROUNDED
+        this_->angle = (float)spawnAngle;                       // asm 0x4A08D8 fst dword ptr [esi+0C8h] (the m32 store-round; st0 keeps the unrounded value)
+        if (X87_LT_NAN(spawnAngle, 0.0))                        // asm 0x4A08DE-0x4A08E9: fcom ds:const_f_zero / fnstsw ax / test ah,1 / jz - the {<0, NaN} taken set
+        {
+            spawnAngle = spawnAngle + (double)6.2831855f;       // asm 0x4A08EB fadd ds:const_f_2pi (the dd widened exact)
+            this_->angle = (float)spawnAngle;                   // asm 0x4A08F5 fstp dword ptr [esi+0C8h] (round + pop)
+            this_->vfptr->set_angle(this_);                     // asm 0x4A08F1-0x4A08FB: mov edx,[esi] / mov ecx,esi / call [edx+378h] (slot 222)
+            return;                                             // asm 0x4A0902 retn 14h
+        }
+        if (spawnAngle > (double)6.2831855f)                    // asm 0x4A0905-0x4A0910: fcom ds:const_f_2pi / test ah,41h / jnz loc_4A092C - the jnz targets the SKIP so {<,=,NaN} all skip: the literal > MATCH row
+        {
+            spawnAngle = spawnAngle - (double)6.2831855f;       // asm 0x4A0912 fsub ds:const_f_2pi
+            this_->angle = (float)spawnAngle;                   // asm 0x4A091C fstp dword ptr [esi+0C8h]
+        }
+        // the in-range skip keeps the fst-store-rounded angle and discards st0 (asm 0x4A092C fstp st)
+    }
+    this_->vfptr->set_angle(this_);                             // asm 0x4A092E-0x4A0932: the shared tail call [edx+378h] (slot 222) / retn 14h
+}
+#pragma float_control(pop)
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::setup @ 0x004A0940 [0x4A0940,0x4A0A3C) - int __thiscall,
+// 5 stack args (retn 14h).  The recycle twin with the tier stamp and the
+// constant-1 return: initMovementData, the base Animated setup re-binds, then
+// type = 30 (the runtime tier mirror, byte @+0x5E) is stored AFTER the base
+// call and BEFORE the sprite guard; the same multi-faceted random facing
+// block (the identical precision model - fst store-round with the unrounded
+// st0 consumed by both wraps); every exit returns 1.  Called by the owned
+// Moving ctor/ctor_read and the Action runtime constructions via the idb
+// constants - hooking routes those dispatches (the hook-routing ruling).
+#pragma float_control(precise, on, push)
+int __fastcall RGE_Moving_Object__setup_new(RGE_Moving_Object* this_, DWORD dummy, RGE_Master_Moving_Object *tobj, RGE_Player *obj_owner, float x, float y, float z)
+{
+    RGE_Moving_Object__initMovementData(this_);                 // asm 0x4A0943 call RGE_Moving_Object__initMovementData (owned - hook-routed)
+    RGE_Animated_Object__setup((RGE_Animated_Object *)this_, (RGE_Master_Animated_Object *)tobj, obj_owner, x, y, z);  // asm 0x4A0963 call RGE_Animated_Object__setup (HOOKED - routes; tobj Moving-master -> Animated-master cast)
+    RGE_Sprite *sprite = this_->sprite;                         // asm 0x4A0968 mov eax,[esi+1Ch]
+    this_->type = 30;                                           // asm 0x4A096B mov byte ptr [esi+5Eh],1Eh
+    if (sprite != 0 && (sprite->flag & 2) != 0 && sprite->facet_num > 1)  // asm 0x4A096F test eax,eax / 0x4A0971 jz loc_4A0A2C; 0x4A0977 test byte ptr [eax+80h],2 / 0x4A097E jz; 0x4A0984 cmp word ptr [eax+70h],1 / 0x4A0989 jle
+    {
+        int facetCount = sprite->facet_num;                     // asm 0x4A0992 movsx edi,word ptr [edx+70h]
+        int randFacets = rand_internal() * facetCount / 0x7FFF;  // asm 0x4A099A call _rand; 0x4A09A1-0x4A09B8 (the magic-imul divide)
+        double spawnAngle = (double)randFacets * (6.2831853 / (double)facetCount);  // asm 0x4A09BC-0x4A09CC: fild/fild/fdivr ds:dbl_65C1A0/fmulp
+        this_->angle = (float)spawnAngle;                       // asm 0x4A09CC fst dword ptr [esi+0C8h]
+        if (X87_LT_NAN(spawnAngle, 0.0))                        // asm 0x4A09D2-0x4A09DD (test ah,1; jz - {<0, NaN})
+        {
+            spawnAngle = spawnAngle + (double)6.2831855f;       // asm 0x4A09DF fadd ds:const_f_2pi
+            this_->angle = (float)spawnAngle;                   // asm 0x4A09E9 fstp dword ptr [esi+0C8h]
+            this_->vfptr->set_angle(this_);                     // asm 0x4A09EF call [edx+378h] (slot 222)
+            return 1;                                           // asm 0x4A09F5 mov eax,1 / retn 14h
+        }
+        if (spawnAngle > (double)6.2831855f)                    // asm 0x4A09FE-0x4A0A09 (test ah,41h; jnz loc_4A0A2A - the literal > MATCH row)
+        {
+            spawnAngle = spawnAngle - (double)6.2831855f;       // asm 0x4A0A0B fsub ds:const_f_2pi
+            this_->angle = (float)spawnAngle;                   // asm 0x4A0A15 fstp dword ptr [esi+0C8h]
+        }
+        // the in-range skip keeps the fst-store-rounded angle and discards st0 (asm 0x4A0A2A fstp st)
+    }
+    this_->vfptr->set_angle(this_);                             // asm 0x4A0A2C-0x4A0A30: the shared tail call [edx+378h]
+    return 1;                                                   // asm 0x4A0A36 mov eax,1 / retn 14h
+}
+#pragma float_control(pop)
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::update @ 0x004A1A00 [0x4A1A00,0x4A1ABA) - unsigned
+// __int8 __thiscall.
+// Per-tick movement integration: with movementData alive, the world's time
+// delta (getWorldTimeDeltaSeconds - the DOUBLE return is consumed by the
+// asm's fstp m32 @0x4A1A26, so the float local IS the faithful store-round,
+// rule (e)) feeds BMovementData::update; the velocity norm (x*x + z*z + y*y
+// at 53-bit, fsqrt - the asm's exact operand order) is store-rounded into
+// speed @+0xB4 (rule (d)); the substitute-position machinery replays the
+// parked position through the setPosition vtbl slot (190 = +0x2F8, line
+// arithmetic 11003-10813) and counts consecutive substitutes, else zeroes
+// the count; the Animated base update (HOOKED - routes) returns the result.
+// Without movementData: speed = 0 and the base update alone.
+// Division-free but bracketed precise per rule (k) anyway: the /Fa shrink
+// scan caught the norm chain compiling mulss/addss + one cvtps2pd (a float
+// rounding per product/sum the x87 original never performed - the
+// incrementWaypoint lesson: the explicit (double) casts do not resist
+// /fp:fast); under precise the chain emits cvtps2pd + mulsd/addsd + sqrtsd.
+#pragma float_control(precise, on, push)
+unsigned __int8 __fastcall RGE_Moving_Object__update_new(RGE_Moving_Object* this_)
+{
+    if (this_->movementData != 0)                               // asm 0x4A1A03 mov eax,[esi+120h] / 0x4A1A09 test / 0x4A1A0B jz loc_4A1AA8
+    {
+        float elapsedTimeSec = (float)RGE_Game_World__getWorldTimeDeltaSeconds((RGE_Game_World *)this_->owner->world);  // asm 0x4A1A11-0x4A1A26: mov eax,[esi+18h] / mov ecx,[eax+8Ch] / call / fstp [esp+8+elapsedTimeSec] (the faithful store-round of the double return; the owner->world family cast)
+        BMovementData__update(this_->movementData, (RGE_Static_Object *)this_, elapsedTimeSec);  // asm 0x4A1A20-0x4A1A2A: mov ecx,[esi+120h] / push esi / call BMovementData__update
+        BMovementData *movementData = this_->movementData;      // asm 0x4A1A2F mov eax,[esi+120h] (the faithful re-read after the update call)
+        double speedNorm = sqrt((double)movementData->velocity.x * movementData->velocity.x + (double)movementData->velocity.z * movementData->velocity.z + (double)movementData->velocity.y * movementData->velocity.y);  // asm 0x4A1A35-0x4A1A54: fld [eax+8]/[eax+4]/[eax]; x*x; z*z; faddp; y*y; faddp; fsqrt - the 53-bit chain, the asm's exact (x,z,y) add order
+        this_->speed = (float)speedNorm;                        // asm 0x4A1A5C fstp dword ptr [esi+0B4h] (the m32 store-round, rule (d))
+        if (this_->mHasSubstitutePosition == 1)                 // asm 0x4A1A45 cmp dword ptr [esi+128h],1 / 0x4A1A62 jnz loc_4A1A95
+        {
+            this_->vfptr->setPosition(this_, &this_->mSubstitutePosition);  // asm 0x4A1A64-0x4A1A6F: lea eax,[esi+12Ch] / push / call [edx+2F8h] (slot 190)
+            this_->mHasSubstitutePosition = 0;                  // asm 0x4A1A7E mov dword ptr [esi+128h],0
+            this_->mConsecutiveSubstituteCount = this_->mConsecutiveSubstituteCount + 1;  // asm 0x4A1A75-0x4A1A88: mov eax,[esi+138h] / inc / store
+        }
+        else
+        {
+            this_->mConsecutiveSubstituteCount = 0;             // asm 0x4A1A97-0x4A1A9D
+        }
+        return RGE_Animated_Object__update((RGE_Animated_Object *)this_);  // asm 0x4A1A8E call RGE_Animated_Object__update (HOOKED - routes)
+    }
+    this_->speed = 0.0f;                                        // asm 0x4A1AAA mov dword ptr [esi+0B4h],0
+    return RGE_Animated_Object__update((RGE_Animated_Object *)this_);  // asm 0x4A1AB4 call RGE_Animated_Object__update
+}
+#pragma float_control(pop)
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::canPath @ 0x004A1DD0 [0x4A1DD0,0x4A1E6F) - int
+// __thiscall, 6 stack args (retn 18h).
+// Targeted can-path: no target (-1) or a dead target (RGE_Game_World::object)
+// returns 0; the live target's position is fetched through its vtbl position
+// getter (slot 171 = +0x2AC, RGE_Static_ObjectVtbl walked: first member 3935,
+// position 4106) into the copy-out out-buffer - the fetched pointer's 12
+// bytes feed the goal argument ONCE (the copy-out getter aliasing rule:
+// single fetch, single consumption, own buffer) - and totalCanPath runs from
+// positionValue with tryMidLevelPathing = 1, useRangeWithoutTarget = 0 and
+// the caller's useHulledArea.
+int __fastcall RGE_Moving_Object__canPath_new(RGE_Moving_Object* this_, DWORD dummy, int targetID, float range, float *pathDistance, int unobstructiblePlayerID, int unobstructibleGroupID, bool useHulledArea)
+{
+    if (targetID == -1)                                         // asm 0x4A1DDB cmp edi,0FFFFFFFFh / 0x4A1DDE jnz
+        return 0;                                               // asm 0x4A1DE0 xor eax,eax (exit 1)
+    RGE_Static_Object *target = RGE_Game_World__object((RGE_Game_World *)this_->owner->world, targetID);  // asm 0x4A1DEA-0x4A1DF4 (the owner->world family cast, the M8c precedent)
+    if (target == 0)                                            // asm 0x4A1DF9 test eax,eax / 0x4A1DFB jnz
+        return 0;                                               // asm 0x4A1DFD xor eax,eax (exit 2)
+    BVector goalBuffer;                                         // asm 0x4A1D50 sub esp,0Ch (var_C - the getter's out-buffer)
+    BVector *fetched = target->vfptr->position(target, &goalBuffer);  // asm 0x4A1E24-0x4A1E2B: lea ecx,[esp+30h+var_C] / push ecx / mov ecx,eax / call [edx+2ACh] (slot 171 = position)
+    BVector start = this_->positionValue;                       // asm 0x4A1E46-0x4A1E5E: lea ecx,[esi+0F4h] + the 12-byte copy
+    return totalCanPath(this_, targetID, start, *fetched, range, pathDistance, unobstructiblePlayerID, unobstructibleGroupID, 1, 0, useHulledArea);  // asm 0x4A1E61-0x4A1E65: mov edx,edi (targetID) / call totalCanPath
+}
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::rotate @ 0x004A2F50 [0x4A2F50,0x4A2FEE) - void
+// __thiscall, 1 stack arg (retn 4).
+// Relative facing turn: angle += amount * 2pi/facets over the sprite's facet
+// count (floored at 8 - the set_angle pattern), then normalized into
+// [0, 2pi): the negative-or-NaN wrap-UP do-loop continues while X87_LT_NAN;
+// the wrap-DOWN runs only when the value is ordered >= 2pi (the asm's test
+// ah,1; jnz skips on {< dbl, NaN} - a NaN angle reaches new_angle UNCHANGED,
+// the asm wins over the .c's do-while render whose NaN path subtracts once:
+// value-identical NaN, instruction-path distinct).  The m32 stores before
+// each new_angle pass are the faithful store-rounds (rule (e)); st0 stays
+// unrounded through both loops and both entry compares.  The dispatch is the
+// new_angle vtbl slot (76 = +0x130, line arithmetic 10889-10813) - the
+// shared tail duplicated by the original's two call sites, merged here
+// (the codegen-neutral class).  TRIBE_Building_Object__rotate tail-jumps
+// here (+0x3C, lst :277877 CODE XREF) - the hook covers that dispatch too.
+// Division: amount * dbl_65C1A0 / facets is the asm's fidiv - bracketed
+// precise per rule (k); /Fa gate check: divsd, no reciprocal chain.
+#pragma float_control(precise, on, push)
+void __fastcall RGE_Moving_Object__rotate_new(RGE_Moving_Object* this_, DWORD dummy, int amount)
+{
+    RGE_Sprite *sprite = this_->sprite;                         // asm 0x4A2F51 mov eax,[ecx+1Ch]
+    int facetCount = 8;                                         // asm 0x4A2F65 mov [esp+4+var_4],8
+    if (sprite != 0 && sprite->facet_num >= 8)                  // asm 0x4A2F54 test eax,eax / 0x4A2F56 jz; 0x4A2F58 movsx eax,word ptr [eax+70h] / 0x4A2F5C cmp eax,8 / 0x4A2F63 jge
+        facetCount = sprite->facet_num;                         // asm 0x4A2F5F mov [esp+4+var_4],eax
+    double newAngle = (double)amount * 6.2831853 / facetCount + (double)this_->angle;  // asm 0x4A2F6D-0x4A2F81: fild [esp+4+amount] / fmul ds:dbl_65C1A0 / fidiv [esp+4+var_4] / fadd [ecx+0C8h]
+    float storedAngle = (float)newAngle;                        // asm 0x4A2F87 fst [esp+4+amount] (the m32 store-round; st0 stays unrounded)
+    if (X87_LT_NAN(newAngle, 0.0))                              // asm 0x4A2F8B-0x4A2F90: fcom ds:const_f_zero / test ah,1 / jz loc_4A2FA9 - the {<0, NaN} taken set
+    {
+        do
+        {
+            newAngle = newAngle + (double)6.2831855f;           // asm 0x4A2F92 fadd ds:const_f_2pi
+        } while (X87_LT_NAN(newAngle, 0.0));                    // asm 0x4A2F98-0x4A2FA3: fcom ds:const_f_zero / test ah,1 / jnz short loc_4A2F92
+        storedAngle = (float)newAngle;                          // asm 0x4A2FA5 fst [esp+4+amount]
+    }
+    if (!X87_LT_NAN(newAngle, 6.2831853))                       // asm 0x4A2FA9-0x4A2FB4: fcom ds:dbl_65C1A0 / test ah,1 / jnz short loc_4A2FDE - the {< dbl, NaN} taken set SKIPS the wrap-down (a NaN keeps the fst-store)
+    {
+        do
+        {
+            newAngle = newAngle - (double)6.2831855f;           // asm 0x4A2FB6 fsub ds:const_f_2pi
+        } while (!X87_LT_NAN(newAngle, 6.2831853));             // asm 0x4A2FBC-0x4A2FC7: fcom ds:dbl_65C1A0 / test ah,1 / jz short loc_4A2FB6 - continues while ordered >=
+        storedAngle = (float)newAngle;                          // asm 0x4A2FC9 fstp [esp+4+amount] (round + pop)
+    }
+    this_->vfptr->new_angle(this_, storedAngle);                // asm 0x4A2FD4 / 0x4A2FE7: call [eax+130h] (slot 76) - the two original call sites = the duplicated shared tail, merged
+}
+#pragma float_control(pop)
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::save @ 0x004A0DB0 [0x4A0DB0,0x4A0F50) - void __thiscall,
+// 1 stack arg (retn 4).
+// Movement-state stream save: the base Animated save (HOOKED - routes) then
+// the field sequence in the asm's exact order (the sizeof-form widths): the
+// trail_remainder/velocity_x/y/z/angle/turn_towards_time/turnTimer/
+// continueCounter/currentTerrainException1/2 dwords, the three u8s
+// (waitingToMoveValue/numberWaitDelays/on_ground), the BPathData linked-chain
+// count + every chain element saved DEEPEST-FIRST (BPathData::save, the
+// asm's (count-i-1)-step walk 0x4A0EBD-0x4A0EDD), the mFuturePathData
+// presence dword + the conditional save, the movementData presence dword +
+// the conditional velocity/acceleration BVectors, positionValue and both
+// orientations (0xC), lastMoveTimeValue, numberUserDefinedWaypointsValue +
+// each user waypoint (0xC), then mHasSubstitutePosition/mSubstitutePosition/
+// mConsecutiveSubstituteCount.  The two presence fields are materialized in
+// the original as zero-extended dwords (xor eax/setnz al/mov, asm
+// 0x4A0EE5-0x4A0EF3 and 0x4A0F15-0x4A0F1F) - the written int locals compile
+// to the identical dword stream (no bool-width deviation).
+void __fastcall RGE_Moving_Object__save_new(RGE_Moving_Object* this_, DWORD dummy, int outfile)
+{
+    RGE_Animated_Object__save((RGE_Animated_Object *)this_, outfile);   // asm 0x4A0DBE call RGE_Animated_Object__save (HOOKED - routes)
+    rge_write(outfile, &this_->trail_remainder, sizeof(this_->trail_remainder));               // asm 0x4A0DC5 lea edx,[esi+0B8h]
+    rge_write(outfile, &this_->velocity_x, sizeof(this_->velocity_x));                         // asm 0x4A0DD4 (+0xBC)
+    rge_write(outfile, &this_->velocity_y, sizeof(this_->velocity_y));                         // asm 0x4A0DE3 (+0xC0)
+    rge_write(outfile, &this_->velocity_z, sizeof(this_->velocity_z));                         // asm 0x4A0DF2 (+0xC4)
+    rge_write(outfile, &this_->angle, sizeof(this_->angle));                                   // asm (+0xC8)
+    rge_write(outfile, &this_->turn_towards_time, sizeof(this_->turn_towards_time));           // asm (+0xCC)
+    rge_write(outfile, &this_->turnTimer, sizeof(this_->turnTimer));                           // asm (+0xD0)
+    rge_write(outfile, &this_->continueCounter, sizeof(this_->continueCounter));               // asm (+0xD4)
+    rge_write(outfile, &this_->currentTerrainException1, sizeof(this_->currentTerrainException1));  // asm (+0xD8)
+    rge_write(outfile, &this_->currentTerrainException2, sizeof(this_->currentTerrainException2));  // asm (+0xE0)
+    rge_write(outfile, &this_->waitingToMoveValue, sizeof(this_->waitingToMoveValue));         // asm (1 byte, +0xE4)
+    rge_write(outfile, &this_->numberWaitDelays, sizeof(this_->numberWaitDelays));             // asm (1 byte, +0xE5)
+    rge_write(outfile, &this_->on_ground, sizeof(this_->on_ground));                           // asm (1 byte, +0xD0-region u8)
+    int linkedCount = 0;                                        // asm ebx - the chain counter
+    for (BPathData *walk = this_->pathData; walk != 0; walk = walk->linkedPath)   // asm 0x4A0E90-0x4A0EA6 (the linkedPath @+4 walk)
+        ++linkedCount;
+    rge_write(outfile, &linkedCount, sizeof(linkedCount));      // asm 0x4A0EA8-0x4A0EB0
+    if (linkedCount > 0)                                        // asm 0x4A0EB9 test / 0x4A0EBB jle
+    {
+        for (int i = 0; i < linkedCount; ++i)                   // asm 0x4A0EBD-0x4A0EDD (ebx = i)
+        {
+            BPathData *node = this_->pathData;                  // asm 0x4A0EBD+16 mov ecx,[esi+118h]
+            int steps = linkedCount - i - 1;                    // asm 0x4A0EC3 sub eax,ebx / 0x4A0EC5 dec
+            while (steps > 0)                                   // asm 0x4A0ECA loc_4A0ECA (the (count-i-1)-step walk)
+            {
+                node = node->linkedPath;                        // asm 0x4A0ECA mov ecx,[ecx+4]
+                --steps;
+            }
+            BPathData__save(node, outfile);                     // asm 0x4A0ED0-0x4A0ED1 call BPathData__save (:2518, 0x4BC220)
+        }
+    }
+    int hasFuturePath = (this_->mFuturePathData != 0);          // asm 0x4A0EE5-0x4A0EE9 (xor eax/test edx/setnz al - the zero-extended dword)
+    rge_write(outfile, &hasFuturePath, sizeof(hasFuturePath));  // asm 0x4A0EEC-0x4A0EF4
+    if (hasFuturePath != 0)                                     // asm 0x4A0EFD cmp [buffer],ebp(0) / jnz
+        BPathData__save(this_->mFuturePathData, outfile);       // asm 0x4A0F03-0x4A0F0A
+    int hasMovementData = (this_->movementData != 0);           // asm 0x4A0F15-0x4A0F1F (setnz cl / mov)
+    rge_write(outfile, &hasMovementData, sizeof(hasMovementData));  // asm 0x4A0F20-0x4A0F28
+    if (hasMovementData != 0)                                   // asm 0x4A0F2D cmp / jnz
+    {
+        rge_write(outfile, &this_->movementData->velocity, sizeof(this_->movementData->velocity));           // asm 0x4A0F33-0x4A0F3D (0xC, the offset-0 BVector)
+        rge_write(outfile, &this_->movementData->acceleration, sizeof(this_->movementData->acceleration));   // asm 0x4A0F42-0x4A0F4F (+0xC)
+    }
+    rge_write(outfile, &this_->positionValue, sizeof(this_->positionValue));                   // asm 0x4A0F56 (+0xF4, 0xC)
+    rge_write(outfile, &this_->orientationForwardValue, sizeof(this_->orientationForwardValue));  // asm 0x4A0F65 (+0x100)
+    rge_write(outfile, &this_->orientationRightValue, sizeof(this_->orientationRightValue));   // asm 0x4A0F74 (+0x10C)
+    rge_write(outfile, &this_->lastMoveTimeValue, sizeof(this_->lastMoveTimeValue));           // asm 0x4A0F83 (+0x124)
+    rge_write(outfile, &this_->numberUserDefinedWaypointsValue, sizeof(this_->numberUserDefinedWaypointsValue));  // asm 0x4A0F98 (+0xEC)
+    for (int i = 0; i < this_->numberUserDefinedWaypointsValue; ++i)   // asm 0x4A0FA1-region (the runtime-sized array - the declared-dimension rule does not bind)
+        rge_write(outfile, &this_->userDefinedWaypoints[i], sizeof(this_->userDefinedWaypoints[i]));  // 0xC each
+    rge_write(outfile, &this_->mHasSubstitutePosition, sizeof(this_->mHasSubstitutePosition)); // asm (4)
+    rge_write(outfile, &this_->mSubstitutePosition, sizeof(this_->mSubstitutePosition));       // asm (0xC)
+    rge_write(outfile, &this_->mConsecutiveSubstituteCount, sizeof(this_->mConsecutiveSubstituteCount));  // asm (4)
+}
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::setup_read @ 0x004A0A40 [0x4A0A40,0x4A0DB0) - int
+// __thiscall, 2 stack args (retn 8).  The save mirror with the three
+// allocation sites, each under its own allocation-unwind fold (the .c's v23
+// state machine = one handler per site; written as three scoped
+// __try/__except(operator_delete_internal(node)) blocks - the
+// setForwardVelocity precedent; the path sets identical, documented):
+// initMovementData (owned - hook-routed), the base Animated setup_read
+// (HOOKED - routes), type = 30, the field reads in the save's exact order,
+// the linked chain built head-last (each fresh BPathData links to the
+// previous; the LAST read becomes pathData), the future-path block
+// (presence == 1), the movement-data block (presence == 1: the velocity and
+// acceleration BVectors read through the 12-byte scratch, the {x,z,y}
+// component copies), positionValue/both orientations/lastMoveTimeValue, the
+// waypoint count + the owned resizeUserDefinedWaypoints (HOOKED - routes;
+// a zero return aborts with 0) + the per-waypoint scratch reads, the
+// substitute trio, and return 1.
+int __fastcall RGE_Moving_Object__setup_read_new(RGE_Moving_Object* this_, DWORD dummy, int infile, RGE_Game_World *gworld)
+{
+    RGE_Moving_Object__initMovementData(this_);                 // asm (owned - hook-routed)
+    RGE_Animated_Object__setup_read((RGE_Animated_Object *)this_, infile, gworld);  // asm (HOOKED - routes)
+    this_->type = 30;                                           // asm mov byte ptr [esi+5Eh],1Eh
+    rge_read(infile, &this_->trail_remainder, sizeof(this_->trail_remainder));
+    rge_read(infile, &this_->velocity_x, sizeof(this_->velocity_x));
+    rge_read(infile, &this_->velocity_y, sizeof(this_->velocity_y));
+    rge_read(infile, &this_->velocity_z, sizeof(this_->velocity_z));
+    rge_read(infile, &this_->angle, sizeof(this_->angle));
+    rge_read(infile, &this_->turn_towards_time, sizeof(this_->turn_towards_time));
+    rge_read(infile, &this_->turnTimer, sizeof(this_->turnTimer));
+    rge_read(infile, &this_->continueCounter, sizeof(this_->continueCounter));
+    rge_read(infile, &this_->currentTerrainException1, sizeof(this_->currentTerrainException1));
+    rge_read(infile, &this_->currentTerrainException2, sizeof(this_->currentTerrainException2));
+    rge_read(infile, &this_->waitingToMoveValue, sizeof(this_->waitingToMoveValue));
+    rge_read(infile, &this_->numberWaitDelays, sizeof(this_->numberWaitDelays));
+    rge_read(infile, &this_->on_ground, sizeof(this_->on_ground));
+    int linkedCount = 0;                                        // asm rge_read into the buffer slot
+    rge_read(infile, &linkedCount, sizeof(linkedCount));
+    BPathData *tail = 0;                                        // asm v4 - the chain tail (0-init)
+    __try
+    {
+        for (int i = 0; i < linkedCount; ++i)                   // asm (gworlda = the loop counter vs buffer)
+        {
+            BPathData *node = (BPathData *)operator_new_internal(sizeof(BPathData));   // asm operator_new(0x34) - sizeof(BPathData) walked (the WRITTEN form)
+            if (node != 0)                                      // asm if (v5)
+                node = BPathData__BPathData(node);              // asm BPathData::BPathData (:2505, 0x4BBD80)
+            if (node == 0)                                      // asm if (!v6) return 0
+                return 0;
+            BPathData__load(node, infile);                      // asm BPathData::load (:2519, 0x4BC2C0)
+            node->linkedPath = tail;                            // asm v6->linkedPath = v4
+            tail = node;                                        // asm v4 = v6 (head-last build)
+        }
+    }
+    __except (operator_delete_internal(tail), EXCEPTION_CONTINUE_SEARCH)
+    {
+        // the allocation-unwind fold - the fresh node is freed if the ctor throws
+    }
+    this_->pathData = tail;                                     // asm this->pathData = v4
+    int hasFuturePath = 0;                                      // asm v18
+    rge_read(infile, &hasFuturePath, sizeof(hasFuturePath));
+    if (hasFuturePath == 1)                                     // asm cmp v18,1 / jnz
+    {
+        BPathData *futureNode = (BPathData *)operator_new_internal(sizeof(BPathData));  // asm operator_new(0x34)
+        __try
+        {
+            if (futureNode != 0)
+                futureNode = BPathData__BPathData(futureNode);
+            this_->mFuturePathData = futureNode;                // asm this->mFuturePathData = result
+            if (futureNode == 0)                                // asm if (!result) return result
+                return 0;
+            BPathData__load(futureNode, infile);                // asm BPathData::load
+        }
+        __except (operator_delete_internal(futureNode), EXCEPTION_CONTINUE_SEARCH)
+        {
+            // the allocation-unwind fold
+        }
+    }
+    BVector scratch;                                            // asm v20/v21/v22 - the 12-byte carve slots
+    scratch.x = 0.0f; scratch.z = 0.0f; scratch.y = 0.0f;       // asm v20/v21/v22 = 0.0
+    int hasMovementData = 0;                                    // asm v19
+    rge_read(infile, &hasMovementData, sizeof(hasMovementData));
+    if (hasMovementData == 1)                                   // asm cmp v19,1 / jnz
+    {
+        BMovementData *movementNode = (BMovementData *)operator_new_internal(sizeof(BMovementData));  // asm operator_new(0x18) - sizeof walked
+        __try
+        {
+            if (movementNode != 0)
+                movementNode = BMovementData__BMovementData(movementNode);  // asm BMovementData::BMovementData (:2503, 0x4BBCF0)
+            this_->movementData = movementNode;                 // asm this->movementData = result
+            if (movementNode == 0)
+                return 0;
+            rge_read(infile, &scratch, sizeof(scratch));        // asm rge_read(infile,&v20,0Ch)
+            this_->movementData->velocity = scratch;            // asm velocity.x/.z/.y = v20/v21/v22 (the {x,z,y} BVector order)
+            rge_read(infile, &scratch, sizeof(scratch));        // asm rge_read(infile,&v20,0Ch)
+            this_->movementData->acceleration = scratch;        // asm acceleration.x/.z/.y = v20/v21/v22
+        }
+        __except (operator_delete_internal(movementNode), EXCEPTION_CONTINUE_SEARCH)
+        {
+            // the allocation-unwind fold
+        }
+    }
+    rge_read(infile, &this_->positionValue, sizeof(this_->positionValue));
+    rge_read(infile, &this_->orientationForwardValue, sizeof(this_->orientationForwardValue));
+    rge_read(infile, &this_->orientationRightValue, sizeof(this_->orientationRightValue));
+    rge_read(infile, &this_->lastMoveTimeValue, sizeof(this_->lastMoveTimeValue));
+    int waypointCount = 0;                                      // asm newSize
+    rge_read(infile, &waypointCount, sizeof(waypointCount));
+    int storedCount = waypointCount;                            // asm v12
+    if (waypointCount > 0)                                      // asm cmp newSize,0 / jle
+    {
+        if (RGE_Moving_Object__resizeUserDefinedWaypoints(this_, waypointCount) == 0)   // asm (OWNED - hook-routed; a zero return aborts with 0)
+            return 0;
+        for (int i = 0; i < waypointCount; ++i)                 // asm v13/v14 (the do-loop)
+        {
+            rge_read(infile, &scratch, sizeof(scratch));        // asm rge_read(infile,&v20,0Ch)
+            this_->userDefinedWaypoints[i] = scratch;           // asm v15->x/.z/.y = v20/v21/v22
+        }
+    }
+    this_->numberUserDefinedWaypointsValue = storedCount;       // asm this->numberUserDefinedWaypointsValue = v12
+    rge_read(infile, &this_->mHasSubstitutePosition, sizeof(this_->mHasSubstitutePosition));   // asm (4)
+    rge_read(infile, &this_->mSubstitutePosition, sizeof(this_->mSubstitutePosition));         // asm (0xC)
+    rge_read(infile, &this_->mConsecutiveSubstituteCount, sizeof(this_->mConsecutiveSubstituteCount));  // asm (4)
+    return 1;                                                   // asm return 1
+}
+
+// ---------------------------------------------------------------------------
+// RGE_Moving_Object::checkAcceleration @ 0x004A6560 [0x4A6560,0x4A684E) -
+// int __thiscall, 3 stack args (retn 0Ch).
+// BAKED (CHECKACCEL_PATCH): core.cpp:1395 setHook(0x004A6569,
+// checkAcceleration_patch) is a MID-FUNCTION derailment at +9 (after the
+// original's sub esp,58h/push ebx/push ebp/push esi/mov esi,ecx/push edi
+// prologue): the stub substitutes its own prelude - master->vfptr->
+// acceleration -> var_54 and master->vfptr->deceleration -> var_58 material-
+// ized BEFORE the movementData null-gate (the original parks the acceleration
+// result on the x87 stack, NEVER stores var_58 - the limitedYaw and
+// inner-hit paths then read UNINITIALIZED stack garbage at 0x4A66E2/0x4A6819
+// - and leak the parked register across two returns), reroutes the third
+// call through this->vfptr->calculateMaximumSpeed (the runtime slot 199 -
+// OUR HOOK, which was also the original's own dispatch at 0x4A6606-0x4A663E),
+// and rejoins at 0x4A6644 with a rebalanced frame (all three pushes are
+// callee-popped: accel/decel are retn-4 originals, our __fastcall hook rets
+// 4).  THE ARGS ARE PROVEN INNOCUOUS: the stub passes caller-eax garbage and
+// the movementData pointer where the original passed the tile terrain, but
+// all three implementations consume NEITHER this NOR the int arg -
+// RGE_Master_Moving_Object__maximumSpeed = fld [ecx+0D0h] (master->speed),
+// __acceleration = fld ds:flt_656A10, __deceleration = fld ds:flt_65B384
+// (=-FLT_MAX), all `retn 4` (asm 0x48B460-0x48B486) - so the patch computes
+// the identical values.  The written form passes the tile terrain (the
+// grounded original arg) and reproduces the patched store shape; the patch
+// call site is presented for retirement.
+// Semantics: forward-acceleration selection for the current command - the
+// deceleration value (-FLT_MAX = unbounded) when the yaw is yaw-limited or
+// the turn hits the turn radius, the acceleration value otherwise; gated by
+// the velocity-vs-terrain-max-speed check; returns 1 on every path.  The
+// .c's slot assignments are the patched truth (var_54 = acceleration,
+// var_58 = deceleration; IDA's v11/v12 naming agrees once the stub's fstp
+// targets are walked).
+// Divisions: the three normalized-component divides + the ftol-consumed
+// field reads - precise-bracketed per rule (k); /Fa gate check: divsd, no
+// reciprocal chains.
+#pragma float_control(precise, on, push)
+int __fastcall RGE_Moving_Object__checkAcceleration_new(RGE_Moving_Object* this_, DWORD dummy, BVector *point, int pointIsGoal, int limitedYawAngle)
+{
+    RGE_Map* map = this_->owner->world->map;                    // asm 0x4A6574-0x4A657D (owner @+0x18 -> world @+0x8C -> map @+0x34; the shipped acquisition form)
+    float accelValue = (float)this_->master_obj->vfptr->acceleration(this_->master_obj,
+        map->map_row_offset[(int)this_->positionValue.y][(int)this_->positionValue.x].terrain_type);   // asm 0x4A656C-0x4A65A8 (slot 21 = +0x54, the RGE_Master_Static_ObjectVtbl member; the double return m32-stored - the patch's fstp form; the (__int64) renders = the ftol artifact -> (int))
+    float decelValue = (float)this_->master_obj->vfptr->deceleration(this_->master_obj,
+        map->map_row_offset[(int)this_->positionValue.y][(int)this_->positionValue.x].terrain_type);   // asm 0x4A65AB-0x4A65F1 (slot 22 = +0x58)
+    if (this_->movementData == 0)                               // asm 0x4A65F1-0x4A65FD (the stub's test eax,eax / jz loc_4A6833)
+    {
+        this_->vfptr->setForwardAcceleration(this_, accelValue);  // asm 0x4A6833-0x4A683C (slot +0x2F0 = 188; var_54 = acceleration)
+        return 1;                                               // asm 0x4A6845-0x4A684E (mov eax,1 / retn 0Ch)
+    }
+    float maxSpeed = (float)this_->vfptr->calculateMaximumSpeed(this_,
+        map->map_row_offset[(int)this_->positionValue.y][(int)this_->positionValue.x].terrain_type);   // asm 0x4A6603-0x4A663E (the runtime slot 199 = +0x31C - OUR HOOK; the fstp var_4C @0x4A664E)
+    BVector delta;                                              // asm result @-3Ch
+    BVector* deltaRef = BVector__operator_minus(point, &delta, &this_->positionValue);   // asm 0x4A6652-0x4A665A (:5787, this = the minuend)
+    double deltaNorm = sqrt((double)deltaRef->x * deltaRef->x + (double)deltaRef->z * deltaRef->z + (double)deltaRef->y * deltaRef->y);  // asm 0x4A665F-0x4A66A0 (the x*x; z*z; y*y; faddp x2; fsqrt 53-bit chain, the asm's exact (x,z,y) order)
+    BVector unit;                                               // asm var_30
+    unit.x = (float)((double)deltaRef->x / deltaNorm);          // asm 0x4A66A2-0x4A66A8 (fdiv st,st(1) + the m32 store-round)
+    unit.z = (float)((double)deltaRef->z / deltaNorm);          // asm 0x4A66AC-0x4A66B2
+    unit.y = (float)((double)deltaRef->y / deltaNorm);          // asm 0x4A66B6-0x4A66BC
+    float yawAngle = (float)BVector__angleBetweenVector(&this_->orientationForwardValue, &unit);   // asm 0x4A66C2-0x4A66CB (:5791; fstp var_50)
+    float turnRadius = (float)this_->vfptr->calculateTurnRadius(this_);   // asm 0x4A66CF-0x4A66D9 (slot +0x32C = 203 - OUR HOOK; fstp into the point-arg scratch)
+    if (limitedYawAngle == 1)                                   // asm 0x4A66DD cmp eax,1 / 0x4A66E0 jnz
+    {
+        this_->vfptr->setForwardAcceleration(this_, decelValue);  // asm 0x4A66E2-0x4A66EB (var_58 = deceleration)
+        this_->vfptr->setForwardVelocity(this_, 0.0f);          // asm 0x4A66F1-0x4A66F7 (slot +0x2E8 = 186)
+        return 1;                                               // asm 0x4A66FD-0x4A6709
+    }
+    if (this_->movementData->velocity.y > 0.0f)                 // asm 0x4A670C-0x4A6720 (fcomp const_f_zero; test ah,41h; jnz -> skip: the literal > MATCH row)
+    {
+        if (fabs(yawAngle) > 0.0000001f)                        // asm 0x4A6726-0x4A6737 (fabs; fcomp ds:dbl_6545B0; test ah,41h; jnz -> skip: the literal > MATCH row; dbl_6545B0 = the widened 1e-7f = 0x3E7AD7F2A0000000 (the .lst dq render 1.000000011686097e-7; the dd-constant mandate: the f suffix; the calculateReachedPoint sibling pool form; the .c's decimal render 0.0000001000000011686097 = an IDA imprecision - DO NOT transcribe)
+        {
+            BVector cross;                                      // asm var_18
+            BVector* crossRef = BVector__operator_mul(&unit, &cross, &this_->orientationForwardValue);  // asm 0x4A673D-0x4A6747 (:5789, v19 = unit x forward)
+            BVector lateral;                                    // asm v @-48h
+            lateral = this_->orientationRightValue;             // asm 0x4A675C-0x4A6772 (the [edx]/[edx+4]/[edx+8] component copies, +0x10C)
+            if (crossRef->z > 0.0f)                             // asm 0x4A674C-0x4A6779 (fcomp const_f_zero; test ah,41h; jnz loc_4A679D -> skip the negation: the literal > MATCH row)
+            {
+                BVector negBuf;                                 // asm var_C
+                BVector* negRef = BVector__operator_neg(&lateral, &negBuf);  // asm 0x4A677B-0x4A6784 (:5788)
+                lateral = *negRef;                              // asm 0x4A6789-0x4A6799 (the [eax]/[eax+4]/[eax+8] copies)
+            }
+            lateral.x = lateral.x * turnRadius;                 // asm 0x4A679D-0x4A67A1 (the per-component scale, the asm's x-then-z-then-y order)
+            lateral.z = lateral.z * turnRadius;                 // asm 0x4A67A5-0x4A67B9
+            lateral.y = lateral.y * turnRadius;                 // asm 0x4A67BD-0x4A67C5
+            lateral.x = lateral.x + this_->positionValue.x;     // asm 0x4A67C9 fadd [edi]
+            lateral.z = lateral.z + this_->positionValue.z;     // asm 0x4A67D3 fadd [edi+4]
+            lateral.y = lateral.y + this_->positionValue.y;     // asm 0x4A67DE fadd [edi+8]
+            BVector toLateral;                                  // asm var_24
+            BVector* toLateralRef = BVector__operator_minus(point, &toLateral, &lateral);  // asm 0x4A67E5 (toLateral = point - lateral)
+            double toLateralNorm = sqrt((double)toLateralRef->y * toLateralRef->y + (double)toLateralRef->z * toLateralRef->z + (double)toLateralRef->x * toLateralRef->x);  // asm 0x4A67EA-0x4A6806 (the y*y; z*z; x*x 53-bit chain, the asm's exact (y,z,x) order)
+            if (X87_LT_NAN(toLateralNorm, turnRadius))          // asm 0x4A680C-0x4A6815 (fcomp [esp+68h+point]; test ah,1; jz loc_4A681F - the {<, NaN} fall-through = the hit)
+            {
+                this_->vfptr->setForwardAcceleration(this_, decelValue);  // asm 0x4A6817-0x4A681D (var_58 = deceleration; jmp the shared tail)
+                return 1;
+            }
+        }
+    }
+    if (X87_LT_NAN(this_->movementData->velocity.y, maxSpeed))  // asm 0x4A682E-0x4A6831 (fld [edx+8]; fcomp var_4C; test ah,1; jz loc_4A6842 - the C0-only mask: the {<, NaN} fall = LABEL_11; the == case skips, matching the original)
+    {
+        this_->vfptr->setForwardAcceleration(this_, accelValue);  // asm 0x4A6833-0x4A683C (var_54 = acceleration)
+    }
+    return 1;                                                   // asm 0x4A6842-0x4A684E (both the gate-skip and the LABEL_11 tail)
+}
+#pragma float_control(pop)
+
+// =========================================================================
+// RGE_Moving_Object::resolveCollisions_new @ 0x004A5E70 [0x4A5E70, 0x4A623F)
+// (lst :282659/:283029, retn 4 = 1 stack arg; idb_functions.h:2196)
+// -------------------------------------------------------------------------
+// SEMANTIC: pushes the unit's tentative new position out of stationary
+// blockers registered in the OBSystem collision record array. Per record:
+// the unit's own AABB is built from its master radii; null records, objects
+// that fail the world resolve, null linked-owner swaps on type-80 buildings,
+// and MOVING blockers (runtime maximumSpeed > 0) are skipped. The first
+// record skips the AABB overlap test (the record-pointer comparison);
+// later records skip when the AABBs separate on any axis. For an overlap:
+// the unit-to-blocker delta is measured from positionValue; a sub-1e-7
+// distance short-circuits the whole resolve (the out-param is overwritten
+// with positionValue, the count returned). Otherwise per-axis push-out gaps
+// are fetched through the blocker's copy-out position getter (two fetches,
+// two buffers), scaled by distance / per-axis delta magnitude, and the
+// smaller positive scale wins; a non-positive scale snaps the tentative
+// position back to positionValue. The residual (newPosition - pushed) must
+// stay non-trivial (> 1e-7 norm) or the loop exits. Returns the number of
+// pushes applied.
+// RESTRUCTURE: the asm's six skip-to-advance arms are written as a for-loop
+// with continue (the shared advance = loc_4A61C9, the tail = loc_4A61E3);
+// the original's record-pointer walk (add ebx, 4) is written indexed per
+// the pointer-arithmetic rule (the BMotion record-scan precedent).
+// PRECISION: precise-bracketed per rule (k) - three divisions feed the 1e-7
+// boundary ladder; the distance norm is consumed UNROUNDED at the
+// short-circuit compare (0x4A5FF7) and STORE-ROUNDED (fst var_74) for the
+// divisions; pushScaleX stays unrounded on st0 through the ladder while
+// pushScaleY is fstp m32 store-rounded (the rule-(e) asymmetry, asm-exact).
+// =========================================================================
+#pragma float_control(precise, on, push)
+
+int __fastcall RGE_Moving_Object__resolveCollisions_new(RGE_Moving_Object *this_, DWORD dummy, BVector *newPosition)
+{
+	int collisionCount = 0;                                        // asm 0x4A5E85 (var_78 = 0)
+	BVector correctedPos;                                          // asm v @-84h - the tentative pushed-out position
+	correctedPos.x = newPosition->x;                               // asm 0x4A5E96
+	correctedPos.z = newPosition->z;                               // asm 0x4A5E9A (the {x,z,y} copy order)
+	correctedPos.y = newPosition->y;                               // asm 0x4A5EA2
+	if (*numberObSystemCollisions <= 0)                            // asm 0x4A5EA1-0x4A5EA9 (the DIRECT value load - the deref rule; jle -> the epilogue, eax = 0)
+		return 0;                                                  // asm 0x4A5E7A (xor eax,eax held to the epilogue)
+
+	for (int recordIdx = 0; recordIdx < *numberObSystemCollisions; recordIdx++)
+		// asm 0x4A5EAF (the record base) / 0x4A61CD-0x4A61DD (the LIVE count re-read per advance; jl back-edge)
+	{
+		RGE_Master_Static_Object *ownMaster = (RGE_Master_Static_Object *)this_->master_obj;   // asm 0x4A5EB4 ([ebp+14h] @+0x14; the derived-master -> base-master cast, layout-safe prefix)
+		ObsRecord *rec = obSystemCollisions[recordIdx];            // asm 0x4A5EB7 (the indexed form of the add ebx,4 walk)
+
+		float ourLowerX = correctedPos.x - ownMaster->radius_x;    // asm 0x4A5EB9-0x4A5EC0 (var_3C)
+		float ourLowerY = correctedPos.y - ownMaster->radius_y;    // asm 0x4A5EC4-0x4A5ECB (var_34)
+		float ourUpperX = correctedPos.x + ownMaster->radius_x;    // asm 0x4A5ECF-0x4A5ED6 (var_60)
+		float ourUpperY = correctedPos.y + ownMaster->radius_y;    // asm 0x4A5EDA-0x4A5EE6 (var_58)
+
+		RGE_Static_Object *blocker = rec->Object;                  // asm 0x4A5EE1-0x4A5EEA (ObsRecord.Object @+8, idb_types.h:4318)
+		if (blocker == 0)
+			continue;                                              // asm 0x4A5EEA jz loc_4A61C9
+
+		blocker = RGE_Game_World__object((RGE_Game_World *)this_->owner->world, blocker->id);
+			// asm 0x4A5EF0-0x4A5EFD (owner @+0x18; world @+0x8C; the object id @+0x10; the TRIBE_World family cast, :6086)
+		if (blocker == 0)
+			continue;                                              // asm 0x4A5F04 jz
+
+		if (blocker->type == 80 && ((TRIBE_Building_Object *)blocker)->linked_owner != 0)
+			// asm 0x4A5F0A-0x4A5F18 (type @+0x5E byte; linked_owner @+0x1DC, idb_types.h:9862 - the runtime-type evidence = the type-80 gate)
+			blocker = (RGE_Static_Object *)((TRIBE_Building_Object *)blocker)->linked_owner;   // asm 0x4A5F1A (the Building -> Static cast, layout-safe prefix)
+		if (blocker == 0)
+			continue;                                              // asm 0x4A5F1E-0x4A5F20 jz
+
+		if (blocker->vfptr->maximumSpeed(blocker) > 0.0f)
+			// asm 0x4A5F26-0x4A5F3B (the RUNTIME vtbl slot +0x188 = 98, idb_types.h:4033 double; fcomp const_f_zero;
+			// test ah,41h; jz = the skip arm {> 0 ordered} - the literal MATCH row: a NaN blocker is PROCESSED)
+			continue;                                              // asm 0x4A5F3B jz loc_4A61C9
+
+		RGE_Master_Static_Object *blockerMaster = blocker->master_obj;   // asm 0x4A5F41 ([esi+14h])
+		float theirLowerX = blocker->world_x - blockerMaster->radius_x;  // asm 0x4A5F4A-0x4A5F50 (var_48)
+		float theirLowerY = blocker->world_y - blockerMaster->radius_y;  // asm 0x4A5F54-0x4A5F5A (var_40)
+		float theirUpperX = blockerMaster->radius_x + blocker->world_x;  // asm 0x4A5F5E-0x4A5F64 (var_30 - the master-radius-first order)
+		float theirUpperY = blocker->world_y + blockerMaster->radius_y;  // asm 0x4A5F68-0x4A5F6E (var_28 - the world-y-first order)
+
+		if (recordIdx > 0                                          // asm 0x4A5F44 (cmp ebx, offset obSystemCollisions - the flags persist across the x87 block to 0x4A5F72 jle)
+			&& (X87_LT_NAN(ourUpperX, theirLowerX)                 // asm 0x4A5F7E (test ah,1; jnz - the {<, NaN} skip)
+				|| X87_LT_NAN(ourUpperY, theirLowerY)              // asm 0x4A5F91 (test ah,1; jnz)
+				|| ourLowerX > theirUpperX                         // asm 0x4A5FA4 (test ah,41h; jz - the {> ordered} skip = the literal MATCH row: a NaN overlap CONTINUES)
+				|| ourLowerY > theirUpperY))                       // asm 0x4A5FB7 (test ah,41h; jz)
+			continue;                                              // asm -> loc_4A61C9
+
+		BVector posDelta;                                          // asm result @-70h
+		BVector__operator_minus(&correctedPos, &posDelta, &this_->positionValue);
+			// asm 0x4A5FC0-0x4A5FD0 (this = &v; posDelta = correctedPos - positionValue @+0xF4)
+
+		double dist = sqrt((double)posDelta.z * posDelta.z + (double)posDelta.y * posDelta.y + (double)posDelta.x * posDelta.x);
+			// asm 0x4A5FD5-0x4A5FF3 (the (z^2 + y^2) + x^2 add order; rule (j): the (double) casts widen BEFORE each product -
+			// the x87 fld/fmul computes at 53-bit; the bare float form compiled mulss/addss + sqrtf, a 24-bit rounding the original never performed)
+		float distStored = (float)dist;                            // asm 0x4A5FF3 fst m32 (var_74) - the store-round the divisions consume
+		if (X87_LT_NAN(dist, 1e-7f))
+			// asm 0x4A5FF7-0x4A6002 (fcomp on the UNROUNDED st0; test ah,1; jnz - the {<, NaN} short-circuit)
+		{
+			newPosition->x = this_->positionValue.x;               // asm loc_4A6213 (0x4A6222-0x4A6231, the x/z/y triple)
+			newPosition->z = this_->positionValue.z;
+			newPosition->y = this_->positionValue.y;
+			return collisionCount;                                 // asm 0x4A623F retn (eax = var_78)
+		}
+
+		BVector fetchedA;                                          // asm var_18 - the copy-out buffer, fetch 1
+		BVector fetchedB;                                          // asm var_C - the copy-out buffer, fetch 2 (each fetch consumed before the next)
+		blocker->vfptr->position(blocker, &fetchedA);              // asm 0x4A6008-0x4A6014 (the RUNTIME vtbl slot +0x2AC = 171, idb_types.h:4106)
+		float pushOutX;
+		if (this_->positionValue.x >= fetchedA.x)                  // asm 0x4A601A-0x4A6023 (test ah,1; jz = the {>= ordered} MATCH row; NaN -> the else arm)
+			pushOutX = theirUpperX - ourLowerX;                    // asm loc_4A602F (var_30 - var_3C)
+		else
+			pushOutX = ourUpperX - theirLowerX;                    // asm loc_4A6025 (var_60 - var_48)
+		blocker->vfptr->position(blocker, &fetchedB);              // asm 0x4A6037-0x4A6047 (the second fetch, its own buffer)
+		float pushOutY;
+		if (this_->positionValue.y >= fetchedB.y)                  // asm 0x4A604D-0x4A605B (the .y slot @+8)
+			pushOutY = theirUpperY - ourLowerY;                    // asm loc_4A6067 (var_28 - var_34)
+		else
+			pushOutY = ourUpperY - theirLowerY;                    // asm loc_4A605D (var_58 - var_40)
+
+		double pushScaleX = X87_LE_NAN(posDelta.x, 0.0f)           // asm 0x4A6073-0x4A6082 (test ah,41h; jnz -> the zero)
+			? 0.0
+			: ((double)pushOutX * distStored) / fabs(posDelta.x);   // asm 0x4A6084-0x4A6096 (fmul/fdivp at 53-bit - the (double) cast widens the product, rule (j)) - UNROUNDED through the ladder
+		float pushScaleY = X87_LE_NAN(posDelta.y, 0.0f)            // asm 0x4A60A0-0x4A60AF
+			? 0.0f
+			: (float)(((double)pushOutY * distStored) / fabs(posDelta.y));   // asm 0x4A60B1-0x4A60C5 (fmul/fdivp at 53-bit + the fstp m32 var_88 store-round, rules (j)/(e))
+
+		if (X87_LT_NAN(pushScaleX, 1e-7f) && X87_LT_NAN(pushScaleY, 1e-7f))
+			// asm 0x4A60D3-0x4A60EF (both test ah,1 - the {<, NaN} sets; the .c's literal render diverges on NaN)
+			continue;                                              // asm loc_4A61C7 (fstp st discards the live scale) -> loc_4A61C9
+		if ((pushScaleX >= pushScaleY || X87_LE_NAN(pushScaleX, 1e-7f)) && pushScaleY >= 1e-7f)
+			// asm 0x4A60F5-0x4A611C (A = the {>= ordered} literal MATCH row; B = the {<= 1e-7, NaN} macro; C = the {>= ordered} literal MATCH row)
+		{
+			if (X87_LE_NAN(pushScaleY, 1e-7f))                     // asm 0x4A6120-0x4A612F (test ah,41h; jnz -> loc_4A61C9)
+				continue;
+			pushScaleX = pushScaleY;                               // asm 0x4A611E-0x4A6135 (fstp st / fld var_88 - the select; a NaN X is REPLACED by an ordered Y)
+		}
+		double pushNorm = pushScaleX / distStored;                 // asm 0x4A6139 (fdiv var_74 - unrounded)
+		++collisionCount;                                          // asm 0x4A613D (inc var_78)
+		if (pushNorm > 0.0f)                                       // asm 0x4A6141-0x4A614C (fcom const_f_zero; test ah,41h; jz = the {> ordered} MATCH row; NaN -> the snap-back arm)
+		{
+			correctedPos.x = (float)(correctedPos.x - pushNorm * posDelta.x);   // asm 0x4A6166-0x4A6170 (fmul/fsubr/fstp - the one store-round)
+			correctedPos.y = (float)(correctedPos.y - pushNorm * posDelta.y);   // asm 0x4A6174-0x4A617C (NO .z update - faithful)
+		}
+		else
+		{
+			correctedPos.x = this_->positionValue.x;               // asm 0x4A614E-0x4A6156 (the x/z/y snap-back copy; the interleaved fstp st = the scale discard)
+			correctedPos.z = this_->positionValue.z;
+			correctedPos.y = this_->positionValue.y;
+		}
+
+		BVector residual;                                          // asm var_24 (v38)
+		BVector__operator_minus(newPosition, &residual, &correctedPos);
+			// asm 0x4A6180-0x4A6191 (this = newPosition - the OUT param doubles as the minuend)
+		double residualNorm = sqrt((double)residual.y * residual.y + (double)residual.z * residual.z + (double)residual.x * residual.x);
+			// asm 0x4A6196-0x4A61B2 (the (y^2 + z^2) + x^2 add order; rule (j) widen-before-product; the fstp st(2)/fstp st pair = junk-slot hygiene, no value effect)
+		if (X87_LT_NAN(residualNorm, 1e-7f))                       // asm 0x4A61B8-0x4A61C3 (test ah,1; jnz -> the tail)
+			break;                                                 // asm -> loc_4A61E3
+	}
+
+	if (collisionCount > 0)                                        // asm 0x4A61E7-0x4A61E9 (test eax,eax; jle -> the epilogue)
+	{
+		newPosition->x = correctedPos.x;                           // asm 0x4A61F2-0x4A6203 (the x/z/y triple)
+		newPosition->z = correctedPos.z;
+		newPosition->y = correctedPos.y;
+	}
+	return collisionCount;                                         // asm 0x4A6210 retn (eax = var_78)
+}
+
+#pragma float_control(pop)
+
+// =========================================================================
+// RGE_Moving_Object::addMove_new @ 0x004A30F0 [0x4A30F0, 0x4A34AD)
+// (lst :278064/:278438, retn 24h = 9 stack args; idb_functions.h corrected
+// prototype - the 10th param = unsigned __int8 oneWay)
+// -------------------------------------------------------------------------
+// SEMANTIC: installs a movement command. Resets (or creates, under the
+// allocation-unwind SEH fold) the unit's BPathData, creates a fresh world
+// BPath stamped with the world time, then fills it from one of two sources.
+// Arm A (the ADOPTED future path - mFuturePathData holding a ready state-2
+// path): the current position is prefixed when it sits > 1e-7 (planar) from
+// the future path's first waypoint, every future waypoint is appended, the
+// future path's waypointLevel drives setReadyToPath vs setReadyToFollowPath
+// (with the range/targetID stamps on the follow form), the future path's
+// ignore-unit list carries over, and a linked path is adopted + detached.
+// Arm B (the FRESH COMMAND): the current position (when forcedWaypoint ==
+// -1), the user waypoints, then the target waypoint appended when it sits
+// > 1e-7 (planar) from the path's last waypoint; always setReadyToPath +
+// waypointLevel = 2, plus waypoint = forcedWaypoint when != -1. Both arms
+// reset the future path and clear the user waypoints. Finally the path
+// flags are set/cleared per patrol (bit 0), linear (bit 1), oneWay (bit 5 -
+// the LOW BYTE of the 10th arg). Returns 1.
+// SEH: one allocation-unwind fold - the chunk 0x642800 frees the raw
+// BPathData allocation if the ctor throws; written as the scoped
+// __try/__except(operator_delete_internal) block per the M11 setup_read
+// precedent.
+// PRECISION: precise-bracketed per rule (k) as extended - the two planar
+// norms feed boundary compares (> 1e-7f); no divisions.
+// =========================================================================
+#pragma float_control(precise, on, push)
+
+int __fastcall RGE_Moving_Object__addMove_new(RGE_Moving_Object *this_, DWORD dummy, int targetID,
+	float targetX, float targetY, float targetZ, float range, int patrol, int linear,
+	int forcedWaypoint, unsigned __int8 oneWay)
+{
+	BPathData *pathData = this_->pathData;                     // asm 0x4A310F ([esi+118h] @+0x118)
+	if (pathData != 0)
+	{
+		BPathData__reset(pathData);                            // asm 0x4A3162 (:2507)
+	}
+	else
+	{
+		BPathData *fresh = (BPathData *)operator_new_internal(sizeof(BPathData));   // asm 0x4A3119-0x4A3123 (0x34 = 52, walked; the written sizeof form)
+		BPathData *built = 0;
+		__try
+		{
+			if (fresh != 0)                                    // asm 0x4A3127-0x4A312D
+				built = BPathData__BPathData(fresh);           // asm 0x4A312F-0x4A3131 (:2505; the SEH state store 0x4A3129, var_4 = 0)
+		}
+		__except (operator_delete_internal(fresh), EXCEPTION_CONTINUE_SEARCH)
+			// the unwind chunk 0x642800 (mov eax,[ebp-4Ch]; call operator_delete; retn) - the CRT-wrapper rule
+		{
+		}
+		this_->pathData = built;                               // asm 0x4A3144
+		if (built == 0)
+			return 0;                                          // asm 0x4A314A-0x4A315F (the fs:0 unwind + retn 24h)
+		pathData = built;                                      // the local alias (the asm re-reads [esi+118h]; no intervening writes)
+	}
+
+	BPath *newPath = RGE_Game_World__createPath((RGE_Game_World *)(*base_game)->world);   // asm 0x4A3167-0x4A3172 (:6095; world @+0x420; the TRIBE_World family cast)
+	if (newPath == 0)
+		return 0;                                              // asm 0x4A317B-0x4A3190
+	newPath->creationTimeValue = (*base_game)->world->world_time;       // asm 0x4A3193-0x4A31A3 (world_time @+0x10 -> creationTimeValue @+0x1C)
+
+	BPathData *futurePath = this_->mFuturePathData;            // asm 0x4A31A6 ([esi+11Ch] @+0x11C)
+	if (futurePath != 0 && futurePath->path != 0 && futurePath->state == 2)
+		// asm 0x4A31AE-0x4A31C1 (path @+0x10; state @+0x1C)
+	{
+		// ARM A - the adopted future path
+		BVector waypointBuf;                                   // asm wpIndex @-24h (the shared arm-A fetch buffer; single-fetch liveness per fetch)
+		BVector *firstWp = BPath__waypoint(futurePath->path, &waypointBuf, 0);   // asm 0x4A31C7-0x4A31D6 (the copy-out getter)
+		BVector posDelta;                                      // asm result @-48h
+		BVector__operator_minus(&this_->positionValue, &posDelta, firstWp);
+			// asm 0x4A31DB-0x4A31E3 (this = &positionValue @+0xF4)
+		posDelta.z = 0.0f;                                     // asm 0x4A31F8 (the REAL store - the value is dead, the norm reads .x/.y only)
+		if (sqrt((double)posDelta.x * posDelta.x + (double)posDelta.y * posDelta.y) > 1e-7f)
+			// asm 0x4A31E8-0x4A320E (the (x^2 + y^2) order; the UNROUNDED fcomp vs flt_6565F4 = 1e-7f; the literal > MATCH row - a NaN delta skips the add;
+			// rule (j): the (double) casts widen BEFORE each product - the bare float form compiled mulss/addss + sqrtf + a store-round)
+			BPath__addWaypointAtStart(newPath, &this_->positionValue);   // asm 0x4A3213-0x4A3216 (:2523)
+		if (futurePath->path->waypointsCount > 0)              // asm 0x4A321B-0x4A322B (waypointsCount @+0xC; the jle skip = the loop's own condition - the redundant-guard collapse)
+		{
+			for (int wpIdx = 0; wpIdx < futurePath->path->waypointsCount; wpIdx++)
+				// asm 0x4A322D-0x4A3251 (the path re-read per iteration 0x4A3242-0x4A324C - the faithful live reload)
+			{
+				BVector *fetched = BPath__waypoint(futurePath->path, &waypointBuf, wpIdx);   // asm 0x4A322D-0x4A3235 (each fetch consumed by the append before the next)
+				BPath__addWaypointAtEnd(newPath, fetched);     // asm 0x4A323A-0x4A323D (:2524)
+			}
+		}
+		pathData->waypointLevel = futurePath->waypointLevel;   // asm 0x4A3253-0x4A3262 (waypointLevel @+0xC both sides)
+		if (futurePath->waypointLevel == 2)                    // asm 0x4A3265-0x4A326F
+			BPathData__setReadyToPath(pathData, newPath, range, targetID);   // asm 0x4A3271-0x4A3282 (:2513)
+		else
+		{
+			BPathData__setReadyToFollowPath(pathData, newPath);        // asm 0x4A3289-0x4A3290 (:2514)
+			pathData->range = range;                           // asm 0x4A3295-0x4A329F (range @+0x20)
+			pathData->targetID = targetID;                     // asm 0x4A32A2-0x4A32AC (targetID @+0x24)
+		}
+		BPath__setIgnoreUnits(newPath, futurePath->path->mIgnoreUnits, futurePath->path->mNumberIgnoreUnits);
+			// asm 0x4A32AF-0x4A32C2 (:2530; mIgnoreUnits @+0x30 = `units`, mNumberIgnoreUnits @+0x2C = `number`)
+		if (futurePath->linkedPath != 0)                       // asm 0x4A32C7-0x4A32D2 (linkedPath @+0x4)
+		{
+			BPathData__setLinkedPath(pathData, futurePath->linkedPath, futurePath->linkedPathType);   // asm 0x4A32D4-0x4A32DF (:2515; linkedPathType @+0x8)
+			futurePath->linkedPath = 0;                        // asm 0x4A32E4-0x4A32EA (the detach)
+		}
+		BPathData__reset(futurePath);                          // asm 0x4A32F1-0x4A32F7
+		this_->vfptr->zeroUserDefinedWaypoints(this_);         // asm 0x4A32FC-0x4A3300 (the RUNTIME vtbl slot +0x260 = 152 - OWNED, routes)
+	}
+	else
+	{
+		// ARM B - the fresh command
+		int forcedWp = forcedWaypoint;                         // asm 0x4A330B (the ebx clobber/reload dance 0x4A332C/0x4A334E = the compiler's register allocation)
+		if (forcedWp == -1)                                    // asm 0x4A330F-0x4A3312
+			BPath__addWaypointAtStart(newPath, &this_->positionValue);   // asm 0x4A3314-0x4A331D
+		if (this_->numberUserDefinedWaypointsValue > 0)        // asm 0x4A3322-0x4A332A (@+0xEC; the jle skip = the loop's own condition - the redundant-guard collapse)
+		{
+			for (int udwIdx = 0; udwIdx < this_->numberUserDefinedWaypointsValue; udwIdx++)
+				// asm 0x4A332E-0x4A334C (the count re-read per iteration 0x4A3340; the ebx byte-cursor = the indexed element address)
+			{
+				BPath__addWaypointAtEnd(newPath, &this_->userDefinedWaypoints[udwIdx]);   // asm 0x4A3336-0x4A333B (userDefinedWaypoints @+0xE8, the 12-byte stride)
+			}
+		}
+		this_->vfptr->zeroUserDefinedWaypoints(this_);         // asm 0x4A3352-0x4A3356 (slot +0x260)
+		if (this_->mFuturePathData != 0)                       // asm 0x4A335C-0x4A3364
+			BPathData__reset(this_->mFuturePathData);          // asm 0x4A3366
+		if (forcedWp == -1)                                    // asm 0x4A336B-0x4A336E
+		{
+			BVector targetWp;                                  // asm wp @-30h
+			targetWp.x = targetX;                              // asm 0x4A337C
+			targetWp.z = targetZ;                              // asm 0x4A3383
+			targetWp.y = targetY;                              // asm 0x4A3390
+			int lastIdx = newPath->waypointsCount - 1;         // asm 0x4A3380-0x4A3387
+			BVector tailBuf;                                   // asm outVector @-18h (the copy-out buffer)
+			BVector *lastWp = BPath__waypoint(newPath, &tailBuf, lastIdx);   // asm 0x4A338A-0x4A3394
+			BVector tailDelta;                                 // asm var_3C @-3Ch
+			BVector__operator_minus(&targetWp, &tailDelta, lastWp);   // asm 0x4A3399-0x4A33A3 (this = &targetWp)
+			tailDelta.z = 0.0f;                                // asm 0x4A33B8 (the REAL interleaved store - dead value)
+			if (sqrt((double)tailDelta.y * tailDelta.y + (double)tailDelta.x * tailDelta.x) > 1e-7f)
+				// asm 0x4A33A8-0x4A33CF (the (y^2 + x^2) order - DIFFERENT from arm A's; the literal > MATCH row; rule (j) widen-before-product)
+				BPath__addWaypointAtEnd(newPath, &targetWp);   // asm 0x4A33D1-0x4A33D8
+		}
+		BPathData__setReadyToPath(pathData, newPath, range, targetID);   // asm 0x4A33DD-0x4A33EE (UNCONDITIONAL in arm B)
+		pathData->waypointLevel = 2;                           // asm 0x4A33F3-0x4A33FC
+		if (forcedWp != -1)                                    // asm 0x4A33F9-0x4A3403
+			pathData->waypoint = forcedWp;                     // asm 0x4A3405-0x4A340B (waypoint @+0x18)
+	}
+
+	if (patrol == 1)                                               // asm 0x4A340E-0x4A341A
+		newPath->flags.valueValue |= 1;                            // asm 0x4A341C-0x4A342A (BBitVectorAND_2 = dd 1 @.rdata:0065BD94, binary-verified)
+	else
+		newPath->flags.valueValue &= ~1;                           // asm 0x4A342C-0x4A3439 (the not/and form)
+	if (linear == 1)                                               // asm 0x4A343C-0x4A3440
+		newPath->flags.valueValue |= 2;                            // asm 0x4A3442-0x4A3450 (dword_65BD98 = dd 2, binary-verified)
+	else
+		newPath->flags.valueValue &= ~2;                           // asm 0x4A3452-0x4A345F
+	if (oneWay != 0)                                               // asm 0x4A3462-0x4A3468 (the LOW-BYTE test: mov cl,[esp+58h+oneWay]; test cl,cl)
+		newPath->flags.valueValue |= 0x20;                         // asm 0x4A346A-0x4A3478 (dword_65BDA8 = dd 0x20, binary-verified)
+	else
+		newPath->flags.valueValue &= ~0x20;                        // asm 0x4A348C-0x4A3499
+	return 1;                                                      // asm 0x4A3412 (mov eax,1) -> the retn 24h tails 0x4A3489/0x4A34AD
+}
+
+#pragma float_control(pop)
+
+// =========================================================================
+// RGE_Moving_Object::teleport_new @ 0x004A1440 [0x4A1440, 0x4A1967)
+// (lst :274804/:275293, retn 0Ch = 3 stack args; idb_functions.h:2138,
+// double return, float x/y/z)
+// -------------------------------------------------------------------------
+// SEMANTIC: moves the unit and spawns the terrain-transition particle
+// effects. First the OBJ TRAIL arm (the unit's own master's Moving
+// extension fields): obj_trail_options == 1 spawns one departure puff at
+// the current position; == 2 spawns an interpolated trail - the distance
+// (plus the carried trail_remainder) over the unit's OWN master's
+// obj_trail_spacing, ftol of the unrounded quotient as the count, one
+// get_sprite particle per step (flags 0x40) walking the cursor, then the
+// leftover re-stored into trail_remainder (or accumulated when the count
+// floors to 0). The trail master (owner->master_objects[obj_trail_id])
+// contributes only the sprite. Then the map-edge clamps (gated on the
+// runtime maximumSpeed > 1e-7): lower = radius + 0.01, upper =
+// map_width - radius - 0.01 - map_width for BOTH axes. The base
+// RGE_Static_Object::teleport performs the move; its st0 return is
+// STORE-ROUNDED through an m32 by the original and reloaded at the tail
+// (rule (e)). Then the terrain particles, keyed on the PRE-call on_ground
+// and the PRE-call tile vs the POST-call re-reads and the master terrain:
+// arrival (airborne or no old tile) = the new terrain's enter sprite at
+// the live position; took-off = the old terrain's exit sprite at the
+// saved position; same terrain grounded = the walk puff gated on the
+// walk_tile_particles_enabled config flag and the (world*rate) ftol grid;
+// terrain changed grounded = the new terrain's enter sprite at the live
+// position PLUS the old terrain's departure particle at the saved
+// position - gated on the old terrain's exit_tile_sprite_id (+0) but
+// rendering its enter_tile_sprite_id (+4) (the two different fields -
+// the owner-ruled IDB names, the engine quirk noted at the site). The
+// positionValue sync fires when any axis moved > 1e-7: positionValue =
+// the new position and lastMoveTimeValue = the world time.
+// PRECISION: precise-bracketed per rule (k) - the trail divisions + the
+// walk-rate grid products; the mixed dx-unrounded / dy-dz-stored norm and
+// the dzU*dz mixed product are rule-(e) replicates; every product feeds a
+// 53-bit consumer (rule (j) widen-before-product).
+// =========================================================================
+#pragma float_control(precise, on, push)
+
+double __fastcall RGE_Moving_Object__teleport_new(RGE_Moving_Object *this_, DWORD dummy, float x, float y, float z)
+{
+	// ---- the obj trail arm ----
+	RGE_Master_Moving_Object *ownMaster = this_->master_obj;         // asm 0x4A1449 ([esi+14h]; Moving-typed)
+	RGE_Tile *oldTile = this_->tile;                                 // asm 0x4A145A ([esi+28h] - the PRE-teleport tile)
+	if (ownMaster->obj_trail_options != 0 && oldTile != 0
+		&& ownMaster->obj_trail_id != -1)
+		// asm 0x4A144C-0x4A1470 (obj_trail_options @228; obj_trail_id @226 vs -1;
+		// RESTRUCTURE: the initial test al,al guard is subsumed by the ==1/==2
+		// selection below - the asm's dec-chain skips options==0 identically)
+	{
+		RGE_Master_Moving_Object *trailMaster = (RGE_Master_Moving_Object *)this_->owner->master_objects[ownMaster->obj_trail_id];
+			// asm 0x4A1476-0x4A1484 (owner @+0x18; master_objects @+0x74; the M4
+			// lowest-declaring-tier cast - the trail fields are the Moving extension)
+		if (trailMaster != 0)                                        // asm 0x4A1482-0x4A1484
+		{
+			if (ownMaster->obj_trail_options == 1)                   // asm 0x4A148A-0x4A1490
+			{
+				// the single departure puff at the current position
+				RGE_Sprite *trailSprite = trailMaster->vfptr->get_sprite(trailMaster, 0);   // asm 0x4A15D3-0x4A15DB (the master vtbl slot +4)
+				RGE_Sprite_Particle_System__add_particle2(this_->owner->world->particle_system, trailSprite,
+					this_->world_x, this_->world_y, this_->world_z, this_->facet, 0, -1, -1);
+					// asm 0x4A15BD-0x4A15EB (flags 0, duration -1, max -1)
+			}
+			else if (ownMaster->obj_trail_options == 2)              // asm 0x4A1496-0x4A1497
+			{
+				// the interpolated trail
+				double dx = (double)x - this_->world_x;              // asm 0x4A149D-0x4A14A1 (st0 - NEVER stored, the unrounded dx)
+				float dy = (float)((double)y - this_->world_y);      // asm 0x4A14A4-0x4A14AB (fstp var_1C - the store-round)
+				double dzU = (double)z - this_->world_z;             // asm 0x4A14AF-0x4A14B3 (st0 kept)
+				float dz = (float)dzU;                               // asm 0x4A14B6 (fst var_18 - the rounded copy)
+				double dist = sqrt(dx * dx + (double)dy * dy + dzU * dz)
+					+ this_->trail_remainder;
+					// asm 0x4A14B6-0x4A14D2 (the MIXED product: the unrounded st0 x the
+					// rounded var_18 - rule (e); the (z^2+y^2)+x^2 order; rule (j) widen;
+					// + trail_remainder @+0xB8)
+				float distR = (float)dist;                           // asm 0x4A14D6 (fst var_8 - the rounded copy)
+				double stepU = dist / ownMaster->obj_trail_spacing;  // asm 0x4A14DA (the divisor = the OWN master's spacing @232 - ecx held
+				                                                     // the this-master from 0x4A1449; NOT the trail master's)
+				float step = (float)stepU;                           // asm 0x4A14E0 (fst world_x - the rounded copy the component-step divisions consume)
+				short count = (short)(int)stepU;                     // asm 0x4A14E4-0x4A14E9 (__ftol on the UNROUNDED quotient; the i16 view)
+				if (count <= 0)                                      // asm 0x4A14EB-0x4A14EE (test bp,bp; jle)
+				{
+					this_->trail_remainder = (float)(distR + this_->trail_remainder);   // asm 0x4A15A9-0x4A15B5
+				}
+				else
+				{
+					short remain = count;                            // asm 0x4A1509 (movsx ebx, bp - the loop's THROWAWAY copy; bp = the original
+																	 // count, PRESERVED for the remainder recompute at 0x4A158C)
+					double dxStep = dx / step;                       // asm 0x4A14F4-0x4A14F8 (the X COMPONENT step: st0 at the fdiv = the dxU
+					                                                 // LEFTOVER from the norm - the __ftol at 0x4A14E4 popped only the step -
+					                                                 // so this divides dx by the step, NOT dist; the .c's v67 = v8/world_x
+					                                                 // confirms; the x87 slot-by-slot walk: [.., dxU] persists under the norm)
+					float dyStep = (float)((double)dy / step);       // asm 0x4A1510-0x4A1518 (the x87 m32/m32 fdiv computes at 53-bit; the bare float form
+					                                                 // is a 24-bit divss - the double-rounding class; rule (j) widen)
+					float dzStep = (float)((double)dz / step);       // asm 0x4A151C-0x4A1528
+					float curX = this_->world_x;                     // asm 0x4A14F8/0x4A1524
+					float curY = this_->world_y;                     // asm 0x4A14FB/0x4A1501
+					float curZ = this_->world_z;                     // asm 0x4A14FE/0x4A1505
+					do
+						// asm 0x4A152C-0x4A1587 (loc_4A152C; the do-loop on the i16 counter)
+					{
+						RGE_Sprite *trailSprite = trailMaster->vfptr->get_sprite(trailMaster, 0);   // asm 0x4A1546-0x4A154D
+						RGE_Sprite_Particle_System__add_particle2(this_->owner->world->particle_system, trailSprite,
+							curX, curY, curZ, this_->facet, 0x40, -1, -1);
+							// asm 0x4A1536-0x4A155D (flags 0x40)
+						curX = (float)(curX + dxStep);             // asm 0x4A1562-0x4A156B
+						curY = (float)(curY + dyStep);               // asm 0x4A156F-0x4A1577
+						curZ = (float)(curZ + dzStep);               // asm 0x4A157B-0x4A1583
+					}
+					while (--remain != 0);                           // asm 0x4A156A (dec ebx) / 0x4A1587 (jnz - the COPY decrements; bp survives)
+					this_->trail_remainder = (float)(distR - (double)count * ownMaster->obj_trail_spacing);
+						// asm 0x4A1589-0x4A15A5 (fild the PRESERVED i16 count - movsx eax, bp AFTER the
+						// loop; x the OWN master's spacing; fsubr var_8 = distR - ...; the fstp m32 store-round)
+				}
+			}
+		}
+	}
+
+	// ---- the pre-teleport state captures + the clamps ----
+	float oldX = this_->world_x;                                 // asm 0x4A15F0-0x4A15FC (the saved position - the departure-particle position)
+	float oldY = this_->world_y;                                 // asm 0x4A15F3/0x4A1606 (var_8)
+	float oldZ = this_->world_z;                                 // asm 0x4A15F6/0x4A160C
+	unsigned __int8 savedOnGround = this_->on_ground;            // asm 0x4A1600-0x4A1612 (var_20+3 - the PRE-call on_ground)
+	if (this_->vfptr->maximumSpeed(this_) > 1e-7f)
+		// asm 0x4A160A-0x4A1627 (the RUNTIME slot +0x188 = 98; test ah,41h; jnz skips
+		// on {<=, NaN} - the literal > MATCH row: a NaN maximumSpeed skips the clamps)
+	{
+		double lowerX = (double)ownMaster->radius_x + 0.01f;     // asm 0x4A162D-0x4A1633 (flt_654978 = 0.01f; the 53-bit sum feeds the compare)
+		if (X87_LT_NAN(x, lowerX))                               // asm 0x4A1639-0x4A1644 (test ah,1; jnz = the {<, NaN} clamp - a NaN x IS clamped)
+			x = (float)lowerX;                                   // asm 0x4A1677 (fstp - the st0 = the unrounded bound, one store-round)
+		else
+		{
+			float width = (float)this_->owner->world->map->map_width;   // asm 0x4A1646-0x4A1655 (world @+0x8C; map @+0x34; map_width @+8)
+			double upperX = (double)width - ownMaster->radius_x - 0.01f;   // asm 0x4A1659-0x4A1671 (the rounded width - radius - 0.01 at 53-bit)
+			if (x >= upperX)                                     // asm 0x4A1663-0x4A1668 (test ah,41h; jnz keeps on {<, NaN} - the literal >= MATCH row)
+				x = (float)upperX;                               // asm 0x4A166A-0x4A1677 (one store-round)
+		}
+		double lowerY = (double)ownMaster->radius_y + 0.01f;     // asm 0x4A167B-0x4A167E
+		if (X87_LT_NAN(y, lowerY))                               // asm 0x4A1688-0x4A168F
+			y = (float)lowerY;                                   // asm 0x4A16C2
+		else
+		{
+			float width = (float)this_->owner->world->map->map_width;   // asm 0x4A1691-0x4A169D (map_width AGAIN - the y axis clamps against the WIDTH, not map_height)
+			double upperY = (double)width - ownMaster->radius_y - 0.01f;   // asm 0x4A16A0-0x4A16BC
+			if (y >= upperY)                                     // asm 0x4A16AE-0x4A16B3
+				y = (float)upperY;                               // asm 0x4A16B5-0x4A16C2
+		}
+	}
+
+	// ---- the base teleport ----
+	float baseResult = (float)RGE_Static_Object__teleport((RGE_Static_Object *)this_, x, y, z);
+		// asm 0x4A16C6-0x4A16DF (:3832; the fstp m32 at 0x4A16DF - the ORIGINAL store-rounds
+		// the base's st0 return through an m32 - rule (e); the tail flds it back at 0x4A195C)
+
+	// ---- the terrain-transition particles ----
+	short masterTerrain = ownMaster->terrain;                    // asm 0x4A16DC-0x4A16E7 (the master terrain @+0x76, read AFTER the base call)
+	RGE_Tile *newTile = this_->tile;                             // asm 0x4A16F0-0x4A16F5 (the tile RE-READ after the base call)
+	if (masterTerrain >= 0 && newTile != 0)
+		// asm 0x4A16E7-0x4A16F5 (the signed i16 test; the post-call tile)
+	{
+		int newTerrain = newTile->terrain_type;                  // asm 0x4A16FE-0x4A170A (the byte @+5)
+		int oldTerrain = oldTile != 0 ? oldTile->terrain_type : -1;   // asm 0x4A170E-0x4A171D (the PRE-call tile's terrain, or -1)
+		RGE_Extra_Terrain_Table *row = this_->owner->world->extra_terrain_info[masterTerrain];
+			// asm 0x4A1710-0x4A1713 (extra_terrain_info @+0x64 - census-reconciled:
+			// the TRIBE_World pack-8 walk lands world_time @+0x10 / map @+0x34 /
+			// terrains @+0x60 / sprites @+0x44 / extra_terrain_info @+0x64 /
+			// particle_system @+0x70, all matching the asm)
+		if (savedOnGround == 0)
+			// asm 0x4A1728 (the SAVED on_ground == 0 -> loc_4A189E)
+		{
+			if (this_->on_ground != 0 && oldTile != 0)
+				// asm 0x4A189E-0x4A18AA (THE LANDING ARM - the LIVE on_ground and the OLD tile
+				// are RE-CHECKED inside the arm: either fails -> NOTHING (loc_4A18E7).
+				// Fires only for the landed-during-this-teleport case)
+			{
+				if (row[newTerrain].enter_tile_sprite_id > 0)
+					// asm 0x4A18B8-0x4A18BE (row[newTerrain].enter @+4)
+				{
+					RGE_Sprite *enterSprite = this_->owner->world->sprites[row[newTerrain].enter_tile_sprite_id];   // asm 0x4A18D6-0x4A18DE
+					RGE_Sprite_Particle_System__add_particle2(this_->owner->world->particle_system, enterSprite,
+						this_->world_x, this_->world_y, this_->world_z, this_->facet, 8, -1, -1);
+						// asm 0x4A18C0-0x4A18E2 (the LIVE position; flags 8)
+				}
+			}
+		}
+		else if (oldTile != 0)
+			// asm 0x4A1730 (the SAVED grounded; the OLD tile == 0 -> NOTHING via the
+			// landing arm's re-check at 0x4A18A8 - the structure preserved by this else-if)
+		{
+			if (this_->on_ground == 0)
+				// asm 0x4A1738-0x4A1740 (the LIVE on_ground == 0 -> loc_4A1866, the took-off)
+			{
+				if (row[oldTerrain].exit_tile_sprite_id > 0)
+					// asm 0x4A1876-0x4A1878 (the gate = the OLD terrain's exit_tile_sprite_id @+0)
+				{
+					RGE_Sprite *departSprite = this_->owner->world->sprites[row[oldTerrain].exit_tile_sprite_id];   // asm 0x4A1893-0x4A1898
+					RGE_Sprite_Particle_System__add_particle2(this_->owner->world->particle_system, departSprite,
+						oldX, oldY, oldZ, this_->facet, 8, -1, -1);
+						// asm 0x4A187A-0x4A18E2 (the SAVED position; flags 8)
+				}
+			}
+			else
+			{
+				if (oldTerrain == newTerrain)
+					// asm 0x4A1746-0x4A1748 (the same-terrain walk arm)
+				{
+					if (*walk_tile_particles_enabled != 0)       // asm 0x4A17D7-0x4A17DE (the direct value load; the approved binding)
+					{
+						RGE_Extra_Terrain_Table *entry = &row[newTerrain];   // asm 0x4A17E4-0x4A17F0 (the terrain*16 compound index)
+						if (entry->walk_tile_sprite_id > 0)      // asm 0x4A17F2-0x4A17F7
+						{
+							float rate = entry->walk_sprite_rate;             // asm 0x4A1800 (fld m32 - the float field)
+							float curX = this_->world_x;                      // asm 0x4A17FD/0x4A1803
+							if ((int)((double)curX * rate) != (int)((double)rate * oldX)
+								// asm 0x4A1807-0x4A181F (the x-grid: curX*rate vs rate*oldX at 53-bit, then ftol; rule (j) widen)
+								|| (int)((double)rate * this_->world_y) != (int)((double)rate * oldY))
+								// asm 0x4A1823-0x4A183A (the y-grid: rate*world_y vs rate*oldY)
+							{
+								RGE_Sprite *walkSprite = this_->owner->world->sprites[entry->walk_tile_sprite_id];   // asm 0x4A185B-0x4A1862 (sprites @+0x44)
+								RGE_Sprite_Particle_System__add_particle2(this_->owner->world->particle_system, walkSprite,
+									this_->world_x, this_->world_y, this_->world_z, this_->facet, 0, -1, 8);
+									// asm 0x4A1844-0x4A18E2 (the LIVE position; flags 0, duration -1, max 8)
+							}
+						}
+					}
+				}
+				else
+				{
+					// the terrain CHANGED while grounded: the arrival + the departure particles
+					if (row[newTerrain].enter_tile_sprite_id > 0)
+						// asm 0x4A174E-0x4A1760 (the gate = the NEW terrain's enter_tile_sprite_id @+4)
+					{
+						RGE_Sprite *enterSprite = this_->owner->world->sprites[row[newTerrain].enter_tile_sprite_id];   // asm 0x4A1779-0x4A179D
+						RGE_Sprite_Particle_System__add_particle2(this_->owner->world->particle_system, enterSprite,
+							this_->world_x, this_->world_y, this_->world_z, this_->facet, 8, -1, -1);
+							// asm 0x4A1762-0x4A1784 (the LIVE position; flags 8)
+					}
+					if (row[oldTerrain].exit_tile_sprite_id > 0)
+						// asm 0x4A1789-0x4A179B (the gate = the OLD terrain's exit_tile_sprite_id @+0)
+					{
+						// THE ENGINE QUIRK (the owner-ruled IDB names): the gate reads the OLD
+						// terrain's exit id (+0) but the spawned sprite is its enter id (+4)
+						// - two different fields per the asm (0x4A1797 cmp [ebp+0] / 0x4A17C4 mov edx,[ebp+4])
+						RGE_Sprite *departSprite = this_->owner->world->sprites[row[oldTerrain].enter_tile_sprite_id];   // asm 0x4A17C4-0x4A17CB
+						RGE_Sprite_Particle_System__add_particle2(this_->owner->world->particle_system, departSprite,
+							oldX, oldY, oldZ, this_->facet, 8, -1, -1);
+							// asm 0x4A17A1-0x4A17D2 (the SAVED pre-teleport position; flags 8)
+					}
+				}
+			}
+		}
+	}
+
+	// ---- the positionValue sync (the 1e-7 band) ----
+	if (fabs((double)this_->world_x - this_->positionValue.x) > 1e-7f
+		|| fabs((double)this_->world_y - this_->positionValue.y) > 1e-7f
+		|| fabs((double)this_->world_z - this_->positionValue.z) > 1e-7f)
+		// asm 0x4A18E7-0x4A192D (the literal > MATCH rows - the sync on ANY moved axis;
+		// a NaN delta skips the sync in both; dbl_6545B0 = the widened 1e-7f, binary-verified)
+	{
+		this_->lastMoveTimeValue = this_->owner->world->world_time;   // asm 0x4A192F-0x4A1941 (world_time @+0x10; lastMoveTimeValue @+0x124)
+		this_->positionValue.x = this_->world_x;                 // asm 0x4A194A
+		this_->positionValue.z = this_->world_z;                 // asm 0x4A1950 (+4 slot)
+		this_->positionValue.y = this_->world_y;                 // asm 0x4A1956 (+8 slot)
+	}
+	return baseResult;                                           // asm 0x4A195C (fld the m32-held base return; retn 0Ch)
+}
+
+#pragma float_control(pop)
+
 void install_RGE_Moving_Object()
 {
     setHook((void*)0x004A0540, RGE_Moving_Object__RGE_Moving_Object_new);
@@ -5219,4 +6499,21 @@ void install_RGE_Moving_Object()
     setHook((void*)0x004A63F0, RGE_Moving_Object__calculateReachedPoint_new);
     setHook((void*)0x004A6A70, RGE_Moving_Object__initMovementData_new);
     setHook((void*)0x004A47B0, RGE_Moving_Object__doIntelligentMovementUpdate_new);
+    setHook((void*)0x004A6980, RGE_Moving_Object__onPatrol_new);
+    setHook((void*)0x004A3D90, RGE_Moving_Object__isMoving_new);
+    setHook((void*)0x004A2EF0, RGE_Moving_Object__copy_obj_new);
+    setHook((void*)0x004A1AC0, RGE_Moving_Object__updateEnd_new);
+    setHook((void*)0x004A1D50, RGE_Moving_Object__canPath2_new);
+    setHook((void*)0x004A13C0, RGE_Moving_Object__set_angle_new);
+    setHook((void*)0x004A0850, RGE_Moving_Object__recycle_in_to_game_new);
+    setHook((void*)0x004A0940, RGE_Moving_Object__setup_new);
+    setHook((void*)0x004A1A00, RGE_Moving_Object__update_new);
+    setHook((void*)0x004A1DD0, RGE_Moving_Object__canPath_new);
+    setHook((void*)0x004A2F50, RGE_Moving_Object__rotate_new);
+    setHook((void*)0x004A0DB0, RGE_Moving_Object__save_new);
+    setHook((void*)0x004A0A40, RGE_Moving_Object__setup_read_new);
+    setHook((void*)0x004A30F0, RGE_Moving_Object__addMove_new);
+    setHook((void*)0x004A5E70, RGE_Moving_Object__resolveCollisions_new);
+    setHook((void*)0x004A6560, RGE_Moving_Object__checkAcceleration_new);
+    setHook((void*)0x004A1440, RGE_Moving_Object__teleport_new);
 }

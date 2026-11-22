@@ -1,4 +1,4 @@
-﻿# Task: Clean up an IDA-decompiled function for engine replacement
+# Task: Clean up an IDA-decompiled function for engine replacement
 
 You are cleaning up Hex-Rays decompiler output for one function of a C++/x86
 game engine (build: battlegrounds_x2 IDB), producing a compilable replacement
@@ -137,9 +137,62 @@ SIMPLER FUNCTIONS (the majority): the single-pass approach per this
 template's main flow (asm-grounded decode -> the cleaned named form ->
 gate -> suite) remains sufficient and faster - the two-pass form pays for
 itself only when the function is large enough that a single-pass rewrite
-carries more than one suspect class at once (the working bar: multi-arm
-dispatch loops, several hundred decoded lines, or any function whose
-first suite run desynced).
+carries more than one suspect class at once. The working bar below is the
+owner-calibrated mechanical replacement of that earlier judgment call.
+
+## THE TWO-PASS BAR (owner-directed 2026-11-21, the mechanical detector;
+   supersedes the earlier "working bar" sentence above)
+
+A function warrants the TWO-PASS DECODE if ANY of the following holds,
+evaluated at decode-PLANNING time from the .c/.lst artifacts BEFORE any
+drafting (the counters are mechanical; the measurement script is the
+calibration script of 2026-11-21):
+
+(a) FUNCTION SIZE >= 4096 BYTES (the .lst proc->endp extent). The
+    calibrated gap: the two-pass population starts at 5819 bytes
+    (doIntelligentMovementUpdate) and the largest single-pass function
+    to date is 1327 bytes (teleport; owner-ruled single-pass).
+
+(b) (GOTOS >= 12 IN THE .C BODY) AND (BACK-EDGES >= 12 IN THE ASM BODY).
+    The dispatch-loop conjunction: the .c needed 12+ gotos to render the
+    function (the aligned transcription will not map to the house form
+    without a structural rewrite) AND the asm carries a genuine >=12
+    back-edge dispatch/reloop structure. The conjunction is load-bearing:
+    teleport renders with 16 gotos but 1 back-edge (a linear pipeline
+    with shared exits) and stays single-pass.
+
+(c) DESYNC FALLBACK (owner-amended 2026-11-21): on a first desync of a
+    shipped replacement, the response is the STATIC ANALYSIS FIRST - the
+    strict instruction-level re-verification of that function alone
+    against its own asm range (the DESYNC REPORT SEMANTICS workflow:
+    gates, operand order, float precision forms, exit paths, store/read
+    sets, ABI - treating every prior pass as suspect) plus the standing
+    precision/polarity/deref sweeps. The TWO-PASS RE-DECODE is the
+    FALLBACK, deployed only when that static analysis yields no
+    divergence. (The diagnostic logger harness remains available per its
+    own section, owner-directed.)
+
+(d) OWNER OVERRIDE either direction (mandate two-pass on a small
+    function when the decode smells wrong; waive on a large one with a
+    compelling reason).
+
+Counting definitions (mechanical): function size = the .lst proc->endp
+extent; gotos = the `goto` statements between the .c address markers;
+back-edge = a jcc/jmp instruction in [proc, endp) whose target address
+is below the instruction's own address (the reloop edges).
+
+Calibration (16 functions, 2026-11-21, 16/16 correct): the rule
+reproduces the known classification - doIntelligentMovementUpdate
+(5819B, 19 gotos, 25 back-edges) and BMotion::updateMovement (6300B,
+17, 18) trigger via (a)+(b); teleport (1327B, 16 gotos, 1 back-edge)
+and the entire single-pass population (0-9 back-edges, 0-8 gotos) stay
+single-pass.
+
+NOT triggers (measured non-separating): st(1-7) reference counts
+(resolveCollisions 14 > DIMU 11) and fst-without-pop counts (teleport
+5 > DIMU 2) - those x87 complexity classes are governed by the
+operand-precision trace and the x87 stack audit, which apply to EVERY
+function regardless of the decode protocol.
 
 ## Hard constraints (do not violate)
 1. The function's external signature is FIXED: use the prototype given below
@@ -454,6 +507,22 @@ no pseudocode restatements of the function body:
        a runtime-seeded NaN (unfolding-able), both /O2 and /Od; asm
        listings (/Fa) verify the emitted jcc per form. The probe
        source is the reference implementation of this table.
+        TEST MASK IMMEDIATE (owner-directed 2026-11-22, the
+        checkAcceleration desync class): the x87 compare-branch
+        decode requires reading the TEST MASK IMMEDIATE from the
+        listing byte - NOT inferring it from the idiom shape. THE
+        MASK IS THE PARTITION: `test ah,1` = C0-only = the taken
+        set {<, NaN} (the C3/equality flag is IGNORED - the ==
+        case takes the opposite branch); `test ah,41h` = C0|C3 =
+        the taken set {<=, NaN} (the == case falls the OTHER way).
+        A pattern-match on the fcomp+fnstsw+test+jz SHAPE without
+        reading the immediate byte produces the WRONG macro
+        (X87_LE_NAN vs X87_LT_NAN - the checkAcceleration desync
+        class). At /Fa verification the literal-row scan must
+        include the JCC FORM at every x87 compare-branch site
+        (jbe vs ja vs jz - not just the compare instruction's
+        width and the pool constant): the jcc form is the runtime
+        proof of the partition.
    (j) WIDEN-BEFORE-OP /Fa SIGNATURE (owner-approved 2026-11-18; the
        /Fa check that caught angle_to_object's second desync class):
        rule (a) is not satisfied by a double-DECLARED variable - the

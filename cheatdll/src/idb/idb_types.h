@@ -3047,7 +3047,7 @@ struct RGE_Extra_Terrain_Table
   int exit_tile_sprite_id;
   int enter_tile_sprite_id;
   int walk_tile_sprite_id;
-  int walk_sprite_rate;
+  float walk_sprite_rate;
 };
 #pragma pack(pop)
 
@@ -4108,7 +4108,7 @@ struct RGE_Static_ObjectVtbl
   int (__thiscall *actionType)(RGE_Static_Object *);
   int (__thiscall *hasActionOfType)(RGE_Static_Object *, int);
   int (__thiscall *hasSubActionOfType)(RGE_Static_Object *, int);
-  int (__thiscall *addMove)(RGE_Static_Object *, int, float, int, int, int);
+  int (__thiscall *addMove_old)(RGE_Static_Object *, int, float, int, int, int);
   int (__thiscall *addCurrentPath)(RGE_Static_Object *, BPath *, int, float, int);
   int (__thiscall *addFuturePath)(RGE_Static_Object *, BPath *, int, float, int);
   void (__thiscall *stopAllMovement)(RGE_Static_Object *);
@@ -10986,7 +10986,7 @@ struct RGE_Moving_ObjectVtbl
   int (__thiscall *actionType)(RGE_Moving_Object *);
   int (__thiscall *hasActionOfType)(RGE_Moving_Object *, int);
   int (__thiscall *hasSubActionOfType)(RGE_Moving_Object *, int);
-  int (__thiscall *addMove)(RGE_Moving_Object *, int, float, int, int, int);
+  int (__thiscall *addMove_old)(RGE_Moving_Object *, int, float, int, int, int);
   int (__thiscall *addCurrentPath)(RGE_Moving_Object *, BPath *, int, float, int);
   int (__thiscall *addFuturePath)(RGE_Moving_Object *, BPath *, int, float, int);
   void (__thiscall *stopAllMovement)(RGE_Moving_Object *);
@@ -11036,7 +11036,7 @@ struct RGE_Moving_ObjectVtbl
   int (__thiscall *canLinePath_4)(RGE_Moving_Object *, int, int, int, int, float);
   int (__thiscall *canLinePath_3)(RGE_Moving_Object *, XYPoint *, XYPoint *, float, XYPoint *);
   int (__thiscall *setup4)(RGE_Moving_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
-  int (__thiscall *addMove_2)(RGE_Moving_Object *, int, float, float, float, float, int, int, int);
+  int (__thiscall *addMove)(RGE_Moving_Object *, int, float, float, float, float, int, int, int, unsigned __int8);
 };
 #pragma pack(pop)
 
@@ -11507,7 +11507,7 @@ struct RGE_Combat_ObjectVtbl
   int (__thiscall *actionType)(RGE_Combat_Object *);
   int (__thiscall *hasActionOfType)(RGE_Combat_Object *, int);
   int (__thiscall *hasSubActionOfType)(RGE_Combat_Object *, int);
-  int (__thiscall *addMove)(RGE_Combat_Object *, int, float, int, int, int);
+  int (__thiscall *addMove_old)(RGE_Combat_Object *, int, float, int, int, int);
   int (__thiscall *addCurrentPath)(RGE_Combat_Object *, BPath *, int, float, int);
   int (__thiscall *addFuturePath)(RGE_Combat_Object *, BPath *, int, float, int);
   void (__thiscall *stopAllMovement)(RGE_Combat_Object *);
@@ -11557,7 +11557,7 @@ struct RGE_Combat_ObjectVtbl
   int (__thiscall *canLinePath3)(RGE_Combat_Object *, int, int, int, int, float);
   int (__thiscall *canLinePath4)(RGE_Combat_Object *, XYPoint *, XYPoint *, float, XYPoint *);
   int (__thiscall *setup4)(RGE_Combat_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
-  int (__thiscall *addMove2)(RGE_Combat_Object *, int, float, float, float, float, int, int, int);
+  int (__thiscall *addMove)(RGE_Combat_Object *, int, float, float, float, float, int, int, int, unsigned __int8);
   void (__thiscall *work2)(RGE_Combat_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
   void (__thiscall *set_task)(RGE_Combat_Object *, __int16);
   void (__thiscall *setTaskByTaskID)(RGE_Combat_Object *, int);
@@ -11771,7 +11771,7 @@ struct RGE_Action_ObjectVtbl
   int (__thiscall *actionType)(RGE_Action_Object *);
   int (__thiscall *hasActionOfType)(RGE_Action_Object *, int);
   int (__thiscall *hasSubActionOfType)(RGE_Action_Object *, int);
-  int (__thiscall *addMove)(RGE_Action_Object *, int, float, int, int, int);
+  int (__thiscall *addMove_old)(RGE_Action_Object *, int, float, int, int, int);
   int (__thiscall *addCurrentPath)(RGE_Action_Object *, BPath *, int, float, int);
   int (__thiscall *addFuturePath)(RGE_Action_Object *, BPath *, int, float, int);
   void (__thiscall *stopAllMovement)(RGE_Action_Object *);
@@ -11821,7 +11821,7 @@ struct RGE_Action_ObjectVtbl
   int (__thiscall *canLinePath3)(RGE_Action_Object *, int, int, int, int, float);
   int (__thiscall *canLinePath4)(RGE_Action_Object *, XYPoint *, XYPoint *, float, XYPoint *);
   int (__thiscall *setup4)(RGE_Action_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
-  int (__thiscall *addMove2)(RGE_Action_Object *, int, float, float, float, float, int, int, int);
+  int (__thiscall *addMove)(RGE_Action_Object *, int, float, float, float, float, int, int, int, unsigned __int8);
   void (__thiscall *work2)(RGE_Action_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
   void (__thiscall *set_task)(RGE_Action_Object *, __int16);
   void (__thiscall *setTaskByTaskID)(RGE_Action_Object *, int);
@@ -14082,7 +14082,7 @@ struct TRIBE_Building_ObjectVtbl
   int (__thiscall *actionType)(TRIBE_Building_Object *);
   int (__thiscall *hasActionOfType)(TRIBE_Building_Object *, int);
   int (__thiscall *hasSubActionOfType)(TRIBE_Building_Object *, int);
-  int (__thiscall *addMove)(TRIBE_Building_Object *, int, float, int, int, int);
+  int (__thiscall *addMove_old)(TRIBE_Building_Object *, int, float, int, int, int);
   int (__thiscall *addCurrentPath)(TRIBE_Building_Object *, BPath *, int, float, int);
   int (__thiscall *addFuturePath)(TRIBE_Building_Object *, BPath *, int, float, int);
   void (__thiscall *stopAllMovement)(TRIBE_Building_Object *);
@@ -14132,7 +14132,7 @@ struct TRIBE_Building_ObjectVtbl
   int (__thiscall *canLinePath3)(TRIBE_Building_Object *, int, int, int, int, float);
   int (__thiscall *canLinePath4)(TRIBE_Building_Object *, XYPoint *, XYPoint *, float, XYPoint *);
   int (__thiscall *setup4)(TRIBE_Building_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
-  int (__thiscall *addMove2)(TRIBE_Building_Object *, int, float, float, float, float, int, int, int);
+  int (__thiscall *addMove)(TRIBE_Building_Object *, int, float, float, float, float, int, int, int, unsigned __int8);
   void (__thiscall *work2)(TRIBE_Building_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
   void (__thiscall *set_task)(TRIBE_Building_Object *, __int16);
   void (__thiscall *setTaskByTaskID)(TRIBE_Building_Object *, int);
@@ -16294,7 +16294,7 @@ struct RGE_Animated_ObjectVtbl
   int (__thiscall *actionType)(RGE_Animated_Object *);
   int (__thiscall *hasActionOfType)(RGE_Animated_Object *, int);
   int (__thiscall *hasSubActionOfType)(RGE_Animated_Object *, int);
-  int (__thiscall *addMove)(RGE_Animated_Object *, int, float, int, int, int);
+  int (__thiscall *addMove_old)(RGE_Animated_Object *, int, float, int, int, int);
   int (__thiscall *addCurrentPath)(RGE_Animated_Object *, BPath *, int, float, int);
   int (__thiscall *addFuturePath)(RGE_Animated_Object *, BPath *, int, float, int);
   void (__thiscall *stopAllMovement)(RGE_Animated_Object *);
@@ -16641,7 +16641,7 @@ struct TRIBE_Combat_ObjectVtbl
   int (__thiscall *actionType)(TRIBE_Combat_Object *);
   int (__thiscall *hasActionOfType)(TRIBE_Combat_Object *, int);
   int (__thiscall *hasSubActionOfType)(TRIBE_Combat_Object *, int);
-  int (__thiscall *addMove)(TRIBE_Combat_Object *, int, float, int, int, int);
+  int (__thiscall *addMove_old)(TRIBE_Combat_Object *, int, float, int, int, int);
   int (__thiscall *addCurrentPath)(TRIBE_Combat_Object *, BPath *, int, float, int);
   int (__thiscall *addFuturePath)(TRIBE_Combat_Object *, BPath *, int, float, int);
   void (__thiscall *stopAllMovement)(TRIBE_Combat_Object *);
@@ -16691,7 +16691,7 @@ struct TRIBE_Combat_ObjectVtbl
   int (__thiscall *canLinePath3)(TRIBE_Combat_Object *, int, int, int, int, float);
   int (__thiscall *canLinePath4)(TRIBE_Combat_Object *, XYPoint *, XYPoint *, float, XYPoint *);
   int (__thiscall *setup4)(TRIBE_Combat_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
-  int (__thiscall *addMove2)(TRIBE_Combat_Object *, int, float, float, float, float, int, int, int);
+  int (__thiscall *addMove)(TRIBE_Combat_Object *, int, float, float, float, float, int, int, int, unsigned __int8);
   void (__thiscall *work2)(TRIBE_Combat_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
   void (__thiscall *set_task)(TRIBE_Combat_Object *, __int16);
   void (__thiscall *setTaskByTaskID)(TRIBE_Combat_Object *, int);
@@ -21240,7 +21240,7 @@ struct RGE_Missile_ObjectVtbl
   int (__thiscall *actionType)(RGE_Missile_Object *);
   int (__thiscall *hasActionOfType)(RGE_Missile_Object *, int);
   int (__thiscall *hasSubActionOfType)(RGE_Missile_Object *, int);
-  int (__thiscall *addMove)(RGE_Missile_Object *, int, float, int, int, int);
+  int (__thiscall *addMove_old)(RGE_Missile_Object *, int, float, int, int, int);
   int (__thiscall *addCurrentPath)(RGE_Missile_Object *, BPath *, int, float, int);
   int (__thiscall *addFuturePath)(RGE_Missile_Object *, BPath *, int, float, int);
   void (__thiscall *stopAllMovement)(RGE_Missile_Object *);
@@ -21290,7 +21290,7 @@ struct RGE_Missile_ObjectVtbl
   int (__thiscall *canLinePath3)(RGE_Missile_Object *, int, int, int, int, float);
   int (__thiscall *canLinePath4)(RGE_Missile_Object *, XYPoint *, XYPoint *, float, XYPoint *);
   int (__thiscall *setup4)(RGE_Missile_Object *, RGE_Master_Moving_Object *, RGE_Player *, float, float, float);
-  int (__thiscall *addMove2)(RGE_Missile_Object *, int, float, float, float, float, int, int, int);
+  int (__thiscall *addMove)(RGE_Missile_Object *, int, float, float, float, float, int, int, int, unsigned __int8);
   void (__thiscall *work2)(RGE_Missile_Object *, RGE_Static_Object *, float, float, float, unsigned __int8, __int16);
   void (__thiscall *set_task)(RGE_Missile_Object *, __int16);
   void (__thiscall *setTaskByTaskID)(RGE_Missile_Object *, int);
@@ -21747,7 +21747,7 @@ struct RGE_Doppleganger_ObjectVtbl
   int (__thiscall *actionType)(RGE_Doppleganger_Object *);
   int (__thiscall *hasActionOfType)(RGE_Doppleganger_Object *, int);
   int (__thiscall *hasSubActionOfType)(RGE_Doppleganger_Object *, int);
-  int (__thiscall *addMove)(RGE_Doppleganger_Object *, int, float, int, int, int);
+  int (__thiscall *addMove_old)(RGE_Doppleganger_Object *, int, float, int, int, int);
   int (__thiscall *addCurrentPath)(RGE_Doppleganger_Object *, BPath *, int, float, int);
   int (__thiscall *addFuturePath)(RGE_Doppleganger_Object *, BPath *, int, float, int);
   void (__thiscall *stopAllMovement)(RGE_Doppleganger_Object *);
@@ -22159,7 +22159,7 @@ struct TRIBE_Tree_ObjectVtbl
   int (__thiscall *actionType)(TRIBE_Tree_Object *);
   int (__thiscall *hasActionOfType)(TRIBE_Tree_Object *, int);
   int (__thiscall *hasSubActionOfType)(TRIBE_Tree_Object *, int);
-  int (__thiscall *addMove)(TRIBE_Tree_Object *, int, float, int, int, int);
+  int (__thiscall *addMove_old)(TRIBE_Tree_Object *, int, float, int, int, int);
   int (__thiscall *addCurrentPath)(TRIBE_Tree_Object *, BPath *, int, float, int);
   int (__thiscall *addFuturePath)(TRIBE_Tree_Object *, BPath *, int, float, int);
   void (__thiscall *stopAllMovement)(TRIBE_Tree_Object *);

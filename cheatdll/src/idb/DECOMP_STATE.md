@@ -5473,3 +5473,1123 @@ authoritative.)
     gates; the paired capture for the sim-relevant big bodies; the
     zero-diagnostic-symbol sweep at ship; the citation protocol (addresses
     + function names - the line citations rot)."
+
+  - RUNTIME-METHODS RECOUNT (owner-directed 2026-11-21; supersedes all M-era
+    per-class remaining counts): the method-surface inventory rebuilt from
+    the AUTHORITATIVE sources - exports = the battlegrounds_x2.lst `proc
+    near` list per class prefix (includes thunks and idb-unlisted names;
+    immune to the multi-word-return regex gap class by construction),
+    ownership = the active setHook targets extracted from the 11 class
+    files, sizes from proc->endp extents, cross-checked against
+    idb_functions.h.  578 exports / 148 hooked / 430 remaining across the
+    10 object runtime classes + BMotion: Static 139/6 owned (133 remaining;
+    the 6th hook = set_Selected_Groups lives in Action's file), Tree 2/2
+    COMPLETE, Animated 12/12 COMPLETE, Doppleganger 9/9 COMPLETE, Moving
+    97/80 (17 remaining), Action 45/7 (38), Combat 53/5 (48), Missile
+    16/16 COMPLETE, TRIBE_Combat 79/4 (75), TRIBE_Building 76/6 (70),
+    BMotion 50/1 (49; updateMovement shipped; addToIgnoreList/
+    resetIgnoreList = the only owned-but-unhooked pair - the scan
+    confirms).  Moving remaining smallest-first: onPatrol 39, isMoving 63,
+    copy_obj 81, updateEnd 99, canPath2 122, set_angle 123 (ALL SIX =
+    batch M9, written below), rotate 158, canPath 159, update 186,
+    recycle_in_to_game 233, setup 252, save 600, checkAcceleration 750
+    (core.cpp:1395 checkAcceleration_patch MID-FUNCTION at +9 - the bake
+    analysis owed at its decode), setup_read 875, addMove 957,
+    resolveCollisions 975, teleport 1319.  ANOMALIES dispositioned: the
+    0-3-byte procs are REAL (retn / xor+ret / getter / jmp-thunk stubs -
+    .lst-verified; the 0-byte sizes are an endp-address artifact); 3
+    idb-vs-lst aliases, all heal/heal2 (idb TRIBE_Combat heal @0x55CD30 =
+    proc heal2, idb heal2 @0x55E000 = proc heal, idb Building heal2 = the
+    heal proc - .lst proc names + bodies win at decode); every export has
+    an idb prototype except logDebug @0x552510 (none) and unknown
+    @0x408BF0 (owned).  The M-era "554 methods" arithmetic (internally
+    inconsistent) superseded.  Re-verify: re-run the scan (the lst proc
+    list vs the active setHook extraction) after every idb regen /
+    installer change.
+
+  - RUNTIME METHODS BATCH M9 - THE SIX SMALLEST MOVING METHODS (owner-
+    approved + WRITTEN 2026-11-21): 6 hooks appended to RGE_Moving_Object
+    .cpp (installer 80 -> 86).  onPatrol @0x004A6980 (pathData->path->
+    flags.valueValue & BBitVectorAND_2; the mask = dd 1 @.rdata:0065BD94 -
+    the capstone's verified-literal form; the asm's sbb/neg 0-1 pair = the
+    (x != 0) int return), isMoving @0x004A3D90 (BAKED ISMOVING_V2:
+    core.cpp:1390 setHook(0x004A3D90, isMoving_v2) is a FULL-FUNCTION
+    replacement - movementData != 0 && the RAW BITS of movementData->
+    velocity.y != 0 ([edx+8], BMovementData velocity @0, idb_types.h
+    :11143); the bit compare is deliberate (-0.0f bits are nonzero = MOVING
+    in the stub; a float != 0 would flip it) -> the memcpy 4-byte bits read
+    (the SPEED2 form); the original's sqrt-norm gate (0x4A3D9A-0x4A3DC5) is
+    dropped BY THE PATCH; the call site retired in place), copy_obj
+    @0x004A2EF0 (the sprite-follow: own master's get_move_sprite/
+    get_run_sprite (master vtbl slots 30/31, the derived-vtbl-only
+    declaration per M4 -> the RGE_Master_Moving_Object* casts) vs sprite
+    @+0x1C; the SAME getter on the SOURCE master; non-null ->
+    vfptr->new_sprite (slot 44) BEFORE the base RGE_Static_Object__copy_obj
+    constant call), updateEnd @0x004A1AC0 (the obstruction refresh:
+    vfptr->isMoving (slot 192 = +0x300; the line arithmetic 11005-10813 =
+    192, IDA's rendering, and the binary vftable initializer agree) == 1 ->
+    ModifyObjectObstruction(mode 16) else (mode 0), keyed on master
+    movement_type == 1 (u8 @+120) -> OBSystem_Air (RGE_Airspace_Manager**)
+    vs Land; manager vtbl slot 12 = ModifyObjectObstruction walked in BOTH
+    manager vtbls; BAKE INTERACTION noted: the dispatch routes to the baked
+    v2 isMoving - today's game behavior), canPath2 @0x004A1D50 (the thin
+    totalCanPath wrapper: goal = {(float)point.x, 0, (float)point.y} (the
+    height slot zeroed), start = positionValue @+0xF4, tryMidLevelPathing =
+    1, useLowLevelHulledArea = 0; the prototype's __fastcall edx = targetID
+    resolves the asm's mov edx), set_angle @0x004A13C0 (the facing resync:
+    facetCount = max(facet_num (__int16 @+112), 8), guard facet_num > 0
+    else set_facet(0); the x87 53-bit chain (angle - pi/4) * facets *
+    1/(2pi) + 0.5 (flt_65ABE8 = dd 0.78539819 verified from the .rdata
+    listing; flt_65C1A8 the shared verified constant), the wrap =
+    X87_LT_NAN (the {<0, NaN} taken set), __ftol, set_facet;
+    TRIBE_Building_Object__set_angle tail-jumps here - the hook covers that
+    dispatch).  COLLISION SCAN (per-batch, mechanical, 2,856 writer sites,
+    ALL owned + the 6 pending ranges): 1 real collision = core.cpp:1390
+    (the bake above); core.cpp:1393 writeByte(0x004A3E59, 0x16) found
+    ACTIVE in the tree despite the M3c ledger's retirement claim - RETIRED
+    NOW (comment-only reconciliation; dead bytes under the entry hook);
+    core.cpp:1429 / mapsize / pathing.cpp = the standing dispositions
+    re-confirmed.  GATE (x86 HostX64\x86 cl, v141_xp 14.16, /O2 /arch:SSE2
+    /fp:fast): RGE_Moving_Object.cpp 0 errors 0 warnings; core.cpp 0/0
+    (comment-only).  /Fa per function (the real-TU listing): all six PROCs
+    standalone; isMoving = cmp [ecx+8],0 + setne (no float ops); updateEnd
+    = call [eax+768] x1 + [eax+48] (2 physical sites, 4 logical calls - the
+    merge class) + [ecx+120] byte; copy_obj = +120/+124 x2 + +176 x1 + the
+    0x005505B0 constant; onPatrol = +280/+16/+32 + and eax,1 (the {0,1}
+    masked return - value-identical to the sbb/neg); canPath2 = the 12-byte
+    copies ([ecx+244]/[ecx+252]) + mov edx,targetID + 0x004BCF90 + ret 0
+    (per-convention; the original's retn 24h is its own __thiscall
+    cleanup); set_angle = the exact pool triple (3fe921fb60000000 /
+    3fc45f3060000000 / 3fe0000000000000) + comisd+jae (the macro, no
+    setcc) + cvttsd2si + cvtdq2ps/cvtps2pd x2 + the two 0x00552A10 calls -
+    AND the emitted push carries the FULL ftol int (bit-identical to the
+    original's push eax, no narrowing).  SWEEPS: defs/refs 86/86 exact
+    (0 dupes, 0 orphans); bare CRT 0 (memcpy = the exception); bare
+    base_game 0; pointer-walk 0 NEW (the 5 tree hits = pre-existing int
+    counters/float accumulators); literal loop bounds 0 NEW (3 pre-existing
+    asm-cited); return types match the prototypes x6; diagnostic symbols in
+    the new region 0; store-and-read diff: 0 object stores in all six
+    ranges (esp-relative scratch excluded per the rule); exit paths mapped
+    per function; joins covered.  FIRST-APPLICATION NOTES: the recount's
+    exporter = the .lst proc list (no regex gaps); a pure member-COUNT
+    walker undercounts structs containing non-__thiscall members
+    (logDebug/debug in the Moving vtbl) - the established line arithmetic
+    (member line - first member) remains the slot authority.  NEXT: the 11
+    remaining Moving methods smallest-first (rotate 158 / canPath 159 /
+    update 186 / recycle_in_to_game 233 / setup 252 / save 600 /
+    checkAcceleration 750 / setup_read 875 / addMove 957 /
+    resolveCollisions 975 / teleport 1319 - the checkAcceleration bake
+    analysis owed), then Action 38 / Combat 48 / Static 133 /
+    TRIBE_Combat 75 / TRIBE_Building 70 per the roadmap.  IN-GAME
+    VALIDATION OWED for the batch (the owner's standard test).
+
+  - THE RAND RULING (owner-directed 2026-11-21, "we should use
+    rand_internal()"): ALL owned rand consumers use rand_internal
+    (common.h:154, bound @0x00632BDD - the game's CRT rand) - NEVER the
+    bare idb `rand` constant name (the bare-CRT-name hazard; the wrapper
+    discipline).  The two shipped M1 Animated update sites corrected
+    (RGE_Animated_Object.cpp :162/:168) - BEHAVIOR-IDENTICAL (both forms
+    bind the same 0x00632BDD); gated 0/0.  First M10 applications:
+    recycle_in_to_game/setup.  Re-verify: grep src/engine for bare
+    `rand()` (= 0).
+
+  - RULE-(k) EXTENSION (owner-approved 2026-11-21, the M10 update case):
+    the float_control(precise) function bracket applies to ANY function
+    whose float chains feed 53-bit consumers - NOT only division-
+    containing functions.  The /Fa shrink scan caught update's velocity
+    norm compiling mulss/addss + one cvtps2pd under /fp:fast DESPITE the
+    explicit (double) casts (the incrementWaypoint lesson generalized:
+    casts alone do not resist); under precise the chain emits
+    cvtps2pd-per-operand + mulsd/addsd + __libm_sse2_sqrt_precise (the
+    established bit-identical form).  The shrink scan is the mandatory
+    detector; the bracket is the fix.
+
+  - RUNTIME METHODS BATCH M10 - MOVING recycle/setup/update/canPath/rotate
+    (owner-approved + WRITTEN 2026-11-21): 5 hooks appended to RGE_Moving_
+    Object.cpp (installer 86 -> 91).  recycle_in_to_game @0x004A0850 (the
+    random facing block: (rand_internal()*facets)/0x7FFF (the asm's
+    80010003h magic-imul signed divide) * dbl_65C1A0/facets (the verified
+    double 6.2831853); the fst m32 store-round with st0 KEPT UNROUNDED for
+    both wrap compares (rule (e)); the wrap-up = X87_LT_NAN {<0,NaN}; the
+    wrap-down = the literal > MATCH row (the asm's test ah,41h; jnz targets
+    the skip so {<,=,NaN} skip); set_angle vtbl slot 222 = +0x378 (line
+    arithmetic 11035-10813); precise-bracketed per rule (k) - the fdivr
+    division), setup @0x004A0940 (the recycle twin + type = 30 stored
+    AFTER the base Animated setup and BEFORE the sprite guard; every exit
+    returns 1; hooking routes the owned Moving ctor/ctor_read and Action
+    runtime construction dispatches), update @0x004A1A00 (u8; the
+    elapsedTimeSec = the DOUBLE getWorldTimeDeltaSeconds return consumed
+    by the asm's fstp m32 - the faithful float local, rule (e); the
+    velocity norm chain (x*x+z*z+y*y, the asm's exact add order) ->
+    __libm_sse2_sqrt_precise -> speed @+0xB4 (rule (d)); the substitute
+    machinery: setPosition vtbl slot 190 = +0x2F8 (line arithmetic
+    11003-10813), mHasSubstitutePosition == 1 (the dword-exact test),
+    mConsecutiveSubstituteCount ++/zero; the movementData re-read after
+    BMovementData::update is faithful; precise-bracketed per the rule-(k)
+    extension), canPath @0x004A1DD0 (the -1/dead-target zero exits; the
+    target position via the copy-out getter position (RGE_Static_ObjectVtbl
+    slot 171 = +0x2AC, walked: first member 3935, position 4106) into its
+    OWN out-buffer - single fetch, single consumption (the aliasing rule);
+    totalCanPath with tryMidLevelPathing=1, useRangeWithoutTarget=0,
+    useHulledArea forwarded; the owner->world TRIBE_World family cast),
+    rotate @0x004A2F50 (angle += amount * dbl_65C1A0/facetCount (fidiv)
+    + angle; the wrap-UP do-loop continues while X87_LT_NAN(v, 0.0); the
+    wrap-DOWN runs only on ordered >= dbl - the asm's test ah,1; jnz skips
+    on {< dbl, NaN}: a NaN angle reaches new_angle UNCHANGED (the .c's
+    do-while render misstates the NaN path - value-identical NaN, asm
+    wins); the m32 stores before each new_angle pass = the faithful
+    store-rounds; new_angle vtbl slot 76 = +0x130 (line arithmetic
+    10889-10813); the two original call sites = the duplicated shared
+    tail, merged (the codegen-neutral class); TRIBE_Building_Object__
+    rotate tail-jumps here - the hook covers that dispatch;
+    precise-bracketed).  COLLISION SCAN (per-batch, mechanical, 2,860
+    sites, ALL owned + the 5 pending ranges): 0 hits in all five ranges;
+    the non-self overlaps = the four standing dispositions (core.cpp:1429
+    no-op, MAP_SIZE, PATHING_CAP x2).  GATE (x86 HostX64\x86 cl, v141_xp
+    14.16, /O2 /arch:SSE2 /fp:fast): RGE_Moving_Object.cpp 0 errors 0
+    warnings; RGE_Animated_Object.cpp 0/0 (the rand fix).  /Fa (the
+    real-TU listing): all five PROCs standalone; divsd x1 in each
+    bracketed function (no reciprocal chains); update = cvtps2pd x3 ->
+    mulsd x3 -> addsd x2 -> sqrt_precise (no ss-ops); the exact pool pair
+    (401921fb53c8d4f1 / 401921fb60000000) in recycle/setup/rotate; the
+    slot offsets [+888]/[+304]/[+760]/[+684]; the field offsets [+94]
+    type, [+128] sprite flag, [+112] facet_num, [+200] angle, [+180]
+    speed, [+288] movementData x3, [+140] owner->world (0x8C), [+296/
+    300/312] substitutes; the base constants 0x422BF0/0x422C30/0x422CD0
+    (HOOKED - routes), 0x4BBD10, 0x623DB0, 0x624B50, 0x4BCF90,
+    0x4A6A70; setup's [+888] x1 and [+200] x2 = the merged wrap-up tail
+    and the dropped then-overwritten first angle store (dead-store
+    elimination, value-invisible - set_angle reads only after the final
+    store; the SOURCE keeps all three stores per the diff; recycle kept
+    all three sites x3 - compiler variance between the twins,
+    documented).  SWEEPS: defs/refs 91/91 exact (0 dupes, 0 orphans);
+    bare CRT 0; bare base_game 0; pointer-walk 0 NEW; literal loop
+    bounds 0 NEW; return types match the prototypes x5; diagnostic
+    symbols 0.  Remaining Moving 6: save 600 / checkAcceleration 750
+    (the core.cpp:1395 mid-function bake analysis owed) / setup_read
+    875 / addMove 957 / resolveCollisions 975 / teleport 1319 - then
+    Action 38 / Combat 48 / Static 133 / TRIBE_Combat 75 /
+    TRIBE_Building 70.  IN-GAME VALIDATION OWED for the batch.
+
+  - ABI CORRECTION - M9/M10 __fastcall SIGNATURES (owner-caught + fixed
+    2026-11-21): the eleven M9+M10 replacements were drafted with plain
+    (__cdecl-defaulted) signatures - at hook entry the compiler read
+    this_ from [esp+4] = the caller's stack (the E9 jmp leaves esp at
+    the caller's return address) - BROKEN ABI.  FIXED: all eleven now
+    __fastcall per the 2026-11-14 ruling; DWORD dummy on the six whose
+    originals carry stack args (copy_obj/canPath2/recycle_in_to_game/
+    setup/canPath/rotate - the dummy absorbs EDX so arg1 lands at
+    [esp+4]); NO dummy on the five this-only originals (onPatrol/
+    isMoving/updateEnd/set_angle/update) per the owner ruling: the
+    dummy is OPTIONAL (omittable) when the original __thiscall takes
+    only this - __fastcall f(this_) is ABI-identical (this in ECX).
+    /Fa ABI PROOF (the re-gated listing): zero _this_$[esp] reads
+    across all eleven - this_ sourced from ECX everywhere (the
+    this-only forms deref [ecx+off] directly).  Full re-certification
+    on the re-rolled codegen: the precise chains hold (divsd x1 per
+    bracketed function, mulsd/addsd, no ss-ops, sqrt_precise), the
+    pool constants, all slot offsets (+888/+304/+760/+768/+684/+48),
+    and the macro comisd forms intact; recycle's two set_angle sites
+    merged to one in the re-roll (the codegen-neutral class, each path
+    calls once).  LESSON: the __fastcall convention is part of the
+    WRITE-TIME checklist - the compile gate and the /Fa field-offset
+    checks do NOT catch a missing specifier (the arg reads still
+    type-check; only the source register differs).  Re-verify: the
+    eleven definitions carry __fastcall; grep the M9/M10 bodies'
+    listings for _this_$[esp (= 0).
+
+  - IMPLEMENTATION-PURITY GROUNDING (decode-derived 2026-11-21, the
+    CHECKACCEL_PATCH bake's load-bearing proof): RGE_Master_Moving_
+    Object__maximumSpeed / __acceleration / __deceleration (the Moving
+    master vtbl entries 20/21/22, initializer-counted at .rdata:0065B304)
+    consume NEITHER this NOR the int terrainType arg: maximumSpeed = fld
+    [ecx+0D0h] (master->speed), acceleration = fld ds:flt_656A10,
+    deceleration = fld ds:flt_65B384 (=-3.4028235e38 = -FLT_MAX), all
+    `retn 4` (asm 0x48B460-0x48B486; the Static master vtbl ends at
+    entry 29 with nullsubs - the entries resolve through the derived
+    vtbls per the M4 precedent).  This is what makes checkAcceleration_
+    patch's substituted args (caller-eax garbage / the movementData
+    pointer) value-innocuous.  Re-verify: the .lst procs; the derived
+    master vtbl initializer XREFs (Action/Combat/... point at the same
+    procs - no overrides).
+
+  - RUNTIME METHODS BATCH M11 - save/setup_read/checkAcceleration
+    (owner-approved + WRITTEN 2026-11-21): 3 hooks appended to RGE_Moving_
+    Object.cpp (installer 91 -> 94).  save @0x004A0DB0 (void, 1 arg):
+    the base Animated save (hook-routed) + the field sequence in the
+    asm's exact order with sizeof-form widths (the ten dwords, the three
+    u8s, the linked-chain count + every element saved DEEPEST-FIRST via
+    the (count-i-1)-step walk (asm 0x4A0EBD-0x4A0EDD), the
+    mFuturePathData/movementData presence dwords + the conditional saves,
+    positionValue/both orientations, lastMoveTimeValue, the waypoint
+    count + each waypoint, the substitute trio); the presence locals
+    written as INT - the original materializes them as zero-extended
+    dwords (xor eax/test/setnz al/mov, asm 0x4A0EE5-0x4A0EF3 and
+    0x4A0F15-0x4A0F1F) so the int form is STREAM-IDENTICAL (no
+    bool-width deviation; documented).  setup_read @0x004A0A40 (int, 2
+    args): the save mirror - initMovementData (hook-routed), the base
+    Animated setup_read (hook-routed), type = 30, the read sequence,
+    the linked chain built HEAD-LAST (each fresh BPathData links to the
+    previous; the LAST read becomes pathData), the future-path block
+    (presence == 1), the movement-data block (the 12-byte scratch reads
+    -> the {x,z,y} BVector copies), the waypoint count + the OWNED
+    resizeUserDefinedWaypoints (hook-routed; zero return aborts with 0)
+    + the scratch reads, the substitute trio, return 1; the THREE
+    allocation sites each under an allocation-unwind fold written as
+    scoped __try/__except(operator_delete_internal(node)) blocks (the
+    .c's v23 state machine = one handler per site; the three-block
+    restructure documented - the setForwardVelocity precedent).  HOOK
+    ROUTING: resizeUserDefinedWaypoints and initMovementData dispatches
+    route to our owned replacements.  checkAcceleration @0x004A6560
+    (int, 3 args) - THE CHECKACCEL_PATCH BAKE (the analysis of the
+    mid-function derailment at +9): the original prologue = sub esp,58h/
+    push ebx/ebp/esi/mov esi,ecx/push edi (9 bytes exactly); the stub
+    substitutes its own prelude (master->vfptr->acceleration -> var_54
+    and ->deceleration -> var_58 materialized BEFORE the movementData
+    null-gate - the original PARKS the acceleration result on the x87
+    stack and NEVER stores var_58: the limitedYaw and inner-hit paths
+    read UNINITIALIZED stack garbage at 0x4A66E2/0x4A6819, and the
+    parked register leaks across two returns), reroutes the third call
+    through this->vfptr->calculateMaximumSpeed (the runtime slot 199 -
+    also the original's own dispatch at 0x4A6606-0x4A663E), and rejoins
+    at 0x4A6644 with a REBALANCED frame (all three pushes callee-popped:
+    accel/decel are retn-4 originals, our __fastcall hook rets 4).
+    THE ARGS PROVEN INNOCUOUS (the implementation-purity grounding
+    above): the stub's caller-eax garbage / movementData pointer args
+    compute the identical values.  The written form = the .c's form
+    (var_54 = acceleration, var_58 = deceleration; the four gates
+    polarity-exact: three literal > MATCH rows (velocity.y > 0.0f,
+    fabs(yawAngle) > 0.0000001000000011686097 = dbl_6545B0's exact
+    decimal, crossRef->z > 0.0f - each test ah,41h; jnz -> skip),
+    X87_LT_NAN (the toLateral-norm hit fall-through {<, NaN}),
+    X87_LE_NAN (the velocity.y < maxSpeed LABEL_11 gate {<, =, NaN}));
+    the two 53-bit norm chains in the asm's exact (x,z,y) and (y,z,x)
+    add orders; the component divides m32-stored; the named virtual
+    dispatches: calculateMaximumSpeed (slot 199 - OUR HOOK),
+    calculateTurnRadius (slot 203 - OWNED), setForwardAcceleration
+    (slot 188 - OWNED), setForwardVelocity (slot 186 - OWNED); the
+    accel/decel master vtbl members (slots 21/22, no cast);
+    precise-bracketed per rule (k) - the three divides.  The patch call
+    site (core.cpp:1395) RETIRED in place.  COLLISION SCAN (per-batch,
+    2,865 sites, ALL owned + the 3 pending ranges): 1 real collision =
+    core.cpp:1395 (the bake above); the standing dispositions
+    re-confirmed; nothing else.  GATE (x86 v141_xp 14.16 /O2 /arch:SSE2
+    /fp:fast): RGE_Moving_Object.cpp 0 errors 0 warnings; core.cpp 0/0.
+    /Fa: save/setup_read = the pure stream forms (no float ops);
+    checkAcceleration = divsd x3 (no reciprocal), mulsd x6/addsd x4/
+    cvtps2pd x10/sqrt_precise x2 (the 53-bit chains), mulss/addss x3 =
+    the rule-(d) store-only lateral scale/translate (the original's own
+    fstp m32 form - NOT a shrink), comisd x2 + jae (the two macros),
+    cvttss2si x6 = the three tile-walk ftol pairs, every slot offset
+    (+752/+744/+812/+796/+84/+88) and field offset (+288 x3/+244/
+    +252 x4/+140/+52/+8 x6/+268/+256), the four BVector helper
+    constants; the compiler CSE'd the three identical tile walks into
+    ONE (value-identical - the three callees proven non-mutating
+    constant loads; the codegen-neutral class, documented);
+    save's BPathData__save call site duplicated by the loop rotation
+    (one call per iteration).  SWEEPS: defs/refs 94/94 exact (0 dupes,
+    0 orphans); bare CRT 0; bare base_game 0; pointer-walk 0 NEW;
+    __fastcall + DWORD dummy on all three (each original carries stack
+    args); return types match the prototypes x3; diagnostic symbols 0.
+    Remaining Moving 3: addMove 957 / resolveCollisions 975 /
+    teleport 1319 - M12 next, SINGLE-PASS per the owner ruling (the
+    two-pass bar is NOT met - see the two-pass calibration entry).
+    IN-GAME VALIDATION OWED for M9/M10/M11.
+
+  - THE TWO-PASS BAR - TEMPLATE AMENDED (owner-directed + approved
+    2026-11-21): the mechanical detector written into DECOMP_TEMPLATE.md
+    after the TWO-PASS DECODE section (superseding the "working bar"
+    sentence): (a) size >= 4096 bytes; (b) gotos >= 12 in the .c body
+    AND back-edges >= 12 in the asm body (the dispatch-loop conjunction
+    - teleport's 16 gotos / 1 back-edge correctly excluded); (c) desync
+    FALLBACK - static analysis first (the strict instruction-level
+    re-verification per the DESYNC REPORT SEMANTICS), the two-pass
+    re-decode only when static yields no divergence (owner-amended);
+    (d) owner override.  Calibration 16/16 (the table in the
+    conversation + the script at %TEMP%\opencode\
+    twopass_calibration.ps1); the measured non-triggers documented
+    (st(1-7)/fst-keep do not separate).  M12 (addMove/resolveCollisions/
+    teleport) = SINGLE-PASS per the rule + the owner ruling.
+
+  - M12 DECODE STATE (in progress 2026-11-21; the .c bodies pulled;
+    teleport's asm walk COMPLETE; addMove/resolveCollisions' walks OWED;
+    nothing drafted; no writes; the full decode detail lives in this
+    session's conversation - the state carries only the durable facts per
+    the owner directive - no function bodies in the state file):
+    * PROTOTYPES corroborated: addMove @0x4A30F0 (retn 24h, 9 stack
+      args), resolveCollisions @0x4A5E70 (BVector* newPosition),
+      teleport @0x4A1440 (double, float x/y/z).
+    * TELEPORT: asm walk COMPLETE.  Durable models: the trail
+      pipeline's mixed-precision chain (dx unrounded on st0; dy/dz
+      store-rounded; the quotient double/float split; the i16 count);
+      the clamps use map_width for BOTH axes and the maximumSpeed gate
+      is X87_LE_NAN (the .c's literal <= diverges on NaN); the terrain
+      matrix keyed on the SAVED vs LIVE on_ground + the old/new terrain,
+      Extra_Terrain_Table = {exit@+0, enter@+4, walk@+8, rate@+12 float}
+      (stride 16); LABEL_47 = the positionValue sync vs the 1e-7 band;
+      the return = the base Static teleport's double.
+    * ADDMOVE: structure banked (reset-or-create + the SEH fold;
+      createPath + the ctm stamp; arm A = the future-path adoption;
+      arm B = the fresh command; the patrol/linear/v34 flag tail;
+      return 1).
+    * RESOLVECOLLISIONS: structure banked (the ObsRecord push loop over
+      obSystemCollisions with the deref rule; the dopple-swap suspect;
+      the AABB; the push computation + the 1e-7 gate family).
+    * OPEN ITEMS: the addMove + resolveCollisions asm walks; the
+      teleport world-field offsets (extra_terrain_info/sprites/
+      particle_system/world_time) + the tile field name @+0x28; THE
+      v34 PROTOTYPE SUSPECT in addMove (char @ebp+24h beyond the 9
+      args - the asm walk resolves: the 10th-arg IDB correction vs the
+      spill class); the dword_68957C binding (int* const - the owner
+      approval item); the resolveCollisions maximumSpeed slot + the
+      v10[2] field identities; the masks VERIFIED (dword_65BD98 = 2,
+      dword_65BDA8 = 0x20, .rdata - the verified-literal form).
+    * CONTINUE: the addMove + resolveCollisions asm walks; the drafts;
+      the temp gate; the per-batch collision scan; the presentation.
+
+  - M12 OWNER-TOUCH ITEMS RESOLVED (2026-11-21): the IDB corrected +
+    regenerated (addMove's 10th param = unsigned __int8 oneWay - the u8
+    matches the original's byte read); the regenerated addMove .c
+    cross-checked (the fake v34 char gone = the proper SEH state int;
+    the body = the completed walk, the marker :174983).  THE TELEPORT
+    enter/exit FIELD RULING = STILL OWED (the table[OLD][+4]-vs-exit
+    discrepancy - the decode blocker for the teleport draft).
+
+  - CHECKACCELERATION A/B RUN 2 - THE DIVERGENCE LOCALIZED (the owner
+    ran the extended harness 2026-11-22; the logs 4.9/5.06 GB in the
+    game dir; the first divergence at row 2083198): unit id=11358,
+    the IDENTICAL inputs (mv0=1 vy0=0 ay0=0, the same point, pig=0,
+    lya=0), NO setForwardAcceleration call (the velocity>=maxSpeed
+    skip arm, ret=1, no FA row) - and the POST-CALL acceleration.y:
+    A (the stub) = 0, B (ours) = +FLT_MAX.  THE MECHANISM: our
+    accelValue = the dispatched master acceleration proc's return =
+    flt_656A10 = +FLT_MAX (binary-verified); for unit 11358's master
+    the stub's build delivered 0 -> the unit's master vtbl slot 21
+    does NOT return the constant -> the unit's master = the
+    STATIC/TREE tier: the Static master vftable (0x65B40C) entries
+    17-29 = nullsub procs - entry 21 = nullsub_29 = the EMPTY proc
+    returning THE X87 STACK RESIDUE (the entry st0 state); our
+    replacement calls the same nullsub and reads the caller's x87
+    residue as the return (= +FLT_max-shaped garbage this run) and
+    WRITES it into acceleration.y -> the integration moves the unit ->
+    the position/command divergence -> the desync.  THE NULLSUB-TIER
+    CLASS: for the Static/Tree-tier masters the acceleration/
+    deceleration/calculateMaximumSpeed dispatches are nullsubs/consts
+    - the "return value" = the x87 residue = NOT faithfully
+    transcribable in C.  THE RULING REQUESTED: the Static/Tree-tier
+    LABEL_11 arg = 0.0 (the observed stub behavior at this site) /
+    skip the write / +/-FLT_MAX - each = a gameplay choice, the
+    in-game validation = the arbiter.  THE A/B HARNESS ITSELF:
+    verified transparent (the call-based trampoline chain = esp-clean:
+    the logger's 12-byte __fastcall args + the ret = balanced by the
+    body's retn 0Ch; the body's [esp+X] locals = self-consistent
+    within the shifted frame).  The 9FFFFFFD pool reference in the TU
+    = addUserDefinedWaypoint_new's OWN epsilon (1.0000001e-7f - a
+    different float from 1e-7f; the original uses both) - correct,
+    NOT the checkAcceleration bug.
+
+  - M12 DECODE STATE 2 (2026-11-21; the IDB corrected + regenerated:
+    addMove's 10th param = unsigned __int8 oneWay - the decode
+    restarted from the regenerated .c: the fake v34 char is GONE (now
+    the proper SEH state int), the body matches the completed walk;
+    the .c marker shifted to :174983):
+    * ADDMOVE: THE WALK IS COMPLETE (0x4A30F0-0x4A34AD) + the
+      regenerated .c cross-checked (:174983).  The callee constants
+      VERIFIED in the idb: createPath :6095 (0x624640), BPath__waypoint
+      (0x4BC440), addWaypointAtStart :2523 (0x4BC490),
+      addWaypointAtEnd :2524 (0x4BC530), setIgnoreUnits :2530
+      (0x4BC7A0), BPathData__reset :2507 (0x4BBE70), setReadyToPath
+      :2513 (0x4BBFE0), setReadyToFollowPath :2514 (0x4BC080),
+      setLinkedPath :2515 (0x4BC100), BPathData__BPathData :2505
+      (0x4BBD80), BMovementData__BMovementData :2503 (0x4BBCF0),
+      BPathData__save :2518/load :2519 (0x4BC220/0x4BC2C0);
+      zeroUserDefinedWaypoints = the runtime slot +0x260 = 152 (OWNED,
+      routes); the world_time world-field offset = +0x10 (the shipped
+      BMotion.cpp:21 grounding); the flags masks VERIFIED
+      (dword_65BD98 = 2, dword_65BDA8 = 0x20, .rdata; the
+      BBitVectorAND_2 = 1 @0x65BD94).  The oneWay param: the flags
+      tail reads its LOW BYTE (mov cl,[esp+58h+arg_20]; test cl,cl) ->
+      flags |= 0x20 else &= ~; the u8 type matches the byte read.
+    * RESOLVECOLLISIONS: THE WALK PARTIAL (0x4A5E70-0x4A5FC0 of
+      0x4A623B).  Banked: the {x,z,y} copy of *newPosition (v); the
+      count gate = numberObSystemCollisions DIRECT VALUE load (the
+      deref rule) <= 0 -> loc_4A6206 (the tail); the walker = ebx =
+      offset obSystemCollisions (the ObsRecord** base); the loop
+      loc_4A5EB4: master @+14; rec = [ebx] (the pointer load); the
+      AABB setup vs master radius_x/y @+3C/+40 (v.x-v.rx -> var_3C,
+      v.y-ry -> var_34, v.x+rx -> var_60, v.y+ry -> var_58); rec->
+      Object @+8; null -> skip; obj->id @+10 -> RGE_Game_World__object
+      (world @+8C); null -> skip; THE DOPPLE-SWAP RESOLVED: type @+5E
+      == 80 (byte) && [eax+1DC] != 0 -> eax = [eax+1DC] = THE
+      TRIBE_Building_Object linked_owner @+0x1DC=476 (the M1b-6 census
+      offset - the .c's mMaximumPathingGroupSize render = the base-
+      pointer artifact; the IDB field name at that address in the
+      Building context = linked_owner); null -> skip; the stationary
+      gate: vfptr->maximumSpeed (the RUNTIME slot +0x188 = 98) fcomp
+      const_f_zero; test ah,41h; jz -> SKIP the moving blocker (the
+      literal > MATCH row: the NaN -> NOT > -> continue); the blocker
+      AABB (its world_x/y @+48/+4C vs its master radius_x/y @+3C/+40
+      -> var_48/40/30/28); the FIRST-ITERATION guard: the flags from
+      cmp ebx,offset obSystemCollisions (0x4A5F44) persisting across
+      the x87 block to jle @0x4A5F72 -> the first record skips the
+      AABB test; the four AABB compares with the mixed polarities:
+      two test ah,1; jnz skips (our-upper < their-lower) + two test
+      ah,41h; jz skips (our-lower > their-upper - the <= -> skip =
+      the overlap continues) - ALL FOUR map the .c's skip chain;
+      loc_4A5FC0: operator_minus(&v, &result, &positionValue)
+      (positionValue @+F4; the .c verbatim - the ecx arg = the v
+      scratch, NOT the object - verified: the lea/mov sequence after
+      the pushes).  OWED: the walk 0x4A5FC0-0x4A623B (the norm chain
+      - the .c's (z,y,x) order; the 1e-7 gates; the blocker position
+      fetches (the two position vtbl calls into v39/v40 - the
+      copy-out rule); the push computation + the v18/v22 ladder; the
+      loop advance + the tail (loc_4A6206: presumably
+      *newPosition = v; return the count)).
+    * TELEPORT: THE TERRAIN-MATRIX DISCREPANCY (the decode blocker):
+      the differ-terrain+grounded branch (0x4A174E-0x4A17D2) emits TWO
+      particles per the asm: particle A = table[NEW].enter (@+4, the
+      IDB offsets) at the NEW position; then the gate table[OLD]+0 >
+      0 -> particle B with the sprite table[OLD][+4] = the IDB's
+      enter_tile_sprite_id at the OLD position.  The .c renders
+      particle B as exit_tile_sprite_id (v34 = v27[v28].exit ->
+      sprites[v34]) - ONE field for both the gate and the sprite -
+      while the asm has the gate at [entry+0] and the sprite at
+      [entry+4] (TWO fields).  The idb Extra_Terrain_Table layout
+      {exit@0, enter@4, walk@8, rate@12} is calibrated by the
+      walk@+8/rate@+12 reads (loc_4A17D7) - so per the IDB the asm
+      reads [OLD].enter as particle B's sprite while the .c says
+      exit.  EITHER the IDB exit/enter names are swapped at this
+      struct (the heal/heal2 class - resolvable ONLY by the DAT-driven
+      sprite semantics or the owner), or the .c conflated.  THE
+      WRITTEN FORM MUST WAIT for the owner ruling: per the asm the
+      gate field = [+0], the sprite field = [+4], with the IDB names
+      exit/enter respectively - the faithful transcription uses the
+      IDB names as-is (the gate = exit_tile_sprite_id, the sprite =
+      enter_tile_sprite_id) and NOTES the .c conflict, OR the owner
+      rules on the names.  The rest of teleport: FULLY WALKED (the
+      trail arm + the clamps + the base + LABEL_47 - see the earlier
+      M12 decode state).
+    * ALSO OPEN: addMove's arm-A norm gate = flt_6565F4 (the float
+      1e-7f compare - the literal > MATCH row, the comiss float form
+      safe: both operands float-exact); addMove's retn = 24h (the 9
+      stack dwords = the corrected prototype: 8 idb args + oneWay as
+      the 9th stack dword - the __fastcall signature: this_, dummy,
+      targetID, x, y, z, range, patrol, linear, forcedWaypoint,
+      oneWay - NINE stack args after the two register args... the
+      stack layout: tID@+4 .. forcedWaypoint@+20, oneWay@+24 (the
+      10th = ONE dword, the u8 in the low byte); the signature =
+      int __fastcall (...9 stack params...).  The M12a drafts = the
+      next work; the resolveCollisions walk completion = the blocker
+      for its draft.
+    * CONTINUE: the addMove + resolveCollisions asm walks; the drafts;
+      the temp gate; the per-batch collision scan; the presentation.
+
+  - CHECKACCELERATION EPSILON CORRECTION + BINARY VERIFICATION
+    (owner-flagged line 5783 + fixed 2026-11-21): the written
+    fabs-gate literal 0.0000001000000011686097 parsed to
+    3E7AD7F29FFFFFFD - WRONG vs the original dbl_6545B0.  FIXED to
+    the dd-constant-mandate form 0.0000001f; the emitted comiss
+    xmm0,__real@33d6bf95.  BINARY-VERIFIED (the owner supplied the
+    original battlegrounds_x2.exe in the idb folder): the PE section
+    walk (the ImageBase 0x400000; .rdata RVA 0x254000 = raw 0x254000,
+    the 1:1 mapping) gives dbl_6545B0 = 3E7AD7F2A0000000 RAW = the
+    1e-7f widening 1.0000000116860974e-07 (the .lst dq render
+    correct; the .c's 22-digit decimal render = the TRUNCATED exact
+    expansion - re-parsing it rounds to the NEXT DOUBLE DOWN
+    3E7AD7F29FFFFFFD, the transcription trap); dbl_65C1A0 =
+    401921FB53C8D4F1 RAW (our written 6.2831853 double correct);
+    flt_6565F4 = 0x33D6BF95 RAW (our comiss constant correct).
+    THE COMISS-vs-FCOMP verification: the original = the x87 fabs/
+    fcomp at 80/53-bit vs the m64; our comiss = the float compare.
+    OUTCOME-IDENTICAL for this site: both operands are
+    float-representable (yawAngle the float; A0000000 = the exact
+    widening of 1e-7f) and the float->double widening is exact +
+    strictly monotonic -> the three-way result and the unordered
+    partition bit-identical (the jbe {<=,NaN} vs the ah,41h {<,=,NaN}
+    skips).  THE BOUNDARY: a non-float-representable double operand
+    requires comisd - the X87_LT_NAN(toLateralNorm,...) site = comisd
+    (toLateralNorm = the 53-bit chain result), correct; the
+    alternative m64-shape-fidelity form (fabs((double)yawAngle) ->
+    comisd vs A0000000) offered to the owner, not taken.  THE TOOLS
+    UPGRADE: the raw-binary constant check (the PE-walk script,
+    %TEMP%\opencode\verify_bin.ps1) supersedes BOTH IDA renders for
+    constant transcription - the renders are previews, the bytes are
+    ground truth; run it for every double/qword-origin constant.
+    Re-verify: grep checkAcceleration_new for 0.0000001f (= 1); the
+    /Fa pool = 33d6bf95.
+
+  - CHECKACCELERATION DESYNC - THE A/B HARNESS PREPARED (owner-directed
+    "prepare the A/B test" 2026-11-21; the static re-verification
+    exhausted-clean first - the emission census, the bake model
+    re-derived twice consistent, the arg-innocuity binary-backed, no
+    enumerable divergence - so the evidence-producing step = the
+    harness per the diagnostic process).  THE COMPONENTS (all
+    DIAG-marked in RGE_Moving_Object.cpp, remove at ship): (1) the
+    _orig trampoline RGE_Moving_Object__checkAcceleration_orig (the
+    naked __fastcall; the 9-byte prologue replay sub esp,58h/push
+    ebx/ebp/esi/mov esi,ecx/push edi + the ESP-NEUTRAL push/ret pair
+    to 0x4A6569 - EAX PRESERVED for the stub's arg push, the
+    fastcall-liveness rule; the /Fa-verified: the replay emitted
+    verbatim, the push-imm32+ret 0 absolute jump - no entry+len
+    dependency); (2) the checkAcceleration logger (the dispatch per
+    g_checkAccelTraceOrig: 1 = _orig (build A), 0 = _new (build B);
+    the row: CA id/mv/vy/world/point/pig/lya/ret); (3) the
+    setForwardAcceleration logger at 0x4A3AC0 (the row: FA id/v - the
+    side-effect argument = the LABEL_11/limitedYaw/inner-hit
+    selection's observable output); (4) the installer swap: the
+    checkAcceleration hook -> the logger, the real line commented;
+    the FA logger hook added, the real line commented.  THE BUILD
+    MATRIX: A = g_checkAccelTraceOrig=1 AND core.cpp:1395 ACTIVE (the
+    stub reference flow, the pre-M11 behavior); B =
+    g_checkAccelTraceOrig=0 AND core.cpp:1395 retired (our
+    replacement).  THE EXPECTED DIFF: the LABEL_11 FA arg (accel vs
+    -FLT_MAX), the limitedYaw/inner FA args (decel vs the original's
+    uninitialized var_58 garbage - the garbage itself may be
+    nondeterministic per machine = the OOS class), the gate-taken
+    pattern.  THE FLOAT-COMPARE SITES RE-VERIFIED in the fresh
+    listing: comiss x3 (the float-exact gates) + comisd x1 (the
+    toLateralNorm macro) + comiss (the maxSpeed gate) - all correct;
+    the __real@3e7ad7f29ffffffd pool reference in the TU =
+    addUserDefinedWaypoint_new's OWN epsilon (1.0000001e-7f - a
+    DIFFERENT float from 1e-7f, the original's own constant there,
+    correct as written - NOT the checkAcceleration bug).  Gate: both
+    TUs 0/0.  THE A/B RUN (the owner): build A -> run the repro ->
+    rename checkaccel_log.txt -> checkaccel_log_A.txt; build B ->
+    run -> _B.txt; diff - the first divergent row names the
+    mechanism (the localization feeds the fix; if the rows are
+    IDENTICAL and the desync persists, the divergence = outside this
+    function's observable surface -> the replay-reference question).
+    REMOVE THE HARNESS AT SHIP (the DIAG block + the installer flip +
+    core.cpp:1395 per the final bake ruling).
+
+  - CHECKACCELERATION A/B RESULT (owner-run 2026-11-22): the logs
+    (C:\Games\Star Wars Galactic Battlegrounds\Game\checkaccel_log_
+    orig.txt / _new.txt) - 30,088,422 ROWS ALIGNED IDENTICALLY (both
+    builds; the CA rows and every FA row), then the FIRST DIVERGENCE
+    at row 30088423 = an INPUT DIVERGENCE: unit id=27892 arrives with
+    a different world_x (155.715027 vs 155.772797), a different
+    command (the point 155.772797,30.6517925 vs 156.54895,29.8105793;
+    limitedYawAngle 0 vs 1) - the same unit, the same velocity.y.
+    VERDICT (CORRECTED after the owner's single-difference challenge -
+    the builds differ ONLY in the checkAcceleration path, so an
+    "already-desynced upstream" is IMPOSSIBLE - withdrawn): the world
+    divergence at row 30088423 (unit 27892's position + the caller's
+    args) MUST be the accumulated effect of the checkAcceleration
+    path's difference - but the TRACED surface (every FA arg + every
+    CA row) aligned through all 30M rows.  The divergence channel =
+    UNTRACED: (1) my stub-flow slot model could have a residual error
+    the static reading can't see - THE TEST: the A logs' FA args ARE
+    the stub's actual delivered values; if the limitedYaw/inner FA
+    args show the ACCELERATION constant (not -FLT_MAX), the var_54/
+    var_58 mapping is inverted -> the fix = the swap; (2) the
+    untraced side-effect channels: setForwardVelocity(0) (untraced),
+    the movementData lazy-create difference (the movementless units
+    on the limitedYaw path: the stub's garbage-bit arg can decline
+    the create while our -FLT_MAX always creates - a presence
+    divergence invisible to the already-logged rows), the precise-
+    bracket float environment vs the original's (the denormal/
+    precision semantics at the callees).  NEXT: the harness extension
+    (the post-call movementData state in the CA row + the
+    setForwardVelocity logger at 0x4A3A30) + the unit-filtered diff
+    (id=27892) - both prepared for the next A/B run.
+    The A/B harness rows: the CA/FA formats in the DIAG block; the
+    log files in the game dir.
+
+  - CHECKACCELERATION DESYNC ROOT CAUSE (owner-found 2026-11-22,
+    line 5811): the LABEL_11 velocity-vs-maxSpeed gate was written
+    X87_LE_NAN ({<=, NaN}) — the original asm at 0x4A682E-0x4A6831
+    = test ah,1 (the C0-ONLY mask, not C0|C3) → the jz skips on
+    C0=0 = {>= ordered} → the fall-through to LABEL_11 fires on
+    C0=1 = {<, NaN} = X87_LT_NAN.  THE DIVERGENCE CLASS: the ==
+    case (velocity.y EXACTLY equals maxSpeed): the original SKIPS
+    (C0=0, C3=1 — the C3 is IGNORED by the 01h mask), my form
+    FIRED setForwardAcceleration (the LE_NAN includes =).  THE FIX:
+    X87_LT_NAN.  HOW IT SLIPPED THROUGH: at decode time I
+    pattern-matched the fcomp+fnstsw+test+jz SHAPE to the 41h mask
+    family without reading the IMMEDIATE BYTE (01h vs 41h = the
+    entire partition); at /Fa verification I checked the compare
+    width (comiss/comisd) + the pool constants but never WHICH jcc
+    form followed the compare (jbe for LE_NAN vs ja for LT_NAN).
+    THE TEMPLATE RULE (proposed): the x87 test mask IMMEDIATE
+    (01h/41h/40h) IS the partition — it must be read from the
+    listing, not inferred from the idiom shape; the /Fa literal-row
+    scan must include the jcc FORM at every x87 compare-branch
+    site.  Gate re-run 0/0; the /Fa: comiss+jae at the maxSpeed
+    gate = the {<, NaN} fall, bit-matching the asm's test ah,1.
+    Re-verify: grep checkAcceleration_new for X87_LT_NAN (the
+    velocity gate = LT_NAN, NOT LE_NAN).
+
+  - CHECKACCELERATION A/B RUN 2 ANALYSIS - THE TWO-TIER CONTRADICTION
+    (2026-11-22): the first divergence = unit 11358's LABEL_11-arm
+    acceleration.y write: the stub build = 0, ours = +FLT_MAX; the
+    inputs identical.  OUR accelValue = the dispatched master
+    acceleration proc's return = flt_656A10 = +FLT_MAX
+    (binary-verified: [0x256A10] = FF 7F 7F FF = 0x7F7FFFFF).  THE
+    STUB'S BUILD DELIVERED 0 = the STATIC-tier constant:
+    nullsub_29 (the Static master vftable entry 21) = the ACTUAL
+    BYTES (the binary read @0x422AF0): `fld dword ptr [0x006545A4];
+    retn 4` - NOT an empty proc (the owner's correction: "loads
+    float const and returns") - [0x6545A4] = 0.0f (binary-verified).
+    = TWO DIFFERENT VFTABLE ENTRIES DISPATCHED FOR THE SAME UNIT:
+    ours = the Moving-tier entry (the +FLT_MAX constant), the stub =
+    the Static-tier entry (0.0).  THE ONLY MECHANISM: the unit's
+    master_obj->vfptr POINTS AT DIFFERENT VFTABLES IN THE TWO BUILDS
+    = the master_obj pointer itself diverged upstream (or points at
+    heap/union state that differs).  THE CA ROW LACKS THE MASTER
+    TIER/POINTER - THE EXTENSION PREPARED (not yet built): the CA row
+    + master_type (@master_obj+4) + the master_obj pointer value +
+    the accelValue/decelValue/maxSpeed logged - the next A/B run pins
+    (a) our dispatch bug, (b) the upstream master_obj divergence, or
+    (c) the patch's intended semantic delta.  ALSO: the FA logger =
+    CLOBBERED (the M4's setForwardAcceleration_new line = the later
+    installer write overwrote our FA logger hook at 0x4A3AC0 - FA=0
+    in both logs); the ay1 field read in the CA row = the working
+    observable.  THE FV logger = WORKS (the setForwardVelocity rows
+    present).  Re-verify: the FA=0 counts; the master_type extension
+    build.
+
+  - CHECKACCELERATION DESYNC ROOT CAUSE (owner-found 2026-11-22,
+    line 5811): the LABEL_11 velocity-vs-maxSpeed gate was written
+    X87_LE_NAN ({<=, NaN}) - the original asm at 0x4A682E-0x4A6831
+    = test ah,1 (the C0-ONLY mask, not C0|C3) -> the jz skips on
+    C0=0 = {>= ordered} -> the fall-through to LABEL_11 fires on
+    C0=1 = {<, NaN} = X87_LT_NAN.  THE DIVERGENCE CASE: velocity.y
+    EXACTLY equals maxSpeed: the original SKIPS (C0=0, C3=1 - the
+    C3 is IGNORED by the 01h mask), my form FIRED
+    setForwardAcceleration (the LE_NAN includes =).  THE FIX:
+    X87_LT_NAN (the owner's correction, applied + gated 0/0).  HOW
+    IT SLIPPED THROUGH: at decode time I pattern-matched the
+    fcomp+fnstsw+test+jz SHAPE to the 41h mask family without
+    reading the IMMEDIATE BYTE (01h vs 41h = the entire
+    partition); at /Fa verification I checked the compare width
+    + the pool constants but never WHICH JCC FORM followed the
+    compare (jbe for LE_NAN vs ja for LT_NAN).  THE TEMPLATE
+    AMENDMENT WRITTEN (DECOMP_TEMPLATE.md, the TEST MASK IMMEDIATE
+    rule): the x87 test mask IMMEDIATE (01h/41h/40h) IS the
+    partition - read from the listing byte, not inferred from the
+    idiom shape; the /Fa literal-row scan must include the JCC
+    FORM at every x87 compare-branch site.  The epsilon constant
+    (0.0000001f = the 1e-7f widening A0000000) was ALSO corrected
+    (the .c's 22-digit decimal render = the truncated exact
+    expansion - re-parsing it rounds to the NEXT DOUBLE DOWN -
+    the binary read @file 0x2545B0 = A0000000 is the ground truth;
+    the template's dd-constant rule covers this class).  The
+    addMove oneWay prototype correction (the 10th param = unsigned
+    __int8) is in the regenerated IDB; the addMove .c cross-checked
+    (:174983).  The core.cpp:1395 stub line is ACTIVE for the
+    A/B harness; the checkAcceleration hook = the logger (the
+    DIAG block); the real line commented.  ALL BUILD GATES 0/0
+    (RGE_Moving_Object.cpp + core.cpp, x86 v141_xp 14.16).
+
+  - SESSION CLOSE + NEXT SESSION (paste as the opening prompt):
+    "Read DECOMP_STATE.md, DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md,
+    DECOMP_GAME_FACTS.md in cheatdll/src/idb/ first.  STATE: the
+    checkAcceleration desync ROOT CAUSE = the LABEL_11 gate's
+    X87_LE_NAN vs the original's test ah,1 (the C0-only mask -
+    {<, NaN}, NOT {<=, NaN}) - the == case diverges.  FIXED to
+    X87_LT_NAN (the owner's correction).  The epsilon constant
+    (0.0000001f) was ALSO wrong (the .c's decimal render = the
+    truncated expansion - re-parsing it rounds to the next double
+    down); fixed to 0.0000001f = the 1e-7f widening A0000000
+    (binary-verified from battlegrounds_x2.exe in the idb folder).
+    The addMove prototype corrected (the 10th param = unsigned
+    __int8 oneWay); the regenerated .c cross-checked.  The A/B
+    harness (the DIAG block + the trampoline + the CA/FA/FV
+    loggers + the wt/keyed id-filtered rows) is DIAG-marked for
+    removal at ship.  core.cpp:1395 (checkAcceleration_patch) =
+    ACTIVE for the A/B harness.  ALL BUILD GATES 0/0.  IMMEDIATE
+    WORK: (1) the in-game validation of checkAcceleration_new
+    (the LT_NAN fix + the 0.0000001f epsilon fix); (2) the A/B
+    harness removal at ship (the DIAG block + the core.cpp:1395
+    disposition per the final bake ruling - the CHECKACCEL_PATCH's
+    semantic delta vs vanilla = the LABEL_11 arg swap: the stub =
+    ACCELERATION, the vanilla = DECELERATION (-FLT_MAX); the
+    limitedYaw/inner = the stub's var_58 vs the vanilla's the
+    var_58 garbage - the owner rules the bake); (3) the M12
+    drafts (teleport + addMove + resolveCollisions - the
+    teleport's enter/exit field ruling owed; the resolveCollisions
+    tail walk 0x4A5FC0-0x4A623B owed; the addMove oneWay in-game
+    test owed); (4) Moving 97/97 close, then Action 38 / Combat
+    48 / Static 133 / TRIBE_Combat 75 / TRIBE_Building 70 per
+    the roadmap.  PROTOCOL: the two-pass bar (the template rule);
+    the TEST MASK IMMEDIATE rule (the template, the checkAccel
+    desync class); the dd-constant rule (the .c's decimal =
+    the truncated expansion - ALWAYS the binary bytes for the
+    constant transcription); the FA logger clobber note (the
+    M4's line overwrites ours - the swap = the M4's line to the
+    logger).  In-game validation owed for M9/M10/M11 + the
+    checkAcceleration fix."
+
+  - RUNTIME METHODS BATCH M12a - resolveCollisions + addMove (owner-approved
+    + WRITTEN 2026-11-22): 2 hooks appended to RGE_Moving_Object.cpp
+    (installer 94 -> 96 unique; Moving 96/97 - teleport is the last).
+    resolveCollisions @0x004A5E70 [0x4A5E70,0x4A623F) (lst :282659/:283029,
+    idb_functions.h:2196): the tail walk 0x4A5FC0-0x4A623B completed. Durable
+    models: the distance norm is computed once and consumed UNROUNDED at the
+    1e-7 short-circuit (fcomp st0, 0x4A5FF7 -> loc_4A6213 = *newPosition =
+    positionValue, return the count) while the divisions consume the
+    fst-rounded copy (var_74); pushScaleX stays UNROUNDED on st0 through the
+    ladder, pushScaleY is fstp m32 store-rounded (var_88); the ladder's NaN
+    partition: both-{<1e-7,NaN} -> skip; the take-Y arm = (X >= Y ordered ||
+    X87_LE_NAN(X,1e-7)) && Y >= 1e-7 ordered with the inner skip on
+    X87_LE_NAN(Y,1e-7) - a NaN X is REPLACED by an ordered Y and KEPT when Y
+    is NaN/<1e-7 (case-verified against the asm); the AABB masks are MIXED:
+    upper-vs-lower skips = test ah,1 ({<,NaN} -> X87_LT_NAN), lower-vs-upper
+    skips = test ah,41h; jz ({> ordered} -> the literal MATCH row, a NaN
+    overlap CONTINUES); the first-record guard = the recordIdx > 0 form (the
+    asm's cmp ebx, offset obSystemCollisions flags-persisting jle); the
+    dopple-swap = type-80 -> linked_owner @+0x1DC (idb_types.h:9862, the
+    type-80 gate = the runtime-type evidence); the two copy-out position
+    fetches = the runtime slot +0x2AC = 171 (idb_types.h:4106) into TWO
+    distinct buffers (the asm's var_18/var_C); the maximumSpeed dispatch =
+    the RUNTIME slot +0x188 = 98 (idb_types.h:4033 - DOUBLE-typed: the
+    rule-(h) IDB residual is CLOSED for this dispatch, no re-typing request
+    needed); the residual check's operator_minus takes newPosition ITSELF as
+    the this_ operand (the out-param doubles as the minuend). addMove
+    @0x004A30F0 [0x4A30F0,0x4A34AD) (lst :278064/:278438, idb_functions.h
+    :2169 - the corrected 10-param prototype confirmed arg-for-arg): the SEH
+    allocation-unwind chunk 0x642800 = operator_delete on the raw alloc
+    (written operator_delete_internal, the M11 scoped-__try/__except form);
+    arm A = the future-path adoption (the 0-fetch planar prefix gate, the
+    waypointsCount live-reload copy loop, the waypointLevel-2 setReadyToPath
+    vs the follow form + the range/targetID stamps, setIgnoreUnits from
+    mIgnoreUnits @+0x30 / mNumberIgnoreUnits @+0x2C, the linkedPath adopt +
+    detach); arm B = the fresh command (the -1 position prefix, the UDW loop,
+    the count-1 last-waypoint planar tail gate, UNCONDITIONAL
+    setReadyToPath + waypointLevel = 2 + waypoint = forcedWp); the flag
+    masks = patrol bit 0 (BBitVectorAND_2 = dd 1 @0x65BD94), linear bit 2
+    (dword_65BD98 = 2), oneWay bit 5 (dword_65BDA8 = 0x20 - the LOW-BYTE
+    read, mov cl,[esp+58h+oneWay]) - all binary-verified; the two
+    posDelta.z/tailDelta.z = 0 stores are REAL (dead values, the
+    store-and-read diff); the arm norm orders DIFFER ((x^2+y^2) arm A vs
+    (y^2+x^2) arm B). THE RULE-(j) GATE CATCH (the fresh emission audited
+    BEFORE accepting the batch): the first gate's norms compiled
+    mulss/addss + ?sqrt@@YAMM@Z (sqrtf) + a fstp reload - the 24-bit chain
+    the x87 original never performed (the precise bracket does NOT widen
+    float*float - the C abstract semantics for float operands is float;
+    ONLY the explicit (double) casts produce cvtps2pd+mulsd) - fixed in
+    BOTH functions (the two norms x2 in resolveCollisions + the two
+    pushScale products; the addMove norms x2). Post-fix /Fa census:
+    addMove = mulsd x4/addsd x2/cvtps2pd x4/__libm_sse2_sqrt_precise x2/
+    sqrtf 0/comisd x2 + jbe (the {<=,NaN} skip = the asm's test ah,41h
+    partition, the pool 3E7AD7F2A0000000)/no ss-ops; resolveCollisions =
+    sqrt_precise x2/sqrtf 0/divsd x1 + fdivr x2 (the three single-rounding
+    divisions)/mulsd x10/cvtps2pd x14/cvtpd2ps x2 (the distStored +
+    pushScaleY store-rounds)/the addss x4 + subss x8 residuals = the
+    rule-(d) single-op store-only forms (the AABB bounds + the pushOut
+    deltas - the x87 form is exact-then-one-rounding, subss-identical)/
+    comiss x10 + comisd x7 with the partitions case-verified incl. the
+    Y == 1e-7-exact row/setcc 0/vtbl slots [reg+392] x1 + [reg+684] x2.
+    GATE: 0/0 (x86 v141_xp 14.16). GATE CATCHES: three cross-class casts
+    at the gate (master_obj -> RGE_Master_Static_Object*, the linked_owner
+    -> RGE_Static_Object* result assignment, the createPath
+    TRIBE_World-family cast - the C2440 class, fixed). SWEEPS: defs/refs
+    96/96 exact (0 missing, 0 orphans); bare CRT 0 (the new region:
+    operator_new_internal/operator_delete_internal only); bare base_game 0;
+    pointer-walk clean (the one hit = ++collisionCount, an int counter);
+    the 'new' grep hit = the word in the semantic comment (not code);
+    return types match the prototypes x2 (int/int). Exit paths: addMove
+    4 asm sites (0x4A315F/0x4A3190 return 0; 0x4A3489/0x4A34AD return 1 -
+    the flag-tail duplication of one written return) <- 3 written returns;
+    resolveCollisions 2 asm sites (the shared epilogue 0x4A6210 +
+    loc_4A6213) <- 3 written returns (the epilogue mapping). Store-and-read
+    diff: FULL MATCH both (addMove: pathData/waypointLevel/range/targetID/
+    waypoint/linkedPath=0/creationTimeValue/flags x6; resolveCollisions: no
+    object stores, the out-param copies). COLLISION SCAN (per-batch,
+    mechanical, 1,170 active writer sites, F-variant shifted, comments
+    excluded): 0 overlaps with either range; the two neighborhood hits =
+    the // baked: citation comments on calculateFutureVelocity_new lines
+    (not writers); the capstone's idb-constant CALL at RGE_Moving_Object
+    .cpp:4989 (0x4A5B73) routes into the new hook per the routing ruling.
+    INSTALLER DUPES FOUND (pre-existing, DIAG-era flip residue - NOT
+    touched, needs a separate approval): set_angle_new x2 (0x4A13C0),
+    setForwardVelocity_new x2 (0x4A3A30), setForwardAcceleration_new x2
+    (0x4A3AC0) - each pair = the same E9 written twice (idempotent,
+    behaviorally harmless); the proposal: remove one line per pair to
+    restore the 0-dupes standard. THE TELEPORT RULE-(j) FORECAST: the
+    teleport trail pipeline's mixed-precision chain (the decode-state
+    model) will need the same widen-before-product audit at its draft.
+    Remaining Moving 1: teleport 1319 (blocked on the enter/exit ruling).
+    NEXT: teleport, then Action 38 / Combat 48 / Static 133 /
+    TRIBE_Combat 75 / TRIBE_Building 70 per the roadmap. IN-GAME
+    VALIDATION OWED: M9/M10/M11 + checkAcceleration + this batch.
+
+  - RUNTIME METHODS BATCH M12b - teleport + THE DIAG REMOVAL + THE
+    INSTALLER DEDUP - MOVING 97/97 COMPLETE (owner-approved + WRITTEN
+    2026-11-22): 1 hook appended to RGE_Moving_Object.cpp (installer 96 ->
+    97 UNIQUE, 97 active lines, 0 dupes). teleport @0x004A1440
+    [0x4A1440,0x4A1967) (lst :274804/:275293, idb_functions.h:2138,
+    double return). THE OWNER RESOLVED THE ENTER/EXIT BLOCKER: the IDB
+    field names are CORRECT (+0 exit / +4 enter / +8 walk; walk_sprite_rate
+    corrected to FLOAT in the regenerated idb - the .c pun gone, the DAT
+    loader's fscanf("%f") corroborates); the regenerated .c AGREES with the
+    asm on the offsets (the v30[1] one-past-pointer render = the +4 field
+    - the earlier decode-state "one field for both" claim was against the
+    pre-regeneration render; the ruling is naming-only, the offsets were
+    always asm-pinned). THE GLOBAL NAMED (owner-approved): dword_68957C =
+    walk_tile_particles_enabled (int* const @0x0068957C, common.h/cpp, the
+    tuning-block family form) - gates the same-terrain grounded walk puff.
+    DECODE MODELS (the full 1319-byte walk): (1) THE TRAIL ARM - the
+    unit's OWN master's Moving extension fields gate it (obj_trail_options
+    @228: 1 = the single departure puff, 2 = the interpolated trail; the
+    initial test al,al guard collapsed per the redundant-guard rule - the
+    dec-chain subsumes options==0); the trail master
+    (owner->master_objects[obj_trail_id @226]) contributes ONLY the sprite
+    (the master vtbl get_sprite slot +4, the M4 lowest-declaring-tier
+    cast); THE SPACING DIVISOR = THE OWN MASTER'S obj_trail_spacing @232 -
+    ecx holds [esi+14h] from 0x4A1449 through the fdiv at 0x4A14DA (the
+    .c's v5->obj_trail_spacing corroborates); the count = ftol of the
+    UNROUNDED quotient, viewed i16 (test bp/bp; the do-loop dec/jnz; the
+    remainder fild re-uses the i16); the norm is the MIXED model - dx
+    UNROUNDED on st0, dy/dz fst-store-rounded, the dz^2 product =
+    unrounded-st0 x rounded-var_18 (the .c's v9*v55 same-name render is
+    IDA's st0/memory blindness); the cursor steps = the m32-rounded
+    fraction/dyStep/dzStep; the trail_remainder recompute =
+    fild(count) x spacing; fsubr var_8 (the ROUNDED dist+remainder);
+    fstp m32. (2) THE CLAMPS (gated on the runtime maximumSpeed slot
+    +0x188 = 98 > 1e-7 - the literal > MATCH row, NaN skips): lower =
+    radius + 0.01f (X87_LT_NAN - a NaN target IS clamped), upper =
+    width - radius - 0.01f (the literal >= MATCH row) - map_width for
+    BOTH axes (map_height never read). (3) THE BASE CALL:
+    RGE_Static_Object__teleport (:3832, the constant-call form) - THE
+    ORIGINAL STORE-ROUNDS ITS st0 RETURN THROUGH AN M32 (fstp [esp+30h+z]
+    @0x4A16DF, fld at 0x4A195C) - replicated as (float)baseResult. (4)
+    THE PARTICLE MATRIX - keyed on the PRE-call on_ground (var_20+3) and
+    the PRE-call tile (ebx) vs the POST-call re-reads ([esi+28h] at
+    0x4A16F0, the master terrain @+0x76 at 0x4A16E3): airborne-or-no-old-
+    tile -> the arrival (row[newTerrain].enter @+4, the LIVE position);
+    took-off -> the departure (row[oldTerrain].exit @+0, the SAVED
+    position); same-terrain grounded -> the walk puff
+    (*walk_tile_particles_enabled, the (world*rate) ftol grid vs oldX/
+    oldY, flags 0 duration -1 max 8); differ grounded -> the arrival
+    (enter, live) PLUS the departure (the QUIRK: the gate = the OLD
+    terrain's exit_tile_sprite_id @+0, the spawned sprite = its
+    enter_tile_sprite_id @+4 - two different fields, asm
+    0x4A1797 cmp [ebp+0] / 0x4A17C4 mov edx,[ebp+4]; the confirmed-IDB-
+    names comment at the site); world->sprites @+0x44, particle_system
+    @+0x70, extra_terrain_info @+0x64 (the TRIBE_World pack-8 walk
+    reconciles ALL of: world_time +0x10 / map +0x34 / terrains +0x60 /
+    sprites +0x44 / extra_terrain_info +0x64 / particle_system +0x70 -
+    three previously-grounded offsets + the asm). (5) THE SYNC (LABEL_47):
+    positionValue = world_x/z/y (+0xF4/+0xF8/+0xFC) and lastMoveTimeValue
+    @+0x124 = world_time, gated on fabs(delta) > 1e-7f on ANY axis (the
+    literal > MATCH rows; a NaN delta skips in both; dbl_6545B0 =
+    the widened 1e-7f). GATE: 0/0 after three rounds - the catches: a
+    dropped step declaration (the C2065 slip), then THE RULE-(j)/(k)
+    CLASS LIVE AGAIN: the dyStep/dzStep divisions compiled divss (the
+    24-bit division = the double-rounding class; the x87 m32/m32 fdiv
+    computes at 53-bit then one store-round) - fixed with the
+    (double)-widened dividends -> divsd x4 total, divss 0. THE
+    DOUBLE-ROUNDING COLLAPSE NOTE (added to the rule-(d) body of
+    knowledge): a single +/- of two floats collapses
+    (round24(round53(S)) == round24(S) for every exponent gap) so the
+    addss forms are value-identical - the trail_remainder add and the
+    cursor adds stayed float - but DIVISION never collapses (inexact) -
+    every division must be divsd. Post-fix /Fa census: divsd x4,
+    mulsd x8, addsd x6, cvtps2pd x31, cvtpd2ps x10, cvtsd2ss x2,
+    sqrt_precise x1, cvttsd2si x5 (the trail count + the 4 grid ftols),
+    comisd x8 / comiss 0 / setcc 0, the slots [reg+392] (maximumSpeed)
+    and [reg+4] x2 (the master get_sprites), the constants 0x548CC0
+    (add_particle2, :3739) / 0x54F820 (the Static teleport, :3832), the
+    pools 3E7AD7F2A0000000; the 7 source add_particle2 sites merged by
+    the compiler into shared tails (the codegen-neutral class - the
+    original's own 0x4A18DF/0x4A18E2 shared tail reproduced). Exit
+    paths: ONE asm return (retn 0Ch) <- one written return. Store-and-
+    read diff: FULL MATCH (trail_remainder x2, lastMoveTimeValue,
+    positionValue x3; no invented stores). THE DIAG HARNESS REMOVED
+    (owner-directed): the whole DIAG block in RGE_Moving_Object.cpp (the
+    g_checkAccelTraceOrig/Id/Log globals, the checkAcceleration_orig
+    trampoline, the CA logger, the FV/FA loggers - 115 lines) DELETED;
+    the zero-diagnostic-symbol sweep: g_checkAccel/_orig/_logger/val_log/
+    LINE_LOGGING/g_dimu/fopen(/fprintf(/sprintf( = ALL 0 file-wide. THE
+    INSTALLER DEDUPED (owner-directed): the three pre-existing duplicate
+    hook pairs removed (set_angle_new x2 - the second line dropped;
+    setForwardVelocity_new/setForwardAcceleration_new - the DIAG-section
+    active copies dropped, the main-sequence lines retained); the
+    checkAcceleration_new hook line PRESERVED (moved out of the deleted
+    DIAG context into the main sequence). defs/refs 97/97 exact
+    (0 missing, 0 orphans, 0 dupes); bare CRT 0; bare base_game 0;
+    return types match the prototypes. COLLISION SCAN: 0 overlaps
+    (1,170 sites). IN-GAME VALIDATION OWED: M9/M10/M11/M12a/M12b +
+    checkAcceleration. MOVING 97/97 COMPLETE - the entire runtime Moving
+    method surface owned and hook-routed. NEXT per the roadmap: Action 38
+    / Combat 48 / Static 133 / TRIBE_Combat 75 / TRIBE_Building 70
+    (smallest-first per class; the large bodies under the two-pass bar).
+
+  - M12b CORRECTION - teleport_new TRAIL X-STEP (owner-reported visible
+    particle/trail breakage, root-caused + fixed 2026-11-22): the written
+    trail `fraction = dist / step` was WRONG - the st0 at the fdiv
+    (0x4A14F4) = the dxU LEFTOVER from the norm computation (the __ftol at
+    0x4A14E4 popped only the step; the dxU pushed at 0x4A149D was never
+    stored and persists under the whole norm/fdiv/ftol sequence), so the
+    division computes dx / step = THE X COMPONENT STEP (the .c's v67 =
+    v8/world_x with v8 = dx confirms). The wrong form advanced the trail
+    cursor's x by the EUCLIDEAN per-step distance (~spacing per particle)
+    instead of the x component - x-dominant moves overshot the destination
+    x, otherwise the trail bunched at the origin x (the visible in-game
+    breakage). FIXED: dxStep = dx / step; the cursor curX += dxStep; the
+    dy/dz steps were verified correct (their stacks were re-walked). THE
+    LESSON (the turn_towards #7 class, second instance): the x87
+    leftover-register misattribution - the operand-role verification
+    requires tracking the stack slot-by-slot INCLUDING the values that
+    persist PAST their looks-dead point; a leftover consumed pages later
+    reads as a fresh value in every text-level net. ALSO DISPOSITIONED in
+    the re-walk: the dxU parks across the main body and the walk-arm rate
+    parks into the caller on the skip path - the ORIGINAL's own x87
+    parking (the checkAcceleration parked-register class); benign for the
+    replacement (no callee reads incoming x87 values; the written form
+    balances). GATE 0/0; /Fa census unchanged in shape (divsd x4 =
+    stepU/dxStep/dyStep/dzStep, all 53-bit single-rounding). Re-verify:
+    teleport_new carries dxStep = dx / step and curX += dxStep (grep
+    fraction = 0 in code).
+
+  - M12b CORRECTION 2 - teleport_new TRAIL REMAINDER NEVER DECREMENTS
+    (owner-reported: the visible breakage PERSISTED after correction 1;
+    root-caused via the /Fa emission audit 2026-11-22): the written
+    remainder recompute read `count` AFTER the do-loop, but the loop
+    `while (--count != 0)` DECREMENTS count ITSELF - post-loop count = 0 -
+    so the emitted form constant-folded to `mulsd spacing,
+    __real@0000000000000000` -> trail_remainder = distR - 0 = distR: THE
+    REMAINDER NEVER SUBTRACTS THE CONSUMED DISTANCE -> it crosses spacing
+    on nearly every per-tick teleport (the caller = moveForward's vtbl
+    dispatch) -> count >= 1 nearly every tick -> a particle per tick
+    accumulating at the unit's positions = THE DENSE FLAME CLUSTER (the
+    bad image). THE ASM: the loop decrements a THROWAWAY COPY (ebx =
+    movsx bp at 0x4A1509) and the remainder reads the PRESERVED original
+    (movsx eax, bp at 0x4A158C - AFTER the loop; fild var_4; fmul
+    [edx+0E8h]; fsubr var_8). THE FIX: a dedicated `short remain = count`
+    loop counter; the remainder keeps `count` (the preserved value).
+    Post-fix /Fa: the ZERO-FOLD IS GONE - the emitted remainder = cvttsd2si
+    count (pre-loop) / movd+cvtdq2pd (the signed short->double) /
+    mulsd [edi+232] / subsd distR / cvtpd2ps / movss [esi+184] -
+    bit-matching the asm. THE /Fa TELL (new census pattern): a constant
+    fold to __real@0000000000000000 (the x0.0 multiply) = a DEAD-VALUE
+    read proof - the gate census must include the x0.0-fold scan. THE
+    LESSON (the loop-counter class): a post-loop use of the loop counter
+    - the asm preserves the original in a separate register and
+    decrements a copy; the C form must do the same (a dedicated counter)
+    or the compiler PROVES the post-loop value is 0 and folds. GATE 0/0.
+    Re-verify: grep teleport_new for `short remain = count` (= 1) and
+    `while (--remain != 0)` (= 1); the /Fa has no
+    __real@0000000000000000 in the teleport_new PROC.
+
+  - M12b CORRECTION 3 - teleport_new TERRAIN-BLOCK CONTROL FLOW (the
+    owner localized the remaining visible breakage to the terrain block
+    and directed a re-creation; root cause = TWO MISSED RE-CHECKS in the
+    landing arm; fixed 2026-11-22): the asm's loc_4A189E (the arm reached
+    when the SAVED on_ground == 0, or the old tile == 0) carries TWO
+    RE-CHECKS I missed in every prior pass: 0x4A189E-0x4A18A6 re-tests
+    the LIVE on_ground (== 0 -> NOTHING), 0x4A18A8-0x4A18AA re-tests the
+    OLD tile (== 0 -> NOTHING). THE TRUE DECISION TREE: the landing arm
+    (row[newTerrain].enter at the LIVE position) fires ONLY for
+    (saved-airborne AND live-grounded AND old tile exists); the
+    saved-grounded + no-old-tile case lands in the same arm and is
+    SILENCED by the re-checks; the saved-airborne + still-airborne ->
+    NOTHING. MY FLATTENED FORM `if (saved != 0 && oldTile != 0) {walk /
+    differ / took-off} else {arrival}` spawned the arrival puff for three
+    cases the original leaves silent (notably saved-airborne + live-
+    airborne and both no-old-tile cases) - for units whose on_ground
+    flickers during moves (the elevation changes; the hover units) that
+    is a puff per tick = the remaining visible cluster. THE .C HAD THE
+    RE-CHECKS ALL ALONG (the regenerated render lines 173759-173761:
+    `if (!this->on_ground) goto LABEL_47; if (!v17) goto LABEL_47;`
+    inside the landing arm) - the decode missed them because the
+    loc_4A189E region was skimmed as a simple arrival arm. RECREATED
+    BLOCK: `if (savedOnGround == 0) { if (live != 0 && oldTile != 0)
+    { the landing arrival } } else if (oldTile != 0) { if (live == 0)
+    { the took-off departure } else { the walk arm / the differ pair } }`
+    - the tree is now asm-exact (the .c render corroborates the entire
+    shape). The differ-departure quirk and the walk grid unchanged.
+    GATE 0/0; the /Fa emission verified: the landing arm's re-checks
+    emit (cmp [esi+208],0 / cmp _oldTile,0 -> nothing), the grounded
+    branch's no-old-tile path emits -> nothing; the census shape
+    unchanged. defs/refs 97/97, 0 dupes/orphans; the diagnostic sweep 0.
+    THE LESSON: the skimmed-locus class - an arm entered by MULTIPLE
+    jump sources must have its INTERNAL gates re-read (they encode which
+    sources actually spawn); the .c cross-check of a CONTROL-FLOW region
+    is mandatory even when the value-level decode looks complete.
+    Re-verify: teleport_new's terrain block carries
+    `if (savedOnGround == 0)` / `else if (oldTile != 0)` and the landing
+    arm's `this_->on_ground != 0 && oldTile != 0`.
+
+  - SESSION CLOSE + NEXT SESSION (paste as the opening prompt): "Read
+    DECOMP_STATE.md, DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md,
+    DECOMP_GAME_FACTS.md in cheatdll/src/idb/ first. STATE: THE MOVING
+    RUNTIME METHOD SURFACE IS COMPLETE - 97/97 exports owned and
+    hook-routed (installer 97 unique, 0 dupes, defs/refs 97/97); the
+    M12 batches (teleport @0x004A1440 + resolveCollisions @0x004A5E70 +
+    addMove @0x004A30F0) WRITTEN, GATED 0/0, and ALL IN-GAME TESTS CLEAN
+    (owner-confirmed 2026-11-22) - this closes the owed in-game
+    validation for M9/M10/M11/M12a/M12b AND the checkAcceleration fix
+    (the X87_LT_NAN gate + the 0.0000001f epsilon) AND the M12
+    corrections 1-3 (the trail dxStep x87-leftover, the trail remainder
+    loop-counter, the terrain-block landing-arm control flow). THE
+    TELEPORT BLOCKERS ALL RESOLVED: the IDB enter/exit names RULED
+    CORRECT (the departure-particle quirk = the gate exit @+0 / sprite
+    enter @+4, commented at the site); walk_sprite_rate = FLOAT (the
+    regenerated idb; the fscanf %f corroborated); dword_68957C = the
+    approved binding walk_tile_particles_enabled (int* const @0x0068957C,
+    common.h/cpp). THE A/B HARNESS REMOVED (the DIAG block in
+    RGE_Moving_Object.cpp deleted - 115 lines; the zero-diagnostic-symbol
+    sweep ALL 0 file-wide); THE INSTALLER DEDUPED (the three DIAG-era
+    duplicate hook pairs removed; the checkAcceleration_new hook
+    preserved in the main sequence). core.cpp checkAcceleration_patch:
+    RETIRED (the line commented at core.cpp:1400 - the current tree runs
+    checkAcceleration_new with the VANILLA semantics and the tests are
+    clean) - the CHECKACCEL_PATCH arg-swap re-bake is MOOT (no bake;
+    the vanilla semantics win; do not revisit unless the owner re-opens).
+    THE BASE STATIC TELEPORT @0x0054F820 DECODED (unhooked; durable
+    facts): re-tiles the unit ([esi+28h] = the destination tile at
+    0x54F99D - so the pre/post tile reads in the Moving wrapper bracket
+    the tile crossings); the OL delete/add; the OB refresh (the
+    movement_type==1 -> OBSystem_Air split at 0x54F9D3); the 17-case
+    z-interpolation switch over the new tile's type; the LOS mip words
+    [esi+34h-3Ah]; the VIRTUAL slot +0xAC dispatch with the new z = the
+    z-correction (for Moving units = OUR hooked
+    handle_teleport_z_correction_new - the on_ground setter); NO writes
+    to master->terrain or on_ground of its own. THE NEW PROTOCOL LESSONS
+    (all in the correction entries above, carry forward): (1) THE X87
+    LEFTOVER MISATTRIBUTION (the second instance): an st0 value pushed
+    early and consumed pages later reads as a fresh value in every
+    text-level net - the slot-by-slot stack walk must track values PAST
+    their looks-dead point (the teleport trail's dxU; the turn_towards
+    #7 precedent); (2) THE LOOP-COUNTER CLASS: a post-loop use of the
+    loop counter - the asm preserves the original in a separate register
+    and decrements a copy; the C form must use a dedicated counter or
+    the compiler PROVES the post-loop value is 0 and folds (the /Fa
+    tell: the x0.0 constant-fold = the dead-value read proof - ADD the
+    x0.0-fold scan to the gate census patterns); (3) THE SKIMMED-LOCUS
+    CLASS: an arm entered by MULTIPLE jump sources must have its
+    INTERNAL gates re-read (they encode which sources actually spawn);
+    the .c cross-check of a CONTROL-FLOW region is mandatory even when
+    the value-level decode looks complete (the teleport landing arm's
+    two missed re-checks; the .c had them at 173759-173761); (4) the
+    rule-(d) collapse clarification: a single +/- of two floats is
+    value-identical in addss (the double-rounding collapses), DIVISION
+    never collapses - every division divsd (the M12a dyStep/dzStep
+    catch). ALSO THIS SESSION: resolveCollisions_new (the ladder's NaN
+    partition case-verified incl. the NaN-X-replaced-by-ordered-Y row;
+    the unrounded-norm vs stored-copy split; the mixed AABB masks;
+    the dopple-swap via the type-80 gate -> linked_owner @+0x1DC; the
+    runtime vtbl maximumSpeed @+0x188 = 98 and position @+0x2AC = 171
+    dispatches - the rule-(h) residual CLOSED, the slots are
+    double-typed) and addMove_new (the corrected oneWay prototype
+    arg-for-arg; the SEH chunk 0x642800 = operator_delete on the raw
+    alloc; the flag masks 1/2/0x20 binary-verified; the arm norm orders
+    differ). IMMEDIATE WORK: (1) the roadmap: Action 38 / Combat 48 /
+    Static 133 / TRIBE_Combat 75 / TRIBE_Building 70 runtime methods,
+    smallest-first per class (decode -> present -> approve -> write;
+    the large bodies under the two-pass bar: size >= 4096 bytes, or
+    gotos >= 12 AND back-edges >= 12, or the desync fallback, or the
+    owner override); (2) the per-batch mechanical collision scan + the
+    /Fa census (the x0.0-fold scan now included) on every batch;
+    (3) the in-game validation per batch (the owner's standard test).
+    CARRIED: the common.h collisionUnits comment fix (provisional - the
+    rename verification stands: the .c's collisionUnits = our
+    ignoreUnits). PROTOCOL: all edits approval-gated; the template rules
+    (a)-(k) incl. the X87 macro mandate + the probe protocol + the
+    precise brackets + the rule-(j) widen-before-product (proven
+    load-bearing twice this session: the M12a norms and the teleport
+    trail); the citation protocol (addresses + function names)."
+
+

@@ -135,7 +135,8 @@ void __fastcall RGE_Animated_Object__recycle_in_to_game_new(
 // Decode (.c:73992-74046): base Static update; state==3 -> the master
 // death-sprite gate -> set_object_state(4/5); state==4 && !is_animating
 // -> state=5 + speed=0; sprite_list->update(world_time_delta_seconds,
-// speed); the sprite2 fidget-swap BOTH directions with rand() > 0x3FFF.
+// speed); the sprite2 fidget-swap BOTH directions with rand_internal() > 0x3FFF
+// (the common.h:154 wrapper - the owner-directed rand form, 2026-11-21).
 unsigned __int8 __fastcall RGE_Animated_Object__update_new(RGE_Animated_Object* this_, DWORD dummy)
 {
     unsigned __int8 result = RGE_Static_Object__update((RGE_Static_Object*)this_);   // .c:74002
@@ -159,13 +160,13 @@ unsigned __int8 __fastcall RGE_Animated_Object__update_new(RGE_Animated_Object* 
     {
         if (this_->sprite == this_->master_obj->vfptr->get_sprite2(this_->master_obj, (RGE_Static_Object*)this_))   // .c:74022
         {
-            if (this_->sprite_list->vfptr->looped(this_->sprite_list, this_->sprite) && rand() > 0x3FFF)   // .c:74024
+            if (this_->sprite_list->vfptr->looped(this_->sprite_list, this_->sprite) && rand_internal() > 0x3FFF)   // .c:74024
                 this_->vfptr->new_sprite(this_,
                     this_->master_obj->vfptr->get_sprite2(this_->master_obj, (RGE_Static_Object*)this_));   // .c:74027
         }
         else if (this_->sprite == this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object*)this_))   // .c:74035
         {
-            if (this_->sprite_list->vfptr->looped(this_->sprite_list, this_->sprite) && rand() > 0x3FFF)   // .c:74037
+            if (this_->sprite_list->vfptr->looped(this_->sprite_list, this_->sprite) && rand_internal() > 0x3FFF)   // .c:74037
                 this_->vfptr->new_sprite(this_,
                     this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object*)this_));   // .c:74041
         }

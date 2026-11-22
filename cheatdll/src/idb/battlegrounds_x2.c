@@ -2258,7 +2258,7 @@ BPath *__thiscall RGE_Moving_Object::findAvoidancePath(RGE_Moving_Object *this, 
 void __thiscall RGE_Moving_Object::copy_obj(RGE_Moving_Object *this, RGE_Master_Static_Object *source2);
 void __thiscall RGE_Moving_Object::rotate(RGE_Moving_Object *this, int amount);
 int __thiscall RGE_Moving_Object::get_waypoint_checksum(RGE_Moving_Object *this);
-int __thiscall RGE_Moving_Object::addMove(RGE_Moving_Object *this, int targetID, float targetX, float targetY, float targetZ, float range, int patrol, int linear, int forcedWaypoint);
+int __thiscall RGE_Moving_Object::addMove(RGE_Moving_Object *this, int targetID, float targetX, float targetY, float targetZ, float range, int patrol, int linear, int forcedWaypoint, unsigned __int8 oneWay);
 int __thiscall RGE_Moving_Object::addCurrentPath(RGE_Moving_Object *this, BPath *newPath, int targetID, float range, int pathType);
 int __thiscall RGE_Moving_Object::addFuturePath(RGE_Moving_Object *this, BPath *newPath, int targetID, float range, int pathType);
 void __thiscall RGE_Moving_Object::stopAllMovement(RGE_Moving_Object *this);
@@ -43352,8 +43352,6 @@ int blend_modes[] =
   10,
   9
 }; // idb
-_UNKNOWN unk_69B794; // weak
-_UNKNOWN unk_69B7F4; // weak
 int UC_Save_Last_Obj = -1; // idb
 char aG_wtr_slp[] = "g_wtr.slp"; // idb
 char aDataBlkedge_da[] = "DATA\\BLKEDGE.DAT"; // idb
@@ -51153,7 +51151,7 @@ LABEL_14:
       v28 = this->target_y;
       v27 = this->target_x;
       if ( this->target_obj )
-        v22 = ((int (__stdcall *)(int, float, float, float, float, int, int, int, int))v21->addMove2)(
+        v22 = ((int (__stdcall *)(int, float, float, float, float, int, int, int, int))v21->addMove)(
                 this->target_obj->id,
                 COERCE_FLOAT(LODWORD(v27)),
                 COERCE_FLOAT(LODWORD(v28)),
@@ -51164,7 +51162,7 @@ LABEL_14:
                 v6,
                 v31);
       else
-        v22 = ((int (__stdcall *)(int, float, float, float, float, int, int, int, int))v21->addMove2)(
+        v22 = ((int (__stdcall *)(int, float, float, float, float, int, int, int, int))v21->addMove)(
                 -1,
                 COERCE_FLOAT(LODWORD(v27)),
                 COERCE_FLOAT(LODWORD(v28)),
@@ -173798,7 +173796,7 @@ LABEL_46:
     v32 = v31->walk_tile_sprite_id;
     if ( v32 <= 0 )
       goto LABEL_47;
-    v33 = *(float *)&v31->walk_sprite_rate;
+    v33 = v31->walk_sprite_rate;
     if ( (unsigned int)(__int64)(this->world_x * v33) == (unsigned int)(__int64)(v33 * world_za)
       && (unsigned int)(__int64)(v33 * this->world_y) == (unsigned int)(__int64)(v33 * v66) )
     {
@@ -174983,98 +174981,97 @@ int __thiscall RGE_Moving_Object::get_waypoint_checksum(RGE_Moving_Object *this)
 }
 
 //----- (004A30F0) --------------------------------------------------------
-int __thiscall RGE_Moving_Object::addMove(RGE_Moving_Object *this, int targetID, float targetX, float targetY, float targetZ, float range, int patrol, int linear, int forcedWaypoint)
+int __thiscall RGE_Moving_Object::addMove(RGE_Moving_Object *this, int targetID, float targetX, float targetY, float targetZ, float range, int patrol, int linear, int forcedWaypoint, unsigned __int8 oneWay)
 {
-  int v10; // ebp
-  BPathData *v11; // ecx
-  BPathData *v12; // eax
+  int v11; // ebp
+  BPathData *v12; // ecx
   BPathData *v13; // eax
-  int v14; // eax
-  BPath *v15; // eax
-  BPath *v16; // edi
-  BPathData *v17; // eax
-  BVector *v18; // eax
-  BPath **v19; // eax
-  BVector *v20; // eax
-  BPathData *v21; // eax
-  BPathData *v22; // ecx
-  int v23; // ebx
+  BPathData *v14; // eax
+  int v15; // eax
+  BPath *v16; // eax
+  BPath *v17; // edi
+  BPathData *v18; // eax
+  BVector *v19; // eax
+  BPath **v20; // eax
+  BVector *v21; // eax
+  BPathData *v22; // eax
+  BPathData *v23; // ecx
   int v24; // ebx
-  BPathData *v25; // ecx
-  int v26; // eax
-  BVector *v27; // eax
+  int v25; // ebx
+  BPathData *v26; // ecx
+  int v27; // eax
+  BVector *v28; // eax
   BVector result; // [esp+10h] [ebp-48h] BYREF
-  BVector v29; // [esp+1Ch] [ebp-3Ch] BYREF
+  BVector v30; // [esp+1Ch] [ebp-3Ch] BYREF
   BVector wp; // [esp+28h] [ebp-30h] BYREF
   BVector wpIndex; // [esp+34h] [ebp-24h] BYREF
   BVector outVector; // [esp+40h] [ebp-18h] BYREF
-  int v33; // [esp+54h] [ebp-4h]
-  char v34; // [esp+7Ch] [ebp+24h]
+  int v34; // [esp+54h] [ebp-4h]
 
-  v10 = 0;
-  v11 = this->pathData;
-  if ( v11 )
+  v11 = 0;
+  v12 = this->pathData;
+  if ( v12 )
   {
-    BPathData::reset(v11);
+    BPathData::reset(v12);
   }
   else
   {
-    v12 = (BPathData *)operator_new(0x34u);
-    v33 = 0;
-    if ( v12 )
-      v13 = BPathData::BPathData(v12);
+    v13 = (BPathData *)operator_new(0x34u);
+    v34 = 0;
+    if ( v13 )
+      v14 = BPathData::BPathData(v13);
     else
-      v13 = 0;
-    v33 = -1;
-    this->pathData = v13;
-    if ( !v13 )
+      v14 = 0;
+    v34 = -1;
+    this->pathData = v14;
+    if ( !v14 )
       return 0;
   }
-  v15 = RGE_Game_World::createPath((RGE_Game_World *)base_game->world);
-  v16 = v15;
-  if ( !v15 )
+  v16 = RGE_Game_World::createPath((RGE_Game_World *)base_game->world);
+  v17 = v16;
+  if ( !v16 )
     return 0;
-  v15->creationTimeValue = base_game->world->world_time;
-  v17 = this->mFuturePathData;
-  if ( v17 && v17->path && v17->state == 2 )
+  v16->creationTimeValue = base_game->world->world_time;
+  v18 = this->mFuturePathData;
+  if ( v18 && v18->path && v18->state == 2 )
   {
-    v18 = BPath::waypoint(v17->path, &wpIndex, 0);
-    BVector::operator_minus(&this->positionValue, &result, v18);
+    v19 = BPath::waypoint(v18->path, &wpIndex, 0);
+    BVector::operator_minus(&this->positionValue, &result, v19);
     result.z = 0.0;
     if ( sqrt(result.x * result.x + result.y * result.y) > 0.0000001 )
-      BPath::addWaypointAtStart(v16, &this->positionValue);
-    v19 = &this->mFuturePathData->path;
-    if ( (*v19)->waypointsCount > 0 )
+      BPath::addWaypointAtStart(v17, &this->positionValue);
+    v20 = &this->mFuturePathData->path;
+    if ( (*v20)->waypointsCount > 0 )
     {
       do
       {
-        v20 = BPath::waypoint(*v19, &wpIndex, v10);
-        BPath::addWaypointAtEnd(v16, v20);
-        ++v10;
-        v19 = &this->mFuturePathData->path;
+        v21 = BPath::waypoint(*v20, &wpIndex, v11);
+        BPath::addWaypointAtEnd(v17, v21);
+        ++v11;
+        v20 = &this->mFuturePathData->path;
       }
-      while ( v10 < (*v19)->waypointsCount );
+      while ( v11 < (*v20)->waypointsCount );
     }
     this->pathData->waypointLevel = this->mFuturePathData->waypointLevel;
     if ( this->mFuturePathData->waypointLevel == 2 )
     {
-      BPathData::setReadyToPath(this->pathData, v16, range, targetID);
+      BPathData::setReadyToPath(this->pathData, v17, range, targetID);
     }
     else
     {
-      BPathData::setReadyToFollowPath(this->pathData, v16);
+      BPathData::setReadyToFollowPath(this->pathData, v17);
       this->pathData->range = range;
       this->pathData->targetID = targetID;
     }
     BPath::setIgnoreUnits(
-      v16,
+      v17,
       this->mFuturePathData->path->mIgnoreUnits,
       this->mFuturePathData->path->mNumberIgnoreUnits);
-    v21 = this->mFuturePathData;
-    v22 = v21->linkedPath;
-    if ( v22 )
+    v22 = this->mFuturePathData;
+    v23 = v22->linkedPath;
+    if ( v23 )
     {
-      BPathData::setLinkedPath(this->pathData, v22, v21->linkedPathType);
+      BPathData::setLinkedPath(this->pathData, v23, v22->linkedPathType);
       this->mFuturePathData->linkedPath = 0;
     }
     BPathData::reset(this->mFuturePathData);
@@ -175082,56 +175079,56 @@ int __thiscall RGE_Moving_Object::addMove(RGE_Moving_Object *this, int targetID,
   }
   else
   {
-    v23 = forcedWaypoint;
+    v24 = forcedWaypoint;
     if ( forcedWaypoint == -1 )
-      BPath::addWaypointAtStart(v16, &this->positionValue);
+      BPath::addWaypointAtStart(v17, &this->positionValue);
     if ( this->numberUserDefinedWaypointsValue > 0 )
     {
-      v24 = 0;
+      v25 = 0;
       do
       {
-        BPath::addWaypointAtEnd(v16, &this->userDefinedWaypoints[v24]);
-        ++v10;
-        ++v24;
+        BPath::addWaypointAtEnd(v17, &this->userDefinedWaypoints[v25]);
+        ++v11;
+        ++v25;
       }
-      while ( v10 < this->numberUserDefinedWaypointsValue );
-      v23 = forcedWaypoint;
+      while ( v11 < this->numberUserDefinedWaypointsValue );
+      v24 = forcedWaypoint;
     }
     this->vfptr->zeroUserDefinedWaypoints(this);
-    v25 = this->mFuturePathData;
-    if ( v25 )
-      BPathData::reset(v25);
-    if ( v23 == -1 )
+    v26 = this->mFuturePathData;
+    if ( v26 )
+      BPathData::reset(v26);
+    if ( v24 == -1 )
     {
       wp.x = targetX;
-      v26 = v16->waypointsCount;
+      v27 = v17->waypointsCount;
       wp.z = targetZ;
       wp.y = targetY;
-      v27 = BPath::waypoint(v16, &outVector, v26 - 1);
-      BVector::operator_minus(&wp, &v29, v27);
-      v29.z = 0.0;
-      if ( sqrt(v29.y * v29.y + v29.x * v29.x) > 0.0000001 )
-        BPath::addWaypointAtEnd(v16, &wp);
+      v28 = BPath::waypoint(v17, &outVector, v27 - 1);
+      BVector::operator_minus(&wp, &v30, v28);
+      v30.z = 0.0;
+      if ( sqrt(v30.y * v30.y + v30.x * v30.x) > 0.0000001 )
+        BPath::addWaypointAtEnd(v17, &wp);
     }
-    BPathData::setReadyToPath(this->pathData, v16, range, targetID);
+    BPathData::setReadyToPath(this->pathData, v17, range, targetID);
     this->pathData->waypointLevel = 2;
-    if ( v23 != -1 )
-      this->pathData->waypoint = v23;
+    if ( v24 != -1 )
+      this->pathData->waypoint = v24;
   }
-  v14 = 1;
+  v15 = 1;
   if ( patrol == 1 )
-    v16->flags.valueValue |= BBitVectorAND_2;
+    v17->flags.valueValue |= BBitVectorAND_2;
   else
-    v16->flags.valueValue &= ~BBitVectorAND_2;
+    v17->flags.valueValue &= ~BBitVectorAND_2;
   if ( linear == 1 )
-    v16->flags.valueValue |= 2u;
+    v17->flags.valueValue |= 2u;
   else
-    v16->flags.valueValue &= 0xFFFFFFFD;
-  if ( v34 )
-    v16->flags.valueValue |= 0x20u;
+    v17->flags.valueValue &= 0xFFFFFFFD;
+  if ( oneWay )
+    v17->flags.valueValue |= 0x20u;
   else
-    v16->flags.valueValue &= 0xFFFFFFDF;
-  return v14;
+    v17->flags.valueValue &= 0xFFFFFFDF;
+  return v15;
 }
 // 65BD94: using guessed type int BBitVectorAND_2;
 // 65BD98: using guessed type int dword_65BD98;
@@ -176037,7 +176034,7 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   RGE_Static_Object *v104; // eax
   int v105; // ecx
   TRIBE_Building_Object *v106; // eax
-  RGE_Static_Object *v107; // edi
+  TRIBE_Building_Object *v107; // edi
   int v108; // ebp
   BPathData *v109; // edi
   BPathData *v110; // ebx
@@ -176105,7 +176102,7 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
   BVector v172; // [esp+BCh] [ebp-1D8h] BYREF
   BVector v173; // [esp+C8h] [ebp-1CCh] BYREF
   BVector p2; // [esp+D4h] [ebp-1C0h] BYREF
-  BVector result; // [esp+E0h] [ebp-1B4h] BYREF
+  BVector v175; // [esp+E0h] [ebp-1B4h] BYREF
   BVector v176; // [esp+ECh] [ebp-1A8h] BYREF
   BVector v177; // [esp+F8h] [ebp-19Ch] BYREF
   BPath ReturnPath; // [esp+104h] [ebp-190h] BYREF
@@ -176213,8 +176210,8 @@ int __thiscall RGE_Moving_Object::doIntelligentMovementUpdate(RGE_Moving_Object 
             break;
           v14 = &this->positionValue;
           v15 = BPath::waypoint(v8, &wpIndex, v12->waypoint);
-          BVector::operator_minus(&this->positionValue, &result, v15);
-          result.z = 0.0;
+          BVector::operator_minus(&this->positionValue, &v175, v15);
+          v175.z = 0.0;
           if ( RGE_Static_Object::isFlagSet((RGE_Static_Object *)this, 1) )
           {
             if ( !RGE_Player::availablePathingAttempts((RGE_Player *)this->owner, this->numberWaitDelays) || v162 >= 3 )
@@ -176923,12 +176920,12 @@ LABEL_151:
                 {
                   if ( v106->type == 80 && v106->linked_owner )
                     v106 = v106->linked_owner;
-                  v107 = (RGE_Static_Object *)v106;
+                  v107 = v106;
                   if ( v106 )
                   {
                     v108 = v106->vfptr->movementPriority(v106);
                     if ( v108 > this->vfptr->movementPriority(this) )
-                      ((void (__thiscall *)(RGE_Static_Object *, int))v107->vfptr->pauseMovement)(v107, 1056964608);
+                      ((void (__thiscall *)(TRIBE_Building_Object *, int))v107->vfptr->pauseMovement)(v107, 1056964608);
                   }
                 }
               }
@@ -197095,7 +197092,6 @@ bool __thiscall PathingSystem::initialize(PathingSystem *this, int x, int y, RGE
 }
 
 //----- (004BD6A0) --------------------------------------------------------
-// positive sp value has been detected, the output may be wrong!
 bool __thiscall PathingSystem::findTilePath(PathingSystem *this, int startX, int startY, int goalX, int goalY, RGE_Moving_Object *unit, float range, int targetID, float *rLength, int unobstructiblePlayerID, int unobstructibleGroupID, BPath *rPath, bool useRangeWithoutTarget)
 {
   RGE_Static_Object *v13; // ebx
@@ -197112,10 +197108,10 @@ bool __thiscall PathingSystem::findTilePath(PathingSystem *this, int startX, int
   double v25; // st7
   __int64 v26; // rax
   double v27; // st7
-  int *v28; // edi
+  RGE_Obstruction_Manager *v28; // edi
   RGE_Master_Moving_Object *v29; // eax
   int v30; // eax
-  int v31; // edx
+  RGE_Obstruction_ManagerVtbl *v31; // edx
   int v32; // eax
   int v33; // edx
   int v34; // eax
@@ -197190,7 +197186,7 @@ bool __thiscall PathingSystem::findTilePath(PathingSystem *this, int startX, int
   int v103; // eax
   int v104; // edi
   int v105; // eax
-  int v106; // edx
+  unsigned int **v106; // edx
   int v107; // edi
   char v108; // cl
   int v109; // edi
@@ -197198,16 +197194,16 @@ bool __thiscall PathingSystem::findTilePath(PathingSystem *this, int startX, int
   RGE_Tile *v111; // eax
   int v112; // ecx
   RGE_Static_Object **v113; // eax
-  int v114; // ecx
+  unsigned int **v114; // ecx
   _BOOL1 v115; // zf
-  int v116; // ecx
-  int v117; // edx
-  int v118; // ecx
-  int v119; // eax
-  int v120; // eax
-  int v121; // edx
-  int v122; // ecx
-  _DWORD *v123; // eax
+  unsigned int **v116; // ecx
+  unsigned int **v117; // edx
+  unsigned int *v118; // ecx
+  unsigned int **v119; // eax
+  unsigned int v120; // eax
+  unsigned int **v121; // edx
+  unsigned int *v122; // ecx
+  unsigned int **v123; // eax
   int v124; // edi
   _BOOL1 v125; // al
   int v126; // edi
@@ -197246,7 +197242,7 @@ bool __thiscall PathingSystem::findTilePath(PathingSystem *this, int startX, int
   int v159; // [esp+430h] [ebp-6Ch]
   int v160; // [esp+434h] [ebp-68h]
   int v161; // [esp+438h] [ebp-64h]
-  void *unit2; // [esp+43Ch] [ebp-60h]
+  RGE_Static_Object *obj; // [esp+43Ch] [ebp-60h]
   int v163; // [esp+440h] [ebp-5Ch]
   int v164; // [esp+444h] [ebp-58h]
   int i; // [esp+448h] [ebp-54h]
@@ -197262,8 +197258,8 @@ bool __thiscall PathingSystem::findTilePath(PathingSystem *this, int startX, int
   int v175; // [esp+46Ch] [ebp-30h]
   int v176; // [esp+470h] [ebp-2Ch]
   int v177; // [esp+474h] [ebp-28h]
-  _DWORD *v178; // [esp+478h] [ebp-24h]
-  int objectCount; // [esp+47Ch] [ebp-20h] BYREF
+  RGE_Obstruction_Manager *v178; // [esp+478h] [ebp-24h]
+  RGE_Static_Object **objectCount; // [esp+47Ch] [ebp-20h] BYREF
   int v180; // [esp+480h] [ebp-1Ch]
   int v181; // [esp+484h] [ebp-18h]
   int v182; // [esp+488h] [ebp-14h]
@@ -197278,7 +197274,7 @@ bool __thiscall PathingSystem::findTilePath(PathingSystem *this, int startX, int
   int oID; // [esp+4BCh] [ebp+20h]
   int oIDa; // [esp+4BCh] [ebp+20h]
   int oIDd; // [esp+4BCh] [ebp+20h]
-  int oIDb; // [esp+4BCh] [ebp+20h]
+  float oIDb; // [esp+4BCh] [ebp+20h]
   int oIDc; // [esp+4BCh] [ebp+20h]
   unsigned __int8 oID_3; // [esp+4BFh] [ebp+23h]
   char oID_3a; // [esp+4BFh] [ebp+23h]
@@ -197316,13 +197312,13 @@ LABEL_298:
     LOBYTE(result) = 0;
     return result;
   }
-  unit2 = 0;
+  obj = 0;
   if ( targetID != -1 )
   {
     v19 = RGE_Game_World::object(this->mWorld, targetID);
     v17 = goalX;
     v13 = v19;
-    unit2 = v19;
+    obj = v19;
   }
   v166 = v17;
   v164 = goalY;
@@ -197332,7 +197328,7 @@ LABEL_298:
   v174 = goalY;
   if ( v13 )
   {
-    if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)unit, v13) <= (double)range )
+    if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)unit, v13) <= range )
     {
       v20 = rLength;
       if ( rLength )
@@ -197369,8 +197365,7 @@ LABEL_26:
     LOBYTE(result) = 1;
     return result;
   }
-  if ( ((double (__thiscall *)(RGE_Moving_Object *))unit->vfptr->maximumSpeed)(unit) == 0.0
-    && unit->master_obj->id != 42 )
+  if ( unit->vfptr->maximumSpeed(unit) == 0.0 && unit->master_obj->id != 42 )
   {
     if ( rLength )
       *rLength = 0.0;
@@ -197383,18 +197378,18 @@ LABEL_26:
     }
     goto LABEL_298;
   }
-  v28 = (int *)OBSystem_Land;
-  v178 = &OBSystem_Land->vfptr;
+  v28 = OBSystem_Land;
+  v178 = OBSystem_Land;
   v29 = unit->master_obj;
   if ( v29->movement_type == 1 )
   {
-    v28 = (int *)OBSystem_Air;
-    v178 = &OBSystem_Air->vfptr;
+    v28 = (RGE_Obstruction_Manager *)OBSystem_Air;
+    v178 = (RGE_Obstruction_Manager *)OBSystem_Air;
   }
-  v30 = (*(int (__thiscall **)(int *, float *))(*v28 + 28))(v28, this->mWorld->terrains[v29->terrain]);
-  v31 = *v28;
+  v30 = v28->vfptr->GetTerrainMask(v28, this->mWorld->terrains[v29->terrain]);
+  v31 = v28->vfptr;
   v154 = v30 ^ 0xFF;
-  v32 = (*(int (__thiscall **)(int *, float *))(v31 + 28))(v28, this->mWorld->terrains[unit->master_obj->terrain]) ^ 0xFF;
+  v32 = v31->GetTerrainMask(v28, this->mWorld->terrains[unit->master_obj->terrain]) ^ 0xFF;
   this->mNumberUnobstructibles = 0;
   BYTE1(v32) |= 0x40u;
   v33 = unit->id;
@@ -197609,18 +197604,15 @@ LABEL_69:
     v62 = v63;
   }
   v152 = 16 * v62 + dword_6AE7B0[(unsigned __int8)v60];
-  *(float *)&oIDb = sqrt((double)((goalY - y1) * (goalY - y1) + (goalX - v55) * (goalX - v55)));
-  if ( unit2 )
+  oIDb = sqrt((double)((goalY - y1) * (goalY - y1) + (goalX - v55) * (goalX - v55)));
+  if ( obj )
   {
-    if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)unit, (RGE_Static_Object *)unit2) - range < 0.0000001
-      || *(float *)&oIDb < 1.0 )
-    {
+    if ( RGE_Static_Object::distance_to_object((RGE_Static_Object *)unit, obj) - range < 0.0000001 || oIDb < 1.0 )
       goto LABEL_279;
-    }
   }
   else
   {
-    v64 = *(float *)&oIDb;
+    v64 = oIDb;
     if ( useRangeWithoutTarget )
     {
       if ( v64 - range < 0.0000001 )
@@ -197872,40 +197864,28 @@ LABEL_228:
       }
       else
       {
-        v106 = v178[8];
-        oIDc = *(_DWORD *)(v106 + 4 * v105);
-        objectCount = *(_DWORD *)(oIDc + 4 * x1);
-        if ( (objectCount & v154) == 0 )
+        v106 = v178->HardObArray;
+        oIDc = (int)v106[v105];
+        objectCount = *(RGE_Static_Object ***)(oIDc + 4 * x1);
+        if ( ((unsigned int)objectCount & v154) == 0 )
         {
           switch ( v181 )
           {
             case 0:
-              if ( (v154 & *(_DWORD *)(oIDc + 4 * x1 + 4)) != 0
-                || (v154 & *(_DWORD *)(*(_DWORD *)(v106 + 4 * v105 + 4) + 4 * x1)) != 0 )
-              {
+              if ( (v154 & *(_DWORD *)(oIDc + 4 * x1 + 4)) != 0 || (v154 & v106[v105 + 1][x1]) != 0 )
                 break;
-              }
               goto LABEL_179;
             case 2:
-              if ( (v154 & *(_DWORD *)(*(_DWORD *)(v106 + 4 * v105 + 4) + 4 * x1)) != 0
-                || (v154 & *(_DWORD *)(oIDc + 4 * x1 - 4)) != 0 )
-              {
+              if ( (v154 & v106[v105 + 1][x1]) != 0 || (v154 & *(_DWORD *)(oIDc + 4 * x1 - 4)) != 0 )
                 break;
-              }
               goto LABEL_179;
             case 4:
-              if ( (v154 & *(_DWORD *)(oIDc + 4 * x1 - 4)) != 0
-                || (v154 & *(_DWORD *)(*(_DWORD *)(v106 + 4 * v105 - 4) + 4 * x1)) != 0 )
-              {
+              if ( (v154 & *(_DWORD *)(oIDc + 4 * x1 - 4)) != 0 || (v154 & v106[v105 - 1][x1]) != 0 )
                 break;
-              }
               goto LABEL_179;
             case 6:
-              if ( (v154 & *(_DWORD *)(*(_DWORD *)(v106 + 4 * v105 - 4) + 4 * x1)) != 0
-                || (v154 & *(_DWORD *)(oIDc + 4 * x1 + 4)) != 0 )
-              {
+              if ( (v154 & v106[v105 - 1][x1]) != 0 || (v154 & *(_DWORD *)(oIDc + 4 * x1 + 4)) != 0 )
                 break;
-              }
               goto LABEL_179;
             default:
               goto LABEL_179;
@@ -197940,11 +197920,11 @@ LABEL_179:
         }
         v109 = v155;
         v182 = 1;
-        if ( (objectCount & v155) == 0 )
+        if ( ((unsigned int)objectCount & v155) == 0 )
           goto LABEL_202;
-        if ( (objectCount & 0x3F00) == 1280 )
+        if ( ((unsigned __int16)objectCount & 0x3F00) == 1280 )
         {
-          if ( !unit->owner->vfptr->isAlly(unit->owner, HIWORD(objectCount))
+          if ( !unit->owner->vfptr->isAlly(unit->owner, (unsigned int)objectCount >> 16)
             || (this->mMap->map_row_offset[y1][v102].area_control & 0x60) == 0
             || !RGE_Map::get_map_reference_tile(this->mMap, v102, y1, &RefX, &RefY)
             || (v110 = 0, v111 = &this->mMap->map_row_offset[RefY][RefX], v112 = v111->TileObject_Count, (i = v112) == 0) )
@@ -197954,12 +197934,11 @@ LABEL_213:
             goto LABEL_229;
           }
           v113 = v111->Object_List;
-          objectCount = (int)v113;
+          objectCount = v113;
           while ( (*v113)->master_obj->object_group != 8 )
           {
             ++v110;
-            v113 = (RGE_Static_Object **)(objectCount + 4);
-            objectCount += 4;
+            v113 = ++objectCount;
             if ( v110 >= i )
             {
               v182 = 254;
@@ -197973,32 +197952,32 @@ LABEL_202:
             switch ( v181 )
             {
               case 0:
-                v114 = v178[8];
-                if ( (v109 & *(_DWORD *)(*(_DWORD *)(v114 + 4 * v105) + 4 * v102 + 4)) != 0 )
+                v114 = v178->HardObArray;
+                if ( (v109 & v114[v105][v102 + 1]) != 0 )
                   goto LABEL_213;
-                v115 = (v109 & *(_DWORD *)(*(_DWORD *)(v114 + 4 * v105 + 4) + 4 * v102)) == 0;
+                v115 = (v109 & v114[v105 + 1][v102]) == 0;
                 goto LABEL_212;
               case 2:
-                v116 = v178[8];
-                if ( (v109 & *(_DWORD *)(*(_DWORD *)(v116 + 4 * v105 + 4) + 4 * v102)) != 0 )
+                v116 = v178->HardObArray;
+                if ( (v109 & v116[v105 + 1][v102]) != 0 )
                   goto LABEL_213;
-                v115 = (v109 & *(_DWORD *)(*(_DWORD *)(v116 + 4 * v105) + 4 * v102 - 4)) == 0;
+                v115 = (v109 & v116[v105][v102 - 1]) == 0;
                 goto LABEL_212;
               case 4:
-                v117 = v178[8];
-                v118 = *(_DWORD *)(v117 + 4 * v105);
-                v119 = v117 + 4 * v105;
-                if ( (*(_DWORD *)(v118 + 4 * v102 - 4) & v109) != 0 )
+                v117 = v178->HardObArray;
+                v118 = v117[v105];
+                v119 = &v117[v105];
+                if ( (v118[v102 - 1] & v109) != 0 )
                   goto LABEL_213;
-                v120 = *(_DWORD *)(*(_DWORD *)(v119 - 4) + 4 * v102);
+                v120 = (*(v119 - 1))[v102];
                 goto LABEL_211;
               case 6:
-                v121 = v178[8];
-                v122 = *(_DWORD *)(v121 + 4 * v105 - 4);
-                v123 = (_DWORD *)(v121 + 4 * v105);
-                if ( (*(_DWORD *)(v122 + 4 * v102) & v109) != 0 )
+                v121 = v178->HardObArray;
+                v122 = v121[v105 - 1];
+                v123 = &v121[v105];
+                if ( (v122[v102] & v109) != 0 )
                   goto LABEL_213;
-                v120 = *(_DWORD *)(*v123 + 4 * v102 + 4);
+                v120 = (*v123)[v102 + 1];
 LABEL_211:
                 v115 = (v120 & v109) == 0;
 LABEL_212:
@@ -198015,7 +197994,7 @@ LABEL_212:
         {
           if ( !v108 )
             goto LABEL_213;
-          if ( unit2 )
+          if ( obj )
             goto LABEL_202;
           v182 = 254;
         }
@@ -198058,9 +198037,9 @@ LABEL_234:
                        unobstructibleGroupID,
                        v126,
                        v128,
-                       &objectCount,
+                       (int *)&objectCount,
                        0);
-              if ( objectCount > 0 && v130 == -1 )
+              if ( (int)objectCount > 0 && v130 == -1 )
                 v184 = 1;
               v127 = v184;
             }
@@ -198200,7 +198179,6 @@ LABEL_278:
   }
   return result;
 }
-// 4BE6BE: positive sp value 49C has been found
 // 4BDF8A: conditional instruction was optimized away because of '%var_9.1<8u'
 // 4BE238: conditional instruction was optimized away because of 'cl.1==1'
 // 689550: using guessed type int numberPathingIterations;

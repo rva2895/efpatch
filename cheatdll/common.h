@@ -179,3 +179,4 @@ extern int* const dword_689564;   // 0x689564 - the doIntelligentMovementUpdate/
 extern int* const dword_689568;   // 0x689568 - the map-analysis smooth-path arm gate (== 1 enables)
 extern int* const dword_68956C;   // 0x68956C - the findTilePath arm gate (== 1 enables)
 extern float* const flt_68F494;   // 0x68F494 - the map-analysis arm's distance threshold
+extern int* const walk_tile_particles_enabled;   // 0x68957C - gates the extra-terrain walk_tile_sprite_id particle spawning (RGE_Moving_Object::teleport's same-terrain grounded arm)

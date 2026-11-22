@@ -415,3 +415,4 @@ int* const dword_689564 = (int* const)0x00689564;
 int* const dword_689568 = (int* const)0x00689568;
 int* const dword_68956C = (int* const)0x0068956C;
 float* const flt_68F494 = (float* const)0x0068F494;
+int* const walk_tile_particles_enabled = (int* const)0x0068957C;
