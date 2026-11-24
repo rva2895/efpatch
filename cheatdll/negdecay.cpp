@@ -25,7 +25,13 @@ jump:
 #pragma optimize( "s", on )
 void setDecayHooks()
 {
-    writeByte(0x54F0F6, 0x40);
-    setHook((void*)0x0054F123, negDecay);
+    // retired 2026-11-24 (owner-approved bake-in): the update replacement
+    // carries the patched semantics - the attribute_rot test-mask rewrite
+    // (the // NEGDECAY marker, X87_NE_ORD) and the negDecay amount clamp
+    // (the // NEGDECAY marker) - see src/engine/object/RGE_Static_Object.cpp;
+    // after hooking RGE_Static_Object::update (0x0054EF00) these writes
+    // would patch the replacement's own code
+    //writeByte(0x54F0F6, 0x40);
+    //setHook((void*)0x0054F123, negDecay);
 }
 #pragma optimize( "", on )

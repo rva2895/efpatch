@@ -1,4 +1,7 @@
 # Task: Clean up an IDA-decompiled function for engine replacement
+function (get_visible, get_terrain, any unified_map_offsets consumer).
+matching the owned signature. This applies to EVERY map-indexed
+# Task: Clean up an IDA-decompiled function for engine replacement
 
 You are cleaning up Hex-Rays decompiler output for one function of a C++/x86
 game engine (build: battlegrounds_x2 IDB), producing a compilable replacement
@@ -827,6 +830,25 @@ no pseudocode restatements of the function body:
    retn 10h pops the logger's arg block and returns to the logger).
    A/B OUTPUT: run both the hooked build and the unhooked build, diff
    val_log.txt - the first diverging value names the exact stage.
+   THE LOGGER RECOVERY RULE (owner-directed 2026-11-24, after the
+   RGE_Static_Object::update harness was written from scratch in a
+   poor-performing shape - multi-line pre/post dumps, %.9g bit
+   formats, pointer fields, a per-line flush - and the loggers called
+   the _new replacement instead of the _orig trampoline, which would
+   have made the A/B diff vacuous): BEFORE writing any new logger,
+   RECOVER the established harness shape from the history - commit
+   2fc06f1 (RGE_Moving_Object.cpp: the getMaximumYawPerSecondMoving_
+   logger / RGE_Moving_Object__calculateYawAngle_orig exemplar,
+   git show 2fc06f1:cheatdll/src/engine/object/RGE_Moving_Object.cpp):
+   ONE incrementally-built line per call (sprintf(b, inputs...) ->
+   the traced call -> sprintf(b + strlen(b), the outputs + the
+   result + the trailing newline)), %f floats, NAMED field keys -
+   inputs/outputs only, never a field dump and never pointers - a
+   static file handle lazy-opened on val_log.txt ("at", fputs, no
+   flusher), the naked _orig trampoline with the byte-exact replay,
+   the traced side flipped via ONE switch (a #ifndef-guarded #define,
+   e.g. RSO_UPDATE_LOG_NEW) so the installer stays on the logger for
+   both runs. A new logger shape is a review item, not a default.
    THE ESCALATION LADDER + THE MULTI-TRACE PAIRED CAPTURE (owner-directed
    2026-11-20, from the updateMovement hunt): when the val_log diff
    localizes a stage but the stage has multiple internal decisions,
@@ -1146,6 +1168,30 @@ Protocol:
    macro-hidden targets, and mechanisms the per-site writer greps miss.
    Every hit outside the IDB exports must be individually dispositioned.
    3b. Writer-target enumeration against FULL ranges (mandatory, scripted): extract the target address from EVERY writer call site in the repository - all Layer-1/2 names AND this project's __declspec(naked) mid-function hook stubs (the patch style hooks function INTERIORS, e.g. bldg_heal_rate_save.cpp) - and test each target against EVERY owned [proc, endp) range. Entry-address literal greps DO NOT catch interior targets: the 2026-11-15 Building batch shipped two such misses (0x005C750D inside small_save, 0x005C72AF inside setup4 - the bldg_heal_rate save-format hooks) that silently reverted a shipped stream-format extension and crashed master reading. A colliding patch's behavior must be BAKED into the replacement (owner-approved) and the patch call site retired - a replacement silently reverts the patch and desyncs whatever state the patch changed. Bake-in is the DEFAULT disposition for every colliding patch; the only waiver is owner-directed, and the affected replacement lines then carry a // <PATCH_ID> marker comment (e.g. // MAP_SIZE in RGE_Visible_Map__get_visible_new) so the revert stays visible at the code site. The scan is scripted: extract targets from all writer call sites, range-test against every owned [proc, endp), report. MAP_SIZE EXCEPTION (owner-directed 2026-11-15): mapsize.cpp patches are NEVER baked regardless of the default rule - the replacement keeps the original's table/address access (e.g. unified_map_offsets), the affected replacement lines carry the // MAP_SIZE marker documenting the intentional divergence when the big-map mod re-points the patched locations, and the colliding mapsize.cpp call sites are retired in place (commented, dead-after-hook) with the not-baked reason.
+    SCAN MECHANICS AMENDMENT (owner-directed 2026-11-24; the
+    0x0054EF00/processUnitHook miss - a prefix pattern matching
+    54F[0-1]xx silently could not produce the 54EFxx literals INSIDE
+    the owned RGE_Static_Object::update range, repeating the
+    prohibited-pattern failure class above): the extraction is
+    BINDINGLY total - from every writer line, EVERY hex literal is
+    taken (0x optional, case-insensitive, leading zeros normalized),
+    parsed to an integer, and range-tested; no address-prefix or
+    shape guesses of any kind. The owned-range inventory comes from
+    the installer files themselves (every setHook/setHookCall target
+    repo-wide, parsed) - never from session notes. The scan result is
+    presented IN the review artifact with the counts stated
+    explicitly (extracted N writer targets, M in range - an 0 in
+    range verdict is written out, never implied). The scan also
+    catches the ENTRY FIGHTS: an owned setHook target and a patch
+    setHook target on the SAME address - the last installer to run
+    owns the entry and the other replacement is silently dead (or the
+    patch silently stops running); the disposition is the bake-in at
+    the patched call point + the in-place retirement. Origin case:
+    casts.cpp:892 setHook(0x0054EF00, processUnitHook) - the
+    UNIT_EXTRA per-frame processor on the exact entry of the owned
+    RGE_Static_Object::update; the bake (the processUnitExtra call at
+    the top of update_new, the // UNIT_EXTRA marker) + the in-place
+    retirement closed it.
   BAKE MANDATORY PER FAMILY (owner directive 2026-11-15): every
    PER-BATCH SCAN RE-RUN (owner-directed 2026-11-17, after the missed
    on_evac_area collision): the scripted writer-target scan re-runs for

@@ -1428,7 +1428,14 @@ void setCoreHooks()
     writeDword(0x0047A3D2, 0x0018C54A);
 
     setHook((void*)0x0047ED89, unit_group_update_v2);
-    setHook((void*)0x00444DA3, combat_object_update_v2);
+    // retired 2026-11-24 (owner-approved bake-in): the optimized
+    // attack_timer decay (the bits-nonzero gate + the negative-timer
+    // clamp) is baked into the runtime RGE_Combat_Object::update
+    // replacement (src/engine/object/RGE_Combat_Object.cpp, the //
+    // COMBAT_OBJECT_UPDATE_V2 marker); after hooking
+    // RGE_Combat_Object::update (0x00444DA0) this interior hook would
+    // overwrite the replacement's entry-jump displacement bytes
+    // setHook((void*)0x00444DA3, combat_object_update_v2);
 
     //rge_animated_object_destructor
     writeDword(0x0046FE74, 0x000DB808);

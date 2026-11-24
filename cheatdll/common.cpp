@@ -367,6 +367,9 @@ void (__cdecl* const free_internal)(void* memory) =
 int (__cdecl* const rand_internal)() =
     (int (__cdecl* const)())0x00632BDD;
 
+void (__cdecl* const srand_internal)(unsigned int seed) =
+    (void (__cdecl* const)(unsigned int seed))0x00632BD3;   // the game's CRT srand (lst :946622 - the 10-byte library function; rand @0x632BDD, the rand_internal binding, is the adjacent entry)
+
 int (__cdecl* const read_internal)(int handle, void* buffer, int size) =
     (int (__cdecl* const)(int, void*, int))0x006340C7;
 

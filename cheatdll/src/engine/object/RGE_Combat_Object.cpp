@@ -2358,7 +2358,19 @@ unsigned __int8 __fastcall RGE_Combat_Object__update_new(
     unsigned __int8 point_index;
     unsigned int prior_unified_map;
 
-    if (this_->attack_timer > 0.0f)                                  // asm 0x444DA6-0x444DB7: fld/fcomp const_f_zero/test ah,41h/jnz - the jnz targets the SKIP branch, the polarity-table MATCH row (the literal > is unordered-false; NaN skips, matching the x87)
+    // COMBAT_OBJECT_UPDATE_V2 (the core.cpp:1431 interior hook at the
+    // entry+3, BAKED per the step-3b default): the patched gate proceeds
+    // on NON-ZERO BITS (the stub's test eax,eax/jz skip): NEGATIVE
+    // timers decay too and clamp to zero below - the deliberate v2 fix
+    // vs the vanilla skip. THE GATE FORM: X87_NE_ORD (rule 2 - the
+    // ordered-nonzero disjunction; the /Fa on the literal != run proved
+    // it compiles SKIP-ON-NaN (ucomiss/lahf/test ah,68h/jnp - the NaN
+    // lahf byte 47h & 68h = 40h, odd parity, jnp taken) while the v2
+    // bits test PROCEEDS on NaN - the macro is the faithful form; the
+    // -0.0f corner (the bits test proceeds where the ordered != skips)
+    // is unreachable - the zero-stores write +0.0 and the decay of a
+    // positive timer cannot produce -0)
+    if (X87_NE_ORD(this_->attack_timer, 0.0f))                       // asm 0x444DA6-0x444DB7: fld/fcomp const_f_zero/test ah,41h/jnz - the jnz targets the SKIP branch (the vanilla MATCH row); PATCHED by the v2 bits test (the macro expansion: comiss+ja || comiss+jbe, unfolded)
     {
         double decayed = (double)this_->attack_timer                 // asm 0x444DBC (fld) - the x87 fsub computes the 53-bit difference (widen-before-op)
             - (double)this_->owner->world->world_time_delta_seconds;   // asm 0x444DB9-0x444DC8 (owner @+0x18 -> world @+0x8C; the field @+0xA8)

@@ -152,6 +152,7 @@ extern void* (__cdecl* const operator_new_internal)(size_t size);
 extern void (__cdecl* const operator_delete_internal)(void* ptr);
 extern void (__cdecl* const free_internal)(void* memory);
 extern int (__cdecl* const rand_internal)();
+extern void (__cdecl* const srand_internal)(unsigned int seed);
 extern int (__cdecl* const read_internal)(int handle, void* buffer, int size);
 extern int (__cdecl* const write_internal)(int handle, void* buffer, int size);
 extern int (__cdecl* const tell_internal)(int handle);

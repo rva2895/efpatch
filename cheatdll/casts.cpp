@@ -889,7 +889,13 @@ void setCastHooks()
     // writeData(0x0054B315, unit_constructor_asm_fix, 18);
     // writeData(0x0054B638, unit_constructor_asm_fix, 18);
 
-    setHook((void*)0x0054EF00, processUnitHook);
+    // retired 2026-11-24 (owner-approved bake-in): the UNIT_EXTRA
+    // per-frame processor (processUnitExtra) is baked into the runtime
+    // RGE_Static_Object::update replacement
+    // (src/engine/object/RGE_Static_Object.cpp, the // UNIT_EXTRA
+    // marker); after hooking RGE_Static_Object::update (0x0054EF00)
+    // this hook would fight the replacement's entry hook
+    // setHook((void*)0x0054EF00, processUnitHook);
 
     setHook((void*)0x0055B4F0, on_unit_killed);
 }

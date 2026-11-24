@@ -426,10 +426,23 @@ conversion.cpp's check_meditation_and_purge tests {7 Work2, 6 Work,
   runtime destructor/recycle skip the revert for 8/31 and (FARM_DEAD
   patch) 228, and revert to 27 (change_terrain(0x1B)) otherwise. 228
   is patch-era (terrain_gen.cpp onFarmDead2/3, baked 2026-11-15).
-- **object_state** вЂ” RGE_Static_Object::object_state (u8 @+88). PARTIAL:
-  `>= 7` = not placement-scannable (all three check_placement scans
-  gate on state < 7); `== 2` with master speed > 0 = the "moving" case
-  in the Building own-unit gate. Full state list unknown.
+- **object_state** вЂ” RGE_Static_Object::object_state (u8 @+88). Machine decoded 2026-11-24
+  (RGE_Static_Object::update asm 0x54EF00-0x54F1BB):
+  the update-driven machine: 0/2 -> hp < 1.0 -> **3** (the death
+  sprite) -> **3/5** (the shared attribute-held decay body; the
+  NEGDECAY regen mod lives here) -> **6** (undead, master undead_flag)
+  or **7** -> **8** (spawn_death_obj); **8** = cleanup (update returns
+  (recyclable != 0) + 1 = 2 recycle / 1 remove - the caller consumption
+  unowned, inferred); the container mirroring (inside_obj state > 2
+  propagates); **1/4** no update work, set elsewhere (UNKNOWN).
+  Standing: 2 = ACTIVE (the shield tick, check_damage_sprites, full
+  notify pass, the placement "moving" case (state 2 + master
+  speed > 0, the Building own-unit gate), the doppleganger ceiling
+  < 3); 0 = passive (the mType-500-only notify); 7/8 = >= 7 = not
+  placement-scannable (all three check_placement scans gate on
+  state < 7); the corpses 3/5/6 remain scannable/blocking; sleep =
+  the sleep_flag/goto_sleep_flag pair + the list dormancy, not a
+  state. Death threshold hp < 1.0.
 - **movement_type == 1** вЂ” master movement_type (@+120). PARTIAL: the
   Combat(70) check_placement fly-over rule (both objects movement_type
   1 -> 2D-radius overlap test only, asm 0x5C95xx). Other values unknown.
