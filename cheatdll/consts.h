@@ -9,6 +9,8 @@
 
 #define TERRAIN_COUNT 252
 
+#define RAND_MAX_INTERNAL 32767   // the game's binary rand (rand_internal) returns [0, RAND_MAX_INTERNAL]
+
 //-1 undefined
 //0  old. 1.4.0
 //1  1.4.1 rc1

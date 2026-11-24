@@ -52406,7 +52406,7 @@ void __thiscall RGE_Action_Object::setUnitAIAction(RGE_Action_Object *this, int 
   BVector v12; // [esp-Ch] [ebp-34h]
   BVector v13; // [esp-Ch] [ebp-34h]
   int v14[3]; // [esp+10h] [ebp-18h] BYREF
-  float z_position; // [esp+1Ch] [ebp-Ch] BYREF
+  char v15[4]; // [esp+1Ch] [ebp-Ch] BYREF
   char v16[8]; // [esp+20h] [ebp-8h] BYREF
 
   v7 = this->unitAIValue;
@@ -52485,7 +52485,7 @@ void __thiscall RGE_Action_Object::setUnitAIAction(RGE_Action_Object *this, int 
       *(float *)&v14[2] = y;
       v13.x = x;
       *(_QWORD *)&v13.z = __PAIR64__(LODWORD(y), LODWORD(z));
-      v11 = *this->vfptr->position(this, &z_position);
+      v11 = *this->vfptr->position(this, v15);
       UnitAIModule::addOrderToHistory(this->unitAIValue, v8, v9, v11, -1, v13);
     }
     UnitAIModule::setTaskedByPlayer(this->unitAIValue);
@@ -54138,7 +54138,7 @@ void __thiscall BuildAIModule::destructor(BuildAIModule *this)
   BuildItem *v2; // ecx
   BuildItem *v3; // edi
   BuildItem *v4; // ebp
-  void *v5; // eax
+  int *v5; // eax
 
   this->vfptr = &BuildAIModule::vftable;
   v2 = this->buildList.next;
@@ -54157,7 +54157,7 @@ void __thiscall BuildAIModule::destructor(BuildAIModule *this)
   }
   this->buildList.next = v3;
   this->buildList.prev = v3;
-  v5 = (void *)this->typesToIgnore.value;
+  v5 = this->typesToIgnore.value;
   if ( v5 )
   {
     operator_delete(v5);
@@ -54539,7 +54539,7 @@ void __thiscall ManagedArray_int_::destructor(ManagedArray_int_ *this)
 {
   if ( this->value )
   {
-    operator_delete((void *)this->value);
+    operator_delete(this->value);
     this->value = 0;
   }
   this->numberValue = 0;
@@ -60004,7 +60004,7 @@ MainDecisionAIModule *__thiscall MainDecisionAIModule::MainDecisionAIModule2(Mai
   RGE_Player *i; // ebp
   int v9; // edx
   int v10; // ebx
-  _DWORD *v11; // edi
+  int *v11; // edi
   int j; // eax
   int buffer[2]; // [esp+8h] [ebp-14h] BYREF
   int v15; // [esp+18h] [ebp-4h]
@@ -60034,7 +60034,7 @@ MainDecisionAIModule *__thiscall MainDecisionAIModule::MainDecisionAIModule2(Mai
     {
       if ( v7 >= this->objects.maximumSizeValue )
         break;
-      if ( *(RGE_Player **)(this->objects.value + 4 * v7) == plyr )
+      if ( (RGE_Player *)this->objects.value[v7] == plyr )
         goto LABEL_16;
     }
     v9 = this->objects.maximumSizeValue;
@@ -60042,21 +60042,21 @@ MainDecisionAIModule *__thiscall MainDecisionAIModule::MainDecisionAIModule2(Mai
     {
       if ( v6 + 1 < v9 || (v10 = v9 + 32, v9 + 32 <= v6 + 1) )
         v10 = v6 + 1;
-      v11 = operator_new(4 * v10);
+      v11 = (int *)operator_new(4 * v10);
       if ( v11 )
       {
-        for ( j = 0; j < this->objects.maximumSizeValue; v11[j - 1] = *(_DWORD *)(this->objects.value + 4 * j - 4) )
+        for ( j = 0; j < this->objects.maximumSizeValue; v11[j - 1] = this->objects.value[j - 1] )
         {
           if ( j >= v10 )
             break;
           ++j;
         }
-        operator_delete((void *)this->objects.value);
-        this->objects.value = (int)v11;
+        operator_delete(this->objects.value);
+        this->objects.value = v11;
         this->objects.maximumSizeValue = v10;
       }
     }
-    *(_DWORD *)(this->objects.value + 4 * this->objects.numberValue++) = i;
+    this->objects.value[this->objects.numberValue++] = (int)i;
 LABEL_16:
     ++pN;
   }
@@ -60068,11 +60068,11 @@ LABEL_16:
 //----- (00413460) --------------------------------------------------------
 void __thiscall MainDecisionAIModule::destructor(MainDecisionAIModule *this)
 {
-  void *v2; // eax
+  int *v2; // eax
 
   this->vfptr = (MainDecisionAIModuleVtbl *)&MainDecisionAIModule::vftable;
   this->player = 0;
-  v2 = (void *)this->objects.value;
+  v2 = this->objects.value;
   if ( v2 )
   {
     operator_delete(v2);
@@ -60091,7 +60091,7 @@ int __thiscall MainDecisionAIModule::save(MainDecisionAIModule *this, int outfil
   int v3; // edi
   int v4; // eax
   int v5; // ebp
-  _DWORD *v6; // ebx
+  int *v6; // ebx
   int i; // eax
   int v8; // ebx
   int v9; // ecx
@@ -60111,22 +60111,22 @@ int __thiscall MainDecisionAIModule::save(MainDecisionAIModule *this, int outfil
     {
       if ( v3 < v4 || (v5 = v4 + 32, v4 + 32 <= v3) )
         v5 = v3;
-      v6 = operator_new(4 * v5);
+      v6 = (int *)operator_new(4 * v5);
       if ( v6 )
       {
-        for ( i = 0; i < this->objects.maximumSizeValue; v6[i - 1] = *(_DWORD *)(this->objects.value + 4 * i - 4) )
+        for ( i = 0; i < this->objects.maximumSizeValue; v6[i - 1] = this->objects.value[i - 1] )
         {
           if ( i >= v5 )
             break;
           ++i;
         }
-        operator_delete((void *)this->objects.value);
-        this->objects.value = (int)v6;
+        operator_delete(this->objects.value);
+        this->objects.value = v6;
         this->objects.maximumSizeValue = v5;
       }
     }
     v8 = v12;
-    Buffer = *(_DWORD *)(this->objects.value + v12);
+    Buffer = *(int *)((char *)this->objects.value + v12);
     rge_write(outfile, &Buffer, 4u);
     v9 = this->objects.numberValue;
     ++v3;
@@ -60145,7 +60145,7 @@ int __thiscall MainDecisionAIModule::addObject(MainDecisionAIModule *this, RGE_S
   int i; // eax
   int v7; // edx
   int v8; // ebx
-  _DWORD *v9; // edi
+  int *v9; // edi
   int j; // eax
 
   result = (int)obj;
@@ -60157,7 +60157,7 @@ int __thiscall MainDecisionAIModule::addObject(MainDecisionAIModule *this, RGE_S
     {
       if ( i >= this->objects.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->objects.value + 4 * i) == v5 )
+      if ( this->objects.value[i] == v5 )
         goto LABEL_16;
     }
     v7 = this->objects.maximumSizeValue;
@@ -60165,21 +60165,21 @@ int __thiscall MainDecisionAIModule::addObject(MainDecisionAIModule *this, RGE_S
     {
       if ( v4 + 1 < v7 || (v8 = v7 + 32, v7 + 32 <= v4 + 1) )
         v8 = v4 + 1;
-      v9 = operator_new(4 * v8);
+      v9 = (int *)operator_new(4 * v8);
       if ( v9 )
       {
-        for ( j = 0; j < this->objects.maximumSizeValue; v9[j - 1] = *(_DWORD *)(this->objects.value + 4 * j - 4) )
+        for ( j = 0; j < this->objects.maximumSizeValue; v9[j - 1] = this->objects.value[j - 1] )
         {
           if ( j >= v8 )
             break;
           ++j;
         }
-        operator_delete((void *)this->objects.value);
-        this->objects.value = (int)v9;
+        operator_delete(this->objects.value);
+        this->objects.value = v9;
         this->objects.maximumSizeValue = v8;
       }
     }
-    *(_DWORD *)(this->objects.value + 4 * this->objects.numberValue++) = v5;
+    this->objects.value[this->objects.numberValue++] = v5;
 LABEL_16:
     result = 1;
   }
@@ -60191,14 +60191,14 @@ int __thiscall MainDecisionAIModule::removeObject(MainDecisionAIModule *this, in
 {
   int v2; // edx
   int v3; // eax
-  _DWORD *v4; // esi
+  int *v4; // esi
   int v6; // eax
 
   v2 = this->objects.maximumSizeValue;
   v3 = 0;
   if ( v2 > 0 )
   {
-    v4 = (_DWORD *)this->objects.value;
+    v4 = this->objects.value;
     do
     {
       if ( *v4 == id )
@@ -60215,7 +60215,7 @@ int __thiscall MainDecisionAIModule::removeObject(MainDecisionAIModule *this, in
     do
     {
       ++v3;
-      *(_DWORD *)(this->objects.value + 4 * v3 - 4) = *(_DWORD *)(this->objects.value + 4 * v3);
+      this->objects.value[v3 - 1] = this->objects.value[v3];
     }
     while ( v3 < this->objects.maximumSizeValue - 1 );
   }
@@ -60233,7 +60233,7 @@ int __thiscall MainDecisionAIModule::numberObjectsWithAction(MainDecisionAIModul
   int v4; // ebp
   int v5; // eax
   int v6; // ebx
-  _DWORD *v7; // edi
+  int *v7; // edi
   int i; // eax
   RGE_Static_Object *v9; // eax
   RGE_Static_Object *v10; // edi
@@ -60254,21 +60254,21 @@ int __thiscall MainDecisionAIModule::numberObjectsWithAction(MainDecisionAIModul
       {
         if ( v4 < v5 || (v6 = v5 + 32, v5 + 32 <= v4) )
           v6 = v4;
-        v7 = operator_new(4 * v6);
+        v7 = (int *)operator_new(4 * v6);
         if ( v7 )
         {
-          for ( i = 0; i < this->objects.maximumSizeValue; v7[i - 1] = *(_DWORD *)(this->objects.value + 4 * i - 4) )
+          for ( i = 0; i < this->objects.maximumSizeValue; v7[i - 1] = this->objects.value[i - 1] )
           {
             if ( i >= v6 )
               break;
             ++i;
           }
-          operator_delete((void *)this->objects.value);
-          this->objects.value = (int)v7;
+          operator_delete(this->objects.value);
+          this->objects.value = v7;
           this->objects.maximumSizeValue = v6;
         }
       }
-      v9 = RGE_Game_World::object(this->player->world, *(_DWORD *)(this->objects.value + v12));
+      v9 = RGE_Game_World::object(this->player->world, this->objects.value[v12]);
       v10 = v9;
       if ( v9 && RGE_Static_Object::unitAI(v9) )
       {
@@ -60277,7 +60277,7 @@ int __thiscall MainDecisionAIModule::numberObjectsWithAction(MainDecisionAIModul
           ++v13;
       }
       ++v4;
-      v12 += 4;
+      ++v12;
     }
     while ( v4 - 1 < this->objects.numberValue );
     result = v13;
@@ -60297,14 +60297,14 @@ RGE_Static_Object *__thiscall MainDecisionAIModule::object2(MainDecisionAIModule
   int v12; // edi
   int v13; // eax
   int v14; // ebx
-  _DWORD *v15; // edi
+  int *v15; // edi
   int i; // eax
   RGE_Static_Object *v17; // eax
   RGE_Static_Object *v18; // ebp
   UnitAIModule *v19; // eax
   int v20; // eax
   int v21; // ebx
-  _DWORD *v22; // edi
+  int *v22; // edi
   int j; // eax
   UnitAIModule *v24; // eax
   UnitAIModule *v25; // eax
@@ -60323,22 +60323,22 @@ RGE_Static_Object *__thiscall MainDecisionAIModule::object2(MainDecisionAIModule
     {
       if ( v12 < v13 || (v14 = v13 + 32, v13 + 32 <= v12) )
         v14 = v12;
-      v15 = operator_new(4 * v14);
+      v15 = (int *)operator_new(4 * v14);
       if ( v15 )
       {
-        for ( i = 0; i < this->objects.maximumSizeValue; v15[i - 1] = *(_DWORD *)(this->objects.value + 4 * i - 4) )
+        for ( i = 0; i < this->objects.maximumSizeValue; v15[i - 1] = this->objects.value[i - 1] )
         {
           if ( i >= v14 )
             break;
           ++i;
         }
-        operator_delete((void *)this->objects.value);
-        this->objects.value = (int)v15;
+        operator_delete(this->objects.value);
+        this->objects.value = v15;
         this->objects.maximumSizeValue = v14;
       }
       v12 = v27;
     }
-    v17 = RGE_Game_World::object(this->player->world, *(_DWORD *)(this->objects.value + v28));
+    v17 = RGE_Game_World::object(this->player->world, this->objects.value[v28]);
     v18 = v17;
     if ( v17 )
     {
@@ -60357,24 +60357,24 @@ RGE_Static_Object *__thiscall MainDecisionAIModule::object2(MainDecisionAIModule
           {
             if ( v12 < v20 || (v21 = v20 + 32, v20 + 32 <= v12) )
               v21 = v12;
-            v22 = operator_new(4 * v21);
+            v22 = (int *)operator_new(4 * v21);
             if ( v22 )
             {
-              for ( j = 0; j < this->objects.maximumSizeValue; v22[j - 1] = *(_DWORD *)(this->objects.value + 4 * j - 4) )
+              for ( j = 0; j < this->objects.maximumSizeValue; v22[j - 1] = this->objects.value[j - 1] )
               {
                 if ( j >= v21 )
                   break;
                 ++j;
               }
-              operator_delete((void *)this->objects.value);
-              this->objects.value = (int)v22;
+              operator_delete(this->objects.value);
+              this->objects.value = v22;
               this->objects.maximumSizeValue = v21;
             }
             v12 = v27;
           }
-          if ( ((int (__thiscall *)(MainDecisionAIModule *, _DWORD, int))this->vfptr->getPlayerTotalBuildingCount)(
+          if ( ((int (__thiscall *)(MainDecisionAIModule *, int, int))this->vfptr->getPlayerTotalBuildingCount)(
                  this,
-                 *(_DWORD *)(v28 + this->objects.value),
+                 this->objects.value[v28],
                  canPerformActionID) )
           {
 LABEL_48:
@@ -60395,7 +60395,7 @@ LABEL_48:
       }
     }
     v27 = ++v12;
-    v28 += 4;
+    ++v28;
     if ( v12 - 1 >= this->objects.numberValue )
       return 0;
   }
@@ -60415,7 +60415,7 @@ RGE_Static_Object *__thiscall MainDecisionAIModule::mostDamaged(MainDecisionAIMo
   int v6; // ebx
   int v7; // eax
   int v8; // ebp
-  _DWORD *v9; // esi
+  int *v9; // esi
   int i; // eax
   RGE_Static_Object *v11; // eax
   RGE_Static_Object *v12; // esi
@@ -60438,21 +60438,21 @@ RGE_Static_Object *__thiscall MainDecisionAIModule::mostDamaged(MainDecisionAIMo
       {
         if ( v6 < v7 || (v8 = v7 + 32, v7 + 32 <= v6) )
           v8 = v6;
-        v9 = operator_new(4 * v8);
+        v9 = (int *)operator_new(4 * v8);
         if ( v9 )
         {
-          for ( i = 0; i < this->objects.maximumSizeValue; v9[i - 1] = *(_DWORD *)(this->objects.value + 4 * i - 4) )
+          for ( i = 0; i < this->objects.maximumSizeValue; v9[i - 1] = this->objects.value[i - 1] )
           {
             if ( i >= v8 )
               break;
             ++i;
           }
-          operator_delete((void *)this->objects.value);
-          this->objects.value = (int)v9;
+          operator_delete(this->objects.value);
+          this->objects.value = v9;
           this->objects.maximumSizeValue = v8;
         }
       }
-      v11 = RGE_Game_World::object(this->player->world, *(_DWORD *)(this->objects.value + v14));
+      v11 = RGE_Game_World::object(this->player->world, this->objects.value[v14]);
       v12 = v11;
       if ( v11 && RGE_Static_Object::unitAI(v11) && v12->object_state )
       {
@@ -60474,7 +60474,7 @@ RGE_Static_Object *__thiscall MainDecisionAIModule::mostDamaged(MainDecisionAIMo
         }
       }
       ++v6;
-      v14 += 4;
+      ++v14;
     }
     while ( v6 - 1 < this->objects.numberValue );
     result = v16;
@@ -61436,9 +61436,9 @@ LABEL_12:
       }
       while ( v13 );
     }
-    oc->Object->gbg_unknown_3 = theObja;
+    LODWORD(oc->Object->shield_hit_timer) = theObja;
     result = (bool)oc->Object;
-    oc->Object->gbg_unknown_2 = v12;
+    oc->Object->shield_recharge_accumulator = v12;
     LOBYTE(result) = 1;
   }
   return result;
@@ -64901,7 +64901,7 @@ UnitAIModule *__thiscall UnitAIModule::UnitAIModule(UnitAIModule *this, RGE_Stat
   this->attackingUnitsValue.numberValue = 0;
   this->attackingUnitsValue.desiredNumberValue = 0;
   this->attackingUnitsValue.maximumSizeValue = 10;
-  this->attackingUnitsValue.value = (int)operator_new(0x28u);
+  this->attackingUnitsValue.value = (int *)operator_new(0x28u);
   this->waypointQueueSizeValue = 0;
   this->lastUpdateTimeValue = 0;
   this->idleTimerValue = 0;
@@ -65020,7 +65020,7 @@ void __thiscall UnitAIModule::destructor(UnitAIModule *this)
   this->objectValue = 0;
   if ( this->attackingUnitsValue.value )
   {
-    operator_delete((void *)this->attackingUnitsValue.value);
+    operator_delete(this->attackingUnitsValue.value);
     this->attackingUnitsValue.value = 0;
   }
   this->attackingUnitsValue.numberValue = 0;
@@ -65036,7 +65036,7 @@ void __thiscall UnitAIModule::save(UnitAIModule *this, int outfile)
   int v5; // ebx
   int v6; // ebx
   int v7; // eax
-  _DWORD *v8; // ebp
+  int *v8; // ebp
   int i; // eax
   int v10; // ebp
   int v11; // ecx
@@ -65112,24 +65112,22 @@ void __thiscall UnitAIModule::save(UnitAIModule *this, int outfile)
       {
         if ( v6 < v7 || (outfilec = v7 + 32, v7 + 32 <= v6) )
           outfilec = v6;
-        v8 = operator_new(4 * outfilec);
+        v8 = (int *)operator_new(4 * outfilec);
         if ( v8 )
         {
-          for ( i = 0;
-                i < this->attackingUnitsValue.maximumSizeValue;
-                v8[i - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * i - 4) )
+          for ( i = 0; i < this->attackingUnitsValue.maximumSizeValue; v8[i - 1] = this->attackingUnitsValue.value[i - 1] )
           {
             if ( i >= outfilec )
               break;
             ++i;
           }
-          operator_delete((void *)this->attackingUnitsValue.value);
-          this->attackingUnitsValue.value = (int)v8;
+          operator_delete(this->attackingUnitsValue.value);
+          this->attackingUnitsValue.value = v8;
           this->attackingUnitsValue.maximumSizeValue = outfilec;
         }
       }
       v10 = v16;
-      Buffer = *(_DWORD *)(this->attackingUnitsValue.value + v16);
+      Buffer = *(int *)((char *)this->attackingUnitsValue.value + v16);
       rge_write(outfile, &Buffer, 4u);
       v11 = this->attackingUnitsValue.numberValue;
       ++v6;
@@ -65184,7 +65182,7 @@ void __thiscall UnitAIModule::load(UnitAIModule *this, int infile)
   int v7; // eax
   int v8; // edx
   int v9; // ebp
-  _DWORD *v10; // esi
+  int *v10; // esi
   int k; // eax
   BPath *v12; // eax
   BPath *v13; // eax
@@ -65272,7 +65270,7 @@ void __thiscall UnitAIModule::load(UnitAIModule *this, int infile)
     {
       if ( v7 >= this->attackingUnitsValue.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * v7) == v27 )
+      if ( this->attackingUnitsValue.value[v7] == v27 )
         goto LABEL_20;
     }
     v8 = this->attackingUnitsValue.maximumSizeValue;
@@ -65280,23 +65278,21 @@ void __thiscall UnitAIModule::load(UnitAIModule *this, int infile)
     {
       if ( v6 + 1 < v8 || (v9 = v8 + 32, v8 + 32 <= v6 + 1) )
         v9 = v6 + 1;
-      v10 = operator_new(4 * v9);
+      v10 = (int *)operator_new(4 * v9);
       if ( v10 )
       {
-        for ( k = 0;
-              k < this->attackingUnitsValue.maximumSizeValue;
-              v10[k - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * k - 4) )
+        for ( k = 0; k < this->attackingUnitsValue.maximumSizeValue; v10[k - 1] = this->attackingUnitsValue.value[k - 1] )
         {
           if ( k >= v9 )
             break;
           ++k;
         }
-        operator_delete((void *)this->attackingUnitsValue.value);
-        this->attackingUnitsValue.value = (int)v10;
+        operator_delete(this->attackingUnitsValue.value);
+        this->attackingUnitsValue.value = v10;
         this->attackingUnitsValue.maximumSizeValue = v9;
       }
     }
-    *(_DWORD *)(this->attackingUnitsValue.value + 4 * this->attackingUnitsValue.numberValue++) = unitID;
+    this->attackingUnitsValue.value[this->attackingUnitsValue.numberValue++] = unitID;
 LABEL_20:
     ;
   }
@@ -66101,7 +66097,7 @@ int __thiscall UnitAIModule::notify(UnitAIModule *this, int callerID, int recipi
     {
       while ( v10 < this->attackingUnitsValue.maximumSizeValue )
       {
-        if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * v10) == callerID )
+        if ( this->attackingUnitsValue.value[v10] == callerID )
         {
           v8 = p1;
           goto LABEL_18;
@@ -67668,12 +67664,12 @@ int __thiscall UnitAIModule::closestAttacker(UnitAIModule *this, float *threatSl
   int v4; // ebp
   int v5; // eax
   int v6; // ebx
-  _DWORD *v7; // edi
+  int *v7; // edi
   int i; // eax
   RGE_Static_Object *v9; // eax
   int v10; // eax
   int v11; // ebx
-  _DWORD *v12; // edi
+  int *v12; // edi
   int j; // eax
   int v15; // [esp+4h] [ebp-10h]
   int v16; // [esp+8h] [ebp-Ch]
@@ -67694,25 +67690,23 @@ int __thiscall UnitAIModule::closestAttacker(UnitAIModule *this, float *threatSl
       {
         if ( v4 < v5 || (v6 = v5 + 32, v5 + 32 <= v4) )
           v6 = v4;
-        v7 = operator_new(4 * v6);
+        v7 = (int *)operator_new(4 * v6);
         if ( v7 )
         {
-          for ( i = 0;
-                i < this->attackingUnitsValue.maximumSizeValue;
-                v7[i - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * i - 4) )
+          for ( i = 0; i < this->attackingUnitsValue.maximumSizeValue; v7[i - 1] = this->attackingUnitsValue.value[i - 1] )
           {
             if ( i >= v6 )
               break;
             ++i;
           }
-          operator_delete((void *)this->attackingUnitsValue.value);
-          this->attackingUnitsValue.value = (int)v7;
+          operator_delete(this->attackingUnitsValue.value);
+          this->attackingUnitsValue.value = v7;
           this->attackingUnitsValue.maximumSizeValue = v6;
         }
       }
       v9 = RGE_Game_World::object(
              (RGE_Game_World *)this->objectValue->owner->world,
-             *(_DWORD *)(v15 + this->attackingUnitsValue.value));
+             this->attackingUnitsValue.value[v15]);
       if ( v9 )
       {
         v18 = RGE_Static_Object::distance_to_object((RGE_Static_Object *)this->objectValue, v9);
@@ -67723,28 +67717,28 @@ int __thiscall UnitAIModule::closestAttacker(UnitAIModule *this, float *threatSl
           {
             if ( v4 < v10 || (v11 = v10 + 32, v10 + 32 <= v4) )
               v11 = v4;
-            v12 = operator_new(4 * v11);
+            v12 = (int *)operator_new(4 * v11);
             if ( v12 )
             {
               for ( j = 0;
                     j < this->attackingUnitsValue.maximumSizeValue;
-                    v12[j - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * j - 4) )
+                    v12[j - 1] = this->attackingUnitsValue.value[j - 1] )
               {
                 if ( j >= v11 )
                   break;
                 ++j;
               }
-              operator_delete((void *)this->attackingUnitsValue.value);
-              this->attackingUnitsValue.value = (int)v12;
+              operator_delete(this->attackingUnitsValue.value);
+              this->attackingUnitsValue.value = v12;
               this->attackingUnitsValue.maximumSizeValue = v11;
             }
           }
-          v16 = *(_DWORD *)(v15 + this->attackingUnitsValue.value);
+          v16 = this->attackingUnitsValue.value[v15];
           v17 = v18;
         }
       }
       ++v4;
-      v15 += 4;
+      ++v15;
     }
     while ( v4 - 1 < this->attackingUnitsValue.numberValue );
     v3 = v16;
@@ -69504,7 +69498,7 @@ int __thiscall UnitAIModule::runAwayFromAttackers(UnitAIModule *this, int uncond
   int v8; // ebx
   int v9; // eax
   int v10; // ebp
-  _DWORD *v11; // edi
+  int *v11; // edi
   int i; // eax
   RGE_Static_Object *v13; // eax
   RGE_Combat_Object *v14; // ecx
@@ -69561,25 +69555,23 @@ int __thiscall UnitAIModule::runAwayFromAttackers(UnitAIModule *this, int uncond
       {
         if ( v8 < v9 || (v10 = v9 + 32, v9 + 32 <= v8) )
           v10 = v8;
-        v11 = operator_new(4 * v10);
+        v11 = (int *)operator_new(4 * v10);
         if ( v11 )
         {
-          for ( i = 0;
-                i < this->attackingUnitsValue.maximumSizeValue;
-                v11[i - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * i - 4) )
+          for ( i = 0; i < this->attackingUnitsValue.maximumSizeValue; v11[i - 1] = this->attackingUnitsValue.value[i - 1] )
           {
             if ( i >= v10 )
               break;
             ++i;
           }
-          operator_delete((void *)this->attackingUnitsValue.value);
-          this->attackingUnitsValue.value = (int)v11;
+          operator_delete(this->attackingUnitsValue.value);
+          this->attackingUnitsValue.value = v11;
           this->attackingUnitsValue.maximumSizeValue = v10;
         }
       }
       v13 = RGE_Game_World::object(
               (RGE_Game_World *)this->objectValue->owner->world,
-              *(_DWORD *)(v37 + this->attackingUnitsValue.value));
+              this->attackingUnitsValue.value[v37]);
       if ( v13 )
       {
         v14 = this->objectValue;
@@ -69594,7 +69586,7 @@ int __thiscall UnitAIModule::runAwayFromAttackers(UnitAIModule *this, int uncond
       }
       v15 = this->attackingUnitsValue.numberValue;
       ++v8;
-      v37 += 4;
+      ++v37;
     }
     while ( v8 - 1 < v15 );
     v7 = v15 == 0;
@@ -70937,13 +70929,13 @@ int __thiscall UnitAIModule::processNotify(UnitAIModule *this, NotifyEvent *nEve
   int v110; // eax
   int v111; // edx
   int v112; // ebp
-  _DWORD *v113; // edi
+  int *v113; // edi
   int i; // eax
   int v115; // ecx
   int v116; // eax
   int v117; // ecx
   int v118; // eax
-  _DWORD *v119; // edx
+  int *v119; // edx
   int v120; // eax
   int v121; // eax
   int v122; // edx
@@ -71004,7 +70996,7 @@ LABEL_13:
           referenceDistance = 0;
           goto LABEL_14;
         }
-        if ( *(_DWORD *)(v11->value + 4 * v12) == nEvent->caller )
+        if ( v11->value[v12] == nEvent->caller )
           break;
         if ( ++v12 >= v10 )
           goto LABEL_13;
@@ -71038,7 +71030,7 @@ LABEL_14:
       {
         while ( v18 < this->attackingUnitsValue.maximumSizeValue )
         {
-          if ( *(_DWORD *)(v11->value + 4 * v18) == v17 )
+          if ( v11->value[v18] == v17 )
           {
             v19 = unit;
             v9 = nEvent;
@@ -71051,7 +71043,7 @@ LABEL_14:
       }
       if ( v16 > this->attackingUnitsValue.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->attackingUnitsValue, v16 + 1);
-      *(_DWORD *)(v11->value + 4 * this->attackingUnitsValue.numberValue) = v17;
+      v11->value[this->attackingUnitsValue.numberValue] = v17;
       v19 = unit;
       ++this->attackingUnitsValue.numberValue;
 LABEL_28:
@@ -71927,7 +71919,7 @@ LABEL_346:
       {
         if ( v110 >= this->attackingUnitsValue.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * v110) == v109 )
+        if ( this->attackingUnitsValue.value[v110] == v109 )
           goto LABEL_329;
         ++v110;
       }
@@ -71938,23 +71930,21 @@ LABEL_319:
       {
         if ( v108 + 1 < v111 || (v112 = v111 + 32, v111 + 32 <= v108 + 1) )
           v112 = v108 + 1;
-        v113 = operator_new(4 * v112);
+        v113 = (int *)operator_new(4 * v112);
         if ( v113 )
         {
-          for ( i = 0;
-                i < this->attackingUnitsValue.maximumSizeValue;
-                v113[i - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * i - 4) )
+          for ( i = 0; i < this->attackingUnitsValue.maximumSizeValue; v113[i - 1] = this->attackingUnitsValue.value[i - 1] )
           {
             if ( i >= v112 )
               break;
             ++i;
           }
-          operator_delete((void *)this->attackingUnitsValue.value);
-          this->attackingUnitsValue.value = (int)v113;
+          operator_delete(this->attackingUnitsValue.value);
+          this->attackingUnitsValue.value = v113;
           this->attackingUnitsValue.maximumSizeValue = v112;
         }
       }
-      *(_DWORD *)(this->attackingUnitsValue.value + 4 * this->attackingUnitsValue.numberValue++) = v109;
+      this->attackingUnitsValue.value[this->attackingUnitsValue.numberValue++] = v109;
 LABEL_329:
       this->objectValue->vfptr->setUnderAttack(this->objectValue, 1u);
       return 2;
@@ -71967,7 +71957,7 @@ LABEL_329:
       {
         if ( v116 >= this->attackingUnitsValue.maximumSizeValue )
           return 2;
-        if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * v116) != nEvent->caller )
+        if ( this->attackingUnitsValue.value[v116] != nEvent->caller )
         {
           if ( ++v116 >= v115 )
             return 2;
@@ -71979,7 +71969,7 @@ LABEL_329:
       v118 = 0;
       if ( v117 > 0 )
       {
-        v119 = (_DWORD *)this->attackingUnitsValue.value;
+        v119 = this->attackingUnitsValue.value;
         do
         {
           if ( *v119 == nEvent->caller )
@@ -71996,8 +71986,7 @@ LABEL_329:
         do
         {
           ++v118;
-          *(_DWORD *)(this->attackingUnitsValue.value + 4 * v118 - 4) = *(_DWORD *)(this->attackingUnitsValue.value
-                                                                                  + 4 * v118);
+          this->attackingUnitsValue.value[v118 - 1] = this->attackingUnitsValue.value[v118];
         }
         while ( v118 < this->attackingUnitsValue.maximumSizeValue - 1 );
       }
@@ -73554,11 +73543,11 @@ int __thiscall UnitAIModule::backUpFromTarget(UnitAIModule *this, int targetID, 
   int v9; // ebp
   int v10; // eax
   int v11; // ebx
-  _DWORD *v12; // edi
+  int *v12; // edi
   int i; // eax
   int v14; // eax
   int v15; // ebx
-  _DWORD *v16; // edi
+  int *v16; // edi
   int j; // eax
   RGE_Static_Object *v18; // eax
   RGE_Combat_Object *v19; // ecx
@@ -73620,48 +73609,44 @@ int __thiscall UnitAIModule::backUpFromTarget(UnitAIModule *this, int targetID, 
       {
         if ( v9 < v10 || (v11 = v10 + 32, v10 + 32 <= v9) )
           v11 = v9;
-        v12 = operator_new(4 * v11);
+        v12 = (int *)operator_new(4 * v11);
         if ( v12 )
         {
-          for ( i = 0;
-                i < this->attackingUnitsValue.maximumSizeValue;
-                v12[i - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * i - 4) )
+          for ( i = 0; i < this->attackingUnitsValue.maximumSizeValue; v12[i - 1] = this->attackingUnitsValue.value[i - 1] )
           {
             if ( i >= v11 )
               break;
             ++i;
           }
-          operator_delete((void *)this->attackingUnitsValue.value);
-          this->attackingUnitsValue.value = (int)v12;
+          operator_delete(this->attackingUnitsValue.value);
+          this->attackingUnitsValue.value = v12;
           this->attackingUnitsValue.maximumSizeValue = v11;
         }
       }
-      if ( *(_DWORD *)(allTheWaya + this->attackingUnitsValue.value) != this->currentTargetValue )
+      if ( this->attackingUnitsValue.value[allTheWaya] != this->currentTargetValue )
       {
         v14 = this->attackingUnitsValue.maximumSizeValue;
         if ( v9 - 1 > v14 - 1 )
         {
           if ( v9 < v14 || (v15 = v14 + 32, v14 + 32 <= v9) )
             v15 = v9;
-          v16 = operator_new(4 * v15);
+          v16 = (int *)operator_new(4 * v15);
           if ( v16 )
           {
-            for ( j = 0;
-                  j < this->attackingUnitsValue.maximumSizeValue;
-                  v16[j - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * j - 4) )
+            for ( j = 0; j < this->attackingUnitsValue.maximumSizeValue; v16[j - 1] = this->attackingUnitsValue.value[j - 1] )
             {
               if ( j >= v15 )
                 break;
               ++j;
             }
-            operator_delete((void *)this->attackingUnitsValue.value);
-            this->attackingUnitsValue.value = (int)v16;
+            operator_delete(this->attackingUnitsValue.value);
+            this->attackingUnitsValue.value = v16;
             this->attackingUnitsValue.maximumSizeValue = v15;
           }
         }
         v18 = RGE_Game_World::object(
                 (RGE_Game_World *)this->objectValue->owner->world,
-                *(_DWORD *)(allTheWaya + this->attackingUnitsValue.value));
+                this->attackingUnitsValue.value[allTheWaya]);
         if ( v18 )
         {
           v19 = this->objectValue;
@@ -73670,7 +73655,7 @@ int __thiscall UnitAIModule::backUpFromTarget(UnitAIModule *this, int targetID, 
         }
       }
       ++v9;
-      allTheWaya += 4;
+      ++allTheWaya;
     }
     while ( v9 - 1 < this->attackingUnitsValue.numberValue );
   }
@@ -73748,23 +73733,23 @@ int __thiscall ManagedArray_int_::resize(ManagedArray_int_ *this, int s)
   int v3; // ecx
   int v4; // ebx
   int result; // eax
-  int v6; // edi
+  int *v6; // edi
   int i; // eax
 
   v3 = this->maximumSizeValue;
   if ( s < v3 || (v4 = v3 + 32, v3 + 32 <= s) )
     v4 = s;
   result = (int)operator_new(4 * v4);
-  v6 = result;
+  v6 = (int *)result;
   if ( result )
   {
-    for ( i = 0; i < this->maximumSizeValue; *(_DWORD *)(v6 + 4 * i - 4) = *(_DWORD *)(this->value + 4 * i - 4) )
+    for ( i = 0; i < this->maximumSizeValue; v6[i - 1] = this->value[i - 1] )
     {
       if ( i >= v4 )
         break;
       ++i;
     }
-    operator_delete((void *)this->value);
+    operator_delete(this->value);
     this->value = v6;
     this->maximumSizeValue = v4;
     result = 1;
@@ -98433,7 +98418,7 @@ void __thiscall RGE_Combat_Object::damage(RGE_Combat_Object *this, int weapon_nu
     {
       this->sp = this->sp - v7;
     }
-    this->gbg_unknown_3 = 1069547520;
+    this->shield_hit_timer = 1.5;
   }
   v12 = -1;
   if ( v8 )
@@ -99293,11 +99278,11 @@ int __thiscall RGE_Combat_Object::enter(RGE_Combat_Object *this, int targetID, i
   int result; // eax
   int v5; // ebx
   TribeMainDecisionAIModule *v6; // ecx
-  int v7; // edi
+  UnitPair **v7; // edi
   unsigned int i; // eax
-  int v9; // edx
-  _DWORD *v10; // edx
-  _DWORD *j; // eax
+  UnitPair **v9; // edx
+  UnitPair **v10; // edx
+  UnitPair **j; // eax
   RGE_Action *v12; // eax
   RGE_Action *v13; // eax
   RGE_Action *v14; // eax
@@ -99317,17 +99302,17 @@ int __thiscall RGE_Combat_Object::enter(RGE_Combat_Object *this, int targetID, i
     v6 = this->owner->playerAI;
     if ( v6 )
     {
-      v7 = v6->tacticalAI.gbg_unknown_7;
-      for ( i = 0; v7 && i < (v6->tacticalAI.gbg_unknown_8 - v7) >> 2; ++i )
+      v7 = v6->tacticalAI.gbg_garrisonUnits._First;
+      for ( i = 0; v7 && i < v6->tacticalAI.gbg_garrisonUnits._Last - v7; ++i )
       {
-        v9 = v6->tacticalAI.gbg_unknown_7;
-        if ( **(_DWORD **)(v9 + 4 * i) == this->id && *(_DWORD *)(*(_DWORD *)(v9 + 4 * i) + 4) == targetID )
+        v9 = v6->tacticalAI.gbg_garrisonUnits._First;
+        if ( v9[i]->first_id == this->id && v9[i]->second_id == targetID )
         {
-          v10 = (_DWORD *)v6->tacticalAI.gbg_unknown_8;
-          for ( j = (_DWORD *)(v6->tacticalAI.gbg_unknown_7 + 4 * i + 4); j != v10; ++j )
+          v10 = v6->tacticalAI.gbg_garrisonUnits._Last;
+          for ( j = &v6->tacticalAI.gbg_garrisonUnits._First[i + 1]; j != v10; ++j )
             *(j - 1) = *j;
           v5 = v21;
-          v6->tacticalAI.gbg_unknown_8 -= 4;
+          --v6->tacticalAI.gbg_garrisonUnits._Last;
           break;
         }
         v5 = v21;
@@ -108762,7 +108747,7 @@ void __thiscall BDifferentiator::groupAIUnits(BDifferentiator *this, ManagedArra
   {
     if ( units->maximumSizeValue - 1 < 0 )
       ManagedArray_int_::resize(units, 1);
-    v9 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)units->value);
+    v9 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *units->value);
     if ( v9 )
     {
       v10 = v9->owner;
@@ -108778,7 +108763,7 @@ void __thiscall BDifferentiator::groupAIUnits(BDifferentiator *this, ManagedArra
               break;
             if ( v8 > units->maximumSizeValue - 1 )
               ManagedArray_int_::resize(units, v8 + 1);
-            v12 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)(units->value + 4 * v8));
+            v12 = RGE_Game_World::object((RGE_Game_World *)base_game->world, units->value[v8]);
             if ( v12 )
             {
               if ( !exploreGrouping || TribeTacticalAIModule::ableToGoInExploreGroup(t, v12) )
@@ -108786,7 +108771,7 @@ void __thiscall BDifferentiator::groupAIUnits(BDifferentiator *this, ManagedArra
                 if ( v8 > units->maximumSizeValue - 1 )
                   ManagedArray_int_::resize(units, v8 + 1);
                 ++v11;
-                v50[v8] = *(_DWORD *)(units->value + 4 * v8);
+                v50[v8] = units->value[v8];
               }
               else
               {
@@ -113850,7 +113835,7 @@ void __thiscall RGE_Diamond_Map::draw_visible_object(RGE_Diamond_Map *this, RGE_
         v12 = BYTE1(game_obj[1].old_sprite);
         v13 = LOBYTE(game_obj[1].old_sprite);
         if ( !BYTE1(game_obj[1].old_sprite) )
-          v12 = *(_DWORD *)(*(_DWORD *)(LODWORD(game_obj[1].gbg_unknown_2) + 356) + 32);
+          v12 = *(_DWORD *)(*(_DWORD *)(LODWORD(game_obj[1].shield_recharge_accumulator) + 356) + 32);
         v14 = v12;
       }
     }
@@ -165300,7 +165285,12 @@ LABEL_33:
           }
           if ( v15->world->players[v15->world->curr_player]->mutualAlly[v15->id] )
           {
-            v10->vfptr->draw(v10, render_area, x, y, *(RGE_Color_Table **)(LODWORD(v10[1].gbg_unknown_2) + 356));
+            v10->vfptr->draw(
+              v10,
+              render_area,
+              x,
+              y,
+              *(RGE_Color_Table **)(LODWORD(v10[1].shield_recharge_accumulator) + 356));
             goto LABEL_33;
           }
         }
@@ -186538,9 +186528,9 @@ LABEL_9:
         }
         while ( v11 );
       }
-      oc->Object->gbg_unknown_3 = theObja;
+      LODWORD(oc->Object->shield_hit_timer) = theObja;
       result = (bool)oc->Object;
-      oc->Object->gbg_unknown_2 = v10;
+      oc->Object->shield_recharge_accumulator = v10;
       LOBYTE(result) = 1;
     }
   }
@@ -198445,7 +198435,7 @@ void __thiscall PathingSystem::copyUnobstructibles(PathingSystem *this, ManagedA
   int i; // eax
   int v8; // edx
   int v9; // ebx
-  _DWORD *v10; // edi
+  int *v10; // edi
   int j; // eax
   _BOOL1 v12; // zf
   int v13; // [esp+0h] [ebp-4h]
@@ -198466,7 +198456,7 @@ void __thiscall PathingSystem::copyUnobstructibles(PathingSystem *this, ManagedA
       {
         if ( i >= d->maximumSizeValue )
           break;
-        if ( *(_DWORD *)(d->value + 4 * i) == v5 )
+        if ( d->value[i] == v5 )
           goto LABEL_17;
       }
       v8 = d->maximumSizeValue;
@@ -198474,21 +198464,21 @@ void __thiscall PathingSystem::copyUnobstructibles(PathingSystem *this, ManagedA
       {
         if ( v6 + 1 < v8 || (v9 = v8 + 32, v8 + 32 <= v6 + 1) )
           v9 = v6 + 1;
-        v10 = operator_new(4 * v9);
+        v10 = (int *)operator_new(4 * v9);
         if ( v10 )
         {
-          for ( j = 0; j < d->maximumSizeValue; v10[j - 1] = *(_DWORD *)(d->value + 4 * j - 4) )
+          for ( j = 0; j < d->maximumSizeValue; v10[j - 1] = d->value[j - 1] )
           {
             if ( j >= v9 )
               break;
             ++j;
           }
-          operator_delete((void *)d->value);
-          d->value = (int)v10;
+          operator_delete(d->value);
+          d->value = v10;
           d->maximumSizeValue = v9;
         }
       }
-      *(_DWORD *)(d->value + 4 * d->numberValue++) = v5;
+      d->value[d->numberValue++] = v5;
 LABEL_17:
       v4 = &da[-1].maximumSizeValue;
       v12 = v13 == 1;
@@ -246406,7 +246396,7 @@ void __thiscall TRIBE_Screen_Game::object_changed(TRIBE_Screen_Game *this)
       && (v5 = this->game_obj, (RGE_Player *)v5->owner == RGE_Base_Game::get_player(v3))
       && v5->master_obj->master_type == 80
       && v5[2].ei.Square
-      && LODWORD(v5[3].gbg_unknown_2) != v5->id )
+      && LODWORD(v5[3].shield_recharge_accumulator) != v5->id )
     {
       RGE_Sprite_Particle_System::move_particle(
         this->world->particle_system,
@@ -249479,7 +249469,7 @@ void __thiscall TRIBE_Screen_Game::command_set_gather_point(TRIBE_Screen_Game *t
       v4 = this->game_obj;
       if ( v4[2].ei.Square )
       {
-        v5 = LODWORD(v4[3].gbg_unknown_2);
+        v5 = LODWORD(v4[3].shield_recharge_accumulator);
         if ( v5 != -1 )
         {
           v6 = RGE_Game_World::object((RGE_Game_World *)this->world, v5);
@@ -296866,7 +296856,7 @@ RGE_Static_Object *__thiscall RGE_Static_Object::RGE_Static_Object(RGE_Static_Ob
 
   this->zoneMapIndex = -1;
   this->mGroupID = -1;
-  this->gbg_unknown_3 = 0;
+  this->shield_hit_timer = 0.0;
   this->sprite = 0;
   this->old_sprite = 0;
   this->CurrentObstructionData = 0;
@@ -297092,7 +297082,7 @@ RGE_Static_Object *__thiscall RGE_Static_Object::RGE_Static_Object_read(RGE_Stat
   this->zoneMapIndex = -1;
   this->mGroupID = -1;
   this->gbg_civ_override = 0;
-  this->gbg_unknown_3 = 0;
+  this->shield_hit_timer = 0.0;
   this->sprite = 0;
   this->old_sprite = 0;
   this->CurrentObstructionData = 0;
@@ -297515,8 +297505,8 @@ void __thiscall RGE_Static_Object::recycle_in_to_game(RGE_Static_Object *this, R
   this->curr_damage_percent = 0;
   this->goto_sleep_flag = 0;
   this->player_object_node = 0;
-  this->gbg_unknown_2 = 0.0;
-  this->gbg_unknown_3 = 0;
+  this->shield_recharge_accumulator = 0.0;
+  this->shield_hit_timer = 0.0;
   this->CurrentObstructionData = 0;
   this->ObstructionDataList = 0;
   this->mROOAlreadyCalled = 0;
@@ -297777,8 +297767,8 @@ int __thiscall RGE_Static_Object::setup(RGE_Static_Object *this, RGE_Master_Stat
   this->curr_damage_percent = 0;
   this->goto_sleep_flag = 0;
   LOBYTE(this->damaged_lately_timer) = 0;
-  this->gbg_unknown_2 = 0.0;
-  this->gbg_unknown_3 = 0;
+  this->shield_recharge_accumulator = 0.0;
+  this->shield_hit_timer = 0.0;
   this->attribute_type_held = -1;
   this->attribute_amount_held = 0.0;
   v12 = v9->attribute_type_held;
@@ -297885,7 +297875,7 @@ int __thiscall RGE_Static_Object::setup_read(RGE_Static_Object *this, int infile
   v3 = infile;
   v5 = infile;
   this->type = 10;
-  this->gbg_unknown_3 = 0;
+  this->shield_hit_timer = 0.0;
   rge_read(v5, &Buffer, 1u);
   v6 = gworld;
   this->owner = (TRIBE_Player *)gworld->players[(unsigned __int8)Buffer];
@@ -297904,7 +297894,7 @@ int __thiscall RGE_Static_Object::setup_read(RGE_Static_Object *this, int infile
     this->inside_obj = (RGE_Static_Object *)(v17 + 1);
   rge_read(v3, &this->hp, 4u);
   rge_read(v3, &this->sp, 4u);
-  rge_read(v3, &this->gbg_unknown_2, 4u);
+  rge_read(v3, &this->shield_recharge_accumulator, 4u);
   rge_read(v3, &this->object_state, 1u);
   v7 = &this->sleep_flag;
   rge_read(v3, &this->sleep_flag, 1u);
@@ -299432,15 +299422,15 @@ void __thiscall RGE_Static_Object::gbg_doShieldRecharge(RGE_Static_Object *this)
   v1 = this->owner;
   if ( v1->attributes[25] > 0.0 )
   {
-    v2 = v1->world->world_time_delta_seconds + this->gbg_unknown_2;
-    this->gbg_unknown_2 = v2;
+    v2 = v1->world->world_time_delta_seconds + this->shield_recharge_accumulator;
+    this->shield_recharge_accumulator = v2;
     v3 = v1->attributes + 25;
     if ( v2 >= *v3 )
     {
       v4 = this->master_obj;
       while ( 1 )
       {
-        this->gbg_unknown_2 = this->gbg_unknown_2 - *v3;
+        this->shield_recharge_accumulator = this->shield_recharge_accumulator - *v3;
         if ( this->sp >= 100.0 )
         {
           if ( this->sp >= 1000.0 )
@@ -299474,7 +299464,7 @@ void __thiscall RGE_Static_Object::gbg_doShieldRecharge(RGE_Static_Object *this)
         if ( v7 >= (double)v4->hp )
           break;
         v3 = v1->attributes + 25;
-        if ( this->gbg_unknown_2 < (double)*v3 )
+        if ( this->shield_recharge_accumulator < (double)*v3 )
           return;
       }
       this->sp = (float)v4->hp;
@@ -299492,18 +299482,18 @@ void __thiscall RGE_Static_Object::gbg_doShieldDropoff(RGE_Static_Object *this)
   v1 = this->owner;
   if ( v1->attributes[26] > 0.0 && this->sp >= 0.0 )
   {
-    v2 = v1->world->world_time_delta_seconds + this->gbg_unknown_2;
-    this->gbg_unknown_2 = v2;
+    v2 = v1->world->world_time_delta_seconds + this->shield_recharge_accumulator;
+    this->shield_recharge_accumulator = v2;
     if ( v2 > 1.0 )
     {
       while ( 1 )
       {
-        this->gbg_unknown_2 = this->gbg_unknown_2 - 1.0;
+        this->shield_recharge_accumulator = this->shield_recharge_accumulator - 1.0;
         v3 = this->sp - v1->attributes[26];
         this->sp = v3;
         if ( v3 < 0.0 )
           break;
-        if ( this->gbg_unknown_2 <= 1.0 )
+        if ( this->shield_recharge_accumulator <= 1.0 )
           return;
       }
       this->sp = 0.0;
@@ -299533,12 +299523,12 @@ unsigned __int8 __thiscall RGE_Static_Object::update(RGE_Static_Object *this)
   RGE_Sprite *v18; // eax
   RGE_Static_Object **v19; // [esp-4h] [ebp-10h]
 
-  if ( *(float *)&this->gbg_unknown_3 > 0.0 )
+  if ( this->shield_hit_timer > 0.0 )
   {
-    v2 = *(float *)&this->gbg_unknown_3 - this->owner->world->world_time_delta_seconds;
-    *(float *)&this->gbg_unknown_3 = v2;
+    v2 = this->shield_hit_timer - this->owner->world->world_time_delta_seconds;
+    this->shield_hit_timer = v2;
     if ( v2 < 0.0 )
-      this->gbg_unknown_3 = 0;
+      this->shield_hit_timer = 0.0;
   }
   if ( this->object_state == 2 )
   {
@@ -299927,7 +299917,7 @@ void __thiscall RGE_Static_Object::save(RGE_Static_Object *this, int outfile)
   rge_write(v2, &buffer, 4u);
   rge_write(v2, &this->hp, 4u);
   rge_write(v2, &this->sp, 4u);
-  rge_write(v2, &this->gbg_unknown_2, 4u);
+  rge_write(v2, &this->shield_recharge_accumulator, 4u);
   rge_write(v2, &this->object_state, 1u);
   rge_write(v2, &this->sleep_flag, 1u);
   rge_write(v2, &this->dopple_flag, 1u);
@@ -301692,7 +301682,7 @@ void __thiscall RGE_Static_Object::damage(RGE_Static_Object *this, int weapon_nu
     {
       this->sp = this->sp - v7;
     }
-    this->gbg_unknown_3 = 1069547520;
+    this->shield_hit_timer = 1.5;
   }
   if ( this->hp < 1.0 )
   {
@@ -309698,7 +309688,7 @@ void __thiscall TRIBE_Combat_Object::change_ownership(TRIBE_Combat_Object *this,
     if ( this->owner->id != v2->id )
     {
       if ( RGE_Master_Static_Object::get_unit_civ((RGE_Master_Static_Object *)this->master_obj)
-        && this->gbg_unknown_1 != RGE_Master_Static_Object::get_unit_civ((RGE_Master_Static_Object *)this->master_obj) )
+        && this->gbg_civ_override != RGE_Master_Static_Object::get_unit_civ((RGE_Master_Static_Object *)this->master_obj) )
       {
         goto LABEL_18;
       }
@@ -309710,10 +309700,10 @@ void __thiscall TRIBE_Combat_Object::change_ownership(TRIBE_Combat_Object *this,
           if ( RGE_Master_Static_Object::get_unit_civ(v6) )
           {
 LABEL_18:
-            this->gbg_unknown_1 = RGE_Master_Static_Object::get_unit_civ((RGE_Master_Static_Object *)this->master_obj);
+            this->gbg_civ_override = RGE_Master_Static_Object::get_unit_civ((RGE_Master_Static_Object *)this->master_obj);
             goto LABEL_23;
           }
-          this->gbg_unknown_1 = v2->culture;
+          this->gbg_civ_override = v2->culture;
         }
       }
     }
@@ -338880,17 +338870,17 @@ void __thiscall TribeInformationAIModule::evaluate_power(TribeInformationAIModul
   int v2; // ebp
   int v3; // eax
   int v4; // ebx
-  _DWORD *v5; // edi
+  int *v5; // edi
   int i; // eax
   RGE_Static_Object *v7; // eax
   int v8; // eax
   int v9; // ebx
-  _DWORD *v10; // edi
+  int *v10; // edi
   int j; // eax
   RGE_Static_Object *v12; // eax
   int v13; // eax
   int v14; // ebx
-  _DWORD *v15; // edi
+  int *v15; // edi
   int k; // eax
   __int16 v17; // ax
   int v18; // [esp+4h] [ebp-4h]
@@ -338908,25 +338898,21 @@ void __thiscall TribeInformationAIModule::evaluate_power(TribeInformationAIModul
       {
         if ( v2 < v3 || (v4 = v3 + 32, v3 + 32 <= v2) )
           v4 = v2;
-        v5 = operator_new(4 * v4);
+        v5 = (int *)operator_new(4 * v4);
         if ( v5 )
         {
-          for ( i = 0;
-                i < this->playerBuildings.maximumSizeValue;
-                v5[i - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * i - 4) )
+          for ( i = 0; i < this->playerBuildings.maximumSizeValue; v5[i - 1] = this->playerBuildings.value[i - 1] )
           {
             if ( i >= v4 )
               break;
             ++i;
           }
-          operator_delete((void *)this->playerBuildings.value);
-          this->playerBuildings.value = (int)v5;
+          operator_delete(this->playerBuildings.value);
+          this->playerBuildings.value = v5;
           this->playerBuildings.maximumSizeValue = v4;
         }
       }
-      v7 = MainDecisionAIModule::object(
-             (MainDecisionAIModule *)this->md,
-             *(_DWORD *)(this->playerBuildings.value + v18));
+      v7 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, this->playerBuildings.value[v18]);
       if ( v7->vfptr->do_i_care_about_power(v7) )
       {
         v8 = this->playerBuildings.maximumSizeValue;
@@ -338934,25 +338920,21 @@ void __thiscall TribeInformationAIModule::evaluate_power(TribeInformationAIModul
         {
           if ( v2 < v8 || (v9 = v8 + 32, v8 + 32 <= v2) )
             v9 = v2;
-          v10 = operator_new(4 * v9);
+          v10 = (int *)operator_new(4 * v9);
           if ( v10 )
           {
-            for ( j = 0;
-                  j < this->playerBuildings.maximumSizeValue;
-                  v10[j - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * j - 4) )
+            for ( j = 0; j < this->playerBuildings.maximumSizeValue; v10[j - 1] = this->playerBuildings.value[j - 1] )
             {
               if ( j >= v9 )
                 break;
               ++j;
             }
-            operator_delete((void *)this->playerBuildings.value);
-            this->playerBuildings.value = (int)v10;
+            operator_delete(this->playerBuildings.value);
+            this->playerBuildings.value = v10;
             this->playerBuildings.maximumSizeValue = v9;
           }
         }
-        v12 = MainDecisionAIModule::object(
-                (MainDecisionAIModule *)this->md,
-                *(_DWORD *)(this->playerBuildings.value + v18));
+        v12 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, this->playerBuildings.value[v18]);
         if ( !v12->vfptr->is_powered(v12, 0) )
         {
           v13 = this->playerBuildings.maximumSizeValue;
@@ -338960,31 +338942,27 @@ void __thiscall TribeInformationAIModule::evaluate_power(TribeInformationAIModul
           {
             if ( v2 < v13 || (v14 = v13 + 32, v13 + 32 <= v2) )
               v14 = v2;
-            v15 = operator_new(4 * v14);
+            v15 = (int *)operator_new(4 * v14);
             if ( v15 )
             {
-              for ( k = 0;
-                    k < this->playerBuildings.maximumSizeValue;
-                    v15[k - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * k - 4) )
+              for ( k = 0; k < this->playerBuildings.maximumSizeValue; v15[k - 1] = this->playerBuildings.value[k - 1] )
               {
                 if ( k >= v14 )
                   break;
                 ++k;
               }
-              operator_delete((void *)this->playerBuildings.value);
-              this->playerBuildings.value = (int)v15;
+              operator_delete(this->playerBuildings.value);
+              this->playerBuildings.value = v15;
               this->playerBuildings.maximumSizeValue = v14;
             }
           }
-          v17 = MainDecisionAIModule::object(
-                  (MainDecisionAIModule *)this->md,
-                  *(_DWORD *)(this->playerBuildings.value + v18))->master_obj->id;
+          v17 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, this->playerBuildings.value[v18])->master_obj->id;
           if ( v17 != 68 && v17 != 562 && v17 != 323 && v17 != 584 )
             ++this->gbg_unknown_3;
         }
       }
       ++v2;
-      v18 += 4;
+      ++v18;
     }
     while ( v2 - 1 < this->playerBuildings.numberValue );
   }
@@ -339098,7 +339076,7 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
   _BOOL1 v16; // cc
   int v17; // edi
   int v18; // eax
-  _DWORD *v19; // ebp
+  int *v19; // ebp
   int v20; // eax
   int v21; // ecx
   int v22; // ecx
@@ -339106,7 +339084,7 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
   int v24; // eax
   int v25; // edi
   int v26; // eax
-  _DWORD *v27; // ebp
+  int *v27; // ebp
   int v28; // eax
   int v29; // ecx
   int v30; // ecx
@@ -339114,7 +339092,7 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
   int v32; // eax
   int v33; // edi
   int v34; // eax
-  _DWORD *v35; // ebp
+  int *v35; // ebp
   int v36; // eax
   int v37; // ecx
   int v38; // ecx
@@ -339122,7 +339100,7 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
   int v40; // eax
   int v41; // edi
   int v42; // eax
-  _DWORD *v43; // ebp
+  int *v43; // ebp
   int v44; // eax
   int v45; // ecx
   int v46; // ecx
@@ -339130,7 +339108,7 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
   int v48; // eax
   int v49; // edi
   int v50; // eax
-  _DWORD *v51; // ebp
+  int *v51; // ebp
   int v52; // eax
   int v53; // ecx
   int v54; // ecx
@@ -339138,7 +339116,7 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
   int v56; // eax
   int v57; // edi
   int v58; // eax
-  _DWORD *v59; // ebp
+  int *v59; // ebp
   int v60; // eax
   int v61; // ecx
   int v62; // ecx
@@ -339274,7 +339252,7 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
       {
         if ( v17 < v18 || (Buffer = v18 + 32, v18 + 32 <= v17) )
           Buffer = v17;
-        v19 = operator_new(4 * Buffer);
+        v19 = (int *)operator_new(4 * Buffer);
         if ( v19 )
         {
           v20 = 0;
@@ -339286,18 +339264,18 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
               if ( v20 >= v21 )
                 break;
               ++v20;
-              v19[v20 - 1] = *(_DWORD *)(this->importantObjects.value + 4 * v20 - 4);
+              v19[v20 - 1] = this->importantObjects.value[v20 - 1];
             }
             while ( v20 < this->importantObjects.maximumSizeValue );
           }
-          operator_delete((void *)this->importantObjects.value);
+          operator_delete(this->importantObjects.value);
           v22 = Buffer;
-          this->importantObjects.value = (int)v19;
+          this->importantObjects.value = v19;
           this->importantObjects.maximumSizeValue = v22;
         }
       }
       v23 = v78;
-      outfile = *(_DWORD *)(this->importantObjects.value + v78);
+      outfile = *(int *)((char *)this->importantObjects.value + v78);
       rge_write(v2, &outfile, 4u);
       v24 = this->importantObjects.numberValue;
       ++v17;
@@ -339318,7 +339296,7 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
       {
         if ( v25 < v26 || (Buffer = v26 + 32, v26 + 32 <= v25) )
           Buffer = v25;
-        v27 = operator_new(4 * Buffer);
+        v27 = (int *)operator_new(4 * Buffer);
         if ( v27 )
         {
           v28 = 0;
@@ -339330,18 +339308,18 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
               if ( v28 >= v29 )
                 break;
               ++v28;
-              v27[v28 - 1] = *(_DWORD *)(this->importantUnits.value + 4 * v28 - 4);
+              v27[v28 - 1] = this->importantUnits.value[v28 - 1];
             }
             while ( v28 < this->importantUnits.maximumSizeValue );
           }
-          operator_delete((void *)this->importantUnits.value);
+          operator_delete(this->importantUnits.value);
           v30 = Buffer;
-          this->importantUnits.value = (int)v27;
+          this->importantUnits.value = v27;
           this->importantUnits.maximumSizeValue = v30;
         }
       }
       v31 = v78;
-      outfile = *(_DWORD *)(this->importantUnits.value + v78);
+      outfile = *(int *)((char *)this->importantUnits.value + v78);
       rge_write(v2, &outfile, 4u);
       v32 = this->importantUnits.numberValue;
       ++v25;
@@ -339362,7 +339340,7 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
       {
         if ( v33 < v34 || (Buffer = v34 + 32, v34 + 32 <= v33) )
           Buffer = v33;
-        v35 = operator_new(4 * Buffer);
+        v35 = (int *)operator_new(4 * Buffer);
         if ( v35 )
         {
           v36 = 0;
@@ -339374,18 +339352,18 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
               if ( v36 >= v37 )
                 break;
               ++v36;
-              v35[v36 - 1] = *(_DWORD *)(this->importantMiscs.value + 4 * v36 - 4);
+              v35[v36 - 1] = this->importantMiscs.value[v36 - 1];
             }
             while ( v36 < this->importantMiscs.maximumSizeValue );
           }
-          operator_delete((void *)this->importantMiscs.value);
+          operator_delete(this->importantMiscs.value);
           v38 = Buffer;
-          this->importantMiscs.value = (int)v35;
+          this->importantMiscs.value = v35;
           this->importantMiscs.maximumSizeValue = v38;
         }
       }
       v39 = v78;
-      outfile = *(_DWORD *)(this->importantMiscs.value + v78);
+      outfile = *(int *)((char *)this->importantMiscs.value + v78);
       rge_write(v2, &outfile, 4u);
       v40 = this->importantMiscs.numberValue;
       ++v33;
@@ -339406,7 +339384,7 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
       {
         if ( v41 < v42 || (Buffer = v42 + 32, v42 + 32 <= v41) )
           Buffer = v41;
-        v43 = operator_new(4 * Buffer);
+        v43 = (int *)operator_new(4 * Buffer);
         if ( v43 )
         {
           v44 = 0;
@@ -339418,18 +339396,18 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
               if ( v44 >= v45 )
                 break;
               ++v44;
-              v43[v44 - 1] = *(_DWORD *)(this->itemsToDefend.value + 4 * v44 - 4);
+              v43[v44 - 1] = this->itemsToDefend.value[v44 - 1];
             }
             while ( v44 < this->itemsToDefend.maximumSizeValue );
           }
-          operator_delete((void *)this->itemsToDefend.value);
+          operator_delete(this->itemsToDefend.value);
           v46 = Buffer;
-          this->itemsToDefend.value = (int)v43;
+          this->itemsToDefend.value = v43;
           this->itemsToDefend.maximumSizeValue = v46;
         }
       }
       v47 = v78;
-      outfile = *(_DWORD *)(this->itemsToDefend.value + v78);
+      outfile = *(int *)((char *)this->itemsToDefend.value + v78);
       rge_write(v2, &outfile, 4u);
       v48 = this->itemsToDefend.numberValue;
       ++v41;
@@ -339450,7 +339428,7 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
       {
         if ( v49 < v50 || (Buffer = v50 + 32, v50 + 32 <= v49) )
           Buffer = v49;
-        v51 = operator_new(4 * Buffer);
+        v51 = (int *)operator_new(4 * Buffer);
         if ( v51 )
         {
           v52 = 0;
@@ -339462,18 +339440,18 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
               if ( v52 >= v53 )
                 break;
               ++v52;
-              v51[v52 - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * v52 - 4);
+              v51[v52 - 1] = this->playerBuildings.value[v52 - 1];
             }
             while ( v52 < this->playerBuildings.maximumSizeValue );
           }
-          operator_delete((void *)this->playerBuildings.value);
+          operator_delete(this->playerBuildings.value);
           v54 = Buffer;
-          this->playerBuildings.value = (int)v51;
+          this->playerBuildings.value = v51;
           this->playerBuildings.maximumSizeValue = v54;
         }
       }
       v55 = v78;
-      outfile = *(_DWORD *)(this->playerBuildings.value + v78);
+      outfile = *(int *)((char *)this->playerBuildings.value + v78);
       rge_write(v2, &outfile, 4u);
       v56 = this->playerBuildings.numberValue;
       ++v49;
@@ -339494,7 +339472,7 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
       {
         if ( v57 < v58 || (Buffer = v58 + 32, v58 + 32 <= v57) )
           Buffer = v57;
-        v59 = operator_new(4 * Buffer);
+        v59 = (int *)operator_new(4 * Buffer);
         if ( v59 )
         {
           v60 = 0;
@@ -339506,18 +339484,18 @@ int __thiscall TribeInformationAIModule::save(TribeInformationAIModule *this, in
               if ( v60 >= v61 )
                 break;
               ++v60;
-              v59[v60 - 1] = *(_DWORD *)(this->playerObjects.value + 4 * v60 - 4);
+              v59[v60 - 1] = this->playerObjects.value[v60 - 1];
             }
             while ( v60 < this->playerObjects.maximumSizeValue );
           }
-          operator_delete((void *)this->playerObjects.value);
+          operator_delete(this->playerObjects.value);
           v62 = Buffer;
-          this->playerObjects.value = (int)v59;
+          this->playerObjects.value = v59;
           this->playerObjects.maximumSizeValue = v62;
         }
       }
       v63 = v78;
-      outfile = *(_DWORD *)(this->playerObjects.value + v78);
+      outfile = *(int *)((char *)this->playerObjects.value + v78);
       rge_write(v2, &outfile, 4u);
       v64 = this->playerObjects.numberValue;
       ++v57;
@@ -340288,7 +340266,7 @@ ConstructionItem *__thiscall TribeInformationAIModule::placeDock(TribeInformatio
   int v17; // ebx
   int v18; // eax
   int v19; // ebp
-  _DWORD *v20; // edi
+  int *v20; // edi
   int j; // eax
   RGE_Static_Object *v22; // eax
   unsigned __int8 v23; // cl
@@ -340394,26 +340372,26 @@ ConstructionItem *__thiscall TribeInformationAIModule::placeDock(TribeInformatio
                         {
                           if ( v17 < v18 || (v19 = v18 + 32, v18 + 32 <= v17) )
                             v19 = v17;
-                          v20 = operator_new(4 * v19);
+                          v20 = (int *)operator_new(4 * v19);
                           if ( v20 )
                           {
                             for ( j = 0;
                                   j < this->playerBuildings.maximumSizeValue;
-                                  v20[j - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * j - 4) )
+                                  v20[j - 1] = this->playerBuildings.value[j - 1] )
                             {
                               if ( j >= v19 )
                                 break;
                               ++j;
                             }
-                            operator_delete((void *)this->playerBuildings.value);
-                            this->playerBuildings.value = (int)v20;
+                            operator_delete(this->playerBuildings.value);
+                            this->playerBuildings.value = v20;
                             this->playerBuildings.maximumSizeValue = v19;
                           }
                           v12 = v44;
                         }
                         v22 = MainDecisionAIModule::object(
                                 (MainDecisionAIModule *)this->md,
-                                *(_DWORD *)(v38 + this->playerBuildings.value));
+                                this->playerBuildings.value[v38]);
                         if ( v22
                           && v22->master_obj->id == 45
                           && RGE_Zone_Map::get_zone_info(v48, (__int64)v22->world_x, (__int64)v22->world_y) == zone )
@@ -340421,7 +340399,7 @@ ConstructionItem *__thiscall TribeInformationAIModule::placeDock(TribeInformatio
                           ++v40;
                         }
                         ++v17;
-                        v38 += 4;
+                        ++v38;
                       }
                       while ( v17 - 1 < this->playerBuildings.numberValue );
                       v16 = &v58[zone];
@@ -340491,7 +340469,7 @@ int __thiscall TribeInformationAIModule::numberDocksInZone(TribeInformationAIMod
   int v5; // ebp
   int v6; // eax
   int v7; // ebx
-  _DWORD *v8; // esi
+  int *v8; // esi
   int i; // eax
   RGE_Static_Object *v10; // eax
   int v11; // esi
@@ -340512,25 +340490,21 @@ int __thiscall TribeInformationAIModule::numberDocksInZone(TribeInformationAIMod
       {
         if ( v5 < v6 || (v7 = v6 + 32, v6 + 32 <= v5) )
           v7 = v5;
-        v8 = operator_new(4 * v7);
+        v8 = (int *)operator_new(4 * v7);
         if ( v8 )
         {
-          for ( i = 0;
-                i < this->playerBuildings.maximumSizeValue;
-                v8[i - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * i - 4) )
+          for ( i = 0; i < this->playerBuildings.maximumSizeValue; v8[i - 1] = this->playerBuildings.value[i - 1] )
           {
             if ( i >= v7 )
               break;
             ++i;
           }
-          operator_delete((void *)this->playerBuildings.value);
-          this->playerBuildings.value = (int)v8;
+          operator_delete(this->playerBuildings.value);
+          this->playerBuildings.value = v8;
           this->playerBuildings.maximumSizeValue = v7;
         }
       }
-      v10 = MainDecisionAIModule::object(
-              (MainDecisionAIModule *)this->md,
-              *(_DWORD *)(v13 + this->playerBuildings.value));
+      v10 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, this->playerBuildings.value[v13]);
       if ( v10 )
       {
         if ( v10->master_obj->id == 45 )
@@ -340547,7 +340521,7 @@ int __thiscall TribeInformationAIModule::numberDocksInZone(TribeInformationAIMod
         }
       }
       ++v5;
-      v13 += 4;
+      ++v13;
     }
     while ( v5 - 1 < this->playerBuildings.numberValue );
     result = v14;
@@ -340962,12 +340936,12 @@ int __thiscall TribeInformationAIModule::addImportantObject(TribeInformationAIMo
   {
     if ( i >= this->importantObjects.maximumSizeValue )
       break;
-    if ( *(_DWORD *)(v14->value + 4 * i) == v13 )
+    if ( v14->value[i] == v13 )
       goto LABEL_32;
   }
   if ( v12 > this->importantObjects.maximumSizeValue - 1 )
     ManagedArray_int_::resize(&this->importantObjects, v12 + 1);
-  *(_DWORD *)(v14->value + 4 * this->importantObjects.numberValue++) = v13;
+  v14->value[this->importantObjects.numberValue++] = v13;
 LABEL_32:
   switch ( oType )
   {
@@ -340995,7 +340969,7 @@ LABEL_32:
         {
           if ( j >= this->importantMiscs.maximumSizeValue )
             break;
-          if ( *(_DWORD *)(v18->value + 4 * j) == v17 )
+          if ( v18->value[j] == v17 )
             goto LABEL_51;
         }
         if ( v16 > this->importantMiscs.maximumSizeValue - 1 )
@@ -341016,14 +340990,14 @@ LABEL_49:
         {
           if ( k >= this->importantUnits.maximumSizeValue )
             break;
-          if ( *(_DWORD *)(v18->value + 4 * k) == v17 )
+          if ( v18->value[k] == v17 )
             goto LABEL_51;
         }
         if ( v16 > this->importantUnits.maximumSizeValue - 1 )
           goto LABEL_49;
       }
 LABEL_50:
-      *(_DWORD *)(v18->value + 4 * v18->numberValue++) = v17;
+      v18->value[v18->numberValue++] = v17;
 LABEL_51:
       if ( TribeInformationAIModule::importantObject(this, oType) == 1 || oObjb == (RGE_Static_Object *)1 )
       {
@@ -341302,7 +341276,7 @@ ConstructionItem *__thiscall TribeInformationAIModule::influencePlaceStructure(T
   TribeTacticalAIModule *v13; // esi
   int v14; // eax
   int v15; // edi
-  _DWORD *v16; // ebx
+  int *v16; // ebx
   int i; // eax
   ConstructionItem *result; // eax
   PlacementState *v19; // ebx
@@ -341501,22 +341475,22 @@ ConstructionItem *__thiscall TribeInformationAIModule::influencePlaceStructure(T
   {
     if ( v14 > 1 || (v15 = v14 + 32, v14 + 32 <= 1) )
       v15 = 1;
-    v16 = operator_new(4 * v15);
+    v16 = (int *)operator_new(4 * v15);
     if ( v16 )
     {
-      for ( i = 0; i < v13->civilians.maximumSizeValue; v16[i - 1] = *(_DWORD *)(v13->civilians.value + 4 * i - 4) )
+      for ( i = 0; i < v13->civilians.maximumSizeValue; v16[i - 1] = v13->civilians.value[i - 1] )
       {
         if ( i >= v15 )
           break;
         ++i;
       }
-      operator_delete((void *)v13->civilians.value);
-      v13->civilians.value = (int)v16;
+      operator_delete(v13->civilians.value);
+      v13->civilians.value = v16;
       v13->civilians.maximumSizeValue = v15;
     }
   }
-  if ( *(int *)v13->civilians.value < 0
-    || (v195 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)v13->civilians.value)) == 0 )
+  if ( *v13->civilians.value < 0
+    || (v195 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *v13->civilians.value)) == 0 )
   {
 LABEL_13:
     result = 0;
@@ -342835,7 +342809,7 @@ void __thiscall TribeInformationAIModule::addObject(TribeInformationAIModule *th
   int i; // eax
   int v17; // edx
   int v18; // ebx
-  _DWORD *v19; // edi
+  int *v19; // edi
   int j; // eax
   __int16 v21; // ax
   int v22; // edx
@@ -342871,7 +342845,7 @@ LABEL_10:
       {
         while ( v12 < this->playerObjects.maximumSizeValue )
         {
-          if ( *(_DWORD *)(v11->value + 4 * v12) == v10 )
+          if ( v11->value[v12] == v10 )
           {
             v2 = obj;
             goto LABEL_18;
@@ -342883,7 +342857,7 @@ LABEL_10:
       }
       if ( v9 > this->playerObjects.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->playerObjects, v9 + 1);
-      *(_DWORD *)(v11->value + 4 * this->playerObjects.numberValue++) = v10;
+      v11->value[this->playerObjects.numberValue++] = v10;
 LABEL_18:
       v13 = v2->master_obj->object_group;
       if ( v13 >= 6 && (v13 <= 10 || v13 == 18) )
@@ -342894,7 +342868,7 @@ LABEL_18:
         {
           if ( i >= this->playerBuildings.maximumSizeValue )
             break;
-          if ( *(_DWORD *)(this->playerBuildings.value + 4 * i) == v15 )
+          if ( this->playerBuildings.value[i] == v15 )
             goto LABEL_35;
         }
         v17 = this->playerBuildings.maximumSizeValue;
@@ -342902,23 +342876,21 @@ LABEL_18:
         {
           if ( v14 + 1 < v17 || (v18 = v17 + 32, v17 + 32 <= v14 + 1) )
             v18 = v14 + 1;
-          v19 = operator_new(4 * v18);
+          v19 = (int *)operator_new(4 * v18);
           if ( v19 )
           {
-            for ( j = 0;
-                  j < this->playerBuildings.maximumSizeValue;
-                  v19[j - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * j - 4) )
+            for ( j = 0; j < this->playerBuildings.maximumSizeValue; v19[j - 1] = this->playerBuildings.value[j - 1] )
             {
               if ( j >= v18 )
                 break;
               ++j;
             }
-            operator_delete((void *)this->playerBuildings.value);
-            this->playerBuildings.value = (int)v19;
+            operator_delete(this->playerBuildings.value);
+            this->playerBuildings.value = v19;
             this->playerBuildings.maximumSizeValue = v18;
           }
         }
-        *(_DWORD *)(this->playerBuildings.value + 4 * this->playerBuildings.numberValue++) = v15;
+        this->playerBuildings.value[this->playerBuildings.numberValue++] = v15;
 LABEL_35:
         v21 = obj->master_obj->id;
         switch ( v21 )
@@ -342958,11 +342930,11 @@ void __thiscall TribeInformationAIModule::removeObject(TribeInformationAIModule 
 {
   int v3; // eax
   int v4; // ecx
-  _DWORD *v5; // edx
+  int *v5; // edx
   int v6; // eax
   int v7; // ecx
   int v8; // eax
-  _DWORD *v9; // edx
+  int *v9; // edx
   int v10; // eax
   RGE_Static_Object *v11; // ebx
   int v12; // edx
@@ -342977,7 +342949,7 @@ void __thiscall TribeInformationAIModule::removeObject(TribeInformationAIModule 
   v4 = this->playerBuildings.maximumSizeValue;
   if ( v4 > 0 )
   {
-    v5 = (_DWORD *)this->playerBuildings.value;
+    v5 = this->playerBuildings.value;
     do
     {
       if ( *v5 == objID )
@@ -342994,7 +342966,7 @@ void __thiscall TribeInformationAIModule::removeObject(TribeInformationAIModule 
       do
       {
         ++v3;
-        *(_DWORD *)(this->playerBuildings.value + 4 * v3 - 4) = *(_DWORD *)(this->playerBuildings.value + 4 * v3);
+        this->playerBuildings.value[v3 - 1] = this->playerBuildings.value[v3];
       }
       while ( v3 < this->playerBuildings.maximumSizeValue - 1 );
     }
@@ -343007,7 +342979,7 @@ void __thiscall TribeInformationAIModule::removeObject(TribeInformationAIModule 
   v8 = 0;
   if ( v7 > 0 )
   {
-    v9 = (_DWORD *)this->playerObjects.value;
+    v9 = this->playerObjects.value;
     do
     {
       if ( *v9 == objID )
@@ -343024,7 +342996,7 @@ void __thiscall TribeInformationAIModule::removeObject(TribeInformationAIModule 
       do
       {
         ++v8;
-        *(_DWORD *)(this->playerObjects.value + 4 * v8 - 4) = *(_DWORD *)(this->playerObjects.value + 4 * v8);
+        this->playerObjects.value[v8 - 1] = this->playerObjects.value[v8];
       }
       while ( v8 < this->playerObjects.maximumSizeValue - 1 );
     }
@@ -343144,7 +343116,7 @@ int __thiscall TribeInformationAIModule::checkDefend(TribeInformationAIModule *t
     {
       if ( i >= v21->maximumSizeValue )
         break;
-      if ( *(_DWORD *)(v21->value + 4 * i) == v20 )
+      if ( v21->value[i] == v20 )
         return 1;
     }
     if ( v19 <= v21->maximumSizeValue - 1 )
@@ -343164,7 +343136,7 @@ int __thiscall TribeInformationAIModule::checkDefend(TribeInformationAIModule *t
     {
       if ( j >= v21->maximumSizeValue )
         break;
-      if ( *(_DWORD *)(v21->value + 4 * j) == v20 )
+      if ( v21->value[j] == v20 )
         return 1;
     }
     goto LABEL_33;
@@ -343181,14 +343153,14 @@ int __thiscall TribeInformationAIModule::checkDefend(TribeInformationAIModule *t
     {
       if ( k >= v21->maximumSizeValue )
         break;
-      if ( *(_DWORD *)(v21->value + 4 * k) == v20 )
+      if ( v21->value[k] == v20 )
         return 1;
     }
 LABEL_33:
     if ( v19 <= v21->maximumSizeValue - 1 )
     {
 LABEL_48:
-      *(_DWORD *)(v21->value + 4 * v21->numberValue++) = v20;
+      v21->value[v21->numberValue++] = v20;
       return 1;
     }
 LABEL_47:
@@ -343210,13 +343182,13 @@ LABEL_47:
         {
           if ( l >= v13->maximumSizeValue )
             break;
-          if ( *(_DWORD *)(v13->value + 4 * l) == v12 )
+          if ( v13->value[l] == v12 )
             return 1;
         }
 LABEL_19:
         if ( v11 > v13->maximumSizeValue - 1 )
           ManagedArray_int_::resize(v13, v11 + 1);
-        *(_DWORD *)(v13->value + 4 * v13->numberValue++) = v12;
+        v13->value[v13->numberValue++] = v12;
         return 1;
       }
     }
@@ -343229,7 +343201,7 @@ LABEL_19:
       {
         if ( m >= v13->maximumSizeValue )
           break;
-        if ( *(_DWORD *)(v13->value + 4 * m) == v12 )
+        if ( v13->value[m] == v12 )
           return 1;
       }
       goto LABEL_19;
@@ -343245,7 +343217,7 @@ LABEL_19:
   v17 = v16->numberValue;
   if ( v17 > v16->maximumSizeValue - 1 )
     ManagedArray_int_::resize(v16, v17 + 1);
-  *(_DWORD *)(v16->value + 4 * v16->numberValue++) = o;
+  v16->value[v16->numberValue++] = (int)o;
   return 1;
 }
 
@@ -343365,7 +343337,7 @@ int __thiscall TribeInformationAIModule::InfluenceMapStartup(TribeInformationAIM
   int v9; // ebp
   int v10; // eax
   int v11; // ebx
-  _DWORD *v12; // edi
+  int *v12; // edi
   int i; // eax
   RGE_Static_Object *v14; // eax
   XYPoint *v15; // edx
@@ -343398,30 +343370,26 @@ int __thiscall TribeInformationAIModule::InfluenceMapStartup(TribeInformationAIM
       {
         if ( v9 < v10 || (v11 = v10 + 32, v10 + 32 <= v9) )
           v11 = v9;
-        v12 = operator_new(4 * v11);
+        v12 = (int *)operator_new(4 * v11);
         if ( v12 )
         {
-          for ( i = 0;
-                i < this->playerBuildings.maximumSizeValue;
-                v12[i - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * i - 4) )
+          for ( i = 0; i < this->playerBuildings.maximumSizeValue; v12[i - 1] = this->playerBuildings.value[i - 1] )
           {
             if ( i >= v11 )
               break;
             ++i;
           }
-          operator_delete((void *)this->playerBuildings.value);
-          this->playerBuildings.value = (int)v12;
+          operator_delete(this->playerBuildings.value);
+          this->playerBuildings.value = v12;
           this->playerBuildings.maximumSizeValue = v11;
         }
         v7 = placementType;
       }
-      v14 = MainDecisionAIModule::object(
-              (MainDecisionAIModule *)this->md,
-              *(_DWORD *)(this->playerBuildings.value + v21));
+      v14 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, this->playerBuildings.value[v21]);
       if ( v14 && v14->master_obj->id == 12 )
         ++v23;
       ++v9;
-      v21 += 4;
+      ++v21;
     }
     while ( v9 - 1 < this->playerBuildings.numberValue );
     if ( v23 > 0 && (v7 == 16 || v7 == 14) )
@@ -345745,7 +345713,7 @@ int __thiscall TribeInformationAIModule::InfluenceMapPart3(TribeInformationAIMod
   int v7; // ebx
   int v8; // eax
   int v9; // eax
-  _DWORD *v10; // edi
+  int *v10; // edi
   int i; // eax
   RGE_Static_Object *v12; // eax
   RGE_Static_Object *v13; // ebx
@@ -345787,25 +345755,21 @@ int __thiscall TribeInformationAIModule::InfluenceMapPart3(TribeInformationAIMod
           if ( v9 > v7 )
             v7 = v9;
         }
-        v10 = operator_new(4 * v7);
+        v10 = (int *)operator_new(4 * v7);
         if ( v10 )
         {
-          for ( i = 0;
-                i < this->playerBuildings.maximumSizeValue;
-                v10[i - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * i - 4) )
+          for ( i = 0; i < this->playerBuildings.maximumSizeValue; v10[i - 1] = this->playerBuildings.value[i - 1] )
           {
             if ( i >= v7 )
               break;
             ++i;
           }
-          operator_delete((void *)this->playerBuildings.value);
-          this->playerBuildings.value = (int)v10;
+          operator_delete(this->playerBuildings.value);
+          this->playerBuildings.value = v10;
           this->playerBuildings.maximumSizeValue = v7;
         }
       }
-      v12 = MainDecisionAIModule::object(
-              (MainDecisionAIModule *)this->md,
-              *(_DWORD *)(v27 + this->playerBuildings.value));
+      v12 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, this->playerBuildings.value[v27]);
       v13 = v12;
       if ( !v12 )
         goto LABEL_65;
@@ -345941,7 +345905,7 @@ LABEL_39:
 LABEL_65:
       v7 = v28 + 1;
       v28 = v7;
-      v27 += 4;
+      ++v27;
     }
     while ( v7 - 1 < this->playerBuildings.numberValue );
   }
@@ -346649,7 +346613,7 @@ void __thiscall TribeInformationAIModule::loadLearnInfo(TribeInformationAIModule
   int v9; // eax
   int v10; // edx
   int v11; // ebx
-  _DWORD *v12; // edi
+  int *v12; // edi
   int k; // eax
   int *v14; // edi
   int v15; // ebx
@@ -346658,14 +346622,14 @@ void __thiscall TribeInformationAIModule::loadLearnInfo(TribeInformationAIModule
   int v18; // eax
   int v19; // edx
   int v20; // ebx
-  _DWORD *v21; // edi
+  int *v21; // edi
   int l; // eax
   int v23; // ecx
   int v24; // eax
   int m; // ebp
   int v26; // edx
   int v27; // ebx
-  _DWORD *v28; // edi
+  int *v28; // edi
   int n; // eax
   int v30; // [esp-4h] [ebp-54h]
   int Buffer; // [esp+10h] [ebp-40h] BYREF
@@ -346748,7 +346712,7 @@ void __thiscall TribeInformationAIModule::loadLearnInfo(TribeInformationAIModule
       {
         if ( v9 >= this->importantUnits.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(this->importantUnits.value + 4 * v9) == buffer )
+        if ( this->importantUnits.value[v9] == buffer )
           goto LABEL_22;
       }
       v10 = this->importantUnits.maximumSizeValue;
@@ -346756,23 +346720,21 @@ void __thiscall TribeInformationAIModule::loadLearnInfo(TribeInformationAIModule
       {
         if ( v8 + 1 < v10 || (v11 = v10 + 32, v10 + 32 <= v8 + 1) )
           v11 = v8 + 1;
-        v12 = operator_new(4 * v11);
+        v12 = (int *)operator_new(4 * v11);
         if ( v12 )
         {
-          for ( k = 0;
-                k < this->importantUnits.maximumSizeValue;
-                v12[k - 1] = *(_DWORD *)(this->importantUnits.value + 4 * k - 4) )
+          for ( k = 0; k < this->importantUnits.maximumSizeValue; v12[k - 1] = this->importantUnits.value[k - 1] )
           {
             if ( k >= v11 )
               break;
             ++k;
           }
-          operator_delete((void *)this->importantUnits.value);
-          this->importantUnits.value = (int)v12;
+          operator_delete(this->importantUnits.value);
+          this->importantUnits.value = v12;
           this->importantUnits.maximumSizeValue = v11;
         }
       }
-      *(_DWORD *)(this->importantUnits.value + 4 * this->importantUnits.numberValue++) = j;
+      this->importantUnits.value[this->importantUnits.numberValue++] = j;
 LABEL_22:
       ;
     }
@@ -346798,7 +346760,7 @@ LABEL_22:
       {
         if ( v18 >= this->importantMiscs.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(this->importantMiscs.value + 4 * v18) == v33 )
+        if ( this->importantMiscs.value[v18] == v33 )
           goto LABEL_40;
       }
       v19 = this->importantMiscs.maximumSizeValue;
@@ -346806,23 +346768,21 @@ LABEL_22:
       {
         if ( v17 + 1 < v19 || (v20 = v19 + 32, v19 + 32 <= v17 + 1) )
           v20 = v17 + 1;
-        v21 = operator_new(4 * v20);
+        v21 = (int *)operator_new(4 * v20);
         if ( v21 )
         {
-          for ( l = 0;
-                l < this->importantMiscs.maximumSizeValue;
-                v21[l - 1] = *(_DWORD *)(this->importantMiscs.value + 4 * l - 4) )
+          for ( l = 0; l < this->importantMiscs.maximumSizeValue; v21[l - 1] = this->importantMiscs.value[l - 1] )
           {
             if ( l >= v20 )
               break;
             ++l;
           }
-          operator_delete((void *)this->importantMiscs.value);
-          this->importantMiscs.value = (int)v21;
+          operator_delete(this->importantMiscs.value);
+          this->importantMiscs.value = v21;
           this->importantMiscs.maximumSizeValue = v20;
         }
       }
-      *(_DWORD *)(this->importantMiscs.value + 4 * this->importantMiscs.numberValue++) = j;
+      this->importantMiscs.value[this->importantMiscs.numberValue++] = j;
 LABEL_40:
       ;
     }
@@ -346836,7 +346796,7 @@ LABEL_40:
       {
         if ( v24 >= this->itemsToDefend.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(this->itemsToDefend.value + 4 * v24) == v33 )
+        if ( this->itemsToDefend.value[v24] == v33 )
           goto LABEL_56;
       }
       v26 = this->itemsToDefend.maximumSizeValue;
@@ -346844,23 +346804,21 @@ LABEL_40:
       {
         if ( v23 + 1 < v26 || (v27 = v26 + 32, v26 + 32 <= v23 + 1) )
           v27 = v23 + 1;
-        v28 = operator_new(4 * v27);
+        v28 = (int *)operator_new(4 * v27);
         if ( v28 )
         {
-          for ( n = 0;
-                n < this->itemsToDefend.maximumSizeValue;
-                v28[n - 1] = *(_DWORD *)(this->itemsToDefend.value + 4 * n - 4) )
+          for ( n = 0; n < this->itemsToDefend.maximumSizeValue; v28[n - 1] = this->itemsToDefend.value[n - 1] )
           {
             if ( n >= v27 )
               break;
             ++n;
           }
-          operator_delete((void *)this->itemsToDefend.value);
-          this->itemsToDefend.value = (int)v28;
+          operator_delete(this->itemsToDefend.value);
+          this->itemsToDefend.value = v28;
           this->itemsToDefend.maximumSizeValue = v27;
         }
       }
-      *(_DWORD *)(this->itemsToDefend.value + 4 * this->itemsToDefend.numberValue++) = m;
+      this->itemsToDefend.value[this->itemsToDefend.numberValue++] = m;
 LABEL_56:
       v6 = v34;
     }
@@ -348060,7 +348018,7 @@ double __thiscall TribeInformationAIModule::findClosestDropsite(TribeInformation
   int v6; // ebx
   int v7; // eax
   int v8; // edi
-  _DWORD *v9; // esi
+  int *v9; // esi
   int i; // eax
   RGE_Static_Object *v11; // eax
   RGE_Static_Object *v12; // esi
@@ -348095,23 +348053,21 @@ double __thiscall TribeInformationAIModule::findClosestDropsite(TribeInformation
       {
         if ( v6 < v7 || (v8 = v7 + 32, v7 + 32 <= v6) )
           v8 = v6;
-        v9 = operator_new(4 * v8);
+        v9 = (int *)operator_new(4 * v8);
         if ( v9 )
         {
-          for ( i = 0;
-                i < this->playerBuildings.maximumSizeValue;
-                v9[i - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * i - 4) )
+          for ( i = 0; i < this->playerBuildings.maximumSizeValue; v9[i - 1] = this->playerBuildings.value[i - 1] )
           {
             if ( i >= v8 )
               break;
             ++i;
           }
-          operator_delete((void *)this->playerBuildings.value);
-          this->playerBuildings.value = (int)v9;
+          operator_delete(this->playerBuildings.value);
+          this->playerBuildings.value = v9;
           this->playerBuildings.maximumSizeValue = v8;
         }
       }
-      v11 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)(v21 + this->playerBuildings.value));
+      v11 = RGE_Game_World::object((RGE_Game_World *)base_game->world, this->playerBuildings.value[v21]);
       v12 = v11;
       if ( v11 )
       {
@@ -348176,7 +348132,7 @@ LABEL_38:
         }
       }
       ++v6;
-      v21 += 4;
+      ++v21;
     }
     while ( v6 - 1 < this->playerBuildings.numberValue );
     v5 = v22;
@@ -348195,7 +348151,7 @@ RGE_Static_Object *__thiscall TribeInformationAIModule::findClosestReturnDropsit
   int v5; // ebx
   int v6; // eax
   int v7; // edi
-  _DWORD *v8; // esi
+  int *v8; // esi
   int i; // eax
   RGE_Static_Object *v10; // eax
   RGE_Static_Object *v11; // esi
@@ -348231,25 +348187,21 @@ RGE_Static_Object *__thiscall TribeInformationAIModule::findClosestReturnDropsit
       {
         if ( v5 < v6 || (v7 = v6 + 32, v6 + 32 <= v5) )
           v7 = v5;
-        v8 = operator_new(4 * v7);
+        v8 = (int *)operator_new(4 * v7);
         if ( v8 )
         {
-          for ( i = 0;
-                i < this->playerBuildings.maximumSizeValue;
-                v8[i - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * i - 4) )
+          for ( i = 0; i < this->playerBuildings.maximumSizeValue; v8[i - 1] = this->playerBuildings.value[i - 1] )
           {
             if ( i >= v7 )
               break;
             ++i;
           }
-          operator_delete((void *)this->playerBuildings.value);
-          this->playerBuildings.value = (int)v8;
+          operator_delete(this->playerBuildings.value);
+          this->playerBuildings.value = v8;
           this->playerBuildings.maximumSizeValue = v7;
         }
       }
-      v10 = MainDecisionAIModule::object(
-              (MainDecisionAIModule *)this->md,
-              *(_DWORD *)(this->playerBuildings.value + v19));
+      v10 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, this->playerBuildings.value[v19]);
       v11 = v10;
       if ( v10 )
       {
@@ -348299,7 +348251,7 @@ LABEL_28:
         }
       }
       ++v5;
-      v19 += 4;
+      ++v19;
     }
     while ( v5 - 1 < this->playerBuildings.numberValue );
     v4 = v21;
@@ -348430,7 +348382,7 @@ void __thiscall TribeInformationAIModule::enemyUnitsInRange(TribeInformationAIMo
   int i; // eax
   int v11; // edx
   int v12; // esi
-  _DWORD *v13; // ebp
+  int *v13; // ebp
   int j; // eax
   int v15; // ecx
   _BOOL1 v16; // sf
@@ -348467,7 +348419,7 @@ void __thiscall TribeInformationAIModule::enemyUnitsInRange(TribeInformationAIMo
               {
                 if ( i >= rUnits->maximumSizeValue )
                   break;
-                if ( *(_DWORD *)(rUnits->value + 4 * i) == v9 )
+                if ( rUnits->value[i] == v9 )
                   goto LABEL_23;
               }
               v11 = rUnits->maximumSizeValue;
@@ -348475,22 +348427,22 @@ void __thiscall TribeInformationAIModule::enemyUnitsInRange(TribeInformationAIMo
               {
                 if ( v8 + 1 < v11 || (v12 = v11 + 32, v11 + 32 <= v8 + 1) )
                   v12 = v8 + 1;
-                v13 = operator_new(4 * v12);
+                v13 = (int *)operator_new(4 * v12);
                 if ( v13 )
                 {
-                  for ( j = 0; j < rUnits->maximumSizeValue; v13[j - 1] = *(_DWORD *)(rUnits->value + 4 * j - 4) )
+                  for ( j = 0; j < rUnits->maximumSizeValue; v13[j - 1] = rUnits->value[j - 1] )
                   {
                     if ( j >= v12 )
                       break;
                     ++j;
                   }
-                  operator_delete((void *)rUnits->value);
-                  rUnits->value = (int)v13;
+                  operator_delete(rUnits->value);
+                  rUnits->value = v13;
                   rUnits->maximumSizeValue = v12;
                 }
                 v4 = this;
               }
-              *(_DWORD *)(rUnits->value + 4 * rUnits->numberValue++) = v9;
+              rUnits->value[rUnits->numberValue++] = v9;
             }
           }
         }
@@ -348945,7 +348897,7 @@ void __thiscall TribeInformationAIModule::updateNurseries(TribeInformationAIModu
   int v2; // ebx
   int v3; // eax
   int v4; // ebp
-  _DWORD *v5; // edi
+  int *v5; // edi
   int i; // eax
   RGE_Static_Object *v7; // eax
   RGE_Master_Static_Object *v8; // ecx
@@ -348966,25 +348918,21 @@ void __thiscall TribeInformationAIModule::updateNurseries(TribeInformationAIModu
       {
         if ( v2 < v3 || (v4 = v3 + 32, v3 + 32 <= v2) )
           v4 = v2;
-        v5 = operator_new(4 * v4);
+        v5 = (int *)operator_new(4 * v4);
         if ( v5 )
         {
-          for ( i = 0;
-                i < this->playerBuildings.maximumSizeValue;
-                v5[i - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * i - 4) )
+          for ( i = 0; i < this->playerBuildings.maximumSizeValue; v5[i - 1] = this->playerBuildings.value[i - 1] )
           {
             if ( i >= v4 )
               break;
             ++i;
           }
-          operator_delete((void *)this->playerBuildings.value);
-          this->playerBuildings.value = (int)v5;
+          operator_delete(this->playerBuildings.value);
+          this->playerBuildings.value = v5;
           this->playerBuildings.maximumSizeValue = v4;
         }
       }
-      v7 = MainDecisionAIModule::object(
-             (MainDecisionAIModule *)this->md,
-             *(_DWORD *)(this->playerBuildings.value + v12));
+      v7 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, this->playerBuildings.value[v12]);
       if ( v7->object_state == 2 )
       {
         v8 = v7->master_obj;
@@ -349003,7 +348951,7 @@ void __thiscall TribeInformationAIModule::updateNurseries(TribeInformationAIModu
         }
       }
       ++v2;
-      v12 += 4;
+      ++v12;
     }
     while ( v2 - 1 < this->playerBuildings.numberValue );
   }
@@ -349182,7 +349130,7 @@ int __thiscall ManagedArray_int_::contains(ManagedArray_int_ *this, const int *r
   {
     while ( v3 < this->maximumSizeValue )
     {
-      if ( *(_DWORD *)(this->value + 4 * v3) == *r )
+      if ( this->value[v3] == *r )
         return 1;
       if ( ++v3 >= v2 )
         return 0;
@@ -349213,7 +349161,7 @@ void __thiscall AIBestUnitToAttackStatistics::addUnit(AIBestUnitToAttackStatisti
   int v25; // ebp
   int v26; // eax
   int v27; // ebx
-  _DWORD *v28; // esi
+  int *v28; // esi
   int i; // eax
   RGE_Static_Object *v30; // eax
   RGE_Static_Object *v31; // esi
@@ -349231,7 +349179,7 @@ void __thiscall AIBestUnitToAttackStatistics::addUnit(AIBestUnitToAttackStatisti
   float v44; // [esp+18h] [ebp-8h]
   int v45; // [esp+1Ch] [ebp-4h]
   float unitsa; // [esp+24h] [ebp+4h]
-  ManagedArray_int_ *enemyUnitsa; // [esp+2Ch] [ebp+Ch]
+  int *enemyUnitsa; // [esp+2Ch] [ebp+Ch]
   float unitCentroidb; // [esp+30h] [ebp+10h]
   BVector *unitCentroida; // [esp+30h] [ebp+10h]
   float memoryIndexa; // [esp+3Ch] [ebp+1Ch]
@@ -349318,15 +349266,15 @@ void __thiscall AIBestUnitToAttackStatistics::addUnit(AIBestUnitToAttackStatisti
     v8->mLongestTTK = v23[10];
   v23[11] = 0.0;
   v45 = 0;
-  enemyUnitsa = (ManagedArray_int_ *)units;
+  enemyUnitsa = units;
   while ( 1 )
   {
-    memoryIndexb = RGE_Game_World::object((RGE_Game_World *)base_game->world, enemyUnitsa->value);
+    memoryIndexb = RGE_Game_World::object((RGE_Game_World *)base_game->world, *enemyUnitsa);
     if ( memoryIndexb )
       break;
 LABEL_69:
     v36 = ++v45 < v21;
-    enemyUnitsa = (ManagedArray_int_ *)((char *)enemyUnitsa + 4);
+    ++enemyUnitsa;
     if ( !v36 )
       goto LABEL_73;
   }
@@ -349342,24 +349290,24 @@ LABEL_69:
     {
       if ( v25 < v26 || (v27 = v26 + 32, v26 + 32 <= v25) )
         v27 = v25;
-      v28 = operator_new(4 * v27);
+      v28 = (int *)operator_new(4 * v27);
       if ( v28 )
       {
-        for ( i = 0; i < enemyUnits->maximumSizeValue; v28[i - 1] = *(_DWORD *)(enemyUnits->value + 4 * i - 4) )
+        for ( i = 0; i < enemyUnits->maximumSizeValue; v28[i - 1] = enemyUnits->value[i - 1] )
         {
           if ( i >= v27 )
             break;
           ++i;
         }
-        operator_delete((void *)enemyUnits->value);
-        enemyUnits->value = (int)v28;
+        operator_delete(enemyUnits->value);
+        enemyUnits->value = v28;
         enemyUnits->maximumSizeValue = v27;
       }
       v8 = this;
     }
     v30 = RGE_Game_World::object(
             (RGE_Game_World *)base_game->world,
-            *(_DWORD *)((char *)&unitCentroida->x + enemyUnits->value));
+            *(_DWORD *)((char *)&unitCentroida->x + (unsigned int)enemyUnits->value));
     v31 = v30;
     if ( v30 && RGE_Static_Object::unitAI(v30) )
     {
@@ -350605,7 +350553,7 @@ void __cdecl dynamic_atexit_destructor_for__enemyUnits__()
 {
   if ( enemyUnits.value )
   {
-    operator_delete((void *)enemyUnits.value);
+    operator_delete(enemyUnits.value);
     enemyUnits.value = 0;
   }
   enemyUnits.numberValue = 0;
@@ -350771,7 +350719,7 @@ int __thiscall TribeInformationAIModule::churchToGarrisonRelicIn(TribeInformatio
   int v5; // ebp
   int v6; // eax
   int v7; // ebx
-  _DWORD *v8; // edi
+  int *v8; // edi
   int i; // eax
   RGE_Static_Object *v10; // eax
   RGE_Static_Object *v11; // edi
@@ -350795,25 +350743,21 @@ int __thiscall TribeInformationAIModule::churchToGarrisonRelicIn(TribeInformatio
       {
         if ( v5 < v6 || (v7 = v6 + 32, v6 + 32 <= v5) )
           v7 = v5;
-        v8 = operator_new(4 * v7);
+        v8 = (int *)operator_new(4 * v7);
         if ( v8 )
         {
-          for ( i = 0;
-                i < this->playerBuildings.maximumSizeValue;
-                v8[i - 1] = *(_DWORD *)(this->playerBuildings.value + 4 * i - 4) )
+          for ( i = 0; i < this->playerBuildings.maximumSizeValue; v8[i - 1] = this->playerBuildings.value[i - 1] )
           {
             if ( i >= v7 )
               break;
             ++i;
           }
-          operator_delete((void *)this->playerBuildings.value);
-          this->playerBuildings.value = (int)v8;
+          operator_delete(this->playerBuildings.value);
+          this->playerBuildings.value = v8;
           this->playerBuildings.maximumSizeValue = v7;
         }
       }
-      v10 = RGE_Game_World::object(
-              (RGE_Game_World *)this->md->player->world,
-              *(_DWORD *)(v14 + this->playerBuildings.value));
+      v10 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, this->playerBuildings.value[v14]);
       v11 = v10;
       if ( v10 )
       {
@@ -350829,7 +350773,7 @@ int __thiscall TribeInformationAIModule::churchToGarrisonRelicIn(TribeInformatio
         }
       }
       ++v5;
-      v14 += 4;
+      ++v14;
     }
     while ( v5 - 1 < this->playerBuildings.numberValue );
     result = v15;
@@ -350846,23 +350790,23 @@ int __thiscall TribeInformationAIModule::bestEnemyStructureInTownToAttack(TribeI
   ManagedArray_int_ *v6; // esi
   int v7; // eax
   int v8; // ebp
-  _DWORD *v9; // edi
+  int *v9; // edi
   int i; // eax
   RGE_Static_Object *v11; // eax
   RGE_Static_Object *v12; // edi
   int v13; // eax
   int v14; // ecx
-  _DWORD *v15; // edx
+  int *v15; // edx
   int v16; // eax
   __int16 v17; // ax
   double v18; // st7
   int v19; // eax
   int v20; // ebp
-  _DWORD *v21; // edi
+  int *v21; // edi
   int j; // eax
   int v23; // eax
   int v24; // ecx
-  _DWORD *v25; // edx
+  int *v25; // edx
   int v26; // eax
   _BOOL1 v27; // [esp+7h] [ebp-15h]
   int s; // [esp+8h] [ebp-14h]
@@ -350896,22 +350840,22 @@ int __thiscall TribeInformationAIModule::bestEnemyStructureInTownToAttack(TribeI
           if ( v7 + 32 <= s )
             v8 = s;
         }
-        v9 = operator_new(4 * v8);
+        v9 = (int *)operator_new(4 * v8);
         if ( v9 )
         {
-          for ( i = 0; i < v6->maximumSizeValue; v9[i - 1] = *(_DWORD *)(v6->value + 4 * i - 4) )
+          for ( i = 0; i < v6->maximumSizeValue; v9[i - 1] = v6->value[i - 1] )
           {
             if ( i >= v8 )
               break;
             ++i;
           }
-          operator_delete((void *)v6->value);
-          v6->value = (int)v9;
+          operator_delete(v6->value);
+          v6->value = v9;
           v6->maximumSizeValue = v8;
         }
         v2 = this;
       }
-      v11 = RGE_Game_World::object((RGE_Game_World *)v2->md->player->world, *(_DWORD *)(v6->value + 4 * v4));
+      v11 = RGE_Game_World::object((RGE_Game_World *)v2->md->player->world, v6->value[v4]);
       v12 = v11;
       if ( !v11 )
         break;
@@ -350929,17 +350873,17 @@ int __thiscall TribeInformationAIModule::bestEnemyStructureInTownToAttack(TribeI
             if ( v19 + 32 <= s )
               v20 = s;
           }
-          v21 = operator_new(4 * v20);
+          v21 = (int *)operator_new(4 * v20);
           if ( v21 )
           {
-            for ( j = 0; j < v6->maximumSizeValue; v21[j - 1] = *(_DWORD *)(v6->value + 4 * j - 4) )
+            for ( j = 0; j < v6->maximumSizeValue; v21[j - 1] = v6->value[j - 1] )
             {
               if ( j >= v20 )
                 break;
               ++j;
             }
-            operator_delete((void *)v6->value);
-            v6->value = (int)v21;
+            operator_delete(v6->value);
+            v6->value = v21;
             v6->maximumSizeValue = v20;
           }
           v2 = this;
@@ -350948,10 +350892,10 @@ int __thiscall TribeInformationAIModule::bestEnemyStructureInTownToAttack(TribeI
         v24 = v6->maximumSizeValue;
         if ( v24 > 0 )
         {
-          v25 = (_DWORD *)v6->value;
+          v25 = v6->value;
           do
           {
-            if ( *v25 == *(_DWORD *)(v6->value + 4 * v4) )
+            if ( *v25 == v6->value[v4] )
               break;
             ++v23;
             ++v25;
@@ -350965,7 +350909,7 @@ int __thiscall TribeInformationAIModule::bestEnemyStructureInTownToAttack(TribeI
             do
             {
               ++v23;
-              *(_DWORD *)(v6->value + 4 * v23 - 4) = *(_DWORD *)(v6->value + 4 * v23);
+              v6->value[v23 - 1] = v6->value[v23];
             }
             while ( v23 < v6->maximumSizeValue - 1 );
           }
@@ -351004,10 +350948,10 @@ LABEL_59:
     v14 = v6->maximumSizeValue;
     if ( v14 > 0 )
     {
-      v15 = (_DWORD *)v6->value;
+      v15 = v6->value;
       do
       {
-        if ( *v15 == *(_DWORD *)(v6->value + 4 * v4) )
+        if ( *v15 == v6->value[v4] )
           break;
         ++v13;
         ++v15;
@@ -351021,7 +350965,7 @@ LABEL_59:
         do
         {
           ++v13;
-          *(_DWORD *)(v6->value + 4 * v13 - 4) = *(_DWORD *)(v6->value + 4 * v13);
+          v6->value[v13 - 1] = v6->value[v13];
         }
         while ( v13 < v6->maximumSizeValue - 1 );
       }
@@ -351083,7 +351027,7 @@ void __thiscall TribeInformationAIModule::checkInTown(TribeInformationAIModule *
   int i; // eax
   int v7; // edx
   int v8; // ebp
-  _DWORD *v9; // ebx
+  int *v9; // ebx
   int j; // eax
   int v11; // eax
   int v12; // edi
@@ -351094,7 +351038,7 @@ void __thiscall TribeInformationAIModule::checkInTown(TribeInformationAIModule *
   int l; // eax
   int v18; // edx
   int v19; // ebp
-  _DWORD *v20; // ebx
+  int *v20; // ebx
   int m; // eax
   float v22; // [esp+28h] [ebp-4h]
 
@@ -351116,7 +351060,7 @@ void __thiscall TribeInformationAIModule::checkInTown(TribeInformationAIModule *
           {
             if ( i >= this->mEnemyStructuresInTown.maximumSizeValue )
               break;
-            if ( *(_DWORD *)(this->mEnemyStructuresInTown.value + 4 * i) == v5 )
+            if ( this->mEnemyStructuresInTown.value[i] == v5 )
               return;
           }
           v7 = this->mEnemyStructuresInTown.maximumSizeValue;
@@ -351124,23 +351068,23 @@ void __thiscall TribeInformationAIModule::checkInTown(TribeInformationAIModule *
           {
             if ( v4 + 1 < v7 || (v8 = v7 + 32, v7 + 32 <= v4 + 1) )
               v8 = v4 + 1;
-            v9 = operator_new(4 * v8);
+            v9 = (int *)operator_new(4 * v8);
             if ( v9 )
             {
               for ( j = 0;
                     j < this->mEnemyStructuresInTown.maximumSizeValue;
-                    v9[j - 1] = *(_DWORD *)(this->mEnemyStructuresInTown.value + 4 * j - 4) )
+                    v9[j - 1] = this->mEnemyStructuresInTown.value[j - 1] )
               {
                 if ( j >= v8 )
                   break;
                 ++j;
               }
-              operator_delete((void *)this->mEnemyStructuresInTown.value);
-              this->mEnemyStructuresInTown.value = (int)v9;
+              operator_delete(this->mEnemyStructuresInTown.value);
+              this->mEnemyStructuresInTown.value = v9;
               this->mEnemyStructuresInTown.maximumSizeValue = v8;
             }
           }
-          *(_DWORD *)(this->mEnemyStructuresInTown.value + 4 * this->mEnemyStructuresInTown.numberValue++) = v5;
+          this->mEnemyStructuresInTown.value[this->mEnemyStructuresInTown.numberValue++] = v5;
         }
         else
         {
@@ -351154,12 +351098,12 @@ void __thiscall TribeInformationAIModule::checkInTown(TribeInformationAIModule *
             {
               if ( k >= v14->maximumSizeValue )
                 break;
-              if ( *(_DWORD *)(v14->value + 4 * k) == v12 )
+              if ( v14->value[k] == v12 )
                 return;
             }
             if ( v13 > v14->maximumSizeValue - 1 )
               ManagedArray_int_::resize(v14, v13 + 1);
-            *(_DWORD *)(v14->value + 4 * v14->numberValue++) = v12;
+            v14->value[v14->numberValue++] = v12;
           }
           else
           {
@@ -351168,7 +351112,7 @@ void __thiscall TribeInformationAIModule::checkInTown(TribeInformationAIModule *
             {
               if ( l >= this->mEnemySoldiersInTown.maximumSizeValue )
                 break;
-              if ( *(_DWORD *)(this->mEnemySoldiersInTown.value + 4 * l) == v12 )
+              if ( this->mEnemySoldiersInTown.value[l] == v12 )
                 return;
             }
             v18 = this->mEnemySoldiersInTown.maximumSizeValue;
@@ -351176,23 +351120,23 @@ void __thiscall TribeInformationAIModule::checkInTown(TribeInformationAIModule *
             {
               if ( v16 + 1 < v18 || (v19 = v18 + 32, v18 + 32 <= v16 + 1) )
                 v19 = v16 + 1;
-              v20 = operator_new(4 * v19);
+              v20 = (int *)operator_new(4 * v19);
               if ( v20 )
               {
                 for ( m = 0;
                       m < this->mEnemySoldiersInTown.maximumSizeValue;
-                      v20[m - 1] = *(_DWORD *)(this->mEnemySoldiersInTown.value + 4 * m - 4) )
+                      v20[m - 1] = this->mEnemySoldiersInTown.value[m - 1] )
                 {
                   if ( m >= v19 )
                     break;
                   ++m;
                 }
-                operator_delete((void *)this->mEnemySoldiersInTown.value);
-                this->mEnemySoldiersInTown.value = (int)v20;
+                operator_delete(this->mEnemySoldiersInTown.value);
+                this->mEnemySoldiersInTown.value = v20;
                 this->mEnemySoldiersInTown.maximumSizeValue = v19;
               }
             }
-            *(_DWORD *)(this->mEnemySoldiersInTown.value + 4 * this->mEnemySoldiersInTown.numberValue++) = v12;
+            this->mEnemySoldiersInTown.value[this->mEnemySoldiersInTown.numberValue++] = v12;
           }
         }
       }
@@ -351207,7 +351151,7 @@ bool __thiscall TribeInformationAIModule::underInTownEnemyBuildingCoverFire(Trib
   int v4; // ebx
   int v5; // eax
   int v6; // ebp
-  _DWORD *v7; // edi
+  int *v7; // edi
   int i; // eax
   RGE_Static_Object *v9; // eax
   RGE_Static_Object *v10; // edi
@@ -351219,7 +351163,7 @@ bool __thiscall TribeInformationAIModule::underInTownEnemyBuildingCoverFire(Trib
   int v16; // ebx
   int v17; // eax
   int v18; // ebp
-  _DWORD *v19; // edi
+  int *v19; // edi
   int j; // eax
   RGE_Static_Object *v21; // eax
   RGE_Static_Object *v22; // edi
@@ -351251,27 +351195,25 @@ bool __thiscall TribeInformationAIModule::underInTownEnemyBuildingCoverFire(Trib
       {
         if ( v4 < v5 || (v6 = v5 + 32, v5 + 32 <= v4) )
           v6 = v4;
-        v7 = operator_new(4 * v6);
+        v7 = (int *)operator_new(4 * v6);
         if ( v7 )
         {
           for ( i = 0;
                 i < this->mEnemyStructuresInTown.maximumSizeValue;
-                v7[i - 1] = *(_DWORD *)(this->mEnemyStructuresInTown.value + 4 * i - 4) )
+                v7[i - 1] = this->mEnemyStructuresInTown.value[i - 1] )
           {
             if ( i >= v6 )
               break;
             ++i;
           }
-          operator_delete((void *)this->mEnemyStructuresInTown.value);
-          this->mEnemyStructuresInTown.value = (int)v7;
+          operator_delete(this->mEnemyStructuresInTown.value);
+          this->mEnemyStructuresInTown.value = v7;
           this->mEnemyStructuresInTown.maximumSizeValue = v6;
         }
       }
-      if ( *(_DWORD *)(this->mEnemyStructuresInTown.value + v30) != unitID )
+      if ( this->mEnemyStructuresInTown.value[v30] != unitID )
       {
-        v9 = RGE_Game_World::object(
-               (RGE_Game_World *)this->md->player->world,
-               *(_DWORD *)(this->mEnemyStructuresInTown.value + v30));
+        v9 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, this->mEnemyStructuresInTown.value[v30]);
         v10 = v9;
         if ( v9 )
         {
@@ -351289,7 +351231,7 @@ bool __thiscall TribeInformationAIModule::underInTownEnemyBuildingCoverFire(Trib
         }
       }
       ++v4;
-      v30 += 4;
+      ++v30;
     }
     while ( v4 - 1 < this->mEnemyStructuresInTown.numberValue );
   }
@@ -351309,27 +351251,23 @@ LABEL_40:
     {
       if ( v16 < v17 || (v18 = v17 + 32, v17 + 32 <= v16) )
         v18 = v16;
-      v19 = operator_new(4 * v18);
+      v19 = (int *)operator_new(4 * v18);
       if ( v19 )
       {
-        for ( j = 0;
-              j < this->mEnemySoldiersInTown.maximumSizeValue;
-              v19[j - 1] = *(_DWORD *)(this->mEnemySoldiersInTown.value + 4 * j - 4) )
+        for ( j = 0; j < this->mEnemySoldiersInTown.maximumSizeValue; v19[j - 1] = this->mEnemySoldiersInTown.value[j - 1] )
         {
           if ( j >= v18 )
             break;
           ++j;
         }
-        operator_delete((void *)this->mEnemySoldiersInTown.value);
-        this->mEnemySoldiersInTown.value = (int)v19;
+        operator_delete(this->mEnemySoldiersInTown.value);
+        this->mEnemySoldiersInTown.value = v19;
         this->mEnemySoldiersInTown.maximumSizeValue = v18;
       }
     }
-    if ( *(_DWORD *)(v31 + this->mEnemySoldiersInTown.value) != unitID )
+    if ( this->mEnemySoldiersInTown.value[v31] != unitID )
     {
-      v21 = RGE_Game_World::object(
-              (RGE_Game_World *)this->md->player->world,
-              *(_DWORD *)(v31 + this->mEnemySoldiersInTown.value));
+      v21 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, this->mEnemySoldiersInTown.value[v31]);
       v22 = v21;
       if ( v21 )
       {
@@ -351354,7 +351292,7 @@ LABEL_40:
       }
     }
     ++v16;
-    v31 += 4;
+    ++v31;
     result = v16 - 1;
     if ( v16 - 1 >= this->mEnemySoldiersInTown.numberValue )
       goto LABEL_40;
@@ -352085,7 +352023,7 @@ void __thiscall TribeMainDecisionAIModule::updateBuildAIWithObjects(TribeMainDec
   int v2; // ebp
   int v3; // eax
   int v4; // ebx
-  _DWORD *v5; // edi
+  int *v5; // edi
   int i; // eax
   RGE_Static_Object *v7; // eax
   RGE_Static_Object *v8; // edi
@@ -352103,21 +352041,21 @@ void __thiscall TribeMainDecisionAIModule::updateBuildAIWithObjects(TribeMainDec
       {
         if ( v2 < v3 || (v4 = v3 + 32, v3 + 32 <= v2) )
           v4 = v2;
-        v5 = operator_new(4 * v4);
+        v5 = (int *)operator_new(4 * v4);
         if ( v5 )
         {
-          for ( i = 0; i < this->objects.maximumSizeValue; v5[i - 1] = *(_DWORD *)(this->objects.value + 4 * i - 4) )
+          for ( i = 0; i < this->objects.maximumSizeValue; v5[i - 1] = this->objects.value[i - 1] )
           {
             if ( i >= v4 )
               break;
             ++i;
           }
-          operator_delete((void *)this->objects.value);
-          this->objects.value = (int)v5;
+          operator_delete(this->objects.value);
+          this->objects.value = v5;
           this->objects.maximumSizeValue = v4;
         }
       }
-      v7 = MainDecisionAIModule::object((MainDecisionAIModule *)this, *(_DWORD *)(this->objects.value + v10));
+      v7 = MainDecisionAIModule::object((MainDecisionAIModule *)this, this->objects.value[v10]);
       v8 = v7;
       if ( v7 )
       {
@@ -352135,7 +352073,7 @@ void __thiscall TribeMainDecisionAIModule::updateBuildAIWithObjects(TribeMainDec
         }
       }
       ++v2;
-      v10 += 4;
+      ++v10;
     }
     while ( v2 - 1 < this->objects.numberValue );
   }
@@ -352259,7 +352197,7 @@ RGE_Static_Object *__thiscall TribeMainDecisionAIModule::getIdleBuilding(TribeMa
   int v6; // ebx
   int v7; // eax
   int v8; // ebp
-  _DWORD *v9; // esi
+  int *v9; // esi
   int i; // eax
   RGE_Static_Object *v11; // eax
   RGE_Static_Object *v12; // esi
@@ -352279,7 +352217,7 @@ RGE_Static_Object *__thiscall TribeMainDecisionAIModule::getIdleBuilding(TribeMa
   __int16 progress; // [esp+16h] [ebp-50h] BYREF
   __int16 master_id; // [esp+18h] [ebp-4Eh] BYREF
   int v28; // [esp+1Ah] [ebp-4Ch]
-  int v29; // [esp+1Eh] [ebp-48h]
+  unsigned int v29; // [esp+1Eh] [ebp-48h]
   int *v30; // [esp+22h] [ebp-44h]
   int v31[16]; // [esp+26h] [ebp-40h] BYREF
 
@@ -352301,22 +352239,22 @@ RGE_Static_Object *__thiscall TribeMainDecisionAIModule::getIdleBuilding(TribeMa
     {
       if ( v6 < v7 || (v8 = v7 + 32, v7 + 32 <= v6) )
         v8 = v6;
-      v9 = operator_new(4 * v8);
+      v9 = (int *)operator_new(4 * v8);
       if ( v9 )
       {
-        for ( i = 0; i < this->objects.maximumSizeValue; v9[i - 1] = *(_DWORD *)(this->objects.value + 4 * i - 4) )
+        for ( i = 0; i < this->objects.maximumSizeValue; v9[i - 1] = this->objects.value[i - 1] )
         {
           if ( i >= v8 )
             break;
           ++i;
         }
-        operator_delete((void *)this->objects.value);
-        this->objects.value = (int)v9;
+        operator_delete(this->objects.value);
+        this->objects.value = v9;
         this->objects.maximumSizeValue = v8;
       }
       v3 = buildingId;
     }
-    v11 = RGE_Game_World::object((RGE_Game_World *)this->player->world, *(_DWORD *)(v29 + this->objects.value));
+    v11 = RGE_Game_World::object((RGE_Game_World *)this->player->world, this->objects.value[v29 / 4]);
     v12 = v11;
     if ( v11 )
     {
@@ -353239,7 +353177,7 @@ TribeStrategyAIModule *__thiscall TribeStrategyAIModule::TribeStrategyAIModule2(
   int v8; // eax
   int v9; // ecx
   int v10; // edi
-  _DWORD *v11; // esi
+  int *v11; // esi
   int j; // eax
   int v13; // ecx
   int v14; // eax
@@ -353248,7 +353186,7 @@ TribeStrategyAIModule *__thiscall TribeStrategyAIModule::TribeStrategyAIModule2(
   int v17; // eax
   int v18; // ecx
   int v19; // edi
-  _DWORD *v20; // esi
+  int *v20; // esi
   int k; // eax
   int buffer; // [esp+10h] [ebp-18h] BYREF
   int i; // [esp+14h] [ebp-14h]
@@ -353303,7 +353241,7 @@ TribeStrategyAIModule *__thiscall TribeStrategyAIModule::TribeStrategyAIModule2(
     {
       if ( v7 >= this->vcRuleSet.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->vcRuleSet.value + 4 * v7) == playerID )
+      if ( this->vcRuleSet.value[v7] == playerID )
         goto LABEL_19;
     }
     v8 = this->vcRuleSet.maximumSizeValue;
@@ -353312,21 +353250,21 @@ TribeStrategyAIModule *__thiscall TribeStrategyAIModule::TribeStrategyAIModule2(
       v9 = v6 + 1;
       if ( v9 < v8 || (v10 = v8 + 32, v8 + 32 <= v9) )
         v10 = v9;
-      v11 = operator_new(4 * v10);
+      v11 = (int *)operator_new(4 * v10);
       if ( v11 )
       {
-        for ( j = 0; j < this->vcRuleSet.maximumSizeValue; v11[j - 1] = *(_DWORD *)(this->vcRuleSet.value + 4 * j - 4) )
+        for ( j = 0; j < this->vcRuleSet.maximumSizeValue; v11[j - 1] = this->vcRuleSet.value[j - 1] )
         {
           if ( j >= v10 )
             break;
           ++j;
         }
-        operator_delete((void *)this->vcRuleSet.value);
-        this->vcRuleSet.value = (int)v11;
+        operator_delete(this->vcRuleSet.value);
+        this->vcRuleSet.value = v11;
         this->vcRuleSet.maximumSizeValue = v10;
       }
     }
-    *(_DWORD *)(this->vcRuleSet.value + 4 * this->vcRuleSet.numberValue++) = i;
+    this->vcRuleSet.value[this->vcRuleSet.numberValue++] = i;
 LABEL_19:
     ;
   }
@@ -353340,12 +353278,12 @@ LABEL_19:
     {
       if ( v14 >= this->executingRules.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->executingRules.value + 4 * v14) == playerID )
+      if ( this->executingRules.value[v14] == playerID )
         goto LABEL_28;
     }
     if ( v13 > this->executingRules.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->executingRules, v13 + 1);
-    *(_DWORD *)(this->executingRules.value + 4 * this->executingRules.numberValue++) = i;
+    this->executingRules.value[this->executingRules.numberValue++] = i;
 LABEL_28:
     ;
   }
@@ -353359,7 +353297,7 @@ LABEL_28:
     {
       if ( v16 >= this->idleRules.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->idleRules.value + 4 * v16) == playerID )
+      if ( this->idleRules.value[v16] == playerID )
         goto LABEL_44;
     }
     v17 = this->idleRules.maximumSizeValue;
@@ -353368,21 +353306,21 @@ LABEL_28:
       v18 = v15 + 1;
       if ( v18 < v17 || (v19 = v17 + 32, v17 + 32 <= v18) )
         v19 = v18;
-      v20 = operator_new(4 * v19);
+      v20 = (int *)operator_new(4 * v19);
       if ( v20 )
       {
-        for ( k = 0; k < this->idleRules.maximumSizeValue; v20[k - 1] = *(_DWORD *)(this->idleRules.value + 4 * k - 4) )
+        for ( k = 0; k < this->idleRules.maximumSizeValue; v20[k - 1] = this->idleRules.value[k - 1] )
         {
           if ( k >= v19 )
             break;
           ++k;
         }
-        operator_delete((void *)this->idleRules.value);
-        this->idleRules.value = (int)v20;
+        operator_delete(this->idleRules.value);
+        this->idleRules.value = v20;
         this->idleRules.maximumSizeValue = v19;
       }
     }
-    *(_DWORD *)(this->idleRules.value + 4 * this->idleRules.numberValue++) = i;
+    this->idleRules.value[this->idleRules.numberValue++] = i;
 LABEL_44:
     ;
   }
@@ -353402,7 +353340,7 @@ void __thiscall TribeStrategyAIModule::destructor(TribeStrategyAIModule *this)
   this->vcRules.vfptr = &VictoryConditionRuleSystem::vftable;
   if ( this->idleRules.value )
   {
-    operator_delete((void *)this->idleRules.value);
+    operator_delete(this->idleRules.value);
     this->idleRules.value = 0;
   }
   this->idleRules.numberValue = 0;
@@ -353410,7 +353348,7 @@ void __thiscall TribeStrategyAIModule::destructor(TribeStrategyAIModule *this)
   this->idleRules.maximumSizeValue = 0;
   if ( this->executingRules.value )
   {
-    operator_delete((void *)this->executingRules.value);
+    operator_delete(this->executingRules.value);
     this->executingRules.value = 0;
   }
   this->executingRules.numberValue = 0;
@@ -353418,7 +353356,7 @@ void __thiscall TribeStrategyAIModule::destructor(TribeStrategyAIModule *this)
   this->executingRules.maximumSizeValue = 0;
   if ( this->vcRuleSet.value )
   {
-    operator_delete((void *)this->vcRuleSet.value);
+    operator_delete(this->vcRuleSet.value);
     this->vcRuleSet.value = 0;
   }
   this->vcRuleSet.numberValue = 0;
@@ -353618,7 +353556,7 @@ int __thiscall TribeStrategyAIModule::update(TribeStrategyAIModule *this, int ti
   int v6; // ebp
   int v7; // eax
   int v8; // ebx
-  _DWORD *v9; // edi
+  int *v9; // edi
   int j; // eax
   DWORD v12; // ebx
   int v13; // [esp+Ch] [ebp-4h]
@@ -353648,17 +353586,17 @@ int __thiscall TribeStrategyAIModule::update(TribeStrategyAIModule *this, int ti
       {
         if ( v6 < v7 || (v8 = v7 + 32, v7 + 32 <= v6) )
           v8 = v6;
-        v9 = operator_new(4 * v8);
+        v9 = (int *)operator_new(4 * v8);
         if ( v9 )
         {
-          for ( j = 0; j < this->vcRuleSet.maximumSizeValue; v9[j - 1] = *(_DWORD *)(this->vcRuleSet.value + 4 * j - 4) )
+          for ( j = 0; j < this->vcRuleSet.maximumSizeValue; v9[j - 1] = this->vcRuleSet.value[j - 1] )
           {
             if ( j >= v8 )
               break;
             ++j;
           }
-          operator_delete((void *)this->vcRuleSet.value);
-          this->vcRuleSet.value = (int)v9;
+          operator_delete(this->vcRuleSet.value);
+          this->vcRuleSet.value = v9;
           this->vcRuleSet.maximumSizeValue = v8;
         }
       }
@@ -353707,14 +353645,14 @@ int __thiscall TribeStrategyAIModule::save(TribeStrategyAIModule *this, int outf
   int i; // esi
   int v4; // esi
   int v5; // eax
-  _DWORD *v6; // edi
+  int *v6; // edi
   int j; // eax
   int v8; // eax
   int v9; // edi
   int v10; // ecx
   int v11; // esi
   int v12; // eax
-  _DWORD *v13; // edi
+  int *v13; // edi
   int k; // eax
   int v15; // ecx
   int v16; // edi
@@ -353744,7 +353682,7 @@ int __thiscall TribeStrategyAIModule::save(TribeStrategyAIModule *this, int outf
   {
     if ( i > this->vcRuleSet.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->vcRuleSet, i + 1);
-    Buffer = *(_DWORD *)(this->vcRuleSet.value + 4 * i);
+    Buffer = this->vcRuleSet.value[i];
     rge_write(outfile, &Buffer, 4u);
   }
   Buffer = this->executingRules.numberValue;
@@ -353760,25 +353698,23 @@ int __thiscall TribeStrategyAIModule::save(TribeStrategyAIModule *this, int outf
       {
         if ( v4 < v5 || (v20 = v5 + 32, v5 + 32 <= v4) )
           v20 = v4;
-        v6 = operator_new(4 * v20);
+        v6 = (int *)operator_new(4 * v20);
         if ( v6 )
         {
-          for ( j = 0;
-                j < this->executingRules.maximumSizeValue;
-                v6[j - 1] = *(_DWORD *)(this->executingRules.value + 4 * j - 4) )
+          for ( j = 0; j < this->executingRules.maximumSizeValue; v6[j - 1] = this->executingRules.value[j - 1] )
           {
             if ( j >= v20 )
               break;
             ++j;
           }
-          operator_delete((void *)this->executingRules.value);
+          operator_delete(this->executingRules.value);
           v8 = v20;
-          this->executingRules.value = (int)v6;
+          this->executingRules.value = v6;
           this->executingRules.maximumSizeValue = v8;
         }
       }
       v9 = v21;
-      Buffer = *(_DWORD *)(v21 + this->executingRules.value);
+      Buffer = *(int *)((char *)this->executingRules.value + v21);
       rge_write(outfile, &Buffer, 4u);
       v10 = this->executingRules.numberValue;
       ++v4;
@@ -353799,23 +353735,23 @@ int __thiscall TribeStrategyAIModule::save(TribeStrategyAIModule *this, int outf
       {
         if ( v11 < v12 || (v20 = v12 + 32, v12 + 32 <= v11) )
           v20 = v11;
-        v13 = operator_new(4 * v20);
+        v13 = (int *)operator_new(4 * v20);
         if ( v13 )
         {
-          for ( k = 0; k < this->idleRules.maximumSizeValue; v13[k - 1] = *(_DWORD *)(this->idleRules.value + 4 * k - 4) )
+          for ( k = 0; k < this->idleRules.maximumSizeValue; v13[k - 1] = this->idleRules.value[k - 1] )
           {
             if ( k >= v20 )
               break;
             ++k;
           }
-          operator_delete((void *)this->idleRules.value);
+          operator_delete(this->idleRules.value);
           v15 = v20;
-          this->idleRules.value = (int)v13;
+          this->idleRules.value = v13;
           this->idleRules.maximumSizeValue = v15;
         }
       }
       v16 = v21;
-      Buffer = *(_DWORD *)(v21 + this->idleRules.value);
+      Buffer = *(int *)((char *)this->idleRules.value + v21);
       rge_write(outfile, &Buffer, 4u);
       v17 = this->idleRules.numberValue;
       ++v11;
@@ -353927,7 +353863,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v5 = v3->numberValue;
     if ( v5 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v5 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   vcNumber = 2;
   if ( ManagedArray_int_::contains(v3, &vcNumber) != 1 )
@@ -353935,7 +353871,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v6 = v3->numberValue;
     if ( v6 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v6 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   vcNumber = 12;
   if ( ManagedArray_int_::contains(v3, &vcNumber) != 1 )
@@ -353943,7 +353879,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v7 = v3->numberValue;
     if ( v7 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v7 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   vcNumber = 13;
   if ( ManagedArray_int_::contains(v3, &vcNumber) != 1 )
@@ -353951,7 +353887,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v8 = v3->numberValue;
     if ( v8 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v8 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   vcNumber = 14;
   if ( ManagedArray_int_::contains(v3, &vcNumber) != 1 )
@@ -353959,7 +353895,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v9 = v3->numberValue;
     if ( v9 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v9 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   vcNumber = 16;
   if ( ManagedArray_int_::contains(v3, &vcNumber) != 1 )
@@ -353967,7 +353903,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v10 = v3->numberValue;
     if ( v10 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v10 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   vcNumber = 17;
   if ( ManagedArray_int_::contains(v3, &vcNumber) != 1 )
@@ -353975,7 +353911,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v11 = v3->numberValue;
     if ( v11 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v11 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   vcNumber = 18;
   if ( ManagedArray_int_::contains(v3, &vcNumber) != 1 )
@@ -353983,7 +353919,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v12 = v3->numberValue;
     if ( v12 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v12 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   vcNumber = 21;
   if ( ManagedArray_int_::contains(v3, &vcNumber) != 1 )
@@ -353991,7 +353927,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v13 = v3->numberValue;
     if ( v13 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v13 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   vcNumber = 22;
   if ( ManagedArray_int_::contains(v3, &vcNumber) != 1 )
@@ -353999,7 +353935,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v14 = v3->numberValue;
     if ( v14 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v14 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   vcNumber = 23;
   if ( ManagedArray_int_::contains(v3, &vcNumber) != 1 )
@@ -354007,7 +353943,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v15 = v3->numberValue;
     if ( v15 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v15 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   vcNumber = 24;
   if ( ManagedArray_int_::contains(v3, &vcNumber) != 1 )
@@ -354015,7 +353951,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v16 = v3->numberValue;
     if ( v16 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v16 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   vcNumber = 25;
   if ( ManagedArray_int_::contains(v3, &vcNumber) != 1 )
@@ -354023,7 +353959,7 @@ void __thiscall TribeStrategyAIModule::setVictoryCondition(TribeStrategyAIModule
     v17 = v3->numberValue;
     if ( v17 > v3->maximumSizeValue - 1 )
       ManagedArray_int_::resize(v3, v17 + 1);
-    *(_DWORD *)(v3->value + 4 * v3->numberValue++) = vcNumber;
+    v3->value[v3->numberValue++] = vcNumber;
   }
   ManagedArray_int_::add(v3, 26);
   ManagedArray_int_::add(v3, 27);
@@ -354083,7 +354019,7 @@ int *__thiscall ManagedArray_int_::operator_at(ManagedArray_int_ *this, int v)
 {
   int v3; // ecx
   int v4; // ebx
-  _DWORD *v5; // edi
+  int *v5; // edi
   int i; // eax
 
   v3 = this->maximumSizeValue;
@@ -354091,21 +354027,21 @@ int *__thiscall ManagedArray_int_::operator_at(ManagedArray_int_ *this, int v)
   {
     if ( v + 1 < v3 || (v4 = v3 + 32, v3 + 32 <= v + 1) )
       v4 = v + 1;
-    v5 = operator_new(4 * v4);
+    v5 = (int *)operator_new(4 * v4);
     if ( v5 )
     {
-      for ( i = 0; i < this->maximumSizeValue; v5[i - 1] = *(_DWORD *)(this->value + 4 * i - 4) )
+      for ( i = 0; i < this->maximumSizeValue; v5[i - 1] = this->value[i - 1] )
       {
         if ( i >= v4 )
           break;
         ++i;
       }
-      operator_delete((void *)this->value);
-      this->value = (int)v5;
+      operator_delete(this->value);
+      this->value = v5;
       this->maximumSizeValue = v4;
     }
   }
-  return (int *)(this->value + 4 * v);
+  return &this->value[v];
 }
 
 //----- (00599ED0) --------------------------------------------------------
@@ -354115,7 +354051,7 @@ int __thiscall ManagedArray_int_::add(ManagedArray_int_ *this, int r)
   int v4; // ecx
   int v5; // edx
   int v6; // ebx
-  _DWORD *v7; // edi
+  int *v7; // edi
   int i; // eax
 
   v3 = 0;
@@ -354124,7 +354060,7 @@ int __thiscall ManagedArray_int_::add(ManagedArray_int_ *this, int r)
   {
     while ( v3 < this->maximumSizeValue )
     {
-      if ( *(_DWORD *)(this->value + 4 * v3) == r )
+      if ( this->value[v3] == r )
         return 0;
       if ( ++v3 >= v4 )
         break;
@@ -354135,21 +354071,21 @@ int __thiscall ManagedArray_int_::add(ManagedArray_int_ *this, int r)
   {
     if ( v4 + 1 < v5 || (v6 = v5 + 32, v5 + 32 <= v4 + 1) )
       v6 = v4 + 1;
-    v7 = operator_new(4 * v6);
+    v7 = (int *)operator_new(4 * v6);
     if ( v7 )
     {
-      for ( i = 0; i < this->maximumSizeValue; v7[i - 1] = *(_DWORD *)(this->value + 4 * i - 4) )
+      for ( i = 0; i < this->maximumSizeValue; v7[i - 1] = this->value[i - 1] )
       {
         if ( i >= v6 )
           break;
         ++i;
       }
-      operator_delete((void *)this->value);
-      this->value = (int)v7;
+      operator_delete(this->value);
+      this->value = v7;
       this->maximumSizeValue = v6;
     }
   }
-  *(_DWORD *)(this->value + 4 * this->numberValue++) = r;
+  this->value[this->numberValue++] = r;
   return 1;
 }
 
@@ -355603,10 +355539,10 @@ TribeTacticalAIModule *__thiscall TribeTacticalAIModule::TribeTacticalAIModule(T
   this->unitsTaskedThisUpdate.numberValue = 0;
   this->unitsTaskedThisUpdate.desiredNumberValue = 0;
   this->unitsTaskedThisUpdate.maximumSizeValue = 0;
-  this->gbg_unknown_7 = 0;
+  this->gbg_garrisonUnits._First = 0;
   this->gbg_unknown_6 = pID;
-  this->gbg_unknown_8 = 0;
-  this->gbg_unknown_9 = 0;
+  this->gbg_garrisonUnits._Last = 0;
+  this->gbg_garrisonUnits._End = 0;
   this->attackEnabledValue = 0;
   v4 = &this->mAttackNowEntries;
   this->updateArea = 0;
@@ -355774,7 +355710,7 @@ TribeTacticalAIModule *__thiscall TribeTacticalAIModule::TribeTacticalAIModule2(
   int v65; // eax
   int v66; // eax
   char *v67; // ecx
-  _DWORD *v68; // edi
+  int *v68; // edi
   int v69; // eax
   char *v70; // ecx
   int v71; // ecx
@@ -355789,7 +355725,7 @@ TribeTacticalAIModule *__thiscall TribeTacticalAIModule::TribeTacticalAIModule2(
   int v80; // eax
   TacticalAIGroup *v81; // eax
   char *buffer; // [esp+10h] [ebp-1Ch] BYREF
-  char *i; // [esp+14h] [ebp-18h]
+  int i; // [esp+14h] [ebp-18h]
   char *j; // [esp+18h] [ebp-14h]
   TribeTacticalAIModule *v87; // [esp+1Ch] [ebp-10h]
   int v88; // [esp+28h] [ebp-4h]
@@ -355882,10 +355818,10 @@ TribeTacticalAIModule *__thiscall TribeTacticalAIModule::TribeTacticalAIModule2(
   this->unitsTaskedThisUpdate.desiredNumberValue = 0;
   this->unitsTaskedThisUpdate.maximumSizeValue = 0;
   v4 = pID;
-  this->gbg_unknown_7 = 0;
+  this->gbg_garrisonUnits._First = 0;
   this->gbg_unknown_6 = v4;
-  this->gbg_unknown_8 = 0;
-  this->gbg_unknown_9 = 0;
+  this->gbg_garrisonUnits._Last = 0;
+  this->gbg_garrisonUnits._End = 0;
   this->attackEnabledValue = 0;
   this->updateArea = 0;
   this->wonderInProgressValue = 0;
@@ -355915,7 +355851,7 @@ TribeTacticalAIModule *__thiscall TribeTacticalAIModule::TribeTacticalAIModule2(
   this->mAttackNowEntries.mFlags.valueValue = 0;
   this->mAttackNowEntries.next = &this->mAttackNowEntries;
   this->mAttackNowEntries.prev = &this->mAttackNowEntries;
-  i = this->mAttackNowEntries.mTargetName;
+  i = (int)this->mAttackNowEntries.mTargetName;
   strcpy(this->mAttackNowEntries.mTargetName, aNoTarget_0);
   this->mAttackNowEntries.mFlags.valueValue = 0;
   this->mUnderAttackUnits.value = 0;
@@ -355944,17 +355880,17 @@ TribeTacticalAIModule *__thiscall TribeTacticalAIModule::TribeTacticalAIModule2(
     v6 = this->civilians.numberValue;
     v7 = &this->civilians;
     v8 = 0;
-    for ( i = buffer; v8 < v6; ++v8 )
+    for ( i = (int)buffer; v8 < v6; ++v8 )
     {
       if ( v8 >= this->civilians.maximumSizeValue )
         break;
-      if ( *(char **)(v7->value + 4 * v8) == buffer )
+      if ( (char *)v7->value[v8] == buffer )
         goto LABEL_9;
       v6 = this->civilians.numberValue;
     }
     if ( v6 > this->civilians.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->civilians, v6 + 1);
-    *(_DWORD *)(v7->value + 4 * this->civilians.numberValue++) = i;
+    v7->value[this->civilians.numberValue++] = i;
 LABEL_9:
     ;
   }
@@ -355965,17 +355901,17 @@ LABEL_9:
     v9 = this->civilianExplorers.numberValue;
     v10 = &this->civilianExplorers;
     v11 = 0;
-    for ( i = buffer; v11 < v9; ++v11 )
+    for ( i = (int)buffer; v11 < v9; ++v11 )
     {
       if ( v11 >= this->civilianExplorers.maximumSizeValue )
         break;
-      if ( *(char **)(v10->value + 4 * v11) == buffer )
+      if ( (char *)v10->value[v11] == buffer )
         goto LABEL_18;
       v9 = this->civilianExplorers.numberValue;
     }
     if ( v9 > this->civilianExplorers.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->civilianExplorers, v9 + 1);
-    *(_DWORD *)(v10->value + 4 * this->civilianExplorers.numberValue++) = i;
+    v10->value[this->civilianExplorers.numberValue++] = i;
 LABEL_18:
     ;
   }
@@ -356009,17 +355945,17 @@ LABEL_18:
     v14 = this->soldiers.numberValue;
     v15 = &this->soldiers;
     v16 = 0;
-    for ( i = buffer; v16 < v14; ++v16 )
+    for ( i = (int)buffer; v16 < v14; ++v16 )
     {
       if ( v16 >= this->soldiers.maximumSizeValue )
         break;
-      if ( *(char **)(v15->value + 4 * v16) == buffer )
+      if ( (char *)v15->value[v16] == buffer )
         goto LABEL_32;
       v14 = this->soldiers.numberValue;
     }
     if ( v14 > this->soldiers.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->soldiers, v14 + 1);
-    *(_DWORD *)(v15->value + 4 * this->soldiers.numberValue++) = i;
+    v15->value[this->soldiers.numberValue++] = i;
 LABEL_32:
     ;
   }
@@ -356030,17 +355966,17 @@ LABEL_32:
     v17 = this->ungroupedSoldiers.numberValue;
     v18 = &this->ungroupedSoldiers;
     v19 = 0;
-    for ( i = buffer; v19 < v17; ++v19 )
+    for ( i = (int)buffer; v19 < v17; ++v19 )
     {
       if ( v19 >= this->ungroupedSoldiers.maximumSizeValue )
         break;
-      if ( *(char **)(v18->value + 4 * v19) == buffer )
+      if ( (char *)v18->value[v19] == buffer )
         goto LABEL_41;
       v17 = this->ungroupedSoldiers.numberValue;
     }
     if ( v17 > this->ungroupedSoldiers.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->ungroupedSoldiers, v17 + 1);
-    *(_DWORD *)(v18->value + 4 * this->ungroupedSoldiers.numberValue++) = i;
+    v18->value[this->ungroupedSoldiers.numberValue++] = i;
 LABEL_41:
     ;
   }
@@ -356051,17 +355987,17 @@ LABEL_41:
     v20 = this->artifacts.numberValue;
     v21 = &this->artifacts;
     v22 = 0;
-    for ( i = buffer; v22 < v20; ++v22 )
+    for ( i = (int)buffer; v22 < v20; ++v22 )
     {
       if ( v22 >= this->artifacts.maximumSizeValue )
         break;
-      if ( *(char **)(v21->value + 4 * v22) == buffer )
+      if ( (char *)v21->value[v22] == buffer )
         goto LABEL_50;
       v20 = this->artifacts.numberValue;
     }
     if ( v20 > this->artifacts.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->artifacts, v20 + 1);
-    *(_DWORD *)(v21->value + 4 * this->artifacts.numberValue++) = i;
+    v21->value[this->artifacts.numberValue++] = i;
 LABEL_50:
     ;
   }
@@ -356072,17 +356008,17 @@ LABEL_50:
     v23 = this->tradeCarts.numberValue;
     v24 = &this->tradeCarts;
     v25 = 0;
-    for ( i = buffer; v25 < v23; ++v25 )
+    for ( i = (int)buffer; v25 < v23; ++v25 )
     {
       if ( v25 >= this->tradeCarts.maximumSizeValue )
         break;
-      if ( *(char **)(v24->value + 4 * v25) == buffer )
+      if ( (char *)v24->value[v25] == buffer )
         goto LABEL_59;
       v23 = this->tradeCarts.numberValue;
     }
     if ( v23 > this->tradeCarts.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->tradeCarts, v23 + 1);
-    *(_DWORD *)(v24->value + 4 * this->tradeCarts.numberValue++) = i;
+    v24->value[this->tradeCarts.numberValue++] = i;
 LABEL_59:
     ;
   }
@@ -356093,17 +356029,17 @@ LABEL_59:
     v26 = this->gbg_unknown_1.numberValue;
     v27 = &this->gbg_unknown_1;
     v28 = 0;
-    for ( i = buffer; v28 < v26; ++v28 )
+    for ( i = (int)buffer; v28 < v26; ++v28 )
     {
       if ( v28 >= this->gbg_unknown_1.maximumSizeValue )
         break;
-      if ( *(char **)(v27->value + 4 * v28) == buffer )
+      if ( (char *)v27->value[v28] == buffer )
         goto LABEL_68;
       v26 = this->gbg_unknown_1.numberValue;
     }
     if ( v26 > this->gbg_unknown_1.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->gbg_unknown_1, v26 + 1);
-    *(_DWORD *)(v27->value + 4 * this->gbg_unknown_1.numberValue++) = i;
+    v27->value[this->gbg_unknown_1.numberValue++] = i;
 LABEL_68:
     ;
   }
@@ -356114,17 +356050,17 @@ LABEL_68:
     v29 = this->gbg_unknown_2.numberValue;
     v30 = &this->gbg_unknown_2;
     v31 = 0;
-    for ( i = buffer; v31 < v29; ++v31 )
+    for ( i = (int)buffer; v31 < v29; ++v31 )
     {
       if ( v31 >= this->gbg_unknown_2.maximumSizeValue )
         break;
-      if ( *(char **)(v30->value + 4 * v31) == buffer )
+      if ( (char *)v30->value[v31] == buffer )
         goto LABEL_77;
       v29 = this->gbg_unknown_2.numberValue;
     }
     if ( v29 > this->gbg_unknown_2.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->gbg_unknown_2, v29 + 1);
-    *(_DWORD *)(v30->value + 4 * this->gbg_unknown_2.numberValue++) = i;
+    v30->value[this->gbg_unknown_2.numberValue++] = i;
 LABEL_77:
     ;
   }
@@ -356135,17 +356071,17 @@ LABEL_77:
     v32 = this->gbg_unknown_3.numberValue;
     v33 = &this->gbg_unknown_3;
     v34 = 0;
-    for ( i = buffer; v34 < v32; ++v34 )
+    for ( i = (int)buffer; v34 < v32; ++v34 )
     {
       if ( v34 >= this->gbg_unknown_3.maximumSizeValue )
         break;
-      if ( *(char **)(v33->value + 4 * v34) == buffer )
+      if ( (char *)v33->value[v34] == buffer )
         goto LABEL_86;
       v32 = this->gbg_unknown_3.numberValue;
     }
     if ( v32 > this->gbg_unknown_3.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->gbg_unknown_3, v32 + 1);
-    *(_DWORD *)(v33->value + 4 * this->gbg_unknown_3.numberValue++) = i;
+    v33->value[this->gbg_unknown_3.numberValue++] = i;
 LABEL_86:
     ;
   }
@@ -356156,17 +356092,17 @@ LABEL_86:
     v35 = this->gbg_unknown_4.numberValue;
     v36 = &this->gbg_unknown_4;
     v37 = 0;
-    for ( i = buffer; v37 < v35; ++v37 )
+    for ( i = (int)buffer; v37 < v35; ++v37 )
     {
       if ( v37 >= this->gbg_unknown_4.maximumSizeValue )
         break;
-      if ( *(char **)(v36->value + 4 * v37) == buffer )
+      if ( (char *)v36->value[v37] == buffer )
         goto LABEL_95;
       v35 = this->gbg_unknown_4.numberValue;
     }
     if ( v35 > this->gbg_unknown_4.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->gbg_unknown_4, v35 + 1);
-    *(_DWORD *)(v36->value + 4 * this->gbg_unknown_4.numberValue++) = i;
+    v36->value[this->gbg_unknown_4.numberValue++] = i;
 LABEL_95:
     ;
   }
@@ -356177,17 +356113,17 @@ LABEL_95:
     v38 = this->gbg_unknown_5.numberValue;
     v39 = &this->gbg_unknown_5;
     v40 = 0;
-    for ( i = buffer; v40 < v38; ++v40 )
+    for ( i = (int)buffer; v40 < v38; ++v40 )
     {
       if ( v40 >= this->gbg_unknown_5.maximumSizeValue )
         break;
-      if ( *(char **)(v39->value + 4 * v40) == buffer )
+      if ( (char *)v39->value[v40] == buffer )
         goto LABEL_104;
       v38 = this->gbg_unknown_5.numberValue;
     }
     if ( v38 > this->gbg_unknown_5.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->gbg_unknown_5, v38 + 1);
-    *(_DWORD *)(v39->value + 4 * this->gbg_unknown_5.numberValue++) = i;
+    v39->value[this->gbg_unknown_5.numberValue++] = i;
 LABEL_104:
     ;
   }
@@ -356198,17 +356134,17 @@ LABEL_104:
     v41 = this->boats.numberValue;
     v42 = &this->boats;
     v43 = 0;
-    for ( i = buffer; v43 < v41; ++v43 )
+    for ( i = (int)buffer; v43 < v41; ++v43 )
     {
       if ( v43 >= this->boats.maximumSizeValue )
         break;
-      if ( *(char **)(v42->value + 4 * v43) == buffer )
+      if ( (char *)v42->value[v43] == buffer )
         goto LABEL_113;
       v41 = this->boats.numberValue;
     }
     if ( v41 > this->boats.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->boats, v41 + 1);
-    *(_DWORD *)(v42->value + 4 * this->boats.numberValue++) = i;
+    v42->value[this->boats.numberValue++] = i;
 LABEL_113:
     ;
   }
@@ -356219,17 +356155,17 @@ LABEL_113:
     v44 = this->warBoats.numberValue;
     v45 = &this->warBoats;
     v46 = 0;
-    for ( i = buffer; v46 < v44; ++v46 )
+    for ( i = (int)buffer; v46 < v44; ++v46 )
     {
       if ( v46 >= this->warBoats.maximumSizeValue )
         break;
-      if ( *(char **)(v45->value + 4 * v46) == buffer )
+      if ( (char *)v45->value[v46] == buffer )
         goto LABEL_122;
       v44 = this->warBoats.numberValue;
     }
     if ( v44 > this->warBoats.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->warBoats, v44 + 1);
-    *(_DWORD *)(v45->value + 4 * this->warBoats.numberValue++) = i;
+    v45->value[this->warBoats.numberValue++] = i;
 LABEL_122:
     ;
   }
@@ -356240,17 +356176,17 @@ LABEL_122:
     v47 = this->tradeBoats.numberValue;
     v48 = &this->tradeBoats;
     v49 = 0;
-    for ( i = buffer; v49 < v47; ++v49 )
+    for ( i = (int)buffer; v49 < v47; ++v49 )
     {
       if ( v49 >= this->tradeBoats.maximumSizeValue )
         break;
-      if ( *(char **)(v48->value + 4 * v49) == buffer )
+      if ( (char *)v48->value[v49] == buffer )
         goto LABEL_131;
       v47 = this->tradeBoats.numberValue;
     }
     if ( v47 > this->tradeBoats.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->tradeBoats, v47 + 1);
-    *(_DWORD *)(v48->value + 4 * this->tradeBoats.numberValue++) = i;
+    v48->value[this->tradeBoats.numberValue++] = i;
 LABEL_131:
     ;
   }
@@ -356261,17 +356197,17 @@ LABEL_131:
     v50 = this->fishingBoats.numberValue;
     v51 = &this->fishingBoats;
     v52 = 0;
-    for ( i = buffer; v52 < v50; ++v52 )
+    for ( i = (int)buffer; v52 < v50; ++v52 )
     {
       if ( v52 >= this->fishingBoats.maximumSizeValue )
         break;
-      if ( *(char **)(v51->value + 4 * v52) == buffer )
+      if ( (char *)v51->value[v52] == buffer )
         goto LABEL_140;
       v50 = this->fishingBoats.numberValue;
     }
     if ( v50 > this->fishingBoats.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->fishingBoats, v50 + 1);
-    *(_DWORD *)(v51->value + 4 * this->fishingBoats.numberValue++) = i;
+    v51->value[this->fishingBoats.numberValue++] = i;
 LABEL_140:
     ;
   }
@@ -356282,17 +356218,17 @@ LABEL_140:
     v53 = this->transportBoats.numberValue;
     v54 = &this->transportBoats;
     v55 = 0;
-    for ( i = buffer; v55 < v53; ++v55 )
+    for ( i = (int)buffer; v55 < v53; ++v55 )
     {
       if ( v55 >= this->transportBoats.maximumSizeValue )
         break;
-      if ( *(char **)(v54->value + 4 * v55) == buffer )
+      if ( (char *)v54->value[v55] == buffer )
         goto LABEL_149;
       v53 = this->transportBoats.numberValue;
     }
     if ( v53 > this->transportBoats.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->transportBoats, v53 + 1);
-    *(_DWORD *)(v54->value + 4 * this->transportBoats.numberValue++) = i;
+    v54->value[this->transportBoats.numberValue++] = i;
 LABEL_149:
     ;
   }
@@ -356320,17 +356256,17 @@ LABEL_149:
     v58 = this->playersToAttack.numberValue;
     v59 = &this->playersToAttack;
     v60 = 0;
-    for ( i = buffer; v60 < v58; ++v60 )
+    for ( i = (int)buffer; v60 < v58; ++v60 )
     {
       if ( v60 >= this->playersToAttack.maximumSizeValue )
         break;
-      if ( *(char **)(v59->value + 4 * v60) == buffer )
+      if ( (char *)v59->value[v60] == buffer )
         goto LABEL_163;
       v58 = this->playersToAttack.numberValue;
     }
     if ( v58 > this->playersToAttack.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->playersToAttack, v58 + 1);
-    *(_DWORD *)(v59->value + 4 * this->playersToAttack.numberValue++) = i;
+    v59->value[this->playersToAttack.numberValue++] = i;
 LABEL_163:
     ;
   }
@@ -356341,17 +356277,17 @@ LABEL_163:
     v61 = this->playersToDefend.numberValue;
     v62 = &this->playersToDefend;
     v63 = 0;
-    for ( i = buffer; v63 < v61; ++v63 )
+    for ( i = (int)buffer; v63 < v61; ++v63 )
     {
       if ( v63 >= this->playersToDefend.maximumSizeValue )
         break;
-      if ( *(char **)(v62->value + 4 * v63) == buffer )
+      if ( (char *)v62->value[v63] == buffer )
         goto LABEL_172;
       v61 = this->playersToDefend.numberValue;
     }
     if ( v61 > this->playersToDefend.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->playersToDefend, v61 + 1);
-    *(_DWORD *)(v62->value + 4 * this->playersToDefend.numberValue++) = i;
+    v62->value[this->playersToDefend.numberValue++] = i;
 LABEL_172:
     ;
   }
@@ -356365,38 +356301,38 @@ LABEL_172:
     {
       if ( v65 >= this->workingArea.maximumSizeValue )
         break;
-      if ( *(char **)(this->workingArea.value + 4 * v65) == buffer )
+      if ( (char *)this->workingArea.value[v65] == buffer )
         goto LABEL_189;
     }
     v66 = this->workingArea.maximumSizeValue;
     if ( v64 > v66 - 1 )
     {
       v67 = (char *)(v64 + 1);
-      if ( (int)v67 < v66 || (i = (char *)(v66 + 32), v66 + 32 <= (int)v67) )
-        i = v67;
-      v68 = operator_new(4 * (_DWORD)i);
+      if ( (int)v67 < v66 || (i = v66 + 32, v66 + 32 <= (int)v67) )
+        i = (int)v67;
+      v68 = (int *)operator_new(4 * i);
       if ( v68 )
       {
         v69 = 0;
         if ( this->workingArea.maximumSizeValue > 0 )
         {
-          v70 = i;
+          v70 = (char *)i;
           do
           {
             if ( v69 >= (int)v70 )
               break;
             ++v69;
-            v68[v69 - 1] = *(_DWORD *)(this->workingArea.value + 4 * v69 - 4);
+            v68[v69 - 1] = this->workingArea.value[v69 - 1];
           }
           while ( v69 < this->workingArea.maximumSizeValue );
         }
-        operator_delete((void *)this->workingArea.value);
-        v71 = (int)i;
-        this->workingArea.value = (int)v68;
+        operator_delete(this->workingArea.value);
+        v71 = i;
+        this->workingArea.value = v68;
         this->workingArea.maximumSizeValue = v71;
       }
     }
-    *(_DWORD *)(this->workingArea.value + 4 * this->workingArea.numberValue++) = j;
+    this->workingArea.value[this->workingArea.numberValue++] = (int)j;
 LABEL_189:
     ;
   }
@@ -356411,13 +356347,13 @@ LABEL_189:
     {
       if ( v74 >= this->unitsTaskedThisUpdate.maximumSizeValue )
         break;
-      if ( *(char **)(v73->value + 4 * v74) == buffer )
+      if ( (char *)v73->value[v74] == buffer )
         goto LABEL_198;
       v72 = this->unitsTaskedThisUpdate.numberValue;
     }
     if ( v72 > this->unitsTaskedThisUpdate.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->unitsTaskedThisUpdate, v72 + 1);
-    *(_DWORD *)(v73->value + 4 * this->unitsTaskedThisUpdate.numberValue++) = j;
+    v73->value[this->unitsTaskedThisUpdate.numberValue++] = (int)j;
 LABEL_198:
     ;
   }
@@ -356521,17 +356457,17 @@ LABEL_198:
 void __thiscall TribeTacticalAIModule::destructor(TribeTacticalAIModule *this)
 {
   unsigned int i; // ebp
-  int v3; // eax
+  UnitPair **v3; // eax
 
   this->vfptr = (TribeTacticalAIModuleVtbl *)&TribeTacticalAIModule::vftable;
   TribeTacticalAIModule::removeAllGroups(this, -1);
   TribeTacticalAIModule::removeAllAttackNowEntries(this);
   for ( i = 0; ; ++i )
   {
-    v3 = this->gbg_unknown_7;
-    if ( !v3 || i >= (this->gbg_unknown_8 - v3) >> 2 )
+    v3 = this->gbg_garrisonUnits._First;
+    if ( !v3 || i >= this->gbg_garrisonUnits._Last - v3 )
       break;
-    operator_delete(*(void **)(this->gbg_unknown_7 + 4 * i));
+    operator_delete(this->gbg_garrisonUnits._First[i]);
   }
   if ( this->mUnderAttackProcessedUnits.value )
   {
@@ -356549,11 +356485,11 @@ void __thiscall TribeTacticalAIModule::destructor(TribeTacticalAIModule *this)
   this->mUnderAttackUnits.numberValue = 0;
   this->mUnderAttackUnits.desiredNumberValue = 0;
   this->mUnderAttackUnits.maximumSizeValue = 0;
-  nullsub_4(this->gbg_unknown_7, this->gbg_unknown_8);
-  operator_delete((void *)this->gbg_unknown_7);
-  this->gbg_unknown_7 = 0;
-  this->gbg_unknown_8 = 0;
-  this->gbg_unknown_9 = 0;
+  nullsub_4(this->gbg_garrisonUnits._First, this->gbg_garrisonUnits._Last);
+  operator_delete(this->gbg_garrisonUnits._First);
+  this->gbg_garrisonUnits._First = 0;
+  this->gbg_garrisonUnits._Last = 0;
+  this->gbg_garrisonUnits._End = 0;
   if ( this->unitsTaskedThisUpdate.value )
   {
     operator_delete((void *)this->unitsTaskedThisUpdate.value);
@@ -356757,14 +356693,14 @@ void __thiscall TribeTacticalAIModule::handle_diplomacy(TribeTacticalAIModule *t
   int v8; // ecx
   int v9; // edx
   int v10; // ebx
-  _DWORD *v11; // edi
+  int *v11; // edi
   int i; // eax
   int v13; // ebp
   int v14; // edx
   int j; // eax
   int v16; // ecx
   int v17; // ebx
-  _DWORD *v18; // edi
+  int *v18; // edi
   int k; // eax
   TribeMainDecisionAIModule *v20; // eax
   int v21; // edi
@@ -356785,7 +356721,7 @@ void __thiscall TribeTacticalAIModule::handle_diplomacy(TribeTacticalAIModule *t
     {
       if ( v3 >= this->playersToAttack.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(v4->value + 4 * v3) == v2 )
+      if ( v4->value[v3] == v2 )
         goto LABEL_8;
       ++v3;
     }
@@ -356793,7 +356729,7 @@ void __thiscall TribeTacticalAIModule::handle_diplomacy(TribeTacticalAIModule *t
   }
   if ( v5 > this->playersToAttack.maximumSizeValue - 1 )
     ManagedArray_int_::resize(&this->playersToAttack, v5 + 1);
-  *(_DWORD *)(v4->value + 4 * this->playersToAttack.numberValue++) = v2;
+  v4->value[this->playersToAttack.numberValue++] = v2;
 LABEL_8:
   this->playersToDefend.numberValue = 0;
   v6 = 0;
@@ -356805,7 +356741,7 @@ LABEL_8:
     {
       if ( v6 >= this->playersToDefend.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->playersToDefend.value + 4 * v6) == v7 )
+      if ( this->playersToDefend.value[v6] == v7 )
         goto LABEL_23;
       ++v6;
     }
@@ -356816,24 +356752,22 @@ LABEL_8:
   {
     if ( v8 + 1 < v9 || (v10 = v9 + 32, v9 + 32 <= v8 + 1) )
       v10 = v8 + 1;
-    v11 = operator_new(4 * v10);
+    v11 = (int *)operator_new(4 * v10);
     if ( v11 )
     {
-      for ( i = 0;
-            i < this->playersToDefend.maximumSizeValue;
-            v11[i - 1] = *(_DWORD *)(this->playersToDefend.value + 4 * i - 4) )
+      for ( i = 0; i < this->playersToDefend.maximumSizeValue; v11[i - 1] = this->playersToDefend.value[i - 1] )
       {
         if ( i >= v10 )
           break;
         ++i;
       }
-      operator_delete((void *)this->playersToDefend.value);
-      this->playersToDefend.value = (int)v11;
+      operator_delete(this->playersToDefend.value);
+      this->playersToDefend.value = v11;
       this->playersToDefend.maximumSizeValue = v10;
     }
     v2 = v23;
   }
-  *(_DWORD *)(this->playersToDefend.value + 4 * this->playersToDefend.numberValue++) = v7;
+  this->playersToDefend.value[this->playersToDefend.numberValue++] = v7;
 LABEL_23:
   v13 = v24;
   if ( v2 != v24 )
@@ -356843,7 +356777,7 @@ LABEL_23:
     {
       if ( j >= this->playersToDefend.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->playersToDefend.value + 4 * j) == v24 )
+      if ( this->playersToDefend.value[j] == v24 )
         goto LABEL_39;
     }
     v16 = this->playersToDefend.maximumSizeValue;
@@ -356851,25 +356785,23 @@ LABEL_23:
     {
       if ( v14 + 1 < v16 || (v17 = v16 + 32, v16 + 32 <= v14 + 1) )
         v17 = v14 + 1;
-      v18 = operator_new(4 * v17);
+      v18 = (int *)operator_new(4 * v17);
       if ( v18 )
       {
-        for ( k = 0;
-              k < this->playersToDefend.maximumSizeValue;
-              v18[k - 1] = *(_DWORD *)(this->playersToDefend.value + 4 * k - 4) )
+        for ( k = 0; k < this->playersToDefend.maximumSizeValue; v18[k - 1] = this->playersToDefend.value[k - 1] )
         {
           if ( k >= v17 )
             break;
           ++k;
         }
-        operator_delete((void *)this->playersToDefend.value);
-        this->playersToDefend.value = (int)v18;
+        operator_delete(this->playersToDefend.value);
+        this->playersToDefend.value = v18;
         this->playersToDefend.maximumSizeValue = v17;
       }
       v2 = v23;
       v13 = v24;
     }
-    *(_DWORD *)(this->playersToDefend.value + 4 * this->playersToDefend.numberValue++) = v13;
+    this->playersToDefend.value[this->playersToDefend.numberValue++] = v13;
   }
 LABEL_39:
   v20 = this->md;
@@ -356953,16 +356885,16 @@ void __thiscall __noreturn TribeTacticalAIModule::check_for_town_under_attack(Tr
   int v4; // ebp
   int v5; // ebx
   int v6; // eax
-  _DWORD *v7; // edi
+  int *v7; // edi
   int i; // eax
   RGE_Static_Object *v9; // eax
   RGE_Static_Object *v10; // edi
   int v11; // eax
-  _DWORD *v12; // edi
+  int *v12; // edi
   int j; // eax
   int v14; // eax
   int v15; // ecx
-  _DWORD *v16; // edx
+  int *v16; // edx
   int v17; // eax
   RGE_Static_Object *unit; // [esp+28h] [ebp-4h]
   int v; // [esp+30h] [ebp+4h]
@@ -356987,26 +356919,22 @@ void __thiscall __noreturn TribeTacticalAIModule::check_for_town_under_attack(Tr
           if ( v6 + 32 <= v )
             v5 = v;
         }
-        v7 = operator_new(4 * v5);
+        v7 = (int *)operator_new(4 * v5);
         if ( v7 )
         {
-          for ( i = 0;
-                i < this->mUnderAttackUnits.maximumSizeValue;
-                v7[i - 1] = *(_DWORD *)(this->mUnderAttackUnits.value + 4 * i - 4) )
+          for ( i = 0; i < this->mUnderAttackUnits.maximumSizeValue; v7[i - 1] = this->mUnderAttackUnits.value[i - 1] )
           {
             if ( i >= v5 )
               break;
             ++i;
           }
-          operator_delete((void *)this->mUnderAttackUnits.value);
-          this->mUnderAttackUnits.value = (int)v7;
+          operator_delete(this->mUnderAttackUnits.value);
+          this->mUnderAttackUnits.value = v7;
           this->mUnderAttackUnits.maximumSizeValue = v5;
         }
         v5 = v;
       }
-      v9 = RGE_Game_World::object(
-             (RGE_Game_World *)base_game->world,
-             *(_DWORD *)(this->mUnderAttackUnits.value + 4 * v4));
+      v9 = RGE_Game_World::object((RGE_Game_World *)base_game->world, this->mUnderAttackUnits.value[v4]);
       v10 = v9;
       if ( v9 && v9->vfptr->underAttack(v9) )
       {
@@ -357028,19 +356956,17 @@ void __thiscall __noreturn TribeTacticalAIModule::check_for_town_under_attack(Tr
             if ( v11 + 32 <= v )
               v5 = v;
           }
-          v12 = operator_new(4 * v5);
+          v12 = (int *)operator_new(4 * v5);
           if ( v12 )
           {
-            for ( j = 0;
-                  j < this->mUnderAttackUnits.maximumSizeValue;
-                  v12[j - 1] = *(_DWORD *)(this->mUnderAttackUnits.value + 4 * j - 4) )
+            for ( j = 0; j < this->mUnderAttackUnits.maximumSizeValue; v12[j - 1] = this->mUnderAttackUnits.value[j - 1] )
             {
               if ( j >= v5 )
                 break;
               ++j;
             }
-            operator_delete((void *)this->mUnderAttackUnits.value);
-            this->mUnderAttackUnits.value = (int)v12;
+            operator_delete(this->mUnderAttackUnits.value);
+            this->mUnderAttackUnits.value = v12;
             this->mUnderAttackUnits.maximumSizeValue = v5;
           }
           v5 = v;
@@ -357049,10 +356975,10 @@ void __thiscall __noreturn TribeTacticalAIModule::check_for_town_under_attack(Tr
         v15 = this->mUnderAttackUnits.maximumSizeValue;
         if ( v15 > 0 )
         {
-          v16 = (_DWORD *)this->mUnderAttackUnits.value;
+          v16 = this->mUnderAttackUnits.value;
           do
           {
-            if ( *v16 == *(_DWORD *)(this->mUnderAttackUnits.value + 4 * v4) )
+            if ( *v16 == this->mUnderAttackUnits.value[v4] )
               break;
             ++v14;
             ++v16;
@@ -357066,8 +356992,7 @@ void __thiscall __noreturn TribeTacticalAIModule::check_for_town_under_attack(Tr
             do
             {
               ++v14;
-              *(_DWORD *)(this->mUnderAttackUnits.value + 4 * v14 - 4) = *(_DWORD *)(this->mUnderAttackUnits.value
-                                                                                   + 4 * v14);
+              this->mUnderAttackUnits.value[v14 - 1] = this->mUnderAttackUnits.value[v14];
             }
             while ( v14 < this->mUnderAttackUnits.maximumSizeValue - 1 );
           }
@@ -357134,25 +357059,25 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   int nn; // ebx
   int v16; // ebx
   int v17; // eax
-  _DWORD *v18; // ebp
+  int *v18; // ebp
   int i1; // eax
   int v20; // ebp
   int v21; // eax
   int v22; // ebx
   int v23; // eax
-  _DWORD *v24; // ebp
+  int *v24; // ebp
   int i2; // eax
   int v26; // ebp
   int v27; // eax
   int v28; // ebx
   int v29; // eax
-  _DWORD *v30; // ebp
+  int *v30; // ebp
   int i3; // eax
   int v32; // ebp
   int v33; // eax
   int v34; // ebx
   int v35; // eax
-  _DWORD *v36; // ebp
+  int *v36; // ebp
   int i4; // eax
   int v38; // ebp
   int v39; // eax
@@ -357160,25 +357085,25 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   int *v41; // ebp
   int v42; // ebx
   int v43; // eax
-  _DWORD *v44; // ebp
+  int *v44; // ebp
   int i5; // eax
   int v46; // ebp
   int v47; // eax
   int v48; // ebx
   int v49; // eax
-  _DWORD *v50; // ebp
+  int *v50; // ebp
   int i6; // eax
   int v52; // ebp
   int v53; // eax
   int v54; // ebx
   int v55; // eax
-  _DWORD *v56; // ebp
+  int *v56; // ebp
   int i7; // eax
   int v58; // ebp
   int v59; // eax
   int v60; // ebx
   int v61; // eax
-  _DWORD *v62; // ebp
+  int *v62; // ebp
   int i8; // eax
   int v64; // ebp
   int v65; // eax
@@ -357210,7 +357135,7 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   {
     if ( i > this->civilians.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->civilians, i + 1);
-    Buffer = *(_DWORD *)(this->civilians.value + 4 * i);
+    Buffer = this->civilians.value[i];
     rge_write(outfile, &Buffer, 4u);
   }
   Buffer = this->civilianExplorers.numberValue;
@@ -357219,7 +357144,7 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   {
     if ( j > this->civilianExplorers.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->civilianExplorers, j + 1);
-    Buffer = *(_DWORD *)(this->civilianExplorers.value + 4 * j);
+    Buffer = this->civilianExplorers.value[j];
     rge_write(outfile, &Buffer, 4u);
   }
   rge_write(outfile, &this->numberGatherersValue, 4u);
@@ -357231,7 +357156,7 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   {
     if ( k > this->soldiers.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->soldiers, k + 1);
-    Buffer = *(_DWORD *)(this->soldiers.value + 4 * k);
+    Buffer = this->soldiers.value[k];
     rge_write(outfile, &Buffer, 4u);
   }
   Buffer = this->ungroupedSoldiers.numberValue;
@@ -357240,7 +357165,7 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   {
     if ( l > this->ungroupedSoldiers.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->ungroupedSoldiers, l + 1);
-    Buffer = *(_DWORD *)(this->ungroupedSoldiers.value + 4 * l);
+    Buffer = this->ungroupedSoldiers.value[l];
     rge_write(outfile, &Buffer, 4u);
   }
   Buffer = this->artifacts.numberValue;
@@ -357249,7 +357174,7 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   {
     if ( m > this->artifacts.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->artifacts, m + 1);
-    Buffer = *(_DWORD *)(this->artifacts.value + 4 * m);
+    Buffer = this->artifacts.value[m];
     rge_write(outfile, &Buffer, 4u);
   }
   Buffer = this->tradeCarts.numberValue;
@@ -357258,7 +357183,7 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   {
     if ( n > this->tradeCarts.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->tradeCarts, n + 1);
-    Buffer = *(_DWORD *)(this->tradeCarts.value + 4 * n);
+    Buffer = this->tradeCarts.value[n];
     rge_write(outfile, &Buffer, 4u);
   }
   Buffer = this->gbg_unknown_1.numberValue;
@@ -357267,7 +357192,7 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   {
     if ( ii > this->gbg_unknown_1.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->gbg_unknown_1, ii + 1);
-    Buffer = *(_DWORD *)(this->gbg_unknown_1.value + 4 * ii);
+    Buffer = this->gbg_unknown_1.value[ii];
     rge_write(outfile, &Buffer, 4u);
   }
   Buffer = this->gbg_unknown_2.numberValue;
@@ -357276,7 +357201,7 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   {
     if ( jj > this->gbg_unknown_2.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->gbg_unknown_2, jj + 1);
-    Buffer = *(_DWORD *)(this->gbg_unknown_2.value + 4 * jj);
+    Buffer = this->gbg_unknown_2.value[jj];
     rge_write(outfile, &Buffer, 4u);
   }
   Buffer = this->gbg_unknown_3.numberValue;
@@ -357285,7 +357210,7 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   {
     if ( kk > this->gbg_unknown_3.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->gbg_unknown_3, kk + 1);
-    Buffer = *(_DWORD *)(this->gbg_unknown_3.value + 4 * kk);
+    Buffer = this->gbg_unknown_3.value[kk];
     rge_write(outfile, &Buffer, 4u);
   }
   Buffer = this->gbg_unknown_4.numberValue;
@@ -357294,7 +357219,7 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   {
     if ( ll > this->gbg_unknown_4.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->gbg_unknown_4, ll + 1);
-    Buffer = *(_DWORD *)(this->gbg_unknown_4.value + 4 * ll);
+    Buffer = this->gbg_unknown_4.value[ll];
     rge_write(outfile, &Buffer, 4u);
   }
   Buffer = this->gbg_unknown_5.numberValue;
@@ -357303,7 +357228,7 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   {
     if ( mm > this->gbg_unknown_5.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->gbg_unknown_5, mm + 1);
-    Buffer = *(_DWORD *)(this->gbg_unknown_5.value + 4 * mm);
+    Buffer = this->gbg_unknown_5.value[mm];
     rge_write(outfile, &Buffer, 4u);
   }
   Buffer = this->boats.numberValue;
@@ -357312,7 +357237,7 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
   {
     if ( nn > this->boats.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->boats, nn + 1);
-    Buffer = *(_DWORD *)(this->boats.value + 4 * nn);
+    Buffer = this->boats.value[nn];
     rge_write(outfile, &Buffer, 4u);
   }
   Buffer = this->warBoats.numberValue;
@@ -357328,22 +357253,22 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
       {
         if ( v16 < v17 || (outfilea = v17 + 32, v17 + 32 <= v16) )
           outfilea = v16;
-        v18 = operator_new(4 * outfilea);
+        v18 = (int *)operator_new(4 * outfilea);
         if ( v18 )
         {
-          for ( i1 = 0; i1 < this->warBoats.maximumSizeValue; v18[i1 - 1] = *(_DWORD *)(this->warBoats.value + 4 * i1 - 4) )
+          for ( i1 = 0; i1 < this->warBoats.maximumSizeValue; v18[i1 - 1] = this->warBoats.value[i1 - 1] )
           {
             if ( i1 >= outfilea )
               break;
             ++i1;
           }
-          operator_delete((void *)this->warBoats.value);
-          this->warBoats.value = (int)v18;
+          operator_delete(this->warBoats.value);
+          this->warBoats.value = v18;
           this->warBoats.maximumSizeValue = outfilea;
         }
       }
       v20 = v79;
-      Buffer = *(_DWORD *)(this->warBoats.value + v79);
+      Buffer = *(int *)((char *)this->warBoats.value + v79);
       rge_write(outfile, &Buffer, 4u);
       v21 = this->warBoats.numberValue;
       ++v16;
@@ -357364,24 +357289,22 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
       {
         if ( v22 < v23 || (outfileb = v23 + 32, v23 + 32 <= v22) )
           outfileb = v22;
-        v24 = operator_new(4 * outfileb);
+        v24 = (int *)operator_new(4 * outfileb);
         if ( v24 )
         {
-          for ( i2 = 0;
-                i2 < this->fishingBoats.maximumSizeValue;
-                v24[i2 - 1] = *(_DWORD *)(this->fishingBoats.value + 4 * i2 - 4) )
+          for ( i2 = 0; i2 < this->fishingBoats.maximumSizeValue; v24[i2 - 1] = this->fishingBoats.value[i2 - 1] )
           {
             if ( i2 >= outfileb )
               break;
             ++i2;
           }
-          operator_delete((void *)this->fishingBoats.value);
-          this->fishingBoats.value = (int)v24;
+          operator_delete(this->fishingBoats.value);
+          this->fishingBoats.value = v24;
           this->fishingBoats.maximumSizeValue = outfileb;
         }
       }
       v26 = v79;
-      Buffer = *(_DWORD *)(this->fishingBoats.value + v79);
+      Buffer = *(int *)((char *)this->fishingBoats.value + v79);
       rge_write(outfile, &Buffer, 4u);
       v27 = this->fishingBoats.numberValue;
       ++v22;
@@ -357402,24 +357325,22 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
       {
         if ( v28 < v29 || (outfilec = v29 + 32, v29 + 32 <= v28) )
           outfilec = v28;
-        v30 = operator_new(4 * outfilec);
+        v30 = (int *)operator_new(4 * outfilec);
         if ( v30 )
         {
-          for ( i3 = 0;
-                i3 < this->tradeBoats.maximumSizeValue;
-                v30[i3 - 1] = *(_DWORD *)(this->tradeBoats.value + 4 * i3 - 4) )
+          for ( i3 = 0; i3 < this->tradeBoats.maximumSizeValue; v30[i3 - 1] = this->tradeBoats.value[i3 - 1] )
           {
             if ( i3 >= outfilec )
               break;
             ++i3;
           }
-          operator_delete((void *)this->tradeBoats.value);
-          this->tradeBoats.value = (int)v30;
+          operator_delete(this->tradeBoats.value);
+          this->tradeBoats.value = v30;
           this->tradeBoats.maximumSizeValue = outfilec;
         }
       }
       v32 = v79;
-      Buffer = *(_DWORD *)(this->tradeBoats.value + v79);
+      Buffer = *(int *)((char *)this->tradeBoats.value + v79);
       rge_write(outfile, &Buffer, 4u);
       v33 = this->tradeBoats.numberValue;
       ++v28;
@@ -357440,24 +357361,22 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
       {
         if ( v34 < v35 || (outfiled = v35 + 32, v35 + 32 <= v34) )
           outfiled = v34;
-        v36 = operator_new(4 * outfiled);
+        v36 = (int *)operator_new(4 * outfiled);
         if ( v36 )
         {
-          for ( i4 = 0;
-                i4 < this->transportBoats.maximumSizeValue;
-                v36[i4 - 1] = *(_DWORD *)(this->transportBoats.value + 4 * i4 - 4) )
+          for ( i4 = 0; i4 < this->transportBoats.maximumSizeValue; v36[i4 - 1] = this->transportBoats.value[i4 - 1] )
           {
             if ( i4 >= outfiled )
               break;
             ++i4;
           }
-          operator_delete((void *)this->transportBoats.value);
-          this->transportBoats.value = (int)v36;
+          operator_delete(this->transportBoats.value);
+          this->transportBoats.value = v36;
           this->transportBoats.maximumSizeValue = outfiled;
         }
       }
       v38 = v79;
-      Buffer = *(_DWORD *)(this->transportBoats.value + v79);
+      Buffer = *(int *)((char *)this->transportBoats.value + v79);
       rge_write(outfile, &Buffer, 4u);
       v39 = this->transportBoats.numberValue;
       ++v34;
@@ -357492,24 +357411,22 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
       {
         if ( v42 < v43 || (outfilee = v43 + 32, v43 + 32 <= v42) )
           outfilee = v42;
-        v44 = operator_new(4 * outfilee);
+        v44 = (int *)operator_new(4 * outfilee);
         if ( v44 )
         {
-          for ( i5 = 0;
-                i5 < this->playersToAttack.maximumSizeValue;
-                v44[i5 - 1] = *(_DWORD *)(this->playersToAttack.value + 4 * i5 - 4) )
+          for ( i5 = 0; i5 < this->playersToAttack.maximumSizeValue; v44[i5 - 1] = this->playersToAttack.value[i5 - 1] )
           {
             if ( i5 >= outfilee )
               break;
             ++i5;
           }
-          operator_delete((void *)this->playersToAttack.value);
-          this->playersToAttack.value = (int)v44;
+          operator_delete(this->playersToAttack.value);
+          this->playersToAttack.value = v44;
           this->playersToAttack.maximumSizeValue = outfilee;
         }
       }
       v46 = v79;
-      Buffer = *(_DWORD *)(this->playersToAttack.value + v79);
+      Buffer = *(int *)((char *)this->playersToAttack.value + v79);
       rge_write(outfile, &Buffer, 4u);
       v47 = this->playersToAttack.numberValue;
       ++v42;
@@ -357530,24 +357447,22 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
       {
         if ( v48 < v49 || (outfilef = v49 + 32, v49 + 32 <= v48) )
           outfilef = v48;
-        v50 = operator_new(4 * outfilef);
+        v50 = (int *)operator_new(4 * outfilef);
         if ( v50 )
         {
-          for ( i6 = 0;
-                i6 < this->playersToDefend.maximumSizeValue;
-                v50[i6 - 1] = *(_DWORD *)(this->playersToDefend.value + 4 * i6 - 4) )
+          for ( i6 = 0; i6 < this->playersToDefend.maximumSizeValue; v50[i6 - 1] = this->playersToDefend.value[i6 - 1] )
           {
             if ( i6 >= outfilef )
               break;
             ++i6;
           }
-          operator_delete((void *)this->playersToDefend.value);
-          this->playersToDefend.value = (int)v50;
+          operator_delete(this->playersToDefend.value);
+          this->playersToDefend.value = v50;
           this->playersToDefend.maximumSizeValue = outfilef;
         }
       }
       v52 = v79;
-      Buffer = *(_DWORD *)(this->playersToDefend.value + v79);
+      Buffer = *(int *)((char *)this->playersToDefend.value + v79);
       rge_write(outfile, &Buffer, 4u);
       v53 = this->playersToDefend.numberValue;
       ++v48;
@@ -357568,24 +357483,22 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
       {
         if ( v54 < v55 || (outfileg = v55 + 32, v55 + 32 <= v54) )
           outfileg = v54;
-        v56 = operator_new(4 * outfileg);
+        v56 = (int *)operator_new(4 * outfileg);
         if ( v56 )
         {
-          for ( i7 = 0;
-                i7 < this->workingArea.maximumSizeValue;
-                v56[i7 - 1] = *(_DWORD *)(this->workingArea.value + 4 * i7 - 4) )
+          for ( i7 = 0; i7 < this->workingArea.maximumSizeValue; v56[i7 - 1] = this->workingArea.value[i7 - 1] )
           {
             if ( i7 >= outfileg )
               break;
             ++i7;
           }
-          operator_delete((void *)this->workingArea.value);
-          this->workingArea.value = (int)v56;
+          operator_delete(this->workingArea.value);
+          this->workingArea.value = v56;
           this->workingArea.maximumSizeValue = outfileg;
         }
       }
       v58 = v79;
-      Buffer = *(_DWORD *)(this->workingArea.value + v79);
+      Buffer = *(int *)((char *)this->workingArea.value + v79);
       rge_write(outfile, &Buffer, 4u);
       v59 = this->workingArea.numberValue;
       ++v54;
@@ -357606,24 +357519,24 @@ int __thiscall TribeTacticalAIModule::save(TribeTacticalAIModule *this, int outf
       {
         if ( v60 < v61 || (outfileh = v61 + 32, v61 + 32 <= v60) )
           outfileh = v60;
-        v62 = operator_new(4 * outfileh);
+        v62 = (int *)operator_new(4 * outfileh);
         if ( v62 )
         {
           for ( i8 = 0;
                 i8 < this->unitsTaskedThisUpdate.maximumSizeValue;
-                v62[i8 - 1] = *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i8 - 4) )
+                v62[i8 - 1] = this->unitsTaskedThisUpdate.value[i8 - 1] )
           {
             if ( i8 >= outfileh )
               break;
             ++i8;
           }
-          operator_delete((void *)this->unitsTaskedThisUpdate.value);
-          this->unitsTaskedThisUpdate.value = (int)v62;
+          operator_delete(this->unitsTaskedThisUpdate.value);
+          this->unitsTaskedThisUpdate.value = v62;
           this->unitsTaskedThisUpdate.maximumSizeValue = outfileh;
         }
       }
       v64 = v79;
-      Buffer = *(_DWORD *)(this->unitsTaskedThisUpdate.value + v79);
+      Buffer = *(int *)((char *)this->unitsTaskedThisUpdate.value + v79);
       rge_write(outfile, &Buffer, 4u);
       v65 = this->unitsTaskedThisUpdate.numberValue;
       ++v60;
@@ -358207,13 +358120,13 @@ void __thiscall TribeTacticalAIModule::addObject(TribeTacticalAIModule *this, RG
       {
         if ( i >= this->civilians.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(v8->value + 4 * i) == v7 )
+        if ( v8->value[i] == v7 )
           return;
       }
 LABEL_87:
       if ( v6 > v8->maximumSizeValue - 1 )
         ManagedArray_int_::resize(v8, v6 + 1);
-      *(_DWORD *)(v8->value + 4 * v8->numberValue++) = v7;
+      v8->value[v8->numberValue++] = v7;
       return;
     case '4':
     case '5':
@@ -358238,7 +358151,7 @@ LABEL_87:
       {
         if ( j >= this->soldiers.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(v30->value + 4 * j) == v29 )
+        if ( v30->value[j] == v29 )
           return;
       }
       if ( v28 <= this->soldiers.maximumSizeValue - 1 )
@@ -358246,7 +358159,7 @@ LABEL_87:
 LABEL_129:
       ManagedArray_int_::resize(v30, v28 + 1);
 LABEL_130:
-      *(_DWORD *)(v30->value + 4 * v30->numberValue++) = v29;
+      v30->value[v30->numberValue++] = v29;
       return;
     case '-':
       v6 = this->gbg_unknown_5.numberValue;
@@ -358256,7 +358169,7 @@ LABEL_130:
       {
         if ( k >= this->gbg_unknown_5.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(v8->value + 4 * k) == v7 )
+        if ( v8->value[k] == v7 )
           return;
       }
       goto LABEL_87;
@@ -358270,12 +358183,12 @@ LABEL_130:
     {
       if ( l >= this->artifacts.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(v13->value + 4 * l) == v12 )
+      if ( v13->value[l] == v12 )
         goto LABEL_37;
     }
     if ( v11 > this->artifacts.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->artifacts, v11 + 1);
-    *(_DWORD *)(v13->value + 4 * this->artifacts.numberValue++) = v12;
+    v13->value[this->artifacts.numberValue++] = v12;
 LABEL_37:
     if ( v2->master_obj->object_group == 12 )
     {
@@ -358286,12 +358199,12 @@ LABEL_37:
       {
         if ( m >= this->gbg_unknown_2.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(v17->value + 4 * m) == v16 )
+        if ( v17->value[m] == v16 )
           goto LABEL_45;
       }
       if ( v15 > this->gbg_unknown_2.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->gbg_unknown_2, v15 + 1);
-      *(_DWORD *)(v17->value + 4 * this->gbg_unknown_2.numberValue++) = v16;
+      v17->value[this->gbg_unknown_2.numberValue++] = v16;
     }
 LABEL_45:
     if ( v2->master_obj->object_group == 17 )
@@ -358303,12 +358216,12 @@ LABEL_45:
       {
         if ( n >= this->gbg_unknown_3.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(v21->value + 4 * n) == v20 )
+        if ( v21->value[n] == v20 )
           goto LABEL_53;
       }
       if ( v19 > this->gbg_unknown_3.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->gbg_unknown_3, v19 + 1);
-      *(_DWORD *)(v21->value + 4 * this->gbg_unknown_3.numberValue++) = v20;
+      v21->value[this->gbg_unknown_3.numberValue++] = v20;
     }
 LABEL_53:
     v23 = v2->master_obj->object_group;
@@ -358321,12 +358234,12 @@ LABEL_53:
       {
         if ( ii >= this->tradeCarts.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(v26->value + 4 * ii) == v25 )
+        if ( v26->value[ii] == v25 )
           goto LABEL_68;
       }
       if ( v24 > this->tradeCarts.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->tradeCarts, v24 + 1);
-      *(_DWORD *)(v26->value + 4 * this->tradeCarts.numberValue++) = v25;
+      v26->value[this->tradeCarts.numberValue++] = v25;
     }
 LABEL_68:
     if ( v2->master_obj->object_group == 14 )
@@ -358338,7 +358251,7 @@ LABEL_68:
       {
         if ( jj >= this->gbg_unknown_1.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(v30->value + 4 * jj) == v29 )
+        if ( v30->value[jj] == v29 )
           return;
       }
       if ( v28 <= this->gbg_unknown_1.maximumSizeValue - 1 )
@@ -358358,12 +358271,12 @@ LABEL_68:
         {
           if ( kk >= this->boats.maximumSizeValue )
             break;
-          if ( *(_DWORD *)(v34->value + 4 * kk) == v33 )
+          if ( v34->value[kk] == v33 )
             goto LABEL_83;
         }
         if ( v32 > this->boats.maximumSizeValue - 1 )
           ManagedArray_int_::resize(&this->boats, v32 + 1);
-        *(_DWORD *)(v34->value + 4 * this->boats.numberValue++) = v33;
+        v34->value[this->boats.numberValue++] = v33;
 LABEL_83:
         v6 = this->tradeBoats.numberValue;
         v7 = v2->id;
@@ -358372,7 +358285,7 @@ LABEL_83:
         {
           if ( ll >= this->tradeBoats.maximumSizeValue )
             break;
-          if ( *(_DWORD *)(v8->value + 4 * ll) == v7 )
+          if ( v8->value[ll] == v7 )
             return;
         }
         goto LABEL_87;
@@ -358386,7 +358299,7 @@ LABEL_83:
           v44 = this->boats.numberValue;
           if ( v44 > this->boats.maximumSizeValue - 1 )
             ManagedArray_int_::resize(&this->boats, v44 + 1);
-          *(_DWORD *)(this->boats.value + 4 * this->boats.numberValue++) = bo;
+          this->boats.value[this->boats.numberValue++] = (int)bo;
         }
         bo = (RGE_Static_Object *)v2->id;
         if ( ManagedArray_int_::contains(&this->fishingBoats, (const int *)&bo) != 1 )
@@ -358394,7 +358307,7 @@ LABEL_83:
           v45 = this->fishingBoats.numberValue;
           if ( v45 > this->fishingBoats.maximumSizeValue - 1 )
             ManagedArray_int_::resize(&this->fishingBoats, v45 + 1);
-          *(_DWORD *)(this->fishingBoats.value + 4 * this->fishingBoats.numberValue++) = bo;
+          this->fishingBoats.value[this->fishingBoats.numberValue++] = (int)bo;
         }
         break;
       case ';':
@@ -358404,7 +358317,7 @@ LABEL_83:
           v37 = this->boats.numberValue;
           if ( v37 > this->boats.maximumSizeValue - 1 )
             ManagedArray_int_::resize(&this->boats, v37 + 1);
-          *(_DWORD *)(this->boats.value + 4 * this->boats.numberValue++) = bo;
+          this->boats.value[this->boats.numberValue++] = (int)bo;
         }
         ManagedArray_int_::add(&this->transportBoats, v2->id);
         break;
@@ -358448,11 +358361,11 @@ void __thiscall TribeTacticalAIModule::removeObject(TribeTacticalAIModule *this,
   int v7; // eax
   int v8; // ecx
   int v9; // eax
-  _DWORD *v10; // edx
+  int *v10; // edx
   int v11; // eax
   int v12; // ecx
   int v13; // eax
-  _DWORD *v14; // edx
+  int *v14; // edx
   int v15; // eax
   int v16; // ecx
   int v17; // eax
@@ -358460,11 +358373,11 @@ void __thiscall TribeTacticalAIModule::removeObject(TribeTacticalAIModule *this,
   int v19; // eax
   int v20; // ecx
   int v21; // eax
-  _DWORD *v22; // edx
+  int *v22; // edx
   int v23; // eax
   int v24; // ecx
   int v25; // eax
-  _DWORD *v26; // edx
+  int *v26; // edx
   int v27; // eax
   ManagedArray_int_ *v28; // edi
 
@@ -358476,13 +358389,13 @@ void __thiscall TribeTacticalAIModule::removeObject(TribeTacticalAIModule *this,
   {
     while ( v5 < this->civilians.maximumSizeValue )
     {
-      if ( *(_DWORD *)(this->civilians.value + 4 * v5) == id )
+      if ( this->civilians.value[v5] == id )
       {
         v8 = this->civilians.maximumSizeValue;
         v9 = 0;
         if ( v8 > 0 )
         {
-          v10 = (_DWORD *)this->civilians.value;
+          v10 = this->civilians.value;
           do
           {
             if ( *v10 == id )
@@ -358499,7 +358412,7 @@ void __thiscall TribeTacticalAIModule::removeObject(TribeTacticalAIModule *this,
             do
             {
               ++v9;
-              *(_DWORD *)(this->civilians.value + 4 * v9 - 4) = *(_DWORD *)(this->civilians.value + 4 * v9);
+              this->civilians.value[v9 - 1] = this->civilians.value[v9];
             }
             while ( v9 < this->civilians.maximumSizeValue - 1 );
             v4 = id;
@@ -358525,13 +358438,13 @@ void __thiscall TribeTacticalAIModule::removeObject(TribeTacticalAIModule *this,
   {
     while ( v7 < this->soldiers.maximumSizeValue )
     {
-      if ( *(_DWORD *)(this->soldiers.value + 4 * v7) == id )
+      if ( this->soldiers.value[v7] == id )
       {
         v12 = this->soldiers.maximumSizeValue;
         v13 = 0;
         if ( v12 > 0 )
         {
-          v14 = (_DWORD *)this->soldiers.value;
+          v14 = this->soldiers.value;
           do
           {
             if ( *v14 == id )
@@ -358548,7 +358461,7 @@ void __thiscall TribeTacticalAIModule::removeObject(TribeTacticalAIModule *this,
             do
             {
               ++v13;
-              *(_DWORD *)(this->soldiers.value + 4 * v13 - 4) = *(_DWORD *)(this->soldiers.value + 4 * v13);
+              this->soldiers.value[v13 - 1] = this->soldiers.value[v13];
             }
             while ( v13 < this->soldiers.maximumSizeValue - 1 );
             v4 = id;
@@ -358574,13 +358487,13 @@ void __thiscall TribeTacticalAIModule::removeObject(TribeTacticalAIModule *this,
   {
     while ( v17 < this->gbg_unknown_5.maximumSizeValue )
     {
-      if ( *(_DWORD *)(this->gbg_unknown_5.value + 4 * v17) == id )
+      if ( this->gbg_unknown_5.value[v17] == id )
       {
         v20 = this->gbg_unknown_5.maximumSizeValue;
         v21 = 0;
         if ( v20 > 0 )
         {
-          v22 = (_DWORD *)this->gbg_unknown_5.value;
+          v22 = this->gbg_unknown_5.value;
           do
           {
             if ( *v22 == id )
@@ -358597,7 +358510,7 @@ void __thiscall TribeTacticalAIModule::removeObject(TribeTacticalAIModule *this,
             do
             {
               ++v21;
-              *(_DWORD *)(this->gbg_unknown_5.value + 4 * v21 - 4) = *(_DWORD *)(this->gbg_unknown_5.value + 4 * v21);
+              this->gbg_unknown_5.value[v21 - 1] = this->gbg_unknown_5.value[v21];
             }
             while ( v21 < this->gbg_unknown_5.maximumSizeValue - 1 );
             v4 = id;
@@ -358623,13 +358536,13 @@ void __thiscall TribeTacticalAIModule::removeObject(TribeTacticalAIModule *this,
   {
     while ( v19 < this->artifacts.maximumSizeValue )
     {
-      if ( *(_DWORD *)(this->artifacts.value + 4 * v19) == id )
+      if ( this->artifacts.value[v19] == id )
       {
         v24 = this->artifacts.maximumSizeValue;
         v25 = 0;
         if ( v24 > 0 )
         {
-          v26 = (_DWORD *)this->artifacts.value;
+          v26 = this->artifacts.value;
           do
           {
             if ( *v26 == id )
@@ -358646,7 +358559,7 @@ void __thiscall TribeTacticalAIModule::removeObject(TribeTacticalAIModule *this,
             do
             {
               ++v25;
-              *(_DWORD *)(this->artifacts.value + 4 * v25 - 4) = *(_DWORD *)(this->artifacts.value + 4 * v25);
+              this->artifacts.value[v25 - 1] = this->artifacts.value[v25];
             }
             while ( v25 < this->artifacts.maximumSizeValue - 1 );
           }
@@ -358697,7 +358610,7 @@ LABEL_69:
 //----- (005A0400) --------------------------------------------------------
 void __thiscall TribeTacticalAIModule::evaluateCivilianDistribution(TribeTacticalAIModule *this)
 {
-  int **v2; // edi
+  ManagedArray_int_ *v2; // edi
   int v3; // ebx
   int v4; // edi
   __int64 v5; // rax
@@ -358710,11 +358623,11 @@ void __thiscall TribeTacticalAIModule::evaluateCivilianDistribution(TribeTactica
   int v12; // eax
   int v13; // ecx
 
-  v2 = (int **)&this->playersToAttack;
+  v2 = &this->playersToAttack;
   v3 = (__int64)(RGE_Visible_Map::percentExplored(this->md->player->visible) * 100.0);
   if ( this->playersToAttack.maximumSizeValue - 1 < 0 )
     ManagedArray_int_::resize(&this->playersToAttack, 1);
-  v4 = TribeInformationAIModule::numberGameIDsOwnedBy(&this->md->informationAI, -1, **v2);
+  v4 = TribeInformationAIModule::numberGameIDsOwnedBy(&this->md->informationAI, -1, *v2->value);
   LODWORD(v5) = this->civilians.numberValue;
   if ( (int)v5 >= 3 )
   {
@@ -358812,25 +358725,25 @@ int __thiscall TribeTacticalAIModule::taskCivilians(TribeTacticalAIModule *this,
   int k; // ebx
   ManagedArray_int_ *v28; // esi
   int v29; // eax
-  _DWORD *v30; // ebp
+  int *v30; // ebp
   int l; // eax
   int v32; // ecx
   int v33; // eax
   int v34; // eax
-  _DWORD *v35; // ebp
+  int *v35; // ebp
   int n; // eax
   int v37; // eax
-  _DWORD *v38; // ebp
+  int *v38; // ebp
   int m; // eax
   int v40; // eax
   int v41; // ebp
-  _DWORD *v42; // ebx
+  int *v42; // ebx
   int ii; // eax
   int v44; // eax
   int v45; // ebx
   int v46; // ecx
   int v47; // ebx
-  _DWORD *v48; // edi
+  int *v48; // edi
   int jj; // eax
   int s; // [esp+94h] [ebp-14h]
   int sa; // [esp+94h] [ebp-14h]
@@ -358910,7 +358823,7 @@ int __thiscall TribeTacticalAIModule::taskCivilians(TribeTacticalAIModule *this,
             {
               while ( v13 < this->civilianExplorers.maximumSizeValue )
               {
-                if ( *(_DWORD *)(this->civilianExplorers.value + 4 * v13) == v12 )
+                if ( this->civilianExplorers.value[v13] == v12 )
                 {
                   v8 = v52;
                   goto LABEL_21;
@@ -358939,12 +358852,12 @@ LABEL_21:
       {
         if ( i >= this->civilianExplorers.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(v15->value + 4 * i) == v8 )
+        if ( v15->value[i] == v8 )
           goto LABEL_30;
       }
       if ( v14 > this->civilianExplorers.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->civilianExplorers, v14 + 1);
-      *(_DWORD *)(v15->value + 4 * this->civilianExplorers.numberValue) = v8;
+      v15->value[this->civilianExplorers.numberValue] = v8;
     }
 LABEL_30:
     for ( j = this->civilianExplorers.numberValue;
@@ -358957,11 +358870,11 @@ LABEL_30:
       if ( this->civilianExplorers.maximumSizeValue - 1 < 0 )
         ManagedArray_int_::resize(&this->civilianExplorers, 1);
       v19 = 0;
-      v20 = *(_DWORD *)v18->value;
+      v20 = *v18->value;
       v21 = this->civilianExplorers.maximumSizeValue;
       if ( v21 > 0 )
       {
-        v22 = (int *)v18->value;
+        v22 = v18->value;
         do
         {
           if ( *v22 == v20 )
@@ -358978,7 +358891,7 @@ LABEL_30:
           do
           {
             ++v19;
-            *(_DWORD *)(v18->value + 4 * v19 - 4) = *(_DWORD *)(v18->value + 4 * v19);
+            v18->value[v19 - 1] = v18->value[v19];
           }
           while ( v19 < this->civilianExplorers.maximumSizeValue - 1 );
         }
@@ -359012,7 +358925,7 @@ LABEL_30:
     }
     if ( this->civilians.maximumSizeValue - 1 < 0 )
       ManagedArray_int_::resize(&this->civilians, 1);
-    this->nextCivilianToTaskValue = *(_DWORD *)this->civilians.value;
+    this->nextCivilianToTaskValue = *this->civilians.value;
     if ( timeGetTime() - startTime >= availableTime )
       return 0;
   }
@@ -359020,7 +358933,7 @@ LABEL_30:
   {
     if ( k > this->civilians.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->civilians, k + 1);
-    if ( this->nextCivilianToTaskValue == *(_DWORD *)(this->civilians.value + 4 * k) )
+    if ( this->nextCivilianToTaskValue == this->civilians.value[k] )
       break;
   }
   if ( k >= this->civilians.numberValue )
@@ -359039,17 +358952,17 @@ LABEL_111:
     {
       if ( sa < v29 || (v53 = v29 + 32, v29 + 32 <= sa) )
         v53 = sa;
-      v30 = operator_new(4 * v53);
+      v30 = (int *)operator_new(4 * v53);
       if ( v30 )
       {
-        for ( l = 0; l < this->civilians.maximumSizeValue; v30[l - 1] = *(_DWORD *)(v28->value + 4 * l - 4) )
+        for ( l = 0; l < this->civilians.maximumSizeValue; v30[l - 1] = v28->value[l - 1] )
         {
           if ( l >= v53 )
             break;
           ++l;
         }
-        operator_delete((void *)v28->value);
-        v28->value = (int)v30;
+        operator_delete(v28->value);
+        v28->value = v30;
         this->civilians.maximumSizeValue = v53;
       }
     }
@@ -359059,28 +358972,28 @@ LABEL_111:
     {
       while ( v33 < this->civilianExplorers.maximumSizeValue )
       {
-        if ( *(_DWORD *)(this->civilianExplorers.value + 4 * v33) == *(_DWORD *)(v28->value + 4 * k) )
+        if ( this->civilianExplorers.value[v33] == v28->value[k] )
         {
           v37 = this->civilians.maximumSizeValue;
           if ( k > v37 - 1 )
           {
             if ( sa < v37 || (v55 = v37 + 32, v37 + 32 <= sa) )
               v55 = sa;
-            v38 = operator_new(4 * v55);
+            v38 = (int *)operator_new(4 * v55);
             if ( v38 )
             {
-              for ( m = 0; m < this->civilians.maximumSizeValue; v38[m - 1] = *(_DWORD *)(v28->value + 4 * m - 4) )
+              for ( m = 0; m < this->civilians.maximumSizeValue; v38[m - 1] = v28->value[m - 1] )
               {
                 if ( m >= v55 )
                   break;
                 ++m;
               }
-              operator_delete((void *)v28->value);
-              v28->value = (int)v38;
+              operator_delete(v28->value);
+              v28->value = v38;
               this->civilians.maximumSizeValue = v55;
             }
           }
-          TribeTacticalAIModule::highLevelTaskExplorer(this, *(_DWORD *)(v28->value + 4 * k), 1);
+          TribeTacticalAIModule::highLevelTaskExplorer(this, v28->value[k], 1);
           goto LABEL_98;
         }
         if ( ++v33 >= v32 )
@@ -359092,25 +359005,25 @@ LABEL_111:
     {
       if ( sa < v34 || (v54 = v34 + 32, v34 + 32 <= sa) )
         v54 = sa;
-      v35 = operator_new(4 * v54);
+      v35 = (int *)operator_new(4 * v54);
       if ( v35 )
       {
-        for ( n = 0; n < this->civilians.maximumSizeValue; v35[n - 1] = *(_DWORD *)(v28->value + 4 * n - 4) )
+        for ( n = 0; n < this->civilians.maximumSizeValue; v35[n - 1] = v28->value[n - 1] )
         {
           if ( n >= v54 )
             break;
           ++n;
         }
-        operator_delete((void *)v28->value);
-        v28->value = (int)v35;
+        operator_delete(v28->value);
+        v28->value = v35;
         this->civilians.maximumSizeValue = v54;
       }
     }
-    if ( TribeTacticalAIModule::highLevelTaskGatherer(this, *(_DWORD *)(v28->value + 4 * k), startTime) )
+    if ( TribeTacticalAIModule::highLevelTaskGatherer(this, v28->value[k], startTime) )
       break;
     if ( k > this->civilians.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->civilians, sa);
-    TribeTacticalAIModule::addGatherer(this, *(_DWORD *)(v28->value + 4 * k++));
+    TribeTacticalAIModule::addGatherer(this, v28->value[k++]);
     ++sa;
 LABEL_110:
     if ( k >= this->civilians.numberValue )
@@ -359127,22 +359040,22 @@ LABEL_98:
   {
     if ( sa < v40 || (v41 = v40 + 32, v40 + 32 <= sa) )
       v41 = sa;
-    v42 = operator_new(4 * v41);
+    v42 = (int *)operator_new(4 * v41);
     if ( v42 )
     {
-      for ( ii = 0; ii < this->civilians.maximumSizeValue; v42[ii - 1] = *(_DWORD *)(v28->value + 4 * ii - 4) )
+      for ( ii = 0; ii < this->civilians.maximumSizeValue; v42[ii - 1] = v28->value[ii - 1] )
       {
         if ( ii >= v41 )
           break;
         ++ii;
       }
-      operator_delete((void *)v28->value);
-      v28->value = (int)v42;
+      operator_delete(v28->value);
+      v28->value = v42;
       this->civilians.maximumSizeValue = v41;
     }
     k = v56;
   }
-  this->nextCivilianToTaskValue = *(_DWORD *)(v28->value + 4 * k);
+  this->nextCivilianToTaskValue = v28->value[k];
   if ( timeGetTime() - startTime < availableTime )
     goto LABEL_110;
   if ( k <= 0 )
@@ -359154,18 +359067,18 @@ LABEL_98:
   v46 = v45 + 1;
   if ( v45 + 1 < v44 || (v47 = v44 + 32, v44 + 32 <= v46) )
     v47 = v46;
-  v48 = operator_new(4 * v47);
+  v48 = (int *)operator_new(4 * v47);
   if ( !v48 )
     return v57;
-  for ( jj = 0; jj < v28->maximumSizeValue; v48[jj - 1] = *(_DWORD *)(v28->value + 4 * jj - 4) )
+  for ( jj = 0; jj < v28->maximumSizeValue; v48[jj - 1] = v28->value[jj - 1] )
   {
     if ( jj >= v47 )
       break;
     ++jj;
   }
-  operator_delete((void *)v28->value);
+  operator_delete(v28->value);
   result = v57;
-  v28->value = (int)v48;
+  v28->value = v48;
   v28->maximumSizeValue = v47;
   return result;
 }
@@ -359184,7 +359097,7 @@ void __thiscall TribeTacticalAIModule::checkForwardBuilders(TribeTacticalAIModul
   int v10; // ecx
   int v11; // eax
   int v12; // ebp
-  _DWORD *v13; // edx
+  int *v13; // edx
   int v14; // eax
   TacticalAIGroup *i; // esi
   int v16; // eax
@@ -359248,7 +359161,7 @@ void __thiscall TribeTacticalAIModule::checkForwardBuilders(TribeTacticalAIModul
         v9 = v7->numberUnitsValue;
         if ( v9 < 40 )
         {
-          v7->unitsValue[v9] = *(_DWORD *)(v8->value + 4 * v2);
+          v7->unitsValue[v9] = v8->value[v2];
           ++v7->numberUnitsValue;
           v7->lastAddedUnitTimeValue = base_game->world->world_time;
         }
@@ -359256,10 +359169,10 @@ void __thiscall TribeTacticalAIModule::checkForwardBuilders(TribeTacticalAIModul
           ManagedArray_int_::resize(&this->civilians, v2 + 1);
         v10 = this->civilianExplorers.maximumSizeValue;
         v11 = 0;
-        v12 = *(_DWORD *)(v8->value + 4 * v2);
+        v12 = v8->value[v2];
         if ( v10 > 0 )
         {
-          v13 = (_DWORD *)this->civilianExplorers.value;
+          v13 = this->civilianExplorers.value;
           do
           {
             if ( *v13 == v12 )
@@ -359276,8 +359189,7 @@ void __thiscall TribeTacticalAIModule::checkForwardBuilders(TribeTacticalAIModul
             do
             {
               ++v11;
-              *(_DWORD *)(this->civilianExplorers.value + 4 * v11 - 4) = *(_DWORD *)(this->civilianExplorers.value
-                                                                                   + 4 * v11);
+              this->civilianExplorers.value[v11 - 1] = this->civilianExplorers.value[v11];
             }
             while ( v11 < this->civilianExplorers.maximumSizeValue - 1 );
           }
@@ -359343,7 +359255,7 @@ LABEL_50:
               ManagedArray_int_::resize(&this->playersToAttack, 1);
             v28 = TribeInformationAIModule::objectToAttack2(
                     &this->md->informationAI,
-                    *(_DWORD *)this->playersToAttack.value,
+                    *this->playersToAttack.value,
                     i,
                     v27->world_time,
                     &onSameZone,
@@ -359464,7 +359376,7 @@ void __thiscall TribeTacticalAIModule::checkForwardGatherers(TribeTacticalAIModu
     {
       if ( v6 > this->civilians.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->civilians, v6 + 1);
-      v7 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, *(_DWORD *)(this->civilians.value + 4 * v6));
+      v7 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, this->civilians.value[v6]);
       v8 = v7;
       if ( v7
         && (v7->vfptr->hasActionOfType(v7, 5) || v8->vfptr->hasActionOfType(v8, 110))
@@ -359666,7 +359578,7 @@ void __thiscall TribeTacticalAIModule::checkOtherZoneBuilders(TribeTacticalAIMod
     {
       if ( v6 > this->civilians.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->civilians, v6 + 1);
-      v7 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, *(_DWORD *)(this->civilians.value + 4 * v6));
+      v7 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, this->civilians.value[v6]);
       v8 = v7;
       if ( v7 )
       {
@@ -360203,7 +360115,7 @@ void __thiscall TribeTacticalAIModule::taskIdleAir(TribeTacticalAIModule *this, 
   TribeTacticalAIModule *v5; // ecx
   TribeTacticalAIModule *v6; // esi
   int v7; // eax
-  int v8; // eax
+  int *v8; // eax
   int v9; // eax
   int v10; // ecx
   int v11; // ebp
@@ -360247,7 +360159,7 @@ void __thiscall TribeTacticalAIModule::taskIdleAir(TribeTacticalAIModule *this, 
     if ( v7 == 108 || v7 == 109 || v7 == 110 )
     {
       v8 = v6->civilians.value;
-      if ( !v8 || v8 == 1 )
+      if ( !v8 || v8 == (int *)1 )
       {
         if ( LOBYTE(v6->ungroupedSoldiers.maximumSizeValue) <= 0xAu )
           v9 = TacticalAIGroup::isGathered((TacticalAIGroup *)v6, this, this->md);
@@ -360300,13 +360212,13 @@ LABEL_35:
           switch ( v18 )
           {
             case 'm':
-              v6->civilians.value = 6;
+              v6->civilians.value = (int *)6;
               break;
             case 'n':
-              v6->civilians.value = 1;
+              v6->civilians.value = (int *)1;
               break;
             case 'l':
-              v6->civilians.value = 2;
+              v6->civilians.value = (int *)2;
               break;
           }
         }
@@ -361760,7 +361672,7 @@ void __thiscall TribeTacticalAIModule::checkIdleMonks(TribeTacticalAIModule *thi
   int v12; // ecx
   int v13; // eax
   int v14; // edi
-  _DWORD *v15; // esi
+  int *v15; // esi
   int j; // eax
   RGE_Static_Object *v17; // eax
   RGE_Static_Object *v18; // esi
@@ -361779,7 +361691,7 @@ void __thiscall TribeTacticalAIModule::checkIdleMonks(TribeTacticalAIModule *thi
     {
       if ( v2 > v1->soldiers.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&v1->soldiers, v2 + 1);
-      v4 = RGE_Game_World::object((RGE_Game_World *)v1->md->aiPlayer->world, *(_DWORD *)(v3->value + 4 * v2));
+      v4 = RGE_Game_World::object((RGE_Game_World *)v1->md->aiPlayer->world, v3->value[v2]);
       v5 = v4;
       if ( v4 )
       {
@@ -361837,22 +361749,22 @@ void __thiscall TribeTacticalAIModule::checkIdleMonks(TribeTacticalAIModule *thi
                   if ( v13 + 32 <= i )
                     v14 = i;
                 }
-                v15 = operator_new(4 * v14);
+                v15 = (int *)operator_new(4 * v14);
                 if ( v15 )
                 {
-                  for ( j = 0; j < v3->maximumSizeValue; v15[j - 1] = *(_DWORD *)(v3->value + 4 * j - 4) )
+                  for ( j = 0; j < v3->maximumSizeValue; v15[j - 1] = v3->value[j - 1] )
                   {
                     if ( j >= v14 )
                       break;
                     ++j;
                   }
-                  operator_delete((void *)v3->value);
-                  v3->value = (int)v15;
+                  operator_delete(v3->value);
+                  v3->value = v15;
                   v3->maximumSizeValue = v14;
                 }
                 v11 = this;
               }
-              v17 = RGE_Game_World::object((RGE_Game_World *)v11->md->aiPlayer->world, *(_DWORD *)(v3->value + v24));
+              v17 = RGE_Game_World::object((RGE_Game_World *)v11->md->aiPlayer->world, v3->value[v24]);
               v18 = v17;
               if ( v17 )
               {
@@ -361881,7 +361793,7 @@ void __thiscall TribeTacticalAIModule::checkIdleMonks(TribeTacticalAIModule *thi
                 }
               }
               ++i;
-              v24 += 4;
+              ++v24;
               if ( i - 1 >= v11->soldiers.numberValue )
                 break;
             }
@@ -361912,7 +361824,7 @@ void __thiscall TribeTacticalAIModule::checkIdleRelicMonks(TribeTacticalAIModule
     {
       if ( v2 > this->soldiers.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->soldiers, v2 + 1);
-      v4 = RGE_Game_World::object((RGE_Game_World *)this->md->aiPlayer->world, *(_DWORD *)(v3->value + 4 * v2));
+      v4 = RGE_Game_World::object((RGE_Game_World *)this->md->aiPlayer->world, v3->value[v2]);
       v5 = v4;
       if ( v4 )
       {
@@ -362004,7 +361916,7 @@ void __thiscall TribeTacticalAIModule::taskActiveGroupAttack(TribeTacticalAIModu
         ManagedArray_int_::resize(&this->playersToAttack, 1);
       v8 = TribeInformationAIModule::objectToAttack2(
              &this->md->informationAI,
-             *(_DWORD *)this->playersToAttack.value,
+             *this->playersToAttack.value,
              tag,
              startTime,
              &onSameZone,
@@ -362477,14 +362389,14 @@ int __thiscall ManagedArray_int_::remove(ManagedArray_int_ *this, const int r)
 {
   int v2; // edx
   int v3; // eax
-  _DWORD *v4; // esi
+  int *v4; // esi
   int v6; // eax
 
   v2 = this->maximumSizeValue;
   v3 = 0;
   if ( v2 > 0 )
   {
-    v4 = (_DWORD *)this->value;
+    v4 = this->value;
     do
     {
       if ( *v4 == r )
@@ -362501,7 +362413,7 @@ int __thiscall ManagedArray_int_::remove(ManagedArray_int_ *this, const int r)
     do
     {
       ++v3;
-      *(_DWORD *)(this->value + 4 * v3 - 4) = *(_DWORD *)(this->value + 4 * v3);
+      this->value[v3 - 1] = this->value[v3];
     }
     while ( v3 < this->maximumSizeValue - 1 );
   }
@@ -363036,7 +362948,7 @@ void __thiscall TribeTacticalAIModule::evaluateOpenTasks(TribeTacticalAIModule *
     {
       if ( v2 > this->civilians.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->civilians, v2 + 1);
-      v4 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(v3->value + 4 * v2));
+      v4 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, v3->value[v2]);
       v5 = v4;
       if ( v4 && RGE_Static_Object::unitAI(v4) )
       {
@@ -363051,7 +362963,7 @@ void __thiscall TribeTacticalAIModule::evaluateOpenTasks(TribeTacticalAIModule *
           {
             if ( v6 >= r )
               break;
-            if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * v6) == *(_DWORD *)(v3->value + 4 * v2) )
+            if ( this->unitsTaskedThisUpdate.value[v6] == v3->value[v2] )
               goto LABEL_34;
             ++v6;
           }
@@ -363073,7 +362985,7 @@ void __thiscall TribeTacticalAIModule::evaluateOpenTasks(TribeTacticalAIModule *
               if ( v2 > this->civilians.maximumSizeValue - 1 )
                 ManagedArray_int_::resize(&this->civilians, v2 + 1);
               v14 = this->md;
-              unit = *(RGE_Static_Object **)(v3->value + 4 * v2);
+              unit = (RGE_Static_Object *)v3->value[v2];
               RGE_Command::command_stop2((RGE_Command *)base_game->world->commands, v14->player->id, &unit, 1);
             }
           }
@@ -363092,13 +363004,13 @@ void __thiscall TribeTacticalAIModule::evaluateOpenTasks(TribeTacticalAIModule *
               LODWORD(v7->world_y));
             if ( v2 > this->civilians.maximumSizeValue - 1 )
               ManagedArray_int_::resize(&this->civilians, v2 + 1);
-            r = *(_DWORD *)(v3->value + 4 * v2);
+            r = v3->value[v2];
             if ( ManagedArray_int_::contains(&this->unitsTaskedThisUpdate, &r) != 1 )
             {
               v8 = this->unitsTaskedThisUpdate.numberValue;
               if ( v8 > this->unitsTaskedThisUpdate.maximumSizeValue - 1 )
                 ManagedArray_int_::resize(&this->unitsTaskedThisUpdate, v8 + 1);
-              *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * this->unitsTaskedThisUpdate.numberValue++) = r;
+              this->unitsTaskedThisUpdate.value[this->unitsTaskedThisUpdate.numberValue++] = r;
             }
           }
           else
@@ -363106,7 +363018,7 @@ void __thiscall TribeTacticalAIModule::evaluateOpenTasks(TribeTacticalAIModule *
             if ( v2 > this->civilians.maximumSizeValue - 1 )
               ManagedArray_int_::resize(&this->civilians, v2 + 1);
             v9 = this->md;
-            unit = *(RGE_Static_Object **)(v3->value + 4 * v2);
+            unit = (RGE_Static_Object *)v3->value[v2];
             RGE_Command::command_stop2((RGE_Command *)base_game->world->commands, v9->player->id, &unit, 1);
           }
         }
@@ -363124,12 +363036,12 @@ LABEL_34:
     {
       if ( v15 > this->civilians.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->civilians, v15 + 1);
-      v17 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(v16->value + 4 * v15));
+      v17 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, v16->value[v15]);
       if ( !v17 || v17->hp < 1.0 || !RGE_Static_Object::unitAI(v17) )
       {
         if ( v15 > this->civilians.maximumSizeValue - 1 )
           ManagedArray_int_::resize(&this->civilians, v15 + 1);
-        TribeTacticalAIModule::removeObject(this, *(_DWORD *)(v16->value + 4 * v15));
+        TribeTacticalAIModule::removeObject(this, v16->value[v15]);
       }
       ++v15;
     }
@@ -363143,12 +363055,12 @@ LABEL_34:
     {
       if ( v18 > this->soldiers.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->soldiers, v18 + 1);
-      v20 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(v19->value + 4 * v18));
+      v20 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, v19->value[v18]);
       if ( !v20 || v20->hp < 1.0 || !RGE_Static_Object::unitAI(v20) )
       {
         if ( v18 > this->soldiers.maximumSizeValue - 1 )
           ManagedArray_int_::resize(&this->soldiers, v18 + 1);
-        TribeTacticalAIModule::removeObject(this, *(_DWORD *)(v19->value + 4 * v18));
+        TribeTacticalAIModule::removeObject(this, v19->value[v18]);
       }
       ++v18;
     }
@@ -363162,12 +363074,12 @@ LABEL_34:
     {
       if ( v21 > this->artifacts.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->artifacts, v21 + 1);
-      v23 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(v22->value + 4 * v21));
+      v23 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, v22->value[v21]);
       if ( !v23 || v23->hp < 1.0 || !RGE_Static_Object::unitAI(v23) )
       {
         if ( v21 > this->artifacts.maximumSizeValue - 1 )
           ManagedArray_int_::resize(&this->artifacts, v21 + 1);
-        TribeTacticalAIModule::removeObject(this, *(_DWORD *)(v22->value + 4 * v21));
+        TribeTacticalAIModule::removeObject(this, v22->value[v21]);
       }
       ++v21;
     }
@@ -363181,12 +363093,12 @@ LABEL_34:
     {
       if ( v24 > this->boats.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->boats, v24 + 1);
-      v26 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(v25->value + 4 * v24));
+      v26 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, v25->value[v24]);
       if ( !v26 || v26->hp < 1.0 || !RGE_Static_Object::unitAI(v26) )
       {
         if ( v24 > this->boats.maximumSizeValue - 1 )
           ManagedArray_int_::resize(&this->boats, v24 + 1);
-        TribeTacticalAIModule::removeObject(this, *(_DWORD *)(v25->value + 4 * v24));
+        TribeTacticalAIModule::removeObject(this, v25->value[v24]);
       }
       ++v24;
     }
@@ -363279,7 +363191,7 @@ void __thiscall TribeTacticalAIModule::detask(TribeTacticalAIModule *this, int u
   int v2; // ebx
   int v4; // ecx
   int v5; // eax
-  _DWORD *v6; // edx
+  int *v6; // edx
   int v7; // eax
   RGE_Static_Object *v8; // eax
   RGE_Static_Object *v9; // edi
@@ -363302,7 +363214,7 @@ void __thiscall TribeTacticalAIModule::detask(TribeTacticalAIModule *this, int u
     v5 = 0;
     if ( v4 > 0 )
     {
-      v6 = (_DWORD *)this->civilianExplorers.value;
+      v6 = this->civilianExplorers.value;
       do
       {
         if ( *v6 == uid )
@@ -363319,7 +363231,7 @@ void __thiscall TribeTacticalAIModule::detask(TribeTacticalAIModule *this, int u
         do
         {
           ++v5;
-          *(_DWORD *)(this->civilianExplorers.value + 4 * v5 - 4) = *(_DWORD *)(this->civilianExplorers.value + 4 * v5);
+          this->civilianExplorers.value[v5 - 1] = this->civilianExplorers.value[v5];
         }
         while ( v5 < this->civilianExplorers.maximumSizeValue - 1 );
       }
@@ -364227,7 +364139,7 @@ int __thiscall TribeTacticalAIModule::numberSoldiersWithPriority(TribeTacticalAI
       v8 = &v5->soldiers;
       if ( v7 > v5->soldiers.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&v5->soldiers, v7 + 1);
-      v9 = RGE_Game_World::object((RGE_Game_World *)v5->md->aiPlayer->world, *(_DWORD *)(v8->value + 4 * v7));
+      v9 = RGE_Game_World::object((RGE_Game_World *)v5->md->aiPlayer->world, v8->value[v7]);
       v10 = v9;
       if ( !v9 || !RGE_Static_Object::unitAI(v9) )
         goto LABEL_59;
@@ -364240,7 +364152,7 @@ int __thiscall TribeTacticalAIModule::numberSoldiersWithPriority(TribeTacticalAI
         v32 = v5->unitsTaskedThisUpdate.maximumSizeValue;
         while ( v12 < v32 )
         {
-          if ( *(_DWORD *)(v5->unitsTaskedThisUpdate.value + 4 * v12) == *(_DWORD *)(v8->value + 4 * v7) )
+          if ( v5->unitsTaskedThisUpdate.value[v12] == v8->value[v7] )
             goto LABEL_58;
           if ( ++v12 >= v11 )
             break;
@@ -364269,20 +364181,20 @@ int __thiscall TribeTacticalAIModule::numberSoldiersWithPriority(TribeTacticalAI
             if ( v7 > v8->maximumSizeValue - 1 )
               ManagedArray_int_::resize(v8, v7 + 1);
             v22 = this->workingArea.numberValue;
-            v19 = *(_DWORD *)(v8->value + 4 * v7);
+            v19 = v8->value[v7];
             v20 = &this->workingArea;
             for ( i = 0; i < v22; ++i )
             {
               if ( i >= this->workingArea.maximumSizeValue )
                 break;
-              if ( *(_DWORD *)(v20->value + 4 * i) == v19 )
+              if ( v20->value[i] == v19 )
                 goto LABEL_57;
             }
             if ( v22 > this->workingArea.maximumSizeValue - 1 )
 LABEL_54:
               ManagedArray_int_::resize(v20, v22 + 1);
 LABEL_55:
-            *(_DWORD *)(v20->value + 4 * v20->numberValue) = v19;
+            v20->value[v20->numberValue] = v19;
 LABEL_56:
             ++v20->numberValue;
 LABEL_57:
@@ -364296,7 +364208,7 @@ LABEL_57:
           if ( v7 > v8->maximumSizeValue - 1 )
             ManagedArray_int_::resize(v8, v7 + 1);
           v24 = 0;
-          v25 = *(_DWORD *)(v8->value + 4 * v7);
+          v25 = v8->value[v7];
           v26 = this->workingArea.numberValue;
           v20 = &this->workingArea;
           if ( v26 > 0 )
@@ -364305,7 +364217,7 @@ LABEL_57:
             {
               if ( v24 >= this->workingArea.maximumSizeValue )
                 break;
-              if ( *(_DWORD *)(v20->value + 4 * v24) == v25 )
+              if ( v20->value[v24] == v25 )
                 goto LABEL_57;
               ++v24;
             }
@@ -364313,7 +364225,7 @@ LABEL_57:
           }
           if ( v26 > this->workingArea.maximumSizeValue - 1 )
             ManagedArray_int_::resize(&this->workingArea, v26 + 1);
-          *(_DWORD *)(this->workingArea.value + 4 * this->workingArea.numberValue) = v25;
+          this->workingArea.value[this->workingArea.numberValue] = v25;
           goto LABEL_56;
         }
       }
@@ -364322,7 +364234,7 @@ LABEL_57:
       {
         if ( v7 > v8->maximumSizeValue - 1 )
           ManagedArray_int_::resize(v8, v7 + 1);
-        v19 = *(_DWORD *)(v8->value + 4 * v7);
+        v19 = v8->value[v7];
         v20 = &this->workingArea;
         v21 = 0;
         v22 = this->workingArea.numberValue;
@@ -364332,7 +364244,7 @@ LABEL_57:
           {
             if ( v21 >= this->workingArea.maximumSizeValue )
               break;
-            if ( *(_DWORD *)(v20->value + 4 * v21) == v19 )
+            if ( v20->value[v21] == v19 )
               goto LABEL_57;
             ++v21;
           }
@@ -364396,7 +364308,7 @@ int __thiscall TribeTacticalAIModule::numberAirWithPriority(TribeTacticalAIModul
       v8 = &v5->boats;
       if ( v7 > v5->boats.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&v5->boats, v7 + 1);
-      v9 = RGE_Game_World::object((RGE_Game_World *)v5->md->aiPlayer->world, *(_DWORD *)(v8->value + 4 * v7));
+      v9 = RGE_Game_World::object((RGE_Game_World *)v5->md->aiPlayer->world, v8->value[v7]);
       v10 = v9;
       if ( !v9 || !RGE_Static_Object::unitAI(v9) )
         goto LABEL_59;
@@ -364409,7 +364321,7 @@ int __thiscall TribeTacticalAIModule::numberAirWithPriority(TribeTacticalAIModul
         v32 = v5->unitsTaskedThisUpdate.maximumSizeValue;
         while ( v12 < v32 )
         {
-          if ( *(_DWORD *)(v5->unitsTaskedThisUpdate.value + 4 * v12) == *(_DWORD *)(v8->value + 4 * v7) )
+          if ( v5->unitsTaskedThisUpdate.value[v12] == v8->value[v7] )
             goto LABEL_58;
           if ( ++v12 >= v11 )
             break;
@@ -364438,20 +364350,20 @@ int __thiscall TribeTacticalAIModule::numberAirWithPriority(TribeTacticalAIModul
             if ( v7 > v8->maximumSizeValue - 1 )
               ManagedArray_int_::resize(v8, v7 + 1);
             v22 = this->workingArea.numberValue;
-            v19 = *(_DWORD *)(v8->value + 4 * v7);
+            v19 = v8->value[v7];
             v20 = &this->workingArea;
             for ( i = 0; i < v22; ++i )
             {
               if ( i >= this->workingArea.maximumSizeValue )
                 break;
-              if ( *(_DWORD *)(v20->value + 4 * i) == v19 )
+              if ( v20->value[i] == v19 )
                 goto LABEL_57;
             }
             if ( v22 > this->workingArea.maximumSizeValue - 1 )
 LABEL_54:
               ManagedArray_int_::resize(v20, v22 + 1);
 LABEL_55:
-            *(_DWORD *)(v20->value + 4 * v20->numberValue) = v19;
+            v20->value[v20->numberValue] = v19;
 LABEL_56:
             ++v20->numberValue;
 LABEL_57:
@@ -364465,7 +364377,7 @@ LABEL_57:
           if ( v7 > v8->maximumSizeValue - 1 )
             ManagedArray_int_::resize(v8, v7 + 1);
           v24 = 0;
-          v25 = *(_DWORD *)(v8->value + 4 * v7);
+          v25 = v8->value[v7];
           v26 = this->workingArea.numberValue;
           v20 = &this->workingArea;
           if ( v26 > 0 )
@@ -364474,7 +364386,7 @@ LABEL_57:
             {
               if ( v24 >= this->workingArea.maximumSizeValue )
                 break;
-              if ( *(_DWORD *)(v20->value + 4 * v24) == v25 )
+              if ( v20->value[v24] == v25 )
                 goto LABEL_57;
               ++v24;
             }
@@ -364482,7 +364394,7 @@ LABEL_57:
           }
           if ( v26 > this->workingArea.maximumSizeValue - 1 )
             ManagedArray_int_::resize(&this->workingArea, v26 + 1);
-          *(_DWORD *)(this->workingArea.value + 4 * this->workingArea.numberValue) = v25;
+          this->workingArea.value[this->workingArea.numberValue] = v25;
           goto LABEL_56;
         }
       }
@@ -364491,7 +364403,7 @@ LABEL_57:
       {
         if ( v7 > v8->maximumSizeValue - 1 )
           ManagedArray_int_::resize(v8, v7 + 1);
-        v19 = *(_DWORD *)(v8->value + 4 * v7);
+        v19 = v8->value[v7];
         v20 = &this->workingArea;
         v21 = 0;
         v22 = this->workingArea.numberValue;
@@ -364501,7 +364413,7 @@ LABEL_57:
           {
             if ( v21 >= this->workingArea.maximumSizeValue )
               break;
-            if ( *(_DWORD *)(v20->value + 4 * v21) == v19 )
+            if ( v20->value[v21] == v19 )
               goto LABEL_57;
             ++v21;
           }
@@ -364585,7 +364497,7 @@ int __thiscall TribeTacticalAIModule::numberWarshipsWithPriority(TribeTacticalAI
     v6 = &v4->tradeCarts;
     if ( v5 > v4->tradeCarts.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&v4->tradeCarts, v5 + 1);
-    v7 = RGE_Game_World::object((RGE_Game_World *)v4->md->aiPlayer->world, *(_DWORD *)(v6->value + 4 * v5));
+    v7 = RGE_Game_World::object((RGE_Game_World *)v4->md->aiPlayer->world, v6->value[v5]);
     v8 = v7;
     if ( v7 && RGE_Static_Object::unitAI(v7) )
     {
@@ -364598,7 +364510,7 @@ int __thiscall TribeTacticalAIModule::numberWarshipsWithPriority(TribeTacticalAI
         v56 = v4->unitsTaskedThisUpdate.maximumSizeValue;
         while ( v10 < v56 )
         {
-          if ( *(_DWORD *)(v4->unitsTaskedThisUpdate.value + 4 * v10) == *(_DWORD *)(v6->value + 4 * v5) )
+          if ( v4->unitsTaskedThisUpdate.value[v10] == v6->value[v5] )
           {
             v4 = this;
             goto LABEL_58;
@@ -364642,13 +364554,13 @@ int __thiscall TribeTacticalAIModule::numberWarshipsWithPriority(TribeTacticalAI
             v25 = v4->workingArea.numberValue;
             v26 = &v4->workingArea;
             v27 = 0;
-            v28 = *(_DWORD *)(v6->value + 4 * v5);
+            v28 = v6->value[v5];
             if ( v25 > 0 )
             {
               v29 = v4->workingArea.maximumSizeValue;
               while ( v27 < v29 )
               {
-                if ( *(_DWORD *)(v26->value + 4 * v27) == v28 )
+                if ( v26->value[v27] == v28 )
                 {
                   v4 = this;
                   ++v53;
@@ -364661,7 +364573,7 @@ int __thiscall TribeTacticalAIModule::numberWarshipsWithPriority(TribeTacticalAI
             }
             if ( v25 > v26->maximumSizeValue - 1 )
               ManagedArray_int_::resize(v26, v25 + 1);
-            *(_DWORD *)(v26->value + 4 * v26->numberValue++) = v28;
+            v26->value[v26->numberValue++] = v28;
             ++v53;
           }
           goto LABEL_58;
@@ -364674,11 +364586,11 @@ int __thiscall TribeTacticalAIModule::numberWarshipsWithPriority(TribeTacticalAI
           v18 = v4->workingArea.numberValue;
           v19 = &v4->workingArea;
           v23 = 0;
-          for ( i = *(_DWORD *)(v6->value + 4 * v5); v23 < v18; ++v23 )
+          for ( i = v6->value[v5]; v23 < v18; ++v23 )
           {
             if ( v23 >= v4->workingArea.maximumSizeValue )
               break;
-            if ( *(_DWORD *)(v19->value + 4 * v23) == i )
+            if ( v19->value[v23] == i )
               goto LABEL_33;
           }
           goto LABEL_30;
@@ -364692,17 +364604,17 @@ int __thiscall TribeTacticalAIModule::numberWarshipsWithPriority(TribeTacticalAI
         v18 = v4->workingArea.numberValue;
         v19 = &v4->workingArea;
         v20 = 0;
-        for ( i = *(_DWORD *)(v6->value + 4 * v5); v20 < v18; ++v20 )
+        for ( i = v6->value[v5]; v20 < v18; ++v20 )
         {
           if ( v20 >= v4->workingArea.maximumSizeValue )
             break;
-          if ( *(_DWORD *)(v19->value + 4 * v20) == i )
+          if ( v19->value[v20] == i )
             goto LABEL_33;
         }
 LABEL_30:
         if ( v18 > v19->maximumSizeValue - 1 )
           ManagedArray_int_::resize(v19, v18 + 1);
-        *(_DWORD *)(v19->value + 4 * v19->numberValue++) = i;
+        v19->value[v19->numberValue++] = i;
 LABEL_33:
         ++v53;
         goto LABEL_58;
@@ -364719,7 +364631,7 @@ LABEL_58:
       if ( v55 > v4->soldiers.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&v4->soldiers, v55 + 1);
       v30 = v55;
-      v31 = RGE_Game_World::object((RGE_Game_World *)v4->md->aiPlayer->world, *(_DWORD *)(v4->soldiers.value + 4 * v55));
+      v31 = RGE_Game_World::object((RGE_Game_World *)v4->md->aiPlayer->world, v4->soldiers.value[v55]);
       v32 = v31;
       if ( !v31 || !RGE_Static_Object::unitAI(v31) )
         goto LABEL_115;
@@ -364730,7 +364642,7 @@ LABEL_58:
       {
         if ( j >= v4->unitsTaskedThisUpdate.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(v4->unitsTaskedThisUpdate.value + 4 * j) == *(_DWORD *)(v4->soldiers.value + 4 * v55) )
+        if ( v4->unitsTaskedThisUpdate.value[j] == v4->soldiers.value[v55] )
           goto LABEL_115;
       }
       v35 = v32->master_obj->object_group;
@@ -364758,7 +364670,7 @@ LABEL_58:
             if ( v55 > v4->soldiers.maximumSizeValue - 1 )
               ManagedArray_int_::resize(&v4->soldiers, v55 + 1);
             v43 = &v4->workingArea;
-            v44 = *(_DWORD *)(v4->soldiers.value + 4 * v55);
+            v44 = v4->soldiers.value[v55];
             v50 = 0;
             v46 = v4->workingArea.numberValue;
             if ( v46 > 0 )
@@ -364767,7 +364679,7 @@ LABEL_58:
               {
                 if ( v50 >= v4->workingArea.maximumSizeValue )
                   break;
-                if ( *(_DWORD *)(v43->value + 4 * v50) == v44 )
+                if ( v43->value[v50] == v44 )
                   goto LABEL_114;
                 ++v50;
               }
@@ -364777,7 +364689,7 @@ LABEL_58:
 LABEL_112:
               ManagedArray_int_::resize(v43, v46 + 1);
 LABEL_113:
-            *(_DWORD *)(v43->value + 4 * v43->numberValue++) = v44;
+            v43->value[v43->numberValue++] = v44;
 LABEL_114:
             v30 = v55;
             ++v53;
@@ -364790,7 +364702,7 @@ LABEL_114:
           if ( v55 > v4->soldiers.maximumSizeValue - 1 )
             ManagedArray_int_::resize(&v4->soldiers, v55 + 1);
           v43 = &v4->workingArea;
-          v44 = *(_DWORD *)(v4->soldiers.value + 4 * v55);
+          v44 = v4->soldiers.value[v55];
           v48 = 0;
           v46 = v4->workingArea.numberValue;
           if ( v46 > 0 )
@@ -364799,7 +364711,7 @@ LABEL_114:
             {
               if ( v48 >= v4->workingArea.maximumSizeValue )
                 break;
-              if ( *(_DWORD *)(v43->value + 4 * v48) == v44 )
+              if ( v43->value[v48] == v44 )
                 goto LABEL_114;
               ++v48;
             }
@@ -364816,7 +364728,7 @@ LABEL_114:
         if ( v55 > v4->soldiers.maximumSizeValue - 1 )
           ManagedArray_int_::resize(&v4->soldiers, v55 + 1);
         v43 = &v4->workingArea;
-        v44 = *(_DWORD *)(v4->soldiers.value + 4 * v55);
+        v44 = v4->soldiers.value[v55];
         v45 = 0;
         v46 = v4->workingArea.numberValue;
         if ( v46 > 0 )
@@ -364825,7 +364737,7 @@ LABEL_114:
           {
             if ( v45 >= v4->workingArea.maximumSizeValue )
               break;
-            if ( *(_DWORD *)(v43->value + 4 * v45) == v44 )
+            if ( v43->value[v45] == v44 )
               goto LABEL_114;
             ++v45;
           }
@@ -364886,12 +364798,12 @@ LABEL_26:
       {
         if ( i >= this->unitsTaskedThisUpdate.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i) == *(_DWORD *)(v14->value + 4 * v13) )
+        if ( this->unitsTaskedThisUpdate.value[i] == v14->value[v13] )
           goto LABEL_54;
       }
       if ( v13 > this->civilians.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->civilians, v13 + 1);
-      v17 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(v14->value + 4 * v13));
+      v17 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, v14->value[v13]);
       v8 = v17;
       v25 = v17;
       if ( v17 && RGE_Static_Object::unitAI(v17) )
@@ -364911,7 +364823,7 @@ LABEL_46:
             {
               if ( j >= this->civilianExplorers.maximumSizeValue )
                 break;
-              if ( *(_DWORD *)(this->civilianExplorers.value + 4 * j) == *(_DWORD *)(v14->value + 4 * v13) )
+              if ( this->civilianExplorers.value[j] == v14->value[v13] )
                 goto LABEL_54;
               v8 = v25;
             }
@@ -364925,7 +364837,7 @@ LABEL_53:
           ManagedArray_int_::resize(&this->civilians, v13 + 1);
         v19 = 0;
         v20 = this->gatherers;
-        while ( v20->id != *(_DWORD *)(v14->value + 4 * v13) )
+        while ( v20->id != v14->value[v13] )
         {
           ++v19;
           ++v20;
@@ -364951,12 +364863,12 @@ LABEL_54:
     {
       if ( k >= this->unitsTaskedThisUpdate.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * k) == *(_DWORD *)(v4->value + 4 * v3) )
+      if ( this->unitsTaskedThisUpdate.value[k] == v4->value[v3] )
         goto LABEL_25;
     }
     if ( v3 > this->civilians.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->civilians, v3 + 1);
-    v7 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(v4->value + 4 * v3));
+    v7 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, v4->value[v3]);
     v8 = v7;
     v24 = v7;
     if ( v7 )
@@ -364969,7 +364881,7 @@ LABEL_54:
         v10 = this->gatherers;
         do
         {
-          if ( v10->id == *(_DWORD *)(v4->value + 4 * v3) )
+          if ( v10->id == v4->value[v3] )
             goto LABEL_25;
           ++v9;
           ++v10;
@@ -364982,7 +364894,7 @@ LABEL_54:
         {
           if ( l >= this->civilianExplorers.maximumSizeValue )
             break;
-          if ( *(_DWORD *)(this->civilianExplorers.value + 4 * l) == *(_DWORD *)(v4->value + 4 * v3) )
+          if ( this->civilianExplorers.value[l] == v4->value[v3] )
             goto LABEL_25;
           v8 = v24;
         }
@@ -365047,12 +364959,12 @@ LABEL_26:
       {
         if ( i >= this->unitsTaskedThisUpdate.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i) == *(_DWORD *)(v16->value + 4 * v15) )
+        if ( this->unitsTaskedThisUpdate.value[i] == v16->value[v15] )
           goto LABEL_59;
       }
       if ( v15 > this->civilians.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->civilians, v15 + 1);
-      v19 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(v16->value + 4 * v15));
+      v19 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, v16->value[v15]);
       v20 = v19;
       v33 = v19;
       if ( !v19 || !RGE_Static_Object::unitAI(v19) )
@@ -365066,7 +364978,7 @@ LABEL_26:
             ManagedArray_int_::resize(&this->civilians, v15 + 1);
           v22 = 0;
           v23 = this->gatherers;
-          while ( v23->id != *(_DWORD *)(v16->value + 4 * v15) )
+          while ( v23->id != v16->value[v15] )
           {
             ++v22;
             ++v23;
@@ -365088,7 +365000,7 @@ LABEL_46:
           {
             if ( j >= this->civilianExplorers.maximumSizeValue )
               break;
-            if ( *(_DWORD *)(this->civilianExplorers.value + 4 * j) == *(_DWORD *)(v16->value + 4 * v15) )
+            if ( this->civilianExplorers.value[j] == v16->value[v15] )
               goto LABEL_59;
             v20 = v33;
           }
@@ -365134,12 +365046,12 @@ LABEL_59:
     {
       if ( k >= this->unitsTaskedThisUpdate.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * k) == *(_DWORD *)(v6->value + 4 * v5) )
+      if ( this->unitsTaskedThisUpdate.value[k] == v6->value[v5] )
         goto LABEL_25;
     }
     if ( v5 > this->civilians.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->civilians, v5 + 1);
-    v9 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(v6->value + 4 * v5));
+    v9 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, v6->value[v5]);
     v10 = v9;
     v32 = v9;
     if ( v9 )
@@ -365152,7 +365064,7 @@ LABEL_59:
         v12 = this->gatherers;
         do
         {
-          if ( v12->id == *(_DWORD *)(v6->value + 4 * v5) )
+          if ( v12->id == v6->value[v5] )
             goto LABEL_25;
           ++v11;
           ++v12;
@@ -365165,7 +365077,7 @@ LABEL_59:
         {
           if ( l >= this->civilianExplorers.maximumSizeValue )
             break;
-          if ( *(_DWORD *)(this->civilianExplorers.value + 4 * l) == *(_DWORD *)(v6->value + 4 * v5) )
+          if ( this->civilianExplorers.value[l] == v6->value[v5] )
             goto LABEL_25;
           v10 = v32;
         }
@@ -365186,13 +365098,13 @@ int __thiscall TribeTacticalAIModule::civilianForBuilder(TribeTacticalAIModule *
   int v4; // ebp
   int v5; // eax
   int v6; // ebx
-  _DWORD *v7; // edi
+  int *v7; // edi
   int i; // eax
   int v9; // ecx
   int v10; // eax
   int v11; // eax
   int v12; // ebx
-  _DWORD *v13; // edi
+  int *v13; // edi
   int j; // eax
   RGE_Static_Object *v15; // eax
   RGE_Static_Object *v16; // edi
@@ -365224,17 +365136,17 @@ int __thiscall TribeTacticalAIModule::civilianForBuilder(TribeTacticalAIModule *
       {
         if ( v4 < v5 || (v6 = v5 + 32, v5 + 32 <= v4) )
           v6 = v4;
-        v7 = operator_new(4 * v6);
+        v7 = (int *)operator_new(4 * v6);
         if ( v7 )
         {
-          for ( i = 0; i < this->civilians.maximumSizeValue; v7[i - 1] = *(_DWORD *)(this->civilians.value + 4 * i - 4) )
+          for ( i = 0; i < this->civilians.maximumSizeValue; v7[i - 1] = this->civilians.value[i - 1] )
           {
             if ( i >= v6 )
               break;
             ++i;
           }
-          operator_delete((void *)this->civilians.value);
-          this->civilians.value = (int)v7;
+          operator_delete(this->civilians.value);
+          this->civilians.value = v7;
           this->civilians.maximumSizeValue = v6;
         }
       }
@@ -365244,7 +365156,7 @@ int __thiscall TribeTacticalAIModule::civilianForBuilder(TribeTacticalAIModule *
       {
         while ( v10 < this->unitsTaskedThisUpdate.maximumSizeValue )
         {
-          if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * v10) == *(_DWORD *)(v26 + this->civilians.value) )
+          if ( this->unitsTaskedThisUpdate.value[v10] == this->civilians.value[v26] )
           {
             v4 = v25;
             goto LABEL_40;
@@ -365259,21 +365171,21 @@ int __thiscall TribeTacticalAIModule::civilianForBuilder(TribeTacticalAIModule *
       {
         if ( v4 < v11 || (v12 = v11 + 32, v11 + 32 <= v4) )
           v12 = v4;
-        v13 = operator_new(4 * v12);
+        v13 = (int *)operator_new(4 * v12);
         if ( v13 )
         {
-          for ( j = 0; j < this->civilians.maximumSizeValue; v13[j - 1] = *(_DWORD *)(this->civilians.value + 4 * j - 4) )
+          for ( j = 0; j < this->civilians.maximumSizeValue; v13[j - 1] = this->civilians.value[j - 1] )
           {
             if ( j >= v12 )
               break;
             ++j;
           }
-          operator_delete((void *)this->civilians.value);
-          this->civilians.value = (int)v13;
+          operator_delete(this->civilians.value);
+          this->civilians.value = v13;
           this->civilians.maximumSizeValue = v12;
         }
       }
-      v15 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(v26 + this->civilians.value));
+      v15 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, this->civilians.value[v26]);
       v16 = v15;
       if ( v15 )
       {
@@ -365316,7 +365228,7 @@ int __thiscall TribeTacticalAIModule::civilianForBuilder(TribeTacticalAIModule *
       }
 LABEL_40:
       ++v4;
-      v26 += 4;
+      ++v26;
       v25 = v4;
     }
     while ( v4 - 1 < this->civilians.numberValue );
@@ -365434,7 +365346,7 @@ LABEL_14:
               {
                 if ( i >= this->unitsTaskedThisUpdate.maximumSizeValue )
                   break;
-                if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i) == v2->id )
+                if ( this->unitsTaskedThisUpdate.value[i] == v2->id )
                   goto LABEL_14;
               }
             }
@@ -365621,7 +365533,7 @@ int __thiscall TribeTacticalAIModule::highLevelTaskExplorer(TribeTacticalAIModul
     {
       if ( v3 >= this->unitsTaskedThisUpdate.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(v7->value + 4 * v3) == unitID )
+      if ( v7->value[v3] == unitID )
         return 0;
       ++v3;
     }
@@ -365666,12 +365578,12 @@ int __thiscall TribeTacticalAIModule::highLevelTaskExplorer(TribeTacticalAIModul
   {
     if ( i >= this->unitsTaskedThisUpdate.maximumSizeValue )
       break;
-    if ( *(_DWORD *)(v7->value + 4 * i) == v5 )
+    if ( v7->value[i] == v5 )
       goto LABEL_25;
   }
   if ( v20 > this->unitsTaskedThisUpdate.maximumSizeValue - 1 )
     ManagedArray_int_::resize(&this->unitsTaskedThisUpdate, v20 + 1);
-  *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * this->unitsTaskedThisUpdate.numberValue++) = v5;
+  this->unitsTaskedThisUpdate.value[this->unitsTaskedThisUpdate.numberValue++] = v5;
 LABEL_25:
   if ( TribeTacticalAIModule::unexploredArea(this, v5, &rPoint) != 1 )
   {
@@ -365682,7 +365594,7 @@ LABEL_25:
       v26 = this->unitsTaskedThisUpdate.numberValue;
       if ( v26 > this->unitsTaskedThisUpdate.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->unitsTaskedThisUpdate, v26 + 1);
-      *(float *)(v7->value + 4 * this->unitsTaskedThisUpdate.numberValue++) = *(float *)&v28;
+      v7->value[this->unitsTaskedThisUpdate.numberValue++] = v28;
     }
     if ( civilian == 1 )
     {
@@ -365714,7 +365626,7 @@ LABEL_25:
     v22 = this->unitsTaskedThisUpdate.numberValue;
     if ( v22 > this->unitsTaskedThisUpdate.maximumSizeValue - 1 )
       ManagedArray_int_::resize(&this->unitsTaskedThisUpdate, v22 + 1);
-    *(_DWORD *)(v7->value + 4 * this->unitsTaskedThisUpdate.numberValue++) = r;
+    v7->value[this->unitsTaskedThisUpdate.numberValue++] = r;
   }
   if ( civilian == 1 )
   {
@@ -365724,7 +365636,7 @@ LABEL_25:
     {
       if ( j >= this->civilianExplorers.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(v24->value + 4 * j) == v5 )
+      if ( v24->value[j] == v5 )
         goto LABEL_36;
     }
     ManagedArray_int_::add(v24, v5);
@@ -366004,13 +365916,13 @@ int __thiscall TribeTacticalAIModule::taskBuilder(TribeTacticalAIModule *this, i
   int v13; // eax
   int v14; // ecx
   int v15; // eax
-  _DWORD *v16; // edx
+  int *v16; // edx
   int v17; // eax
   int v18; // edx
   int i; // eax
   int v20; // ecx
   int v21; // ebx
-  _DWORD *v22; // edi
+  int *v22; // edi
   int j; // eax
   TRIBE_PlayerVtbl *v24; // edi
   int v25; // eax
@@ -366135,7 +366047,7 @@ int __thiscall TribeTacticalAIModule::taskBuilder(TribeTacticalAIModule *this, i
   v15 = 0;
   if ( v14 > 0 )
   {
-    v16 = (_DWORD *)this->civilianExplorers.value;
+    v16 = this->civilianExplorers.value;
     do
     {
       if ( *v16 == v7 )
@@ -366152,7 +366064,7 @@ int __thiscall TribeTacticalAIModule::taskBuilder(TribeTacticalAIModule *this, i
       do
       {
         ++v15;
-        *(_DWORD *)(this->civilianExplorers.value + 4 * v15 - 4) = *(_DWORD *)(this->civilianExplorers.value + 4 * v15);
+        this->civilianExplorers.value[v15 - 1] = this->civilianExplorers.value[v15];
       }
       while ( v15 < this->civilianExplorers.maximumSizeValue - 1 );
     }
@@ -366166,7 +366078,7 @@ int __thiscall TribeTacticalAIModule::taskBuilder(TribeTacticalAIModule *this, i
   {
     if ( i >= this->unitsTaskedThisUpdate.maximumSizeValue )
       break;
-    if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i) == v7 )
+    if ( this->unitsTaskedThisUpdate.value[i] == v7 )
       goto LABEL_44;
   }
   v20 = this->unitsTaskedThisUpdate.maximumSizeValue;
@@ -366174,24 +366086,22 @@ int __thiscall TribeTacticalAIModule::taskBuilder(TribeTacticalAIModule *this, i
   {
     if ( v18 + 1 < v20 || (v21 = v20 + 32, v20 + 32 <= v18 + 1) )
       v21 = v18 + 1;
-    v22 = operator_new(4 * v21);
+    v22 = (int *)operator_new(4 * v21);
     if ( v22 )
     {
-      for ( j = 0;
-            j < this->unitsTaskedThisUpdate.maximumSizeValue;
-            v22[j - 1] = *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * j - 4) )
+      for ( j = 0; j < this->unitsTaskedThisUpdate.maximumSizeValue; v22[j - 1] = this->unitsTaskedThisUpdate.value[j - 1] )
       {
         if ( j >= v21 )
           break;
         ++j;
       }
-      operator_delete((void *)this->unitsTaskedThisUpdate.value);
-      this->unitsTaskedThisUpdate.value = (int)v22;
+      operator_delete(this->unitsTaskedThisUpdate.value);
+      this->unitsTaskedThisUpdate.value = v22;
       this->unitsTaskedThisUpdate.maximumSizeValue = v21;
     }
     v7 = builder;
   }
-  *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * this->unitsTaskedThisUpdate.numberValue++) = v7;
+  this->unitsTaskedThisUpdate.value[this->unitsTaskedThisUpdate.numberValue++] = v7;
 LABEL_44:
   if ( BaseItem::typeID((BaseItem *)v6) == 276 )
     this->wonderInProgressValue = 1;
@@ -366229,7 +366139,7 @@ int __thiscall TribeTacticalAIModule::taskBuilder2(TribeTacticalAIModule *this, 
   int v16; // edx
   int i; // eax
   int v18; // ecx
-  _DWORD *v19; // ebp
+  int *v19; // ebp
   int j; // eax
   __int64 v21; // rax
   int v22; // ebp
@@ -366348,7 +366258,7 @@ int __thiscall TribeTacticalAIModule::taskBuilder2(TribeTacticalAIModule *this, 
   {
     if ( i >= this->unitsTaskedThisUpdate.maximumSizeValue )
       break;
-    if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i) == builder )
+    if ( this->unitsTaskedThisUpdate.value[i] == builder )
       goto LABEL_30;
   }
   v18 = this->unitsTaskedThisUpdate.maximumSizeValue;
@@ -366356,23 +366266,21 @@ int __thiscall TribeTacticalAIModule::taskBuilder2(TribeTacticalAIModule *this, 
   {
     if ( v16 + 1 < v18 || (buildinga = v18 + 32, v18 + 32 <= v16 + 1) )
       buildinga = v16 + 1;
-    v19 = operator_new(4 * buildinga);
+    v19 = (int *)operator_new(4 * buildinga);
     if ( v19 )
     {
-      for ( j = 0;
-            j < this->unitsTaskedThisUpdate.maximumSizeValue;
-            v19[j - 1] = *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * j - 4) )
+      for ( j = 0; j < this->unitsTaskedThisUpdate.maximumSizeValue; v19[j - 1] = this->unitsTaskedThisUpdate.value[j - 1] )
       {
         if ( j >= buildinga )
           break;
         ++j;
       }
-      operator_delete((void *)this->unitsTaskedThisUpdate.value);
-      this->unitsTaskedThisUpdate.value = (int)v19;
+      operator_delete(this->unitsTaskedThisUpdate.value);
+      this->unitsTaskedThisUpdate.value = v19;
       this->unitsTaskedThisUpdate.maximumSizeValue = buildinga;
     }
   }
-  *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * this->unitsTaskedThisUpdate.numberValue++) = builder;
+  this->unitsTaskedThisUpdate.value[this->unitsTaskedThisUpdate.numberValue++] = builder;
 LABEL_30:
   v21 = (__int64)((double)this->sn[34] / RGE_Static_Object::distance_to_object(building, v5));
   v22 = 99;
@@ -366423,7 +366331,7 @@ int __thiscall TribeTacticalAIModule::taskRepairer(TribeTacticalAIModule *this, 
   int i; // eax
   int v9; // ecx
   int v10; // ebp
-  _DWORD *v11; // ebx
+  int *v11; // ebx
   int j; // eax
   __int64 v13; // rax
   int v14; // [esp+18h] [ebp-4h]
@@ -366449,7 +366357,7 @@ int __thiscall TribeTacticalAIModule::taskRepairer(TribeTacticalAIModule *this, 
       {
         if ( i >= this->unitsTaskedThisUpdate.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i) == builder )
+        if ( this->unitsTaskedThisUpdate.value[i] == builder )
           goto LABEL_18;
       }
       v9 = this->unitsTaskedThisUpdate.maximumSizeValue;
@@ -366457,25 +366365,25 @@ int __thiscall TribeTacticalAIModule::taskRepairer(TribeTacticalAIModule *this, 
       {
         if ( v7 + 1 < v9 || (v10 = v9 + 32, v9 + 32 <= v7 + 1) )
           v10 = v7 + 1;
-        v11 = operator_new(4 * v10);
+        v11 = (int *)operator_new(4 * v10);
         if ( v11 )
         {
           for ( j = 0;
                 j < this->unitsTaskedThisUpdate.maximumSizeValue;
-                v11[j - 1] = *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * j - 4) )
+                v11[j - 1] = this->unitsTaskedThisUpdate.value[j - 1] )
           {
             if ( j >= v10 )
               break;
             ++j;
           }
-          operator_delete((void *)this->unitsTaskedThisUpdate.value);
-          this->unitsTaskedThisUpdate.value = (int)v11;
+          operator_delete(this->unitsTaskedThisUpdate.value);
+          this->unitsTaskedThisUpdate.value = v11;
           this->unitsTaskedThisUpdate.maximumSizeValue = v10;
         }
         v6 = (RGE_Static_Object *)v14;
         v3 = builder;
       }
-      *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * this->unitsTaskedThisUpdate.numberValue++) = v3;
+      this->unitsTaskedThisUpdate.value[this->unitsTaskedThisUpdate.numberValue++] = v3;
 LABEL_18:
       v13 = (__int64)((double)this->sn[34] / RGE_Static_Object::distance_to_object(building, v6));
       HIDWORD(v13) = 99;
@@ -366530,7 +366438,7 @@ int __thiscall TribeTacticalAIModule::taskGatherer(TribeTacticalAIModule *this, 
   int v29; // ebx
   int v30; // ecx
   int v31; // eax
-  _DWORD *v32; // edx
+  int *v32; // edx
   int v33; // edi
   int v34; // eax
   int v35; // edi
@@ -366538,7 +366446,7 @@ int __thiscall TribeTacticalAIModule::taskGatherer(TribeTacticalAIModule *this, 
   int v37; // eax
   int v38; // edx
   int v39; // ebx
-  _DWORD *v40; // edi
+  int *v40; // edi
   int i; // eax
   __int64 v42; // rax
   int v43; // ecx
@@ -366548,7 +366456,7 @@ int __thiscall TribeTacticalAIModule::taskGatherer(TribeTacticalAIModule *this, 
   int v47; // ecx
   int v48; // edx
   int v49; // ebp
-  _DWORD *v50; // edi
+  int *v50; // edi
   int j; // eax
   BVector v52; // [esp+34h] [ebp-ECh]
   BVector v53; // [esp+34h] [ebp-ECh]
@@ -366764,7 +366672,7 @@ LABEL_41:
     }
     else
     {
-      v32 = (_DWORD *)this->civilianExplorers.value;
+      v32 = this->civilianExplorers.value;
       v33 = id;
       do
       {
@@ -366782,7 +366690,7 @@ LABEL_41:
         do
         {
           ++v31;
-          *(_DWORD *)(this->civilianExplorers.value + 4 * v31 - 4) = *(_DWORD *)(this->civilianExplorers.value + 4 * v31);
+          this->civilianExplorers.value[v31 - 1] = this->civilianExplorers.value[v31];
         }
         while ( v31 < this->civilianExplorers.maximumSizeValue - 1 );
       }
@@ -366802,7 +366710,7 @@ LABEL_41:
     {
       while ( v37 < this->unitsTaskedThisUpdate.maximumSizeValue )
       {
-        if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * v37) == id )
+        if ( this->unitsTaskedThisUpdate.value[v37] == id )
         {
           v29 = numExclusionsb;
           goto LABEL_71;
@@ -366817,25 +366725,23 @@ LABEL_41:
     {
       if ( v36 + 1 < v38 || (v39 = v38 + 32, v38 + 32 <= v36 + 1) )
         v39 = v36 + 1;
-      v40 = operator_new(4 * v39);
+      v40 = (int *)operator_new(4 * v39);
       if ( v40 )
       {
-        for ( i = 0;
-              i < this->unitsTaskedThisUpdate.maximumSizeValue;
-              v40[i - 1] = *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i - 4) )
+        for ( i = 0; i < this->unitsTaskedThisUpdate.maximumSizeValue; v40[i - 1] = this->unitsTaskedThisUpdate.value[i - 1] )
         {
           if ( i >= v39 )
             break;
           ++i;
         }
-        operator_delete((void *)this->unitsTaskedThisUpdate.value);
-        this->unitsTaskedThisUpdate.value = (int)v40;
+        operator_delete(this->unitsTaskedThisUpdate.value);
+        this->unitsTaskedThisUpdate.value = v40;
         this->unitsTaskedThisUpdate.maximumSizeValue = v39;
       }
       v35 = resourceType;
       v29 = numExclusionsb;
     }
-    *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * this->unitsTaskedThisUpdate.numberValue++) = id;
+    this->unitsTaskedThisUpdate.value[this->unitsTaskedThisUpdate.numberValue++] = id;
 LABEL_71:
     v63->data1 = v35;
     LODWORD(v42) = this->sn[148];
@@ -366903,7 +366809,7 @@ LABEL_71:
         {
           if ( v46 >= v45->maximumSizeValue )
             break;
-          if ( *(_DWORD *)(v45->value + 4 * v46) == v44 )
+          if ( v45->value[v46] == v44 )
             goto LABEL_106;
           ++v46;
         }
@@ -366914,21 +366820,21 @@ LABEL_71:
       {
         if ( v47 + 1 < v48 || (v49 = v48 + 32, v48 + 32 <= v47 + 1) )
           v49 = v47 + 1;
-        v50 = operator_new(4 * v49);
+        v50 = (int *)operator_new(4 * v49);
         if ( v50 )
         {
-          for ( j = 0; j < v45->maximumSizeValue; v50[j - 1] = *(_DWORD *)(v45->value + 4 * j - 4) )
+          for ( j = 0; j < v45->maximumSizeValue; v50[j - 1] = v45->value[j - 1] )
           {
             if ( j >= v49 )
               break;
             ++j;
           }
-          operator_delete((void *)v45->value);
-          v45->value = (int)v50;
+          operator_delete(v45->value);
+          v45->value = v50;
           v45->maximumSizeValue = v49;
         }
       }
-      *(_DWORD *)(v45->value + 4 * v45->numberValue++) = v44;
+      v45->value[v45->numberValue++] = v44;
     }
 LABEL_106:
     result = 1;
@@ -366946,7 +366852,7 @@ int __thiscall TribeTacticalAIModule::taskExplorer(TribeTacticalAIModule *this, 
   ManagedArray_int_ *v7; // esi
   int v8; // edx
   int v9; // ebx
-  _DWORD *v10; // edi
+  int *v10; // edi
   int i; // eax
   int v12; // eax
   int v13; // edx
@@ -366967,7 +366873,7 @@ int __thiscall TribeTacticalAIModule::taskExplorer(TribeTacticalAIModule *this, 
   {
     if ( v6 >= v3->unitsTaskedThisUpdate.maximumSizeValue )
       break;
-    if ( *(_DWORD *)(v7->value + 4 * v6) == eID )
+    if ( v7->value[v6] == eID )
       goto LABEL_16;
   }
   v8 = v3->unitsTaskedThisUpdate.maximumSizeValue;
@@ -366975,22 +366881,22 @@ int __thiscall TribeTacticalAIModule::taskExplorer(TribeTacticalAIModule *this, 
   {
     if ( v5 + 1 < v8 || (v9 = v8 + 32, v8 + 32 <= v5 + 1) )
       v9 = v5 + 1;
-    v10 = operator_new(4 * v9);
+    v10 = (int *)operator_new(4 * v9);
     if ( v10 )
     {
-      for ( i = 0; i < v7->maximumSizeValue; v10[i - 1] = *(_DWORD *)(v7->value + 4 * i - 4) )
+      for ( i = 0; i < v7->maximumSizeValue; v10[i - 1] = v7->value[i - 1] )
       {
         if ( i >= v9 )
           break;
         ++i;
       }
-      operator_delete((void *)v7->value);
-      v7->value = (int)v10;
+      operator_delete(v7->value);
+      v7->value = v10;
       v7->maximumSizeValue = v9;
     }
     v3 = (TribeTacticalAIModule *)r;
   }
-  *(_DWORD *)(v7->value + 4 * v7->numberValue++) = v4;
+  v7->value[v7->numberValue++] = v4;
 LABEL_16:
   if ( TribeTacticalAIModule::unexploredArea(v3, v4, &rPoint) == 1 )
   {
@@ -367002,7 +366908,7 @@ LABEL_16:
       v12 = v7->numberValue;
       if ( v12 > v7->maximumSizeValue - 1 )
         ManagedArray_int_::resize(v7, v12 + 1);
-      *(_DWORD *)(v7->value + 4 * v7->numberValue++) = eID;
+      v7->value[v7->numberValue++] = eID;
     }
     if ( civilian == 1 )
     {
@@ -367012,7 +366918,7 @@ LABEL_16:
       {
         if ( j >= v3->civilianExplorers.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(v14->value + 4 * j) == v4 )
+        if ( v14->value[j] == v4 )
           goto LABEL_27;
       }
       ManagedArray_int_::add(v14, v4);
@@ -367044,7 +366950,7 @@ LABEL_27:
       v17 = v7->numberValue;
       if ( v17 > v7->maximumSizeValue - 1 )
         ManagedArray_int_::resize(v7, v17 + 1);
-      *(float *)(v7->value + 4 * v7->numberValue++) = *(float *)&r;
+      v7->value[v7->numberValue++] = r;
     }
     if ( civilian == 1 )
     {
@@ -367101,7 +367007,7 @@ int __thiscall TribeTacticalAIModule::taskExplorer2(TribeTacticalAIModule *this,
     {
       if ( v4 >= this->unitsTaskedThisUpdate.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(v7->value + 4 * v4) == eID )
+      if ( v7->value[v4] == eID )
         goto LABEL_8;
       ++v4;
     }
@@ -367109,7 +367015,7 @@ int __thiscall TribeTacticalAIModule::taskExplorer2(TribeTacticalAIModule *this,
   }
   if ( v6 > this->unitsTaskedThisUpdate.maximumSizeValue - 1 )
     ManagedArray_int_::resize(&this->unitsTaskedThisUpdate, v6 + 1);
-  *(float *)(v7->value + 4 * this->unitsTaskedThisUpdate.numberValue++) = v8;
+  *(float *)&v7->value[this->unitsTaskedThisUpdate.numberValue++] = v8;
 LABEL_8:
   v9 = this->civilians.numberValue;
   v10 = 0;
@@ -367118,7 +367024,7 @@ LABEL_8:
   {
     while ( v10 < this->civilians.maximumSizeValue )
     {
-      if ( *(_DWORD *)(this->civilians.value + 4 * v10) == LODWORD(v8) )
+      if ( this->civilians.value[v10] == LODWORD(v8) )
       {
         v18 = 1;
         break;
@@ -367137,7 +367043,7 @@ LABEL_8:
       v11 = this->unitsTaskedThisUpdate.numberValue;
       if ( v11 > this->unitsTaskedThisUpdate.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->unitsTaskedThisUpdate, v11 + 1);
-      *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * this->unitsTaskedThisUpdate.numberValue++) = eID;
+      this->unitsTaskedThisUpdate.value[this->unitsTaskedThisUpdate.numberValue++] = eID;
     }
     if ( v18 == 1 )
     {
@@ -367147,7 +367053,7 @@ LABEL_8:
       {
         if ( i >= this->civilianExplorers.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(v13->value + 4 * i) == LODWORD(v8) )
+        if ( v13->value[i] == LODWORD(v8) )
           goto LABEL_28;
       }
       y = v8;
@@ -367156,7 +367062,7 @@ LABEL_8:
         v15 = this->civilianExplorers.numberValue;
         if ( v15 > this->civilianExplorers.maximumSizeValue - 1 )
           ManagedArray_int_::resize(&this->civilianExplorers, v15 + 1);
-        *(float *)(v13->value + 4 * this->civilianExplorers.numberValue++) = y;
+        *(float *)&v13->value[this->civilianExplorers.numberValue++] = y;
       }
 LABEL_28:
       TribeTacticalAIModule::removeGatherer(this, SLODWORD(v8));
@@ -367186,7 +367092,7 @@ LABEL_28:
       v17 = this->unitsTaskedThisUpdate.numberValue;
       if ( v17 > this->unitsTaskedThisUpdate.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->unitsTaskedThisUpdate, v17 + 1);
-      *(float *)(v7->value + 4 * this->unitsTaskedThisUpdate.numberValue++) = *(float *)&r;
+      v7->value[this->unitsTaskedThisUpdate.numberValue++] = r;
     }
     if ( v18 == 1 )
     {
@@ -367221,7 +367127,7 @@ int __thiscall TribeTacticalAIModule::taskWaterFisher(TribeTacticalAIModule *thi
   int i; // eax
   int v9; // ecx
   int v10; // ebx
-  _DWORD *v11; // edi
+  int *v11; // edi
   int j; // eax
 
   v6 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, unitID);
@@ -367232,7 +367138,7 @@ int __thiscall TribeTacticalAIModule::taskWaterFisher(TribeTacticalAIModule *thi
   {
     if ( i >= this->unitsTaskedThisUpdate.maximumSizeValue )
       break;
-    if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i) == unitID )
+    if ( this->unitsTaskedThisUpdate.value[i] == unitID )
       goto LABEL_17;
   }
   v9 = this->unitsTaskedThisUpdate.maximumSizeValue;
@@ -367240,23 +367146,21 @@ int __thiscall TribeTacticalAIModule::taskWaterFisher(TribeTacticalAIModule *thi
   {
     if ( v7 + 1 < v9 || (v10 = v9 + 32, v9 + 32 <= v7 + 1) )
       v10 = v7 + 1;
-    v11 = operator_new(4 * v10);
+    v11 = (int *)operator_new(4 * v10);
     if ( v11 )
     {
-      for ( j = 0;
-            j < this->unitsTaskedThisUpdate.maximumSizeValue;
-            v11[j - 1] = *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * j - 4) )
+      for ( j = 0; j < this->unitsTaskedThisUpdate.maximumSizeValue; v11[j - 1] = this->unitsTaskedThisUpdate.value[j - 1] )
       {
         if ( j >= v10 )
           break;
         ++j;
       }
-      operator_delete((void *)this->unitsTaskedThisUpdate.value);
-      this->unitsTaskedThisUpdate.value = (int)v11;
+      operator_delete(this->unitsTaskedThisUpdate.value);
+      this->unitsTaskedThisUpdate.value = v11;
       this->unitsTaskedThisUpdate.maximumSizeValue = v10;
     }
   }
-  *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * this->unitsTaskedThisUpdate.numberValue++) = unitID;
+  this->unitsTaskedThisUpdate.value[this->unitsTaskedThisUpdate.numberValue++] = unitID;
 LABEL_17:
   ((void (__thiscall *)(TRIBE_Player *, int, int, _DWORD, _DWORD, _DWORD, _DWORD))this->md->aiPlayer->vfptr->taskResourceGatherer)(
     this->md->aiPlayer,
@@ -367288,7 +367192,7 @@ int __thiscall TribeTacticalAIModule::taskAttacker(TribeTacticalAIModule *this, 
   int i; // eax
   int v26; // ecx
   int v27; // ebp
-  _DWORD *v28; // edi
+  int *v28; // edi
   int j; // eax
   float v31; // [esp+18h] [ebp-20h]
   int v32; // [esp+1Ch] [ebp-1Ch]
@@ -367376,7 +367280,7 @@ LABEL_19:
   {
     if ( i >= this->unitsTaskedThisUpdate.maximumSizeValue )
       break;
-    if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i) == soldierID )
+    if ( this->unitsTaskedThisUpdate.value[i] == soldierID )
       return 1;
   }
   v26 = this->unitsTaskedThisUpdate.maximumSizeValue;
@@ -367384,23 +367288,21 @@ LABEL_19:
   {
     if ( v24 + 1 < v26 || (v27 = v26 + 32, v26 + 32 <= v24 + 1) )
       v27 = v24 + 1;
-    v28 = operator_new(4 * v27);
+    v28 = (int *)operator_new(4 * v27);
     if ( v28 )
     {
-      for ( j = 0;
-            j < this->unitsTaskedThisUpdate.maximumSizeValue;
-            v28[j - 1] = *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * j - 4) )
+      for ( j = 0; j < this->unitsTaskedThisUpdate.maximumSizeValue; v28[j - 1] = this->unitsTaskedThisUpdate.value[j - 1] )
       {
         if ( j >= v27 )
           break;
         ++j;
       }
-      operator_delete((void *)this->unitsTaskedThisUpdate.value);
-      this->unitsTaskedThisUpdate.value = (int)v28;
+      operator_delete(this->unitsTaskedThisUpdate.value);
+      this->unitsTaskedThisUpdate.value = v28;
       this->unitsTaskedThisUpdate.maximumSizeValue = v27;
     }
   }
-  *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * this->unitsTaskedThisUpdate.numberValue++) = soldierID;
+  this->unitsTaskedThisUpdate.value[this->unitsTaskedThisUpdate.numberValue++] = soldierID;
   return 1;
 }
 // 5AA3E4: variable 'v32' is possibly undefined
@@ -367411,7 +367313,7 @@ LABEL_19:
 int __thiscall TribeTacticalAIModule::taskToEnter(TribeTacticalAIModule *this, int unitID, int targetID)
 {
   int v3; // ebx
-  TribeTacticalAIModule *v4; // ebp
+  ManagedArray_int_ *v4; // ebp
   int v6; // ecx
   ManagedArray_int_ *v7; // esi
   int i; // eax
@@ -367439,28 +367341,28 @@ int __thiscall TribeTacticalAIModule::taskToEnter(TribeTacticalAIModule *this, i
   TribeTacticalAIModule *v30; // [esp+10h] [ebp-4h]
 
   v3 = unitID;
-  v4 = this;
+  v4 = (ManagedArray_int_ *)this;
   v30 = this;
   if ( unitID == -1 )
     return 0;
   v6 = this->unitsTaskedThisUpdate.numberValue;
-  v7 = &v4->unitsTaskedThisUpdate;
+  v7 = v4 + 323;
   for ( i = 0; i < v6; ++i )
   {
-    if ( i >= v4->unitsTaskedThisUpdate.maximumSizeValue )
+    if ( i >= v4[323].maximumSizeValue )
       break;
-    if ( *(_DWORD *)(v7->value + 4 * i) == unitID )
+    if ( v7->value[i] == unitID )
       goto LABEL_10;
   }
-  if ( v6 > v4->unitsTaskedThisUpdate.maximumSizeValue - 1 )
-    ManagedArray_int_::resize(&v4->unitsTaskedThisUpdate, v6 + 1);
-  *(_DWORD *)(v7->value + 4 * v4->unitsTaskedThisUpdate.numberValue++) = unitID;
+  if ( v6 > v4[323].maximumSizeValue - 1 )
+    ManagedArray_int_::resize(v4 + 323, v6 + 1);
+  v7->value[v4[323].numberValue++] = unitID;
 LABEL_10:
-  v9 = v4->gbg_unknown_7;
-  v10 = (int *)&v4->gbg_unknown_6;
-  for ( j = 0; v9 && j < (v4->gbg_unknown_8 - v9) >> 2; ++j )
+  v9 = v4[324].numberValue;
+  v10 = (int *)&v4[324];
+  for ( j = 0; v9 && j < (v4[324].desiredNumberValue - v9) >> 2; ++j )
   {
-    v12 = *(_DWORD **)(v4->gbg_unknown_7 + 4 * j);
+    v12 = *(_DWORD **)(v4[324].numberValue + 4 * j);
     if ( *v12 == unitID && v12[1] == targetID )
       return 1;
   }
@@ -367474,27 +367376,27 @@ LABEL_10:
   {
     v13 = 0;
   }
-  v14 = v4->gbg_unknown_9;
+  v14 = v4[324].maximumSizeValue;
   v28 = v13;
-  v15 = v4->gbg_unknown_8;
+  v15 = v4[324].desiredNumberValue;
   v16 = v15;
   if ( (v14 - v15) >> 2 )
   {
     sub_5B1B60(v15, v15, v15 + 4);
-    sub_5B1B90(v4->gbg_unknown_8, 1 - ((v4->gbg_unknown_8 - v16) >> 2), (int)&v28);
-    v26 = (_DWORD *)v4->gbg_unknown_8;
+    sub_5B1B90(v4[324].desiredNumberValue, 1 - ((v4[324].desiredNumberValue - v16) >> 2), (int)&v28);
+    v26 = (_DWORD *)v4[324].desiredNumberValue;
     for ( k = (_DWORD *)v16; k != v26; ++k )
       *k = v28;
-    v4->gbg_unknown_8 += 4;
+    v4[324].desiredNumberValue += 4;
   }
   else
   {
-    v17 = v4->gbg_unknown_7;
+    v17 = v4[324].numberValue;
     if ( v17 && (unsigned int)((v15 - v17) >> 2) > 1 )
-      v18 = sub_5F61D0((int)&v4->gbg_unknown_6);
+      v18 = sub_5F61D0((int)&v4[324]);
     else
       v18 = 1;
-    v19 = sub_5F61D0((int)&v4->gbg_unknown_6);
+    v19 = sub_5F61D0((int)&v4[324]);
     v20 = v18 + v19 < 0;
     v21 = v18 + v19;
     v22 = v18 + v19;
@@ -367508,19 +367410,19 @@ LABEL_10:
     operator_delete((void *)v10[1]);
     v10[3] = (int)v23 + 4 * v21;
     v24 = sub_5F61D0((int)v10);
-    v4 = v30;
+    v4 = (ManagedArray_int_ *)v30;
     v25 = (int)v23 + 4 * v24 + 4;
     v10[1] = (int)v23;
     v3 = unitID;
     v10[2] = v25;
   }
-  ((void (__thiscall *)(TRIBE_Player *, int, int, int, int, int, int, int, int, int, int, _DWORD, int))v4->md->player->vfptr->sendUnitAIOrder)(
-    v4->md->player,
-    v4->md->player->id,
+  (*(void (__thiscall **)(_DWORD, _DWORD, int, int, int, _DWORD, int, int, int, int, int, _DWORD, int))(**(_DWORD **)(v4[15].numberValue + 240) + 56))(
+    *(_DWORD *)(v4[15].numberValue + 240),
+    *(_DWORD *)(*(_DWORD *)(v4[15].numberValue + 240) + 160),
     v3,
     717,
     targetID,
-    v4->md->player->id,
+    *(_DWORD *)(*(_DWORD *)(v4[15].numberValue + 240) + 160),
     -1082130432,
     -1082130432,
     -1082130432,
@@ -367541,7 +367443,7 @@ int __thiscall TribeTacticalAIModule::taskTransporter(TribeTacticalAIModule *thi
   int i; // eax
   int v10; // ecx
   int v11; // ebx
-  _DWORD *v12; // edi
+  int *v12; // edi
   int j; // eax
   int id; // [esp+Ch] [ebp+4h]
 
@@ -367557,7 +367459,7 @@ int __thiscall TribeTacticalAIModule::taskTransporter(TribeTacticalAIModule *thi
   {
     if ( i >= this->unitsTaskedThisUpdate.maximumSizeValue )
       break;
-    if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i) == unitID )
+    if ( this->unitsTaskedThisUpdate.value[i] == unitID )
       goto LABEL_19;
   }
   v10 = this->unitsTaskedThisUpdate.maximumSizeValue;
@@ -367565,23 +367467,21 @@ int __thiscall TribeTacticalAIModule::taskTransporter(TribeTacticalAIModule *thi
   {
     if ( v8 + 1 < v10 || (v11 = v10 + 32, v10 + 32 <= v8 + 1) )
       v11 = v8 + 1;
-    v12 = operator_new(4 * v11);
+    v12 = (int *)operator_new(4 * v11);
     if ( v12 )
     {
-      for ( j = 0;
-            j < this->unitsTaskedThisUpdate.maximumSizeValue;
-            v12[j - 1] = *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * j - 4) )
+      for ( j = 0; j < this->unitsTaskedThisUpdate.maximumSizeValue; v12[j - 1] = this->unitsTaskedThisUpdate.value[j - 1] )
       {
         if ( j >= v11 )
           break;
         ++j;
       }
-      operator_delete((void *)this->unitsTaskedThisUpdate.value);
-      this->unitsTaskedThisUpdate.value = (int)v12;
+      operator_delete(this->unitsTaskedThisUpdate.value);
+      this->unitsTaskedThisUpdate.value = v12;
       this->unitsTaskedThisUpdate.maximumSizeValue = v11;
     }
   }
-  *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * this->unitsTaskedThisUpdate.numberValue++) = unitID;
+  this->unitsTaskedThisUpdate.value[this->unitsTaskedThisUpdate.numberValue++] = unitID;
 LABEL_19:
   ((void (__thiscall *)(TRIBE_Player *, int, int, int, int, int, _DWORD, _DWORD, int, int, int, _DWORD, int))this->md->player->vfptr->sendUnitAIOrder)(
     this->md->player,
@@ -367605,7 +367505,7 @@ void __thiscall TribeTacticalAIModule::removeFromTaskLists(TribeTacticalAIModule
 {
   int v3; // eax
   int v4; // ecx
-  _DWORD *v5; // edx
+  int *v5; // edx
   int v6; // eax
   RGE_Static_Object *v7; // eax
   RGE_Static_Object *v8; // edi
@@ -367620,7 +367520,7 @@ void __thiscall TribeTacticalAIModule::removeFromTaskLists(TribeTacticalAIModule
   v4 = this->civilianExplorers.maximumSizeValue;
   if ( v4 > 0 )
   {
-    v5 = (_DWORD *)this->civilianExplorers.value;
+    v5 = this->civilianExplorers.value;
     do
     {
       if ( *v5 == gID )
@@ -367637,7 +367537,7 @@ void __thiscall TribeTacticalAIModule::removeFromTaskLists(TribeTacticalAIModule
       do
       {
         ++v3;
-        *(_DWORD *)(this->civilianExplorers.value + 4 * v3 - 4) = *(_DWORD *)(this->civilianExplorers.value + 4 * v3);
+        this->civilianExplorers.value[v3 - 1] = this->civilianExplorers.value[v3];
       }
       while ( v3 < this->civilianExplorers.maximumSizeValue - 1 );
     }
@@ -367771,7 +367671,7 @@ void __thiscall TribeTacticalAIModule::setupSoldierGroups(TribeTacticalAIModule 
           ManagedArray_int_::resize(&v60, v60.numberValue + 1);
           v4 = v60.numberValue;
         }
-        *(_DWORD *)(v60.value + 4 * v4) = r;
+        v60.value[v4] = r;
         ++v60.numberValue;
       }
     }
@@ -367785,7 +367685,7 @@ void __thiscall TribeTacticalAIModule::setupSoldierGroups(TribeTacticalAIModule 
     {
       while ( v6 )
       {
-        if ( v6->idValue == *(_DWORD *)(v60.value + 4 * j) )
+        if ( v6->idValue == v60.value[j] )
         {
           v6->prev->next = v6->next;
           v6->next->prev = v6->prev;
@@ -367858,7 +367758,7 @@ void __thiscall TribeTacticalAIModule::setupSoldierGroups(TribeTacticalAIModule 
     {
       if ( this->workingArea.maximumSizeValue - 1 < 0 )
         ManagedArray_int_::resize(&this->workingArea, 1);
-      id = *(_DWORD *)v16->value;
+      id = *v16->value;
       v17 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, id);
       v18 = v17;
       if ( !v17 )
@@ -367898,7 +367798,7 @@ LABEL_68:
       v29 = this->workingArea.maximumSizeValue;
       if ( v29 > 0 )
       {
-        v30 = (int *)v16->value;
+        v30 = v16->value;
         do
         {
           if ( *v30 == id )
@@ -367915,7 +367815,7 @@ LABEL_68:
           do
           {
             ++v28;
-            *(_DWORD *)(v16->value + 4 * v28 - 4) = *(_DWORD *)(v16->value + 4 * v28);
+            v16->value[v28 - 1] = v16->value[v28];
           }
           while ( v28 < this->workingArea.maximumSizeValue - 1 );
         }
@@ -367931,7 +367831,7 @@ LABEL_67:
     v19 = this->workingArea.maximumSizeValue;
     if ( v19 > 0 )
     {
-      v20 = (int *)v16->value;
+      v20 = v16->value;
       do
       {
         if ( *v20 == id )
@@ -367948,7 +367848,7 @@ LABEL_67:
       do
       {
         v17 = (RGE_Static_Object *)((char *)v17 + 1);
-        *(_DWORD *)(v16->value + 4 * (_DWORD)v17 - 4) = *(_DWORD *)(v16->value + 4 * (_DWORD)v17);
+        v16->value[(_DWORD)v17 - 1] = v16->value[(_DWORD)v17];
       }
       while ( (int)v17 < this->workingArea.maximumSizeValue - 1 );
     }
@@ -368141,7 +368041,7 @@ void __thiscall TribeTacticalAIModule::fillSoldierGroups(TribeTacticalAIModule *
   int v17; // ecx
   int v18; // esi
   int v19; // eax
-  _DWORD *v20; // edx
+  int *v20; // edx
   int v21; // eax
   int *v22; // edi
   int v23; // eax
@@ -368211,9 +368111,7 @@ LABEL_18:
                   {
                     if ( v12 > v13->maximumSizeValue - 1 )
                       ManagedArray_int_::resize(v13, v12 + 1);
-                    v14 = MainDecisionAIModule::object(
-                            (MainDecisionAIModule *)v1->md,
-                            *(_DWORD *)(v13->value + 4 * v12));
+                    v14 = MainDecisionAIModule::object((MainDecisionAIModule *)v1->md, v13->value[v12]);
                     v15 = v14;
                     if ( v14 )
                     {
@@ -368232,7 +368130,7 @@ LABEL_18:
                   v19 = 0;
                   if ( v17 > 0 )
                   {
-                    v20 = (_DWORD *)v13->value;
+                    v20 = v13->value;
                     do
                     {
                       if ( *v20 == v18 )
@@ -368249,7 +368147,7 @@ LABEL_18:
                       do
                       {
                         ++v19;
-                        *(_DWORD *)(v13->value + 4 * v19 - 4) = *(_DWORD *)(v13->value + 4 * v19);
+                        v13->value[v19 - 1] = v13->value[v19];
                       }
                       while ( v19 < v13->maximumSizeValue - 1 );
                     }
@@ -368327,26 +368225,26 @@ int __thiscall TribeTacticalAIModule::numberUngroupedSoldiers(TribeTacticalAIMod
 {
   int result; // eax
   int v3; // ebx
-  void **v4; // edi
+  ManagedArray_int_ *v4; // edi
   RGE_Static_Object *v5; // eax
   RGE_Static_Object *v6; // esi
   int v7; // eax
   int v8; // eax
   int v9; // eax
-  _DWORD *v10; // esi
+  int *v10; // esi
   int i; // eax
   TacticalAIGroup *v12; // esi
   int v13; // eax
   int v14; // ebx
   int v15; // eax
-  _DWORD *v16; // esi
+  int *v16; // esi
   int j; // eax
   int v18; // eax
   int v19; // esi
   int v20; // ecx
   int v21; // edx
   int v22; // ebx
-  _DWORD *v23; // esi
+  int *v23; // esi
   int k; // eax
   int v25; // [esp+4h] [ebp-10h]
   int v26; // [esp+8h] [ebp-Ch]
@@ -368360,14 +368258,14 @@ int __thiscall TribeTacticalAIModule::numberUngroupedSoldiers(TribeTacticalAIMod
   if ( this->soldiers.numberValue > 0 )
   {
     v3 = 1;
-    v4 = (void **)&this->soldiers;
+    v4 = &this->soldiers;
     v26 = 0;
     v25 = 1;
     do
     {
       if ( v3 - 1 > this->soldiers.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->soldiers, v3);
-      v5 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)((char *)*v4 + v26));
+      v5 = RGE_Game_World::object((RGE_Game_World *)base_game->world, v4->value[v26]);
       v6 = v5;
       if ( v5 )
       {
@@ -368385,22 +368283,22 @@ int __thiscall TribeTacticalAIModule::numberUngroupedSoldiers(TribeTacticalAIMod
                 if ( v9 > v3 )
                   v3 = v9;
               }
-              v10 = operator_new(4 * v3);
+              v10 = (int *)operator_new(4 * v3);
               if ( v10 )
               {
-                for ( i = 0; i < this->soldiers.maximumSizeValue; v10[i - 1] = *((_DWORD *)*v4 + i - 1) )
+                for ( i = 0; i < this->soldiers.maximumSizeValue; v10[i - 1] = v4->value[i - 1] )
                 {
                   if ( i >= v3 )
                     break;
                   ++i;
                 }
-                operator_delete(*v4);
-                *v4 = v10;
+                operator_delete(v4->value);
+                v4->value = v10;
                 this->soldiers.maximumSizeValue = v3;
               }
             }
             v12 = this->groups.next;
-            for ( id = *(_DWORD *)((char *)*v4 + v26); v12 != &this->groups; v12 = v12->next )
+            for ( id = v4->value[v26]; v12 != &this->groups; v12 = v12->next )
             {
               if ( !v12 )
                 break;
@@ -368417,22 +368315,22 @@ int __thiscall TribeTacticalAIModule::numberUngroupedSoldiers(TribeTacticalAIMod
                 if ( v15 > v25 )
                   v14 = v15;
               }
-              v16 = operator_new(4 * v14);
+              v16 = (int *)operator_new(4 * v14);
               if ( v16 )
               {
-                for ( j = 0; j < this->soldiers.maximumSizeValue; v16[j - 1] = *((_DWORD *)*v4 + j - 1) )
+                for ( j = 0; j < this->soldiers.maximumSizeValue; v16[j - 1] = v4->value[j - 1] )
                 {
                   if ( j >= v14 )
                     break;
                   ++j;
                 }
-                operator_delete(*v4);
-                *v4 = v16;
+                operator_delete(v4->value);
+                v4->value = v16;
                 this->soldiers.maximumSizeValue = v14;
               }
             }
             v18 = 0;
-            v19 = *(_DWORD *)((char *)*v4 + v26);
+            v19 = v4->value[v26];
             v20 = this->workingArea.numberValue;
             ida = v19;
             if ( v20 > 0 )
@@ -368441,7 +368339,7 @@ int __thiscall TribeTacticalAIModule::numberUngroupedSoldiers(TribeTacticalAIMod
               {
                 if ( v18 >= this->workingArea.maximumSizeValue )
                   break;
-                if ( *(_DWORD *)(this->workingArea.value + 4 * v18) == v19 )
+                if ( this->workingArea.value[v18] == v19 )
                   goto LABEL_48;
                 ++v18;
               }
@@ -368452,24 +368350,22 @@ int __thiscall TribeTacticalAIModule::numberUngroupedSoldiers(TribeTacticalAIMod
             {
               if ( v20 + 1 < v21 || (v22 = v21 + 32, v21 + 32 <= v20 + 1) )
                 v22 = v20 + 1;
-              v23 = operator_new(4 * v22);
+              v23 = (int *)operator_new(4 * v22);
               if ( v23 )
               {
-                for ( k = 0;
-                      k < this->workingArea.maximumSizeValue;
-                      v23[k - 1] = *(_DWORD *)(this->workingArea.value + 4 * k - 4) )
+                for ( k = 0; k < this->workingArea.maximumSizeValue; v23[k - 1] = this->workingArea.value[k - 1] )
                 {
                   if ( k >= v22 )
                     break;
                   ++k;
                 }
-                operator_delete((void *)this->workingArea.value);
-                this->workingArea.value = (int)v23;
+                operator_delete(this->workingArea.value);
+                this->workingArea.value = v23;
                 this->workingArea.maximumSizeValue = v22;
               }
               v19 = ida;
             }
-            *(_DWORD *)(this->workingArea.value + 4 * this->workingArea.numberValue++) = v19;
+            this->workingArea.value[this->workingArea.numberValue++] = v19;
 LABEL_48:
             ++v27;
 LABEL_49:
@@ -368478,7 +368374,7 @@ LABEL_49:
         }
       }
       v25 = ++v3;
-      v26 += 4;
+      ++v26;
     }
     while ( v3 - 1 < this->soldiers.numberValue );
     result = v27;
@@ -368512,7 +368408,7 @@ void __thiscall TribeTacticalAIModule::setupAirGroups(TribeTacticalAIModule *thi
   RGE_Static_Object *v20; // eax
   RGE_Static_Object *v21; // ebp
   int v22; // ecx
-  _DWORD *v23; // edx
+  int *v23; // edx
   int v24; // eax
   TacticalAIGroup *v25; // eax
   TacticalAIGroup *v26; // edi
@@ -368522,7 +368418,7 @@ void __thiscall TribeTacticalAIModule::setupAirGroups(TribeTacticalAIModule *thi
   float v30; // ecx
   int v31; // eax
   int v32; // ecx
-  _DWORD *v33; // edx
+  int *v33; // edx
   int v34; // eax
   int v35; // edi
   double v36; // st7
@@ -368580,7 +368476,7 @@ void __thiscall TribeTacticalAIModule::setupAirGroups(TribeTacticalAIModule *thi
           ManagedArray_int_::resize(&v66, v66.numberValue + 1);
           v5 = v66.numberValue;
         }
-        *(_DWORD *)(v66.value + 4 * v5) = r;
+        v66.value[v5] = r;
         ++v66.numberValue;
       }
     }
@@ -368598,7 +368494,7 @@ void __thiscall TribeTacticalAIModule::setupAirGroups(TribeTacticalAIModule *thi
       {
         while ( v7 )
         {
-          if ( v7->idValue == *(_DWORD *)(v66.value + 4 * v6) )
+          if ( v7->idValue == v66.value[v6] )
           {
             v7->prev->next = v7->next;
             v7->next->prev = v7->prev;
@@ -368676,7 +368572,7 @@ void __thiscall TribeTacticalAIModule::setupAirGroups(TribeTacticalAIModule *thi
       if ( v6 > this->workingArea.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->workingArea, v6 + 1);
       v19 = (MainDecisionAIModule *)this->md;
-      id = *(_DWORD *)(v17->value + 4 * v6);
+      id = v17->value[v6];
       v18 = id;
       v20 = MainDecisionAIModule::object(v19, id);
       v21 = v20;
@@ -368713,7 +368609,7 @@ void __thiscall TribeTacticalAIModule::setupAirGroups(TribeTacticalAIModule *thi
         v32 = this->workingArea.maximumSizeValue;
         if ( v32 > 0 )
         {
-          v33 = (_DWORD *)v17->value;
+          v33 = v17->value;
           do
           {
             if ( *v33 == id )
@@ -368730,7 +368626,7 @@ void __thiscall TribeTacticalAIModule::setupAirGroups(TribeTacticalAIModule *thi
             do
             {
               ++v31;
-              *(_DWORD *)(v17->value + 4 * v31 - 4) = *(_DWORD *)(v17->value + 4 * v31);
+              v17->value[v31 - 1] = v17->value[v31];
             }
             while ( v31 < this->workingArea.maximumSizeValue - 1 );
           }
@@ -368749,7 +368645,7 @@ LABEL_71:
         v22 = this->workingArea.maximumSizeValue;
         if ( v22 > 0 )
         {
-          v23 = (_DWORD *)v17->value;
+          v23 = v17->value;
           do
           {
             if ( *v23 == v18 )
@@ -368766,7 +368662,7 @@ LABEL_71:
             do
             {
               v20 = (RGE_Static_Object *)((char *)v20 + 1);
-              *(_DWORD *)(v17->value + 4 * (_DWORD)v20 - 4) = *(_DWORD *)(v17->value + 4 * (_DWORD)v20);
+              v17->value[(_DWORD)v20 - 1] = v17->value[(_DWORD)v20];
             }
             while ( (int)v20 < this->workingArea.maximumSizeValue - 1 );
           }
@@ -368966,7 +368862,7 @@ void __thiscall TribeTacticalAIModule::fillAirGroups(TribeTacticalAIModule *this
   int v19; // eax
   int v20; // ecx
   int v21; // esi
-  _DWORD *v22; // edx
+  int *v22; // edx
   int v23; // eax
   int *v24; // ebx
   int v25; // eax
@@ -369036,9 +368932,7 @@ LABEL_18:
                   {
                     if ( v12 > v13->maximumSizeValue - 1 )
                       ManagedArray_int_::resize(v13, v12 + 1);
-                    v14 = MainDecisionAIModule::object(
-                            (MainDecisionAIModule *)v1->md,
-                            *(_DWORD *)(v13->value + 4 * v12));
+                    v14 = MainDecisionAIModule::object((MainDecisionAIModule *)v1->md, v13->value[v12]);
                     v15 = v14;
                     if ( v14 )
                     {
@@ -369062,7 +368956,7 @@ LABEL_18:
                   v21 = v15->id;
                   if ( v20 > 0 )
                   {
-                    v22 = (_DWORD *)v13->value;
+                    v22 = v13->value;
                     do
                     {
                       if ( *v22 == v21 )
@@ -369079,7 +368973,7 @@ LABEL_18:
                       do
                       {
                         ++v19;
-                        *(_DWORD *)(v13->value + 4 * v19 - 4) = *(_DWORD *)(v13->value + 4 * v19);
+                        v13->value[v19 - 1] = v13->value[v19];
                       }
                       while ( v19 < v13->maximumSizeValue - 1 );
                     }
@@ -369157,24 +369051,24 @@ int __thiscall TribeTacticalAIModule::numberUngroupedAir(TribeTacticalAIModule *
 {
   int result; // eax
   int v3; // ebp
-  void **v4; // edi
+  ManagedArray_int_ *v4; // edi
   RGE_Static_Object *v5; // eax
   int v6; // eax
   int v7; // eax
-  _DWORD *v8; // esi
+  int *v8; // esi
   int i; // eax
   TacticalAIGroup *v10; // esi
   int v11; // eax
   int v12; // ebp
   int v13; // eax
-  _DWORD *v14; // esi
+  int *v14; // esi
   int j; // eax
   int v16; // eax
   int v17; // esi
   int v18; // ecx
   int v19; // edx
   int v20; // ebp
-  _DWORD *v21; // esi
+  int *v21; // esi
   int k; // eax
   int v23; // [esp+4h] [ebp-10h]
   int v24; // [esp+8h] [ebp-Ch]
@@ -369188,14 +369082,14 @@ int __thiscall TribeTacticalAIModule::numberUngroupedAir(TribeTacticalAIModule *
   if ( this->boats.numberValue > 0 )
   {
     v3 = 1;
-    v4 = (void **)&this->boats;
+    v4 = &this->boats;
     v23 = 0;
     v24 = 1;
     do
     {
       if ( v3 - 1 > this->boats.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->boats, v3);
-      v5 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)((char *)*v4 + v23));
+      v5 = RGE_Game_World::object((RGE_Game_World *)base_game->world, v4->value[v23]);
       if ( v5 && v5->master_obj->object_group != 59 )
       {
         v6 = this->boats.maximumSizeValue;
@@ -369207,22 +369101,22 @@ int __thiscall TribeTacticalAIModule::numberUngroupedAir(TribeTacticalAIModule *
             if ( v7 > v3 )
               v3 = v7;
           }
-          v8 = operator_new(4 * v3);
+          v8 = (int *)operator_new(4 * v3);
           if ( v8 )
           {
-            for ( i = 0; i < this->boats.maximumSizeValue; v8[i - 1] = *((_DWORD *)*v4 + i - 1) )
+            for ( i = 0; i < this->boats.maximumSizeValue; v8[i - 1] = v4->value[i - 1] )
             {
               if ( i >= v3 )
                 break;
               ++i;
             }
-            operator_delete(*v4);
-            *v4 = v8;
+            operator_delete(v4->value);
+            v4->value = v8;
             this->boats.maximumSizeValue = v3;
           }
         }
         v10 = this->groups.next;
-        for ( id = *(_DWORD *)((char *)*v4 + v23); v10 != &this->groups; v10 = v10->next )
+        for ( id = v4->value[v23]; v10 != &this->groups; v10 = v10->next )
         {
           if ( !v10 )
             break;
@@ -369239,22 +369133,22 @@ int __thiscall TribeTacticalAIModule::numberUngroupedAir(TribeTacticalAIModule *
             if ( v13 > v24 )
               v12 = v13;
           }
-          v14 = operator_new(4 * v12);
+          v14 = (int *)operator_new(4 * v12);
           if ( v14 )
           {
-            for ( j = 0; j < this->boats.maximumSizeValue; v14[j - 1] = *((_DWORD *)*v4 + j - 1) )
+            for ( j = 0; j < this->boats.maximumSizeValue; v14[j - 1] = v4->value[j - 1] )
             {
               if ( j >= v12 )
                 break;
               ++j;
             }
-            operator_delete(*v4);
-            *v4 = v14;
+            operator_delete(v4->value);
+            v4->value = v14;
             this->boats.maximumSizeValue = v12;
           }
         }
         v16 = 0;
-        v17 = *(_DWORD *)((char *)*v4 + v23);
+        v17 = v4->value[v23];
         v18 = this->workingArea.numberValue;
         ida = v17;
         if ( v18 > 0 )
@@ -369263,7 +369157,7 @@ int __thiscall TribeTacticalAIModule::numberUngroupedAir(TribeTacticalAIModule *
           {
             if ( v16 >= this->workingArea.maximumSizeValue )
               break;
-            if ( *(_DWORD *)(this->workingArea.value + 4 * v16) == v17 )
+            if ( this->workingArea.value[v16] == v17 )
               goto LABEL_46;
             ++v16;
           }
@@ -369274,31 +369168,29 @@ int __thiscall TribeTacticalAIModule::numberUngroupedAir(TribeTacticalAIModule *
         {
           if ( v18 + 1 < v19 || (v20 = v19 + 32, v19 + 32 <= v18 + 1) )
             v20 = v18 + 1;
-          v21 = operator_new(4 * v20);
+          v21 = (int *)operator_new(4 * v20);
           if ( v21 )
           {
-            for ( k = 0;
-                  k < this->workingArea.maximumSizeValue;
-                  v21[k - 1] = *(_DWORD *)(this->workingArea.value + 4 * k - 4) )
+            for ( k = 0; k < this->workingArea.maximumSizeValue; v21[k - 1] = this->workingArea.value[k - 1] )
             {
               if ( k >= v20 )
                 break;
               ++k;
             }
-            operator_delete((void *)this->workingArea.value);
-            this->workingArea.value = (int)v21;
+            operator_delete(this->workingArea.value);
+            this->workingArea.value = v21;
             this->workingArea.maximumSizeValue = v20;
           }
           v17 = ida;
         }
-        *(_DWORD *)(this->workingArea.value + 4 * this->workingArea.numberValue++) = v17;
+        this->workingArea.value[this->workingArea.numberValue++] = v17;
 LABEL_46:
         ++v25;
 LABEL_47:
         v3 = v24;
       }
       v24 = ++v3;
-      v23 += 4;
+      ++v23;
     }
     while ( v3 - 1 < this->boats.numberValue );
     result = v25;
@@ -369336,7 +369228,7 @@ void __thiscall TribeTacticalAIModule::setupBoatGroups(TribeTacticalAIModule *th
   RGE_Static_Object *v25; // eax
   RGE_Static_Object *v26; // ebp
   int v27; // ecx
-  _DWORD *v28; // edx
+  int *v28; // edx
   int v29; // eax
   TacticalAIGroup *v30; // eax
   TacticalAIGroup *v31; // edi
@@ -369346,7 +369238,7 @@ void __thiscall TribeTacticalAIModule::setupBoatGroups(TribeTacticalAIModule *th
   float v35; // ecx
   int v36; // eax
   int v37; // ecx
-  _DWORD *v38; // edx
+  int *v38; // edx
   int v39; // eax
   int v40; // edi
   int *v41; // eax
@@ -369357,7 +369249,7 @@ void __thiscall TribeTacticalAIModule::setupBoatGroups(TribeTacticalAIModule *th
   RGE_Static_Object *v46; // eax
   RGE_Static_Object *v47; // ebp
   int v48; // ecx
-  _DWORD *v49; // edx
+  int *v49; // edx
   int v50; // eax
   TacticalAIGroup *v51; // eax
   TacticalAIGroup *v52; // edi
@@ -369367,7 +369259,7 @@ void __thiscall TribeTacticalAIModule::setupBoatGroups(TribeTacticalAIModule *th
   float v56; // ecx
   int v57; // eax
   int v58; // ecx
-  _DWORD *v59; // edx
+  int *v59; // edx
   int v60; // eax
   int n; // ebx
   int *v62; // eax
@@ -369378,7 +369270,7 @@ void __thiscall TribeTacticalAIModule::setupBoatGroups(TribeTacticalAIModule *th
   RGE_Static_Object *v67; // eax
   float *v68; // ebx
   int v69; // ecx
-  _DWORD *v70; // edx
+  int *v70; // edx
   int v71; // eax
   TacticalAIGroup *v72; // eax
   TacticalAIGroup *v73; // edi
@@ -369430,7 +369322,7 @@ void __thiscall TribeTacticalAIModule::setupBoatGroups(TribeTacticalAIModule *th
           ManagedArray_int_::resize(&v97, v97.numberValue + 1);
           v5 = v97.numberValue;
         }
-        *(_DWORD *)(v97.value + 4 * v5) = r;
+        v97.value[v5] = r;
         ++v97.numberValue;
       }
     }
@@ -369448,7 +369340,7 @@ void __thiscall TribeTacticalAIModule::setupBoatGroups(TribeTacticalAIModule *th
       {
         while ( v7 )
         {
-          if ( v7->idValue == *(_DWORD *)(v97.value + 4 * v6) )
+          if ( v7->idValue == v97.value[v6] )
           {
             v7->prev->next = v7->next;
             v7->next->prev = v7->prev;
@@ -369542,7 +369434,7 @@ void __thiscall TribeTacticalAIModule::setupBoatGroups(TribeTacticalAIModule *th
     {
       if ( v88 > this->workingArea.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->workingArea, v88 + 1);
-      v23 = *(_DWORD *)(v22->value + 4 * v88);
+      v23 = v22->value[v88];
       v24 = (MainDecisionAIModule *)this->md;
       id = v23;
       v25 = MainDecisionAIModule::object(v24, v23);
@@ -369581,7 +369473,7 @@ void __thiscall TribeTacticalAIModule::setupBoatGroups(TribeTacticalAIModule *th
       v37 = this->workingArea.maximumSizeValue;
       if ( v37 > 0 )
       {
-        v38 = (_DWORD *)v22->value;
+        v38 = v22->value;
         do
         {
           if ( *v38 == id )
@@ -369598,7 +369490,7 @@ void __thiscall TribeTacticalAIModule::setupBoatGroups(TribeTacticalAIModule *th
           do
           {
             ++v36;
-            *(_DWORD *)(v22->value + 4 * v36 - 4) = *(_DWORD *)(v22->value + 4 * v36);
+            v22->value[v36 - 1] = v22->value[v36];
           }
           while ( v36 < this->workingArea.maximumSizeValue - 1 );
         }
@@ -369614,7 +369506,7 @@ LABEL_82:
     v27 = this->workingArea.maximumSizeValue;
     if ( v27 > 0 )
     {
-      v28 = (_DWORD *)v22->value;
+      v28 = v22->value;
       do
       {
         if ( *v28 == v23 )
@@ -369631,7 +369523,7 @@ LABEL_82:
       do
       {
         v25 = (RGE_Static_Object *)((char *)v25 + 1);
-        *(_DWORD *)(v22->value + 4 * (_DWORD)v25 - 4) = *(_DWORD *)(v22->value + 4 * (_DWORD)v25);
+        v22->value[(_DWORD)v25 - 1] = v22->value[(_DWORD)v25];
       }
       while ( (int)v25 < this->workingArea.maximumSizeValue - 1 );
     }
@@ -369662,7 +369554,7 @@ LABEL_83:
       if ( v88 > this->workingArea.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->workingArea, v88 + 1);
       v45 = (MainDecisionAIModule *)this->md;
-      id = *(_DWORD *)(v43->value + 4 * v88);
+      id = v43->value[v88];
       v44 = id;
       v46 = MainDecisionAIModule::object(v45, id);
       v47 = v46;
@@ -369700,7 +369592,7 @@ LABEL_83:
       v58 = this->workingArea.maximumSizeValue;
       if ( v58 > 0 )
       {
-        v59 = (_DWORD *)v43->value;
+        v59 = v43->value;
         do
         {
           if ( *v59 == id )
@@ -369717,7 +369609,7 @@ LABEL_83:
           do
           {
             ++v57;
-            *(_DWORD *)(v43->value + 4 * v57 - 4) = *(_DWORD *)(v43->value + 4 * v57);
+            v43->value[v57 - 1] = v43->value[v57];
           }
           while ( v57 < this->workingArea.maximumSizeValue - 1 );
         }
@@ -369733,7 +369625,7 @@ LABEL_114:
     v48 = this->workingArea.maximumSizeValue;
     if ( v48 > 0 )
     {
-      v49 = (_DWORD *)v43->value;
+      v49 = v43->value;
       do
       {
         if ( *v49 == v44 )
@@ -369750,7 +369642,7 @@ LABEL_114:
       do
       {
         v46 = (RGE_Static_Object *)((char *)v46 + 1);
-        *(_DWORD *)(v43->value + 4 * (_DWORD)v46 - 4) = *(_DWORD *)(v43->value + 4 * (_DWORD)v46);
+        v43->value[(_DWORD)v46 - 1] = v43->value[(_DWORD)v46];
       }
       while ( (int)v46 < this->workingArea.maximumSizeValue - 1 );
     }
@@ -369781,7 +369673,7 @@ LABEL_115:
       if ( v88 > this->workingArea.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->workingArea, v88 + 1);
       v65 = (MainDecisionAIModule *)this->md;
-      id = *(_DWORD *)(v64->value + 4 * v88);
+      id = v64->value[v88];
       v66 = id;
       v67 = MainDecisionAIModule::object(v65, id);
       v68 = (float *)v67;
@@ -369803,7 +369695,7 @@ LABEL_115:
         v69 = this->workingArea.maximumSizeValue;
         if ( v69 > 0 )
         {
-          v70 = (_DWORD *)v64->value;
+          v70 = v64->value;
           do
           {
             if ( *v70 == v66 )
@@ -369820,7 +369712,7 @@ LABEL_115:
             do
             {
               v67 = (RGE_Static_Object *)((char *)v67 + 1);
-              *(_DWORD *)(v64->value + 4 * (_DWORD)v67 - 4) = *(_DWORD *)(v64->value + 4 * (_DWORD)v67);
+              v64->value[(_DWORD)v67 - 1] = v64->value[(_DWORD)v67];
             }
             while ( (int)v67 < this->workingArea.maximumSizeValue - 1 );
           }
@@ -369934,11 +369826,11 @@ void __thiscall TribeTacticalAIModule::fillBoatGroups(TribeTacticalAIModule *thi
   double v21; // st7
   int v22; // eax
   int v23; // ebx
-  _DWORD *v24; // edi
+  int *v24; // edi
   int k; // eax
   int v26; // ecx
   int v27; // eax
-  _DWORD *v28; // edx
+  int *v28; // edx
   int v29; // eax
   TacticalAIGroup *v30; // [esp+10h] [ebp-1Ch]
   int v31; // [esp+14h] [ebp-18h]
@@ -370034,7 +369926,7 @@ void __thiscall TribeTacticalAIModule::fillBoatGroups(TribeTacticalAIModule *thi
                     {
                       if ( v19 - 1 > v18->maximumSizeValue - 1 )
                         ManagedArray_int_::resize(v18, v19);
-                      v20 = MainDecisionAIModule::object((MainDecisionAIModule *)v1->md, *(_DWORD *)(v32 + v18->value));
+                      v20 = MainDecisionAIModule::object((MainDecisionAIModule *)v1->md, v18->value[v32]);
                       if ( v20 )
                       {
                         v21 = RGE_Static_Object::distance_to_position(
@@ -370049,28 +369941,28 @@ void __thiscall TribeTacticalAIModule::fillBoatGroups(TribeTacticalAIModule *thi
                           {
                             if ( v19 < v22 || (v23 = v22 + 32, v22 + 32 <= v19) )
                               v23 = v19;
-                            v24 = operator_new(4 * v23);
+                            v24 = (int *)operator_new(4 * v23);
                             if ( v24 )
                             {
-                              for ( k = 0; k < v18->maximumSizeValue; v24[k - 1] = *(_DWORD *)(v18->value + 4 * k - 4) )
+                              for ( k = 0; k < v18->maximumSizeValue; v24[k - 1] = v18->value[k - 1] )
                               {
                                 if ( k >= v23 )
                                   break;
                                 ++k;
                               }
-                              operator_delete((void *)v18->value);
-                              v18->value = (int)v24;
+                              operator_delete(v18->value);
+                              v18->value = v24;
                               v18->maximumSizeValue = v23;
                             }
                             v1 = this;
                           }
-                          id = *(_DWORD *)(v32 + v18->value);
+                          id = v18->value[v32];
                           v35 = v21;
                           v36 = v35;
                         }
                       }
                       ++v19;
-                      v32 += 4;
+                      ++v32;
                     }
                     while ( v19 - 1 < v1->workingArea.numberValue );
                     if ( id == -1 )
@@ -370080,7 +369972,7 @@ void __thiscall TribeTacticalAIModule::fillBoatGroups(TribeTacticalAIModule *thi
                     v27 = 0;
                     if ( v26 > 0 )
                     {
-                      v28 = (_DWORD *)v18->value;
+                      v28 = v18->value;
                       do
                       {
                         if ( *v28 == id )
@@ -370097,7 +369989,7 @@ void __thiscall TribeTacticalAIModule::fillBoatGroups(TribeTacticalAIModule *thi
                         do
                         {
                           ++v27;
-                          *(_DWORD *)(v18->value + 4 * v27 - 4) = *(_DWORD *)(v18->value + 4 * v27);
+                          v18->value[v27 - 1] = v18->value[v27];
                         }
                         while ( v27 < v18->maximumSizeValue - 1 );
                       }
@@ -370122,7 +370014,7 @@ LABEL_65:
                 {
                   if ( l > v1->workingArea.maximumSizeValue - 1 )
                     ManagedArray_int_::resize(&v1->workingArea, l + 1);
-                  TacticalAIGroup::addUnit(v11, *(_DWORD *)(v1->workingArea.value + 4 * l));
+                  TacticalAIGroup::addUnit(v11, v1->workingArea.value[l]);
                 }
               }
             }
@@ -370521,7 +370413,7 @@ int __thiscall TribeTacticalAIModule::numberItemsToAttack(TribeTacticalAIModule 
 {
   int v2; // eax
   int v3; // ebx
-  _DWORD *v4; // edi
+  int *v4; // edi
   int i; // eax
 
   v2 = this->playersToAttack.maximumSizeValue;
@@ -370529,26 +370421,21 @@ int __thiscall TribeTacticalAIModule::numberItemsToAttack(TribeTacticalAIModule 
   {
     if ( v2 > 1 || (v3 = v2 + 32, v2 + 32 <= 1) )
       v3 = 1;
-    v4 = operator_new(4 * v3);
+    v4 = (int *)operator_new(4 * v3);
     if ( v4 )
     {
-      for ( i = 0;
-            i < this->playersToAttack.maximumSizeValue;
-            v4[i - 1] = *(_DWORD *)(this->playersToAttack.value + 4 * i - 4) )
+      for ( i = 0; i < this->playersToAttack.maximumSizeValue; v4[i - 1] = this->playersToAttack.value[i - 1] )
       {
         if ( i >= v3 )
           break;
         ++i;
       }
-      operator_delete((void *)this->playersToAttack.value);
-      this->playersToAttack.value = (int)v4;
+      operator_delete(this->playersToAttack.value);
+      this->playersToAttack.value = v4;
       this->playersToAttack.maximumSizeValue = v3;
     }
   }
-  return TribeInformationAIModule::numberGameIDsOwnedBy(
-           &this->md->informationAI,
-           -1,
-           *(_DWORD *)this->playersToAttack.value);
+  return TribeInformationAIModule::numberGameIDsOwnedBy(&this->md->informationAI, -1, *this->playersToAttack.value);
 }
 
 //----- (005AD540) --------------------------------------------------------
@@ -370561,7 +370448,7 @@ void __thiscall TribeTacticalAIModule::setGroupInfluences(TribeTacticalAIModule 
   int v7; // ebp
   int v8; // eax
   int v9; // ebx
-  _DWORD *v10; // edi
+  int *v10; // edi
   int j; // eax
   RGE_Static_Object *v12; // eax
   RGE_Static_Object *v13; // edi
@@ -370614,25 +370501,21 @@ void __thiscall TribeTacticalAIModule::setGroupInfluences(TribeTacticalAIModule 
       {
         if ( v7 < v8 || (v9 = v8 + 32, v8 + 32 <= v7) )
           v9 = v7;
-        v10 = operator_new(4 * v9);
+        v10 = (int *)operator_new(4 * v9);
         if ( v10 )
         {
-          for ( j = 0;
-                j < this->ungroupedSoldiers.maximumSizeValue;
-                v10[j - 1] = *(_DWORD *)(this->ungroupedSoldiers.value + 4 * j - 4) )
+          for ( j = 0; j < this->ungroupedSoldiers.maximumSizeValue; v10[j - 1] = this->ungroupedSoldiers.value[j - 1] )
           {
             if ( j >= v9 )
               break;
             ++j;
           }
-          operator_delete((void *)this->ungroupedSoldiers.value);
-          this->ungroupedSoldiers.value = (int)v10;
+          operator_delete(this->ungroupedSoldiers.value);
+          this->ungroupedSoldiers.value = v10;
           this->ungroupedSoldiers.maximumSizeValue = v9;
         }
       }
-      v12 = MainDecisionAIModule::object(
-              (MainDecisionAIModule *)this->md,
-              *(_DWORD *)(this->ungroupedSoldiers.value + v19));
+      v12 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, this->ungroupedSoldiers.value[v19]);
       v13 = v12;
       if ( v12 )
       {
@@ -370658,7 +370541,7 @@ void __thiscall TribeTacticalAIModule::setGroupInfluences(TribeTacticalAIModule 
           InfluenceMap::decrementValue2(iMap, v22.x, v22.y, p.x, p.y, 0xAu);
       }
       ++v7;
-      v19 += 4;
+      ++v19;
     }
     while ( v7 - 1 < this->ungroupedSoldiers.numberValue );
   }
@@ -371072,7 +370955,7 @@ void __thiscall TribeTacticalAIModule::taskElephantGatherers(TribeTacticalAIModu
   int i; // eax
   int v11; // edx
   int v12; // edi
-  _DWORD *v13; // ebx
+  int *v13; // ebx
   int j; // eax
   int v15; // [esp+18h] [ebp-10h]
   UnitData *v16; // [esp+1Ch] [ebp-Ch]
@@ -371112,7 +370995,7 @@ void __thiscall TribeTacticalAIModule::taskElephantGatherers(TribeTacticalAIModu
             {
               if ( i >= this->unitsTaskedThisUpdate.maximumSizeValue )
                 break;
-              if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i) == v9 )
+              if ( this->unitsTaskedThisUpdate.value[i] == v9 )
                 goto LABEL_22;
             }
             v11 = this->unitsTaskedThisUpdate.maximumSizeValue;
@@ -371120,24 +371003,24 @@ void __thiscall TribeTacticalAIModule::taskElephantGatherers(TribeTacticalAIModu
             {
               if ( v8 + 1 < v11 || (v12 = v11 + 32, v11 + 32 <= v8 + 1) )
                 v12 = v8 + 1;
-              v13 = operator_new(4 * v12);
+              v13 = (int *)operator_new(4 * v12);
               if ( v13 )
               {
                 for ( j = 0;
                       j < this->unitsTaskedThisUpdate.maximumSizeValue;
-                      v13[j - 1] = *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * j - 4) )
+                      v13[j - 1] = this->unitsTaskedThisUpdate.value[j - 1] )
                 {
                   if ( j >= v12 )
                     break;
                   ++j;
                 }
-                operator_delete((void *)this->unitsTaskedThisUpdate.value);
-                this->unitsTaskedThisUpdate.value = (int)v13;
+                operator_delete(this->unitsTaskedThisUpdate.value);
+                this->unitsTaskedThisUpdate.value = v13;
                 this->unitsTaskedThisUpdate.maximumSizeValue = v12;
               }
               v5 = v17;
             }
-            *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * this->unitsTaskedThisUpdate.numberValue++) = v9;
+            this->unitsTaskedThisUpdate.value[this->unitsTaskedThisUpdate.numberValue++] = v9;
 LABEL_22:
             v6 = v18;
             ++v15;
@@ -371174,14 +371057,14 @@ void __thiscall TribeTacticalAIModule::checkTradeBoats(TribeTacticalAIModule *th
   int v2; // ebp
   int v3; // eax
   int v4; // ebx
-  _DWORD *v5; // edi
+  int *v5; // edi
   int i; // eax
   RGE_Static_Object *v7; // eax
   int v8; // edi
   int v9; // ebp
   int v10; // eax
   int v11; // ebx
-  _DWORD *v12; // edi
+  int *v12; // edi
   int j; // eax
   int v14; // [esp+4h] [ebp-8h]
   int v15; // [esp+8h] [ebp-4h]
@@ -371198,23 +371081,21 @@ void __thiscall TribeTacticalAIModule::checkTradeBoats(TribeTacticalAIModule *th
       {
         if ( v2 < v3 || (v4 = v3 + 32, v3 + 32 <= v2) )
           v4 = v2;
-        v5 = operator_new(4 * v4);
+        v5 = (int *)operator_new(4 * v4);
         if ( v5 )
         {
-          for ( i = 0;
-                i < this->gbg_unknown_2.maximumSizeValue;
-                v5[i - 1] = *(_DWORD *)(this->gbg_unknown_2.value + 4 * i - 4) )
+          for ( i = 0; i < this->gbg_unknown_2.maximumSizeValue; v5[i - 1] = this->gbg_unknown_2.value[i - 1] )
           {
             if ( i >= v4 )
               break;
             ++i;
           }
-          operator_delete((void *)this->gbg_unknown_2.value);
-          this->gbg_unknown_2.value = (int)v5;
+          operator_delete(this->gbg_unknown_2.value);
+          this->gbg_unknown_2.value = v5;
           this->gbg_unknown_2.maximumSizeValue = v4;
         }
       }
-      v7 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, *(_DWORD *)(this->gbg_unknown_2.value + v15));
+      v7 = MainDecisionAIModule::object((MainDecisionAIModule *)this->md, this->gbg_unknown_2.value[v15]);
       if ( v7 )
       {
         v8 = v7->attribute_type_held;
@@ -371231,29 +371112,27 @@ void __thiscall TribeTacticalAIModule::checkTradeBoats(TribeTacticalAIModule *th
           {
             if ( v14 < v10 || (v11 = v10 + 32, v10 + 32 <= v14) )
               v11 = v14;
-            v12 = operator_new(4 * v11);
+            v12 = (int *)operator_new(4 * v11);
             if ( v12 )
             {
-              for ( j = 0;
-                    j < this->gbg_unknown_2.maximumSizeValue;
-                    v12[j - 1] = *(_DWORD *)(this->gbg_unknown_2.value + 4 * j - 4) )
+              for ( j = 0; j < this->gbg_unknown_2.maximumSizeValue; v12[j - 1] = this->gbg_unknown_2.value[j - 1] )
               {
                 if ( j >= v11 )
                   break;
                 ++j;
               }
-              operator_delete((void *)this->gbg_unknown_2.value);
-              this->gbg_unknown_2.value = (int)v12;
+              operator_delete(this->gbg_unknown_2.value);
+              this->gbg_unknown_2.value = v12;
               this->gbg_unknown_2.maximumSizeValue = v11;
             }
           }
-          TRIBE_Player::command_trade_attribute2(this->md->aiPlayer, *(_DWORD *)(v15 + this->gbg_unknown_2.value), v9);
+          TRIBE_Player::command_trade_attribute2(this->md->aiPlayer, this->gbg_unknown_2.value[v15], v9);
 LABEL_29:
           v2 = v14;
         }
       }
       v14 = ++v2;
-      v15 += 4;
+      ++v15;
     }
     while ( v2 - 1 < this->gbg_unknown_2.numberValue );
   }
@@ -371415,7 +371294,7 @@ void __thiscall TribeTacticalAIModule::attackNow(TribeTacticalAIModule *this)
           {
             if ( v1 > this->tradeCarts.maximumSizeValue - 1 )
               ManagedArray_int_::resize(&this->tradeCarts, v1 + 1);
-            if ( !TribeTacticalAIModule::groupUnitIsIn(this, *(_DWORD *)(this->tradeCarts.value + 4 * v1)) )
+            if ( !TribeTacticalAIModule::groupUnitIsIn(this, this->tradeCarts.value[v1]) )
             {
               v7 = ManagedArray_int_::operator_at(&this->tradeCarts, v1);
               ManagedArray_int_::add(&this->workingArea, *v7);
@@ -371582,7 +371461,7 @@ void __thiscall TribeTacticalAIModule::civilianUnderAttack(TribeTacticalAIModule
   int v13; // eax
   int v14; // ecx
   int v15; // ebp
-  _DWORD *v16; // edi
+  int *v16; // edi
   int i; // eax
   RGE_Static_Object *v18; // eax
   RGE_Static_Object *v19; // ebp
@@ -371598,7 +371477,7 @@ void __thiscall TribeTacticalAIModule::civilianUnderAttack(TribeTacticalAIModule
   int v29; // ebp
   int v30; // eax
   int v31; // eax
-  _DWORD *v32; // edi
+  int *v32; // edi
   int j; // eax
   RGE_Static_Object *v34; // eax
   RGE_Static_Object *v35; // ebp
@@ -371610,7 +371489,7 @@ void __thiscall TribeTacticalAIModule::civilianUnderAttack(TribeTacticalAIModule
   int v41; // ebp
   int v42; // eax
   int v43; // ebx
-  _DWORD *v44; // edi
+  int *v44; // edi
   int k; // eax
   RGE_Static_Object *v46; // eax
   RGE_Static_Object *v47; // edi
@@ -371733,21 +371612,21 @@ void __thiscall TribeTacticalAIModule::civilianUnderAttack(TribeTacticalAIModule
       {
         if ( v13 < v14 || (v15 = v14 + 32, v14 + 32 <= v13) )
           v15 = v13;
-        v16 = operator_new(4 * v15);
+        v16 = (int *)operator_new(4 * v15);
         if ( v16 )
         {
-          for ( i = 0; i < this->soldiers.maximumSizeValue; v16[i - 1] = *(_DWORD *)(this->soldiers.value + 4 * i - 4) )
+          for ( i = 0; i < this->soldiers.maximumSizeValue; v16[i - 1] = this->soldiers.value[i - 1] )
           {
             if ( i >= v15 )
               break;
             ++i;
           }
-          operator_delete((void *)this->soldiers.value);
-          this->soldiers.value = (int)v16;
+          operator_delete(this->soldiers.value);
+          this->soldiers.value = v16;
           this->soldiers.maximumSizeValue = v15;
         }
       }
-      v18 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)(this->soldiers.value + v86));
+      v18 = RGE_Game_World::object((RGE_Game_World *)base_game->world, this->soldiers.value[v86]);
       v19 = v18;
       if ( v18 )
       {
@@ -371807,7 +371686,7 @@ LABEL_49:
       v28 = this->soldiers.numberValue;
       v13 = v94 + 1;
       v94 = v13;
-      v86 += 4;
+      ++v86;
     }
     while ( v13 - 1 < v28 );
   }
@@ -371828,23 +371707,21 @@ LABEL_49:
           if ( v31 > v29 )
             v29 = v31;
         }
-        v32 = operator_new(4 * v29);
+        v32 = (int *)operator_new(4 * v29);
         if ( v32 )
         {
-          for ( j = 0;
-                j < this->fishingBoats.maximumSizeValue;
-                v32[j - 1] = *(_DWORD *)(this->fishingBoats.value + 4 * j - 4) )
+          for ( j = 0; j < this->fishingBoats.maximumSizeValue; v32[j - 1] = this->fishingBoats.value[j - 1] )
           {
             if ( j >= v29 )
               break;
             ++j;
           }
-          operator_delete((void *)this->fishingBoats.value);
-          this->fishingBoats.value = (int)v32;
+          operator_delete(this->fishingBoats.value);
+          this->fishingBoats.value = v32;
           this->fishingBoats.maximumSizeValue = v29;
         }
       }
-      v34 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)(this->fishingBoats.value + v84));
+      v34 = RGE_Game_World::object((RGE_Game_World *)base_game->world, this->fishingBoats.value[v84]);
       v35 = v34;
       if ( v34 && RGE_Static_Object::unitAI(v34) )
       {
@@ -371889,7 +371766,7 @@ LABEL_49:
       }
 LABEL_78:
       ++v87;
-      v84 += 4;
+      ++v84;
       if ( v87 - 1 >= this->fishingBoats.numberValue )
         break;
       v29 = v87;
@@ -371911,21 +371788,21 @@ LABEL_78:
       {
         if ( v41 < v42 || (v43 = v42 + 32, v42 + 32 <= v41) )
           v43 = v41;
-        v44 = operator_new(4 * v43);
+        v44 = (int *)operator_new(4 * v43);
         if ( v44 )
         {
-          for ( k = 0; k < this->civilians.maximumSizeValue; v44[k - 1] = *(_DWORD *)(this->civilians.value + 4 * k - 4) )
+          for ( k = 0; k < this->civilians.maximumSizeValue; v44[k - 1] = this->civilians.value[k - 1] )
           {
             if ( k >= v43 )
               break;
             ++k;
           }
-          operator_delete((void *)this->civilians.value);
-          this->civilians.value = (int)v44;
+          operator_delete(this->civilians.value);
+          this->civilians.value = v44;
           this->civilians.maximumSizeValue = v43;
         }
       }
-      v46 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)(v94 + this->civilians.value));
+      v46 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(int *)((char *)this->civilians.value + v94));
       v47 = v46;
       if ( v46 && RGE_Static_Object::unitAI(v46) && (v96 || v47 != v95) )
       {
@@ -372152,7 +372029,7 @@ void __thiscall TribeTacticalAIModule::gatherDefenseUnits(TribeTacticalAIModule 
   int v12; // ebp
   int v13; // eax
   int v14; // ebx
-  _DWORD *v15; // edi
+  int *v15; // edi
   int k; // eax
   RGE_Static_Object *v17; // eax
   RGE_Static_Object *v18; // ebx
@@ -372179,7 +372056,7 @@ void __thiscall TribeTacticalAIModule::gatherDefenseUnits(TribeTacticalAIModule 
       {
         if ( v3 > this->soldiers.maximumSizeValue - 1 )
           ManagedArray_int_::resize(&this->soldiers, v3 + 1);
-        v4 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)(this->soldiers.value + 4 * v3));
+        v4 = RGE_Game_World::object((RGE_Game_World *)base_game->world, this->soldiers.value[v3]);
         v5 = v4;
         if ( v4 && RGE_Static_Object::unitAI(v4) )
         {
@@ -372233,7 +372110,7 @@ LABEL_22:
       {
         if ( v8 > this->boats.maximumSizeValue - 1 )
           ManagedArray_int_::resize(&this->boats, v8 + 1);
-        v9 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)(this->boats.value + 4 * v8));
+        v9 = RGE_Game_World::object((RGE_Game_World *)base_game->world, this->boats.value[v8]);
         v10 = v9;
         if ( v9 && RGE_Static_Object::unitAI(v9) && v10->master_obj->object_group != 59 )
         {
@@ -372287,23 +372164,21 @@ LABEL_41:
           {
             if ( v12 < v13 || (v14 = v13 + 32, v13 + 32 <= v12) )
               v14 = v12;
-            v15 = operator_new(4 * v14);
+            v15 = (int *)operator_new(4 * v14);
             if ( v15 )
             {
-              for ( k = 0;
-                    k < this->tradeCarts.maximumSizeValue;
-                    v15[k - 1] = *(_DWORD *)(this->tradeCarts.value + 4 * k - 4) )
+              for ( k = 0; k < this->tradeCarts.maximumSizeValue; v15[k - 1] = this->tradeCarts.value[k - 1] )
               {
                 if ( k >= v14 )
                   break;
                 ++k;
               }
-              operator_delete((void *)this->tradeCarts.value);
-              this->tradeCarts.value = (int)v15;
+              operator_delete(this->tradeCarts.value);
+              this->tradeCarts.value = v15;
               this->tradeCarts.maximumSizeValue = v14;
             }
           }
-          v17 = RGE_Game_World::object((RGE_Game_World *)base_game->world, *(_DWORD *)(this->tradeCarts.value + v22));
+          v17 = RGE_Game_World::object((RGE_Game_World *)base_game->world, this->tradeCarts.value[v22]);
           v18 = v17;
           if ( v17 && RGE_Static_Object::unitAI(v17) )
           {
@@ -372341,7 +372216,7 @@ LABEL_66:
             v12 = v25;
           }
           ++v12;
-          v22 += 4;
+          ++v22;
           v25 = v12;
         }
         while ( v12 - 1 < this->tradeCarts.numberValue );
@@ -372420,7 +372295,7 @@ int __thiscall TribeTacticalAIModule::canBeElephantGatherer(TribeTacticalAIModul
   {
     if ( i >= this->unitsTaskedThisUpdate.maximumSizeValue )
       break;
-    if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * i) == v6->id )
+    if ( this->unitsTaskedThisUpdate.value[i] == v6->id )
       goto LABEL_15;
   }
   if ( RGE_Static_Object::distance_to_object(v6, targetObj) >= 10.0 )
@@ -372469,7 +372344,7 @@ bool __thiscall TribeTacticalAIModule::killEnemyStructuresInTown(TribeTacticalAI
   int v36; // ecx
   int v37; // ebp
   int v38; // ebx
-  _DWORD *v39; // edi
+  int *v39; // edi
   int i; // eax
   RGE_Static_Object *v41; // eax
   RGE_Static_Object *v42; // edi
@@ -372509,9 +372384,7 @@ LABEL_103:
             v5 = this->mKillInTownIndex;
             if ( v5 > this->soldiers.maximumSizeValue - 1 )
               ManagedArray_int_::resize(&this->soldiers, v5 + 1);
-            v6 = RGE_Game_World::object(
-                   (RGE_Game_World *)this->md->player->world,
-                   *(_DWORD *)(this->soldiers.value + 4 * v5));
+            v6 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, this->soldiers.value[v5]);
             v7 = v6;
             if ( v6 && v6->object_state <= 2u && RGE_Static_Object::unitAI(v6) )
             {
@@ -372546,9 +372419,7 @@ LABEL_19:
             v10 = this->mKillInTownIndex;
             if ( v10 > this->fishingBoats.maximumSizeValue - 1 )
               ManagedArray_int_::resize(&this->fishingBoats, v10 + 1);
-            v11 = RGE_Game_World::object(
-                    (RGE_Game_World *)this->md->player->world,
-                    *(_DWORD *)(this->fishingBoats.value + 4 * v10));
+            v11 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, this->fishingBoats.value[v10]);
             v12 = v11;
             if ( v11 && v11->object_state <= 2u && RGE_Static_Object::unitAI(v11) )
             {
@@ -372583,9 +372454,7 @@ LABEL_36:
             v15 = this->mKillInTownIndex;
             if ( v15 > this->tradeBoats.maximumSizeValue - 1 )
               ManagedArray_int_::resize(&this->tradeBoats, v15 + 1);
-            v16 = RGE_Game_World::object(
-                    (RGE_Game_World *)this->md->player->world,
-                    *(_DWORD *)(this->tradeBoats.value + 4 * v15));
+            v16 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, this->tradeBoats.value[v15]);
             v17 = v16;
             if ( v16 && v16->object_state <= 2u && RGE_Static_Object::unitAI(v16) )
             {
@@ -372748,23 +372617,21 @@ LABEL_84:
       {
         if ( v37 + 1 < v36 || (v38 = v36 + 32, v36 + 32 <= v37 + 1) )
           v38 = v37 + 1;
-        v39 = operator_new(4 * v38);
+        v39 = (int *)operator_new(4 * v38);
         if ( v39 )
         {
-          for ( i = 0; i < this->civilians.maximumSizeValue; v39[i - 1] = *(_DWORD *)(this->civilians.value + 4 * i - 4) )
+          for ( i = 0; i < this->civilians.maximumSizeValue; v39[i - 1] = this->civilians.value[i - 1] )
           {
             if ( i >= v38 )
               break;
             ++i;
           }
-          operator_delete((void *)this->civilians.value);
-          this->civilians.value = (int)v39;
+          operator_delete(this->civilians.value);
+          this->civilians.value = v39;
           this->civilians.maximumSizeValue = v38;
         }
       }
-      v41 = RGE_Game_World::object(
-              (RGE_Game_World *)this->md->player->world,
-              *(_DWORD *)(this->civilians.value + 4 * v37));
+      v41 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, this->civilians.value[v37]);
       v42 = v41;
       if ( v41
         && v41->object_state <= 2u
@@ -372856,7 +372723,7 @@ bool __thiscall TribeTacticalAIModule::taskOnInTownStructure(TribeTacticalAIModu
     {
       if ( result >= this->unitsTaskedThisUpdate.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * result) == obj->id )
+      if ( this->unitsTaskedThisUpdate.value[result] == obj->id )
         goto LABEL_26;
     }
     result = TribeInformationAIModule::bestEnemyStructureInTownToAttack(&this->md->informationAI, obj);
@@ -373052,7 +372919,7 @@ void __thiscall __noreturn TribeTacticalAIModule::killEnemyBuildersInTown(TribeT
   ManagedArray_int_ *v12; // edi
   int v13; // eax
   int v14; // eax
-  _DWORD *v15; // ebp
+  int *v15; // ebp
   int j; // eax
   RGE_Static_Object *v17; // eax
   RGE_Static_Object *v18; // ebx
@@ -373080,7 +372947,7 @@ void __thiscall __noreturn TribeTacticalAIModule::killEnemyBuildersInTown(TribeT
   int v40; // ecx
   int v41; // eax
   int v42; // ebp
-  _DWORD *v43; // edi
+  int *v43; // edi
   int l; // eax
   RGE_Static_Object *v45; // eax
   RGE_Static_Object *v46; // edi
@@ -373115,7 +372982,7 @@ void __thiscall __noreturn TribeTacticalAIModule::killEnemyBuildersInTown(TribeT
     {
       if ( i > this->civilians.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->civilians, i + 1);
-      v3 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(this->civilians.value + 4 * i));
+      v3 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, this->civilians.value[i]);
       v4 = v3;
       if ( v3 )
       {
@@ -373168,21 +373035,21 @@ void __thiscall __noreturn TribeTacticalAIModule::killEnemyBuildersInTown(TribeT
               if ( v14 > v11 )
                 v11 = v14;
             }
-            v15 = operator_new(4 * v11);
+            v15 = (int *)operator_new(4 * v11);
             if ( v15 )
             {
-              for ( j = 0; j < v12->maximumSizeValue; v15[j - 1] = *(_DWORD *)(v12->value + 4 * j - 4) )
+              for ( j = 0; j < v12->maximumSizeValue; v15[j - 1] = v12->value[j - 1] )
               {
                 if ( j >= v11 )
                   break;
                 ++j;
               }
-              operator_delete((void *)v12->value);
-              v12->value = (int)v15;
+              operator_delete(v12->value);
+              v12->value = v15;
               v12->maximumSizeValue = v11;
             }
           }
-          v17 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(v12->value + v65));
+          v17 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, v12->value[v65]);
           v18 = v17;
           obj = v17;
           if ( v17 )
@@ -373211,7 +373078,7 @@ void __thiscall __noreturn TribeTacticalAIModule::killEnemyBuildersInTown(TribeT
                           ManagedArray_int_::resize(&this->soldiers, v21 + 1);
                         v22 = RGE_Game_World::object(
                                 (RGE_Game_World *)this->md->player->world,
-                                *(_DWORD *)(this->soldiers.value + 4 * v21));
+                                this->soldiers.value[v21]);
                         v23 = v22;
                         if ( v22 )
                         {
@@ -373246,7 +373113,7 @@ LABEL_46:
                             ManagedArray_int_::resize(&this->boats, v26 + 1);
                           v27 = RGE_Game_World::object(
                                   (RGE_Game_World *)this->md->player->world,
-                                  *(_DWORD *)(this->boats.value + 4 * v26));
+                                  this->boats.value[v26]);
                           v28 = v27;
                           if ( v27 )
                           {
@@ -373282,7 +373149,7 @@ LABEL_100:
                                 ManagedArray_int_::resize(&this->civilians, v31 + 1);
                               v33 = RGE_Game_World::object(
                                       (RGE_Game_World *)this->md->player->world,
-                                      *(_DWORD *)(this->civilians.value + 4 * v31));
+                                      this->civilians.value[v31]);
                               v34 = v33;
                               if ( v33 )
                               {
@@ -373321,25 +373188,25 @@ LABEL_100:
                               {
                                 if ( v40 < v41 || (v42 = v41 + 32, v41 + 32 <= v40) )
                                   v42 = v40;
-                                v43 = operator_new(4 * v42);
+                                v43 = (int *)operator_new(4 * v42);
                                 if ( v43 )
                                 {
                                   for ( l = 0;
                                         l < this->civilians.maximumSizeValue;
-                                        v43[l - 1] = *(_DWORD *)(this->civilians.value + 4 * l - 4) )
+                                        v43[l - 1] = this->civilians.value[l - 1] )
                                   {
                                     if ( l >= v42 )
                                       break;
                                     ++l;
                                   }
-                                  operator_delete((void *)this->civilians.value);
-                                  this->civilians.value = (int)v43;
+                                  operator_delete(this->civilians.value);
+                                  this->civilians.value = v43;
                                   this->civilians.maximumSizeValue = v42;
                                 }
                               }
                               v45 = RGE_Game_World::object(
                                       (RGE_Game_World *)this->md->player->world,
-                                      *(_DWORD *)(this->civilians.value + v64));
+                                      this->civilians.value[v64]);
                               v46 = v45;
                               if ( v45 )
                               {
@@ -373364,7 +373231,7 @@ LABEL_100:
                                           {
                                             while ( v52 < this->unitsTaskedThisUpdate.maximumSizeValue )
                                             {
-                                              if ( *(_DWORD *)(this->unitsTaskedThisUpdate.value + 4 * v52) == v51 )
+                                              if ( this->unitsTaskedThisUpdate.value[v52] == v51 )
                                               {
                                                 v37 = obj;
                                                 goto LABEL_96;
@@ -373411,7 +373278,7 @@ LABEL_100:
                               }
 LABEL_96:
                               ++k;
-                              v64 += 4;
+                              ++v64;
                               if ( k - 1 >= this->civilians.numberValue )
                                 break;
                               v38 = v68;
@@ -373427,7 +373294,7 @@ LABEL_96:
           }
           v11 = (int)&v67->vfptr + 1;
           v67 = (RGE_Static_Object *)v11;
-          v65 += 4;
+          ++v65;
         }
         while ( v11 - 1 < v69 );
       }
@@ -373442,7 +373309,7 @@ int __thiscall TribeTacticalAIModule::countBuilders(TribeTacticalAIModule *this,
   int v4; // ebx
   int v5; // eax
   int v6; // ebp
-  _DWORD *v7; // edi
+  int *v7; // edi
   int i; // eax
   RGE_Static_Object *v9; // eax
   RGE_Static_Object *v10; // edi
@@ -373467,21 +373334,21 @@ int __thiscall TribeTacticalAIModule::countBuilders(TribeTacticalAIModule *this,
       {
         if ( v4 < v5 || (v6 = v5 + 32, v5 + 32 <= v4) )
           v6 = v4;
-        v7 = operator_new(4 * v6);
+        v7 = (int *)operator_new(4 * v6);
         if ( v7 )
         {
-          for ( i = 0; i < this->civilians.maximumSizeValue; v7[i - 1] = *(_DWORD *)(this->civilians.value + 4 * i - 4) )
+          for ( i = 0; i < this->civilians.maximumSizeValue; v7[i - 1] = this->civilians.value[i - 1] )
           {
             if ( i >= v6 )
               break;
             ++i;
           }
-          operator_delete((void *)this->civilians.value);
-          this->civilians.value = (int)v7;
+          operator_delete(this->civilians.value);
+          this->civilians.value = v7;
           this->civilians.maximumSizeValue = v6;
         }
       }
-      v9 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, *(_DWORD *)(v15 + this->civilians.value));
+      v9 = RGE_Game_World::object((RGE_Game_World *)this->md->player->world, this->civilians.value[v15]);
       v10 = v9;
       if ( v9 )
       {
@@ -373506,7 +373373,7 @@ int __thiscall TribeTacticalAIModule::countBuilders(TribeTacticalAIModule *this,
         }
       }
       ++v4;
-      v15 += 4;
+      ++v15;
     }
     while ( v4 - 1 < this->civilians.numberValue );
     result = v16;
@@ -373571,7 +373438,7 @@ void __thiscall TribeTacticalAIModule::villagerAttackResponse(TribeTacticalAIMod
   int v29; // esi
   int v30; // eax
   int v31; // ebp
-  _DWORD *v32; // edi
+  int *v32; // edi
   int i; // eax
   RGE_Static_Object *v34; // eax
   RGE_Static_Object *v35; // edi
@@ -373685,26 +373552,24 @@ void __thiscall TribeTacticalAIModule::villagerAttackResponse(TribeTacticalAIMod
             {
               if ( v29 < v30 || (v31 = v30 + 32, v30 + 32 <= v29) )
                 v31 = v29;
-              v32 = operator_new(4 * v31);
+              v32 = (int *)operator_new(4 * v31);
               if ( v32 )
               {
-                for ( i = 0;
-                      i < this->civilians.maximumSizeValue;
-                      v32[i - 1] = *(_DWORD *)(this->civilians.value + 4 * i - 4) )
+                for ( i = 0; i < this->civilians.maximumSizeValue; v32[i - 1] = this->civilians.value[i - 1] )
                 {
                   if ( i >= v31 )
                     break;
                   ++i;
                 }
-                operator_delete((void *)this->civilians.value);
-                this->civilians.value = (int)v32;
+                operator_delete(this->civilians.value);
+                this->civilians.value = v32;
                 this->civilians.maximumSizeValue = v31;
               }
               v25 = attackedUnit;
             }
             v34 = RGE_Game_World::object(
                     (RGE_Game_World *)this->md->player->world,
-                    *(int *)((char *)&obj->vfptr + this->civilians.value));
+                    *(int *)((char *)this->civilians.value + (unsigned int)obj));
             v35 = v34;
             if ( v34 )
             {
@@ -373760,7 +373625,7 @@ void __thiscall TribeTacticalAIModule::checkForUngarrison(TribeTacticalAIModule 
   ManagedArray_int_ *v11; // esi
   int v12; // eax
   int v13; // ebp
-  _DWORD *v14; // edi
+  int *v14; // edi
   int k; // eax
   RGE_Static_Object *v16; // eax
   RGE_Static_Object *v17; // esi
@@ -373772,7 +373637,7 @@ void __thiscall TribeTacticalAIModule::checkForUngarrison(TribeTacticalAIModule 
   int v23; // eax
   ManagedArray_int_ *v24; // esi
   int v25; // ebp
-  _DWORD *v26; // edi
+  int *v26; // edi
   int j; // eax
   RGE_Static_Object *v28; // eax
   RGE_Static_Object *v29; // esi
@@ -373879,23 +373744,23 @@ LABEL_60:
           {
             if ( v21 < v23 || (v25 = v23 + 32, v23 + 32 <= v21) )
               v25 = v21;
-            v26 = operator_new(4 * v25);
+            v26 = (int *)operator_new(4 * v25);
             if ( v26 )
             {
-              for ( j = 0; j < v24->maximumSizeValue; v26[j - 1] = *(_DWORD *)(v24->value + 4 * j - 4) )
+              for ( j = 0; j < v24->maximumSizeValue; v26[j - 1] = v24->value[j - 1] )
               {
                 if ( j >= v25 )
                   break;
                 ++j;
               }
-              operator_delete((void *)v24->value);
-              v24->value = (int)v26;
+              operator_delete(v24->value);
+              v24->value = v26;
               v24->maximumSizeValue = v25;
             }
           }
           v28 = RGE_Game_World::object(
                   (RGE_Game_World *)this->md->player->world,
-                  *(_DWORD *)(LODWORD(v42) + v24->value));
+                  *(int *)((char *)v24->value + LODWORD(v42)));
           v29 = v28;
           if ( v28 )
           {
@@ -373938,23 +373803,23 @@ LABEL_60:
           {
             if ( v10 < v12 || (v13 = v12 + 32, v12 + 32 <= v10) )
               v13 = v10;
-            v14 = operator_new(4 * v13);
+            v14 = (int *)operator_new(4 * v13);
             if ( v14 )
             {
-              for ( k = 0; k < v11->maximumSizeValue; v14[k - 1] = *(_DWORD *)(v11->value + 4 * k - 4) )
+              for ( k = 0; k < v11->maximumSizeValue; v14[k - 1] = v11->value[k - 1] )
               {
                 if ( k >= v13 )
                   break;
                 ++k;
               }
-              operator_delete((void *)v11->value);
-              v11->value = (int)v14;
+              operator_delete(v11->value);
+              v11->value = v14;
               v11->maximumSizeValue = v13;
             }
           }
           v16 = RGE_Game_World::object(
                   (RGE_Game_World *)this->md->player->world,
-                  *(_DWORD *)(LODWORD(v43) + v11->value));
+                  *(int *)((char *)v11->value + LODWORD(v43)));
           v17 = v16;
           if ( v16 )
           {
@@ -374243,7 +374108,7 @@ int __stdcall TribeHuntedAnimalUnitAIModule::processNotify(TribeHuntedAnimalUnit
   int i; // eax
   int v9; // edx
   int v10; // ebx
-  _DWORD *v11; // edi
+  int *v11; // edi
   int j; // eax
 
   v4 = v3;
@@ -374258,7 +374123,7 @@ int __stdcall TribeHuntedAnimalUnitAIModule::processNotify(TribeHuntedAnimalUnit
         {
           if ( i >= v4->attackingUnitsValue.maximumSizeValue )
             break;
-          if ( *(TribeHuntedAnimalUnitAIModuleVtbl **)(v4->attackingUnitsValue.value + 4 * i) == v7 )
+          if ( (TribeHuntedAnimalUnitAIModuleVtbl *)v4->attackingUnitsValue.value[i] == v7 )
             goto LABEL_24;
         }
         v9 = v4->attackingUnitsValue.maximumSizeValue;
@@ -374266,23 +374131,21 @@ int __stdcall TribeHuntedAnimalUnitAIModule::processNotify(TribeHuntedAnimalUnit
         {
           if ( v6 + 1 < v9 || (v10 = v9 + 32, v9 + 32 <= v6 + 1) )
             v10 = v6 + 1;
-          v11 = operator_new(4 * v10);
+          v11 = (int *)operator_new(4 * v10);
           if ( v11 )
           {
-            for ( j = 0;
-                  j < v4->attackingUnitsValue.maximumSizeValue;
-                  v11[j - 1] = *(_DWORD *)(v4->attackingUnitsValue.value + 4 * j - 4) )
+            for ( j = 0; j < v4->attackingUnitsValue.maximumSizeValue; v11[j - 1] = v4->attackingUnitsValue.value[j - 1] )
             {
               if ( j >= v10 )
                 break;
               ++j;
             }
-            operator_delete((void *)v4->attackingUnitsValue.value);
-            v4->attackingUnitsValue.value = (int)v11;
+            operator_delete(v4->attackingUnitsValue.value);
+            v4->attackingUnitsValue.value = v11;
             v4->attackingUnitsValue.maximumSizeValue = v10;
           }
         }
-        *(_DWORD *)(v4->attackingUnitsValue.value + 4 * v4->attackingUnitsValue.numberValue++) = v7;
+        v4->attackingUnitsValue.value[v4->attackingUnitsValue.numberValue++] = (int)v7;
 LABEL_24:
         v4->objectValue->vfptr->setUnderAttack(v4->objectValue, 1u);
         v4->vfptr->runAwayFromAttackers(v4, 1, -1);
@@ -374468,7 +374331,7 @@ int __thiscall TribeElephantUnitAIModule::processNotify(TribeElephantUnitAIModul
   int i; // eax
   int v8; // edx
   int v9; // ebx
-  _DWORD *v10; // edi
+  int *v10; // edi
   int j; // eax
   int v12; // edi
   RGE_Static_Object *v13; // eax
@@ -374487,7 +374350,7 @@ int __thiscall TribeElephantUnitAIModule::processNotify(TribeElephantUnitAIModul
     {
       if ( i >= this->attackingUnitsValue.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * i) == v6 )
+      if ( this->attackingUnitsValue.value[i] == v6 )
         goto LABEL_21;
     }
     v8 = this->attackingUnitsValue.maximumSizeValue;
@@ -374495,23 +374358,21 @@ int __thiscall TribeElephantUnitAIModule::processNotify(TribeElephantUnitAIModul
     {
       if ( v5 + 1 < v8 || (v9 = v8 + 32, v8 + 32 <= v5 + 1) )
         v9 = v5 + 1;
-      v10 = operator_new(4 * v9);
+      v10 = (int *)operator_new(4 * v9);
       if ( v10 )
       {
-        for ( j = 0;
-              j < this->attackingUnitsValue.maximumSizeValue;
-              v10[j - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * j - 4) )
+        for ( j = 0; j < this->attackingUnitsValue.maximumSizeValue; v10[j - 1] = this->attackingUnitsValue.value[j - 1] )
         {
           if ( j >= v9 )
             break;
           ++j;
         }
-        operator_delete((void *)this->attackingUnitsValue.value);
-        this->attackingUnitsValue.value = (int)v10;
+        operator_delete(this->attackingUnitsValue.value);
+        this->attackingUnitsValue.value = v10;
         this->attackingUnitsValue.maximumSizeValue = v9;
       }
     }
-    *(_DWORD *)(this->attackingUnitsValue.value + 4 * this->attackingUnitsValue.numberValue++) = v6;
+    this->attackingUnitsValue.value[this->attackingUnitsValue.numberValue++] = v6;
 LABEL_21:
     this->objectValue->vfptr->setUnderAttack(this->objectValue, 1u);
     v12 = this->vfptr->closestAttacker(this, 0);
@@ -376537,7 +376398,7 @@ int __thiscall TribeTradeShipUnitAIModule::processNotify(TribeTradeShipUnitAIMod
   int j; // eax
   int v14; // edx
   int v15; // ebx
-  _DWORD *v16; // edi
+  int *v16; // edi
   int k; // eax
 
   v3 = nEvent;
@@ -376630,7 +376491,7 @@ LABEL_27:
     {
       if ( i >= this->attackingUnitsValue.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * i) == v3->caller )
+      if ( this->attackingUnitsValue.value[i] == v3->caller )
         goto LABEL_39;
     }
     if ( !this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner)
@@ -376645,7 +376506,7 @@ LABEL_39:
     {
       if ( j >= this->attackingUnitsValue.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * j) == v12 )
+      if ( this->attackingUnitsValue.value[j] == v12 )
         goto LABEL_53;
     }
     v14 = this->attackingUnitsValue.maximumSizeValue;
@@ -376653,23 +376514,21 @@ LABEL_39:
     {
       if ( v11 + 1 < v14 || (v15 = v14 + 32, v14 + 32 <= v11 + 1) )
         v15 = v11 + 1;
-      v16 = operator_new(4 * v15);
+      v16 = (int *)operator_new(4 * v15);
       if ( v16 )
       {
-        for ( k = 0;
-              k < this->attackingUnitsValue.maximumSizeValue;
-              v16[k - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * k - 4) )
+        for ( k = 0; k < this->attackingUnitsValue.maximumSizeValue; v16[k - 1] = this->attackingUnitsValue.value[k - 1] )
         {
           if ( k >= v15 )
             break;
           ++k;
         }
-        operator_delete((void *)this->attackingUnitsValue.value);
-        this->attackingUnitsValue.value = (int)v16;
+        operator_delete(this->attackingUnitsValue.value);
+        this->attackingUnitsValue.value = v16;
         this->attackingUnitsValue.maximumSizeValue = v15;
       }
     }
-    *(_DWORD *)(this->attackingUnitsValue.value + 4 * this->attackingUnitsValue.numberValue++) = v12;
+    this->attackingUnitsValue.value[this->attackingUnitsValue.numberValue++] = v12;
 LABEL_53:
     this->objectValue->vfptr->setUnderAttack(this->objectValue, 1u);
     if ( this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner) || this->currentOrderValue == -1 )
@@ -376785,7 +376644,7 @@ int __thiscall TribeTransportShipUnitAIModule::processNotify(TribeTransportShipU
   int j; // eax
   int v10; // edx
   int v11; // ebp
-  _DWORD *v12; // ebx
+  int *v12; // ebx
   int k; // eax
   RGE_Combat_Object *v14; // edi
 
@@ -376812,7 +376671,7 @@ LABEL_6:
     {
       if ( i >= this->attackingUnitsValue.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * i) == nEvent->caller )
+      if ( this->attackingUnitsValue.value[i] == nEvent->caller )
         goto LABEL_15;
     }
     if ( !this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner)
@@ -376827,7 +376686,7 @@ LABEL_15:
     {
       if ( j >= this->attackingUnitsValue.maximumSizeValue )
         break;
-      if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * j) == v8 )
+      if ( this->attackingUnitsValue.value[j] == v8 )
         goto LABEL_29;
     }
     v10 = this->attackingUnitsValue.maximumSizeValue;
@@ -376835,23 +376694,21 @@ LABEL_15:
     {
       if ( v7 + 1 < v10 || (v11 = v10 + 32, v10 + 32 <= v7 + 1) )
         v11 = v7 + 1;
-      v12 = operator_new(4 * v11);
+      v12 = (int *)operator_new(4 * v11);
       if ( v12 )
       {
-        for ( k = 0;
-              k < this->attackingUnitsValue.maximumSizeValue;
-              v12[k - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * k - 4) )
+        for ( k = 0; k < this->attackingUnitsValue.maximumSizeValue; v12[k - 1] = this->attackingUnitsValue.value[k - 1] )
         {
           if ( k >= v11 )
             break;
           ++k;
         }
-        operator_delete((void *)this->attackingUnitsValue.value);
-        this->attackingUnitsValue.value = (int)v12;
+        operator_delete(this->attackingUnitsValue.value);
+        this->attackingUnitsValue.value = v12;
         this->attackingUnitsValue.maximumSizeValue = v11;
       }
     }
-    *(_DWORD *)(this->attackingUnitsValue.value + 4 * this->attackingUnitsValue.numberValue++) = v8;
+    this->attackingUnitsValue.value[this->attackingUnitsValue.numberValue++] = v8;
 LABEL_29:
     this->objectValue->vfptr->setUnderAttack(this->objectValue, 1u);
     if ( this->currentOrderValue == -1 )
@@ -376994,7 +376851,7 @@ int __thiscall TribeFishingShipUnitAIModule::processNotify(TribeFishingShipUnitA
   int j; // eax
   int v24; // edx
   int v25; // ebp
-  _DWORD *v26; // ebx
+  int *v26; // ebx
   int k; // eax
   int v28[6]; // [esp+90h] [ebp-30h]
   int v29; // [esp+A8h] [ebp-18h] BYREF
@@ -377023,7 +376880,7 @@ LABEL_23:
       {
         if ( i >= this->attackingUnitsValue.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * i) == nEvent->caller )
+        if ( this->attackingUnitsValue.value[i] == nEvent->caller )
           goto LABEL_32;
       }
       if ( !this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner)
@@ -377038,7 +376895,7 @@ LABEL_32:
       {
         if ( j >= this->attackingUnitsValue.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * j) == v22 )
+        if ( this->attackingUnitsValue.value[j] == v22 )
           goto LABEL_46;
       }
       v24 = this->attackingUnitsValue.maximumSizeValue;
@@ -377046,23 +376903,21 @@ LABEL_32:
       {
         if ( v21 + 1 < v24 || (v25 = v24 + 32, v24 + 32 <= v21 + 1) )
           v25 = v21 + 1;
-        v26 = operator_new(4 * v25);
+        v26 = (int *)operator_new(4 * v25);
         if ( v26 )
         {
-          for ( k = 0;
-                k < this->attackingUnitsValue.maximumSizeValue;
-                v26[k - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * k - 4) )
+          for ( k = 0; k < this->attackingUnitsValue.maximumSizeValue; v26[k - 1] = this->attackingUnitsValue.value[k - 1] )
           {
             if ( k >= v25 )
               break;
             ++k;
           }
-          operator_delete((void *)this->attackingUnitsValue.value);
-          this->attackingUnitsValue.value = (int)v26;
+          operator_delete(this->attackingUnitsValue.value);
+          this->attackingUnitsValue.value = v26;
           this->attackingUnitsValue.maximumSizeValue = v25;
         }
       }
-      *(_DWORD *)(this->attackingUnitsValue.value + 4 * this->attackingUnitsValue.numberValue++) = v22;
+      this->attackingUnitsValue.value[this->attackingUnitsValue.numberValue++] = v22;
 LABEL_46:
       this->objectValue->vfptr->setUnderAttack(this->objectValue, 1u);
       if ( this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner) || this->currentOrderValue == -1 )
@@ -377814,7 +377669,7 @@ int __thiscall TribeArtifactUnitAIModule::processNotify(TribeArtifactUnitAIModul
   int v10; // eax
   int v11; // edx
   int v12; // ebp
-  _DWORD *v13; // ebx
+  int *v13; // ebx
   int i; // eax
 
   switch ( nEvent->mType )
@@ -377900,7 +377755,7 @@ LABEL_14:
       {
         if ( v10 >= this->attackingUnitsValue.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * v10) == v9 )
+        if ( this->attackingUnitsValue.value[v10] == v9 )
           goto LABEL_29;
         ++v10;
       }
@@ -377911,23 +377766,21 @@ LABEL_19:
       {
         if ( v8 + 1 < v11 || (v12 = v11 + 32, v11 + 32 <= v8 + 1) )
           v12 = v8 + 1;
-        v13 = operator_new(4 * v12);
+        v13 = (int *)operator_new(4 * v12);
         if ( v13 )
         {
-          for ( i = 0;
-                i < this->attackingUnitsValue.maximumSizeValue;
-                v13[i - 1] = *(_DWORD *)(this->attackingUnitsValue.value + 4 * i - 4) )
+          for ( i = 0; i < this->attackingUnitsValue.maximumSizeValue; v13[i - 1] = this->attackingUnitsValue.value[i - 1] )
           {
             if ( i >= v12 )
               break;
             ++i;
           }
-          operator_delete((void *)this->attackingUnitsValue.value);
-          this->attackingUnitsValue.value = (int)v13;
+          operator_delete(this->attackingUnitsValue.value);
+          this->attackingUnitsValue.value = v13;
           this->attackingUnitsValue.maximumSizeValue = v12;
         }
       }
-      *(_DWORD *)(this->attackingUnitsValue.value + 4 * this->attackingUnitsValue.numberValue++) = v9;
+      this->attackingUnitsValue.value[this->attackingUnitsValue.numberValue++] = v9;
 LABEL_29:
       this->objectValue->vfptr->setUnderAttack(this->objectValue, 1u);
       return 2;
@@ -378500,7 +378353,7 @@ int __thiscall TribeBuildingUnitAIModule::processNotify(TribeBuildingUnitAIModul
   int v24; // eax
   int v25; // ecx
   int v26; // eax
-  _DWORD *v27; // edx
+  int *v27; // edx
   int v28; // eax
 
   switch ( nEvent->mType )
@@ -378533,7 +378386,7 @@ int __thiscall TribeBuildingUnitAIModule::processNotify(TribeBuildingUnitAIModul
         {
           if ( j >= this->attackingUnitsValue.maximumSizeValue )
             break;
-          if ( *(_DWORD *)(v15->value + 4 * j) == nEvent->caller )
+          if ( v15->value[j] == nEvent->caller )
             goto LABEL_16;
         }
         if ( !this->objectValue->owner->vfptr->computerPlayer(this->objectValue->owner)
@@ -378548,12 +378401,12 @@ LABEL_16:
         {
           if ( k >= this->attackingUnitsValue.maximumSizeValue )
             break;
-          if ( *(_DWORD *)(v15->value + 4 * k) == v18 )
+          if ( v15->value[k] == v18 )
             goto LABEL_23;
         }
         if ( v17 > this->attackingUnitsValue.maximumSizeValue - 1 )
           ManagedArray_int_::resize(&this->attackingUnitsValue, v17 + 1);
-        *(_DWORD *)(v15->value + 4 * this->attackingUnitsValue.numberValue++) = v18;
+        v15->value[this->attackingUnitsValue.numberValue++] = v18;
         goto LABEL_23;
       }
       ((void (__stdcall *)(int, int, int, int, _DWORD, _DWORD))v7->notify)(v6, v6, 521, nEvent->caller, 0, 0);
@@ -378569,7 +378422,7 @@ LABEL_16:
       {
         if ( v22 >= this->attackingUnitsValue.maximumSizeValue )
           break;
-        if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * v22) == v21 )
+        if ( this->attackingUnitsValue.value[v22] == v21 )
           goto LABEL_23;
         ++v22;
       }
@@ -378577,7 +378430,7 @@ LABEL_16:
 LABEL_28:
       if ( v20 > this->attackingUnitsValue.maximumSizeValue - 1 )
         ManagedArray_int_::resize(&this->attackingUnitsValue, v20 + 1);
-      *(_DWORD *)(this->attackingUnitsValue.value + 4 * this->attackingUnitsValue.numberValue++) = v21;
+      this->attackingUnitsValue.value[this->attackingUnitsValue.numberValue++] = v21;
 LABEL_23:
       this->objectValue->vfptr->setUnderAttack(this->objectValue, 1u);
       return 2;
@@ -378592,13 +378445,13 @@ LABEL_23:
   }
   while ( v24 < this->attackingUnitsValue.maximumSizeValue )
   {
-    if ( *(_DWORD *)(this->attackingUnitsValue.value + 4 * v24) == nEvent->caller )
+    if ( this->attackingUnitsValue.value[v24] == nEvent->caller )
     {
       v25 = this->attackingUnitsValue.maximumSizeValue;
       v26 = 0;
       if ( v25 > 0 )
       {
-        v27 = (_DWORD *)this->attackingUnitsValue.value;
+        v27 = this->attackingUnitsValue.value;
         do
         {
           if ( *v27 == nEvent->caller )
@@ -378615,8 +378468,7 @@ LABEL_23:
           do
           {
             ++v26;
-            *(_DWORD *)(this->attackingUnitsValue.value + 4 * v26 - 4) = *(_DWORD *)(this->attackingUnitsValue.value
-                                                                                   + 4 * v26);
+            this->attackingUnitsValue.value[v26 - 1] = this->attackingUnitsValue.value[v26];
           }
           while ( v26 < this->attackingUnitsValue.maximumSizeValue - 1 );
         }
@@ -381993,8 +381845,8 @@ void __thiscall TRIBE_Command::do_command_set_gather_point(TRIBE_Command *this, 
         {
           v4[2].ei.PlayerNum = LODWORD(v2->location_x);
           v4[3].vfptr = (RGE_Static_ObjectVtbl *)LODWORD(v2->location_y);
-          LODWORD(v4[3].gbg_unknown_2) = v2->target_id;
-          LOWORD(v4[3].gbg_unknown_3) = v2->target_master_id;
+          LODWORD(v4[3].shield_recharge_accumulator) = v2->target_id;
+          LOWORD(v4[3].shield_hit_timer) = v2->target_master_id;
           v4[2].ei.Square = v2->target_id != -1
                          || LODWORD(v2->location_x) != -1082130432
                          || LODWORD(v2->location_y) != -1082130432;
@@ -399671,7 +399523,7 @@ int __thiscall TRIBE_Player::get_mouse_pointer_action_vars(TRIBE_Player *this, i
   RGE_Static_Object *v12; // edx
   RGE_Static_Object *v13; // eax
   int v14; // ecx
-  int v15; // eax
+  float v15; // eax
   int v16; // esi
   int v17; // ebp
   unsigned __int8 v18; // dl
@@ -399786,19 +399638,19 @@ int __thiscall TRIBE_Player::get_mouse_pointer_action_vars(TRIBE_Player *this, i
         v14 = v12[1].gbg_civ_override;
         if ( !v14 )
           return 0;
-        v15 = v12[1].gbg_unknown_3;
-        if ( !v15 )
+        v15 = v12[1].shield_hit_timer;
+        if ( v15 == 0.0 )
           return 0;
         v16 = v12[1].id;
-        v17 = *(__int16 *)(v15 + 30);
-        v48 = *(__int16 *)(v15 + 24);
+        v17 = *(__int16 *)(LODWORD(v15) + 30);
+        v48 = *(__int16 *)(LODWORD(v15) + 24);
         v50 = v17;
-        v53 = *(__int16 *)(v15 + 50);
+        v53 = *(__int16 *)(LODWORD(v15) + 50);
         v18 = *(_BYTE *)(v14 + 88);
         v19 = *(float *)(v14 + 60);
         v51 = v16;
         ObjValida = v18;
-        v49 = *(_BYTE *)(v15 + 56);
+        v49 = *(_BYTE *)(LODWORD(v15) + 56);
       }
       else
       {
@@ -427403,7 +427255,7 @@ void __thiscall TRIBE_Diamond_Map_View::draw_visible_object(TRIBE_Diamond_Map_Vi
         v13 = BYTE1(game_obj[1].old_sprite);
         v15 = LOBYTE(game_obj[1].old_sprite);
         if ( !BYTE1(game_obj[1].old_sprite) )
-          v13 = *(_DWORD *)(*(_DWORD *)(LODWORD(game_obj[1].gbg_unknown_2) + 356) + 32);
+          v13 = *(_DWORD *)(*(_DWORD *)(LODWORD(game_obj[1].shield_recharge_accumulator) + 356) + 32);
       }
     }
     else
@@ -447884,7 +447736,7 @@ void __thiscall DClipInfo_List::AddDrawNode(DClipInfo_List *this, void *ShapeBas
       v19->xpt[6] = 0;
       v19->xpt[7] = 0;
       v19->OccludingShapeNum = 0;
-      if ( SortLinea && *(float *)&SortLinea->gbg_unknown_3 > 0.0 )
+      if ( SortLinea && SortLinea->shield_hit_timer > 0.0 )
         v19->OccludingShapeNum = (unsigned __int8)color_yellow;
       if ( VIEW_Object_Occludes_Others )
       {

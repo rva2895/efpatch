@@ -91,6 +91,48 @@ and request the owner correct the IDB; after the fix + regeneration,
 restart the decode from the regenerated files. Approved corrections
 become state-file entries.
 
+FIELD-PUN RULE - THE REANALYSIS-FIRST LADDER (owner-directed
+2026-11-24; the update decode's records[1].Object case): the red-flag
+list above binds EVERY access site - parameters, struct fields,
+globals, locals - not only parameters. An incompatible pointer cast
+in a decode or a replacement - reading/writing a value through a
+pointer of an unrelated type (*(float*)&ptr_field,
+*(int*)&float_field, *(T2*)&t1_var) - is NEVER written. The mandatory
+response ladder:
+(1) REANALYZE FIRST, self-directed, before anything else: treat the
+    cast as a mis-typing symptom and re-derive the access - re-run
+    the mechanical struct walk, compute the exact byte offset,
+    re-check the base-pointer rule INCLUDING THE VALUE'S TYPE (after
+    resolving a mis-typed pointer FIELD, re-type what it points to
+    through the derived struct as well; the downstream accesses must
+    re-match declared fields - offsets AND types), and re-check the
+    .c rendering artifact classes (base-pointer renders, param-slot
+    reuse, member-name fallbacks).
+(2) If the reanalysis resolves the access to declared, correctly
+    typed fields: write the typed form and present the mapping
+    (original expression -> byte offset -> named field, plus the
+    re-typed pointer chain) in the review artifact.
+(3) Only if the reanalysis FAILS to produce a sane typed expression:
+    the protocol stop - Information Request, the owner corrects the
+    IDB (field type, or an explicit union/slot-reuse declaration)
+    and regenerates; the decode restarts from the regenerated files.
+A "documented pun" with a comment is not a resolution at any rung: a
+pun presumes slot semantics the IDB does not declare (constraint 3),
+and byte-reconciliation makes mis-typed decodes look verified.
+Explicit bit operations (masks, byte-width narrowing) on correctly
+typed values are not pointer casts and stay governed by the existing
+rules. Gate note: a pun compiles to a plain m32 access - invisible to
+the /Fa and store diffs; only this type-level rule catches it.
+Origin case: *(float*)&records[1].Object in the update decode - the
+reanalysis re-typed the base pointer to
+TRIBE_Building_Object::linked_owner and the accesses resolved to the
+linked owner's declared world_x/world_y/Multi_Unified_Points; the
+typed form needed no cast. (The pun was presented first, as a review
+item - the miss this rule closes.)
+Owner-corrected precedents: gbg_unknown_3 -> shield_hit_timer
+(int -> float, the 2026-11-23 regen); BPath__waypoint's out-buffer
+(int -> the copy target type).
+
 ## THE TWO-PASS DECODE FOR LARGE FUNCTIONS (owner-directed 2026-11-20, from the BMotion::updateMovement ship)
 DECODING APPROACH BY FUNCTION SIZE/COMPLEXITY - the 0x49CB60 movement
 driver (6300 bytes, the 13-back-edge dispatch loop, the four path-building
@@ -667,14 +709,20 @@ no pseudocode restatements of the function body:
    named form.)
 - CRT calls via *_internal wrappers (hard stop for bare CRT): the
   common.h/cpp wrapper family (malloc/calloc/operator_new/operator_
-  delete/free/read/write/fopen/fscanf/fread/fwrite/fgets_internal...)
+  delete/free/read/write/fopen/fscanf/fread/fwrite/fgets_internal/
+  rand_internal...)
   routes CRT through the GAME's runtime вЂ” required because game code
   frees what replacements allocate (heap pairing; e.g. the Combat
   destructor frees the Armor/Weapon tables with the game's _free) and
   because FILE* handles carry the game's stdio state. Bare calloc/
   fscanf/malloc/free calls in replacements are violations. memcpy is
   the documented exception: no _internal wrapper exists and a copy is
-  heap-neutral (safe on game-heap memory). Post-write sweep: bare
+  heap-neutral (safe on game-heap memory). rand calls use rand_internal
+  (common.h:154, bound to the game's binary rand 0x00632BDD - the game's
+  CRT state; the DLL CRT rand would desync); the RAND_MAX bound is
+  written as the consts.h RAND_MAX_INTERNAL define - never the bare
+  32767 / 0x7FFF literal (owner-directed 2026-11-23; the owned-tree
+  sweep is mandatory whenever the idiom appears). Post-write sweep: bare
   calloc(/fscanf(/malloc(/free( must be 0.
 - base_game double-pointer deref: the base_game global is declared
   RGE_Base_Game** const (common.cpp:7); IDB types it TRIBE_Game*. The
@@ -992,7 +1040,13 @@ no pseudocode restatements of the function body:
    idb_functions.h:3561, :6129). The final chosen identifier must have
    zero matches across idb_functions.h / idb_types.h / common.h вЂ” one
    grep, cite it; escalate to `X_new2`, `X_new3`, ... to the first free
-   name.
+   name. COLLISION WITH PROJECT PATCH HANDLERS (owner-directed
+   2026-11-23, the get_weapon precedent): when the occupant of the
+   `X_new` name is a project patch handler (not an IDB name), the OWNED
+   replacement takes the canonical `X_new` and the old handler is
+   REMOVED (tombstoned; rename `X_new_legacy` only if a copy must
+   remain) with every reference retired - consistency across owned
+   function names; never escalate to `X_new2` in this case.
 3. Each class file ends with an installer:
    `void install_<class_name>()` which calls
    `setHook(<original_address>, <new_function>)` once per replaced function.
@@ -1162,7 +1216,24 @@ replacement it writes into dead code вЂ” and state why no bake-in exists.
   (i) fold the old hook handler's behavior into the cleaned function
       (requires reading the naked thunk + handler source; most faithful),
   (ii) remove the old patch call site so the replacement owns the entry.
-  Both require owner confirmation.
+  (iii) VERBATIM ADOPTION (owner-directed 2026-11-23, the get_weapon
+      precedent): when the old handler is itself a FULL REIMPLEMENTATION
+      of the function (an entry hook whose body reimplements the whole
+      original - no trampoline, no original-body call), OFFER TAKING THE
+      HANDLER'S CODE VERBATIM as the replacement body, and prefer it
+      when it applies: our replacement keeps the canonical
+      <Class>__<method>_new name; the handler's code is adopted
+      statement-for-statement (its parameter names and statement order
+      kept verbatim; asm/baked citations added as trailing comments per
+      the citation-coverage rule); the old copy is removed with a
+      tombstone comment and its call site retired with the standard
+      reason line. The verification burden shifts: the adopted code was
+      the LIVE behavior (last writer), so the review proves the
+      ADOPTION MAPPING (handler statement -> asm-region coverage, the
+      deliberate deltas flagged as baked) instead of re-deriving the
+      body from asm. (i) remains for partial handlers, (ii) for
+      abandoned fixes.
+  All three require owner confirmation.
 Every applied bake-in is listed in the output as a table row: patch site в†’
 bytes в†’ lst line в†’ mapped statement в†’ transformed statement в†’ status.
 

@@ -37,7 +37,7 @@ int __fastcall RGE_Static_Object__gbg_get_civ_override_new(RGE_Static_Object* th
 // factories (owned, hook-routed), RGE_Animated_Object__RGE_Animated_
 // Object (lst :551420).
 // Decode (asm 0x54B2E0-0x54B365): zoneMapIndex = -1, mGroupID = -1,
-// then the zero block (gbg_unknown_3/sprite/old_sprite/CurrentObstruction
+// then the zero block (shield_hit_timer/sprite/old_sprite/CurrentObstruction
 // Data/ObstructionDataList/mPathingGroup/mPathingGroupSize/mMaximum
 // PathingGroupSize/unitAIValue/inObstructionMapValue/lastInObstruction
 // MapValue/underAttackValue), vfptr, gbg_civ_override = owner->culture
@@ -59,7 +59,7 @@ RGE_Static_Object* __fastcall RGE_Static_Object__RGE_Static_Object_new(
 {
     this_->zoneMapIndex = -1;
     this_->mGroupID = -1;
-    this_->gbg_unknown_3 = 0;
+    this_->shield_hit_timer = 0.0f;
     this_->sprite = 0;
     this_->old_sprite = 0;
     this_->CurrentObstructionData = 0;
@@ -102,7 +102,7 @@ RGE_Static_Object* __fastcall RGE_Static_Object__RGE_Static_Object_read_new(
     this_->mGroupID = -1;
     this_->gbg_civ_override = 0;
     this_->ei.theObj = 0;                                         // BAKED: los.cpp:1024 @ 0x0054B61D
-    this_->gbg_unknown_3 = 0;
+    this_->shield_hit_timer = 0.0f;
     this_->sprite = 0;
     this_->old_sprite = 0;
     this_->CurrentObstructionData = 0;

@@ -16790,7 +16790,7 @@
 .text:00409C20 var_18          = dword ptr -18h
 .text:00409C20 var_14          = dword ptr -14h
 .text:00409C20 var_10          = dword ptr -10h
-.text:00409C20 z_position      = dword ptr -0Ch
+.text:00409C20 var_C           = byte ptr -0Ch
 .text:00409C20 var_8           = byte ptr -8
 .text:00409C20 actionType      = dword ptr  4
 .text:00409C20 obj             = dword ptr  8
@@ -16810,97 +16810,99 @@
 .text:00409C34                 mov     eax, [esp+28h+actionType]
 .text:00409C38                 or      edi, 0FFFFFFFFh
 .text:00409C3B                 or      esi, 0FFFFFFFFh
-.text:00409C3E                 dec     eax
-.text:00409C3F                 cmp     eax, 6Eh        ; switch 111 cases
-.text:00409C42                 ja      loc_409CE8      ; jumptable 00409C50 default case
+.text:00409C3E                 dec     eax             ; switch 111 cases
+.text:00409C3F                 cmp     eax, 6Eh
+.text:00409C42                 ja      def_409C50      ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409C48                 xor     ecx, ecx
 .text:00409C4A                 mov     cl, ds:byte_409E38[eax]
-.text:00409C50                 jmp     ds:off_409E04[ecx*4] ; switch jump
+.text:00409C50                 jmp     ds:jpt_409C50[ecx*4] ; switch jump
+.text:00409C57 ; ---------------------------------------------------------------------------
 .text:00409C57
-.text:00409C57 loc_409C57:                             ; DATA XREF: .text:off_409E04\u2193o
-.text:00409C57                 mov     esi, 258h       ; jumptable 00409C50 case 8
+.text:00409C57 loc_409C57:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+30\u2191j
+.text:00409C57                                         ; DATA XREF: .text:jpt_409C50\u2193o
+.text:00409C57                 mov     esi, 258h       ; jumptable 00409C50 case 9
 .text:00409C5C                 mov     edi, 2BCh
-.text:00409C61                 jmp     loc_409CE8      ; jumptable 00409C50 default case
+.text:00409C61                 jmp     def_409C50      ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409C66 ; ---------------------------------------------------------------------------
 .text:00409C66
 .text:00409C66 loc_409C66:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+30\u2191j
-.text:00409C66                                         ; DATA XREF: .text:off_409E04\u2193o
-.text:00409C66                 mov     esi, 25Ah       ; jumptable 00409C50 case 100
+.text:00409C66                                         ; DATA XREF: .text:jpt_409C50\u2193o
+.text:00409C66                 mov     esi, 25Ah       ; jumptable 00409C50 case 101
 .text:00409C6B                 mov     edi, 2BEh
-.text:00409C70                 jmp     short loc_409CE8 ; jumptable 00409C50 default case
+.text:00409C70                 jmp     short def_409C50 ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409C72 ; ---------------------------------------------------------------------------
 .text:00409C72
 .text:00409C72 loc_409C72:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+30\u2191j
-.text:00409C72                                         ; DATA XREF: .text:off_409E04\u2193o
-.text:00409C72                 mov     esi, 269h       ; jumptable 00409C50 case 2
+.text:00409C72                                         ; DATA XREF: .text:jpt_409C50\u2193o
+.text:00409C72                 mov     esi, 269h       ; jumptable 00409C50 case 3
 .text:00409C77                 mov     edi, 2CDh
-.text:00409C7C                 jmp     short loc_409CE8 ; jumptable 00409C50 default case
+.text:00409C7C                 jmp     short def_409C50 ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409C7E ; ---------------------------------------------------------------------------
 .text:00409C7E
 .text:00409C7E loc_409C7E:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+30\u2191j
-.text:00409C7E                                         ; DATA XREF: .text:off_409E04\u2193o
-.text:00409C7E                 mov     esi, 25Dh       ; jumptable 00409C50 case 3
+.text:00409C7E                                         ; DATA XREF: .text:jpt_409C50\u2193o
+.text:00409C7E                 mov     esi, 25Dh       ; jumptable 00409C50 case 4
 .text:00409C83                 mov     edi, 2C1h
-.text:00409C88                 jmp     short loc_409CE8 ; jumptable 00409C50 default case
+.text:00409C88                 jmp     short def_409C50 ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409C8A ; ---------------------------------------------------------------------------
 .text:00409C8A
 .text:00409C8A loc_409C8A:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+30\u2191j
-.text:00409C8A                                         ; DATA XREF: .text:off_409E04\u2193o
-.text:00409C8A                 mov     esi, 261h       ; jumptable 00409C50 case 4
+.text:00409C8A                                         ; DATA XREF: .text:jpt_409C50\u2193o
+.text:00409C8A                 mov     esi, 261h       ; jumptable 00409C50 case 5
 .text:00409C8F                 mov     edi, 2C5h
-.text:00409C94                 jmp     short loc_409CE8 ; jumptable 00409C50 default case
+.text:00409C94                 jmp     short def_409C50 ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409C96 ; ---------------------------------------------------------------------------
 .text:00409C96
 .text:00409C96 loc_409C96:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+30\u2191j
-.text:00409C96                                         ; DATA XREF: .text:off_409E04\u2193o
-.text:00409C96                 mov     esi, 262h       ; jumptable 00409C50 case 0
+.text:00409C96                                         ; DATA XREF: .text:jpt_409C50\u2193o
+.text:00409C96                 mov     esi, 262h       ; jumptable 00409C50 case 1
 .text:00409C9B                 mov     edi, 2C6h
-.text:00409CA0                 jmp     short loc_409CE8 ; jumptable 00409C50 default case
+.text:00409CA0                 jmp     short def_409C50 ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409CA2 ; ---------------------------------------------------------------------------
 .text:00409CA2
 .text:00409CA2 loc_409CA2:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+30\u2191j
-.text:00409CA2                                         ; DATA XREF: .text:off_409E04\u2193o
-.text:00409CA2                 mov     esi, 265h       ; jumptable 00409C50 case 109
+.text:00409CA2                                         ; DATA XREF: .text:jpt_409C50\u2193o
+.text:00409CA2                 mov     esi, 265h       ; jumptable 00409C50 case 110
 .text:00409CA7                 mov     edi, 2C9h
-.text:00409CAC                 jmp     short loc_409CE8 ; jumptable 00409C50 default case
+.text:00409CAC                 jmp     short def_409C50 ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409CAE ; ---------------------------------------------------------------------------
 .text:00409CAE
 .text:00409CAE loc_409CAE:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+30\u2191j
-.text:00409CAE                                         ; DATA XREF: .text:off_409E04\u2193o
-.text:00409CAE                 mov     esi, 266h       ; jumptable 00409C50 case 11
+.text:00409CAE                                         ; DATA XREF: .text:jpt_409C50\u2193o
+.text:00409CAE                 mov     esi, 266h       ; jumptable 00409C50 case 12
 .text:00409CB3                 mov     edi, 2CAh
-.text:00409CB8                 jmp     short loc_409CE8 ; jumptable 00409C50 default case
+.text:00409CB8                 jmp     short def_409C50 ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409CBA ; ---------------------------------------------------------------------------
 .text:00409CBA
 .text:00409CBA loc_409CBA:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+30\u2191j
-.text:00409CBA                                         ; DATA XREF: .text:off_409E04\u2193o
-.text:00409CBA                 mov     esi, 267h       ; jumptable 00409C50 case 110
+.text:00409CBA                                         ; DATA XREF: .text:jpt_409C50\u2193o
+.text:00409CBA                 mov     esi, 267h       ; jumptable 00409C50 case 111
 .text:00409CBF                 mov     edi, 2CBh
-.text:00409CC4                 jmp     short loc_409CE8 ; jumptable 00409C50 default case
+.text:00409CC4                 jmp     short def_409C50 ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409CC6 ; ---------------------------------------------------------------------------
 .text:00409CC6
 .text:00409CC6 loc_409CC6:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+30\u2191j
-.text:00409CC6                                         ; DATA XREF: .text:off_409E04\u2193o
-.text:00409CC6                 mov     esi, 25Ch       ; jumptable 00409C50 case 103
+.text:00409CC6                                         ; DATA XREF: .text:jpt_409C50\u2193o
+.text:00409CC6                 mov     esi, 25Ch       ; jumptable 00409C50 case 104
 .text:00409CCB                 mov     edi, 2C0h
-.text:00409CD0                 jmp     short loc_409CE8 ; jumptable 00409C50 default case
+.text:00409CD0                 jmp     short def_409C50 ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409CD2 ; ---------------------------------------------------------------------------
 .text:00409CD2
 .text:00409CD2 loc_409CD2:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+30\u2191j
-.text:00409CD2                                         ; DATA XREF: .text:off_409E04\u2193o
-.text:00409CD2                 mov     esi, 25Bh       ; jumptable 00409C50 case 104
+.text:00409CD2                                         ; DATA XREF: .text:jpt_409C50\u2193o
+.text:00409CD2                 mov     esi, 25Bh       ; jumptable 00409C50 case 105
 .text:00409CD7                 mov     edi, 2BFh
-.text:00409CDC                 jmp     short loc_409CE8 ; jumptable 00409C50 default case
+.text:00409CDC                 jmp     short def_409C50 ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409CDE ; ---------------------------------------------------------------------------
 .text:00409CDE
 .text:00409CDE loc_409CDE:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+30\u2191j
-.text:00409CDE                                         ; DATA XREF: .text:off_409E04\u2193o
-.text:00409CDE                 mov     esi, 26Ah       ; jumptable 00409C50 case 105
+.text:00409CDE                                         ; DATA XREF: .text:jpt_409C50\u2193o
+.text:00409CDE                 mov     esi, 26Ah       ; jumptable 00409C50 case 106
 .text:00409CE3                 mov     edi, 2CEh
 .text:00409CE8
-.text:00409CE8 loc_409CE8:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+22\u2191j
+.text:00409CE8 def_409C50:                             ; CODE XREF: RGE_Action_Object__setUnitAIAction+22\u2191j
 .text:00409CE8                                         ; RGE_Action_Object__setUnitAIAction+30\u2191j ...
-.text:00409CE8                 push    1               ; jumptable 00409C50 default case
+.text:00409CE8                 push    1               ; jumptable 00409C50 default case, cases 2,6-8,10,11,13-100,102,103,107-109
 .text:00409CEA                 push    edi             ; v
 .text:00409CEB                 mov     ecx, ebp        ; this
 .text:00409CED                 call    UnitAIModule__setCurrentOrder
@@ -16981,8 +16983,8 @@
 .text:00409DBD                 mov     [ecx+4], eax
 .text:00409DC0                 mov     eax, [ebx]
 .text:00409DC2                 mov     [ecx+8], edx
-.text:00409DC5                 lea     ecx, [esp+38h+z_position]
-.text:00409DC9                 push    ecx             ; z_position
+.text:00409DC5                 lea     ecx, [esp+38h+var_C]
+.text:00409DC9                 push    ecx
 .text:00409DCA                 mov     ecx, ebx
 .text:00409DCC                 call    dword ptr [eax+2ACh]
 .text:00409DD2                 mov     ecx, [eax]
@@ -17013,12 +17015,19 @@
 .text:00409E00
 .text:00409E00 ; ---------------------------------------------------------------------------
 .text:00409E03                 align 4
-.text:00409E04 off_409E04      dd offset loc_409C96, offset loc_409C72, offset loc_409C7E
-.text:00409E04                                         ; DATA XREF: RGE_Action_Object__setUnitAIAction+30\u2191r
-.text:00409E04                 dd offset loc_409C8A, offset loc_409C57, offset loc_409CAE ; jump table for switch statement
-.text:00409E04                 dd offset loc_409C66, offset loc_409CC6, offset loc_409CD2
-.text:00409E04                 dd offset loc_409CDE, offset loc_409CA2, offset loc_409CBA
-.text:00409E04                 dd offset loc_409CE8
+.text:00409E04 jpt_409C50      dd offset loc_409C96    ; DATA XREF: RGE_Action_Object__setUnitAIAction+30\u2191r
+.text:00409E04                 dd offset loc_409C72    ; jump table for switch statement
+.text:00409E04                 dd offset loc_409C7E
+.text:00409E04                 dd offset loc_409C8A
+.text:00409E04                 dd offset loc_409C57
+.text:00409E04                 dd offset loc_409CAE
+.text:00409E04                 dd offset loc_409C66
+.text:00409E04                 dd offset loc_409CC6
+.text:00409E04                 dd offset loc_409CD2
+.text:00409E04                 dd offset loc_409CDE
+.text:00409E04                 dd offset loc_409CA2
+.text:00409E04                 dd offset loc_409CBA
+.text:00409E04                 dd offset def_409C50
 .text:00409E38 byte_409E38     db      0,   0Ch,     1,     2
 .text:00409E38                                         ; DATA XREF: RGE_Action_Object__setUnitAIAction+2A\u2191r
 .text:00409E38                 db      3,   0Ch,   0Ch,   0Ch ; indirect table for switch statement

@@ -512,6 +512,7 @@ struct TRIBE_Unitline;
 struct TSpreadsheetResourceVtbl;
 struct TRIBE_Screen_Sed__List_Info;
 struct TribeDiplomacyDialogVtbl;
+struct UnitPair;
 
 /* 54 */
 #pragma pack(push, 8)
@@ -1439,8 +1440,8 @@ struct RGE_Static_Object
 {
   RGE_Static_ObjectVtbl *vfptr;
   int gbg_civ_override;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
+  float shield_recharge_accumulator;
+  float shield_hit_timer;
   int id;
   RGE_Master_Static_Object *master_obj;
   TRIBE_Player *owner;
@@ -1520,7 +1521,7 @@ struct AIModuleID
 #pragma pack(push, 1)
 struct __declspec(align(4)) ManagedArray_int_
 {
-  int value;
+  int *value;
   int numberValue;
   int desiredNumberValue;
   int maximumSizeValue;
@@ -2028,6 +2029,16 @@ struct TacticalAIGroup
 };
 #pragma pack(pop)
 
+/* 1118 */
+#pragma pack(push, 1)
+struct __declspec(align(4)) std__vector_UnitPair_
+{
+  UnitPair **_First;
+  UnitPair **_Last;
+  UnitPair **_End;
+};
+#pragma pack(pop)
+
 /* 588 */
 #pragma pack(push, 8)
 struct InfluenceMapState
@@ -2153,9 +2164,7 @@ struct TribeTacticalAIModule
   ManagedArray_int_ workingArea;
   ManagedArray_int_ unitsTaskedThisUpdate;
   unsigned __int8 gbg_unknown_6;
-  int gbg_unknown_7;
-  int gbg_unknown_8;
-  int gbg_unknown_9;
+  std__vector_UnitPair_ gbg_garrisonUnits;
   int neededResourceValue[4];
   int actualGathererDistribution[4];
   int desiredGathererDistribution[4];
@@ -4825,6 +4834,15 @@ struct TacticalAIGroupVtbl
 };
 #pragma pack(pop)
 
+/* 1117 */
+#pragma pack(push, 8)
+struct UnitPair
+{
+  int first_id;
+  int second_id;
+};
+#pragma pack(pop)
+
 /* 1085 */
 #pragma pack(push, 8)
 struct TradeAIModuleVtbl
@@ -6694,9 +6712,9 @@ struct BPathData
 struct RGE_Moving_Object
 {
   RGE_Moving_ObjectVtbl *vfptr;
-  int gbg_unknown_1;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
+  int gbg_civ_override;
+  float shield_recharge_accumulator;
+  float shield_hit_timer;
   int id;
   RGE_Master_Moving_Object *master_obj;
   TRIBE_Player *owner;
@@ -7324,9 +7342,9 @@ struct RGE_Command
 struct RGE_Combat_Object
 {
   RGE_Combat_ObjectVtbl *vfptr;
-  int gbg_unknown_1;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
+  int gbg_civ_override;
+  float shield_recharge_accumulator;
+  float shield_hit_timer;
   int id;
   RGE_Master_Combat_Object *master_obj;
   TRIBE_Player *owner;
@@ -7433,9 +7451,9 @@ struct RGE_Armor_Weapon_Info
 struct RGE_Action_Object
 {
   RGE_Action_ObjectVtbl *vfptr;
-  int gbg_unknown_1;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
+  int gbg_civ_override;
+  float shield_recharge_accumulator;
+  float shield_hit_timer;
   int id;
   RGE_Master_Action_Object *master_obj;
   TRIBE_Player *owner;
@@ -9740,9 +9758,9 @@ struct Trade_Avail
 struct TRIBE_Building_Object
 {
   TRIBE_Building_ObjectVtbl *vfptr;
-  int gbg_unknown_1;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
+  int gbg_civ_override;
+  float shield_recharge_accumulator;
+  float shield_hit_timer;
   int id;
   TRIBE_Master_Building_Object *master_obj;
   TRIBE_Player *owner;
@@ -16059,9 +16077,9 @@ struct TRIBE_Master_Combat_ObjectVtbl
 struct RGE_Animated_Object
 {
   RGE_Animated_ObjectVtbl *vfptr;
-  int gbg_unknown_1;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
+  int gbg_civ_override;
+  float shield_recharge_accumulator;
+  float shield_hit_timer;
   int id;
   RGE_Master_Animated_Object *master_obj;
   TRIBE_Player *owner;
@@ -16346,9 +16364,9 @@ struct RGE_Animated_ObjectVtbl
 struct TRIBE_Combat_Object
 {
   TRIBE_Combat_ObjectVtbl *vfptr;
-  int gbg_unknown_1;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
+  int gbg_civ_override;
+  float shield_recharge_accumulator;
+  float shield_hit_timer;
   int id;
   TRIBE_Master_Combat_Object *master_obj;
   TRIBE_Player *owner;
@@ -20961,9 +20979,9 @@ struct RGE_Action_AttackVtbl
 struct RGE_Missile_Object
 {
   RGE_Missile_ObjectVtbl *vfptr;
-  int gbg_unknown_1;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
+  int gbg_civ_override;
+  float shield_recharge_accumulator;
+  float shield_hit_timer;
   int id;
   RGE_Master_Missile_Object *master_obj;
   TRIBE_Player *owner;
@@ -21500,9 +21518,9 @@ struct RGE_Master_Missile_ObjectVtbl
 struct RGE_Doppleganger_Object
 {
   RGE_Doppleganger_ObjectVtbl *vfptr;
-  int gbg_unknown_1;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
+  int gbg_civ_override;
+  float shield_recharge_accumulator;
+  float shield_hit_timer;
   int id;
   RGE_Master_Doppleganger_Object *master_obj;
   TRIBE_Player *owner;
@@ -21925,9 +21943,9 @@ struct RGE_Master_Doppleganger_ObjectVtbl
 struct TRIBE_Tree_Object
 {
   TRIBE_Tree_ObjectVtbl *vfptr;
-  int gbg_unknown_1;
-  float gbg_unknown_2;
-  int gbg_unknown_3;
+  int gbg_civ_override;
+  float shield_recharge_accumulator;
+  float shield_hit_timer;
   int id;
   TRIBE_Master_Tree_Object *master_obj;
   TRIBE_Player *owner;

@@ -142,6 +142,20 @@ src/engine/object/RGE_Master_Static_Object.h (IDA did not export it).
 
 ## Other verified relations
 
+- RGE_Action ⊂ RGE_Action_Transport — the base action OBJECT is an exact
+  layout prefix of the Transport action (field sequences identical:
+  vfptr — the named vtbl type legitimately differs, RGE_ActionVtbl vs
+  RGE_Action_TransportVtbl — action_type, obj, state, target_obj,
+  target_obj2, targetID, target2ID, target_x/y/z, timer, task,
+  sub_actions, sprite, subActionValue, mTargetMovedState, gap[2]; both
+  64 = 0x40 bytes, matching RGE_Combat_Object__transport's
+  operator_new(0x40)). Cast site: the RGE_Action_Transport__
+  RGE_Action_Transport result assigned to RGE_Action* in transport_new /
+  unload_new (2026-11-23 batch). Evidence: idb_types.h:15019-15039 vs
+  :28896-28916. Re-verify: re-run the field-sequence prefix walk after
+  any idb_types.h regeneration. First entry of the RGE_Action family
+  section (the follow-on candidate).
+
 - RGE_Base_Game ⊂ TRIBE_Game — derived extends by 53 fields
   (117 base + 53 = 170); vtbls 99/99 slots, names identical in order.
   Evidence: struct prefix idb_types.h:16759-16876 vs :17449-17619;

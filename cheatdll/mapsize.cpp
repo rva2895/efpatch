@@ -1727,10 +1727,16 @@ void setMapSizeHooks(int ver)
     writeDword(0x41C30E, (DWORD)mapptr);
     writeDword(0x41E3DA, (DWORD)mapptr);
     writeDword(0x420EB0, (DWORD)mapptr);
-    writeDword(0x444E45, (DWORD)mapptr);
-    writeDword(0x444E9D, (DWORD)mapptr);
-    writeDword(0x444ED5, (DWORD)mapptr);
-    writeDword(0x444F25, (DWORD)mapptr);
+    // retired 2026-11-24 (owner-approved): NOT baked (owner-directed MAP_SIZE
+    // rule) - the update replacement keeps the original unified_map_offsets
+    // table reads with // MAP_SIZE markers
+    // (src/engine/object/RGE_Combat_Object.cpp); after hooking these disp32
+    // writes are dead code (targets 0x444E45 / 0x444E9D / 0x444ED5 / 0x444F25
+    // in RGE_Combat_Object__update - the building and position UMV walks)
+    //writeDword(0x444E45, (DWORD)mapptr);
+    //writeDword(0x444E9D, (DWORD)mapptr);
+    //writeDword(0x444ED5, (DWORD)mapptr);
+    //writeDword(0x444F25, (DWORD)mapptr);
     writeDword(0x4464F7, (DWORD)mapptr);
     writeDword(0x446518, (DWORD)mapptr);
     writeDword(0x456566, (DWORD)mapptr);
@@ -1804,10 +1810,26 @@ void setMapSizeHooks(int ver)
     // disp32 write is dead code (target 0x443B7A in RGE_Combat_Object__
     // destructor)
     //writeDword(0x443B7A, (DWORD)mapptr_2);
-    writeDword(0x443E62, (DWORD)mapptr_2);
-    writeDword(0x443EC5, (DWORD)mapptr_2);
-    writeDword(0x444D81, (DWORD)mapptr_2);
-    writeDword(0x444F7A, (DWORD)mapptr_2);
+    // retired 2026-11-23 (owner-approved): NOT baked (owner-directed MAP_SIZE
+    // rule) - the transform replacement keeps the original game-slot read of
+    // VisibleUnitManager (0x007A1CB8) with a // MAP_SIZE marker
+    // (src/engine/object/RGE_Combat_Object.cpp); after hooking these disp32
+    // writes are dead code (targets 0x443E62 / 0x443EC5 in
+    // RGE_Combat_Object__transform)
+    //writeDword(0x443E62, (DWORD)mapptr_2);
+    //writeDword(0x443EC5, (DWORD)mapptr_2);
+    // retired 2026-11-23 (owner-approved): NOT baked (owner-directed MAP_SIZE
+    // rule) - the enter_obj replacement keeps the original game-slot read of
+    // VisibleUnitManager (0x007A1CB8) with a // MAP_SIZE marker
+    // (src/engine/object/RGE_Combat_Object.cpp); after hooking this disp32
+    // write is dead code (target 0x444D81 in RGE_Combat_Object__enter_obj)
+    //writeDword(0x444D81, (DWORD)mapptr_2);
+    // retired 2026-11-24 (owner-approved): NOT baked (owner-directed MAP_SIZE
+    // rule) - the update replacement keeps the original game-slot read of
+    // VisibleUnitManager (0x007A1CB8) with a // MAP_SIZE marker
+    // (src/engine/object/RGE_Combat_Object.cpp); after hooking this disp32
+    // write is dead code (target 0x444F7A in RGE_Combat_Object__update)
+    //writeDword(0x444F7A, (DWORD)mapptr_2);
     writeDword(0x4464F0, (DWORD)mapptr_2);
     writeDword(0x446559, (DWORD)mapptr_2);
     writeDword(0x60FD06, (DWORD)mapptr_2);

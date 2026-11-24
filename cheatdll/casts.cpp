@@ -149,36 +149,8 @@ bool __stdcall getStealthOff(RGE_Static_Object* unit) //zero: stealth off disabl
     return (ud && ud->stealthOffEnabled);
 }
 
-RGE_Static_Object* targetUnit;
-bool isDamage;
-
-__declspec(naked) void getDamageGetUnit() //004449C3
-{
-    __asm
-    {
-        mov     edx, [esp + 10h]
-        cmp     edx, 00444847h
-        setz    dl
-        mov     isDamage, dl
-        mov     targetUnit, ecx
-        mov     edx, [ecx + 14h]
-        mov     eax, [ecx + 28h]
-        push    ebx
-        push    ebp
-        mov     ebp, 004449CBh
-        jmp     ebp
-    }
-}
-
 void __stdcall specialDamage(RGE_Static_Object* unit, short type, int damage, int armor)
 {
-    if (!unit)
-    {
-        if (!isDamage)
-            return;
-        unit = targetUnit;
-    }
-
     if (type == 1000)      //death star fix
         return;
 
@@ -874,8 +846,14 @@ __declspec(naked) void on_unit_killed() //0055B4F0
 #pragma optimize( "s", on )
 void setCastHooks()
 {
-    setHook((void*)0x00444A7C, onGetDamage);
-    setHook((void*)0x004449C3, getDamageGetUnit);
+    // retired 2026-11-23: baked into RGE_Combat_Object__calculateDamage_new /
+    // RGE_Combat_Object__damage_new (src/engine/object/RGE_Combat_Object.cpp),
+    // see 0x004449C3 / 0x00444A7C; the special-weapon gate is STRUCTURAL now -
+    // damage_new (the real-hit applier) invokes specialDamage directly (the
+    // owner's combined-batch ruling); the term-skip stays in
+    // calculateDamage_new
+    //setHook((void*)0x00444A7C, onGetDamage);
+    //setHook((void*)0x004449C3, getDamageGetUnit);
 
     setHook((void*)0x0044B7E2, speed1);
     // retired 2026-11-16: baked into RGE_Moving_Object__maximumSpeed_new

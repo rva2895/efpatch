@@ -228,6 +228,10 @@ in the master structs.
 |---|---|---|
 | 276 | Monument | TRIBE_Building_Object runtime ctor1/ctor2 post-setup: master id == 276 -> RGE_Action_Object__set_task(master->default_task) fires at construction completion (asm 0x553335-0x55334A / 0x5535A1-0x5535B6) |
 | 335 | Shield Generator | RGE_Doppleganger_Object runtime ctor: the construction-sprite swap gate excludes master id 335 (with master_type 80, group != 8 (Gate), construction_id >= 0) (asm 0x46FD28, word @+0x18) |
+| 83 | Worker transform target (the task_by_group == 1 variant) - owner designation owed | RGE_Combat_Object::attack2_new: the WORKER (object_group 58) ordered to attack transforms via transform() into owner->master_objects[83] (asm 0x4452B4, [eax+14Ch] = 83*4) - the armed-worker conversion; transform is OWNED (transform_new routes) |
+| 293 | Worker transform target (the task_by_group != 1 variant) - owner designation owed | the same attack2 block: master_objects[293] (asm 0x4452C6, [ecx+494h] = 293*4) |
+| 992 | AA counter-battery projectile master (the GE Assault Mechanic vs Aircraft) - owner designation owed | attack4_new: the projectile-master selection - the launcher is a GE Assault Mech AND the target is an Aircraft -> make_new_obj from master_objects[992] (asm 0x44425E, [ecx+0F80h] = 992*4) - the AA-homing missile (the launcher arg = 0 at init_missile) |
+| 836 | AA counter-battery projectile master (the Air Cruiser vs Aircraft) - owner designation owed | the same selection: the launcher is an Air Cruiser AND the target is an Aircraft -> master_objects[836] (asm 0x444283, [ecx+0D10h] = 836*4) |
 
 
 ## Where group values gate owned code (decode-derived, asm-cited)
@@ -321,6 +325,81 @@ conversion.cpp's check_meditation_and_purge tests {7 Work2, 6 Work,
 | 14 | Invalidated |
 | 15 | MoveNoSearch |
 
+- **notify mType 5xx namespace** — UNKNOWN per-value (owner-directed
+  2026-11-23: an enum for the 5xx notify types will be made when more
+  values are known; the 6xx values are the UnitAI action registry
+  (RGE_UNITAI_ACTION in RGE_Action_Types.h) and get the enum applied at
+  call sites). Observations: 500 = notify_new's own-processing gate
+  (the object_state == 0 branch consults the UnitAI module only when
+  mType == 500; notify @0x445110, idb_functions.h:1096); 500 =
+  UNDER-ATTACK (damage_new sends it to the unit: caller = the attacker
+  id - for missiles fired_from_id @+0x184, else attackingObject->id;
+  recipient = id; p1 = the attacker id; p2 = ftol(hp); p3 =
+  object_group; asm 0x4448D4-0x4448EB); 512 =
+  do_attack_new's single-target attack-notify mType (asm 0x44781 push
+  200h, the caller = recipient = id form); 530 = the owner-level
+  unit-attacked notify (damage_new sends it to the victim's owner when
+  the attacker's owner differs: caller = id, recipient/p1 = the
+  attacker id, p2 = ftol(hp), p3 = group; asm 0x44915 push 212h; the
+  -1 form when attackingObject == 0); 527 = attack4_new's target-side
+  under-attack notify (fired when the victim's owner is an AI:
+  owner->computerPlayer (slot 7) == 1; caller = target->id,
+  recipient/p1 = the attacker's id, p2 = ftol(target->hp), p3 = the
+  target's object_group; asm 0x44436A push 20Fh). THE GARRISON-REQUEST
+  LIST: TribeTacticalAIModule::gbg_garrisonUnits (the idb:
+  std::vector<UnitPair>; UnitPair = {int first_id; int second_id} =
+  {the garrisoning unit's id, the garrison target's id}) - the AI
+  issues via taskToEnter (0x005AA530: operator_new(8), the dedup scan,
+  the unitsTaskedThisUpdate bookkeeping, then sendUnitAIOrder(player,
+  id, unit_id, 717, target_id, ...) - 717 = the ENTER order-value
+  (617+100)); enter_new removes the fulfilled record (the shift-left +
+  the _Last decrement); the destructor frees each record then the
+  array. ATTRIBUTE INDICES (the shield subsystem): attributes[25] =
+  the Shield recharge interval (owner-supplied), attributes[10] = the
+  recharge multiplier, attributes[26] = the shield drop-off rate (the
+  gbg_doShieldRecharge/gbg_doShieldDropoff consumers).
+  Re-verify: the notify chain (UnitAIModule::notify, the owner vtbl
+  notify) fixes the meanings - a future decode target.
+
+- **shield_recharge_accumulator (RGE_Static_Object +0x8, float; the
+  2026-11-23 IDB rename of gbg_unknown_2; the flattened prefix) = the
+  shield charge-tick accumulator (seconds)** — CONFIRMED
+  (decode-derived 2026-11-23; attribute 25 owner-supplied "Shield
+  recharge interval"): RGE_Static_Object::gbg_doShieldRecharge
+  (idb_functions.h:3822, 0x0054ED30) grows it by world_time_delta_
+  seconds each frame; crossing attributes[25] fires recharge ticks -
+  sp += the tier-scaled amount (2/4/8/12/16/20 by the sp bands
+  100/1000/2000/3000/4000) x attributes[10] (the recharge multiplier)
+  - consuming one interval per tick (the while loop handles multiple
+  elapsed intervals per frame), capped at master->hp (the shield max
+  doubles as the master's hp field). The sibling
+  gbg_doShieldDropoff (0x0054EE70) uses the same accumulator with a
+  hardcoded 1.0 s interval: each tick sp -= attributes[26] (the
+  drop-off rate), floored at 0. Persisted (the ctor_read stream
+  .c:297907 + the save write .c:299930); zeroed at construction
+  (.c:297518/:297780).
+
+- **shield_hit_timer (RGE_Static_Object +0xC, float; the 2026-11-23
+  IDB rename of gbg_unknown_3, int -> float) = the shield-hit flash
+  timer (seconds)** — CONFIRMED (decode-derived 2026-11-23): damage writes the 1.5f bits
+  on SHIELD-engaged hits (the absorb or pierce branches only - never
+  the plain-hp branch; both tiers: RGE_Combat_Object::damage asm
+  0x444894/0x444876 + RGE_Static_Object::damage .c:301695);
+  RGE_Static_Object::update decays it by world_time_delta_seconds per
+  frame, clamping at 0 (.c:299536-299541, the *(float*)& form); the
+  VIEW/occlusion draw layer tints the unit's occluding shape YELLOW
+  while it is active (.c:447887-447888: the timer > 0 ->
+  OccludingShapeNum = color_yellow); the ctor/recycle families zero
+  it; the save family persists it as 4 raw bytes (.c:455188/:457977).
+  Same-named fields in OTHER structs are distinct (the World's sound
+  index, the tacticalAI's ManagedArray_int_, the oc/gbg list-head
+  form) - the name-grep noise. IDB CORRECTION APPLIED (the regen
+  2026-11-23): gbg_unknown_3 -> shield_hit_timer (int -> float) and
+  gbg_unknown_2 -> shield_recharge_accumulator (float, the name only)
+  across the runtime tree; damage_new's marker store re-rendered to
+  this_->shield_hit_timer = 1.5f (the re-verified from the regenerated
+  render).
+
 - **prog_mode** вЂ” RGE_Base_Game::prog_mode @+476 (0x1DC). PARTIAL:
   compared `== 7` to gate live-world lookups вЂ” RGE Master Static
   check_placement (prog-mode compare, asm-verified 2026-11-14) and
@@ -380,6 +459,13 @@ conversion.cpp's check_meditation_and_purge tests {7 Work2, 6 Work,
   obSystemCollisions array, a player/exclusion code) are NOT grounded.
   Re-verify: the callee's implementation body in the .lst fixes the
   meanings - a future decode target.
+
+- **sound_id 38** — RGE_Base_Game__play_sound. PARTIAL (decode-derived
+  2026-11-24, asm 0x445034 push 26h): the capture fanfare —
+  RGE_Combat_Object::update plays it when a capture_flag unit changes
+  ownership to the local player (the get_player compare, asm
+  0x445008-0x445015), suppressed when the master is a Building with a
+  linked_owner (asm 0x445017-0x445028). Other users unknown.
 
 ## Open вЂ” meanings not yet supplied
 

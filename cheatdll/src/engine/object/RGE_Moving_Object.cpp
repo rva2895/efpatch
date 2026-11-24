@@ -5314,7 +5314,7 @@ void __fastcall RGE_Moving_Object__set_angle_new(RGE_Moving_Object* this_)
 // hook-routed), then the base Animated recycle re-binds master/owner/sprite;
 // if the new sprite is multi-faceted (flag bit 1 set, facet_num > 1) the
 // facing is randomized over the facet count - the integer quotient
-// (rand()*facets)/0x7FFF (the asm's 80010003h magic-imul signed divide) times
+// (rand()*facets)/RAND_MAX_INTERNAL (the asm's 80010003h magic-imul signed divide) times
 // 2pi/facets (dbl_65C1A0 = the verified double 6.2831853, turn_towards pool
 // bytes 401921FB53C8D4F1) - stored to angle via the fst m32 store-round while
 // st0 keeps the unrounded 53-bit value for BOTH wrap compares (rule (e)):
@@ -5336,7 +5336,7 @@ void __fastcall RGE_Moving_Object__recycle_in_to_game_new(RGE_Moving_Object* thi
     if (sprite != 0 && (sprite->flag & 2) != 0 && sprite->facet_num > 1)  // asm 0x4A087B test eax,eax / 0x4A087D jz loc_4A092E; 0x4A0883 test byte ptr [eax+80h],2 / 0x4A088A jz; 0x4A0890 cmp word ptr [eax+70h],1 / 0x4A0895 jle
     {
         int facetCount = sprite->facet_num;                     // asm 0x4A089E movsx edi,word ptr [edx+70h]
-        int randFacets = rand_internal() * facetCount / 0x7FFF;  // asm 0x4A08A6 call _rand; 0x4A08AD-0x4A08C4 (the 80010003h magic-imul signed divide by 0x7FFF)
+        int randFacets = rand_internal() * facetCount / RAND_MAX_INTERNAL;  // asm 0x4A08A6 call _rand; 0x4A08AD-0x4A08C4 (the 80010003h magic-imul signed divide by RAND_MAX)
         double spawnAngle = (double)randFacets * (6.2831853 / (double)facetCount);  // asm 0x4A08C8-0x4A08D8: fild z / fild y / fdivr ds:dbl_65C1A0 / fmulp st(1),st - st0 = quotient * (dbl/facets), UNROUNDED
         this_->angle = (float)spawnAngle;                       // asm 0x4A08D8 fst dword ptr [esi+0C8h] (the m32 store-round; st0 keeps the unrounded value)
         if (X87_LT_NAN(spawnAngle, 0.0))                        // asm 0x4A08DE-0x4A08E9: fcom ds:const_f_zero / fnstsw ax / test ah,1 / jz - the {<0, NaN} taken set
@@ -5377,7 +5377,7 @@ int __fastcall RGE_Moving_Object__setup_new(RGE_Moving_Object* this_, DWORD dumm
     if (sprite != 0 && (sprite->flag & 2) != 0 && sprite->facet_num > 1)  // asm 0x4A096F test eax,eax / 0x4A0971 jz loc_4A0A2C; 0x4A0977 test byte ptr [eax+80h],2 / 0x4A097E jz; 0x4A0984 cmp word ptr [eax+70h],1 / 0x4A0989 jle
     {
         int facetCount = sprite->facet_num;                     // asm 0x4A0992 movsx edi,word ptr [edx+70h]
-        int randFacets = rand_internal() * facetCount / 0x7FFF;  // asm 0x4A099A call _rand; 0x4A09A1-0x4A09B8 (the magic-imul divide)
+        int randFacets = rand_internal() * facetCount / RAND_MAX_INTERNAL;  // asm 0x4A099A call _rand; 0x4A09A1-0x4A09B8 (the magic-imul divide)
         double spawnAngle = (double)randFacets * (6.2831853 / (double)facetCount);  // asm 0x4A09BC-0x4A09CC: fild/fild/fdivr ds:dbl_65C1A0/fmulp
         this_->angle = (float)spawnAngle;                       // asm 0x4A09CC fst dword ptr [esi+0C8h]
         if (X87_LT_NAN(spawnAngle, 0.0))                        // asm 0x4A09D2-0x4A09DD (test ah,1; jz - {<0, NaN})

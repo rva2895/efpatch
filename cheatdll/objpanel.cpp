@@ -316,53 +316,11 @@ trawler_unknown_res:
     }
 }
 
-void __fastcall RGE_Combat_Object__get_weapon_new(RGE_Combat_Object* obj, DWORD dummy, __int16* cur_weapon_in, __int16* orig_weapon_in)
-{
-    UNREFERENCED_PARAMETER(dummy);
-
-    *cur_weapon_in = 0;
-    if (obj->master_obj->weapon)
-    {
-        bool is_aa_unit;
-        switch (obj->master_obj->object_group)
-        {
-        case 9:     //aa turret
-        case 16:    //aa destroyer 1
-        case 33:    //aa mobile
-        case 40:    //aa destroyer 2
-        case 55:    //aa trooper
-            is_aa_unit = true;
-            break;
-        default:
-            is_aa_unit = false;
-            break;
-        }
-        __int16 max_total = 0;
-        __int16 max_filtered = 0;
-        for (int i = 0; i < obj->master_obj->weapon_num; i++)
-        {
-            if (is_aa_unit)
-            {
-                if (obj->master_obj->weapon[i].type == 0)
-                    if (obj->master_obj->weapon[i].value > max_filtered)
-                        max_filtered = obj->master_obj->weapon[i].value;
-            }
-            else
-            {
-                if (obj->master_obj->weapon[i].type == 3 || obj->master_obj->weapon[i].type == 4)
-                    if (obj->master_obj->weapon[i].value > max_filtered)
-                        max_filtered = obj->master_obj->weapon[i].value;
-            }
-            if (obj->master_obj->weapon[i].value > max_total)
-                max_total = obj->master_obj->weapon[i].value;
-        }
-        if (max_filtered > 0)
-            *cur_weapon_in = max_filtered;
-        else
-            *cur_weapon_in = max_total;
-    }
-    *orig_weapon_in = obj->master_obj->orig_weapon;
-}
+// RGE_Combat_Object__get_weapon_new_legacy removed 2026-11-23: the full
+// replacement handler (formerly here, objpanel.cpp:319-365) was taken
+// VERBATIM into RGE_Combat_Object__get_weapon_new
+// (src/engine/object/RGE_Combat_Object.cpp) per the owner naming +
+// verbatim-adoption rulings; see the retired setHook below.
 
 #pragma optimize( "s", on )
 void fixObjPanelDrawFunction()
@@ -397,7 +355,12 @@ void fixObjPanelDrawFunction()
     writeWord(0x005DADDC, 0x9051);
     setHook((void*)0x005DADA3, onTrawlerUI);
 
-    setHook((void*)0x00444BD0, RGE_Combat_Object__get_weapon_new);
+    // retired 2026-11-23: the full replacement handler was taken VERBATIM
+    // into RGE_Combat_Object__get_weapon_new (src/engine/object/
+    // RGE_Combat_Object.cpp), see 0x00444BD0 (owner naming +
+    // verbatim-adoption rulings 2026-11-23); the handler definition was
+    // removed - tombstone at objpanel.cpp:319
+    //setHook((void*)0x00444BD0, RGE_Combat_Object__get_weapon_new_legacy);
 
     //scenario editor object panel
     writeNops(0x005489A7, 4);

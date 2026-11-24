@@ -7342,4 +7342,153 @@ REMAINING: attack3 (857), update (791), area_attack (645) - all
 NEED the mechanical gotos/back-edges check at decode-planning time.
 """
 
+## SESSION CLOSE 2026-11-23 - COMBAT RUNTIME 51/53 - THE MISSION-BUILDER FAMILY COMPLETE
+
+THE COMBAT RUNTIME CHAIN IS OWNED END-TO-END: attack -> attack2 ->
+attack4 -> do_attack -> damage -> calculateDamage (the issue/apply/
+compute split; the special-weapon effects gate is STRUCTURAL - the
+applier applies, the callee computes), and the mission-builder family
+COMPLETE: transport, unload, explore, moveTo2, moveTo, gather (the
+task-layer variant: getTask builds the RGE_Task, the Gather action
+wraps it), attack, plus the accessors: stopAction, is_invisible,
+get_weapon (the VERBATIM ADOPTION of the objpanel patch), attack4
+(the missile firer: the muzzle rotation, the AA masters, init_missile,
+the notifies), area_attack (the splash dealer: the excess-distance
+hit test, the roll gate, the level gate, the damage dispatch), enter
+(the garrison builder: the AI garrison-request removal + the
+work-interrupt cascade). 17 functions owned this session: 34 -> 51
+hooks, all gates 0/0, all sweeps clean, all tests clean on the
+written tree.
+
+THE TWO-PASS BAR VERIFIED MECHANICALLY (the script; ALL 19 remaining-
+then functions measured; the handoff's parenthesized numbers = the
+proc->endp byte extents confirmed against the script): ALL 19
+SINGLE-PASS (max 857 < 4096; max gotos 2; max back-edges 3). The
+spot-verified: area_attack's 3 back-edges hand-checked; update's 1
+goto hand-checked. THE TWO-PASS CANDIDATES FROM THE PRIOR HANDOFF
+CLEARED (all single-pass).
+
+THE BATCHES (all gates 0/0; the details in the code headers):
+stopAction+is_invisible+get_weapon (3; the objpanel.cpp:400 collision
+found by the scripted scan - the verbatim adoption per the owner
+ruling + the collision naming rule); transport+unload (2; the
+arg-form map: work(0,...) vs work(this,...)); do_attack (1; the
+512/600 notify pair; the hit roll = (rand_internal()*100)/
+RAND_MAX_INTERNAL - the 80010003h magic-imul = /RAND_MAX,
+scripted-exact 32768/32768); calculateDamage+damage (2; the combined
+batch - the special-weapon effects moved STRUCTURALLY to the applier
+per the owner ruling: damage_new runs the special pass,
+calculateDamage_new = the pure decode + the baked term-skip); enter
+(1; the garrison builder); explore+moveTo2 (2); moveTo (1); gather
+(1; the task-layer variant); attack (1); attack2 (1; the worker
+transform via the owned transform_new); attack4 (1; the missile
+firer: the muzzle rotation, the AA masters 992/836, init_missile,
+the 512/600 + 527 notifies); area_attack (1; the splash dealer).
+
+THE IDB CORRECTIONS APPLIED (2 regens): (1) gbg_unknown_2 ->
+shield_recharge_accumulator, gbg_unknown_3 -> shield_hit_timer
+(int -> float) across the runtime tree; (2) gbg_unknown_7/8/9 ->
+gbg_garrisonUnits (std::vector<UnitPair>: _First/_Last/_End,
+idb_types.h :2034-38) + the UnitPair struct {int first_id;
+int second_id} (:4839) - the garrison-request list (the AI's pending
+enter/garrison orders). THE STRUCT LAYOUTS: byte-identical (the
+renames + the int->float same-size), no census rot. THE ENTER DECODE
+RE-VERIFIED from the regenerated render (the typed garrison block:
+tacticalAI.gbg_garrisonUnits._First/_Last, the UnitPair records
+{first_id, second_id}).
+
+THE SHIELD SUBSYSTEM DECODED (attribute 25 owner-supplied "Shield
+recharge interval"): sp @+0x40 = the pool;
+shield_recharge_accumulator (gbg_unknown_2) @+0x8 = the charge-tick
+bank (gbg_doShieldRecharge 0x0054ED30: the ticks fire every
+attributes[25] seconds, sp += the tier-scaled amount x attributes[10],
+capped at master->hp; gbg_doShieldDropoff 0x0054EE70: the 1.0 s
+ticks, sp -= attributes[26], floored at 0); shield_hit_timer
+(gbg_unknown_3) @+0xC = the shield-hit flash timer (1.5f on the
+shield-engaged hits, decayed per frame in update, consumed by the
+draw layer as the yellow occluding-shape tint). THE GARRISON LOOP
+CLOSED: the AI issues via taskToEnter (0x005AA530: operator_new(8) =
+the {unit_id, target_id} record; the dedup scan; the
+unitsTaskedThisUpdate bookkeeping; sendUnitAIOrder(player, id,
+unit_id, 717, target_id, player->id, -1.0f x3, 1.0f, 1, 0, 100) -
+717 = the ENTER order-value (617+100)); enter removes the fulfilled
+record; the destructor frees the records then the array. THE 5XX
+REGISTRY: 500 = UNDER-ATTACK (damage), 512 = do_attack/attack4's
+issued-action notify, 527 = attack4's target-side under-attack (the
+AI-owner gated), 530 = the owner-level unit-attacked notify.
+
+PROTOCOL AMENDMENTS THIS SESSION (all owner-directed, all landed):
+(1) THE VERBATIM ADOPTION (the entry-hook option (iii), the
+get_weapon precedent): a colliding patch handler that is itself a
+FULL REIMPLEMENTATION is taken VERBATIM as the replacement body (the
+citations added; the old copy tombstoned). (2) THE COLLISION NAMING
+RULE: the owned replacement takes the canonical _new; the old
+handler renamed/removed with the references retired. (3) rand() ->
+rand_internal() per the wrapper family; RAND_MAX_INTERNAL (consts.h)
+- never the bare 32767/0x7FFF (the owned-tree sweep done). (4) THE
+SPECIAL-EFFECTS GATE IS STRUCTURAL: the effects move to the applier
+(the damage_new special pass), not sniffed at the callee. (5) The
+two-pass mechanical check ran for ALL 19 (the table above).
+
+GAME_FACTS ADDITIONS (written): the 5xx rows (500/512/527/530), the
+shield trio rows (the renamed), the garrison-request list row, the
+attribute indices (25 = the recharge interval owner-supplied, 10 =
+the recharge multiplier, 26 = the drop-off rate), the master_id
+candidates (83/293 = the worker transform targets; 992/836 = the AA
+projectile masters - all owner designations owed).
+
+DESYNC FIXES THIS SESSION: NONE (all gates held; the gate catches
+were compile-level: the 3 work-dispatch casts, the world_x slip, the
+specialDamage extern, the owner-cast dual-naming, the missing
+allocated arg + the missing SEH fold in attack).
+
+CARRIED: the common.h collisionUnits comment fix (provisional); the
+// MAP_SIZE marker + the mapsize.cpp:1810 retirement for update's
+batch.
+
+THE COMBAT REMAINING (2): update @0x00444DA0 [0x444DA0, 0x4450B7)
+(lst :120062-region post-regen) - 791 bytes - carries the // MAP_SIZE
+marker + the mapsize.cpp:1810 retirement (the VisibleUnitManager
+slot read); attack3 @0x00445510 [0x445510, 0x445527) - the 55-byte
+moveTo2(1.0f) forwarder (lst :120418-region post-regen). AFTER THE 2:
+THE COMBAT RUNTIME IS COMPLETE (53/53). THE NEXT FAMILIES: the
+action runtime (the RGE_Action_* family behind create_task_action's
+switch), RGE_Missile_Object::init_missile (0x0049BDE0 - live-cited
+from attack4_new), gbg_doShieldRecharge/gbg_doShieldDropoff
+(0x0054ED30/0x0054EE70 - the shield update side),
+TRIBE_Command::do_command_attack_ground (0x005BB7C0 - attack2's
+caller - the command layer).
+
+THE NEXT-SESSION OPENER (paste-prompt):
+"""
+Read DECOMP_STATE.md, DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md,
+DECOMP_GAME_FACTS.md in cheatdll/src/idb/ first. STATE: THE COMBAT
+RUNTIME IS 51/53 - THE MISSION-BUILDER FAMILY COMPLETE, THE DAMAGE
+CHAIN COMPLETE (attack -> attack2 -> attack4 -> do_attack -> damage
+-> calculateDamage), THE GARRISON LOOP CLOSED (taskToEnter -> the AI
+list -> enter removes), THE SHIELD SUBSYSTEM DOCUMENTED (attribute
+25 = Shield recharge interval owner-supplied). REMAINING (2):
+update @0x00444DA0 [0x444DA0, 0x4450B7) - 791 bytes - carries the
+// MAP_SIZE marker + the mapsize.cpp:1810 retirement (the
+VisibleUnitManager slot read); attack3 @0x00445510 [0x445510,
+0x445527) - the 55-byte moveTo2(1.0f) forwarder. ALL SINGLE-PASS
+(the two-pass bar verified mechanically: max 857 < 4096, max gotos
+2, max back-edges 3). THE MISSION-BUILDER GROUNDING SET IS WARM:
+the already-check -> re-target -> ctor -> delete_list +
+set_only_action skeleton + the slots (get_target_obj 20/type 6/work
+13/move_to 12/gbg_unknown1 14/getTask 233/set_only_action 231)
+verified across 7 builders; the family precedents: transport/
+unload/explore/moveTo2/moveTo/gather/attack/attack2 owned this
+chain. PROTOCOL: all edits approval-gated; the entry-hook option
+(iii) VERBATIM ADOPTION + the collision naming rule +
+rand_internal/RAND_MAX_INTERNAL + the structural special-effects
+gate + the two-pass mechanical check all landed this session-chain
+(the details in the ledger). DESYNC FIXES: none this session (all
+gates held). CARRIED: the common.h collisionUnits comment fix
+(provisional); the // MAP_SIZE marker + the mapsize.cpp:1810
+retirement for update's batch. THE TWO-PASS BAR: size >= 4096, or
+gotos >= 12 AND back-edges >= 12, or the desync fallback, or the
+owner override - the mechanical check: ALL remaining single-pass.
+"""
+
 

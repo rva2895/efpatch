@@ -303,7 +303,8 @@ void __fastcall RGE_Combat_Object__get_speed_of_attack_new(
 // Semantics: the target-id move entry - forwards to moveTo2 with the
 // default minimum range 1.0.
 // Decode (asm 0x445510-0x445526): the moveTo2 NAMED dispatch (runtime
-// slot 124 = +0x1F0, line-arith 11722-11598 = 124; asm 0x445521 call
+// slot 124 = +0x1F0, line-arith 11476-11352 = 124, re-verified 2026-11-24
+// against the current lines; asm 0x445521 call
 // [eax+1F0h]) with (targetID, 1.0f, unconditional) - the .c's
 // 1065353216 dint = the float 1.0 (the dd rule). Straight-line; the
 // return value passes through.
@@ -683,7 +684,12 @@ void __fastcall RGE_Combat_Object__enter_obj_new(
     if (this_->inside_obj && this_->id >= 0)                        // asm 0x4094435-0x4094441 (@+0x2C / @+0x10)
     {
         Visible_Unit_Manager__Update_Unit_Info(                     // asm 0x444D67+ (:5928)
-            *game_visible_unit_manager,
+            // MAP_SIZE: mapsize.cpp re-points this read's disp32 (0x444D81,
+            // the mov ecx at 0x444D7F) to the big-map mirror when
+            // setMapSizeHooks runs (owner-directed MAP_SIZE rule
+            // 2026-11-15): the replacement reads the original game slot
+            // 0x007A1CB8.
+            *game_visible_unit_manager,                             // asm 0x444D7F
             this_->id,                                              // asm 0x444D4D (mov ecx, [esi+10h] staged)
             this_->owner->id,
             (int)this_->world_x,                                    // asm 0x444D6C-0x444D71 (ftol @0x48)
@@ -875,7 +881,12 @@ void __fastcall RGE_Combat_Object__transform_new(
     if (this_->id >= 0)                                             // asm 0x443E27-0x40943E29
     {
         Visible_Unit_Manager__Update_Unit_Info(                     // asm 0x443E6F (the PRE call)
-            *game_visible_unit_manager,
+            // MAP_SIZE: mapsize.cpp re-points this read's disp32 (0x443E62,
+            // the mov ecx at 0x443E60) to the big-map mirror when
+            // setMapSizeHooks runs (owner-directed MAP_SIZE rule
+            // 2026-11-15): the replacement reads the original game slot
+            // 0x007A1CB8.
+            *game_visible_unit_manager,                             // asm 0x443E60
             this_->id,                                              // asm push edi (Object_Id)
             this_->owner->id,                                       // asm 0x443E67 (id @0xA0)
             (int)this_->world_x,                                    // asm 0x40943E54-0x40943E58 (ftol @0x48)
@@ -890,7 +901,12 @@ void __fastcall RGE_Combat_Object__transform_new(
     if (this_->id >= 0)                                             // asm 0x443E80-0x40943E85
     {
         Visible_Unit_Manager__Update_Unit_Info(                     // asm 0x443ECB (the POST call)
-            *game_visible_unit_manager,
+            // MAP_SIZE: mapsize.cpp re-points this read's disp32 (0x443EC5,
+            // the mov ecx at 0x443EC3) to the big-map mirror when
+            // setMapSizeHooks runs (owner-directed MAP_SIZE rule
+            // 2026-11-15): the replacement reads the original game slot
+            // 0x007A1CB8.
+            *game_visible_unit_manager,                             // asm 0x443EC3
             this_->id,                                              // asm push edi
             this_->owner->id,                                       // asm 0x443EBC (@0xA0)
             (int)this_->world_x,                                    // asm 0x40943EB0-0x40943EB4 (ftol @0x48)
@@ -982,6 +998,1517 @@ double __fastcall RGE_Combat_Object__damageCapability_new(
     return result;                                                  // asm 0x40946083/0x40946084
 }
 
+// Replacement for RGE_Combat_Object::transport. Original: @ 0x00445D00
+// (idb_functions.h:1105). Range [0x445D00, 0x445DE3) (lst :121321/:121430,
+// retn 10h = 4 stack args + this), returns int. ABI: __thiscall. Virtual:
+// vftable DATA XREF on BOTH RGE_Combat_Object__vftable and RGE_Missile_
+// Object__vftable (asm :121321-:121322) - the entry hook covers both
+// dispatches. SEH: MSVC frame (push -1 / transport_SEH @0x445D02, fs:0
+// swap 0x445D07-0x445D0E; the MSVC epilogue restores fs:0 and pops,
+// 0x445DD1-0x445DE0); unwind funclet chunk 0x6415D0-0x6415DA = mov
+// eax,[ebp-10h] / call operator_delete on the RAW allocation (scope
+// stru_67FDC0) - folded per the make_new_obj precedent.
+// Semantics: the transport MISSION BUILDER. If the current action already
+// IS the Transport action (type() == 12, RGE_ACTION_TYPE registry), re-
+// drive it with work(0, tX, tY, tZ) - obj_in = null, the existing action
+// keeps its own target. Otherwise build a fresh RGE_Action_Transport
+// (ctor obj_in = this, task_in = 0, position = the PARAMETERS), replace
+// the whole action list (delete_list + set_only_action), and start the
+// new action with work(this, tX, tY, tZ). Returns 1, or 0 when the
+// allocation/construction failed (the action list is left untouched on
+// that path). `unconditional` is read by NEITHER the asm nor the
+// pseudocode (kept for ABI; retn 10h pops it).
+int __fastcall RGE_Combat_Object__transport_new(
+    RGE_Combat_Object* this_, DWORD dummy, float tX, float tY, float tZ,
+    int unconditional)
+{
+    if (RGE_Action_List__have_action(this_->actions) == 1)              // asm 0x445D1C-0x445D27 (cmp al,1; actions @+0x13C)
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);        // asm 0x445D2B-0x445D31
+        if (current->vfptr->type(current) == RGE_ACTION_TYPE_TRANSPORT)           // asm 0x445D36-0x445D3D (slot 6 @+0x18; cmp ax,0Ch)
+        {
+            RGE_Action* existing = RGE_Action_List__get_action(this_->actions);   // asm 0x445D43-0x445D49 (second fetch - faithful)
+            existing->vfptr->work(existing, 0, tX, tY, tZ);               // asm 0x445DC9 (slot 13 @+0x34; pushes z,y,x,0 @0x445D4E-0x445D5F)
+            return 1;                                                     // asm 0x445DCC
+        }
+    }
+    RGE_Action_Transport* allocated =
+        (RGE_Action_Transport*)operator_new_internal(sizeof(RGE_Action_Transport));  // asm 0x445D65-0x445D6F (push 40h; sizeof walked 64 = 0x40)
+    RGE_Action* fresh = 0;                                                // asm 0x445D7B (edi = 0); EH state 0 @0x445D7F
+    __try
+    {
+        if (allocated != 0)                                               // asm 0x445D7D-0x445D83 (cmp eax,edi / jz)
+            fresh = (RGE_Action*)RGE_Action_Transport__RGE_Action_Transport(
+                allocated, (RGE_Action_Object*)this_, 0, tX, tY, tZ);     // asm 0x445D85-0x445D90 (pushes z,y,x,task_in=0,obj_in=this_)
+    }
+    __except (operator_delete_internal(allocated), EXCEPTION_CONTINUE_SEARCH)  // SEH chunk 0x6415D0-0x6415DA (operator_delete, raw allocation)
+    {
+    }
+    if (fresh == 0)                                                       // asm 0x445D97-0x445DA1 (EH state -> -1 @0x445D99)
+        return 0;                                                         // asm 0x445DA3-0x445DA5
+    RGE_Action_List__delete_list(this_->actions);                         // asm 0x445DA7-0x445DAD
+    this_->vfptr->set_only_action(this_, fresh);                          // asm 0x445DB2-0x445DB7 (slot 231 @+0x39C)
+    fresh->vfptr->work(fresh, (RGE_Static_Object*)this_, tX, tY, tZ);     // asm 0x445DC9 (pushes z,y,x,this_ @0x445DBD-0x445DC6)
+    return 1;                                                             // asm 0x445DCC
+}
+
+// Replacement for RGE_Combat_Object::unload. Original: @ 0x00445DF0
+// (idb_functions.h:1106). Range [0x445DF0, 0x445EEB) (lst :121439/:121553,
+// retn 10h), returns int. ABI: __thiscall. Virtual: vftable DATA XREF on
+// both Combat and Missile vftables (asm :121439-:121440). SEH: MSVC frame;
+// unwind funclet chunk 0x6415F0-0x6415FA = operator_delete on the raw
+// allocation (scope stru_67FDE8) - transport's twin chunk, same fold.
+// Semantics: the transport TWIN - the UNLOAD order. Same Transport-action
+// gate; the THREE deltas vs transport: (a) the existing-action work call
+// and the ctor use the OBJECT'S CURRENT POSITION (world_x/world_y/world_z
+// @+0x48/+0x4C/+0x50, idb_types.h:1462-1464) instead of the parameters;
+// (b) the existing-action work call passes obj_in = this (transport passes
+// 0), asm 0x445E4A push esi; (c) the return-0 path is a fully inline
+// epilogue (asm 0x445E94-0x445EA6). The FINAL work call on the fresh
+// action uses the caller's x/y/z parameters (asm 0x445EBF-0x445ED0).
+// `unconditional` is read by NEITHER the asm nor the pseudocode (kept for
+// ABI; retn 10h pops it).
+int __fastcall RGE_Combat_Object__unload_new(
+    RGE_Combat_Object* this_, DWORD dummy, int unconditional, float x,
+    float y, float z)
+{
+    if (RGE_Action_List__have_action(this_->actions) == 1)              // asm 0x445E0A-0x445E15 (cmp al,1)
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);        // asm 0x445E19-0x445E1F
+        if (current->vfptr->type(current) == RGE_ACTION_TYPE_TRANSPORT)           // asm 0x445E24-0x445E2B (slot 6 @+0x18; cmp ax,0Ch)
+        {
+            RGE_Action* existing = RGE_Action_List__get_action(this_->actions);   // asm 0x445E31-0x445E37 (second fetch - faithful)
+            existing->vfptr->work(existing, (RGE_Static_Object*)this_,    // asm 0x445ED3 (slot 13 join; pushes world_z,world_y,world_x,this_ @0x445E3C-0x445E4A)
+                this_->world_x, this_->world_y, this_->world_z);
+            return 1;                                                     // asm 0x445EDB-0x445EE8
+        }
+    }
+    RGE_Action_Transport* allocated =
+        (RGE_Action_Transport*)operator_new_internal(sizeof(RGE_Action_Transport));  // asm 0x445E52-0x445E5C (push 40h)
+    RGE_Action* fresh = 0;                                                // asm 0x445E86 (xor edi,edi); EH state 0 @0x445E62
+    __try
+    {
+        if (allocated != 0)                                               // asm 0x445E60-0x445E6A (test eax,eax / jz)
+            fresh = (RGE_Action*)RGE_Action_Transport__RGE_Action_Transport(
+                allocated, (RGE_Action_Object*)this_, 0, this_->world_x,  // asm 0x445E6C-0x445E7D (pushes the object's world_z,y,x, task_in=0, obj_in=this_)
+                this_->world_y, this_->world_z);
+    }
+    __except (operator_delete_internal(allocated), EXCEPTION_CONTINUE_SEARCH)  // SEH chunk 0x6415F0-0x6415FA (operator_delete, raw allocation)
+    {
+    }
+    if (fresh == 0)                                                       // asm 0x445E88-0x445E92 (EH state -> -1 @0x445E8A)
+        return 0;                                                         // asm 0x445E94-0x445EA6 (inline epilogue)
+    RGE_Action_List__delete_list(this_->actions);                         // asm 0x445EA9-0x445EAF
+    this_->vfptr->set_only_action(this_, fresh);                          // asm 0x445EB4-0x445EB9 (slot 231 @+0x39C)
+    fresh->vfptr->work(fresh, (RGE_Static_Object*)this_, x, y, z);        // asm 0x445ED3 (pushes z,y,x,this_ @0x445EBF-0x445ED0 - the PARAMETERS)
+    return 1;                                                             // asm 0x445EDB-0x445EE8
+}
+
+// Replacement for RGE_Combat_Object::stopAction. Original: @ 0x00445EF0
+// (idb_functions.h:1107). Range [0x445EF0, 0x445F27) (lst :121562/:121589,
+// plain retn = 0 stack args + this), returns int (always 1). ABI:
+// __thiscall. Virtual: vftable DATA XREF on both Combat and Missile
+// vftables (asm :121562-:121563).
+// Semantics: the STOP ORDER - tear the whole action list down
+// (delete_list), and when the unit is in the ACTIVE state (object_state
+// @+0x58 == 2 - the registry's "== 2 = moving/active" case, the same
+// gate as the Building own-unit check), re-home the sprite: the
+// MASTER-SIDE polymorphic getter get_sprite(master, this) (master vtbl
+// slot 1 @+4) then the runtime new_sprite (slot 44 @+0xB0).
+int __fastcall RGE_Combat_Object__stopAction_new(
+    RGE_Combat_Object* this_, DWORD dummy)
+{
+    RGE_Action_List__delete_list(this_->actions);                   // asm 0x445EF3-0x445EF7 (actions @+0x13C)
+    if (this_->object_state == 2)                                   // asm 0x445EF8-0x445F02 (byte @+0x58, cmp 2)
+    {
+        RGE_Sprite* sprite = this_->master_obj->vfptr->get_sprite(  // asm 0x445F0B-0x445F0D (slot 1 @+4; pushes (RGE_Static_Object*)this_)
+            this_->master_obj, (RGE_Static_Object*)this_);
+        this_->vfptr->new_sprite(this_, sprite);                    // asm 0x445F10-0x445F13 (slot 44 @+0xB0; pushes the sprite)
+    }
+    return 1;                                                       // asm 0x445F1A+0x445F20 / 0x445F21-0x445F27 (both exit sites)
+}
+
+// Replacement for RGE_Combat_Object::is_invisible. Original: @ 0x00443950
+// (idb_functions.h:1068). Range [0x443950, 0x443989) (lst :117330/:117364,
+// retn 4 = 1 stack arg), returns unsigned __int8. ABI: __thiscall.
+// Virtual: vftable DATA XREF on both Combat and Missile vftables.
+// Semantics: the visibility override for ACTIVE special actions: while
+// the current action is an Attack2 (9) or a Convert (0x68 = 104, the
+// RGE_ACTION_TYPE registry), the unit reports NOT invisible (0) to
+// player_id; every other case forwards to the base
+// RGE_Static_Object__is_invisible (:3796, 0x0054BAB0 - NOT hooked; the
+// asm calls it directly, 0x443983 - the faithful form per the
+// hook-routing ruling). The type tests read the DIRECT action_type
+// field word @+4 (idb_types.h:15022), NOT the type() virtual (asm
+// 0x443966 mov ax,[eax+4]).
+unsigned __int8 __fastcall RGE_Combat_Object__is_invisible_new(
+    RGE_Combat_Object* this_, DWORD dummy, int player_id)
+{
+    if (this_->actions)                                             // asm 0x443953-0x44395B (actions @+0x13C, test/jz)
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x44395D
+        if (current != 0)                                           // asm 0x443962-0x443964 (test/jz)
+        {
+            if (current->action_type == RGE_ACTION_TYPE_ATTACK2     // asm 0x443966-0x44396E (word @+4; cmp ax,9)
+                || current->action_type == RGE_ACTION_TYPE_CONVERT) // asm 0x443970-0x443974 (cmp ax,68h)
+                return 0;                                           // asm 0x443976-0x443979 (xor al,al)
+        }
+    }
+    return RGE_Static_Object__is_invisible(                         // asm 0x44397C-0x443983 (the direct base call; player_id push 0x443980)
+        (RGE_Static_Object*)this_, player_id);
+}
+
+// Replacement for RGE_Combat_Object::get_weapon. Original: @ 0x00444BD0
+// (idb_functions.h:1089). Range [0x444BD0, 0x444C7A) (lst :119421/:119497,
+// retn 8 = 2 stack args), void. ABI: __thiscall. Virtual: vftable DATA
+// XREF on both Combat and Missile vftables.
+// Semantics: the CURRENT weapon value: the max value among the master's
+// weapon types (0-initialized accumulator), with the all-values max as
+// the fallback when the filtered max is 0; then the unconditional
+// orig_weapon copy @+0x16E = 366. Element stride 4 (RGE_Armor_Weapon_
+// Info = {i16 type, i16 value}); the 3/4 namespace is the PARTIAL
+// registry entry (DECOMP_GAME_FACTS.md).
+// BAKED (owner-directed VERBATIM ADOPTION 2026-11-23): the LIVE
+// object-panel hook objpanel.cpp:400 (setHook 0x00444BD0 via dllmain
+// :318 VER_EF) was itself a FULL replacement of this function - its
+// handler (objpanel.cpp:319-365) is taken VERBATIM as this body (the
+// AA-unit delta: object_group 9/16/33/40/55 filter type == 0; the
+// registry object_group values; the handler's `obj` parameter name and
+// statement order kept verbatim). Path-exact vs the original for
+// non-AA units: the one-pass filtered/total selection == the asm's
+// two-pass form (the 0x444C27 gate == !(max_filtered > 0), the
+// fallback loop == max_total, both accumulators max-from-0; the
+// incoming *cur is never observed - 0-init precedes every read). The
+// per-iteration master/weapon re-reads match the asm's own reloads.
+// The objpanel call site retires; the handler definition is removed
+// (the code lives here now - tombstone at objpanel.cpp:319).
+// ASM-ORIGINAL decode (the citation source): *cur = 0 (0x444BD6); the
+// weapon ptr gate ([master+0x13C] = weapon @316, 0x444BDB-0x444BE6);
+// weapon_num @+0x138 = 312 loops (movsx signed); the type word at
+// element +0 (cmp 4 @0x444C00 / cmp 3 @0x444C06 - the verbatim body's
+// 3||4 order is commutative); the value word at element +2
+// (0x444C0C-0x444C13, signed); the max-keep (0x444C15); the fallback
+// gate (0x444C27-0x444C2B) + the all-values scan (0x444C45-0x444C65);
+// the orig_weapon copy (0x444C67-0x444C77).
+void __fastcall RGE_Combat_Object__get_weapon_new(RGE_Combat_Object* obj, DWORD dummy, __int16* cur_weapon_in, __int16* orig_weapon_in)
+{
+    UNREFERENCED_PARAMETER(dummy);
+
+    *cur_weapon_in = 0;                                             // asm 0x444BD6 (word store)
+    if (obj->master_obj->weapon)                                    // asm 0x444BDB-0x444BE6 (master_obj @+0x14; weapon @+0x13C)
+    {
+        bool is_aa_unit;                                            // baked: objpanel.cpp:326 (no asm counterpart - the AA delta)
+        switch (obj->master_obj->object_group)                      // the i16 @+30 (the registry field)
+        {
+        case 9:     //aa turret
+        case 16:    //aa destroyer 1
+        case 33:    //aa mobile
+        case 40:    //aa destroyer 2
+        case 55:    //aa trooper
+            is_aa_unit = true;
+            break;
+        default:
+            is_aa_unit = false;
+            break;
+        }
+        __int16 max_total = 0;                                      // baked: objpanel.cpp:340 (== the asm fallback accumulator 0x444C3A)
+        __int16 max_filtered = 0;                                   // the asm's [edi] accumulator (0-init 0x444BD6)
+        for (int i = 0; i < obj->master_obj->weapon_num; i++)       // asm 0x444BF3-0x444C25 (weapon_num @+0x138, movsx signed)
+        {
+            if (is_aa_unit)                                         // baked: objpanel.cpp:344 (the asm's filter: type 4/3)
+            {
+                if (obj->master_obj->weapon[i].type == 0)           // baked: objpanel.cpp:346 (AA units: type 0)
+                    if (obj->master_obj->weapon[i].value > max_filtered)     // asm 0x444C0C-0x444C13 (value @element+2, signed cmp)
+                        max_filtered = obj->master_obj->weapon[i].value; // asm 0x444C15 (the max-keep store)
+            }
+            else
+            {
+                if (obj->master_obj->weapon[i].type == 3 || obj->master_obj->weapon[i].type == 4)   // asm 0x444C00-0x444C0A (cmp 4 / cmp 3; the verbatim 3||4 order - commutative)
+                    if (obj->master_obj->weapon[i].value > max_filtered)
+                        max_filtered = obj->master_obj->weapon[i].value;
+            }
+            if (obj->master_obj->weapon[i].value > max_total)       // baked: objpanel.cpp:356 (== the asm fallback loop 0x444C45-0x444C65)
+                max_total = obj->master_obj->weapon[i].value;
+        }
+        if (max_filtered > 0)                                       // baked: objpanel.cpp:359 (== the asm gate 0x444C27-0x444C2B)
+            *cur_weapon_in = max_filtered;                          // asm 0x444C55 (the [edi] max-keep store)
+        else
+            *cur_weapon_in = max_total;                             // asm 0x444C45-0x444C65 (the fallback all-values max)
+    }
+    *orig_weapon_in = obj->master_obj->orig_weapon;                 // asm 0x444C67-0x444C77 (orig_weapon @+0x16E = 366)
+}
+
+// Replacement for RGE_Combat_Object::do_attack. Original: @ 0x00444720
+// (idb_functions.h:1083). Range [0x444720, 0x44814) (lst :118855/:118965,
+// retn 18h = 6 stack args), returns unsigned __int8. ABI: __thiscall.
+// Virtual: vftable DATA XREF on both Combat and Missile vftables + CODE
+// XREF TRIBE_Combat_Object__do_attack+167 (the TRIBE tier forwards into
+// this implementation, asm :118855 - the entry hook covers that call).
+// Semantics: the DAMAGE APPLIER. target == 0 -> return 0. When the
+// master's area_effect_range (@+0x148 = 328) is > 0, the AREA branch:
+// this->vfptr->area_attack(this, x, y, z, attacker, 0, target) (slot
+// 237 @+0x3B4, RGE_Combat_ObjectVtbl :11571) - the u8 result is
+// DISCARDED, return 1. When it is <= 0 (or NaN - the fcomp/test ah,41h
+// jnz taken-set, written X87_LE_NAN per the mask-partition rule), the
+// p1 = 600 = RGE_UNITAI_ACTION_ATTACK (the UnitAI action enum,
+// owner-directed), p2 = target->id, p3 = 0) (slot 120 @+0x1E0, :11454;
+// mType 512 is the 5xx notify namespace - UNKNOWN, the DECOMP_GAME_FACTS
+// registry); then the hit roll roll = (rand_internal() *
+// 100) / RAND_MAX_INTERNAL - the 0x80010003 imul + sar 0Eh sequence IS
+// the signed /RAND_MAX (= consts.h RAND_MAX_INTERNAL) magic, scripted
+// exact 32768/32768, roll 0..100; rand_internal (common.h:154,
+// common.cpp:367, 0x00632BDD) is the GAME'S binary rand - the game's
+// own CRT state, never the DLL CRT. Damage lands iff base_hit_chance
+// (@+0x156 = 342) > 0 AND (roll <= base_hit_chance OR missile_id
+// (@+0x154 = 340) >= 0 - ranged units always connect, the missile-less
+// (id < 0) need the roll). On hit: modifier = this->vfptr->
+// calc_attack_modifier(this, target) (slot 95 @+0x17C, :11429 - HOOKED,
+// routes), damage = (float)(modifier * damage_mod) (the x87 fmul
+// consumes the st0 return at 53-bit; the fstp m32 is the single
+// store-round, asm 0x447E3-0x447F0), then target->vfptr->damage(target,
+// weapon_num, weapon, damage, this->owner, attacker, first_call = 1)
+// (slot 58 @+0xE8, :11392 - dispatched ON THE TARGET, ecx = edi
+// 0x44808). Return 1 on both non-null paths.
+unsigned __int8 __fastcall RGE_Combat_Object__do_attack_new(
+    RGE_Combat_Object* this_, DWORD dummy, RGE_Static_Object* target,
+    RGE_Combat_Object* attacker, float x, float y, float z, float damage_mod)
+{
+    if (target == 0)                                                // asm 0x44728-0x4472A (test/jnz)
+        return 0;                                                   // asm 0x4472C-0x44730 (xor al,al)
+    if (X87_LE_NAN(this_->master_obj->area_effect_range, 0.0f))     // asm 0x44736-0x44747 (fcomp const_f_zero; test ah,41h; jnz -> single-target: the taken set {<=, NaN})
+    {
+        this_->vfptr->notify(this_, this_->id, this_->id, 512,      // asm 0x44771-0x4478A (slot 120 @+0x1E0; pushes 0,target->id,600,512,id,id @0x44779-0x44787)
+            RGE_UNITAI_ACTION_ATTACK, target->id, 0);               // p1 600 = RGE_UNITAI_ACTION_ATTACK (the UnitAI action enum, owner-directed); mType 512: the 5xx notify namespace UNKNOWN (DECOMP_GAME_FACTS)
+        int n = rand_internal() * 100;                              // asm 0x44790-0x447A0 (lea/lea/shl = *100; rand_internal = common.h:154, the game's binary rand @0x00632BDD - the game's CRT state, common.cpp:367)
+        int roll = n / RAND_MAX_INTERNAL;                           // asm 0x4479B-0x447B2 (imul 80010003h / sar 0Eh = the signed /RAND_MAX magic; scripted exact, roll 0..100; RAND_MAX_INTERNAL = consts.h)
+        if (this_->master_obj->base_hit_chance > 0)                 // asm 0x447B4-0x447BE (word @+0x156 = 342; test ax/jle -> the shared return)
+        {
+            if (roll <= this_->master_obj->base_hit_chance          // asm 0x447C0-0x447C5 (movsx + cmp/jle -> the hit join loc_4447D1, 2 inbound)
+                || this_->master_obj->missile_id >= 0)              // asm 0x447C7-0x447CF (word @+0x154 = 340; jl -> the shared return)
+            {
+                double modifier = this_->vfptr->calc_attack_modifier(this_, target);   // asm 0x447D1-0x447D6 (slot 95 @+0x17C - HOOKED, routes)
+                float damage = (float)(modifier * damage_mod);      // asm 0x447E3-0x447F0 (fmul [damage_mod] at 53-bit; fstp m32 - the single store-round)
+                target->vfptr->damage(target,                       // asm 0x4480A (slot 58 @+0xE8 - dispatched ON THE TARGET, ecx = edi @0x44808)
+                    this_->master_obj->weapon_num,                  // asm 0x447F9-0x44807 (movsx @+0x138 = 312)
+                    this_->master_obj->weapon,                      // asm 0x447F2-0x447F9 ([eax+13Ch] = 316)
+                    damage,                                         // asm 0x447F0-0x447F8 (the fstp'd m32 bits pushed)
+                    (RGE_Player*)this_->owner,                      // asm 0x447EA-0x447EF (@+0x18; the TRIBE_Player*/RGE_Player* dual-naming cast)
+                    (RGE_Static_Object*)attacker,                   // asm 0x447E7-0x447E9 (push ecx = the attacker param)
+                    1);                                             // asm 0x447E7 (push 1 = first_call)
+            }
+        }
+        return 1;                                                   // asm 0x44810-0x44814 (the shared tail join loc_444810, 3 inbound)
+    }
+    this_->vfptr->area_attack(this_, x, y, z, attacker, 0, target); // asm 0x44749-0x44764 (slot 237 @+0x3B4; pushes target,0,attacker,z,y,x @0x44753-0x44761)
+    return 1;                                                       // asm 0x4476B-0x4476E (the area_attack u8 result discarded)
+}
+
+// Replacement for RGE_Combat_Object::calculateDamage. Original: @ 0x004449C0
+// (idb_functions.h:1085). Range [0x4449C0, 0x444ADB) (lst :119169/:119292,
+// retn 14h = 5 stack args), returns double (the st0-return corollary -
+// the caller damage chains fsub off st0 with no intermediate store).
+// ABI: __thiscall. Virtual: vftable DATA XREF on both Combat and Missile
+// vftables.
+// Semantics: how much damage THIS unit takes from one weapon hit - the
+// per-element net = (weapon value - armor value) x terrain x modifier,
+// summed over the weapon_num elements, positive terms only, then
+// clamped to >= 1.0.
+// Terrain multiplier: 1.0; when this->tile (@+0x28 = 40) != 0 AND the
+// master's defense_terrain_bonus (@+0x140 = 320) >= 0, the chain
+// owner->world (@+0x8C, TRIBE_Player :727) -> terrains (@+0x60 = 96,
+// TRIBE_World :970, float**) -> [defense_terrain_bonus] (the float*
+// per-terrain row) -> [tile->terrain_type (@+5)] - the float
+// multiplier; < 1.0 (or NaN) clamps to 1.0 (the defensive terrain never
+// reduces below no-bonus; asm 0x444A0C-0x444A1D).
+// The per-element armor: armor_value = base_armor (@+0x130 = 304); when
+// armor (@+0x134 = 308) != 0 AND armor_num (@+0x132 = 306) > 0, the
+// type scan (armor[j].type == weapon.type) OVERWRITES armor_value per
+// match - the scan runs to completion, the LAST match wins (asm
+// 0x444A69-0x444A7A, dec ecx/jnz, no early exit).
+// The term: the fild pair (the weapon value @element+2 signed, the
+// armor value) -> fsubp = weapon - armor at 53-bit; x terrain_mult;
+// x attack_modifier (both m32 floats - exact x87 widening = the written
+// double promotes, rule (j)); accumulated ONLY when term > 0.0 (fcom
+// const_d_zero .rdata:006546B0, test ah,41h jnz -> the skip; the
+// literal > matches the polarity table - NaN skips); the accumulation
+// rides st1/st0 at 53-bit. The final clamp: result < 1.0 (or NaN) ->
+// 1.0 (fcom const_f_one, test ah,1; written X87_LT_NAN). RESTRUCTURE:
+// the asm re-tests weapon_num before the clamp (0x444AB7-0x444ABD) -
+// provably redundant (the loop entry guard 0x444A3B already required
+// weapon_num > 0 and nothing modifies the argument) - collapsed.
+// BAKED: the casts.cpp special-weapon term-skip (onGetDamage @0x0044A7C,
+// retired with the specialDamage move to damage_new): elements with
+// type >= 41 contribute NO term (the asm jmp 0x444AA9 past the
+// fild/fsubp/fmul/fcom chain - the effects apply via damage_new's
+// special pass instead). The skip reads damage[i].type directly (the
+// asm's dx was the scan's loaded copy; on the no-scan path it was a
+// stale-register leftover - owner-approved deterministic form).
+double __fastcall RGE_Combat_Object__calculateDamage_new(
+    RGE_Combat_Object* this_, DWORD dummy, int weapon_num,
+    RGE_Armor_Weapon_Info* damage, float attack_modifier,
+    RGE_Player* attacking_player, RGE_Static_Object* attackingObject)
+{
+    RGE_Master_Combat_Object* master = this_->master_obj;           // asm 0x4449C3 (mov edx,[ecx+14h])
+    RGE_Tile* tile = this_->tile;                                   // asm 0x4449C6 (mov eax,[ecx+28h]; tile @+0x28 = 40)
+    int armor_num = master->armor_num;                              // asm 0x4449CB (movsx word @+0x132 = 306)
+    RGE_Armor_Weapon_Info* armor = master->armor;                   // asm 0x4449D4 (@+0x134 = 308)
+    int base_armor = master->base_armor;                            // asm 0x444A43-0x444A4A (movsx word @+0x130 = 304; the per-iteration reset source)
+    float terrain_mult = 1.0f;                                      // asm 0x4449DA (var_10 = 1.0)
+    if (tile != 0                                                   // asm 0x4449E2-0x4449E4 (test/jz)
+        && master->defense_terrain_bonus >= 0)                      // asm 0x4449E6-0x4449F0 (word @+0x140 = 320; test si/jl - signed)
+    {
+        float m = this_->owner->world->terrains[                    // asm 0x4449F2-0x4449A6 (owner @+0x18; world @+0x8C TRIBE_Player :727; terrains @+0x60 TRIBE_World :970; the [bonus] row)
+            master->defense_terrain_bonus][tile->terrain_type];     // asm 0x4449A9 (fld [eax+ebx*4]; terrain_type u8 @+5)
+        if (X87_LT_NAN(m, 1.0f))                                    // asm 0x444A10-0x444A1B (fcom const_f_one; test ah,1; jz -> keep; the overwrite set {<1, NaN})
+            m = 1.0f;                                               // asm 0x444A1D
+        terrain_mult = m;                                           // asm 0x444A0C (the fst var_10 store - the dedicated-local form; the intermediate store is never observed)
+    }
+    double result = 0.0;                                            // asm 0x444A29 (fld const_f_zero)
+    if (damage == 0 || weapon_num <= 0)                             // asm 0x444A2F-0x444A3D (test esi/jz; test eax/jle)
+        return result;                                              // asm -> loc_444AD4
+    for (int i = 0; i < weapon_num; ++i)                            // asm 0x444A52-0x444AB5 (var_C count; esi += 4 - the element stride 4)
+    {
+        const short wtype = damage[i].type;                         // asm 0x444A63 (mov dx,[esi] - the type word @element+0)
+        int armor_value = base_armor;                               // asm 0x444A52-0x444A58 ([esp+damage] = var_8)
+        if (armor != 0 && armor_num > 0)                            // asm 0x444A56-0x444A60 (test edi/jz; test ebp/jle)
+        {
+            for (int j = 0; j < armor_num; ++j)                     // asm 0x444A69-0x444A7A (dec ecx/jnz; NO early exit - the LAST match wins)
+            {
+                if (armor[j].type == wtype)                         // asm 0x444A69 (cmp [eax],dx)
+                    armor_value = armor[j].value;                   // asm 0x444A6E-0x444A72 (movsx the value word @element+2)
+            }
+        }
+        if (wtype >= 41)                                            // baked: casts.cpp:253 (cmp dx,41/jl - the special-weapon term-skip, signed)
+            continue;                                               // baked: the asm jmp 0x444AA9 - the term is SKIPPED (the effects apply via damage_new)
+        double weapon_value = damage[i].value;                      // asm 0x444A7C-0x444A84 (movsx @element+2; fild var_4)
+        double term = (weapon_value - (double)armor_value)          // asm 0x444A88-0x444A8C (fild/fsubp - the exact-int 53-bit subtract)
+            * terrain_mult                                          // asm 0x444A8E (fmul var_10 - the float promotes, rule (j))
+            * attack_modifier;                                      // asm 0x444A92 (fmul [attack_modifier])
+        if (term > 0.0)                                             // asm 0x444A96-0x444AA1 (fcom const_d_zero .rdata:006546B0; test ah,41h; jnz -> the skip; the literal > - NaN skips)
+            result += term;                                         // asm 0x444AA3 (faddp st(1) - the 53-bit accumulation)
+    }
+    if (X87_LT_NAN(result, 1.0f))                                   // asm 0x444ABF-0x444AD2 (fcom const_f_one; test ah,1; jz -> keep; the clamp set {<1, NaN})
+        result = 1.0f;                                              // asm 0x444ACC-0x444ACE (fstp st; fld const_f_one)
+    return result;                                                  // asm 0x444AD4-0x444ADB (the shared epilogue; st0 unrounded)
+}
+
+void __stdcall specialDamage(RGE_Static_Object* unit, short type, int damage, int armor);   // casts.cpp:173 - the UNIT_EXTRA effects (the baked special-weapon pass calls it by reference)
+
+// Replacement for RGE_Combat_Object::damage. Original: @ 0x00444820
+// (idb_functions.h:1084). Range [0x444820, 0x4449B1) (lst :118974/:119160,
+// retn 18h = 6 stack args), void. ABI: __thiscall. Virtual: vftable DATA
+// XREF on both Combat and Missile vftables + CODE XREFs
+// TRIBE_Building_Object__damage+95 / TRIBE_Combat_Object__damage+1F6
+// (the TRIBE tiers forward into this implementation - the entry hook
+// covers those calls). first_call is read by NEITHER the asm nor the
+// pseudocode (kept for ABI).
+// Semantics: apply a hit to THIS unit. The total comes from
+// calculateDamage (slot 59 @+0xEC, RGE_Combat_ObjectVtbl :11393 - all
+// six args forwarded, asm 0x444831-0x444841; the return rides st0),
+// then the SHIELD-FIRST split: sp @+0x40 = 64 absorbs first (sp <= 0
+// or total <= 0 or NaN -> hp @+0x3C = 60 takes it all; total <= sp ->
+// sp -= total, hp untouched; total > sp -> hp -= total - sp, sp = 0),
+// and the shield-hit flash timer shield_hit_timer (@+0xC, :7329 - float,
+// the 2026-11-23 IDB rename) = 1.5f (flt_657540, .rdata:00657540;
+// the plain-hp branch writes NO marker).
+// The under-attack notifies: mType 500 to the unit (caller = the
+// attacker id - for missiles fired_from_id @+0x184 = 388,
+// RGE_Missile_Object :21058, guarded by the attacker's master_type
+// == 60; else attackingObject->id @+0x10; recipient = id; p1 = the
+// attacker id; p2 = ftol(hp); p3 = object_group @+0x32 = 50; asm
+// 0x4448D4-0x4448EB), mType 530 to the victim's owner when the
+// attacker's owner differs (caller = id, recipient/p1 = the attacker
+// id, p2 = ftol(hp), p3 = group; asm 0x448FB-0x44946) - or the -1
+// form when attackingObject == 0 (asm 0x44921-0x44946) - via the
+// owner vtbl slot 75 @+0x12C (notify, RGE_PlayerVtbl :7202), and the
+// owner's notifyUnitDeath (slot 76 @+0x130, :7203) when hp < 1.0 (or
+// NaN; hp = 0 first; asm 0x44494C-0x44496D). Finally the damage
+// sound: RGE_Static_Object__get_3d_sound_info (:3893, 0x00552A50 -
+// NOT hooked, the idb constant = the original) and RGE_Sound__play
+// (:3662, 0x00544400) on master->damage_sound (@+0x54 = 84).
+// BAKED (the casts.cpp special-weapon patch, STRUCTURALLY MOVED here
+// per the owner's combined-batch ruling): the special-weapon pass runs
+// right after the calculateDamage call - the patch's onGetDamage hook
+// fired it mid-loop in calculateDamage; with damage owned, the applier
+// applies the effects (the patch's caller-sniffing gate is gone -
+// everything damage does IS the real hit). Per element with type >= 41
+// (the UNIT_EXTRA effect namespace), the same armor scan feeds
+// specialDamage (casts.cpp:173, called by reference). The term-skip
+// itself is baked in calculateDamage_new (caller-independent).
+void __fastcall RGE_Combat_Object__damage_new(
+    RGE_Combat_Object* this_, DWORD dummy, int weapon_num,
+    RGE_Armor_Weapon_Info* damage, float attack_modifier,
+    RGE_Player* attacking_player, RGE_Static_Object* attackingObject,
+    int first_call)
+{
+    double total = this_->vfptr->calculateDamage(this_, weapon_num, // asm 0x444831-0x444841 (slot 59 @+0xEC; the six args forwarded: weapon_num,damage,attack_modifier,attacking_player,attackingObject)
+        damage, attack_modifier, attacking_player, attackingObject);
+    {                                                               // baked: casts.cpp:877/878 - the special-weapon effects (the STRUCTURAL gate: the applier applies; the caller-sniffing is gone)
+        RGE_Master_Combat_Object* master = this_->master_obj;
+        for (int i = 0; i < weapon_num; ++i)
+        {
+            const short wtype = damage[i].type;
+            int armor_value = master->base_armor;                   // @+0x130 = 304
+            if (master->armor != 0 && master->armor_num > 0)        // @+0x134 = 308 / @+0x132 = 306
+                for (int j = 0; j < master->armor_num; ++j)
+                    if (master->armor[j].type == wtype)
+                        armor_value = master->armor[j].value;
+            if (wtype >= 41)                                        // the UNIT_EXTRA effect namespace (specialDamage's switch)
+                specialDamage((RGE_Static_Object*)this_, wtype,     // casts.cpp:173 (called by reference - the bake precedent)
+                    damage[i].value, armor_value);
+        }
+    }
+    if (X87_LE_NAN(this_->sp, 0.0f)                                 // asm 0x444847-0x444855 (fld [esi+40h] = sp; fcomp const_f_zero; test ah,41h; jnz -> the hp branch)
+        || X87_LE_NAN(total, 0.0f))                                 // asm 0x444857-0x444862 (fcom const_f_zero - the total; the skip set {<=, NaN})
+    {
+        this_->hp = (float)(this_->hp - total);                     // asm 0x4448A1-0x4448A9 (fld [esi+3Ch] = hp; fsub st,st(1); fstp - the single store-round)
+    }
+    else if (total > this_->sp)                                     // asm 0x444864-0x44486C (fcom [esi+40h]; test ah,41h; jz -> the pierce; NaN falls to the absorb)
+    {
+        this_->hp = (float)(this_->hp - (total - this_->sp));       // asm 0x444882-0x444891 (the fsub total-sp / fld hp / fsub st,st(1) / fstp sequence - the OLD sp read)
+        this_->sp = 0.0f;                                           // asm 0x444888 (mov dword [esi+40h], 0)
+        this_->shield_hit_timer = 1.5f;                             // asm 0x444894-0x44489C (flt_657540 = 1.5f, .rdata:00657540)
+    }
+    else
+    {
+        this_->sp = (float)(this_->sp - total);                     // asm 0x44486E-0x444873 (the shield absorbs; hp untouched)
+        this_->shield_hit_timer = 1.5f;                             // asm 0x444876-0x44487D (the shield-hit marker)
+    }
+    int attacker_id = -1;                                           // asm 0x4448AC (or ebx,0FFFFFFFFh)
+    if (attackingObject != 0)                                       // asm 0x4448AF-0x4448B2 (test edi/jz)
+    {
+        if (attackingObject->master_obj->master_type == 60)         // asm 0x4448B4-0x4448BB (master_obj @+0x14; master_type byte @+4, cmp 3Ch - the runtime-type guard)
+            attacker_id = ((RGE_Missile_Object*)attackingObject)->fired_from_id;   // asm 0x4448BD (@+0x184 = 388, RGE_Missile_Object :21058)
+        else
+            attacker_id = attackingObject->id;                      // asm 0x4448C5 (@+0x10)
+        this_->vfptr->notify(this_, attacker_id, this_->id, 500,    // asm 0x4448D4-0x4448EB (slot 120 @+0x1E0, :11454; mType 500 = UNDER-ATTACK; the pushes: group,ftol(hp),attacker_id,500,id,attacker_id)
+            attackingObject->id, (int)this_->hp,                    // asm 0x4448D5 __ftol(hp) - the p2 int form
+            this_->master_obj->object_group);                       // asm 0x4448D0 (movsx word @+0x32 = 50)
+        if (attackingObject->owner != this_->owner)                 // asm 0x4448F1-0x4448F9 ([edi+18h] vs [esi+18h] - the pointer compare)
+        {
+            this_->owner->vfptr->notify(this_->owner, this_->id,    // asm 0x448FB-0x44946 (the owner vtbl slot 75 @+0x12C, :7202; mType 530 = the owner's unit-attacked notify)
+                attackingObject->id, 530, attackingObject->id,      // caller = id; recipient/p1 = the attacker id
+                (int)this_->hp, this_->master_obj->object_group);   // p2 = ftol(hp); p3 = the group
+        }
+    }
+    else
+    {
+        this_->owner->vfptr->notify(this_->owner, this_->id, -1,    // asm 0x44921-0x44946 (the -1 form: the attacker unknown)
+            530, -1, (int)this_->hp, this_->master_obj->object_group);
+    }
+    if (X87_LT_NAN(this_->hp, 1.0))                                 // asm 0x44494C-0x44495A (fld [esi+3Ch]; fcom const_d_one; test ah,1; jz -> keep; the set {<1, NaN})
+    {
+        this_->hp = 0.0f;                                           // asm 0x44962 (mov dword [esi+3Ch], 0)
+        this_->owner->vfptr->notifyUnitDeath(this_->owner,          // asm 0x44969-0x4496D (slot 76 @+0x130, :7203)
+            this_->id, attacker_id);
+    }
+    if (this_->master_obj->damage_sound != 0)                       // asm 0x44973-0x4497D (@+0x54 = 84)
+    {
+        int pan = 0;
+        int volume = 0;
+        if (RGE_Static_Object__get_3d_sound_info(                   // asm 0x4497F-0x44992 (:3893, 0x00552A50 - NOT hooked; the idb constant = the original)
+                (RGE_Static_Object*)this_, &pan, &volume) != 0)
+        {
+            RGE_Sound__play(this_->master_obj->damage_sound, 1,     // asm 0x4499C-0x449AA (:3662, 0x00544400; playType 1, player_id/culture -1)
+                pan, volume, -1, -1);
+        }
+    }
+}
+
+// Replacement for RGE_Combat_Object::explore. Original: @ 0x00445980
+// (idb_functions.h:1103). Range [0x445980, 0x445AA7) (lst :120940/:121066,
+// retn 0Ch = 3 stack args), returns int. ABI: __thiscall. Virtual:
+// vftable DATA XREF on both Combat and Missile vftables. SEH: MSVC
+// frame (push -1 / explore_SEH @0x445988); the unwind funclet chunk
+// 0x641590-0x64159A = mov eax,[ebp+0Ch] / call operator_delete on the
+// RAW allocation (scope stru_67FD70) - the transport/unload twin shape,
+// same fold.
+// Semantics: the EXPLORE MISSION BUILDER (the action_type 4 =
+// RGE_ACTION_TYPE_EXPLORE gate). Three branches: (a) unconditional == 0
+// AND the current action already IS the Explore action -> return 1
+// (nothing to do); (b) the current action is the Explore action (with
+// unconditional, or the non-already fall-through) -> re-TARGET it with
+// work(0, (float)tX, (float)tY, world_z @+0x50) - obj_in = 0 (the
+// transport twin's form); (c) otherwise build a fresh
+// RGE_Action_Explore (operator_new 0x40 = sizeof, walked
+// idb_types.h:28656-28676; ctor obj_in = this, task_in = 0, x = tX,
+// y = tY, z = world_z), replace the action list (delete_list +
+// set_only_action), and return 1 (0 on the allocation/ctor failure).
+// The tX/tY INT params convert to float at both call forms (the asm's
+// fild/fstp into the reserved slots - the pseudocode's x/y locals).
+int __fastcall RGE_Combat_Object__explore_new(
+    RGE_Combat_Object* this_, DWORD dummy, int tX, int tY, int unconditional)
+{
+    if (unconditional == 0                                          // asm 0x44599B-0x44599F (test/jnz skips the already-check)
+        && RGE_Action_List__have_action(this_->actions) == 1)       // asm 0x4459A1-0x4459AC (cmp al,1; actions @+0x13C)
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x4459B0-0x4459B6
+        if (current->vfptr->type(current) == RGE_ACTION_TYPE_EXPLORE)        // asm 0x4459BF-0x4459C6 (slot 6 @+0x18; cmp ax,4)
+            return 1;                                               // asm loc_445A92 (the already-exploring return)
+    }
+    if (RGE_Action_List__have_action(this_->actions) == 1)          // asm 0x4459CC-0x4459D9 (the join loc_4459CC, 2 inbound)
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x4459DB-0x4459E1
+        if (current->vfptr->type(current) == RGE_ACTION_TYPE_EXPLORE)        // asm 0x4459EA-0x4459F1 (slot 6; cmp ax,4)
+        {
+            RGE_Action* existing = RGE_Action_List__get_action(this_->actions);   // asm 0x4459F0-0x4459F9 (the third fetch - faithful)
+            existing->vfptr->work(existing, 0, (float)tX, (float)tY,          // asm 0x445A03-0x445A18 (slot 13 @+0x34; the fild/fstp float conversions; obj_in = 0)
+                this_->world_z);                                    // asm 0x4459FE (@+0x50)
+            return 1;                                               // asm 0x445A1B (jmp loc_445A92)
+        }
+    }
+    RGE_Action_Explore* allocated =
+        (RGE_Action_Explore*)operator_new_internal(sizeof(RGE_Action_Explore));   // asm 0x445A1D-0x445A27 (push 40h; sizeof walked 64 = 0x40)
+    RGE_Action* fresh = 0;                                          // asm 0x445A33 (xor edi,edi); EH state 0 @0x445A2D
+    __try
+    {
+        if (allocated != 0)                                         // asm 0x445A2B-0x445A35
+            fresh = (RGE_Action*)RGE_Action_Explore__RGE_Action_Explore(
+                allocated, (RGE_Action_Object*)this_, 0, (float)tX, // asm 0x445A50 (obj_in = this_, task_in = 0; the (float)tX/tY @0x445A3A/0x445A43)
+                (float)tY, this_->world_z);                         // asm 0x445A37 (push edx = z)
+    }
+    __except (operator_delete_internal(allocated), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x641590-0x64159A (operator_delete, raw allocation)
+    {
+    }
+    if (fresh == 0)                                                 // asm 0x445A5B-0x445A65 (EH state -> -1 @0x445A5D)
+        return 0;                                                   // asm 0x445A67-0x445A79 (the inline epilogue)
+    RGE_Action_List__delete_list(this_->actions);                   // asm 0x445A7C-0x445A82
+    this_->vfptr->set_only_action(this_, fresh);                    // asm 0x445A87-0x445A8C (slot 231 @+0x39C)
+    return 1;                                                       // asm 0x445A92-0x445AA4
+}
+
+// Replacement for RGE_Combat_Object::moveTo2. Original: @ 0x00445530
+// (idb_functions.h:1100). Range [0x445530, 0x44565D) (lst :120442/:120578,
+// retn 0Ch = 3 stack args), returns int. ABI: __thiscall. Virtual:
+// vftable DATA XREF on both Combat and Missile vftables. SEH: MSVC
+// frame; the unwind funclet chunk 0x641530-0x64153A = mov eax,[ebp+4] /
+// call operator_delete on the RAW allocation (scope stru_67FCF8) - the
+// family's fourth twin, same fold.
+// Semantics: the TARGET-RESOLVING MOVE BUILDER. oID resolves through
+// RGE_Game_World__object (idb_functions.h:6086, 0x00623DB0 - __thiscall
+// with the WORLD as this: owner->world @+0x8C, TRIBE_Player :727; the
+// (RGE_Game_World*) dual-naming cast) - a null target returns 0. The
+// already-check (skipped when unconditional != 0): the current action's
+// get_target_obj (slot 20 @+0x50, RGE_ActionVtbl :15982) == the target
+// AND its type == 1 (RGE_ACTION_TYPE_MOVE_TO) -> return 1 (already
+// moving at it). The sprite: get_run_sprite (master vtbl slot 31
+// @+0x7C, RGE_Master_Combat_ObjectVtbl :11247) - and the ORIGINAL
+// calls it TWICE when non-null (the f() ? f() : g() source form -
+// faithfully replicated); null -> get_move_sprite (slot 30 @+0x78,
+// :11246). Then the Move_To builder: operator_new 0x44 = sizeof
+// (RGE_Action_Move_To), walked idb_types.h:20755-20776 (the base 64 +
+// float range @64); ctor RGE_Action_Move_To2 (idb_functions.h:101,
+// 0x004082C0; obj_in = this, target_obj_in = the resolved target,
+// range_in = minRange, sprite_in = the resolved sprite), replace the
+// action list, return 1 (0 on the allocation/ctor failure).
+int __fastcall RGE_Combat_Object__moveTo2_new(
+    RGE_Combat_Object* this_, DWORD dummy, int oID, float range_in,
+    int unconditional)
+{
+    RGE_Static_Object* target = RGE_Game_World__object(             // asm 0x44554E-0x44555D (owner @+0x18; world @+0x8C, TRIBE_Player :727; the resolver :6086)
+        (RGE_Game_World*)this_->owner->world, oID);
+    if (target == 0)                                                // asm 0x44555F-0x445561 (test/jnz)
+        return 0;                                                   // asm 0x445563-0x445577 (the inline epilogue)
+    if (unconditional == 0                                          // asm 0x44557B-0x44557D (test/jnz skips the already-check)
+        && RGE_Action_List__have_action(this_->actions) == 1)       // asm 0x44557F-0x44558C (cmp al,1)
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x44558E-0x445594
+        if (current->vfptr->get_target_obj(current) == target       // asm 0x44559D-0x4455A2 (slot 20 @+0x50, RGE_ActionVtbl :15982)
+            && current->vfptr->type(current) == RGE_ACTION_TYPE_MOVE_TO)     // asm 0x4455B3-0x4455BA (slot 6 @+0x18; cmp ax,1)
+            return 1;                                               // asm loc_445647 (the already-moving return)
+    }
+    RGE_Sprite* move_sprite = this_->master_obj->vfptr->get_run_sprite(   // asm 0x4455C0-0x4455C6 (slot 31 @+0x7C, :11247 - the FIRST call)
+        this_->master_obj, (RGE_Static_Object*)this_);
+    if (move_sprite != 0)                                           // asm 0x4455CC-0x4455CE (test/jz)
+        move_sprite = this_->master_obj->vfptr->get_run_sprite(     // asm 0x4455D0-0x4455D3 (the SECOND get_run_sprite - the source's f() ? f() : g() form, faithful)
+            this_->master_obj, (RGE_Static_Object*)this_);
+    else
+        move_sprite = this_->master_obj->vfptr->get_move_sprite(    // asm 0x4455D8-0x4455DB (slot 30 @+0x78, :11246)
+            this_->master_obj, (RGE_Static_Object*)this_);
+    RGE_Action_Move_To* allocated =
+        (RGE_Action_Move_To*)operator_new_internal(sizeof(RGE_Action_Move_To));   // asm 0x4455DE-0x4455E2 (push 44h; sizeof walked 68 = 0x44 - the base 64 + float range @64)
+    RGE_Action* fresh = 0;                                          // asm 0x44560D (xor edi,edi on the null path); EH state 0 @0x4455F0
+    __try
+    {
+        if (allocated != 0)                                         // asm 0x4455EE-0x4455F8
+            fresh = (RGE_Action*)RGE_Action_Move_To__RGE_Action_Move_To2(
+                allocated, (RGE_Action_Object*)this_, target,       // asm 0x4455FE-0x445604 (obj_in = this_, target_obj_in = the resolved target)
+                range_in, move_sprite);                             // asm 0x4455FF-0x445600 (range_in, sprite_in)
+    }
+    __except (operator_delete_internal(allocated), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x641530-0x64153A (operator_delete, raw allocation)
+    {
+    }
+    if (fresh == 0)                                                 // asm 0x44560F-0x445619 (EH state -> -1 @0x445611)
+        return 0;                                                   // asm 0x44561B-0x44562E (the inline epilogue)
+    RGE_Action_List__delete_list(this_->actions);                   // asm 0x445631-0x445637
+    this_->vfptr->set_only_action(this_, fresh);                    // asm 0x44563C-0x445641 (slot 231 @+0x39C)
+    return 1;                                                       // asm 0x445647-0x44565A
+}
+
+// Replacement for RGE_Combat_Object::attack. Original: @ 0x00445380
+// (idb_functions.h:1098). Range [0x445380, 0x445501) (lst :120262/:120410,
+// retn 10h = 4 stack args), returns int. ABI: __thiscall. Virtual:
+// vftable DATA XREF on both Combat and Missile vftables. SEH: MSVC
+// frame; the unwind funclet chunk 0x641510-0x64151A = the operator_delete
+// raw-allocation fold (the family's sixth twin).
+// Semantics: the COORDINATE-FORM ATTACK BUILDER. The already-check
+// (skipped when unconditional != 0): the current action's target
+// coordinate vs the requested (x, y, z) and its type being Attack2 (9)
+// or Attack (7) -> return 1 (already attacking). PRESERVED ORIGINAL
+// QUIRK: the coordinate compares call RGE_Action__targetX (:186,
+// 0x0040B040) THREE TIMES - the same getter vs x, then y, then z
+// (targetY/targetZ exist at :187/:188 but are never called here) - so
+// the skip can only pass when the requested x == y == z; the compares'
+// fall-through set is {==, NaN} (fcomp + test ah,40h + jz -> the skip)
+// - written X87_EQ_NAN (the getter hoisted to a local per the macro's
+// call-arg rule). Otherwise the builder: operator_new 0x68 = sizeof
+// (RGE_Action_Attack), walked idb_types.h:20891-20924; ctor
+// RGE_Action_Attack2 (idb_functions.h:8, 0x004012E0; obj_in = this,
+// x, y, z, the three sprites = 0, range = master->weapon_range
+// @+0x168 = 360, min_range = minimum_weapon_range @+0x144 = 324,
+// missile_id @+0x154 = 340, fire_missile_at_frame @+0x15A = 346);
+// null -> return 0. Then: delete_list; type(fresh) (slot 6 @+0x18 -
+// with the setUnitAIAction args STAGED on the stack around it, asm
+// 0x4454BF-0x4454CC); setUnitAIAction (slot 234 @+0x3A8, :11568 -
+// this->vfptr->setUnitAIAction(this, the issued type word, 0, x, y, z)
+// - asm 0x4444CF-0x4444DF: the edx = the spilled unit vtbl (0x4444BD/
+// 0x4444C8, the dead x-slot reuse), the [esp+1Ch+arg_10] read = the
+// reload of that spill (the IDA arg_10 label = the decompositional
+// artifact across the SEH chunks; the dispatch = the unit's OWN
+// setUnitAIAction - the UnitAI learns the new attack action); then
+// set_only_action (slot 231 @+0x39C). Return 1.
+unsigned __int8 __fastcall RGE_Combat_Object__attack_new(
+    RGE_Combat_Object* this_, DWORD dummy, float x, float y, float z,
+    int unconditional)
+{
+    RGE_Action* fresh = 0;                                          // asm 0x44539D (xor edi,edi)
+    if (unconditional == 0                                          // asm 0x4453A1-0x4453A3 (cmp edi/jnz skips the already-check)
+        && RGE_Action_List__have_action(this_->actions) == 1)       // asm 0x4453A9-0x4453B6 (cmp al,1)
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x4453BC-0x4453C2
+        double tx = RGE_Action__targetX(current);                   // asm 0x4453C9 (:186, 0x0040B040 - the double/st0 return)
+        if (X87_EQ_NAN(tx, x)                                       // asm 0x4453CE-0x4453D7 (fcomp; test ah,40h; jz -> the skip; the {==, NaN} fall-through)
+            && X87_EQ_NAN(tx, y)                                    // asm 0x4453EB-0x4453F4 (the SAME getter vs y - the preserved quirk)
+            && X87_EQ_NAN(tx, z)                                    // asm 0x445408-0x445411 (vs z)
+            && (current->vfptr->type(current) == RGE_ACTION_TYPE_ATTACK2     // asm 0x445422-0x445429 (slot 6 @+0x18; cmp ax,9)
+                || current->vfptr->type(current) == RGE_ACTION_TYPE_ATTACK)) // asm 0x44543E-0x445445 (cmp ax,7)
+            return 1;                                               // asm loc_4454EA (the already-attacking return)
+    }
+    RGE_Action_Attack* allocated =
+        (RGE_Action_Attack*)operator_new_internal(sizeof(RGE_Action_Attack));   // asm 0x44544B-0x4444D (push 68h; sizeof walked 104 = 0x68); EH state 0 @0x445463
+    __try
+    {
+        if (allocated != 0)                                         // asm 0x445461-0x445467 (cmp eax,edi/jz)
+            fresh = (RGE_Action*)RGE_Action_Attack__RGE_Action_Attack2(          // asm 0x445497 (:8, 0x004012E0)
+                allocated, (RGE_Action_Object*)this_, x, y, z,      // asm 0x44548D-0x445494 (obj_in = this_; x, y, z)
+                0, 0, 0,                                            // asm 0x44548E-0x445490 (move/fight/wait sprites = 0, edi)
+                this_->master_obj->weapon_range,                    // asm 0x44547C-0x445488 (@+0x168 = 360; min_range @+0x144 = 324 pushed first)
+                this_->master_obj->minimum_weapon_range,
+                this_->master_obj->missile_id,                      // asm 0x445474 (@+0x154 = 340, the word)
+                this_->master_obj->fire_missile_at_frame);          // asm 0x44546C (@+0x15A = 346, the word)
+    }
+    __except (operator_delete_internal(allocated), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x641510-0x64151A (operator_delete, raw allocation)
+    {
+    }
+    if (fresh == 0)                                                 // asm 0x44549E-0x4454AC
+        return 0;                                                   // asm 0x4454AA-0x4454AC
+    RGE_Action_List__delete_list(this_->actions);                   // asm 0x4454AE-0x4454B4
+    int action_type = fresh->vfptr->type(fresh);                    // asm 0x4454C2-0x4454CC (slot 6 @+0x18; the setUnitAIAction args STAGED on the stack around this call: 0x4454BF-0x4454C4)
+    this_->vfptr->setUnitAIAction(this_, action_type, 0, x, y, z);  // asm 0x4444CF-0x4444DF (slot 234 @+0x3A8, :11568; edx = the spilled unit vtbl 0x4444BD/0x4444C8; [esp+1Ch+arg_10] = that spill reloaded - the IDA arg_10 label is the decompositional artifact)
+    this_->vfptr->set_only_action(this_, fresh);                    // asm 0x4454DF-0x4454E4 (slot 231 @+0x39C)
+    return 1;                                                       // asm 0x4454EA-0x4454FE
+}
+
+// Replacement for RGE_Combat_Object::moveTo. Original: @ 0x00445660
+// (idb_functions.h:1101). Range [0x445660, 0x4457E5) (lst :120585/:120756,
+// retn 18h = 6 stack args), returns int. ABI: __thiscall. Virtual:
+// vftable DATA XREF on both Combat and Missile vftables + CODE XREF
+// TRIBE_Combat_Object__moveTo+DF (the TRIBE tier forwards into this
+// implementation - the entry hook covers that call). SEH: MSVC frame;
+// the unwind funclet chunk 0x641550-0x64155A = mov eax,[ebp+0Ch] /
+// call operator_delete on the RAW allocation (scope stru_67FD20) - the
+// family twin, same fold.
+// Semantics: the COORDINATE-FORM MOVE BUILDER. The already-check
+// (skipped when unconditional != 0): the current action's target
+// coordinate vs the requested (x, y, z) via the CORRECT three getters
+// (targetX/targetY/targetZ :186-188 - the attack twin's triple-targetX
+// quirk does NOT appear here) and its type == 1
+// (RGE_ACTION_TYPE_MOVE_TO) -> return 1 (already moving). The
+// re-target: move_to (slot 12 @+0x30, RGE_ActionVtbl :15974) with
+// obj_in = THIS (the explore/transport twins pass 0) -> return 1 when
+// move_to answers 1. Otherwise the builder: the walk flag picks the
+// sprite (walk != 0 -> get_move_sprite slot 30 @+0x78 directly; walk
+// == 0 -> get_run_sprite slot 31 @+0x7C with the f() ? f() :
+// get_move_sprite double-call form), operator_new 0x44 = sizeof
+// (RGE_Action_Move_To), walked idb_types.h:20755-20776; ctor
+// RGE_Action_Move_To (idb_functions.h:100, 0x00408220; obj_in = this,
+// x, y, z, range_in = minRange, sprite_in), replace the action list,
+// return 1 (0 on the allocation/ctor failure).
+int __fastcall RGE_Combat_Object__moveTo_new(
+    RGE_Combat_Object* this_, DWORD dummy, float x, float y, float z,
+    float minRange, int unconditional, int walk)
+{
+    if (unconditional == 0                                          // asm 0x44567D-0x445681 (test/jnz skips the already-check)
+        && RGE_Action_List__have_action(this_->actions) == 1)       // asm 0x445687-0x445694 (cmp al,1)
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x445696-0x44569C
+        double tx = RGE_Action__targetX(current);                   // asm 0x4456A3 (:186)
+        double ty = RGE_Action__targetY(current);                   // asm 0x4456C0 (:187)
+        double tz = RGE_Action__targetZ(current);                   // asm 0x4456DD (:188)
+        if (X87_EQ_NAN(tx, x) && X87_EQ_NAN(ty, y)                  // asm 0x4456A8-0x4456EB (fcomp + test ah,40h; jz -> the skip; the {==, NaN} fall-through x3)
+            && X87_EQ_NAN(tz, z)
+            && current->vfptr->type(current) == RGE_ACTION_TYPE_MOVE_TO)     // asm 0x4456FC-0x445703 (slot 6 @+0x18; cmp ax,1)
+            return 1;                                               // asm loc_4457CE (the already-moving return)
+    }
+    if (RGE_Action_List__have_action(this_->actions) == 1)          // asm 0x445709-0x44571E
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x445720-0x445726
+        if (current->vfptr->move_to(current,                        // asm 0x445737-0x44573D (slot 12 @+0x30, RGE_ActionVtbl :15974)
+                (RGE_Static_Object*)this_, x, y, z) == 1)           // asm 0x44572B-0x445733 (the pushes: z,y,x,this - obj_in = THIS)
+            return 1;                                               // asm 0x44573A-0x44573D (cmp eax,1 -> loc_4457CE)
+    }
+    RGE_Sprite* move_sprite;                                        // asm 0x445743-0x44576E (the walk-flag sprite resolution)
+    if (walk != 0)                                                  // asm 0x44574A-0x44574C (test/jz)
+        move_sprite = this_->master_obj->vfptr->get_move_sprite(    // asm 0x44574E-0x445751 (slot 30 @+0x78, :11246)
+            this_->master_obj, (RGE_Static_Object*)this_);
+    else
+    {
+        move_sprite = this_->master_obj->vfptr->get_run_sprite(     // asm 0x445759-0x445766 (slot 31 @+0x7C, :11247 - the FIRST call)
+            this_->master_obj, (RGE_Static_Object*)this_);
+        if (move_sprite != 0)                                       // asm 0x44575F-0x445761
+            move_sprite = this_->master_obj->vfptr->get_run_sprite( // asm 0x445765-0x445766 (the SECOND call - the f() ? f() : g() form, faithful)
+                this_->master_obj, (RGE_Static_Object*)this_);
+        else
+            move_sprite = this_->master_obj->vfptr->get_move_sprite(// asm 0x44576D (slot 30 @+0x78)
+                this_->master_obj, (RGE_Static_Object*)this_);
+    }
+    RGE_Action_Move_To* allocated =
+        (RGE_Action_Move_To*)operator_new_internal(sizeof(RGE_Action_Move_To));   // asm 0x445771-0x44577D (push 44h; sizeof walked 68 = 0x44)
+    RGE_Action* fresh = 0;                                          // EH state 0 @0x445783
+    __try
+    {
+        if (allocated != 0)                                         // asm 0x445781-0x44578B
+            fresh = (RGE_Action*)RGE_Action_Move_To__RGE_Action_Move_To(
+                allocated, (RGE_Action_Object*)this_, x, y, z,      // asm 0x445799-0x44579D (obj_in = this_; x, y, z)
+                minRange, move_sprite);                             // asm 0x44578D-0x445796 (range_in, sprite_in)
+    }
+    __except (operator_delete_internal(allocated), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x641550-0x64155A (operator_delete, raw allocation)
+    {
+    }
+    if (fresh == 0)                                                 // asm 0x4457A8-0x4457B2
+        return 0;                                                   // asm 0x4457B4-0x4457B6 (jmp loc_4457D3)
+    RGE_Action_List__delete_list(this_->actions);                   // asm 0x4457B8-0x4457BE
+    this_->vfptr->set_only_action(this_, fresh);                    // asm 0x4457C3-0x4457C8 (slot 231 @+0x39C)
+    return 1;                                                       // asm 0x4457CE-0x4457D3
+}
+
+// Replacement for RGE_Combat_Object::gather. Original: @ 0x004457F0
+// (idb_functions.h:1102). Range [0x4457F0, 0x445976) (lst :120765/:120931,
+// retn 8 = 2 stack args), returns int. ABI: __thiscall. Virtual:
+// vftable DATA XREF on both Combat and Missile vftables. SEH: MSVC
+// frame; the unwind funclet chunk 0x641570 = the operator_delete
+// raw-allocation fold (the family's seventh twin).
+// Semantics: the TASK-BASED GATHER BUILDER (the action_type 5 =
+// RGE_ACTION_TYPE_GATHER gate) - the family's variant that goes through
+// the TASK layer. oID resolves through RGE_Game_World__object
+// (:6086, 0x00623DB0; the (RGE_Game_World*) dual-naming cast) - a null
+// target returns 0 (the eax = the resolver's null, the implicit return).
+// The already-check (skipped when unconditional != 0): the current
+// action's get_target_obj (slot 20 @+0x50) == the target AND its type
+// == 5 -> return 1 (already gathering). The re-target: work (slot 13
+// @+0x34) with obj_in = THE TARGET and the unit's OWN position
+// (world_x/world_y/world_z @+0x48/4C/50) as the coordinates (the
+// unload twin's arg form). Otherwise the TASK-DRIVEN builder:
+// getTask (slot 233 @+0x3A4, RGE_Combat_ObjectVtbl :11567) builds the
+// RGE_Task for (target, world_x, world_y, world_z, -1) - the final
+// __int16 param = -1 (UNKNOWN - a registry row owed); the created task
+// feeds RGE_Action_Gather__RGE_Action_Gather (:41, 0x00404160;
+// obj_in = this, task_in = the task, target_obj_in = the target;
+// operator_new 0x60 = sizeof(RGE_Action_Gather), walked
+// idb_types.h:28713-28744), replace the action list, return 1 (0 on
+// the allocation/ctor failure).
+int __fastcall RGE_Combat_Object__gather_new(
+    RGE_Combat_Object* this_, DWORD dummy, int oID, int unconditional)
+{
+    RGE_Static_Object* target = RGE_Game_World__object(             // asm 0x44580E-0x445818 (owner @+0x18; world @+0x8C, TRIBE_Player :727; the resolver :6086)
+        (RGE_Game_World*)this_->owner->world, oID);
+    if (target == 0)                                                // asm 0x44581F-0x445821 (test/jnz)
+        return 0;                                                   // asm 0x445823-0x445834 (the eax = the resolver's null - the implicit return)
+    if (unconditional == 0                                          // asm 0x44583B-0x44583D
+        && RGE_Action_List__have_action(this_->actions) == 1)       // asm 0x44583F-0x44584C
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x44584E-0x445854
+        if (current->vfptr->get_target_obj(current) == target       // asm 0x44585D-0x445862 (slot 20 @+0x50)
+            && current->vfptr->type(current) == RGE_ACTION_TYPE_GATHER)      // asm 0x445873-0x44587A (slot 6 @+0x18; cmp ax,5)
+            return 1;                                               // asm loc_445960 (the already-gathering return)
+    }
+    if (RGE_Action_List__have_action(this_->actions) == 1)          // asm 0x445880-0x44588D
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x44588F-0x445895
+        if (current->vfptr->type(current) == RGE_ACTION_TYPE_GATHER)         // asm 0x44589E-0x4458A5 (slot 6; cmp ax,5)
+        {
+            current->vfptr->work(current, target,                   // asm 0x4458B7-0x4458C3 (slot 13 @+0x34; the pushes: world_z,world_y,world_x,target - obj_in = THE TARGET)
+                this_->world_x, this_->world_y, this_->world_z);    // asm 0x4458B2-0x4458BC (@+0x48/4C/50)
+            return 1;                                               // asm 0x4458C6 (jmp loc_445960)
+        }
+    }
+    RGE_Task* task = this_->vfptr->getTask(this_, target,           // asm 0x4458CB-0x4458DE (slot 233 @+0x3A4, RGE_Combat_ObjectVtbl :11567; the pushes: -1,z,y,x,target)
+        this_->world_x, this_->world_y, this_->world_z, -1);        // the final __int16 = -1: UNKNOWN - a registry row owed
+    if (task == 0)                                                  // asm 0x4458E6-0x4458E8 (test ebx/jnz)
+        return 0;                                                   // asm 0x4458EA-0x4458FB (xor eax,eax; the inline epilogue)
+    RGE_Action_Gather* allocated =
+        (RGE_Action_Gather*)operator_new_internal(sizeof(RGE_Action_Gather));   // asm 0x4458FE-0x445905 (push 60h; sizeof walked 96 = 0x60); EH state 0 @0x44590E
+    RGE_Action* fresh = 0;                                          // asm 0x445926 (xor esi,esi)
+    __try
+    {
+        if (allocated != 0)                                         // asm 0x44590C-0x445916
+            fresh = (RGE_Action*)RGE_Action_Gather__RGE_Action_Gather(
+                allocated, (RGE_Action_Object*)this_, task, target);// asm 0x44591D (obj_in = this_, task_in = the task, target_obj_in = the target)
+    }
+    __except (operator_delete_internal(allocated), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x641570 (operator_delete, raw allocation)
+    {
+    }
+    if (fresh == 0)                                                 // asm 0x445928-0x445932 (EH state -> -1 @0x44592A)
+        return 0;                                                   // asm 0x445934-0x445947 (xor eax,eax; the inline epilogue)
+    RGE_Action_List__delete_list(this_->actions);                   // asm 0x44594A-0x445950
+    this_->vfptr->set_only_action(this_, fresh);                    // asm 0x445955-0x44595A (slot 231 @+0x39C)
+    return 1;                                                       // asm 0x445960-0x445973
+}
+
+// Replacement for RGE_Combat_Object::attack2. Original: @ 0x00445190
+// (idb_functions.h:1097). Range [0x445190, 0x445377) (lst :120062/:120253,
+// retn 8 = 2 stack args), returns int. ABI: __thiscall. Virtual:
+// vftable DATA XREF on both Combat and Missile vftables + CODE XREF
+// TRIBE_Combat_Object__attack+1A7 (the TRIBE tier forwards into this
+// implementation - the entry hook covers that call). SEH: MSVC frame;
+// the unwind funclet chunk 0x6414F0-0x6414FA = mov eax,[ebp+4] / call
+// operator_delete on the RAW allocation (scope stru_67FCA8) - the
+// family's seventh twin, same fold.
+// Semantics: the ID-FORM ATTACK BUILDER. oID resolves through
+// RGE_Game_World__object (:6086, 0x00623DB0; the (RGE_Game_World*)
+// dual-naming cast) - a null target returns 0 (the resolver's null,
+// the implicit return). The already-check (skipped when unconditional
+// != 0): the current action's get_target_obj (slot 20 @+0x50) == the
+// target AND its type being Attack2 (9) or Attack (7) -> return 1
+// (already attacking it). The re-target: when the current action
+// already targets it AND is an Attack2 (9): work (slot 13 @+0x34) with
+// obj_in = THE TARGET and the TARGET's world_x/world_y/world_z
+// (@+0x48/4C/50) as the coordinates -> return 1. THE WORKER TRANSFORM
+// (the special block, asm 0x44529B-0x4452D5): when the master's
+// object_group (@+0x1E = 30) == 58 (WORKER - the registry), the unit
+// TRANSFORMS into the armed variant before the action is built:
+// task_by_group (@+0x11C = 284) == 1 -> master_objects[83], else
+// master_objects[293] (the transform-target master ids - registry
+// candidates), and the transform goes through the unit vtbl slot 51
+// @+0xCC (transform, RGE_Combat_ObjectVtbl :11385 - OWNED, routes to
+// transform_new). Then the builder: operator_new 0x68 = sizeof
+// (RGE_Action_Attack), walked idb_types.h:20891-20924; ctor
+// RGE_Action_Attack (idb_functions.h:7, 0x00401150; obj_in = this,
+// target_obj_in = the target, the three sprites = 0, the four master
+// weapon fields), replace the action list, return 1 (0 on the
+// allocation/ctor failure).
+int __fastcall RGE_Combat_Object__attack2_new(
+    RGE_Combat_Object* this_, DWORD dummy, int oID, int unconditional)
+{
+    RGE_Static_Object* target = RGE_Game_World__object(             // asm 0x4451AD-0x4451BC (owner @+0x18; world @+0x8C, TRIBE_Player :727; the resolver :6086)
+        (RGE_Game_World*)this_->owner->world, oID);
+    if (target == 0)                                                // asm 0x4451BE-0x4451C0 (test/jnz)
+        return 0;                                                   // asm 0x4451C2-0x4451D2 (the eax = the resolver's null - the implicit return)
+    if (unconditional == 0                                          // asm 0x4451D9-0x4451DB
+        && RGE_Action_List__have_action(this_->actions) == 1)       // asm 0x4451DD-0x4451EA
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x4451EC-0x4451F2
+        if (current->vfptr->get_target_obj(current) == target)      // asm 0x4451FB-0x445200 (slot 20 @+0x50)
+        {
+            RGE_Action* t9 = RGE_Action_List__get_action(this_->actions);    // asm 0x445202-0x445208 (the second fetch - faithful)
+            if (t9->vfptr->type(t9) == RGE_ACTION_TYPE_ATTACK2)     // asm 0x445211-0x445218 (cmp ax,9)
+                return 1;                                           // asm loc_445362
+            RGE_Action* t7 = RGE_Action_List__get_action(this_->actions);    // asm 0x44521E-0x445224 (the third fetch - faithful)
+            if (t7->vfptr->type(t7) == RGE_ACTION_TYPE_ATTACK)      // asm 0x44522D-0x445234 (cmp ax,7)
+                return 1;                                           // asm loc_445362
+        }
+    }
+    if (RGE_Action_List__have_action(this_->actions) == 1)          // asm 0x44523A-0x445247
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x44524F-0x445254
+        if (current->vfptr->get_target_obj(current) == target)      // asm 0x44525B-0x44525D
+        {
+            RGE_Action* t9 = RGE_Action_List__get_action(this_->actions);    // asm 0x445265-0x44526A
+            if (t9->vfptr->type(t9) == RGE_ACTION_TYPE_ATTACK2)     // asm 0x44526E-0x445275 (cmp ax,9)
+            {
+                RGE_Action* t11 = RGE_Action_List__get_action(this_->actions);   // asm 0x445277-0x44527D (the third fetch - faithful)
+                t11->vfptr->work(t11, target, target->world_x,      // asm 0x445287-0x445293 (slot 13 @+0x34; obj_in = THE TARGET; the coords = the target's @+0x48/4C/50)
+                    target->world_y, target->world_z);
+                return 1;                                           // asm 0x445296 (jmp loc_445362)
+            }
+        }
+    }
+    if (this_->master_obj->object_group == 58)                      // asm 0x44529E-0x4452A3 (word @+0x1E = 30; 58 = WORKER - the registry)
+    {
+        RGE_Master_Static_Object* transform_target = 0;             // asm 0x4452D0's eax (the master pick)
+        if (this_->master_obj->task_by_group == 1)                  // asm 0x4452A5-0x4452AC (byte @+0x11C = 284, cmp 1)
+            transform_target = this_->owner->master_objects[83];    // asm 0x4452B1-0x4452B4 ([eax+14Ch] = 83*4 - the transform-target master id: registry candidate)
+        else
+            transform_target = this_->owner->master_objects[293];   // asm 0x4452C3-0x4452C6 ([ecx+494h] = 293*4 - registry candidate)
+        if (transform_target != 0)                                  // asm 0x4452BA-0x4452CE (the two test/jz joins)
+            this_->vfptr->transform(this_, transform_target);       // asm 0x4452D0-0x4452D5 (slot 51 @+0xCC, :11385 - OWNED, routes to transform_new)
+    }
+    RGE_Action_Attack* allocated =
+        (RGE_Action_Attack*)operator_new_internal(sizeof(RGE_Action_Attack));   // asm 0x4452DB-0x4452E2 (push 68h; sizeof walked 104 = 0x68); EH state 0 @0x4452EB
+    RGE_Action* fresh = 0;                                          // asm 0x445329 (xor edi,edi)
+    __try
+    {
+        if (allocated != 0)                                         // asm 0x4452E9-0x4452F3
+            fresh = (RGE_Action*)RGE_Action_Attack__RGE_Action_Attack(       // asm 0x445320 (:7, 0x00401150)
+                allocated, (RGE_Action_Object*)this_, target,       // asm 0x44531C-0x44531D (obj_in = this_, target_obj_in = the target)
+                0, 0, 0,                                            // asm 0x445316-0x445318 (move/fight/wait sprites = 0)
+                this_->master_obj->weapon_range,                    // asm 0x445308 (@+0x168 = 360; min_range @+0x144 = 324)
+                this_->master_obj->minimum_weapon_range,
+                this_->master_obj->missile_id,                      // asm 0x445300 (@+0x154 = 340)
+                this_->master_obj->fire_missile_at_frame);          // asm 0x4452F8 (@+0x15A = 346)
+    }
+    __except (operator_delete_internal(allocated), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x6414F0-0x6414FA (operator_delete, raw allocation)
+    {
+    }
+    if (fresh == 0)                                                 // asm 0x44532B-0x44532D
+        return 0;                                                   // asm 0x445337-0x445349 (the inline epilogue)
+    RGE_Action_List__delete_list(this_->actions);                   // asm 0x44534C-0x445352
+    this_->vfptr->set_only_action(this_, fresh);                    // asm 0x445357-0x44535C (slot 231 @+0x39C)
+    return 1;                                                       // asm 0x445362-0x445374
+}
+
+// Replacement for RGE_Combat_Object::attack4. Original: @ 0x00444170
+// (idb_functions.h:1081). Range [0x444170, 0x4443AF) (the regenerated
+// listing :118273/:118533), retn 8 = 2 stack args), returns unsigned
+// __int8. ABI: __thiscall. Virtual: vftable DATA XREF on both Combat
+// and Missile vftables. NO SEH frame (the plain sub esp,0Ch + the 4
+// register pushes - no __unwind markers, no EH state dance).
+// Semantics: THE MISSILE FIRER - the function that actually launches
+// the projectile for a hit. target == 0 -> return 0. attack_count++
+// (@+0x170 = 368). Then the split on master->missile_id (@+0x154 =
+// 340): missile_id < 0 (no missile) -> the DIRECT do_attack dispatch
+// (slot 240 @+0x3C0, RGE_Combat_ObjectVtbl :11574 - OWNED, routes) with
+// (target, launcher, world_x, world_y, world_z, 1.0f) and return 1.
+// missile_id >= 0 -> the MISSILE path: the muzzle offset from the
+// unit's angle (@+0xC8 = 200, the Moving extension): muzzle_x =
+// -sin(angle)*weapon_offset_x + cos(angle)*weapon_offset_y + world_x;
+// muzzle_y = sin(angle)*weapon_offset_y + cos(angle)*weapon_offset_x
+// + world_y; muzzle_z = weapon_offset_z (@+0x164 = 356) + world_z
+// (the weapon_offset_x/y/z @+0x15C/160/164 = 348/352/356); in_range =
+// sqrt(radius_x^2 + radius_y^2) (@+0x3C/40 = 60/64) + weapon_range
+// + 2.0 (flt_6552F4). master_objects[missile_id] null -> return 0.
+// The projectile-master selection (the three-way): when the LAUNCHER
+// is a GE Assault Mech and the target is an Aircraft ->
+// master_objects[992]; when the LAUNCHER is an Air Cruiser and the
+// target is an Aircraft -> master_objects[836]; else
+// master_objects[missile_id] (the AA counter-battery master ids 992 /
+// 836 - registry candidates). make_new_obj (the master vtbl slot 12
+// @+0x30, :11228) creates the missile: (master, (RGE_Player*)owner,
+// muzzle_x, muzzle_y, muzzle_z) - null -> return 0. init_missile
+// (:2069, 0x0049BDE0): when (the launcher is a GE Assault Mech OR an
+// Air Cruiser) AND the target is an Aircraft -> the launcher arg = 0
+// (the AA homing form: no launcher-owner); else the launcher arg =
+// the launcher. Then the notify pair: notify (slot 120 @+0x1E0) with
+// (caller = id, recipient = id, mType 512, p1 = 600, p2 = target->id,
+// p3 = 0) - the do_attack twin's 512/600 form; then the weapon_range
+// <= 1.0 (or NaN) gate (fcom const_f_one; test ah,41h; jnz -> the
+// return - written X87_LE_NAN); then the owner's computerPlayer
+// (RGE_PlayerVtbl slot 7 @+0x1C, :7134) == 1 (the AI owner) gates the
+// TARGET's mType 527 notify: notify (the TARGET's slot 120) with
+// (caller = target->id, recipient = this->id, mType 527, p1 = this->
+// id, p2 = ftol(target->hp @+0x3C = 60), p3 = the target's master's
+// object_group @+0x32 = 50). Return 1.
+// PRECISION NOTE (flagged): the original's fsin/fcos compute at the
+// x87 80-bit microcode precision and the products ride the stack at
+// 53-bit+; our CRT sin/cos return 53-bit doubles - a <= 1 ulp
+// divergence in the muzzle position is possible (the multiplayer is
+// safe - all clients run our code; the vanilla-comparison traces may
+// show it).
+unsigned __int8 __fastcall RGE_Combat_Object__attack4_new(
+    RGE_Combat_Object* this_, DWORD dummy, RGE_Static_Object* target,
+    RGE_Combat_Object* launcher)
+{
+    if (target == 0)                                                // asm 0x44417D-0x44417F (test/jnz)
+        return 0;                                                   // asm 0x444181-0x44418A (xor al,al)
+    ++this_->attack_count;                                          // asm 0x44418D-0x44419D (@+0x170 = 368)
+    int missile_id = this_->master_obj->missile_id;                 // asm 0x44419D-0x4441A4 (word @+0x154 = 340)
+    if (missile_id < 0)                                             // asm 0x4441A4-0x4441A7 (test cx/jl)
+    {
+        this_->vfptr->do_attack(this_, target, launcher,            // asm 0x444385-0x4443A0 (slot 240 @+0x3C0, :11574 - OWNED, routes; the pushes: 1.0,z,y,x,launcher,target)
+            this_->world_x, this_->world_y, this_->world_z, 1.0f);  // asm 0x444385-0x44439D (the coords @+0x48/4C/50; the 1.0f damage_mod)
+        return 1;                                                   // asm loc_4443A6 (al = 1)
+    }
+    RGE_Master_Combat_Object* master = this_->master_obj;
+    float muzzle_x = (float)(-sin(this_->angle)                     // asm 0x4441AD-0x4441D4 (fcos/fsin/fchs/fmul/fadd; the .c's v14 form)
+        * master->weapon_offset_x
+        + cos(this_->angle) * master->weapon_offset_y
+        + this_->world_x);
+    float muzzle_y = (float)(sin(this_->angle)                      // asm 0x4441D8-0x4441EB (fmul/fxch/fmul/faddp/fadd; the .c's v13 form)
+        * master->weapon_offset_y
+        + cos(this_->angle) * master->weapon_offset_x
+        + this_->world_y);
+    float muzzle_z = (float)(master->weapon_offset_z                // asm 0x4441EF-0x4441F8 (@+0x164 = 356 + world_z)
+        + this_->world_z);
+    float in_range = (float)(sqrt(                                  // asm 0x4441FC-0x444412 (fld/fmul/fld/fmul/faddp/fsqrt)
+        master->radius_x * master->radius_x
+        + master->radius_y * master->radius_y)
+        + master->weapon_range + 2.0f);                             // asm 0x444412-0x44441B (fadd weapon_range @+0x144 = 324; fadd flt_6552F4 = 2.0f)
+    int missile_index = missile_id;                                 // asm 0x444418 (movsx)
+    if (this_->owner->master_objects[missile_index] == 0)           // asm 0x444421-0x44442F (master_objects @+0x74; cmp 0/jnz)
+        return 0;                                                   // asm 0x444431-0x44443A (xor al,al)
+    RGE_Master_Static_Object* projectile_master = 0;                // the three-way selection
+    bool target_is_aircraft = target->vfptr->gbg_isAircraft(target);// asm 0x4452DD-form (the target's slot 5 @+0x14)
+    if (launcher->vfptr->gbg_isGEAssaultMech(launcher)              // asm 0x4452C5-0x4452CF (slot 4 @+0x10)
+        && target_is_aircraft)
+        projectile_master = this_->owner->master_objects[992];      // asm 0x44425E-0x444262 ([ecx+0F80h] = 992*4 - registry candidate)
+    else if (launcher->vfptr->gbg_isAirCruiser(launcher)            // asm 0x44527D-0x445283 (slot 6 @+0x18)
+        && target_is_aircraft)
+        projectile_master = this_->owner->master_objects[836];      // asm 0x444283-0x445289 ([ecx+0D10h] = 836*4 - registry candidate)
+    else
+        projectile_master = this_->owner->master_objects[missile_index];   // asm 0x445291-0x44529B ([ecx+edx*4])
+    RGE_Missile_Object* missile = (RGE_Missile_Object*)             // asm 0x44429E-0x4442B3 (the master vtbl slot 12 @+0x30, :11228)
+        projectile_master->vfptr->make_new_obj(projectile_master,
+            (RGE_Player*)this_->owner, muzzle_x, muzzle_y, muzzle_z);   // asm 0x4442A4-0x4442AF (the owner cast: the RGE_Player* dual-naming)
+    if (missile == 0)                                               // asm 0x4442B5-0x4442C2
+        return 0;                                                   // asm 0x4442B9-0x4442C2 (xor al,al)
+    if ((launcher->vfptr->gbg_isGEAssaultMech(launcher)             // asm 0x4452C5-0x4452CF (slot 4 @+0x10)
+            || launcher->vfptr->gbg_isAirCruiser(launcher))         // asm 0x4452D0-0x4452D6 (slot 6 @+0x18)
+        && target->vfptr->gbg_isAircraft(target))                   // asm 0x4442DD-0x4442E6 (the target's slot 5)
+        RGE_Missile_Object__init_missile(missile, 0, target,        // asm 0x4442E8-0x444307 (the AA homing form: the launcher = 0)
+            in_range, this_->attack_count);
+    else
+        RGE_Missile_Object__init_missile(missile, launcher, target, // asm 0x4442F9-0x444307 (the normal form: the launcher)
+            in_range, this_->attack_count);
+    this_->vfptr->notify(this_, this_->id, this_->id, 512,          // asm 0x44430E-0x444327 (slot 120 @+0x1E0; the 512/600 pair - the do_attack twin)
+        RGE_UNITAI_ACTION_ATTACK, target->id, 0);
+    if (X87_LE_NAN(master->weapon_range, 1.0f))                     // asm 0x44432D-0x444341 (fcom const_f_one; test ah,41h; jnz -> the return; the set {<=1, NaN})
+        return 1;                                                   // asm loc_4443A6
+    if (target->owner->vfptr->computerPlayer(target->owner) == 1)   // asm 0x444343-0x44434E (the owner vtbl slot 7 @+0x1C, RGE_PlayerVtbl :7134; cmp eax,1)
+    {
+        RGE_Master_Static_Object* tmaster = target->master_obj;     // asm 0x444350 ([edi+14h] - the target is base-typed: RGE_Static_Object::master_obj)
+        int target_hp = (int)target->hp;                            // asm 0x444356-0x444360 (fld [edi+3Ch] = 60; __ftol)
+        int target_group = tmaster->object_group;                   // asm 0x444353 (movsx word @+0x32 = 50)
+        target->vfptr->notify(target, target->id, this_->id, 527,   // asm 0x44435D-0x444373 (slot 120 @+0x1E0; mType 527 - the 5xx registry; the pushes: group,ftol(hp),this_id,527,target_id,target_id)
+            this_->id, target_hp, target_group);
+    }
+    return 1;                                                       // asm 0x444379-0x444382 (al = 1)
+}
+
+// Replacement for RGE_Combat_Object::area_attack. Original: @ 0x00443EE0
+// (idb_functions.h:1080). Range [0x443EE0, 0x444165) (lst :117999/:118264,
+// retn 18h = 6 stack args), returns unsigned __int8. ABI: __thiscall.
+// Virtual: vftable DATA XREF on both Combat and Missile vftables. NO SEH
+// frame (the plain sub esp,28h + the edi push).
+// Semantics: THE AREA-EFFECT DAMAGE DEALER (the attack-ground splash).
+// master->area_effect_range (@+0x148 = 328, float) <= 0 (or NaN) ->
+// return 0. range_sq = range^2. The tile bounds: min_x = ftol(x-range)-2,
+// max_x = ftol(x+range)+2, min_y = ftol(y-range)-2, max_y = ftol(y+range)+2
+// (the __ftol truncations + the 2-tile margins); min_x clamped >= 0,
+// max_x clamped <= map->map_width, min_y clamped >= 0, max_y clamped
+// <= map->map_height. min_y >= max_y -> return 1 (the vacuous return).
+// The scan: for each row in [min_y, max_y), for each tile in
+// [min_x, max_x): tile = map->map_row_offset[row][min_x] (the 32-byte
+// RGE_Tile stride); tile->TileObject_Count (u8 @+13, :4182) == 0 -> the
+// next tile; for each of the TileObject_Count units in tile->Object_List
+// (RGE_Static_Object** @+20, :4186): skip this (self); skip when the
+// unit's master->area_effect_object_level (u8 @+0x9B = 155) < this->
+// master_obj->area_effect_level (u8 @+0x14C = 332 - the level gate: the
+// lower-tier objects take no splash); skip the ignore_object. The hit
+// test: the unit's master radii (radius_x @+0x3C = 60, radius_y @+0x40
+// = 64) absorb the distance first: excess_x = max(|unit->world_x - x| -
+// radius_x, 0); excess_y = max(|unit->world_y - y| - radius_y, 0) - the
+// {<= radius, NaN} clamp forms (fcom + test ah,41h; jnz -> 0); damage
+// fires when range_sq > excess_x^2 + excess_y^2 (fcompp + test ah,41h;
+// jnz -> the skip - the {range_sq <= sum, NaN} skip set) AND the roll:
+// (rand_internal() * 100) / RAND_MAX_INTERNAL <= this->master_obj->
+// base_hit_chance (@+0x156 = 342) (the asm's cmp dx/jg -> the miss). On
+// hit: modifier = calc_attack_modifier (slot 95 @+0x17C, :11429 - OWNED,
+// routes; the st0 -> the float spill = the single store-round); the unit
+// takes the damage (the unit vtbl slot 58 @+0xE8, :11392): damage(unit,
+// master->weapon_num (@+0x138 = 312), master->weapon (@+0x13C = 316),
+// modifier, this->owner @+0x18, attacker, first_call = 1). Return 1.
+unsigned __int8 __fastcall RGE_Combat_Object__area_attack_new(
+    RGE_Combat_Object* this_, DWORD dummy, float x, float y, float z,
+    RGE_Combat_Object* attacker, RGE_Static_Object* ignore_object,
+    RGE_Static_Object* target)
+{
+    RGE_Map* map = this_->owner->world->map;                        // asm 0x443EE6-0x443EF1 (owner @+0x18; world @+0x8C; map @+0x34)
+    float range = this_->master_obj->area_effect_range;             // asm 0x443EEF-0x443EF2 (@+0x148 = 328, float)
+    if (X87_LE_NAN(range, 0.0f))                                    // asm 0x443EF8-0x443F0A (fcom const_f_zero; test ah,41h; jz -> the continue; the return set {<=0, NaN})
+        return 0;                                                   // asm 0x443F0C-0x443F14 (xor al,al)
+    float range_sq = range * range;                                 // asm 0x443F17-0x443F1E (fld st/fmul; fstp var_8)
+    int min_x = (int)(x - range) - 2;                               // asm 0x443F22-0x443F39 (__ftol; the -2 margin)
+    int max_x = (int)(range + x) + 2;                               // asm 0x443F2D-0x443F4B (__ftol; the +2)
+    int min_y = (int)(y - range) - 2;                               // asm 0x443F52-0x443F5E
+    int max_y = (int)(range + y) + 2;                               // asm 0x443F61-0x443F66
+    if (min_x < 0)                                                  // asm 0x443F69-0x443F70 (test bp/jge -> keep; the clamp)
+        min_x = 0;
+    if (max_x > map->map_width)                                     // asm 0x443F7A-0x443F8F (cmp [edx+8]/jle -> keep)
+        max_x = map->map_width;
+    if (min_y < 0)                                                  // asm 0x443F93-0x443F96
+        min_y = 0;
+    if (max_y > map->map_height)                                    // asm 0x443F9A-0x443FA2 (cmp [edx+0Ch]/jle)
+        max_y = map->map_height;
+    if (min_y >= max_y)                                             // asm 0x443FA6-0x443FA9 (cmp si/jge -> loc_44415C)
+        return 1;                                                   // asm 0x44415C (al = 1 - the vacuous return)
+    for (int row = min_y; row < max_y; ++row)                       // asm loc_443FC6-0x444156 (var_1C += 4/var_C--)
+    {
+        RGE_Tile* tile_row = map->map_row_offset[row];              // asm 0x443FEA-0x443FF4 ([edx+0xBF18h] + var_1C)
+        for (int col = min_x; col < max_x; ++col)                   // asm loc_443FE6-0x444134 (var_14 += 32/var_10--)
+        {
+            RGE_Tile* tile = &tile_row[col];                        // asm 0x443FF7 (the 32-byte stride; [ebx+ecx+0Dh])
+            if (tile->TileObject_Count == 0)                        // asm 0x443FFD-0x444124 (test al/jz)
+                continue;
+            for (int k = 0; k < (int)tile->TileObject_Count; ++k)   // asm loc_44400F-0x444116 (mov cl,[ebx+0Dh]/jl - the count re-read per iteration, faithful)
+            {
+                RGE_Combat_Object* unit =                           // asm 0x445400F-12 ([ebx+14h] + ebp*4; the cast: the game's uniform 232-slot vtbl treatment)
+                    (RGE_Combat_Object*)tile->Object_List[k];
+                if (unit == this_)                                  // asm 0x44544015-17 (cmp esi,edi/jz)
+                    continue;
+                if (unit->master_obj->area_effect_object_level      // asm 0x4454401D-29 (byte @+0x9B = 155)
+                    < this_->master_obj->area_effect_level)         // asm 0x44544029-2F (byte @+0x14C = 332; jb -> the skip; the lower-tier objects take no splash)
+                    continue;
+                if ((RGE_Static_Object*)unit == ignore_object)      // asm 0x44544035-39 (cmp/jz; the derived-to-base cast for the pointer compare)
+                    continue;
+                double dx = fabs(unit->world_x - x);                // asm 0x4454403F-50 (fld/fsub/fabs)
+                double dy = fabs(unit->world_y - y);                // asm 0x44544062-70 (fld/fsub/fabs)
+                float excess_x = X87_LE_NAN(dx,                     // asm 0x44544052-59 (fcom st(1); test ah,41h; jnz -> 0)
+                    unit->master_obj->radius_x)
+                    ? 0.0f                                          // asm 0x4454405F-63 (fstp/fstp/fld const_f_zero)
+                    : (float)(dx - unit->master_obj->radius_x);     // asm 0x4454405B (fsubrp st(1),st - the REVERSE subtract)
+                float excess_y = X87_LE_NAN(dy,                     // asm 0x44544072-83 (fcom var_18; test ah,41h; jnz -> 0)
+                    unit->master_obj->radius_y)
+                    ? 0.0f                                          // asm 0x44544083-85 (fstp/fld const_f_zero)
+                    : (float)(dy - unit->master_obj->radius_y);     // asm 0x4454407D (fsub var_18)
+                float sum_sq = excess_x * excess_x                  // asm 0x4454408B-93 (fld st/fmul st,st(1)/fld st(2)/fmul st,st(3)/faddp)
+                    + excess_y * excess_y;
+                if (X87_LE_NAN((double)range_sq, (double)sum_sq))   // asm 0x44544095-0x445440A4 (fld var_8/fcompp/fnstsw/test ah,41h/jnz -> the skip; the set {range_sq <= sum, NaN})
+                    continue;                                       // asm 0x445440A4 (jnz loc_44410E)
+                int roll = (rand_internal() * 100)                  // asm 0x445440A6-0x445440C8 (rand; the lea/lea/shl *100 + the 80010003h magic-imul / sar 0Eh)
+                    / RAND_MAX_INTERNAL;
+                if (roll > this_->master_obj->base_hit_chance)      // asm 0x445440CA-0x445440D1 (cmp dx,[ecx+156h] = 342; jg -> the miss)
+                    continue;
+                float modifier = (float)this_->vfptr->calc_attack_modifier(this_,   // asm 0x445440D3-0x445440DE (slot 95 @+0x17C, :11429 - OWNED, routes; fstp var_4 = the float spill)
+                    (RGE_Static_Object*)unit);
+                unit->vfptr->damage(unit,                           // asm 0x445440F7-0x44544108 (slot 58 @+0xE8, :11392 - dispatched ON THE UNIT, ecx = esi)
+                    this_->master_obj->weapon_num,                  // asm 0x445440FD (movsx word @+0x138 = 312)
+                    this_->master_obj->weapon,                      // asm 0x445440F7 ([eax+13Ch] = 316)
+                    modifier,                                       // asm 0x445440F2 (the var_4 spill reloaded - the single store-round)
+                    (RGE_Player*)this_->owner,                      // asm 0x445440F1 (@+0x18 = 24; the TRIBE_Player*/RGE_Player* dual-naming cast)
+                    (RGE_Static_Object*)attacker,                   // asm 0x445440DE (push ecx = the attacker arg; the derived-to-base cast)
+                    1);                                             // asm 0x445440E9 (push 1 = first_call)
+            }
+        }
+    }
+    return 1;                                                       // asm 0x44415C-0x444165 (al = 1)
+}
+
+// Replacement for RGE_Combat_Object::enter. Original: @ 0x00445AB0
+// (idb_functions.h:1104). Range [0x445AB0, 0x445CFD) (lst :121075/:121314,
+// retn 8 = 2 stack args), returns int. ABI: __thiscall. Virtual:
+// vftable DATA XREF on both Combat and Missile vftables + CODE XREF
+// TRIBE_Combat_Object__enter+26 (the TRIBE tier forwards into this
+// implementation - the entry hook covers that call). SEH: MSVC frame;
+// the unwind funclet chunk 0x6415B0-0x6415BA = mov eax,[ebp+0Ch] / call
+// operator_delete on the RAW allocation (scope stru_67FD98) - the
+// family's ninth twin, same fold.
+// Semantics: THE GARRISON ENTER BUILDER (the action_type 3 =
+// RGE_ACTION_TYPE_ENTER gate) - the richest mission-builder variant.
+// (1) oID resolves through RGE_Game_World__object (:6086, 0x00623DB0;
+// the (RGE_Game_World*) dual-naming cast) - a null target returns 0.
+// (2) THE AI GARRISON-REQUEST REMOVAL: when the owner has a playerAI
+// (the decision module @+0x1DD0 = 7632, TRIBE_Player), the embedded
+// tacticalAI (TribeTacticalAIModule) keeps gbg_garrisonUnits - the
+// std::vector<UnitPair> (the _First/_Last/_End trio :2034-38; the
+// UnitPair = {int first_id; int second_id}, :4839-4843 = {the
+// garrisoning unit's id, the garrison target's id}): the records
+// matching (this->id, oID) are REMOVED (the shift-left + the _Last
+// decrement) - the unit found its garrison; the AI's request is
+// fulfilled. (3) The already-check (skipped when unconditional): the
+// current action's get_target_obj (slot 20 @+0x50) == the target AND
+// its type == 3 -> return 1. (4) The re-target: the current action's
+// gbg_unknown1 (slot 14 @+0x38, RGE_ActionVtbl :15976 - the re-target
+// query, (this, oID) args) == 1 -> return 1. (5) The TASK path:
+// getTask (slot 233 @+0x3A4, :11567) with the SELECTOR 3 (= the ENTER
+// action type - the getTask's final i16 = the requested action type;
+// the gather twin used -1) on (target, the target's world_x/world_y/
+// world_z @+0x48/4C/50) - null -> return 0. (6) operator_new 0x44 =
+// sizeof(RGE_Action_Enter), walked idb_types.h:28598-28619 (the base
+// 64 + mFirstTimeEnter @64); ctor RGE_Action_Enter (obj_in = this,
+// task_in = the task, target_obj_in = the target) - null -> return 0.
+// (7) THE WORK-INTERRUPT CASCADE: when (master->object_group (@+0x1E =
+// 30) == 1 [Herd Animal - the registry] AND hasActionOfType (slot 174
+// @+0x2B8, :11508) == 107 [Artifact]) OR hasActionOfType == 5 [Gather]
+// OR == 110 [Hunt] OR == 101 [Build]: the SUB-ACTION path - the
+// current work action keeps running and the fresh ENTER action becomes
+// its SUB-ACTION (add_sub_action :191, 0x0040B0A0; deleteList = 1):
+// the work resumes after the garrison completes. Otherwise:
+// delete_list; the task's type word (slot 6 @+0x18 - with the
+// setUnitAIAction args staged around the call, asm 0x445CAD-0x445CB3)
+// feeds setUnitAIAction (slot 234 @+0x3A8; the args: the task's type,
+// the target, the target's x/y/z); set_only_action. Return 1.
+int __fastcall RGE_Combat_Object__enter_new(
+    RGE_Combat_Object* this_, DWORD dummy, int oID, int unconditional)
+{
+    RGE_Static_Object* target = RGE_Game_World__object(             // asm 0x445AD2-0x445AE1 (owner @+0x18; world @+0x8C, TRIBE_Player :727; the resolver :6086)
+        (RGE_Game_World*)this_->owner->world, oID);
+    if (target == 0)                                                // asm 0x445AE3-0x445AE9 (test/jz)
+        return 0;                                                   // asm 0x445AEB-0x445AF5 (the eax = the resolver's null - the implicit return)
+    TribeMainDecisionAIModule* player_ai = this_->owner->playerAI;  // asm 0x445AEF-0x445AF2 (@+0x1DD0 = 7632, TRIBE_Player; the .c: v6)
+    if (player_ai != 0)                                             // asm 0x445AF8-0x445AFA (test/jz)
+    {
+        UnitPair** first = player_ai->tacticalAI.gbg_garrisonUnits._First;   // asm 0x445AFF-0x445B11 ([ecx+6138h])
+        for (int i = 0; first != 0                                          // asm 0x445B07-09 (test edi/jz)
+            && i < (int)(player_ai->tacticalAI.gbg_garrisonUnits._Last - first); ++i)   // asm 0x445B0B-18 (sub/sar 2 - the element count)
+        {
+            UnitPair* record = first[i];                                // asm 0x445B20-23 ([edx+eax*4])
+            if (record->first_id == this_->id                           // asm 0x445B23-26 ([ebx] == ebp; the record's first_id = the unit)
+                && record->second_id == oID)                            // asm 0x445B29-30 ([ebx+4] == ebx; the record's second_id = the target)
+            {
+                for (UnitPair** j = &first[i + 1];                      // asm 0x445B3F-42 (lea edi,[edx+eax*4])
+                    j != player_ai->tacticalAI.gbg_garrisonUnits._Last; ++j)   // asm 0x445B42-53 (the shift-left loop)
+                    *(j - 1) = *j;                                      // asm 0x445B49-53
+                --player_ai->tacticalAI.gbg_garrisonUnits._Last;        // asm 0x445B5D-6A (the _Last decrement - one record removed)
+                break;                                                  // asm 0x445B32-37
+            }
+        }
+    }
+    if (unconditional == 0                                          // asm 0x445B7A-0x445B7D
+        && RGE_Action_List__have_action(this_->actions) == 1)       // asm 0x445B7C-0x445B89
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x445B8B-0x445B91
+        if (current->vfptr->get_target_obj(current) == target       // asm 0x445B9A-0x445B9F (slot 20 @+0x50)
+            && current->vfptr->type(current) == RGE_ACTION_TYPE_ENTER)       // asm 0x445BB0-0x445BB7 (slot 6 @+0x18; cmp ax,3)
+            return 1;                                               // asm loc_445CE6
+    }
+    if (RGE_Action_List__have_action(this_->actions) == 1)          // asm 0x445BBD-0x445BCA
+    {
+        RGE_Action* current = RGE_Action_List__get_action(this_->actions);   // asm 0x445BCC-0x445BD2
+        if (current->vfptr->gbg_unknown1(current, (int)this_, oID) == 1)     // asm 0x445BDD-0x445BE1 (slot 14 @+0x38, RGE_ActionVtbl :15976; the re-target query)
+            return 1;                                               // asm 0x445BE4-0x445BE7 (cmp eax,1 -> loc_445CE6)
+    }
+    RGE_Task* task = this_->vfptr->getTask(this_, target,           // asm 0x445BED-0x445C00 (slot 233 @+0x3A4, :11567; the SELECTOR = 3 = ENTER - the getTask i16 semantics confirmed; the pushes: 3,world_z,world_y,world_x,target)
+        target->world_x, target->world_y, target->world_z, 3);
+    if (task == 0)                                                  // asm 0x445C08-0x445C0A (test edi/jz - the eax = the getTask's null)
+        return 0;                                                   // asm 0x445C0B-0x445C0D (the implicit return via loc_445CEB)
+    RGE_Action_Enter* allocated =
+        (RGE_Action_Enter*)operator_new_internal(sizeof(RGE_Action_Enter));   // asm 0x445C10-0x445C1A (push 44h; sizeof walked 68 = 0x44 - the base 64 + mFirstTimeEnter @64); EH state 0 @0x445C20
+    RGE_Action* fresh = 0;                                          // asm 0x445C38 (xor edi,edi)
+    __try
+    {
+        if (allocated != 0)                                         // asm 0x445C1E-0x445C28
+            fresh = (RGE_Action*)RGE_Action_Enter__RGE_Action_Enter(
+                allocated, (RGE_Action_Object*)this_, task, target);// asm 0x445C2A-0x445C2F (obj_in = this_, task_in = the task, target_obj_in = the target)
+    }
+    __except (operator_delete_internal(allocated), EXCEPTION_CONTINUE_SEARCH)   // SEH chunk 0x6415B0-0x6415BA (operator_delete, raw allocation)
+    {
+    }
+    if (fresh == 0)                                                 // asm 0x445C3A-0x445C3C
+        return 0;                                                   // asm 0x445C46-0x445C48 (jmp loc_445CEB)
+    if (this_->master_obj->object_group == 1                        // asm 0x445C4D-0x445C4F (word @+0x1E = 30; cmp 1 = Herd Animal - the registry)
+        && this_->vfptr->hasActionOfType(this_, 107)                // asm 0x445C57-0x445C5D (slot 174 @+0x2B8, :11508; 107 = Artifact)
+        || this_->vfptr->hasActionOfType(this_, 5)                  // asm 0x445C67-0x445C6D (5 = Gather)
+        || this_->vfptr->hasActionOfType(this_, 110)                // asm 0x445C79-0x445C7D (110 = Hunt)
+        || this_->vfptr->hasActionOfType(this_, 101))               // asm 0x445C89-0x445C8D (101 = Build)
+    {
+        RGE_Action* work = RGE_Action_List__get_action(this_->actions);   // asm 0x445C97-0x445C9D
+        RGE_Action__add_sub_action(work, fresh, 1);                 // asm 0x445CA2-0x445CE1 (add_sub_action :191, 0x0040B0A0; deleteList = 1 - the ENTER rides the interrupted work)
+    }
+    else
+    {
+        RGE_Action_List__delete_list(this_->actions);               // asm 0x445C97-0x445C9D
+        int action_type = fresh->vfptr->type(fresh);                // asm 0x445CB5-0x445CB8 (slot 6 @+0x18; the setUnitAIAction args staged around the call: 0x445CAD-0x445CB3)
+        this_->vfptr->setUnitAIAction(this_, action_type, target,   // asm 0x445CBB-0x445CC1 (slot 234 @+0x3A8; the staged: target,x,y,z - the garrison target)
+            target->world_x, target->world_y, target->world_z);     // asm 0x445CA2-0x445CB3 (the target's @+0x48/4C/50)
+        this_->vfptr->set_only_action(this_, fresh);                // asm 0x445CC6-0x445CC9 (slot 231 @+0x39C)
+    }
+    return 1;                                                       // asm 0x445CE6-0x445CEB
+}
+
+// ============ RUNTIME METHODS (batch C4) ============
+
+// Replacement for RGE_Combat_Object::update. Original: @ 0x00444DA0
+// (idb_functions.h:1094). Range [0x444DA0, 0x4450B7) (lst :119666/:119927,
+// retn = no stack args), unsigned __int8 return. ABI: __thiscall. Virtual:
+// vftable slot 37 = +0x94 (line-arith 11389-11352 = 37; DATA XREF lst
+// :987672 the Combat vftable + :990198 the Missile vftable). Caller
+// coverage: RGE_Missile_Object__update tail-jmps here (lst :119666 - the
+// hook covers the Missile tier's update dispatch) and TRIBE_Combat_Object__
+// update+146 calls it (lst :119667 - the derived base call, hook-routed).
+// Semantics: the per-frame combat tick - decay the attack timer, run the
+// base Action update, refresh the unit's Unified Map Value footprint
+// (buildings through their LINKED OWNER BUILDING's position/point-set per
+// the base-pointer rule: the .c's `this[1].CurrentObstructionData` render
+// = [this+0x1DC] = TRIBE_Building_Object::linked_owner @476, and its
+// world_x/world_y/Multi_Unified_Points feed the same footprint math the
+// position branch computes from this - walker-verified with the
+// desolid_flag@565 + sizeof-632 calibrations; the .c's ObsRecord* value
+// typing was the render artifact, re-typed per the field-pun ladder), and
+// when the footprint CHANGED update the Visible_Unit_Manager record; the
+// capture scan then hands a capture_flag unit to the first HUMAN player
+// whose visibility bit is set (change_ownership + the fanfare), and the
+// UnitAI module ticks when it is the owner's turn. Returns the base
+// update's byte unchanged.
+unsigned __int8 __fastcall RGE_Combat_Object__update_new(
+    RGE_Combat_Object* this_, DWORD dummy)
+{
+    unsigned __int8 result;
+    int pos_x;
+    int pos_y;
+    unsigned __int8 point_index;
+    unsigned int prior_unified_map;
+
+    if (this_->attack_timer > 0.0f)                                  // asm 0x444DA6-0x444DB7: fld/fcomp const_f_zero/test ah,41h/jnz - the jnz targets the SKIP branch, the polarity-table MATCH row (the literal > is unordered-false; NaN skips, matching the x87)
+    {
+        double decayed = (double)this_->attack_timer                 // asm 0x444DBC (fld) - the x87 fsub computes the 53-bit difference (widen-before-op)
+            - (double)this_->owner->world->world_time_delta_seconds;   // asm 0x444DB9-0x444DC8 (owner @+0x18 -> world @+0x8C; the field @+0xA8)
+        this_->attack_timer = (float)decayed;                        // asm 0x444DCE (fst m32 - the store-round happens BEFORE the compare)
+        if (X87_LT_NAN(decayed, 0.0))                                // asm 0x444DD4-0x444DDF: fcomp consumes the UNROUNDED x87 value; test ah,1/jz = the C0-only taken set {<, NaN} - the macro form (a literal < would leave NaN unzeroed)
+            this_->attack_timer = 0.0f;                              // asm 0x444DE1
+    }
+    result = RGE_Action_Object__update((RGE_Action_Object*)this_);   // asm 0x444DF0 (:145; the direct constant call, hook-routing ruling)
+    if (this_->id >= 0 && this_->tile)                               // asm 0x444DF9-0x444E09 (test/jl @0x444DFE; test/jz @0x444E09)
+    {
+        if (this_->master_obj->master_type == RGE_MASTER_TYPE_BUILDING   // asm 0x444E0F-0x444E16 (cmp byte [master+4], 50h)
+            && ((TRIBE_Building_Object*)this_)->linked_owner != 0)   // asm 0x444E1C-0x444E24 ([esi+1DCh] = the Building linked_owner @476 - the base-pointer rule resolution; the cast is layout-safe: gated on master_type 80 = a real Building instance, 632 bytes)
+        {
+            TRIBE_Building_Object* linked =
+                ((TRIBE_Building_Object*)this_)->linked_owner;       // asm 0x444E1C (ebp; the LINKED OWNER BUILDING - the .c's ObsRecord* value typing was the this[1] render artifact, re-typed per the field-pun ladder)
+            pos_x = (int)linked->world_x;                            // asm 0x444E2A-0x444E32 (__ftol [ebp+48h] = the linked owner's world_x @0x48)
+            pos_y = (int)linked->world_y;                            // asm 0x444E32-0x444E3C (__ftol [ebp+4Ch] = world_y @0x4C)
+            point_index = linked->Multi_Unified_Points;              // asm 0x444E56 ([ebp+16Ch] = Multi_Unified_Points @0x16C)
+            prior_unified_map = this_->Unified_Map_Value;            // asm 0x444E3C-0x444E49 (from THIS - the linked owner's UMV is not read; the store below is this_'s too, asm 0x444E50)
+            // MAP_SIZE - asm 0x444E42 disp32 0x444E45: mapsize.cpp:1730
+            // re-points this table read at the big-map mapptr base when
+            // setMapSizeHooks runs. NOT baked (owner-directed MAP_SIZE rule
+            // 2026-11-15): the replacement reads the original
+            // unified_map_offsets.
+            this_->Unified_Map_Value =
+                (unsigned int)unified_map_offsets[pos_y][pos_x];     // asm 0x444E42-0x444E50
+            if (point_index)                                         // asm 0x444E5C-0x444E5E (test cl,cl; jbe - load-bearing: the index-1 fetch would underflow)
+            {
+                UMV_Offset_Point* points =
+                    this_->owner->world->map->UMV_Data_Points[point_index - 1];   // asm 0x444E64-0x444E80 (RGE_Map+0xBF68, the map_row_offset@0xBF18 walk; index - 1 - the owned Doppleganger walk precedent)
+                int count = points->Xoffset;                         // asm 0x444E80 (the count lives in the first point's Xoffset)
+                // RESTRUCTURE (the owned Doppleganger walk form): the asm
+                // count>=1 guard (cmp edx,1/jl @0x444E82-0x444E85) + the
+                // do-while = exactly `count` iterations of points[1..count];
+                // the indexed for reproduces the iteration set for every
+                // count (0 iterations when count < 1).
+                for (int k = 0; k < count; ++k)
+                {
+                    int row = pos_y + points[1 + k].Yoffset;         // asm 0x444E8E-0x444E95
+                    int col = pos_x + points[1 + k].Xoffset;
+                    // MAP_SIZE - asm 0x444E9A disp32 0x444E9D:
+                    // mapsize.cpp:1731. NOT baked (owner-directed MAP_SIZE
+                    // rule): the original table.
+                    this_->Unified_Map_Value |=
+                        (unsigned int)unified_map_offsets[row][col];   // asm 0x444E9A-0x444EAD (the read-modify-or through @+0x168)
+                }
+            }
+        }
+        else
+        {
+            pos_x = (int)this_->world_x;                             // asm 0x444EBA-0x444EC2 (__ftol)
+            pos_y = (int)this_->world_y;                             // asm 0x444EC2-0x444ECC (__ftol)
+            point_index = this_->Multi_Unified_Points;               // asm 0x444EE6 (@+0x16C)
+            prior_unified_map = this_->Unified_Map_Value;            // asm 0x444ECC-0x444ED9
+            // MAP_SIZE - asm 0x444ED2 disp32 0x444ED5: mapsize.cpp:1732.
+            // NOT baked (owner-directed MAP_SIZE rule 2026-11-15).
+            this_->Unified_Map_Value =
+                (unsigned int)unified_map_offsets[pos_y][pos_x];     // asm 0x444ED2-0x444EE0
+            if (point_index)                                         // asm 0x444EEC-0x444EEE (load-bearing)
+            {
+                UMV_Offset_Point* points =
+                    this_->owner->world->map->UMV_Data_Points[point_index - 1];   // asm 0x444EF0-0x444F0C
+                int count = points->Xoffset;                         // asm 0x444F0C
+                // RESTRUCTURE: the mirror of the building-path walk (asm
+                // 0x444F0E-0x444F3B; the count>=1 guard @0x444F0E + the
+                // do-while -> the indexed for, same iteration set).
+                for (int k = 0; k < count; ++k)
+                {
+                    int row = pos_y + points[1 + k].Yoffset;         // asm 0x444F16-0x444F1D
+                    int col = pos_x + points[1 + k].Xoffset;
+                    // MAP_SIZE - asm 0x444F22 disp32 0x444F25:
+                    // mapsize.cpp:1733. NOT baked (owner-directed MAP_SIZE
+                    // rule).
+                    this_->Unified_Map_Value |=
+                        (unsigned int)unified_map_offsets[row][col];   // asm 0x444F22-0x444F35
+                }
+            }
+        }
+        if (this_->Unified_Map_Value != prior_unified_map)           // asm 0x444F3D-0x444F49 (cmp; jz -> the tail)
+        {
+            // MAP_SIZE: mapsize.cpp:1821 re-points the manager-slot read
+            // (disp32 0x444F7A, the mov ecx at 0x444F78) at the patch's
+            // mapptr_2 when setMapSizeHooks runs. NOT baked (owner-directed
+            // MAP_SIZE rule 2026-11-15): the replacement reads the original
+            // game slot 0x007A1CB8.
+            Visible_Unit_Manager__Update_Unit_Info(                  // asm 0x444F4F-0x444F84 (:5928; the push order verified)
+                *game_visible_unit_manager,                          // asm 0x444F78
+                this_->id,                                           // asm 0x444F74-0x444F7E (@+0x10)
+                this_->owner->id,                                    // asm 0x444F6E-0x444F77 (@+0xA0)
+                pos_x,                                               // asm push edi (the ftol'd x)
+                pos_y,                                               // asm push eax (the ftol'd y)
+                this_->Large_Object_Radius,                          // asm 0x444F61 (@+0x16D)
+                this_->master_obj->object_group,                     // asm 0x444F58-0x444F5D (movsx word @+0x1E)
+                prior_unified_map,
+                this_->Unified_Map_Value,
+                this_->VUR_Ptrs);                                    // asm 0x444F4F (lea @+0x144)
+            if (this_->capture_flag)                                 // asm 0x444F84-0x444F8C (@+0x178)
+            {
+                TRIBE_Player* owner = this_->owner;                  // asm 0x444F92
+                TRIBE_World* world = owner->world;                   // asm 0x444F9A (@+0x8C)
+                int owner_id = owner->id;                            // asm 0x444FAC-0x444FB2 (@+0xA0; the asm hoists it to a stack slot - the read-once form)
+                int player_num = world->player_num;                  // asm 0x444FA0 (movsx word @+0x48)
+                // RESTRUCTURE (redundant-guard elimination x2): the asm gate
+                // cmp edx,1/jle (0x444FA4-0x444FA6) is subsumed by the scan
+                // condition (0 iterations when player_num <= 1 - the same
+                // path set), and the asm re-test test edi,edi/jl
+                // (0x444FD3-0x444FD5) is always false (the scan index runs
+                // [1, player_num), never decremented) - both collapsed.
+                for (int i = 1; i < player_num; ++i)                 // asm 0x444FB6-0x444FCC
+                {
+                    if (i == owner_id)                               // asm 0x444FB6-0x444FB8 (the owner-id slot cmp; jz -> the increment)
+                        continue;
+                    if (((1 << i) & this_->Unified_Map_Value) == 0)  // asm 0x444FBC-0x444FC7 (shl eax,cl / test ebp,eax; the ja-found form inverted)
+                        continue;
+                    TRIBE_Player* capturing = world->players[i];     // asm 0x444FDB-0x444FDE (fetch 1, @+0x4C)
+                    if (!capturing->vfptr->computerPlayer(capturing))   // asm 0x444FE1-0x444FE8 (slot 7 = +0x1C, line-arith 1101-1094)
+                    {
+                        RGE_Player* new_owner =
+                            (RGE_Player*)this_->owner->world->players[i];   // asm 0x444FEE-0x444FFE (fetch 2: the world + players RE-LOAD - the double-fetch kept faithful; the TRIBE_Player* -> RGE_Player* dual-naming cast, the Doppleganger :527/:541 precedent)
+                        this_->vfptr->change_ownership(this_, new_owner);   // asm 0x445002 (slot 47 = +0xBC, line-arith 11399-11352)
+                        if (new_owner == RGE_Base_Game__get_player((*base_game))   // asm 0x445008-0x445015 (:689)
+                            && (this_->master_obj->master_type != RGE_MASTER_TYPE_BUILDING   // asm 0x445017-0x44501E (cmp byte @+4, 50h)
+                                || ((TRIBE_Building_Object*)this_)->linked_owner == 0))   // asm 0x445020-0x445028 (the 0x1DC load - the linked_owner)
+                        {
+                            RGE_Base_Game__play_sound((*base_game), 38, 0, 0);   // asm 0x44502A-0x445036 (:804; sound_id 38 = the capture fanfare, the game-facts candidate)
+                            RGE_View* view =
+                                (RGE_View*)(*base_game)->vfptr->get_view_panel((*base_game));   // asm 0x44503B-0x445043 (slot 12 = +0x30, line-arith 16945-16933; the TPanel* -> RGE_View* dual-naming cast, the .c's own render)
+                            if (view)
+                                RGE_View__display_object_selection(view, this_->id, 1500, 2, 4);   // asm 0x44504A-0x445059 (:5857; 5DC = 1500)
+                        }
+                        if (this_->capture_flag == 1)                // asm 0x44505E-0x445065
+                            this_->capture_flag = 0;                 // asm 0x445067
+                    }
+                    break;                                           // asm: the found path leaves the scan (0x444FD3 -> ... -> loc_44506E), computer or not - the exhausted path jmps to loc_44506E too
+                }
+            }
+        }
+    }
+    if (this_->unitAIValue
+        && RGE_Game_World__is_player_turn(                           // asm 0x44506E-0x44508F (:6054)
+            (RGE_Game_World*)this_->owner->world,                    // the TRIBE_World* -> RGE_Game_World* dual-naming cast (the asm calls the RGE_Game_World function with the owner->world pointer; map @0x34 identical in both renderings)
+            this_->owner->id))
+    {
+        unsigned int accum_delta = RGE_Game_World__get_accum_time_delta(   // asm 0x445091-0x4450A1 (:6055)
+            (RGE_Game_World*)this_->owner->world, this_->owner->id);
+        UnitAIModule__update(this_->unitAIValue, accum_delta);       // asm 0x4450A6-0x4450AA (:454; the asm re-reads @+0x7C for the call - kept)
+    }
+    return result;                                                   // asm 0x4450AF-0x4450B7 (al)
+}
+
 void install_RGE_Combat_Object()
 {
     setHook((void*)0x00443990, RGE_Combat_Object__RGE_Combat_Object_new);
@@ -1018,4 +2545,22 @@ void install_RGE_Combat_Object()
     setHook((void*)0x00444B10, RGE_Combat_Object__get_armor_new);
     setHook((void*)0x00443E20, RGE_Combat_Object__transform_new);
     setHook((void*)0x00445F60, RGE_Combat_Object__damageCapability_new);
+    setHook((void*)0x00445D00, RGE_Combat_Object__transport_new);
+    setHook((void*)0x00445DF0, RGE_Combat_Object__unload_new);
+    setHook((void*)0x00445EF0, RGE_Combat_Object__stopAction_new);
+    setHook((void*)0x00443950, RGE_Combat_Object__is_invisible_new);
+    setHook((void*)0x00444BD0, RGE_Combat_Object__get_weapon_new);
+    setHook((void*)0x00444720, RGE_Combat_Object__do_attack_new);
+    setHook((void*)0x00444820, RGE_Combat_Object__damage_new);
+    setHook((void*)0x004449C0, RGE_Combat_Object__calculateDamage_new);
+    setHook((void*)0x00445980, RGE_Combat_Object__explore_new);
+    setHook((void*)0x00445530, RGE_Combat_Object__moveTo2_new);
+    setHook((void*)0x00445380, RGE_Combat_Object__attack_new);
+    setHook((void*)0x00445660, RGE_Combat_Object__moveTo_new);
+    setHook((void*)0x004457F0, RGE_Combat_Object__gather_new);
+    setHook((void*)0x00445190, RGE_Combat_Object__attack2_new);
+    setHook((void*)0x00444170, RGE_Combat_Object__attack4_new);
+    setHook((void*)0x00443EE0, RGE_Combat_Object__area_attack_new);
+    setHook((void*)0x00445AB0, RGE_Combat_Object__enter_new);
+    setHook((void*)0x00444DA0, RGE_Combat_Object__update_new);
 }
