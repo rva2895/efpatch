@@ -931,7 +931,14 @@ no pseudocode restatements of the function body:
    listing is NOT optional: it feeds the rule-(j) widen-before-op
    check, the X87 macro /Fa gate check, the dd-constant pool check
    (rule C), the vtbl slot-offset verification, and the reciprocal-
-   form scan (rule (k)).
+   form scan (rule (k)) - and THE SWITCH-TABLE BYTE COMPARISON
+   (owner-directed 2026-11-25, the RGE_Action_Enter__update_new desync
+   class): every switch-bearing replacement's emitted case-indirection
+   table ($LNxx: DB ...) is diffed BYTE-FOR-BYTE against the original's
+   byte_XXXX table - a mislabeled case arm compiles 0-errors with every
+   arm body correct while the dispatch partition itself is inverted
+   (the enter-driver arm ran for the wrong state; the emitted table
+   must equal the original's byte table exactly).
    вЂ” the defs/refs sweep does not catch type errors (the Animated/
    Moving factory trios shipped 7 latent C2664/C2440 sites on
    2026-11-14, caught by the gate).

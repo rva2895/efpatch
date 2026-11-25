@@ -7681,3 +7681,190 @@ single-pass (max 912 B set_state).
   comment fix (provisional); the DECOMP_HIERARCHY Building-row rot (the
   re-walk owed); the in-game validation owed (the combat tick, the shield
   pair, the enter flow, the capture - joined by this batch).
+
+- DESYNC FIX - RGE_Action_Enter__update_new (owner-reported bisect +
+  root-caused + fixed + CONFIRMED FIXED IN-GAME 2026-11-25): the outer
+  switch dispatched state Goto(4) into loc_403628 (byte_403724[3] = 2 -
+  the enter driver arm: the target gates -> the sub-action update -> the
+  distance/enter_target attempt -> the mFirstTimeEnter re-drive); the
+  first write labeled the arm case Search(3) - THE PARTITION INVERTED
+  (Search ran the driver, Goto returned 0) -> the enter flow never
+  advanced from the GOTO state (the state the WAIT-timer expiry and the
+  first-in-stack re-drive park it in). FIX = the one case label
+  (RGE_ACTION_STATE_SEARCH -> RGE_ACTION_STATE_GOTO at the loc_403628
+  arm) + the header note (Search itself falls to default,
+  byte_403724[2] = 5). The failure chain: the raw byte-table decode note
+  had [3] -> loc_403628 CORRECT and the .c renders case 4u plainly
+  (:47180) - the transcribed enum label was written wrong; the enum
+  application (which landed post-write) would have exposed the
+  label-vs-semantics mismatch at write time. The strict single-function
+  emission walk found NO other divergence (the WAIT-timer bit-exact
+  form: movss/cvtps2pd x2/subsd in order -> comisd on the UNROUNDED diff
+  -> cvtpd2ps/movss store-round -> ja stay; the distance capture = the
+  fstp-qword corollary-(h) form, comisd vs the widened range, jbe -> the
+  enter path; the enter_target call through the hooked constant 0x403750
+  with ECX liveness proven across the hoist; all dispatch offsets
+  88/92/96/16/332; all 8 return sites). TEMPLATE RULE (owner-approved,
+  written into DECOMP_TEMPLATE.md): THE SWITCH-TABLE BYTE COMPARISON -
+  every switch-bearing replacement's emitted case-indirection table
+  ($LNxx: DB ...) is diffed byte-for-byte against the original's
+  byte_XXXX table at the /Fa gate - the class the offset/macro/jcc
+  checks cannot see (0 errors + every arm compiled correctly while the
+  dispatch partition itself was inverted). Re-gate 0/0; the emitted
+  table = DB 0,1,5,2,5,5,5,5,5,5,3,5,4 = byte_403724 EXACT. Re-verify:
+  the table bytes in the TU listing; the arm label =
+  RGE_ACTION_STATE_GOTO. ALL TESTS CLEAN (owner-confirmed in-game - the
+  enter flow, the capture, the worker/trawler deposit validated with
+  this fix).
+
+- BATCH M1-ACTION - THE MOVE_TO TIER COMPLETE 9/9 (owner-approved +
+  WRITTEN 2026-11-25): NEW CLASS FILE src/engine/action/RGE_Action_Move_
+  To.cpp (+ install_action.cpp wiring + the vcxproj/filters). ALL NINE
+  SINGLE-PASS (max 976 B update). ctor3(ctor_read) @0x408190, vdel
+  @0x408200, ctor @0x408220 (the coordinate ctor + the TWO-CALL sprite
+  bootstrap: the get_move_sprite slot-30 TEST then the second dispatch =
+  the fetch), ctor2 @0x4082C0 (set_target_obj :182 + the world_x/y/z
+  capture), destructor @0x408370 (stopMoving = the runtime slot 193 =
+  +0x304 - the OWNED stopMoving_new routes), first_in_stack @0x4083D0
+  (dist > 0.01f - flt_654978 BINARY-VERIFIED; the maximumSpeed equality
+  = test ah,40h = the C3-only {==,NaN} set = X87_EQ_NAN - the .c's
+  literal == would take NaN to Search = DIVERGENT), set_state @0x408430
+  (Done/Failed/Invalidated = the base-sprite restore gated on
+  !subActionValue; Goto = the action-sprite swap + the SELF vtbl update
+  dispatch slot 10 = +0x28), update @0x4084B0 = THE RE-PATH RESOLVER
+  (the retire gate state >= 7 / the lost ID -> the 507 notify p1 =
+  RGE_UNITAI_ACTION_MOVE p2 = targetID; the distance gate target/position
+  forms vs range; the patrol gate 711 RGE_UNITAI_ORDER_PATROL / 733
+  UNKNOWN-the-registry-candidate; the re-path live target re-sync; the
+  patrol capture (hasPatrolInformation/mPatrolCurrentWaypoint @+0x184/
+  getPatrolLinear/getPatrolOneWay/zeroPatrolInformation) or the
+  linearization ddy*dy+ddx*ddx >= 9.0 (flt_654DD0 BINARY-VERIFIED; the
+  53-bit chain; the NaN -> linear 0 in both forms); the addMove dispatch
+  slot 226 = +0x388 - the M12a-OWNED addMove_new routes with the
+  9-stack-arg prototype arg-for-arg), Goto = the DRIFT BAND (ddx
+  UNROUNDED / ddy STORE-ROUNDED through the float local - the roles
+  pinned by the x87 stack walk; the skip-chain X87_LT_NAN/literal MATCH
+  rows) -> the mTargetMovedState machine (the 508 target-moved notify)
+  -> LABEL_45 intelligentMovementUpdate slot 198 = +0x318 (the SHIPPED
+  capstone routes; == 1 Failed / == 2 Done), copy_obj_sprites @0x4088B0
+  = the 4-way remap (get_sprite +4 / get_move_sprite +78 /
+  get_fight_sprite +84 - the .c's vfptr[1].do_i_care_about_power render
+  = the C2 artifact - / the RGE_Task trio @+0x34/38/3C). THE SWITCH-
+  TABLE BYTE CHECK PASSED BOTH TABLES FIRST RUN (the emitted =
+  byte_408898 / byte_4084A0 EXACT - the Enter-desync lesson applied at
+  decode + verify). THE SETAE CENSUS NOTE: the linearization emitted
+  the value-comparison form (comisd + setae) vs the original's branch -
+  truth-table identical incl. NaN (the value consumption; the probe's
+  unordered-false rule) - documented. RGE_UNITAI_ORDER_PATROL = 711
+  added to RGE_Action_Types.h (the derived +100 rule; owner-flagged).
+  GATE 2/2 TUs 0/0; defs/refs 9/9; the ABI/pointer-walk/CRT/base_game
+  sweeps clean; the collision scan 2,963 sites / 0 hits. The vdel
+  inlined the destructor body (the codegen-neutral merge class).
+  IN-GAME VALIDATION OWED (the move flow, the patrol re-path, the drift
+  band). NEXT per the roadmap: the next action-family tier (the derived
+  classes behind create_task_action's switch: Attack/Gather/Explore...
+  smallest-first by the marker scan), RGE_Action_List (56) and
+  RGE_Action_Object (90) last. CARRIED: the common.h collisionUnits
+  comment fix; the DECOMP_HIERARCHY Building-row re-walk; the 733 +
+  507/508 registry candidates.
+
+- BATCH M2-ACTION - THE GUARD TIER COMPLETE 3/3 (owner-approved +
+  WRITTEN 2026-11-25): NEW CLASS FILE src/engine/action/RGE_Action_
+  Guard.cpp (+ the wiring + the vcxproj/filters). THE SMALLEST TIER:
+  ctor2(ctor_read) @0x00406180 [0x406180,0x4061A5) - the Enter2 shape,
+  NO SEH; ctor @0x004061D0 [..,0x40622A) - set_target_obj (:182) + the
+  SEH trivial chunk 0x640830; first_in_stack @0x00406230 [..,0x4062A3)
+  - THE DEFEND-ORDER ISSUE: first_time && unitAI && target_obj -> the
+  unitAI order dispatch (slot 4 = +0x10, idb_types.h:7589 - the member
+  declares ALL 11 params arg-for-arg the asm pushes: obj->owner->id,
+  701 = RGE_UNITAI_ORDER_DEFEND (DEFEND 601+100 - the derived registry,
+  the enum addition owner-flagged), target->id, target->owner->id,
+  world_x/y/z, 2.0f (the guard-order range parameter - the semantics
+  UNKNOWN, the registry candidate), 0, 0, 100); set_state(1 Done)
+  UNCONDITIONALLY. THE TIER OWNS NO DESTRUCTOR - the vftable
+  (.rdata:006549FC) slots the SHARED family scalar-dtor
+  (TRIBE_Action_Artifact__scalar_deleting_destructor - the same proc
+  the Bird/Explore vftables point at) and inherits the base
+  RGE_Action__update (lst :18852 DATA XREF). THE CAST-FORM CHECK: the
+  .c's order-dispatch cast-form resolved clean - the member declares
+  exactly 11 params matching the 11 asm pushes, the line-arith (member
+  4 = +0x10) calibrated on the C2's member-5 notify. GATE 2/2 TUs 0/0;
+  the /Fa slot census clean (the enum emitted push 701 exactly);
+  defs/refs 3/3; the sweeps clean; the collision scan 2,972 sites /
+  0 hits. IN-GAME VALIDATION OWED (the guard flow). NEXT: Make/Bird
+  (5 each) smallest-first, then Explore 6 / Transport 8 / Gather 11 /
+  Attack 14; RGE_Action_List (56) and RGE_Action_Object (90) last.
+  CARRIED unchanged.
+
+- BATCH M3-ACTION - BIRD 5/5 + MAKE 5/5 COMPLETE (owner-approved +
+  WRITTEN 2026-11-25; the owner supplied the FULL RGE_Player::attributes
+  registry 0-218 -> DECOMP_GAME_FACTS.md + the RGE_PLAYER_ATTRIBUTE enum
+  (the 9 consumed values) in RGE_Action_Types.h). THE SEMANTIC
+  UPGRADES: [36] Farm Food Amount / [88] Fish Trap Food Amount (the
+  Make Work timer sources keyed on attribute_type == 16 Berry Storage);
+  [10]/[25]/[26] the shield trio CONFIRMED; [5]/[28] actionTypeIfOrdered's
+  Convert; [37]/[40] the destructor populations; the enter_target
+  deposit = Meat/Berry/Fish(15/16/17) -> Food Storage(0). NEW CLASS
+  FILES src/engine/action/RGE_Action_Bird.cpp + RGE_Action_Make.cpp.
+  BIRD: ctor2/ctor @0x00402B00/0x00402B30 (the 5-arg form: task/x/y/z),
+  first_in_stack @0x00402B70 (the 9.0f altitude teleport slot 42 =
+  +0xA8, the discarded double return), set_state @0x00402BB0 (the
+  magic-imul 80010003h/sar 0Eh timer form - the int chain then the
+  single float store; move_sprite/work_sprite @+0x34/+0x38), update
+  @0x00402C80 [..,0x402EBA) = the wander loop (the conditional timer
+  tick, the random target map_width/height x rand/RAND_MAX, the
+  X87_LT_NAN/LE_NAN clamps, the Move_To creation with the chunk-0x6406E0
+  operator_delete fold, Goto/Work ticks X87_LE_NAN - THE NaN FIRES, the
+  literal would diverge - caught at decode). MAKE: ctor2/ctor
+  @0x00406F60/0x00406FD0 (+rge_read work_timer @+0x40; the 120.0f imm
+  42F00000h), first_in_stack @0x00407000 (the carried-attribute set,
+  the jl gate), set_state @0x00407030 (the Work-only timer sources),
+  update @0x00407080 [..,0x40715A) (the work gate X87_LE_NAN; the
+  empty-carry die_die_die slot 57 = +0xE4; the gain chain
+  delta x gbg_work_rate_2@276 x work_val1@28; the work_flag word gate;
+  the timer -= (new-pre) chain). THE TABLE CHECK: the Bird update's
+  emitted $LN33 DD partition = jpt_402CD0 equivalent (the DD-indirect
+  form - the DB-only scan missed it; the scan must cover DD too). GATE
+  3/3 TUs 0/0; defs/refs 5/5 + 5/5; the sweeps clean
+  (rand_internal/RAND_MAX_INTERNAL throughout); the collision scan
+  2,975 sites / 0 hits (the corrected Bird update extent). IN-GAME
+  VALIDATION OWED (the birds wander, the make build flow). INCIDENTS
+  (both caught pre-gate): a fabricated vftable address in the first
+  Bird draft (rewritten from the .lst); the RGE_Action_Types.h edit
+  mangled the RGE_UNITAI_ORDER opener (repaired + verified: 5 enums,
+  no duplicates). NEXT: Explore / Transport / Gather / Attack.
+
+- BATCH M4-ACTION - EXPLORE 6/6 COMPLETE (owner-approved + WRITTEN
+  2026-11-25; the goto-free directive applied): NEW CLASS FILE
+  src/engine/action/RGE_Action_Explore.cpp (+ the wiring + the
+  vcxproj/filters). ctor2/ctor @0x00403D30/0x00403D60 (the 5-arg form),
+  first_in_stack @0x00403DA0 (THE -1.0f SENTINEL: the raw dword cmp
+  0BF800000h - the float == compare VALUE-IDENTICAL universally (the
+  exact sentinel; the emitted ucomiss+lahf/test 44h/jp unordered-safe
+  pair verified in the emission), -> Search(3) if unset else Move(11)),
+  set_state @0x00403DC0 (delete_list FIRST; the 4-arm GOTO-FREE JOIN:
+  Done/Failed/Invalidated/Search share the arm with the notify gated on
+  Search - the asm's 2-inbound fall-through join preserved with ONE
+  restore emission (the compiler tail-merged to $LN21); Search = the
+  514/605 EXPLORE notify; Wait(2) = the restore + set_target_obj(0)/2(0)
+  + the -1.0f sentinel trio reset; Move(11) = task->move_sprite or the
+  master get_move_sprite fallback (the M4 cast) -> the Move_To creation
+  (the chunk 0x640790 fold) -> setSubAction(1) THEN add_action - THE
+  ORDER, no mTargetMovedState write), update @0x00403F60 (Done -> 1;
+  Move -> the sub partition {1/3/5 -> Search; 4 -> set_target_obj(0) +
+  Move; else 0}; Failed -> notify(505, currentAction(unitAI), 0, 0) -
+  the p1 = the RUNTIME current action code (UnitAIModule__currentAction
+  :5586 @0x5F4D70) CALLED UNCONDITIONALLY on the possibly-null unitAI
+  (the original's shape, no invented check) -> Wait(2) -> return 3),
+  work @0x00404020 (X87_LT_NAN(x/y, 0.0f) - the NaN takes Search - the
+  macros required; the target trio; Move(11)). THE GOTO-FREE JOIN NOTE:
+  the table-byte equality and the goto-free join are mutually exclusive
+  in C - the byte[2] divergence (Search = the shared entry 0) is the
+  documented deliberate cost, the effects-partition verified, the
+  compiler tail-merge preserved the single emission. THE SETCC NOTE: 0
+  occurrences. GATE 0/0; defs/refs 6/6; the sweeps clean (0 actual
+  gotos); the collision scan 2,985 sites / 0 hits. THE 5xx REGISTRY:
+  514 = the expedition-started notify (p1 = 605 EXPLORE). IN-GAME
+  VALIDATION OWED (the explore flow). NEXT: Transport 8 / Gather 11 /
+  Attack 14; RGE_Action_List (56) and RGE_Action_Object (90) last.
+  CARRIED unchanged.

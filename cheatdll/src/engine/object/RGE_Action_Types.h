@@ -112,15 +112,34 @@ enum RGE_UNITAI_ACTION
 enum RGE_UNITAI_ORDER
 {
     RGE_UNITAI_ORDER_ATTACK             = 700,  // = ATTACK 600 + 100
+    RGE_UNITAI_ORDER_DEFEND             = 701,  // = DEFEND 601 + 100 (derived by the same +100 rule; the consumer = RGE_Action_Guard__first_in_stack_new's order dispatch, asm push 2BDh)
     RGE_UNITAI_ORDER_BUILD              = 702,  // = BUILD 602 + 100
     RGE_UNITAI_ORDER_HEAL               = 703,  // = HEAL 603 + 100
     RGE_UNITAI_ORDER_CONVERT            = 704,  // = CONVERT 604 + 100
     RGE_UNITAI_ORDER_EXPLORE            = 705,  // = EXPLORE 605 + 100
     RGE_UNITAI_ORDER_GATHER             = 709,  // = GATHER 609 + 100
     RGE_UNITAI_ORDER_MOVE               = 710,  // = MOVE 610 + 100
+    RGE_UNITAI_ORDER_PATROL             = 711,  // = PATROL 611 + 100 (derived by the same +100 rule; the consumer = RGE_Action_Move_To__update_new's re-path gate, asm cmp 2C7h)
     RGE_UNITAI_ORDER_HUNT               = 713,  // = HUNT 613 + 100
     RGE_UNITAI_ORDER_TRANSPORT          = 714,  // = TRANSPORT 614 + 100
     RGE_UNITAI_ORDER_TRADE              = 715,  // = TRADE 615 + 100
     RGE_UNITAI_ORDER_ENTER              = 717,  // = ENTER 617 + 100
     RGE_UNITAI_ORDER_REPAIR             = 718,  // = REPAIR 618 + 100
+};
+
+// RGE_Player::attributes (float* @+0xAC = 172; [index] = +4*index). The
+// FULL owner-supplied registry (0-218) lives in DECOMP_GAME_FACTS.md;
+// the consumed values are enumerated here (the RGE_UNITAI_ORDER
+// precedent - the set grows as the decodes consume):
+enum RGE_PLAYER_ATTRIBUTE
+{
+    RGE_PLAYER_ATTRIBUTE_CONVERSION_RANGE         = 5,   // Conversion Range (the actionTypeIfOrdered 104-Convert range test)
+    RGE_PLAYER_ATTRIBUTE_SHIELD_RECHARGE_RATE     = 10,  // Recharge Rate of Shields (the shield pair multiplier)
+    RGE_PLAYER_ATTRIBUTE_SHIELD_RECHARGE_INTERVAL = 25,  // Shield Recharge Interval (the shield pair tick interval)
+    RGE_PLAYER_ATTRIBUTE_SHIELD_DROP_OFF_TIME     = 26,  // Drop-off Time of Shields (the drop-off tick amount)
+    RGE_PLAYER_ATTRIBUTE_ENABLE_BUILDING_CONVERSION = 28,// Enable Building Conversion (the actionTypeIfOrdered gate)
+    RGE_PLAYER_ATTRIBUTE_FARM_FOOD_AMOUNT         = 36,  // Farm Food Amount (the Make Work timer source for the Berry Storage tasks)
+    RGE_PLAYER_ATTRIBUTE_CIVILIAN_POPULATION      = 37,  // Civilian Population (the TRIBE_Combat destructor decrement)
+    RGE_PLAYER_ATTRIBUTE_MILITARY_POPULATION      = 40,  // Military Population (the TRIBE_Combat destructor decrement)
+    RGE_PLAYER_ATTRIBUTE_FISH_TRAP_FOOD_AMOUNT    = 88,  // Fish Trap Food Amount (the Make Work timer source otherwise)
 };

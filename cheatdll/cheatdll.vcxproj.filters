@@ -1256,6 +1256,24 @@
     <ClCompile Include="src\engine\action\RGE_Action_Enter.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine\action\RGE_Action_Move_To.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\action\RGE_Action_Guard.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\action\RGE_Action_Bird.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\action\RGE_Action_Make.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\action\RGE_Action_Explore.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\action\RGE_Action_Transport.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
     <ClCompile Include="src\engine\action\install_action.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>

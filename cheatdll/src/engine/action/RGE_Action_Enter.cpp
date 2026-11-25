@@ -673,7 +673,7 @@ int __fastcall RGE_Action_Enter__calculateTargetPoint_new(
             obj_pt.y = (int)obj->world_y;                      // asm 0x403AE6-0x403AEF (@+0x4C)
             tgt_pt.x = (int)target->world_x;                   // asm 0x403AF5-0x403AFD
             tgt_pt.y = (int)target->world_y;                   // asm 0x403B01-0x403B09
-            if (target->master_obj->object_flags & 2)          // asm 0x403B0D-0x403B18 (test byte @+0xAC, 2)
+            if (target->master_obj->object_flags & 2)          // asm 0x403B0D-0x403B18 (test byte @+0xAC, 2 - the SHIP UNIT flag (the owner-supplied bit registry): the ship targets walk the water-tile terrains 2/37)
             {
                 if (obj->vfptr->firstTileAlongLine(obj, &obj_pt, &tgt_pt, &out_pt, 2, 2, 1) == 1)   // asm 0x403B1E-0x403B40 (slot 147 = +0x24C)
                 {

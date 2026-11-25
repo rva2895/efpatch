@@ -484,3 +484,154 @@ conversion.cpp's check_meditation_and_purge tests {7 Work2, 6 Work,
 
 (Folded into the registry above; entries there carry the UNKNOWN status.
 Plus the awaiting-designation master_id table: 276, 335.)
+
+## RGE_Player::attributes registry (float* @+0xAC = 172; [index] = +4*index)
+
+Owner-supplied 2026-11-25 (the complete table; the consumed values are
+enumerated as RGE_PLAYER_ATTRIBUTE in RGE_Action_Types.h):
+
+| idx | meaning | idx | meaning |
+|---|---|---|---|
+| 0 | Food Storage | 110 | P1 Kill Value |
+| 1 | Carbon Storage | 111 | P2 Kill Value |
+| 2 | Ore Storage | 112 | P3 Kill Value |
+| 3 | Nova Storage | 113 | P4 Kill Value |
+| 4 | Population Headroom | 114 | P5 Kill Value |
+| 5 | Conversion Range | 115 | P6 Kill Value |
+| 6 | Current Tech Level | 116 | P7 Kill Value |
+| 7 | Holocrons Captured | 117 | P8 Kill Value |
+| 8 | Unused (Trade Bonus) | 118 | P1 Razings |
+| 9 | Trade Goods | 119 | P2 Razings |
+| 10 | Recharge Rate of Shields | 120 | P3 Razings |
+| 11 | Current Population | 121 | P4 Razings |
+| 12 | Corpse Decay Time | 122 | P5 Razings |
+| 13 | Remarkable Discovery | 123 | P6 Razings |
+| 14 | Monuments Captured | 124 | P7 Razings |
+| 15 | Meat Storage | 125 | P8 Razings |
+| 16 | Berry Storage | 126 | P1 Razing Value |
+| 17 | Fish Storage | 127 | P2 Razing Value |
+| 18 | Power Core Range | 128 | P3 Razing Value |
+| 19 | Unpowered Building Work Rate Multiplier | 129 | P4 Razing Value |
+| 20 | Units Killed | 130 | P5 Razing Value |
+| 21 | Technology Count | 131 | P6 Razing Value |
+| 22 | % Map Explored | 132 | P7 Razing Value |
+| 23 | Submarine Detection | 133 | P8 Razing Value |
+| 24 | Shield Generator Range | 134 | Standing Fortresses |
+| 25 | Shield Recharge Interval | 135 | Hit Points Razed |
+| 26 | Drop-off Time of Shields | 136 | Kills by P1 |
+| 27 | Enable Jedi Conversion | 137 | Kills by P2 |
+| 28 | Enable Building Conversion | 138 | Kills by P3 |
+| 29 | Fambaa Shield Generator Range | 139 | Kills by P4 |
+| 30 | Unused (Building Limit) | 140 | Kills by P5 |
+| 31 | Enable A-A Attack for AT-AT | 141 | Kills by P6 |
+| 32 | Bonus Population Cap | 142 | Kills by P7 |
+| 33 | Power Core Shielding | 143 | Kills by P8 |
+| 34 | Force | 144 | Razings by P1 |
+| 35 | Force Recharging Rate | 145 | Razings by P2 |
+| 36 | Farm Food Amount | 146 | Razings by P3 |
+| 37 | Civilian Population | 147 | Razings by P4 |
+| 38 | Shields On for Bombers/Fighters | 148 | Razings by P5 |
+| 39 | All Techs Achieved | 149 | Razings by P6 |
+| 40 | Military Population | 150 | Razings by P7 |
+| 41 | Conversions | 151 | Razings by P8 |
+| 42 | Standing Monuments | 152 | Value Killed by Others |
+| 43 | Razings | 153 | Value Razed by Others |
+| 44 | Kill Ratio | 154 | Killed by Others |
+| 45 | Survival to Finish | 155 | Razed by Others |
+| 46 | Tribute Inefficiency | 156 | Tribute from P1 |
+| 47 | Building Self Regeneration Timer | 157 | Tribute from P2 |
+| 48 | Town Center Unavailable | 158 | Tribute from P3 |
+| 49 | Gold Counter | 159 | Tribute from P4 |
+| 50 | Reveal Ally | 160 | Tribute from P5 |
+| 51 | Shielding | 161 | Tribute from P6 |
+| 52 | Monasteries | 162 | Tribute from P7 |
+| 53 | Tribute Sent | 163 | Tribute from P8 |
+| 54 | All Ruins Captured | 164 | Value Current Units |
+| 55 | All Relics Captured | 165 | Value Current Buildings |
+| 56 | Enable Stealth for Masters | 166 | Food Total |
+| 57 | Kidnap Storage | 167 | Carbon Total |
+| 58 | Masters Can See Hidden Units | 168 | Ore Total |
+| 59 | Tech Level 1 Tech ID | 169 | Nova Total |
+| 60 | Tech Level 2 Tech ID | 170 | Total Value of Kills |
+| 61 | Tech Level 3 Tech ID | 171 | Total Tribute Received |
+| 62 | Building Housing Rate | 172 | Total Value of Razings |
+| 63 | Tech Level 4 Tech ID | 173 | Total Fortresses Built |
+| 64 | Gather Accumulator | 174 | Total Monuments Built |
+| 65 | Salvage Decay Rate | 175 | Tribute Score |
+| 66 | Unused (Allow Formations) | 176 | Convert Min Adjustment |
+| 67 | Can Convert | 177 | Convert Max Adjustment |
+| 68 | Hit Points Killed | 178 | Convert Resist Min Adjustment |
+| 69 | Killed P1 | 179 | Convert Resist Max Adjustment |
+| 70 | Killed P2 | 180 | Convert Building Min |
+| 71 | Killed P3 | 181 | Convert Building Max |
+| 72 | Killed P4 | 182 | Convert Building Chance |
+| 73 | Killed P5 | 183 | Reveal Enemy |
+| 74 | Killed P6 | 184 | Value Wonders Castles |
+| 75 | Killed P7 | 185 | Food Score |
+| 76 | Killed P8 | 186 | Carbon Score |
+| 77 | Conversion Resistance | 187 | Ore Score |
+| 78 | Trade Vig Rate | 188 | Nova Score |
+| 79 | Ore Mining Productivity | 189 | Carbon Gathering Productivity |
+| 80 | Queued Units | 190 | Food-gathering Productivity |
+| 81 | Training Count | 191 | Holocron Nova Production Rate |
+| 82 | Start with Packed Town Center | 192 | Converted Units Die |
+| 83 | Boarding Recharge Rate | 193 | Meditation |
+| 84 | Starting Villagers | 194 | Crenellations |
+| 85 | Tech Cost Modifier | 195 | Construction Rate Modifier |
+| 86 | Tech Time Modifier | 196 | Hun Wonder Bonus |
+| 87 | Concentration | 197 | Spies Discount |
+| 88 | Fish Trap Food Amount | 198 | Unknown |
+| 89 | Medic Healing Rate | 199 | Unknown |
+| 90 | Healing Range | 200 | Misc Counter 1 |
+| 91 | Starting Food | 201 | Misc Counter 2 |
+| 92 | Starting Carbon | 202 | Misc Counter 3 |
+| 93 | Starting Ore | 203 | Misc Counter 4 |
+| 94 | Starting Nova | 204 | Misc Counter 5 |
+| 95 | Enable PTWC / Kidnap / Loot | 205 | Unknown |
+| 96 | Berserker Heal Timer | 206 | Unknown |
+| 97 | Dominant Sheep Control | 207 | Unknown |
+| 98 | Object Cost Sum | 208 | Unknown |
+| 99 | Tech Cost Sum | 209 | Unknown |
+| 100 | Holocron Nova Sum | 210 | Unknown |
+| 101 | Trade Income Sum | 211 | Buildings are self powered |
+| 102 | P1 Tribute | 212 | Aircraft Regenerates Hit Points |
+| 103 | P2 Tribute | 213 | Max Force After Conversion |
+| 104 | P3 Tribute | 214 | Nova Mining Productivity |
+| 105 | P4 Tribute | 215 | Nova generation rate (small) |
+| 106 | P5 Tribute | 216 | Nova generation rate (large) |
+| 107 | P6 Tribute | 217 | Ore generation rate |
+| 108 | P7 Tribute | 218 | Food generation rate |
+| 109 | P8 Tribute | | |
+
+Consumed-by-decode notes: [10] the shield-pair multiplier, [25] the
+shield tick interval, [26] the drop-off tick amount (the CONFIRMED
+shield registry above); [36]/[88] = the Make Work timer sources keyed
+on task->attribute_type == 16 (Berry Storage -> Farm Food Amount, else
+Fish Trap Food Amount); [5]/[28] = actionTypeIfOrdered's 104-Convert
+range logic (the Conversion Range + the Enable Building Conversion
+gate); [37]/[40] = the TRIBE_Combat destructor population decrements;
+the enter_target worker deposit: the types 15/16/17 (Meat/Berry/Fish
+Storage) bank into [0] Food Storage; the types 0-3 bank into themselves
+(Food/Carbon/Ore/Nova Storage).
+
+## RGE_Master_Static_Object::object_flags bit registry (u32 @+172; the BYTE-wide tests in the asm)
+
+Owner-supplied 2026-11-25:
+
+| bit (mask) | meaning |
+|---|---|
+| 0 (0x01) | garrison unit |
+| 1 (0x02) | ship unit |
+| 2 (0x04) | stealth unit |
+| 3 (0x08) | detector unit |
+| 4 (0x10) | mechanical unit |
+| 5 (0x20) | biological unit |
+| 6 (0x40) | self-shielding unit |
+| 7 (0x80) | invisible unit |
+
+Consumed-by-decode notes: bit 1 (0x02, SHIP UNIT) = the Transport
+next_to_drop_off_terrain's scan gate (the ship transports require the
+shore terrains 2/4 in the scan rect; the non-ships accept any terrain)
+and the Explore calculateTargetPoint's firstTileAlongLine split (the
+ship targets walk the water-tile terrains 2/37; the land targets the
+land walk). The other bits = the registry for the future decodes.

@@ -650,6 +650,12 @@
     <ClCompile Include="src\engine\action\RGE_Action_List.cpp" />
     <ClCompile Include="src\engine\action\RGE_Action.cpp" />
     <ClCompile Include="src\engine\action\RGE_Action_Enter.cpp" />
+    <ClCompile Include="src\engine\action\RGE_Action_Move_To.cpp" />
+    <ClCompile Include="src\engine\action\RGE_Action_Guard.cpp" />
+    <ClCompile Include="src\engine\action\RGE_Action_Bird.cpp" />
+    <ClCompile Include="src\engine\action\RGE_Action_Make.cpp" />
+    <ClCompile Include="src\engine\action\RGE_Action_Explore.cpp" />
+    <ClCompile Include="src\engine\action\RGE_Action_Transport.cpp" />
     <ClCompile Include="src\engine\action\install_action.cpp" />
   </ItemGroup>
   <ItemGroup>
