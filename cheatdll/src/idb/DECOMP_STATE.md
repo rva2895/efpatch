@@ -7492,3 +7492,192 @@ owner override - the mechanical check: ALL remaining single-pass.
 """
 
 
+
+## SESSION CLOSEOUT (2026-11-24/25): THE COMBAT RUNTIME COMPLETE (53/53) + THE ACTION SUBSYSTEM RATIFIED
+
+WRITTEN THIS SESSION:
+- RGE_Combat_Object::update @0x00444DA0 (batch C4, RGE_Combat_Object.cpp) - the
+  UMV refresh, the capture scan, the AI tail; the installer at 51 hooks. THE
+  MOVE_TO3 DISCOVERY: attack3 @0x00445510 = moveTo3, ALREADY ON DISK from batch
+  C1 (re-verified this session; the stale comment line-arith refreshed).
+- THE RGE_STATIC_OBJECT__UPDATE DESYNC FIXED (RGE_Static_Object.cpp
+  update_new @0x0054EF00 + the shield pair gbg_doShieldRecharge/Dropoff
+  @0x54ED30/0x54EE70): THE ROOT CAUSES = (1) the casts.cpp:892 processUnitHook
+  ENTRY FIGHT (the UNIT_EXTRA per-frame processor frozen) - baked (the
+  processUnitExtra call at the top of update_new, the // UNIT_EXTRA marker) +
+  casts.cpp:892 retired; (2) the core.cpp:1431 combat_object_update_v2 interior
+  hook (the entry+3, the byte overlap with my E9) - the v2 timer semantics
+  baked (the X87_NE_ORD bits-nonzero gate, the negative-timer clamp) +
+  core.cpp:1431 retired; (3) the negdecay retirement re-applied (the disturbed
+  // prefixes); (4) core.cpp:1444 writeDword(0x65B89C, 0x444DA0) =
+  compatible-live documented. THE SHIELD PAIR: the X87_LT_NAN tick-continue
+  gate, the X87_LE_NAN accumulator gate, the cap/floor forms.
+- THE ACTION SUBSYSTEM RATIFIED: src/engine/action/ (RGE_Action_List.cpp,
+  RGE_Action.cpp, RGE_Action_Enter.cpp, install_action.cpp/.h + the vcxproj +
+  the filters + install_engine() -> install_action() wired). THE ANCHOR:
+  RGE_Action_List__create_task_action_new (707 B - the six derived-ctor
+  groundings family-wide, the gbg_unknown_1 gather-tail resolution). THE
+  RGE_ACTION BASE 25/25 (A1 the ctor family 6; A2a create_action_list/rehook/
+  save/type/inside_obj_update/update; A2b set_target_obj/2 + copy_obj +
+  get_state_name + targetX/Y/Z + setSubAction + hasSubActionOfType +
+  add_sub_action + get_target_obj/2; A2c set_state @0x5724C0 the outlier).
+  THE RGE_ACTION_ENTER 7/10 (A3a the ctor family 4 - the LINKED-BUILDING
+  REDIRECT via linked_owner @476; A3b first_in_stack + set_state_move +
+  set_state).
+
+THE PROTOCOL AMENDMENTS (DECOMP_TEMPLATE.md):
+- THE FIELD-PUN RULE - THE REANALYSIS-FIRST LADDER (the origin: the
+  records[1].Object pun; the base-pointer rule INCLUDING THE VALUE'S TYPE).
+- THE SCAN MECHANICS AMENDMENT (the all-hex-literal extraction, the
+  installer-file owned inventory, the ENTRY FIGHTS rule, the counts-stated
+  rule; the origin: the 0x0054EF00 processUnitHook miss).
+- THE LOGGER RECOVERY RULE (recover the exemplar from commit 2fc06f1 BEFORE
+  writing any logger; the one-line incremental shape; the one-switch flip
+  RSO_UPDATE_LOG_NEW).
+
+THE IDB VERIFICATION (owner 2026-11-25): the virtual struct declaration is
+CORRECT - the 6-arg moveTo at +0x1EC (slot 123) verified directly in the IDB.
+MY earlier extra-entry/shift theory (the runtime vftables vs the structs) =
+DISPROVEN - my .h line-arith reading was the error. NO IDB correction, NO
+regeneration. THE ENTER set_state writes NOW with the named 6-arg moveTo
+dispatch through the struct member at +0x1EC (the explicit-this form, the
+target up-cast to RGE_Combat_Object* - the verified ladder).
+
+THE GAME_FACTS (written): the object_state machine row (0/2 -> 3 -> 6/7 -> 8;
+the container mirroring; 1/4 UNKNOWN; the death threshold hp < 1.0);
+sound_id 38 = the capture fanfare. THE CANDIDATES OWED: the notify mTypes
+505/506, the attribute types 15/16/17, the master id 82, the msgs
+3051/3065/3066/3069.
+
+THE DESYNC FIXES THIS SESSION: the RGE_Static_Object__update (the UNIT_EXTRA
+freeze + the v2 timer revert - the bakes above). ALL TESTS CLEAN
+(owner-verified in-game). THE GATE: every batch compile clean (standalone
+19.16 + in-tree PCH; the environmental CrashRpt misses only); the /Fa gates
+passed (the X87 macro forms unfolded; the dispatch offsets 0x1EC/0x140/0x13C/
++0x60/+0x48/+0x1F0-as-+492-decimal/+332/+96 verified); the corrected scans
+clean per range (the only LIVE hits = my own hooks + the documented-compatible
+writeDwords); the A/B logger removed at ship.
+
+CARRIED: the common.h collisionUnits comment fix (provisional); the
+DECOMP_HIERARCHY Building-row rot (the re-walk owed); the Enter A3c remainder
+(update @0x403530 544 B, enter_target @0x403750 752 B, calculateTargetPoint
+@0x403A40 - the .c bodies ALL read); the in-game validation owed (the combat
+tick, the shield pair, the enter flow, the capture).
+
+THE NEXT FAMILIES: THE ACTION RUNTIME CONTINUES - the Move_To tier next (the
+create_task_action + the Enter set_state_move call its ctors via the idb
+constants - routes when owned), then the derived tiers, RGE_Action_List and
+RGE_Action_Object last. THE CLASS COUNTS: the earlier scoping double-counted
+the prototype block - USE THE MARKER-SCAN COUNTS (e.g. Enter = 10 not 20).
+ALSO: RGE_Missile_Object::init_missile (0x49BDE0, live-cited from attack4_new),
+TRIBE_Command::do_command_attack_ground (0x5BB7C0).
+
+THE NEXT-SESSION OPENER (paste-prompt):
+"""
+Read DECOMP_STATE.md, DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md,
+DECOMP_GAME_FACTS.md in cheatdll/src/idb/ first. STATE: THE COMBAT RUNTIME
+53/53 COMPLETE (the RGE_Combat_Object::update + the static
+RGE_Static_Object::update owned; the update desync FIXED - the UNIT_EXTRA
+bake + the v2 timer bake, the casts/core/negdecay retirements; the owner
+verified in-game). THE SHIELD PAIR OWNED (gbg_doShieldRecharge/Dropoff). THE
+ACTION SUBSYSTEM RATIFIED (src/engine/action/, install_action wired through
+install_engine): the anchor create_task_action + THE RGE_ACTION BASE 25/25 +
+THE RGE_ACTION_ENTER 7/10 (the ctor family with the linked_owner redirect +
+first_in_stack + set_state_move + set_state - set_state's moveTo dispatch =
+the named 6-arg moveTo through the struct member at +0x1EC (the
+owner-verified IDB declaration - correct as-is; the dispatch writes NOW with
+set_state, un-blocked). REMAINING IN ENTER:
+update/enter_target/calculateTargetPoint (A3c - the .c bodies read). THE
+NEXT: the Move_To tier (the create_task_action + the Enter set_state_move
+call its ctors via the idb constants - routes when owned), then the derived
+tiers; RGE_Action_List (56) and RGE_Action_Object (90) last. THE CLASS
+COUNTS: the earlier scoping double-counted the prototype block - use the
+marker-scan counts (e.g. Enter = 10 not 20). THE
+GAME_FACTS: the object_state machine row + sound_id 38 written; the
+candidates owed: the mTypes 505/506, the attribute types 15/16/17, the
+master id 82, the msgs 3051/3065/3066/3069. THE PROTOCOL: the FIELD-PUN
+REANALYSIS-FIRST LADDER + the SCAN MECHANICS (the all-hex-literal
+extraction, the ENTRY FIGHTS, the counts stated) + the LOGGER RECOVERY RULE
+(commit 2fc06f1 exemplar) all landed this session-chain. THE GATE: all
+batches compile clean (the environmental CrashRpt misses only); the /Fa
+gates passed; the corrected scans clean. CARRIED: the common.h collisionUnits
+comment fix (provisional); the DECOMP_HIERARCHY Building-row rot (the re-walk
+owed); the in-game validation owed (the combat tick, the shield pair, the
+enter flow, the capture). THE TWO-PASS BAR: all this session's functions
+single-pass (max 912 B set_state).
+"""
+
+## SESSION CONTINUATION (2026-11-25): BATCH A3c - ENTER COMPLETE 10/10
+
+- BATCH A3c - ENTER COMPLETE 10/10 (owner-approved + WRITTEN 2026-11-25):
+  update @0x00403530 [0x403530,0x40370A) (the Enter vtbl slot 10 = +0x28,
+  lst :4402/:4646), enter_target @0x00403750 [..,0x403A33) (lst :4673/:4969),
+  calculateTargetPoint @0x00403A40 [..,0x403D23) (lst :4978/:5266) - the
+  marker-scan count confirmed (10 exports; the installer 10 hooks, 0 dupes;
+  defs/refs 10/10). ALL SINGLE-PASS (474/739/739 B; gotos 0/3/2; back-edges
+  0/0/0). DURABLE MODELS: the WAIT-timer mixed precision (fsub at 53-bit ->
+  fst store-round -> the compare consumes the UNROUNDED st0 = the
+  double-diff + float-field form, rule (a)/(e)); the enter_target
+  worker-deposit block (group 58 + THE BAKED HARBOR_DROP_OFF extension
+  group 14 (Utility Trawler) && current_loaded_version >= 8 - harbor.cpp
+  :316/:376 setHook 0x0040375F retired, the stub's signed jge; attribute
+  types 15/16/17 bank as index 0, types 0-3 as themselves, anything else
+  skips; the deposit = (int)((double)amount + 0.5) rule (f), the field
+  re-stores, add_attribute_num (slot 32 = +0x80, the UPDATED float per the
+  declared float param - the .c's LODWORD render = the artifact) +
+  trackUnitGather (slot 24 = +0x60, the member is (int,int,int) - the .c's
+  (__int64) render = the artifact) + set_attribute (slot 62 = +0xF8,
+  (-1, 0.0)); master id 82 excluded alongside Turret 10/Fortress 9 - the
+  registry candidate); the building-hp gate = master hp (i16 @+0x32) x 0.2f
+  (flt_65479C BINARY-VERIFIED CD CC 4C 3E) >= target hp @+0x3C - the literal
+  >= MATCH row (jnz targets the {<,NaN} skip); the 505/506 notify pair (505
+  = the blocked-enter notify: the cant-do chain + the abandoned-action
+  cleanup + the hp refusal; 506 = the SUCCESS capture notify; both p1 =
+  RGE_UNITAI_ACTION_ENTER 617 - THE 6XX ENUM APPLIED per the owner
+  direction + the two shipped-site retrofits in first_in_stack/set_state;
+  505/506 stay cited literals - the 5xx enum waits per the 2026-11-23
+  directive); the actionState slot (112 = +0x448 decimal) returns the
+  RGE_Action::state namespace - THE ENUM APPLIED at all 8 compare sites
+  (the application caught a decode-comment mislabel: case 3 was annotated
+  "sub Work2", the registry says 3 = Search); the calculateTargetPoint
+  floor = THE REAL CRT FLOOR compiled to MSVC's inline branchless SSE2
+  expansion (subsd/cmpnlesd/andps/subsd + addsd 0.5 + cvtpd2ps -
+  value-exact, NaN-propagating; the .c's "floor(v11); *tX = v11 + 0.5"
+  render DROPS the floor - asm wins; the intrinsic-expansion class, the
+  __libm_sse2_sqrt_precise precedent); the lingering-push disposition:
+  enter_target's push -1 before the this-only gbg_get_civ_override (slot 2
+  = +0x8) is RGE_Sound__play's OWN culture arg (the 5-stack-arg prototype
+  exact - play(:3662) = (playType 1, pan, volume, player_id, culture -1));
+  gbg_unknown_3 (the world sound index) @+0x19C = 412 walker-verified (the
+  tasks @0x18C anchor); RGE_Player::sel_count @+0x26C = 620
+  walker-verified; RGE_Player::world is TRIBE_World*-TYPED (the family
+  cast required at the RGE_Game_World__object sites - the compiler
+  corrected the ledger's RGE_Game_World* read; the world->gbg_unknown_3/
+  sounds/map accesses resolve through TRIBE_World directly). THE COLLISION
+  SCAN (2,961 sites / 2,603 literals / the 479-address owned inventory):
+  1 hit dispositioned = the bake above; update/calculateTargetPoint
+  ranges 0 hits. GATE (x86 v141_xp 14.16): 2/2 TUs 0 errors 0 warnings
+  (RGE_Action_Enter.cpp + harbor.cpp); the gate catches = 4 C2664
+  cross-class casts (the world dual-naming x2, the get_3d_sound_info
+  this-cast, the change_ownership TRIBE_Player* -> RGE_Player* - the C2
+  class). /Fa CLEAN: all slot offsets verified (448x8 = the asm's exact 8
+  actionState calls, 316x2 = the two get_action fetches, 72x2
+  display_cant_do_msg = the original's own shared-tail structure, 88x4 =
+  the three set_target_obj + the object_state byte at the same decimal
+  offset); the 2 X87_LE_NAN expansions emit comisd + direct CF jcc, 0
+  setcc; the 0.2f widened pool present; the x0.0-fold scan = 0 folds (2
+  legitimate macro operands); the ABI proof = _this_$ = ecx everywhere, 0
+  esp-relative this reads; all 8 idb constants in the asm-direct-call
+  form incl. 0x403750 = update's enter_target call through the HOOKED
+  CONSTANT (the routing ruling). IN-GAME VALIDATION OWED (the enter flow,
+  the capture, the worker/trawler deposit). GAME-FACTS CANDIDATES OWED
+  (owner designations): master id 82 (the deposit exclusion),
+  msg 3051 (the building-hp refusal), the 505/506 pair (delivered
+  in-conversation), group 14 at v8+ (the trawler deposit). NEXT: the
+  Move_To tier (the create_task_action + the Enter set_state_move/set_state
+  call its ctors :100/:101 @0x408220/0x4082C0 via the idb constants -
+  routes when owned), then the derived tiers; RGE_Action_List (56) and
+  RGE_Action_Object (90) last. CARRIED: the common.h collisionUnits
+  comment fix (provisional); the DECOMP_HIERARCHY Building-row rot (the
+  re-walk owed); the in-game validation owed (the combat tick, the shield
+  pair, the enter flow, the capture - joined by this batch).

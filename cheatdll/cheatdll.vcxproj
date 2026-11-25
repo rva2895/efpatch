@@ -281,6 +281,7 @@
     <ClInclude Include="gamemode.h" />
     <ClInclude Include="gamespeed.h" />
     <ClInclude Include="install_engine.h" />
+    <ClInclude Include="src\engine\action\install_action.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="loadfilelist.h" />
     <ClInclude Include="mods.h" />
@@ -646,6 +647,10 @@
     <ClCompile Include="src\engine\map\RGE_Visible_Map.cpp" />
     <ClCompile Include="src\engine\pathing\BMotion.cpp" />
     <ClCompile Include="src\engine\pathing\install_pathing.cpp" />
+    <ClCompile Include="src\engine\action\RGE_Action_List.cpp" />
+    <ClCompile Include="src\engine\action\RGE_Action.cpp" />
+    <ClCompile Include="src\engine\action\RGE_Action_Enter.cpp" />
+    <ClCompile Include="src\engine\action\install_action.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res.rc" />

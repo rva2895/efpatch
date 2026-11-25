@@ -373,6 +373,8 @@ void setHarborHooks()
     setHook((void*)0x0055F15E, harbor_back_to_work_3);
     setHook((void*)0x0055F198, harbor_back_to_work_4);
 
-    setHook((void*)0x0040375F, harbor_drop_off_on_enter);
+    // retired 2026-11-25: baked into RGE_Action_Enter__enter_target_new
+    // (cheatdll/src/engine/action/RGE_Action_Enter.cpp), see 0x0040375F
+    // setHook((void*)0x0040375F, harbor_drop_off_on_enter);
 }
 #pragma optimize( "", on )

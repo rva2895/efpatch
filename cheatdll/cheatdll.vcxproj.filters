@@ -633,6 +633,9 @@
     <ClInclude Include="install_engine.h">
       <Filter>Заголовочные файлы\engine</Filter>
     </ClInclude>
+    <ClInclude Include="src\engine\action\install_action.h">
+      <Filter>Заголовочные файлы\engine</Filter>
+    </ClInclude>
     <ClInclude Include="x87_nan.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
@@ -1242,6 +1245,18 @@
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\object\install_object.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\action\RGE_Action_List.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\action\RGE_Action.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\action\RGE_Action_Enter.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\action\install_action.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\install_engine.cpp">
