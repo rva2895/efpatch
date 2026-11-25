@@ -1356,8 +1356,10 @@ void setAIUnitCountHooks()
     setHook((void*)0x00565F51, ctr2TransportFix1);
     setHook((void*)0x0056A8DE, ctr2TransportFix2);
     setHook((void*)0x0056AEE3, ctr2TransportFix3);
-    setHook((void*)0x004047E0, ctr2TransportFix4);
-    setHook((void*)0x00404C06, ctr2TransportFix5);
+    // retired 2026-11-25: baked into RGE_Action_Gather__set_state_new (src/engine/action/RGE_Action_Gather.cpp), see 0x4047E0
+    // setHook((void*)0x004047E0, ctr2TransportFix4);
+    // retired 2026-11-25: baked into RGE_Action_Gather__set_state_new (src/engine/action/RGE_Action_Gather.cpp), see 0x404C06
+    // setHook((void*)0x00404C06, ctr2TransportFix5);
 
     setHook((void*)0x0057CA47, ctrFarmFix);
 

@@ -359,53 +359,12 @@ void pay_obj_cost(TRIBE_Player* player, __int16 obj_id)
     }
 }
 
-int __fastcall RGE_Action_Gather__auto_rebuild_farm_new(RGE_Action_Gather* action)
-{
-    if (action->farm_x == -1.0f || action->farm_y == -1.0f)
-        return 0;
-
-    __int16 farm_obj_id;
-    int count;
-    if (action->obj->master_obj->object_group == 14)
-    {
-        if (current_loaded_version < 8)
-            return 0;
-        farm_obj_id = AQUA_HARVESTER_ID;
-        count = action->obj->owner->aqua_harvester_queue_count_new;
-    }
-    else
-    {
-        farm_obj_id = 50;
-        if (current_loaded_version >= 8)
-            count = action->obj->owner->farm_queue_count_new;
-        else
-            count = action->obj->owner->farm_queue_count;
-    }
-
-    if (count <= 0)
-    {
-        if (!try_auto_queue_farm(action->obj->owner, farm_obj_id))
-            return 0;
-    }
-
-    TRIBE_Master_Building_Object* farm_bldg = (TRIBE_Master_Building_Object*)action->obj->owner->master_objects[farm_obj_id];
-    if (farm_bldg->vfptr->check_placement(farm_bldg, (RGE_Player*)action->obj->owner, action->farm_x, action->farm_y, NULL, 1, 1, 1, 1, 1, 1, NULL, 0))
-        return 0;
-
-    RGE_Static_Object* new_farm = farm_bldg->vfptr->make_new_obj_2(farm_bldg, (RGE_Player*)action->obj->owner, action->farm_x, action->farm_y, 0.0f, -1);
-    if (!new_farm)
-        return 0;
-
-    if (count <= 0)
-        pay_obj_cost(action->obj->owner, farm_obj_id);
-    else
-        TRIBE_Player__use_farm_queue_new(action->obj->owner, farm_obj_id);
-
-    RGE_Static_Object__removeAllFromPathingGroup((RGE_Static_Object*)action->obj);
-    action->obj->vfptr->do_command(action->obj, new_farm, action->farm_x, action->farm_y, 0.0f);
-
-    return 1;
-}
+// TOMBSTONED 2026-11-25: the VERBATIM ADOPTION - this function moved to
+// src/engine/action/RGE_Action_Gather.cpp as RGE_Action_Gather__auto_rebuild_farm_new
+// (the canonical _new name transfers per the collision-naming rule; the
+// setFarmHooks call site retired with the standard reason line). The
+// helpers below (TRIBE_Player__use_farm_queue_new / try_auto_queue_farm /
+// pay_obj_cost) stay here; the adopted copy extern-declares them.
 
 extern TShape** iconsBldgPtr;
 
@@ -1004,10 +963,14 @@ __declspec(naked) void farm_expiration() //005EB824
 void setFarmHooks()
 {
     setHook((void*)0x005B633D, fishing_ship_process_notify);
-    setHook((void*)0x00405FDE, action_gather_farm_xy_1);
-    setHook((void*)0x004041DD, action_gather_farm_xy_2);
-    setHook((void*)0x00404F54, action_gather_user_released);
-    setHook((void*)0x00405F38, action_gather_work);
+    // retired 2026-11-25: baked into RGE_Action_Gather__update_new (src/engine/action/RGE_Action_Gather.cpp), see 0x00405FDE
+    // setHook((void*)0x00405FDE, action_gather_farm_xy_1);
+    // retired 2026-11-25: baked into RGE_Action_Gather_new (the ctor capture gate), see 0x4041DD
+    // setHook((void*)0x004041DD, action_gather_farm_xy_2);
+    // retired 2026-11-25: baked into RGE_Action_Gather__update_new (src/engine/action/RGE_Action_Gather.cpp), see 0x00404F54
+    // setHook((void*)0x00404F54, action_gather_user_released);
+    // retired 2026-11-25: baked into RGE_Action_Gather__work_new (src/engine/action/RGE_Action_Gather.cpp), see 0x00405F38
+    // setHook((void*)0x00405F38, action_gather_work);
 
     setHook((void*)0x0041BDB7, closest_object_workers);
     
@@ -1017,7 +980,9 @@ void setFarmHooks()
     setHook((void*)0x005D7530, on_remove_from_farm_queue_1);
     setHook((void*)0x005D754E, on_remove_from_farm_queue_2);
 
-    setHook((void*)0x004060B0, RGE_Action_Gather__auto_rebuild_farm_new);
+    // retired 2026-11-25: the VERBATIM ADOPTION - RGE_Action_Gather__auto_rebuild_farm_new moved to
+    // src/engine/action/RGE_Action_Gather.cpp (the canonical _new name transfers), see 0x004060B0
+    // setHook((void*)0x004060B0, RGE_Action_Gather__auto_rebuild_farm_new);
     
     setHook((void*)0x00504FCE, on_food_proc_auto_queue_icon);
     setHook((void*)0x00505103, on_harbor_aqua_harvester_icons);
@@ -1032,7 +997,8 @@ void setFarmHooks()
     setHook((void*)0x005B5FCE, fishing_ship_important_objects_size);
     setHook((void*)0x005B6230, fishing_ship_important_objects);
 
-    setHook((void*)0x00404928, farm_walk);
+    // retired 2026-11-25: baked into RGE_Action_Gather__set_state_new (src/engine/action/RGE_Action_Gather.cpp), see 0x404928
+    // setHook((void*)0x00404928, farm_walk);
 
     //expiration notifications
     writeNops(0x005E9B48, 0xD);

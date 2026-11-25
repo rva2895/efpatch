@@ -140,11 +140,14 @@ __declspec(naked) void on_action_gather_set_state() //00404A93
 void setAttributeHeldHooks()
 {
     setHook((void*)0x0056A50E, on_action_hunt_first_in_stack);
-    setHook((void*)0x0040438E, on_action_gather_first_in_stack);
+    // retired 2026-11-25: baked into RGE_Action_Gather__first_in_stack_new (src/engine/action/RGE_Action_Gather.cpp), see 0x40438E
+    // setHook((void*)0x0040438E, on_action_gather_first_in_stack);
 
     setHook((void*)0x0056AD94, on_action_hunt_set_state);
-    setHook((void*)0x00404A93, on_action_gather_set_state);
+    // retired 2026-11-25: baked into RGE_Action_Gather__set_state_new (src/engine/action/RGE_Action_Gather.cpp), see 0x404A93
+    // setHook((void*)0x00404A93, on_action_gather_set_state);
 
-    setHook((void*)0x0040560D, on_action_gather_update);
+    // retired 2026-11-25: baked into RGE_Action_Gather__update_new (src/engine/action/RGE_Action_Gather.cpp), see 0x00560D
+    // setHook((void*)0x0040560D, on_action_gather_update);
 }
 #pragma optimize( "", on )

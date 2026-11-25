@@ -251,7 +251,7 @@ authoritative.)
   Writer scan 0 overlaps ×3; profiler table hits (functionlist.cpp
   :2134-2136, dead-code footnote). WRITTEN: appended to
   RGE_Master_Static_Object.cpp; installer gained three setHook calls
-  setHook calls (total 19 for the class). Call-site context (protocol
+  (total 19 for the class). Call-site context (protocol
   step 13): exactly one direct caller — RGE_Master_Animated_Object::modify
   @0x4889E0 delegates (flag != 5 → base call; flag == 5 handled
   derived-side); Moving::modify delegates to Animated; primary
@@ -685,8 +685,6 @@ authoritative.)
   presentation protocol, cross-class cast rule, C2177 note, CRT
   _internal rule, base_game deref rule, constructor structural
   audit — all in DECOMP_TEMPLATE.md.
-  WRITTEN + post-write verification (Moving file now 12 defs/refs
-  identical; CRT sweep 0; pointer-walk 0; literal sweep 0).
 - DERIVED DESTRUCTOR FAMILY (owner-approved + written 2026-11-14):
   6 destructors + 5 vector_deleting + 1 scalar_deleting (Moving has
   no vector_deleting export; its vftable uses the scalar variant)
@@ -3122,54 +3120,6 @@ authoritative.)
     restart from the regenerated files). Citation policy amended
     (TEMPLATE step 8): address + function-name citations mandatory;
     line-only citations dropped (the .c/.lst regens shift lines).
-
-  - DESYNC FIX #5 - missile_move invented OOB early-return (owner bisect
-    + approved + fixed + CONFIRMED FIXED IN-GAME 2026-11-16): the shipped
-    missile_move_new invented `return 0` on the out-of-bounds path - the
-    original (0x49BF70-0x49C023, full asm pass; the first decode shipped
-    with "asm pass owed" in its header and it was never executed) has NO
-    else: die_die_die (slot +0xE4, asm 0x49BFEB) falls through to the
-    teleport + comparison on every path (loc_49BFE7 joins loc_49BFF1;
-    teleport slot +0xA8 args (nx, ny, nz) identity order; return = fcomp
-    world_z @+0x50, test ah,40h = the C3-only equality idiom, SSE sete
-    result-identical incl. NaN). The invented return skipped the
-    teleport (stale world_x/y/z + tile state -> divergence) and
-    hard-coded the caller's (RGE_Action_Missile__update+39B) result.
-    Why the nets missed it: the owed asm pass; the store-and-read diff
-    is 0/0-blind to control flow; the compile gate accepts
-    valid-but-wrong C++; the in-game Missile test passed because the
-    OOB path never fired there. PROTOCOL (owner-approved, TEMPLATE
-    amended): (1) owed-asm-pass blocks WRITTEN (step 7); (2) Exit-path
-    inventory added (the return-site mapping; caught this class on its
-    origin case - the exit paths 0x49C015 = 1 / 0x49C01E = 0, both
-    after the teleport). GATE 0 errors 0 warnings; defs/refs 16/16.
-    Re-verify: missile_move_new carries the single tail return; the OOB
-    branch falls through.
-
-  - DESYNC FIX #6 - TRIBE_Master_Combat_Object__check_placement_new
-    float precision (owner bisect + approved + fixed + CONFIRMED FIXED
-    IN-GAME 2026-11-16): uninstalling the hook eliminated the desync;
-    the instruction-level re-walk found the control flow/operands/
-    fields/exit paths FAITHFUL - the divergence was the FLOAT PRECISION
-    CLASS: the original runs the fly-over and AABB comparisons on x87
-    53-bit intermediates (0x5C94CE-0x5C9536 fly-over, 0x5C9631-0x5C968E
-    AABB) while the written code rounded everything to 24-bit first,
-    AND the scan rectangle truncated a float-rounded (x -+ 8.0) instead
-    of the 53-bit difference (0x5C9397-0x5C93DF). Bit-exact forms
-    applied: dx as double intermediates, the radius sums as 53-bit
-    doubles, |dy| kept FLOAT (the original's own arg_24 m32 store-round,
-    0x5C94E6/0x5C9658), rect via (int)((double)x -+ 8.0). Direct
-    float-vs-constant gates untouched (bit-safe). RULE (TEMPLATE
-    amended: the FLOAT PRECISION VERIFICATION bullet): comparisons
-    consuming arithmetic results need double intermediates; direct
-    loaded-float compares stay float; replicate m32 store-rounds; (int)
-    conversions consume 53-bit operands. Same-class sites flagged in
-    the RGE Static and Building check_placements (sibling scans) -
-    actioned only on owner bisect reports. GATE 0 errors 0 warnings;
-    defs/refs 1/1; exit paths 4/4 mapped (0x5C9394 = 0, 0x5C974C =
-    base_result, 0x5C975A = 9, 0x5C9766 = 6). Re-verify:
-    TRIBE_Master_Combat_Object.cpp fly-over/AABB blocks carry the
-    double/float asymmetric forms; rect via (int)((double)x -+ 8.0).
 
   - M3c CORRECTIONS - precalcDistToGoal + incrementWaypoint (owner
     bisect + approved + fixed 2026-11-16): both desynced under the
@@ -6095,30 +6045,6 @@ authoritative.)
     The A/B harness rows: the CA/FA formats in the DIAG block; the
     log files in the game dir.
 
-  - CHECKACCELERATION DESYNC ROOT CAUSE (owner-found 2026-11-22,
-    line 5811): the LABEL_11 velocity-vs-maxSpeed gate was written
-    X87_LE_NAN ({<=, NaN}) — the original asm at 0x4A682E-0x4A6831
-    = test ah,1 (the C0-ONLY mask, not C0|C3) → the jz skips on
-    C0=0 = {>= ordered} → the fall-through to LABEL_11 fires on
-    C0=1 = {<, NaN} = X87_LT_NAN.  THE DIVERGENCE CLASS: the ==
-    case (velocity.y EXACTLY equals maxSpeed): the original SKIPS
-    (C0=0, C3=1 — the C3 is IGNORED by the 01h mask), my form
-    FIRED setForwardAcceleration (the LE_NAN includes =).  THE FIX:
-    X87_LT_NAN.  HOW IT SLIPPED THROUGH: at decode time I
-    pattern-matched the fcomp+fnstsw+test+jz SHAPE to the 41h mask
-    family without reading the IMMEDIATE BYTE (01h vs 41h = the
-    entire partition); at /Fa verification I checked the compare
-    width (comiss/comisd) + the pool constants but never WHICH jcc
-    form followed the compare (jbe for LE_NAN vs ja for LT_NAN).
-    THE TEMPLATE RULE (proposed): the x87 test mask IMMEDIATE
-    (01h/41h/40h) IS the partition — it must be read from the
-    listing, not inferred from the idiom shape; the /Fa literal-row
-    scan must include the jcc FORM at every x87 compare-branch
-    site.  Gate re-run 0/0; the /Fa: comiss+jae at the maxSpeed
-    gate = the {<, NaN} fall, bit-matching the asm's test ah,1.
-    Re-verify: grep checkAcceleration_new for X87_LT_NAN (the
-    velocity gate = LT_NAN, NOT LE_NAN).
-
   - CHECKACCELERATION A/B RUN 2 ANALYSIS - THE TWO-TIER CONTRADICTION
     (2026-11-22): the first divergence = unit 11358's LABEL_11-arm
     acceleration.y write: the stub build = 0, ours = +FLT_MAX; the
@@ -7865,6 +7791,372 @@ single-pass (max 912 B set_state).
   occurrences. GATE 0/0; defs/refs 6/6; the sweeps clean (0 actual
   gotos); the collision scan 2,985 sites / 0 hits. THE 5xx REGISTRY:
   514 = the expedition-started notify (p1 = 605 EXPLORE). IN-GAME
-  VALIDATION OWED (the explore flow). NEXT: Transport 8 / Gather 11 /
-  Attack 14; RGE_Action_List (56) and RGE_Action_Object (90) last.
   CARRIED unchanged.
+
+- BATCH M6-ACTION - GATHER PARTIAL WRITE 6/11 (owner-approved +
+  WRITTEN 2026-11-25): NEW CLASS FILE src/engine/action/RGE_Action_
+  Gather.cpp. THE 6 FULLY ASM-WALKED FUNCTIONS: ctor3(ctor_read)
+  @0x00404080 [..,0x404160), Gather(ctor) @0x00404160 [..,0x404290)
+  (the FARM CAPTURE at master id 50 + the timePerStop = attr_max x
+  mult / (rate x val1) x 0.25f), Gather2 @0x00404290 [..,0x404300),
+  save @0x00404300 [..,0x404380) (the 9-write mirror), first_in_stack
+  @0x00404380 [..,0x404490) (the carried-attribute set + the
+  farm-crowded check worker_num @+0x5F > 1 -> Move(11) + set_target_
+  obj(0); the linked-owner redirect (the Enter ctor precedent); the
+  owner + drop-site match -> Return(8)), set_state @0x00404490
+  [..,0x404EE0) = 2640 B - THE BIGGEST FUNCTION DECODED. THE
+  SWITCH-TABLE: byte_404DE8 = 247 entries (db 0,1,2,3,10,4,5,6,10,
+  10,7,10,0,0,7 + the 0Ah filler + the tail ...,7,8,9,10,10,9) -
+  THE EMITTED TABLE = EXACT. THE ARMS: Done/Failed/Invalidated ->
+  timer = 0 + the wait-sprite restore; Wait(2) -> the wait sprite +
+  the clears + the sentinel trio; Search(3)/state 243 -> the drop-off
+  find (find_by_master_ids with the drop_site/backup pair @+0x118/
+  +0x11A) + the 514/609 notify + timer = -10.0/-1.0; Goto(4) -> the
+  target sync + the AI-water (object_group_count[59]/[17] +
+  lookupZone/currentZone -> 244) + numberStops==1||quick_build ->
+  Move_To2 / the 10-attempt lastStop dedup + rand spread -> the
+  coordinate Move_To; Work(6) -> THE FARM CAPTURE (the group 7 Farm:
+  the owner mismatch + gameType==6 && worker_num + build_pts @+0x230
+  = 560 <= 0 -> Done(1); the vtbl +188 change_ownership) + the
+  multi-stop sprite; Work2(7) -> the carried-attribute set + the
+  work sprite (the group 58/14 civ-indexing) + the work sound;
+  Return(8) -> currentStop = 0 + the drop-site resolve (the
+  useSameZoneDropsite slot +0x1CC + the find pair) + the AI-water ->
+  F7=247 + the Move_To2 / the 515/609 notify -> Failed(13); Move(11)/
+  15/242 -> the shared coordinate Move_To; 244/247 -> the wait-sprite
+  only; the F5/F8 gate -> delete_list SKIPPED. ALL 11 GOTOS to
+  wait_sprite_restore INLINED (the 2-line get_wait_sprite +
+  new_sprite per arm; the compiler merges identical tails). GATE 0/0
+  (4/4 TUs incl. install_action + Explore + Transport); defs/refs
+  6/6; the table EXACT; 0 gotos/0 setcc/0 x0.0-fold/0 esp-this;
+  bare CRT 0. THE FIELD MAP: RGE_Action_Gather = the base Action
+  mirror + targetType @+0x40 (i32), numberStops @+0x44 (u8),
+  currentStop @+0x45 (u8), timePerStop @+0x48 (f32),
+  timeAtCurrentStop @+0x4C (f32), lastStopX @+0x50 (u8), lastStopY
+  @+0x51 (u8), have_worked @+0x52 (u8), farm_x @+0x54 (f32), farm_y
+  @+0x58 (f32), gbg_unknown_1 @+0x5C (i32 - the work2 gather-flag).
+  THE INTERNAL STATES 242-249: the F5/F8 pair skips delete_list;
+  the F4/F7 -> the wait-sprite-only arm; the 245/246/248/249 = the
+  bare stores. THE REMAINING 5 FUNCTIONS (update 2180 B, get_move_
+  sprite, get_wait_sprite, work, auto_rebuild_farm): the .c bodies
+  ALL READ, the asm walks IN PROGRESS (the update walked to ~0x40584A),
+  THE DRAFTS NOT STARTED - the hooks NOT installed for these. THE
+  REGISTRY CANDIDATES: 514 = the gather re-target notify (p2 =
+  targetType, p3 = the drop-off id); 515 = the no-drop-site; the
+  internal states 242-249; the notification(127) = the Base_Game vtbl
+  slot 17; the drop-off terrains {1,22,23}; the master object_flags
+  bit 2 = ship unit (RESOLVED); master id 82. IN-GAME VALIDATION OWED
+  (the 6 written functions). NEXT SESSION: the Gather update/tails
+  decode -> the drafts -> gate -> write (the 5 remaining hooks); then
+  Attack 14; RGE_Action_List (56); RGE_Action_Object (90). CARRIED:
+  the common.h collisionUnits comment fix; the DECOMP_HIERARCHY
+  Building-row re-walk. THE NEXT-SESSION OPENER: "Read the 4 state
+  files first. STATE: the action family 7/8 derived tiers OPEN
+  (Move_To 9, Guard 3, Bird 5, Make 5, Explore 6, Transport 8, Gather
+  6/11 partial - the 6 written + gated + installed; update/get_move_
+  sprite/get_wait_sprite/work/auto_rebuild_farm remain: the .c bodies
+  READ, the asm walks PARTIAL (the update stopped at 0x40584A of
+  0x40A442, the tails UNWALKED), THE DRAFTS NOT STARTED. IMMEDIATE:
+  (1) the Gather update asm tail walk (lst 7716-8765 from 0x40584A);
+  (2) the tail functions (lst 8765-9271); (3) the drafts -> gate ->
+  append the 5 hooks to install_RGE_Action_Gather; (4) then Attack 14;
+  (5) RGE_Action_List (56); RGE_Action_Object (90). THE FIELD MAP FOR
+  GATHER IS BANKED IN THE CPP HEADER COMMENT. THE INTERNAL STATES
+  242-249 MAPPED. THE REGISTRIES: the attributes 0-218, the
+  object_flags bits, the 5xx family (505/506/507/508/512/514/515/518/
+  519/527/530), the RGE_PLAYER_ATTRIBUTE enum (the 9 consumed values).
+  THE OBJECT_FLAGS BIT REGISTRY IS IN THE GAME FACTS (bits 0-7). THE
+  GATHER FUNCTION MAP: the 6 written functions in
+  RGE_Action_Gather.cpp; the 5 remaining append to the same file
+  (the hooks + the installer grow from 6 to 11). THE COMPILE GATE:
+  4/4 TUs 0/0 as of the session close."
+
+- BATCH M5-ACTION - TRANSPORT 8/8 COMPLETE (owner-approved + WRITTEN
+  2026-11-25): NEW CLASS FILE src/engine/action/RGE_Action_Transport.cpp
+  (+ the wiring). THE STRUCT = the base Action mirror ONLY (64 = 0x40 -
+  the hierarchy's verified prefix identity; NO extension fields).
+  ctor2/ctor @0x00409F00/0x00409F30 (the 5-arg form; the callers = the
+  OWNED transport_new/unload_new - routes), first_in_stack @0x00409F70
+  (first_time && target_x/y >= 0.0 - the literal >= MATCH rows - ->
+  Move(11) else Wait(2)), set_state @0x00409FC0 = 512 B (the sub chain:
+  Wait(2) = the base-sprite restore; Goto(4)/Move(11) SHARE the block -
+  the .c's !v5||v5==7: ma = get_map_analysis(:2047 @0x49B470) on
+  (*base_game)->world->map_analysis_system @+0x74 = 116;
+  find_closest_pathable_point(:2023 @0x4981F0) -> the target_x/y = the
+  resolved pair (z untouched); THE THREE-CASE SPRITE CASCADE:
+  task->move_sprite @+0x34 / the master get_move_sprite TEST+fetch
+  (slot 30 = +0x78; the member this_ = RGE_Master_Action_Object* - the
+  IDB's inherited-slot typing) / get_sprite (slot 1) - the range =
+  0.3f (flt_6552F0 BINARY-VERIFIED 9A 99 99 3E); add_action THEN
+  setSubAction (the Explore contrast); the null -> Wait(2)), update
+  @0x0040A1C0 = 642 B (the byte_40A45C table EXACT db
+  0,5,5,1,5,2,5,5,5,5,3,5,4; Goto(4) = the sub gate {1}U{3,4,5} ->
+  Work(6); Move(11) = the same gate -> Wait(2) - THE .c's case list
+  drops sub-4, the render artifact; Work(6) = THE DROP-OFF MACHINERY:
+  the zone resolve via lookupZone(:3883 @0x552610) on the carried
+  List[0] (obj->objects @+0x30 = 48, the RGE_New_Object_List),
+  withinRangeOfZone(:3885 @0x552730) the 1.5 gate, next_to_drop_off_
+  terrain (the SELF dispatch slot 25 = +0x64 = 100), drop_held_objects
+  (:3877 @0x552010), THE OWNER-LEVEL notifies 518 (the drop success) /
+  519 (the fail) via TRIBE_PlayerVtbl member 75 = +0x12C = 300 decimal
+  with p1 = RGE_UNITAI_ACTION_TRANSPORT 614, the terrain checks
+  {1, 22, 23} - THREE separate get_terrain calls - the terrain-id
+  registry candidates; the gate FAIL: ALL paths land on set_state(2
+  Wait)), move_to @0x0040A470 (target2ID @+0x1C = 0; Move(11)), work
+  @0x0040A4A0 (target2ID = 1 - THE DIRECTION FLAG; the zone resolve
+  with the carried override; the pickup: withinRange == 1 && dist <=
+  0.3f X87_LE_NAN - THE NAN FIRES, caught at the emission review; the
+  general path X87_LT_NAN x/y; the obj_in POINTER compare -> Move(11) /
+  Goto(4)), next_to_drop_off_terrain @0x0040A610 = 474 B
+  (task->terrain_id @+0xE (i16, the RGE_Task walk-verified) == 0xFFFF
+  -> 1; the scan rect world -+ radius_x/y @+0x3C/+0x40 -+ 2.0f
+  (flt_6552F4 BINARY-VERIFIED 00 00 00 40) clamped to the map; the zone
+  via the target/the carried override; the scan: zone == -1 -> the
+  master object_flags bit 2 (0x02 = SHIP UNIT - the owner-supplied bit
+  registry) CLEAR -> true OR the shore terrains 2/4 -> 1 (the ship
+  transports require the shore; the non-ships accept any), zone set ->
+  the carried lookupZone(col,row) == zone -> 1). THE GATE: 0/0; the
+  table byte_40A45C EXACT; THE LAHF/TEST 68h IDIOM verified (the
+  ucomiss equality = the ordered/unordered partition via test's own PF
+  - the != unordered-TRUE row honored; the same class as the Explore's
+  test 44h sentinel); the dist gate = X87_LE_NAN (the NaN fires, caught
+  at the emission review); defs/refs 8/8; the sweeps clean (0 literal
+  gotos - the Work flag-join form); the collision scan 2,991 sites /
+  0 hits. THE 5xx REGISTRY: 518 = the transport drop-off success, 519 =
+  the fail (the owner-level, p1 = 614 TRANSPORT). THE REGISTRY
+  CANDIDATES: the drop-off terrains {1, 22, 23}; object_flags bit 2 =
+  ship unit (RESOLVED - see the game-facts registry). IN-GAME
+  VALIDATION OWED (the transport load/unload flow).
+
+- GATHER TIER DECODE STATE (in progress 2026-11-25; all 11 .c bodies
+  READ; the asm walks ~90% (Gather3/Gather/Gather2/save/first_in_stack/
+  set_state FULLY WALKED + the update ~85%); the tail functions
+  (get_move_sprite/get_wait_sprite/work/auto_rebuild_farm) UNWALKED;
+  the DRAFTS NOT STARTED; per the M12 decode-state convention - no
+  function bodies in the state file, the decode detail lives in the
+  session):
+  * THE INVENTORY: 11 procs (Gather3 224 B @0x404080, Gather 304 B
+    @0x404160, Gather2 112 B @0x404290, save 128 B @0x404300,
+    first_in_stack 272 B @0x404380, set_state 2640 B @0x404490,
+    update 2180 B @0x404EE0, get_move_sprite 176 B @0x405D40,
+    get_wait_sprite 144 B @0x405DF0, work 560 B @0x405E80,
+    auto_rebuild_farm 208 B @0x4060B0). ALL SINGLE-PASS (< 4096).
+  * THE STRUCT: RGE_Action_Gather = the base Action mirror + the
+    extension @+0x40 = 64: targetType @+0x40 (i32), numberStops @+0x44
+    (u8), currentStop @+0x45 (u8), timePerStop @+0x48 (f32),
+    timeAtCurrentStop @+0x4C (f32), lastStopX @+0x50 (u8), lastStopY
+    @+0x51 (u8), have_worked @+0x52 (u8), farm_x @+0x54 (f32), farm_y
+    @+0x58 (f32), gbg_unknown_1 @+0x5C (i32 - THE WORK2 GATHER-FLAG
+    slot, the IR#3 grounding).
+  * THE INTERNAL STATES: 242-249 beyond the named registry (243 = the
+    F3 drop-off timer -1.0; 244/247 = the water-crossing markers; 245/
+    246/248/249 = the bare state stores (the set_state treats them as
+    the default); the F5/F8 pair SKIPS delete_list - the sub-actions
+    preserved across the internal transitions). The update's F4/F7 ->
+    245/248; the F5/F8 -> 246/249 (the inside_obj gates).
+  * THE FARM CAPTURE (the master id 50 = Farm): farm_x/y = the target
+    snapshot; the timePerStop = attr_max x mult / (work_rate x
+    work_val1) x 0.25f (the .c's exact chain; mult = the
+    attributes[attribute_type2] <= 0 -> 1.0).
+  * THE GATHER MATH (the update case 7): gain = mult x min(delta x
+    gbg_work_rate_2 x work_val1, target.amount); the
+    attribute_max_amount cap with the overflow split; the +/- 0.1
+    tolerance pair (0.0099999998 = 0.01f's bits); the
+    set_attribute_amount mirrors on the target AND the unit.
+  * THE DEPOSIT (case 8): attribute_type3 @+0x18 == 0xFFFF -> the
+    held-type fallback; add_attribute_num + trackUnitGather +
+    set_attribute(-1, 0); the AI re-seek via currentTargetType/
+    lastTargetType/convertToLOSResourceType/closestResourceObject (the
+    4 UnitAI vtbl members); the sentinel pair -> the AI Done(1)/Wait(2)
+    split; the master class 259/214/13+targetType-7 -> state 243 (F3).
+  * THE AI-WATER CHECK: the owner's object_group_count[59] (Fambaa
+    Shield Generator) / [17] (Fish) > 0 -> lookupZone(target) !=
+    currentZone(obj) -> the internal 244/247.
+  * THE NOTIFICATION(127) = the Base_Game vtbl slot 17 (+44h) - the
+    farm-decay rebuild notice; quick_build = [base_game+0x9E0] (2528).
+  * THE FARM CAPTURE SLOT +188 = the TRIBE_Building vtbl member 47
+    (the set-owner dispatch); v51[140] = the target field @+0x230 = 560
+    (the farm food).
+  * THE NEW GROUNDINGS: RGE_Player_Object_List__find_by_master_ids
+    (the drop_site/backup_drop_site @+280/+282 pair - the
+    master_obj[1].selected_sound render = the base-pointer artifact);
+    RGE_Static_Object__currentZone; the RGE_Action_Gather vftable =
+    .rdata:00654_904 (0x00654904 per the .c).
+  * THE REGISTRY CANDIDATES: 514 = the gather start/re-target notify
+    (p2 = targetType, p3 = the drop-off id); 515 = the no-drop-site
+    notify; the internal states 242-249; the notification(127).
+  * CONTINUE: the update asm tail (lst 7716-8765, ~1050 lines - the
+    walk stopped at 0x40584A); the tail functions (lst 8765-9271); the
+    RGE_Action_Gather struct walk verification; the drafts; the gate;
+    the presentation. THEN: Attack 14; RGE_Action_List (56);
+    RGE_Action_Object (90).
+
+  - GATHER 11/11 COMPLETE + THE GATHER BAKE ROUND (owner-approved +
+    WRITTEN 2026-11-25). M7: update @0x404EE0 (3305 B; the two-pass bar
+    fired 27 gotos/13 back-edges - PASS 1 aligned transcription WRITTEN,
+    Pass 2 owed on the suite-verified baseline), get_move_sprite
+    @0x405D40, get_wait_sprite @0x405DF0, work @0x405E80 (all
+    single-pass), auto_rebuild_farm @0x4060B0 = the VERBATIM ADOPTION of
+    the farm.cpp handler (the canonical _new transfers; the helpers
+    extern-declared). The action state enum applied everywhere; 242-249
+    + the 5xx stay cited literals. Installer 6 -> 11; defs/refs 11/11;
+    gate 4 TUs 0/0. 11 BAKES (all sites retired, 0 live): update x3
+    (0x404F54 user_released gate + Aqua; 0x40560D early-full exit;
+    0x405FDE Aqua capture, no stop math), work x1 (0x405F38 the deposit
+    gate + Aqua v>=8), ctor x1 (0x4041DD the capture gate + Aqua),
+    first_in_stack x1 + set_state x1 (0x40438E/0x404A93 ->
+    verify_food_resource keep true/false), set_state x2 (0x4047E0/
+    0x404C06 the ctr2 count-table re-base: [[owner+0x2F0]][1659/1617]
+    replaces object_group_count[59]/[17] - address-identical under the
+    vanilla layout), set_state x1 (0x404928 -> new_farm_walk: the v>=8
+    +0.5f farm-center Move_To). NEW GROUNDINGS: TRIBE_Player+0x2F0 = 752
+    = object_category_count_new (the owner's IDB union landed: the
+    object_category_count[1600] / __int16* union - the ctr2 table
+    pointer; the two set_state bakes read the typed member, the /Fa
+    emission byte-identical to the raw-offset form);
+    object_group_count @+3952 (the walker; the unions overlay - no
+    layout shift);
+    master id 199 = Aqua Harvester (farm.h - the registry candidate);
+    RGE_Action_GatherVtbl @:28767 (update slot 10/work 13);
+    byte_405C04/off_405BCC/off_405D00/off_405D14 binary-verified; the
+    switch-table byte comparison 249/249 EXACT; flt_654968 = 0.25f etc.
+    binary-verified. RULE-(j) LIVE: the double DECLARATION alone
+    shrinks (/fp:fast computes float+float at float) - the fix = the
+    explicit OPERAND casts + the precise bracket (8 ss-ops -> 0 in the
+    new code; 5 pre-existing M6 ss-ops in set_state/ctor flagged for the
+    next re-gate). PROTOCOL NOTE (owner-directed 2026-11-25): the state
+    file additions stay CONCISE going forward. DESYNC (the gather flow's
+    first in-game test, owner bisect -> set_state): ROOT CAUSE = the M6
+    transcription bug in the Work arm's sprite restore - the asm's
+    get_move_sprite RESULT flows in eax into the shared tail loc_404D9C
+    (new_sprite(obj, THE MOVE SPRITE)); the IDA merged that entry with
+    the Done arm's loc_404D95 wait-sprite entry and the transcription
+    new_sprites get_WAIT_sprite while discarding the move sprite. FIXED
+    (new_sprite(obj, sprite); the emission shows the move sprite as the
+    new_sprite arg). The four bakes + the ctr2 reads verified FAITHFUL
+    in the same walk (the new_farm_walk x/y slot mapping proven: the
+    stub's [esp+0Ch]/[esp+2Ch] = var_1C/the new_state slot = new_x/
+    new_y - the same slots the original's ctor filds read). Verified:
+    the ctr2 table maintenance INTACT (the 70+ active aiunitcount hooks
+    all live on unowned functions - no owned-range collision). THE
+    SWITCH-TABLE LESSON: set_state emits the SINGLE-LEVEL DWORD table
+    (no byte indirection) - the byte-form diff is impossible; the
+    partition must be verified state-by-state instead (all 15 states
+    verified: 1/13/14->Done, 2->Wait, 3->Search, 4->Goto, 6->Work,
+    7->Work2, 8->Return, 11/15/242->Move, 243, 244/247->the wait arm).
+    FLAGGED (weak-NaN, practically unreachable): the 0x404D4D
+    target-amount gate + the 0x404A0D build_pts gate take the literal
+    forms whose NaN rows diverge. DESYNC #2 (the same function, the
+    owner bisect after the sprite fix): THE RULE-(j) SHRINK CLASS IN
+    set_state's multi-stop spread block - the min_x/min_y subs and the
+    *2 spreads compiled subss/addss + cvttss2si (24-bit) where the
+    original fld/fsub/fadd/ftol computes at 53-bit - when (target -
+    radius) lies within a float-ULP of an integer the truncation lands
+    on DIFFERENT TILES (the block runs on every multi-stop stop
+    advance; farms numberStops=4). FIXED: the file-wide precise bracket
+    (Gather3 -> update_new; the work/update pair nests inside) + the
+    spread-block operand casts + the ctor's rate_x_val1 float local ->
+    the double local + the casts (the same shrink: mulss + widen vs the
+    exact 53-bit product). /Fa: ss-ops TU-wide 5 -> 0; the spread block
+    emits cvtps2pd x2 + subsd + cvttsd2si (= fld/fsub/ftol) and the
+    ctor chain cvtps2pd/mulsd/divsd/mulsd/cvtpd2ps (= the x87 form).
+    CARRIED: Pass 2 + the suite run for update; the in-game re-test of
+    the gather flow (the sprite fix + the precision fix). DESYNC #4 -
+    THE DEDUP-LOOP BREAK CONDITION (the owner found it; the logs' first
+    lsx/lsy divergence at the FIRST set_state(4) call with
+    byte-identical inputs pinned it): the break was written
+    `new_x != lastStopX && new_y != lastStopY` - the asm's TWO
+    jnz-to-exit jumps (0x4048CE + 0x4048D7, both to loc_4048FD) = exit
+    when EITHER differs = THE OR FORM. THE AND KEPT THE LOOP REDRAWING
+    while one coordinate matched (+2 rand draws per extra iteration, up
+    to +20 per set_state(4)) - the global rand stream shifted on the
+    first multi-stop call and EVERY downstream rand consumer desynced
+    (the row-4 picks and everything after; "the first divergence is not
+    the first" = the stream split inside the very first call). FIXED to
+    the OR form (the emission: two cmp/jne pairs to the same break
+    target); the same-class sweep over the owned tree: the other
+    multi-inequality compounds = the membership-skip negation form
+    (the jz-to-skip pairs -> !c1 && !c2) - VERIFIED CORRECT at their
+    batches. THE PROTOCOL AMENDMENT APPLIED (owner-directed):
+    DECOMP_TEMPLATE.md MULTI-JCC COMPOUND CONDITIONS - each
+    shared-target jcc = an independent OR-term of the target's
+    condition; the connective follows the JUMP TARGET (the same exit =
+    the OR; the same skip = the negated-AND proceed); the 2^N-row
+    truth table per site mandatory pre-write, re-verified against the
+    /Fa jcc targets; the surface similarity to a verified compound is
+    never the evidence. ALSO: the rand capture corrected - the
+    canary-draw idea WITHDRAWN (an extra draw kills the determinism);
+    the logger reads the generator STATE at 0x0069EC98 (the owner's
+    pointer) non-invasively - the logged seed recomputes the arm's
+    draws via the MSVC LCG (seed*214013+2531011, the draw =
+    (seed>>16)&0x7fff) making the picks predictable from build B
+    alone. The set_state_orig prologue corrected by the owner (the
+    push/ret form: the fs:[0] replay + push 0x404496 + ret - my
+    add esp,4 compensation was wrong). SESSION CLOSE (2026-11-25, the
+    owner): THE SET_STATE DESYNC IS FIXED (owner-confirmed in-game).
+    Other issues remain - THE NEXT TARGET: RGE_Action_Gather__work_new
+    desync (work_new @0x00405E80, unhooked in the current bisect
+    build; the harness exists only for set_state - build the work_new
+    A/B pair per the same construction first). The current bisect
+    build's hook state: Gather3/Gather/Gather2/save/first_in_stack/
+    set_state(logger)/auto_rebuild hooked; update/get_move_sprite/
+    get_wait_sprite/work unhooked; ALL 11 interior patch sites
+    RE-APPLIED by the owner (the patch call sites un-commented) - the
+    unhooked vanilla bodies run the patched semantics ✓. DESYNC #3 - RETRACTED (the
+    owner's review caught it): the "return-type mismatch" claim was
+    UNGROUNDED - idb_functions.h:45 declares
+    RGE_Action_Gather__set_state as VOID and the M6-written void form
+    was CORRECT; the u8 change + the 28 return-0 conversions were
+    reverted (the gate re-verified 0/0; the emission has no
+    return-value writes, ss-ops 0). LESSON: the return-type assertion
+    was made without re-reading the idb line - the citation discipline
+    applies under desync pressure too. THE A/B HARNESS REMAINS
+    INSTALLED (the DIAG block: set_state_orig/set_state_logger/
+    g_setStateTraceOrig; the installer hooked the logger) - the static
+    walk is exhaustively clean (the store diff, the exit paths, the
+    arms), so the harness run is the evidence-producing step. master ids
+    259/214/13+7 + the 5xx family + the 242-249 internal states + the
+    msgs - the registry candidates; the common.h collisionUnits comment
+    fix; the DECOMP_HIERARCHY Building-row re-walk.
+    SESSION CLOSE (2026-11-25, the owner): THE SET_STATE DESYNC IS
+    FIXED (owner-confirmed in-game). Other issues remain - THE NEXT
+    TARGET: RGE_Action_Gather__work_new desync (work_new @0x00405E80
+    [0x40405E80,0x4060A6); unhooked in the current bisect build - the
+    desync = work_new-vs-the-vanilla-work+the farm_walk patch
+    semantics; re-hook work_new first). The bisect build's hook state:
+    Gather3/Gather/Gather2/save/first_in_stack/set_state(the logger)/
+    auto_rebuild hooked; update/get_move_sprite/get_wait_sprite/work
+    unhooked; ALL 11 interior patch sites RE-APPLIED by the owner (the
+    patch call sites un-commented) - the unhooked vanilla bodies run
+    the patched semantics. The set_state logger rows remain live for
+    the correlation (the row-163 finding: the unit 13394 Work tick
+    timing - plausibly the work_new-linked surface).
+  - NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first. TARGET: the RGE_Action_Gather__work_new
+    desync (the owner bisect; work_new @0x00405E80 [0x40405E80,
+    0x4060A6) - UNHOOKED in the current bisect build, so the desync =
+    work_new-vs-the-vanilla-work+the farm_walk patch semantics; re-hook
+    work_new first). STATE: the Gather tier 11/11; the set_state
+    desync FIXED (the Work-arm sprite, the file-wide precise bracket +
+    the spread-block/ctor-rate casts, the dedup-loop OR-break; the
+    return-type claim RETRACTED - the details in the ledger); the
+    work_new bakes = 0x405F38 only (the deposit gate + Aqua v>=8); the
+    work_new groundings WARM: the linked-owner redirect @+0x1DC, the
+    drop-site deposit arm (@+0x118/@+0x11A + the amount > 0 gate), the
+    farm capture (the timePerStop math = the ctor's twin - the double
+    rate_x_val1 + the precise bracket HELD), the int return. THE
+    HARNESS: the set_state logger exists (the extended rows:
+    id/rnd=0x0069EC98-state/tps/tacs/tile/saT/saSt/saX/saY/wx/wy/lsx/
+    lsy/fx/fy) and stays live for the correlation (the row-163
+    finding: the unit 13394 Work tick timing - plausibly the
+    work_new-linked surface). BUILD THE WORK_NEW A/B PAIR PER THE SAME
+    CONSTRUCTION: the naked _orig trampoline (the owner's set_state_
+    orig push/ret form; the work prologue at 0x405E80 = push
+    ebx/ebp/esi/edi + the arg loads - the replay bytes per the .lst,
+    the resume past the E9) + the logger (the extended-row shape) +
+    the installer swap. PROTOCOL: the MULTI-JCC rule (the new template
+    amendment - the connective follows the jump target, the 2^N truth
+    table per site); the rand STATE read at 0x0069EC98 (never an extra
+    draw); the concision directive for the state additions; all edits
+    approval-gated; the DIAG harness removal at ship."

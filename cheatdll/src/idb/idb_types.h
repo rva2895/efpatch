@@ -782,9 +782,17 @@ struct TRIBE_Player
   unsigned int sel_object_properties;
   int sel_count;
   unsigned __int8 groups_used[127];
-  __int16 object_category_count[1600];
+  union
+  {
+    __int16 object_category_count[1600];
+    __int16* object_category_count_new;
+  };
   __int16 object_group_count[100];
-  __int16 built_object_category_count[1600];
+  union
+  {
+    __int16 built_object_category_count[1600];
+    __int16* built_object_category_count_new;
+  };
   __int16 built_object_group_count[100];
   __int16 total_unit_count;
   __int16 total_building_count;
@@ -3763,9 +3771,17 @@ struct RGE_Player
   unsigned int sel_object_properties;
   int sel_count;
   unsigned __int8 groups_used[127];
-  __int16 object_category_count[1600];
+  union
+  {
+    __int16 object_category_count[1600];
+    __int16* object_category_count_new;
+  };
   __int16 object_group_count[100];
-  __int16 built_object_category_count[1600];
+  union
+  {
+    __int16 built_object_category_count[1600];
+    __int16* built_object_category_count_new;
+  };
   __int16 built_object_group_count[100];
   __int16 total_unit_count;
   __int16 total_building_count;
@@ -25790,9 +25806,17 @@ struct TRIBE_Gaia
   unsigned int sel_object_properties;
   int sel_count;
   unsigned __int8 groups_used[127];
-  __int16 object_category_count[1600];
+  union
+  {
+    __int16 object_category_count[1600];
+    __int16* object_category_count_new;
+  };
   __int16 object_group_count[100];
-  __int16 built_object_category_count[1600];
+  union
+  {
+    __int16 built_object_category_count[1600];
+    __int16* built_object_category_count_new;
+  };
   __int16 built_object_group_count[100];
   __int16 total_unit_count;
   __int16 total_building_count;

@@ -1,7 +1,4 @@
 # Task: Clean up an IDA-decompiled function for engine replacement
-function (get_visible, get_terrain, any unified_map_offsets consumer).
-matching the owned signature. This applies to EVERY map-indexed
-# Task: Clean up an IDA-decompiled function for engine replacement
 
 You are cleaning up Hex-Rays decompiler output for one function of a C++/x86
 game engine (build: battlegrounds_x2 IDB), producing a compilable replacement
@@ -995,6 +992,32 @@ no pseudocode restatements of the function body:
    patch region, and the following original store fell out of the
    transcription. Manual reading is insufficient; this diff is
    scripted.
+ - MULTI-JCC COMPOUND CONDITIONS (the logic-operator rule, owner-directed
+   2026-11-25 after the Gather dedup-loop desync - the SECOND uncaught
+   logic-operator transcription error, both invisible to every prior
+   gate): when the asm encodes a branch or a loop exit as MULTIPLE
+   conditional jumps sharing one target, each jump is an INDEPENDENT
+   OR-term of that target's condition (the branch fires when its own
+   comparison fires). The written compound is derived by the explicit
+   De Morgan transformation of the CONTINUATION condition - never by
+   intuition, never by the "plausible merge" of the two tests. THE
+   CONNECTIVE FOLLOWS THE JUMP TARGET: the jumps to the same EXIT or
+   break = exit when `c1 || c2`; the jumps to the same CONTINUE/SKIP =
+   the proceed `!c1 && !c2` (the membership-test form); mixed targets =
+   the separate arms, never a compound. MANDATORY PER-SITE ARTIFACT:
+   the 2^N-row truth table (N = the jumps) mapping every operand
+   combination to the asm's taken/fall-through path AND the written
+   form's branch - the mismatch is a stop-and-fix BEFORE the write
+   (the Gather case: `jnz exit` after cmp new_x/lastStopX + `jnz exit`
+   after cmp new_y/lastStopY = exit when EITHER differs; the written
+   `!= && !=` break kept redrawing while one coordinate matched,
+   consuming +2 rand draws per extra iteration, shifting the global
+   rand stream and desyncing every downstream consumer). POST-WRITE:
+   the truth table re-verified against the /Fa emission (the jcc
+   targets per term). The spread-block class note: the SAME two-jnz
+   shape appears as the loop CONTINUATION guard elsewhere - the target
+   check is what decides the connective, never the surface similarity
+   to a previously verified compound.
 - Exit-path inventory (mandatory from 2026-11-16, owner-directed after
    the missile_move desync): after drafting and again post-write,
    enumerate the asm range's return sites (address + returned
@@ -1199,7 +1222,6 @@ Protocol:
     RGE_Static_Object::update; the bake (the processUnitExtra call at
     the top of update_new, the // UNIT_EXTRA marker) + the in-place
     retirement closed it.
-  BAKE MANDATORY PER FAMILY (owner directive 2026-11-15): every
    PER-BATCH SCAN RE-RUN (owner-directed 2026-11-17, after the missed
    on_evac_area collision): the scripted writer-target scan re-runs for
    EVERY batch, over ALL owned ranges PLUS every pending batch range -
@@ -1216,7 +1238,6 @@ Protocol:
    find_evacuate_area). Every presentation carries its own
    "Collision audit" section with the scan output quoted; a
    presentation without it is incomplete and must not be acted on.
-   BAKE MANDATORY PER FAMILY (owner directive 2026-11-15): every
   STORE-AND-READ DIFF LIMITATION (owner-reported desync 2026-11-15,
   Animated setup bootstrap): the offset-level diff cannot catch an
   INVENTED store that targets an offset the asm also legitimately
@@ -1229,6 +1250,7 @@ Protocol:
   is prohibited - the Animated setup/ctor bootstrap invented
   `sprite = get_sprite(...)` where the asm passes the result directly
   to new_sprite (the field stays 0).
+  BAKE MANDATORY PER FAMILY (owner directive 2026-11-15): every
   colliding patch EXCEPT mapsize.cpp patches MUST be baked into the
   replacement - there is no waiver for non-mapsize families. Entry-form
   mid-function hooks fold the handler semantics (the naked stub is read,
