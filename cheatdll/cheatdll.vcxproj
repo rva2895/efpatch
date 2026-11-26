@@ -657,6 +657,7 @@
     <ClCompile Include="src\engine\action\RGE_Action_Explore.cpp" />
     <ClCompile Include="src\engine\action\RGE_Action_Transport.cpp" />
     <ClCompile Include="src\engine\action\RGE_Action_Gather.cpp" />
+    <ClCompile Include="src\engine\action\RGE_Action_Attack.cpp" />
     <ClCompile Include="src\engine\action\install_action.cpp" />
   </ItemGroup>
   <ItemGroup>

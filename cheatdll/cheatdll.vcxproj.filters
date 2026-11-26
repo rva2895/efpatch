@@ -1277,6 +1277,9 @@
     <ClCompile Include="src\engine\action\RGE_Action_Gather.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine\action\RGE_Action_Attack.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
     <ClCompile Include="src\engine\action\install_action.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>

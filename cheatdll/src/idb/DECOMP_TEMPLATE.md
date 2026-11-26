@@ -1482,6 +1482,15 @@ hierarchy, open suspicions, and the function ledger. Rules:
   (constraint 9).
 * Every entry must carry its citation and a re-verify hint вЂ” entries rot;
   the hint is the invalidation mechanism.
+* STATE-ENTRY CONCISION (owner-directed 2026-11-25/26): an entry is a
+  LEDGER LINE, not a report. One compact bullet per unit of work - what
+  shipped or was decided, the load-bearing addresses/counts inline, the
+  verification verdicts as verdicts ("scan 0; gate 2/2 0/0"), the next
+  step, the re-verify hint. The details (decode narratives, the /Fa
+  censuses, diff tables, sweep enumerations, function walkthroughs) live
+  in the conversation and the code comments - the state file carries
+  only what a FRESH SESSION needs to resume. If an entry reads longer
+  than roughly a dozen lines, it is a rewrite, not an append.
 * Companion: `cheatdll/src/idb/DECOMP_GAME_FACTS.md` вЂ” owner-supplied
   game-level semantics (object_group registry, magic-constant findings
   registry). Context for naming/comments only; never grounding.

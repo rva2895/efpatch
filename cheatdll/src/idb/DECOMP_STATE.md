@@ -8191,3 +8191,64 @@ single-pass (max 912 B set_state).
     gate 0/0. Pass 1 = the VCS diff reference. The re-run = the owner's
     suite (owed at entry time). Re-verify: the tables + the call census vs
     the pre-splice listing.
+
+  - ATTACK TIER BATCH AT1 (owner-approved + WRITTEN 2026-11-26): NEW CLASS
+    FILE src/engine/action/RGE_Action_Attack.cpp + the wiring. 6 hooks:
+    destructor @0x401410, vdel @0x401130, stop @0x401610 (set_state(1) via
+    slot +0x60; the Pack vftable shares), set_target_obj @0x402AD0 (new
+    target -> attack_count = 0 @+0x170, the Combat downcast), first_in_stack
+    @0x401530 (ready_to_attack &rangeState; the maximumSpeed {==0,NaN}
+    X87_EQ_NAN skip; canMoveToAttack +0xCC), copy_obj_sprites @0x4029D0
+    (the task-first sprite remap; the getters slot 30/33/1). The vftable
+    .rdata:00654540; the struct = the Action mirror + the extension @64
+    (idb_types.h:20925). Scan 0; gate 2/2 0/0; defs/refs 6/6. NEXT: AT2 =
+    save/work/ctor trio; AT3 = set_state/ready_to_attack/update (the
+    two-pass check at decode). Re-verify: the installer 6 hooks + the +124
+    x4 census.
+
+  - ATTACK TIER BATCH AT2 (owner-approved + WRITTEN 2026-11-26): +5 hooks
+    (11/14): Attack3 @0x401000 (the stream loader: range/min_range/
+    missile_id/fire_missile/need/was_same/indirect + the sprite IDs via
+    get_sprite_pointer :3829 + the lastTarget trio), ctor @0x401150 (the
+    area_effect_range > 0 gate -> the Building/linked redirect; the
+    attack_count clear; the move_sprite fallback = get_run_sprite TWICE
+    non-null else get_move_sprite - the double call verified in the
+    emission; range {==0,NaN} -> master weapon_range), Attack2 @0x4012E0
+    (the coordinate form; indirect_fire_flag = 2 - the registry
+    candidate; the same fallbacks), save @0x401420 (the ctor3 mirror +
+    the sprite IDs as -1-or-id words), work @0x402290 (the ctor's twin
+    redirect; the same-target accept {4,5,11,6,7} - Goto2 joins;
+    canMoveToAttack on the WORKTARGET's id; weaponRange <= 0.1f ->
+    range += 0.5; dist > range -> return 0 - the literal > MATCH row).
+    Scan 0; gate 0/0; defs/refs 11/11. NEXT: AT3 = set_state/
+    ready_to_attack/update (the two-pass check). Re-verify: the installer
+    11 hooks + the +124 x4 census.
+
+  - ATTACK CTOR DESYNC FIX (owner bisect + fixed 2026-11-26): the three
+    ctors wrote action_type via RGE_ACTION_TYPE_ATTACK (= 7, the
+    task-side value) where the original writes 9 (RGE_ACTION_TYPE_ATTACK2
+    - the Attack ACTION self-types the ATTACK2 slot; work2's confirm gate
+    type()==9 corroborates); ctor_new ALSO dropped the store entirely
+    (asm 0x401185). Fixed: ATTACK2 x3 + the restored vfptr/action_type
+    pair. Both classes invisible to the compile gate; the /Fa IMMEDIATES
+    check (mov eax, 9 x3) run post-fix and now on the per-batch
+    checklist. Attack2_new re-walked clean otherwise. Re-verify: the /Fa
+    immediates.
+
+  - READY_TO_ATTACK DESYNC OPEN + THE A/B HARNESS LIVE (2026-11-26): the
+    desync persisted after two static fixes (the drive gate 41h mask -> the
+    literal > 0.0f; the chase-fail fall -> set_state(13)/return 0 instead
+    of the sync fall-through; the dx unrounded st0 capture in the +-0.5
+    ladder). THE STATIC ANALYSIS IS EXHAUSTED (two full instruction-level
+    re-walks). THE A/B HARNESS IS LIVE: ready_to_attack_orig (the naked
+    trampoline: sub esp,8 / push esi / mov esi,ecx replay, the resume
+    0x4023B6, the push/ret form) + ready_to_attack_logger (the rta-in/
+    rta-out rows: id/rnd/st/tgt/toid/g8/fog/os/sv/co/mx/rng/min/tx-ty-tz/
+    ltx-lty-ltz/wx/wy/wsame/ind/sub in; ret/rs/st/rng/min/tgt/tx/ty out;
+    the rand STATE at 0x0069EC98) + the installer flip (0x4023B0 -> the
+    logger; g_rtaTraceOrig 1 = the vanilla, 0 = _new). KNOWN LOGGER BLIND
+    SPOT: the formation-lock (mFormationLocked) key absent from the IN row.
+    NEXT SESSION: the owner runs the same replay in both builds (the flip
+    1 then 0), diffs val_log.txt (the rta rows), the first divergent row
+    names the mechanism; the targeted asm walk of that region. Re-verify:
+    the harness emission (the trampoline bytes + the logger keys).

@@ -70,7 +70,11 @@ void __cdecl expl_droid_hooks_atexit()
 #pragma optimize( "s", on )
 void __cdecl expl_droid_hooks()
 {
-    setHook((void*)0x0040215F, &expl1);
+    // retired 2026-11-26: baked into RGE_Action_Attack__update_new
+    // (cheatdll/src/engine/action/RGE_Action_Attack.cpp), see 0x0040215F -
+    // the WORK_2 immediate-fire gate now tests expl_list membership in the
+    // replacement (conditional on expl_installed; // <EXPL_DROID> markers).
+    //setHook((void*)0x0040215F, &expl1);
     setHook((void*)0x0055A881, &expl2);
     setHook((void*)0x0055BE40, &expl3);
     setHook((void*)0x005B6DF2, &expl4);

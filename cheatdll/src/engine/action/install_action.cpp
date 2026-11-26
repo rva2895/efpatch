@@ -10,6 +10,7 @@ void install_RGE_Action_Make();
 void install_RGE_Action_Explore();
 void install_RGE_Action_Transport();
 void install_RGE_Action_Gather();
+void install_RGE_Action_Attack();
 
 // the action-runtime subsystem installer - grows per class as the
 // RGE_Action_* family lands (the install_object.cpp precedent)
@@ -25,4 +26,5 @@ void install_action()
     install_RGE_Action_Explore();
     install_RGE_Action_Transport();
     install_RGE_Action_Gather();
+    install_RGE_Action_Attack();
 }
