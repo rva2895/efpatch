@@ -456,114 +456,127 @@ extern bool __fastcall is_not_expl(__int16 id);
 // .c at :45892-46289; the walks in this conversation pin every gate).
 unsigned __int8 __fastcall RGE_Action_Attack__update_new(RGE_Action_Attack* this_)
 {
-    RGE_Action_Object* v2 = this_->obj;                                // asm 0x401977
-    RGE_Static_Object* v3 = this_->target_obj;                         // asm 0x401988
-    this_->timer = (float)((double)v2->owner->world->world_time_delta_seconds + (double)this_->timer);  // asm 0x40198D-0x401996 (fld [edx+0A8h] = world_time_delta_seconds; fadd [esi+2Ch]; fstp - ONE m32 rounding; the flags persist across the x87 block)
-    if (v3 && this_->targetID == -1)                                   // asm 0x401988-0x40199E (the cmp flags persisting)
+    RGE_Action_Object* obj = this_->obj;                               // asm 0x401977 (v2)
+    this_->timer = (float)((double)obj->owner->world->world_time_delta_seconds + (double)this_->timer);  // asm 0x40198D-0x401996 (fld [edx+0A8h] = world_time_delta_seconds; fadd [esi+2Ch]; fstp - ONE m32 rounding; the flags persist across the x87 block)
+    if (this_->target_obj && this_->targetID == -1)                    // asm 0x401988-0x40199E (the cmp flags persisting)
         this_->target_obj = 0;                                         // asm 0x4019A0
     if (this_->target_obj2 && this_->target2ID == -1)                  // asm 0x4019A3-0x4019AB
         this_->target_obj2 = 0;                                        // asm 0x4019AD
-    BUnitGroup* v4 = RGE_Game_World__getUnitGroup((RGE_Game_World*)v2->owner->world, v2->mGroupID);  // asm 0x4019B0-0x4019C5 (:6099; mGroupID @+0x88)
-    if (this_->targetID == -1)                                         // asm 0x4019C7-0x4019CC
-        goto LABEL_56;
-    if (!this_->target_obj
-        || !RGE_Game_World__object((RGE_Game_World*)this_->obj->owner->world, this_->targetID)  // asm 0x4019DB-0x401194 (:6086)
-        || this_->target_obj->vfptr->is_invisible(this_->target_obj, this_->obj->owner->id)   // asm 0x4019F5-0x401A0C (ecx = the TARGET; push owner->id; call [eax+48h] - slot 18)
-        || this_->target_obj->object_state >= 3u                              // asm 0x401A12-0x401A1E (cmp al, 3; jb VALID)
-        && (this_->target_obj->master_obj->object_group != 31                 // asm 0x401A20-0x401A28 (cmp word ptr [edx+1Eh], 1Fh - the TREE)
-            || this_->obj->master_obj->object_group != 36                     // asm 0x401A2E-0x401A39 (cmp word ptr [edx+1Eh], 24h - the CANNON)
-            || this_->target_obj->object_state > 5u)) {                       // asm 0x401A3F-0x401A41 (cmp al, 5; ja INVALID)
-        if (this_->target_obj
-            && !RGE_Game_World__object((RGE_Game_World*)this_->obj->owner->world, this_->targetID))  // asm loc_401B3E-0x401B5A
-            this_->vfptr->set_target_obj(this_, 0);                            // asm 0x401B5C-0x401B61 (slot 22)
-        if (RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj)) {      // asm 0x401B64-0x401B6E (:261)
-            RGE_Static_Object* v13 = this_->target_obj;                       // asm 0x401B75-0x401B78
-            if (!v13 || v13->owner->id || this_->obj->master_obj->object_group != 58u)  // asm 0x401B7A-0x401B93 (the owner->id test; cmp group, di(3Ah) - the WORKER carve)
-                UnitAIModule__removeCurrentTarget(RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj));  // asm loc_401B95-0x401B9F (the Worker-with-neutral-target jz skip at 0x401B93)
+    BUnitGroup* group = RGE_Game_World__getUnitGroup((RGE_Game_World*)obj->owner->world, obj->mGroupID);  // asm 0x4019B0-0x4019C5 (:6099; mGroupID @+0x88)
+
+    // STAGE: the target validity (loc_4019C7-0x401A41) - targetDead covers the
+    // null/sentinel/invisible/dead-state arms; every arm of the dead block
+    // below returns, the valid fall continues to the sync stage.
+    bool targetDead = false;
+    if (this_->targetID != -1) {                                       // asm 0x4019C7-0x4019CC (cmp eax, ebx; jz loc_401C93)
+        RGE_Static_Object* target = this_->target_obj;
+        if (!(target
+            && RGE_Game_World__object((RGE_Game_World*)obj->owner->world, this_->targetID)  // asm 0x4019DB-0x4019ED (:6086)
+            && !target->vfptr->is_invisible(target, obj->owner->id)    // asm 0x4019F5-0x401A0C (ecx = the TARGET; push owner->id; call [eax+48h] - slot 18)
+            && !(target->object_state >= 3u                            // asm 0x401A12-0x401A1E (cmp al, 3; jb valid)
+                && (target->master_obj->object_group != 31u            // asm 0x401A20-0x401A28 (cmp word ptr [edx+1Eh], 1Fh - the TREE)
+                    || obj->master_obj->object_group != 36u            // asm 0x401A2E-0x401A39 (cmp word ptr [edx+1Eh], 24h - the CANNON)
+                    || target->object_state > 5u)))) {                 // asm 0x401A3F-0x401A41 (cmp al, 5; ja INVALID)
+            targetDead = true;
         }
-        this_->vfptr->set_target_obj(this_, 0);                                // asm loc_401BA4-0x401BAA
-        this_->target_x = -1.0f;                                              // asm 0x401BB5-0x401BBB (the sentinel trio)
+    }
+    if (targetDead) {
+        // STAGE: the dead/invalid target (loc_401B3E-0x401C8F) - all arms return
+        if (this_->target_obj
+            && !RGE_Game_World__object((RGE_Game_World*)obj->owner->world, this_->targetID))  // asm loc_401B3E-0x401B5A (:6086)
+            this_->vfptr->set_target_obj(this_, 0);                    // asm 0x401B5C-0x401B61 (slot 22)
+        if (RGE_Static_Object__unitAI((RGE_Static_Object*)obj)) {      // asm 0x401B64-0x401B6E (:261)
+            RGE_Static_Object* target = this_->target_obj;             // asm 0x401B75-0x401B78
+            if (!target || target->owner->id || obj->master_obj->object_group != 58u)  // asm 0x401B7A-0x401B93 (the owner->id test; cmp group, di(3Ah) - the WORKER carve)
+                UnitAIModule__removeCurrentTarget(RGE_Static_Object__unitAI((RGE_Static_Object*)obj));  // asm loc_401B95-0x401B9F (the Worker-with-neutral-target jz skip at 0x401B93)
+        }
+        this_->vfptr->set_target_obj(this_, 0);                        // asm loc_401BA4-0x401BAA
+        this_->target_x = -1.0f;                                       // asm 0x401BB5-0x401BBB (the sentinel trio)
         this_->target_y = -1.0f;
         this_->target_z = -1.0f;
-        if (this_->obj->owner->id == 0                                        // asm 0x401BBE-0x401BC9
-            || this_->obj->owner->vfptr->computerPlayer(this_->obj->owner)    // asm 0x401BCF-0x401BD6 (slot 7)
-            || (RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj)
-                && UnitAIModule__currentOrder(RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj)) == -1)) {  // asm 0x401BDC-0x401BF7
-            if (this_->subActionValue)                                        // asm loc_401C8A-0x401C8F
-                goto LABEL_53_SKIP;
+        bool skipNotify;
+        if (obj->owner->id == 0                                        // asm 0x401BBE-0x401BC9
+            || obj->owner->vfptr->computerPlayer(obj->owner)           // asm 0x401BCF-0x401BD6 (slot 7)
+            || (RGE_Static_Object__unitAI((RGE_Static_Object*)obj)
+                && UnitAIModule__currentOrder(RGE_Static_Object__unitAI((RGE_Static_Object*)obj)) == -1)) {  // asm 0x401BDC-0x401BF7
+            skipNotify = this_->subActionValue != 0;                   // asm loc_401C8A-0x401C8F (jnz loc_401C79 = the skip)
         } else {
-            UnitAIModule* ai17 = RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj);
-            if (ai17->stateValue == 0u                                        // asm loc_401BFF-0x401C0F (mov cl, [eax+169h] - the unguarded read, the original's own shape)
-                && this_->obj->vfptr->maximumSpeed(this_->obj) > 0.0          // asm 0x401C11-0x401C27 (slot 98; test ah,41h; jnz skip - the ordered > 0 = the literal > MATCH row)
-                && this_->obj->master_obj->object_group != 58u                // asm 0x401C29-0x401C33 (cmp [edx+1Eh], di)
-                && (!v4 || !v4->mFormationLocked)) {                          // asm 0x401C35-0x401C41 (test ebp; jz drive; mov eax, [ebp+0F4h])
-                this_->vfptr->set_state(this_, 5u);                            // asm loc_401C43-0x401C49 (push 5)
-                return 5;                                                     // asm 0x401C4C-0x401C53 (mov al, 5)
+            UnitAIModule* ai = RGE_Static_Object__unitAI((RGE_Static_Object*)obj);
+            if (ai->stateValue == 0u                                   // asm loc_401BFF-0x401C0F (mov cl, [eax+169h] - the unguarded read, the original's own shape)
+                && obj->vfptr->maximumSpeed(obj) > 0.0                 // asm 0x401C11-0x401C27 (slot 98; test ah,41h; jnz skip - the ordered > 0 = the literal > MATCH row)
+                && obj->master_obj->object_group != 58u                // asm 0x401C29-0x401C33 (cmp [edx+1Eh], di)
+                && (!group || !group->mFormationLocked)) {             // asm 0x401C35-0x401C41 (test ebp; jz drive; mov eax, [ebp+0F4h])
+                this_->vfptr->set_state(this_, 5u);                    // asm loc_401C43-0x401C49 (push 5)
+                return 5;                                              // asm 0x401C4C-0x401C53 (mov al, 5)
             }
-            if (this_->subActionValue)                                        // asm loc_401C54-0x401C59
-                goto LABEL_53_SKIP;
+            skipNotify = this_->subActionValue != 0;                   // asm loc_401C54-0x401C59 (jnz loc_401C79)
         }
-        this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id,  // asm loc_401C5B-0x401C73 (1FAh = 506, 258h = 600)
-            506, RGE_UNITAI_ACTION_ATTACK, 0, 0);
-LABEL_53_SKIP:
-        this_->vfptr->set_state(this_, RGE_ACTION_STATE_DONE);                // asm loc_401C79-0x401C7F (push 1)
-        return 5;                                                             // asm 0x401C85-0x401C89 (mov al, 5)
+        if (!skipNotify)
+            obj->vfptr->notify(obj, obj->id, obj->id,                  // asm loc_401C5B-0x401C73 (1FAh = 506, 258h = 600)
+                506, RGE_UNITAI_ACTION_ATTACK, 0, 0);
+        this_->vfptr->set_state(this_, RGE_ACTION_STATE_DONE);         // asm loc_401C79-0x401C7F (push 1)
+        return 5;                                                      // asm 0x401C85-0x401C89 (mov al, 5)
     }
-    RGE_Static_Object* v5 = this_->target_obj;
-    if (X87_EQ_NAN(v5->world_x, this_->lastTargetPositionX)                   // asm 0x401A47-0x401A52 (fld [ecx+48h]; fcomp [esi+5Ch]; test ah,40h; jz the update - the C3-only {==,NaN} pair)
-        && X87_EQ_NAN(v5->world_y, this_->lastTargetPositionY)) {             // asm 0x401A54-0x401A5F (fld [ecx+4Ch]; fcomp [esi+60h]; test ah,40h; jnz loc_401C93 = LABEL_56 - the skip)
-        goto LABEL_56;
-    }
-    this_->lastTargetPositionX = v5->world_x;                                 // asm 0x401A65-0x401A68
-    this_->lastTargetPositionY = v5->world_y;                                 // asm 0x401A6B-0x401A6E
-    this_->lastTargetPositionZ = v5->world_z;                                 // asm 0x401A71-0x401A74
-    unsigned __int8 v7 = v5->vfptr->get_visibility(v5, (RGE_Player*)this_->obj->owner);  // asm 0x401A7A-0x401A80 (push owner->id; call [edx+16Ch] = slot 91 - the OWNED get_visibility_new routes)
-    if (v7 == 15u || v7 == 128u && this_->target_obj->master_obj->fog_flag) { // asm 0x401A86-0x401A9D (cmp al, 0Fh; cmp al, 80h; mov al, [edx+75h] = fog_flag @+0x75)
-        unsigned __int8 v12 = this_->state;                                   // asm 0x401B1E-0x401B21
-        if (v12 == RGE_ACTION_STATE_GOTO_2 || v12 == RGE_ACTION_STATE_MOVE) { // asm 0x401B21-0x401B27
-            this_->vfptr->set_state(this_, RGE_ACTION_STATE_GOTO);            // asm loc_401B2D-0x401B33 (push 4)
-            return 0;                                                         // asm 0x401B36-0x401B3D
-        }
-    } else {
-        unsigned __int8 v8 = this_->state;                                    // asm 0x401A9F-0x401AA2
-        if (v8 == RGE_ACTION_STATE_GOTO || v8 == RGE_ACTION_STATE_GOTO_2) {   // asm 0x401AA2-0x401AA8
-            if (this_->obj->owner->id == 0                                    // asm 0x401AAE-0x401ABA
-                || (RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj)
-                    && UnitAIModule__currentOrder(RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj)) == -1)) {  // asm 0x401ABC-0x401AD6
-                this_->vfptr->set_target_obj(this_, 0);                        // asm loc_401AF3-0x401AF8 (push edi(0))
-                this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);      // asm 0x401AFB-0x401B01 (push 0Dh)
-                if (!this_->subActionValue)                                   // asm 0x401B04-0x401B09
-LABEL_102:
-                    this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id,  // asm loc_401F29-0x401F35 (258h = 600, 1F9h = 505 - the SHARED notify tail)
-                        505, RGE_UNITAI_ACTION_ATTACK, 0, 0);
-                return 3;                                                     // asm loc_401F3B-0x401F42 (mov al, 3)
+    // STAGE: the position sync (loc_401A47-0x401B3D) - the chase arms return;
+    // the equal-skip and the non-chase falls continue to the main stage.
+    if (this_->targetID != -1 && !targetDead) {
+        RGE_Static_Object* target = this_->target_obj;
+        if (!(X87_EQ_NAN(target->world_x, this_->lastTargetPositionX)             // asm 0x401A47-0x401A52 (fld [ecx+48h]; fcomp [esi+5Ch]; test ah,40h; jz the update - the C3-only {==,NaN} pair)
+            && X87_EQ_NAN(target->world_y, this_->lastTargetPositionY))) {        // asm 0x401A54-0x401A5F (fld [ecx+4Ch]; fcomp [esi+60h]; test ah,40h; jnz loc_401C93 = the skip)
+            this_->lastTargetPositionX = target->world_x;                         // asm 0x401A65-0x401A68
+            this_->lastTargetPositionY = target->world_y;                         // asm 0x401A6B-0x401A6E
+            this_->lastTargetPositionZ = target->world_z;                         // asm 0x401A71-0x401A74
+            unsigned __int8 vis = target->vfptr->get_visibility(target, (RGE_Player*)obj->owner);  // asm 0x401A7A-0x401A80 (push owner->id; call [edx+16Ch] = slot 91 - the OWNED get_visibility_new routes)
+            if (vis == 15u || vis == 128u && target->master_obj->fog_flag) {      // asm 0x401A86-0x401A9D (cmp al, 0Fh; cmp al, 80h; mov al, [edx+75h] = fog_flag @+0x75)
+                unsigned __int8 st = this_->state;                                // asm 0x401B1E-0x401B21
+                if (st == RGE_ACTION_STATE_GOTO_2 || st == RGE_ACTION_STATE_MOVE) {  // asm 0x401B21-0x401B27
+                    this_->vfptr->set_state(this_, RGE_ACTION_STATE_GOTO);        // asm loc_401B2D-0x401B33 (push 4)
+                    return 0;                                                     // asm 0x401B36-0x401B3D
+                }
+                // the fall: state not 5/11 -> the main stage (asm jnz loc_401C93)
+            } else if (this_->state == RGE_ACTION_STATE_GOTO || this_->state == RGE_ACTION_STATE_GOTO_2) {  // asm 0x401A9F-0x401AA8
+                if (obj->owner->id == 0                                           // asm 0x401AAE-0x401ABA
+                    || (RGE_Static_Object__unitAI((RGE_Static_Object*)obj)
+                        && UnitAIModule__currentOrder(RGE_Static_Object__unitAI((RGE_Static_Object*)obj)) == -1)) {  // asm 0x401ABC-0x401AD6
+                    this_->vfptr->set_target_obj(this_, 0);                       // asm loc_401AF3-0x401AF8 (push edi(0))
+                    this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);      // asm 0x401AFB-0x401B01 (push 0Dh)
+                    if (!this_->subActionValue)                                   // asm 0x401B04-0x401B09
+                        obj->vfptr->notify(obj, obj->id, obj->id,                 // asm loc_401F29-0x401F35 (258h = 600, 1F9h = 505 - the SHARED notify tail)
+                            505, RGE_UNITAI_ACTION_ATTACK, 0, 0);
+                    return 3;                                                     // asm loc_401F3B-0x401F42 (mov al, 3)
+                }
+                if (this_->state == RGE_ACTION_STATE_GOTO_2) {                    // asm loc_401AD8-0x401ADC (cmp byte ptr [esi+0Ch], 5; jz loc_401C93 - the state-5 RE-DISPATCH the .c dropped)
+                    // the re-dispatch fall -> the main stage
+                } else {
+                    this_->vfptr->set_state(this_, RGE_ACTION_STATE_GOTO_2);      // asm 0x401AE2-0x401AE8 (the set_state(5) + return 0)
+                    return 0;
+                }
             }
-            if (this_->state == RGE_ACTION_STATE_GOTO_2)                      // asm loc_401AD8-0x401ADC (cmp byte ptr [esi+0Ch], 5; jz loc_401C93 = LABEL_56 - the state-5 RE-DISPATCH the .c dropped)
-                goto LABEL_56;
-            this_->vfptr->set_state(this_, RGE_ACTION_STATE_GOTO_2);          // asm (the .c's LABEL_27 - the set_state(5) + return 0)
-            return 0;
+            // the vis-routed non-5/11 fall -> the main stage
         }
+        // the position-equal skip -> the main stage
     }
-LABEL_56:
+    // STAGE: the main stage (loc_401C93) - the target2 cleanup, the herd/ally
+    // gate, the inside_obj gate, the state switch.
     if (this_->target2ID != -1
-        && !RGE_Game_World__object((RGE_Game_World*)this_->obj->owner->world, this_->target2ID))  // asm loc_401C93-0x401CAE (:6086)
-        this_->vfptr->set_target_obj2(this_, 0);                               // asm 0x401CB0-0x401CB5 (slot 23)
-    RGE_Static_Object* v18 = this_->target_obj;
-    if (v18 && this_->obj->owner->id != 0) {                                  // asm 0x401CB8-0x401CD2
-        if ((!this_->was_same_owner && v18->master_obj->object_group == 1u)   // asm 0x401CD4-0x401CE2 (mov dl, [esi+59h]; the HERD cmp bx(1))
-            || v18->master_obj->object_group != 1u) {                         // asm loc_401CE4-0x401CEB (the .c's (!was_same_owner && group == 1) || group != 1)
-            if (this_->obj->owner->vfptr->isAlly(this_->obj->owner, v18->owner->id)) {  // asm loc_401CED-0x401CFE (slot 9 = +0x24)
-                this_->vfptr->set_state(this_, RGE_ACTION_STATE_DONE);        // asm 0x401D00-0x401D05 (push ebx(1))
-                if (!this_->subActionValue)                                   // asm 0x401D08-0x401D0D
-                    this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id,  // asm 0x401D0F-0x401D29 (1FBh = 507, 258h = 600; p2 = targetID)
+        && !RGE_Game_World__object((RGE_Game_World*)obj->owner->world, this_->target2ID))  // asm loc_401C93-0x401CAE (:6086)
+        this_->vfptr->set_target_obj2(this_, 0);                       // asm 0x401CB0-0x401CB5 (slot 23)
+    RGE_Static_Object* target = this_->target_obj;
+    if (target && obj->owner->id != 0) {                               // asm 0x401CB8-0x401CD2
+        if ((!this_->was_same_owner && target->master_obj->object_group == 1u)   // asm 0x401CD4-0x401CE2 (mov dl, [esi+59h]; the HERD cmp bx(1))
+            || target->master_obj->object_group != 1u) {               // asm loc_401CE4-0x401CEB (the .c's (!was_same_owner && group == 1) || group != 1)
+            if (obj->owner->vfptr->isAlly(obj->owner, target->owner->id)) {  // asm loc_401CED-0x401CFE (slot 9 = +0x24)
+                this_->vfptr->set_state(this_, RGE_ACTION_STATE_DONE);  // asm 0x401D00-0x401D05 (push ebx(1))
+                if (!this_->subActionValue)                        // asm 0x401D08-0x401D0D
+                    obj->vfptr->notify(obj, obj->id, obj->id,      // asm 0x401D0F-0x401D29 (1FBh = 507, 258h = 600; p2 = targetID)
                         507, RGE_UNITAI_ACTION_ATTACK, this_->targetID, 0);
-                return 1;                                                     // asm 0x401D2F-0x401D36 (mov al, bl)
+                return 1;                                          // asm 0x401D2F-0x401D36 (mov al, bl)
             }
         }
     }
-    RGE_Static_Object* v20 = this_->target_obj;
-    if (!(v20 && v20->inside_obj)) {                                          // asm 0x401D42-region (the jz to the main switch)
-    switch (this_->state) {                                                   // asm loc_401DCE (the main state switch: jpt_401DDD)
+    RGE_Static_Object* targetNow = this_->target_obj;              // asm loc_401D37 (mov eax, [esi+10h]) - the FRESH re-read after the ally block
+    if (!(targetNow && targetNow->inside_obj)) {                   // asm 0x401D3A-0x401D47 (the jz to the main switch)
+    switch (this_->state) {                                        // asm loc_401DCE (the main state switch: jpt_401DDD)
     case RGE_ACTION_STATE_DONE:                                               // asm loc_402147 (case 1)
         return 1;                                                             // asm (mov al, bl)
     case RGE_ACTION_STATE_WAIT: {                                             // asm loc_4021E2 (case 2)
@@ -587,12 +600,15 @@ LABEL_56:
                 || RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_->obj, this_->target_obj) > this_->range) {  // asm 0x401F5C-0x401F6D (fcomp [esi+4Ch]; test ah,41h; jz default - the {> ordered} -> return 0, the literal > MATCH row)
                 return 0;                                                     // asm def_401DDD
             }
-            goto LABEL_107;                                                   // asm (the Work hand-off: loc_401F6F -> set_state(6) -> def_401DDD)
+            this_->vfptr->set_state(this_, RGE_ACTION_STATE_WORK);             // asm loc_401F6F-0x401F75 (push 6 - the Work hand-off, the .c's LABEL_107)
+            return 0;                                                     // asm 0x401F78-0x401F7F
         }
         case 1u: {                                                            // asm loc_401E39 (case 1)
-            unsigned __int8 v25 = this_->state;                               // asm 0x401E39-0x401E3C
-            if (v25 != RGE_ACTION_STATE_GOTO_2 && v25 != RGE_ACTION_STATE_MOVE)  // asm 0x401E3C-0x401E42 (cmp 5; jz; cmp 0Bh)
-                goto LABEL_107;
+            unsigned __int8 st = this_->state;                               // asm 0x401E39-0x401E3C
+            if (st != RGE_ACTION_STATE_GOTO_2 && st != RGE_ACTION_STATE_MOVE) {  // asm 0x401E3C-0x401E42 (cmp 5; jz; cmp 0Bh)
+                this_->vfptr->set_state(this_, RGE_ACTION_STATE_WORK);         // asm loc_401F6F-0x401F75 (push 6 - the Work hand-off)
+                return 0;                                                      // asm 0x401F78-0x401F7F
+            }
             if (!this_->target_obj) {                                         // asm loc_401E48-0x401E4D
                 if (!this_->subActionValue)                                   // asm 0x401E4F-0x401E54
                     this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id,  // asm 0x401E56-0x401E6E (1FAh = 506, 258h = 600)
@@ -600,9 +616,8 @@ LABEL_56:
                 this_->vfptr->set_state(this_, RGE_ACTION_STATE_DONE);        // asm 0x401E74-0x401E79 (push ebx(1))
                 return 1;                                                     // asm 0x401E7C-0x401E83 (mov al, bl)
             }
-            unsigned __int8 v27 = this_->target_obj->vfptr->get_visibility(this_->target_obj, (RGE_Player*)this_->obj->owner);  // asm 0x401E84-0x401E93 (slot 91)
-            if (v27 && (v27 != 128u || this_->target_obj->master_obj->fog_flag)) {  // asm 0x401E93-0x401E9D
-LABEL_107:
+            unsigned __int8 vis = this_->target_obj->vfptr->get_visibility(this_->target_obj, (RGE_Player*)this_->obj->owner);  // asm 0x401E84-0x401E93 (slot 91)
+            if (vis && (vis != 128u || this_->target_obj->master_obj->fog_flag)) {  // asm 0x401E93-0x401E9D
                 this_->vfptr->set_state(this_, RGE_ACTION_STATE_WORK);         // asm loc_401F6F-0x401F75 (push 6 - the shared Work hand-off, the .c's LABEL_107)
                 return 0;                                                      // asm 0x401F78-0x401F7F
             }
@@ -617,32 +632,33 @@ LABEL_107:
                 this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);      // asm 0x401EF9-0x401EFF (push 0Dh)
             } else {
                 this_->vfptr->set_target_obj(this_, 0);                        // asm loc_401F04-0x401F0A
-LABEL_100:
-                this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);      // asm loc_401F0D-0x401F13 (push 0Dh)
+                this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);      // asm loc_401F0D-0x401F13 (push 0Dh - LABEL_100)
             }
             if (!this_->subActionValue)                                       // asm loc_401F16-0x401F1B
-                goto LABEL_102;                                               // asm (the 505/600 notify)
+                this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id, 505, RGE_UNITAI_ACTION_ATTACK, 0, 0);   // asm loc_401F29-0x401F35 (258h = 600, 1F9h = 505 - the SHARED notify tail, INLINED)
             return 3;                                                          // asm loc_401F3B-0x401F42 (mov al, 3)
         }
         case 3u:                                                              // asm loc_401F0D (case 3 = LABEL_100; the asm's table entry skips the set_target_obj)
             this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);          // asm 0x401F0D-0x401F13 (push 0Dh)
             if (!this_->subActionValue)                                       // asm loc_401F16-0x401F1B
-                goto LABEL_102;
+                this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id, 505, RGE_UNITAI_ACTION_ATTACK, 0, 0);   // asm loc_401F29-0x401F35 (258h = 600, 1F9h = 505 - the SHARED notify tail, INLINED)
             return 3;                                                          // asm loc_401F3B-0x401F42
         case 4u:                                                              // asm loc_401E01 (case 4)
             this_->vfptr->set_state(this_, RGE_ACTION_STATE_INVALIDATED);     // asm 0x401E01-0x401E07 (push 0Eh = 14)
-            goto LABEL_81;                                                    // asm (the shared notify tail + return 4)
+            if (!this_->subActionValue)                                       // asm 0x401E0A-0x401E0F
+                this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id, 507, RGE_UNITAI_ACTION_ATTACK, this_->targetID, 0);   // asm 0x401E11-0x401E2B (1FBh = 507, 258h = 600; p2 = targetID - the LABEL_81 tail, INLINED)
+            return 4;                                                         // asm 0x401E31-0x401E38 (mov al, 4)
         default:                                                              // asm def_401DDD / jpt_401DFA case 2
             return 0;                                                          // asm 0x401F78-0x401F7F
         }
     case RGE_ACTION_STATE_WORK: {                                             // asm loc_401F80 (case 6)
         int rangeState = -1;                                                  // asm 0x401F84
-        int v29 = RGE_Action_Attack__ready_to_attack(this_, &rangeState);     // asm 0x401F8C-0x401F8F (the tier's own function - routes)
-        if (v29 == 2) {                                                       // asm 0x401F94-0x401F97
+        int rtaResult = RGE_Action_Attack__ready_to_attack(this_, &rangeState);     // asm 0x401F8C-0x401F8F (the tier's own function - routes)
+        if (rtaResult == 2) {                                                       // asm 0x401F94-0x401F97
             this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);          // asm 0x401F9B-0x401FA1 (push 0Dh)
             return 0;                                                          // asm 0x401FA5-0x401FA9
         }
-        if (v29 != 1u)                                                        // asm 0x401FAA-0x401FAC (cmp eax, ebx(1))
+        if (rtaResult != 1u)                                                        // asm 0x401FAA-0x401FAC (cmp eax, ebx(1))
             return 0;                                                          // asm def_401DDD
         if (this_->target_obj
             && this_->obj->master_obj->master_type == 70u                     // asm 0x401FB5-0x401FBF (cmp byte ptr [eax+4], 46h - COMBAT)
@@ -658,35 +674,43 @@ LABEL_100:
         return 0;                                                              // asm 0x402022-0x402026
     }
     case RGE_ACTION_STATE_WORK_2: {                                           // asm loc_402027 (case 7)
-        if (this_->need_to_attack)                                            // asm 0x402027-0x40202A
-            goto LABEL_134;
-        if (this_->obj->vfptr->can_attack(this_->obj) != 1u)                  // asm 0x402032-0x40203F (slot 61 = +0xF4; cmp al, bl(1))
-            goto LABEL_127;
-        if (!this_->target_obj && !this_->indirect_fire_flag)                 // asm 0x402041-0x40204D
-            goto LABEL_122;                                                    // asm (set_state(2 Wait))
-        RGE_Combat_Object__reset_attack_timer((RGE_Combat_Object*)this_->obj);  // asm 0x402060-0x402063 (the idb-constant direct call); the Combat downcast
-        this_->vfptr->set_state(this_, RGE_ACTION_STATE_WORK);                // asm 0x402068-0x40206E (push 6)
-        unsigned __int8 v31 = this_->state;                                   // asm 0x402071-0x402074 (the RE-READ after the recursive set_state)
-        if (v31 == RGE_ACTION_STATE_FAILED || v31 == RGE_ACTION_STATE_GOTO    // asm 0x402074-0x402086 (cmp 0Dh/4/5 - the jz def_401DDD x3)
-            || v31 == RGE_ACTION_STATE_GOTO_2)
-            return 0;
-        this_->vfptr->set_state(this_, RGE_ACTION_STATE_WORK_2);              // asm 0x40208C-0x402092 (push 7)
-LABEL_127:
-        if (!this_->need_to_attack) {                                         // asm loc_402095-0x402098
-            if (!this_->obj->sprite
-                || this_->obj->sprite_list->vfptr->looped(this_->obj->sprite_list, this_->obj->sprite) == 1u  // asm 0x4020A6-0x4020AC (slot 10 = +0x28)
-                || (this_->obj->sprite->flag & 1) == 0) {                     // asm 0x4020B3-0x4020BF (test [edx+80h], bl - the RGE_Sprite::flag @+0x80)
-                if (this_->target_obj || this_->indirect_fire_flag) {         // asm 0x4020C5-0x4020D1
-                    this_->vfptr->set_state(this_, RGE_ACTION_STATE_WORK);    // asm 0x4020E4-0x4020EA (push 6)
-                    return 0;                                                  // asm 0x4020F0-0x4020F4
-                }
-LABEL_122:
-                this_->vfptr->set_state(this_, RGE_ACTION_STATE_WAIT);        // asm 0x4020D3-0x4020D9 (push 2)
-                return 0;                                                      // asm 0x4020DF-0x4020E3
+        // RESTRUCTURE (the pass-2 goto dissolution): the asm's 134/127 blocks
+        // (entered via the 0x40202C/0x40203F/0x40209A jumps + the 0x402092 fall)
+        // become the fire/sprite phase flags - the fire block ONCE at the phase
+        // end, the sprite block per non-fire exit; every re-check kept.
+        bool firePhase = this_->need_to_attack != 0;                      // asm 0x402027-0x40202A (jnz LABEL_134)
+        if (!firePhase) {
+            bool pass = this_->obj->vfptr->can_attack(this_->obj) == 1u;  // asm 0x402032-0x40203F (slot 61 = +0xF4; cmp al, bl(1))
+            if (pass && !this_->target_obj && !this_->indirect_fire_flag) {   // asm 0x402041-0x40204D
+                this_->vfptr->set_state(this_, RGE_ACTION_STATE_WAIT);    // asm 0x40204F-0x402055 (push 2 - LABEL_122)
+                return 0;                                                 // asm 0x40205B-0x40205F
             }
-            return 0;                                                          // asm (the looped sprite's early exit at 0x4020BF)
+            if (pass) {
+                RGE_Combat_Object__reset_attack_timer((RGE_Combat_Object*)this_->obj);  // asm 0x402060-0x402063 (the idb-constant direct call); the Combat downcast
+                this_->vfptr->set_state(this_, RGE_ACTION_STATE_WORK);    // asm 0x402068-0x40206E (push 6)
+                unsigned __int8 st = this_->state;                        // asm 0x402071-0x402074 (the RE-READ after the recursive set_state)
+                if (st == RGE_ACTION_STATE_FAILED || st == RGE_ACTION_STATE_GOTO    // asm 0x402074-0x402086 (cmp 0Dh/4/5 - the jz def_401DDD x3)
+                    || st == RGE_ACTION_STATE_GOTO_2)
+                    return 0;
+                this_->vfptr->set_state(this_, RGE_ACTION_STATE_WORK_2);  // asm 0x40208C-0x402092 (push 7 - the cast set_state sets need = 1)
+            }
+            firePhase = this_->need_to_attack != 0;                       // asm 0x402095-0x402098 (the RE-READ - BOTH the !pass and the post-set paths reach it - jnz LABEL_134)
+            if (!firePhase) {
+                // LABEL_127 (need == 0): the sprite state checks
+                if (!this_->obj->sprite
+                    || this_->obj->sprite_list->vfptr->looped(this_->obj->sprite_list, this_->obj->sprite) == 1u  // asm 0x4020A6-0x4020AC (slot 10 = +0x28)
+                    || (this_->obj->sprite->flag & 1) == 0) {             // asm 0x4020B3-0x4020BF (test [edx+80h], bl - the RGE_Sprite::flag @+0x80)
+                    if (this_->target_obj || this_->indirect_fire_flag) {  // asm 0x4020C5-0x4020D1
+                        this_->vfptr->set_state(this_, RGE_ACTION_STATE_WORK);    // asm 0x4020E4-0x4020EA (push 6)
+                        return 0;                                         // asm 0x4020F0-0x4020F4
+                    }
+                    this_->vfptr->set_state(this_, RGE_ACTION_STATE_WAIT);    // asm 0x4020D3-0x4020D9 (push 2 - LABEL_122)
+                    return 0;                                         // asm 0x4020DF-0x4020E3
+                }
+                return 0;                                             // asm (the looped sprite's early exit at 0x4020BF)
+            }
         }
-LABEL_134:
+        // LABEL_134: the fire phase (firePhase == true)
         if (this_->obj->master_obj->object_group == 34u                       // asm loc_4020F5-0x402100 (cmp word ptr [ecx+1Eh], 22h - the UNDEPLOYED CANNON)
             && this_->obj->owner->vfptr->computerPlayer(this_->obj->owner)) { // asm 0x402102-0x40210C (slot 7)
             if (this_->target_obj) {                                           // asm 0x40210E-0x402116
@@ -698,6 +722,7 @@ LABEL_134:
             this_->need_to_attack = 0;                                         // asm 0x402143
             return 1;                                                          // asm loc_402147-0x40214E (mov al, bl)
         }
+        bool fireNow = false;
         unsigned __int16 frame;
         if (((RGE_Master_Combat_Object*)this_->obj->master_obj)->missile_id == -1) {  // asm loc_40214F-0x40215D (cmp word ptr [eax+154h], 0FFFFh - the master's missile_id @+340; the Combat-master downcast)
             // THE EXPL_DROID BAKE (expl1 @0x40215F-0x402165 // <EXPL_DROID>):
@@ -708,14 +733,15 @@ LABEL_134:
             if (expl_installed
                 ? !is_not_expl(this_->obj->master_obj->id)          // the id in the suicide list -> fire now
                 : this_->obj->master_obj->id == 1239u)              // asm 0x40215F-0x402165 (cmp word ptr [eax+18h], 4D7h - the REGISTRY CANDIDATE, patch-replaced)
-                goto LABEL_146;
-            frame = (unsigned __int16)((int)((double)this_->obj->sprite->frame_num * 0.5));  // asm 0x402167-0x402181 (movsx word ptr [eax+6Eh] = frame_num @+0x6E; fild; fmul const_f_half; __ftol)
+                fireNow = true;
+            else
+                frame = (unsigned __int16)((int)((double)this_->obj->sprite->frame_num * 0.5));  // asm 0x402167-0x402181 (movsx word ptr [eax+6Eh] = frame_num @+0x6E; fild; fmul const_f_half; __ftol)
         } else {
             frame = (unsigned __int16)this_->fire_missile_at_frame;            // asm loc_402183 (mov ax, [esi+56h])
         }
-        if (frame && !this_->obj->sprite_list->vfptr->frame_passed(this_->obj->sprite_list, this_->obj->sprite, frame))  // asm 0x402187-0x40219B (slot 9 = +0x24)
+        if (!fireNow && frame && !this_->obj->sprite_list->vfptr->frame_passed(this_->obj->sprite_list, this_->obj->sprite, frame))  // asm 0x402187-0x40219B (slot 9 = +0x24)
             return 0;                                                          // asm def_401DDD
-LABEL_146:
+        // LABEL_146: the fire
         if (this_->target_obj)                                                 // asm loc_4021A1-0x4021B5
             ((RGE_Combat_Object*)this_->obj)->vfptr->attack4((RGE_Combat_Object*)this_->obj, this_->target_obj, (RGE_Combat_Object*)this_->obj);  // asm 0x4021AD-0x4021B5 (call [edx+3BCh])
         else
@@ -724,7 +750,9 @@ LABEL_146:
         return 0;                                                              // asm 0x4021B9-0x4021C0
     }
     case RGE_ACTION_STATE_FAILED:                                             // asm loc_401F1D (case 13)
-        goto LABEL_102;                                                        // asm (the 505/600 notify + return 3)
+        this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id,  // asm loc_401F29-0x401F35 (258h = 600, 1F9h = 505 - the SHARED notify tail, INLINED)
+            505, RGE_UNITAI_ACTION_ATTACK, 0, 0);
+        return 3;                                                              // asm loc_401F3B-0x401F42 (mov al, 3)
     default:                                                                   // asm def_401DDD (cases 3,8,9,10,12 + > 13)
         return 0;                                                              // asm 0x401F78-0x401F7F
     }
@@ -744,7 +772,7 @@ LABEL_146:
         }
         this_->vfptr->set_state(this_, RGE_ACTION_STATE_DONE);                // asm loc_401DC9-0x401DCC (the gate failure) - falls to the shared tail
     }
-LABEL_81:
+ // the LABEL_81 tail (its goto was inlined at the case-4 site):
     if (!this_->subActionValue)                                               // asm loc_401E0A-0x401E0F
         this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id,  // asm 0x401E11-0x401E2B (1FBh = 507, 258h = 600; p2 = targetID)
             507, RGE_UNITAI_ACTION_ATTACK, this_->targetID, 0);
@@ -924,6 +952,14 @@ void __fastcall RGE_Action_Attack__copy_obj_sprites_new(
 // the group-8 Gate linked-child min-walk, the sync; the no-target branch:
 // the sentinel ladder -> distance_to_position, the same min/probe blocks;
 // the tail: rangeState = 1 -> turn_towards -> can_attack -> 1/0.
+// RESTRUCTURE (owner-directed 2026-11-26, the goto elimination - the pass-2
+// form on the suite-verified baseline): the three labels dissolved - FAILED
+// (3 sites) inlined per site, IN_RANGE = the post-if/else convergence (the
+// equality-true / band-within / dist2-sync / no-target falls), LADDER_REGION
+// = the sequential fall (the AI-probe arms return; the ladder cases and
+// owner <= 0 fall through). Path-exact: every gate, operand, store, and
+// exit unchanged; the /Fa call multiset + the jcc forms re-verified at the
+// gate; the brace-depth walk per stage.
 int __fastcall RGE_Action_Attack__ready_to_attack_new(
     RGE_Action_Attack* this_, DWORD dummy, int* rangeState)
 {
@@ -944,114 +980,111 @@ int __fastcall RGE_Action_Attack__ready_to_attack_new(
         }
     }
     if (this_->target_obj) {                                           // asm 0x402472-0x402477 (mov ecx,[esi+10h]; test ecx,ecx; jnz loc_402601)
-        bool aiProbe = false;
         if (this_->target_obj->owner->id > 0) {                        // asm 0x402601-0x40260C (mov eax,[ecx+18h]; mov edx,[eax+0A0h]; test edx,edx; jle loc_40269F - the SIGNED > 0)
             unsigned __int8 vis = this_->target_obj->vfptr->get_visibility(this_->target_obj, (RGE_Player*)this_->obj->owner);  // asm 0x402612-0x402621 (slot 91 = +0x16C)
-            if (vis == 0u)                                             // asm 0x402621-0x402623 (test al,al; jz loc_402636) - unseen -> the AI probe
-                aiProbe = true;
-            else if (vis != 128u)                                      // asm 0x402625-0x402627 (cmp al,80h; jnz loc_40269F) - VISIBLE -> the ladder region, no state change
-                aiProbe = false;
-            else if (this_->target_obj->master_obj->fog_flag != 0u)    // asm 0x402629-0x402634 (mov edx,[ecx+14h]; mov al,[edx+75h]; test al,al; jnz loc_40269F) - explored+fogged -> the ladder region
-                aiProbe = false;
-            else
-                aiProbe = true;                                        // the 128 && !fog fall-through joins loc_402636
-            if (!aiProbe)
-                goto LADDER_REGION;                                    // the two loc_40269F joins (0x402627 / 0x402634)
-            // loc_402636-0x40269C: the AI probe
-            UnitAIModule* ai = RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj);
-            if (ai->stateValue == 0u                               // asm loc_402636-0x402644 ([eax+169h])
-                && this_->obj->vfptr->maximumSpeed(this_->obj) > 0.0f  // asm 0x40264D-0x40265E (slot 98; fcomp const_f_zero; test ah,41h; jnz Failed - the {<= 0, NaN} -> Failed, the ordered > 0 continues = THE LITERAL > MATCH ROW; the 41h mask here vs the 40h masks at the three move-check sites - the per-site TEST MASK IMMEDIATE)
-                && ai->vfptr->canMoveToAttack(ai, this_->targetID) == 1) {  // asm 0x402660-0x402676 (slot 51; cmp eax, 1)
-                this_->vfptr->set_state(this_, RGE_ACTION_STATE_GOTO_2);  // asm 0x40267B-0x402681 (push 5)
-                return 0;                                          // asm 0x402684-0x40268A
+            if (vis == 0u || (vis == 128u && this_->target_obj->master_obj->fog_flag == 0u)) {
+                // loc_402636-0x40269C: the AI probe - vis == 0 via the asm jz at
+                // 0x402623; the 128 && !fog fall-through joins loc_402636. Both
+                // arms return; the ladder-region cases fall through (the asm
+                // jnz loc_40269F pair at 0x402627 / 0x402634).
+                UnitAIModule* ai = RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj);
+                if (ai->stateValue == 0u                               // asm loc_402636-0x402644 ([eax+169h])
+                    && this_->obj->vfptr->maximumSpeed(this_->obj) > 0.0f  // asm 0x40264D-0x40265E (slot 98; fcomp const_f_zero; test ah,41h; jnz Failed - the {<= 0, NaN} -> Failed, the ordered > 0 continues = THE LITERAL > MATCH ROW; the 41h mask here vs the 40h masks at the three move-check sites - the per-site TEST MASK IMMEDIATE)
+                    && ai->vfptr->canMoveToAttack(ai, this_->targetID) == 1) {  // asm 0x402660-0x402676 (slot 51; cmp eax, 1)
+                    this_->vfptr->set_state(this_, RGE_ACTION_STATE_GOTO_2);  // asm 0x40267B-0x402681 (push 5)
+                    return 0;                                          // asm 0x402684-0x40268A
+                }
+                this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);   // asm loc_40268D-0x402693 (push 0Dh = LABEL_72)
+                return 0;                                              // asm 0x402696-0x40269C
             }
-            this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);   // asm loc_40268D-0x402693 (push 0Dh = LABEL_72)
-            return 0;                                                  // asm 0x402696-0x40269C
         }
-        // owner->id <= 0 falls through to the ladder region (asm jle loc_40269F)
-LADDER_REGION:                                                         // asm loc_40269F (ecx = target_obj reloaded at 0x40269F; every ladder-region entry passes here)
-        if (X87_EQ_NAN(this_->target_obj->world_x, this_->target_x)    // asm 0x40269F-0x4026AD (fld [ecx+48h]; fcomp [esi+20h]; test ah,40h; jz loc_4026CD - the {=, NaN} equal-continue)
+        // the ladder region (loc_40269F): owner->id <= 0 falls here (asm jle
+        // loc_40269F); the two visibility ladder cases land via the jnz pair.
+        if (!(X87_EQ_NAN(this_->target_obj->world_x, this_->target_x)  // asm 0x40269F-0x4026AD (fld [ecx+48h]; fcomp [esi+20h]; test ah,40h; jz loc_4026CD - the {=, NaN} equal-continue)
             && X87_EQ_NAN(this_->target_obj->world_y, this_->target_y) // asm 0x4026AF-0x4026BA (the y pair)
-            && X87_EQ_NAN(this_->target_obj->world_z, this_->target_z)) // asm 0x4026BC-0x4026C7 (the z pair; jnz loc_402982)
-            goto IN_RANGE;                                             // the stored position is still exact -> the tail, no update
-        double dx = (double)this_->target_obj->world_x - (double)this_->target_x;  // asm 0x4026CD-0x4026D2 (fld [ecx+48h]; fsub [esi+20h] - dx stays UNROUNDED on st0 for both compares, unlike dy/dz which are fst-stored)
-        float dy = this_->target_obj->world_y - this_->target_y;       // asm 0x4026D3-0x4026D6 (fld [ecx+4Ch]; fsub [esi+24h]; fstp [esp+x])
-        float dz = this_->target_obj->world_z - this_->target_z;       // asm 0x4026DD-0x4026E3 (fstp [esp+var_8])
-        if (dx > 0.5f || X87_LT_NAN(dx, -0.5f)                         // asm 0x4026E7-0x4026FA (fcom const_f_half(0.5); test ah,41h; jz the dx>=-0.5 check; fcomp flt_6545C4(-0.5); test ah,1; jnz the re-probe - the C0-only {< -0.5, NaN})
-            || dy > 0.5f || X87_LT_NAN(dy, -0.5f)                      // asm 0x402723-0x402743 (the dy pair)
-            || dz > 0.5f || X87_LT_NAN(dz, -0.5f)) {                   // asm (the dz pair; the jz loc_402982 = the all-within TAIL - straight there, NO sync)
-            float dist2 = (float)RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_->obj, this_->target_obj);  // asm 0x40274D-0x402756 (fst [esp+var_8])
-            if (X87_LT_NAN(dist2, (double)this_->min_range)) {         // asm 0x40275A-0x402762 (fcomp [esi+50h]; test ah,1; jz the range probe - the C0-only {<, NaN})
-                *rangeState = 0;                                       // asm 0x402768 ([ecx] = 0)
-                if (!this_->subActionValue)                            // asm 0x40276E-0x402773
-                    this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id,  // asm 0x402775-0x40278A (1FEh = 510, the (-1,-1,-1) trio)
-                        510, -1, -1, -1);
-                if (!X87_EQ_NAN(this_->obj->vfptr->maximumSpeed(this_->obj), 0.0f)) {  // asm 0x402790-0x4027A6 (slot 98; test ah,40h; jnz Failed)
-                    UnitAIModule* ai = RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj);
-                    if (ai->vfptr->canMoveToAttack(ai, this_->targetID))  // asm 0x4027AC-0x4027C4 (slot 51; test)
-                        return 0;                                      // asm 0x4027CA-0x4027D0
-                }
-                this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);  // asm loc_402905-0x40290B (push 0Dh)
-                return 0;                                          // asm 0x40290E-0x402914
-            }
-            if (this_->target_obj->master_obj->object_group == 8u) {   // asm loc_402800-0x402855 (cmp word ptr [ecx+1Eh], 8 - THE GATE; the linked-child min walk)
-                for (int i = 0; i < 2; i++) {                          // asm 0x40280F-0x402855 (xor ebp; the 2-iteration loop)
-                    int childId = this_->target_obj->vfptr->getLinkedChild(this_->target_obj, i);  // asm 0x402811-0x402823 (push i; call [eax+358h] - slot 214 = +0x358)
-                    RGE_Static_Object* child = RGE_Game_World__object((RGE_Game_World*)(*base_game)->world, childId);  // asm 0x402829-0x40282C (mov edi, [edx+420h] = (*base_game)->world; :6086; the TRIBE_World family cast)
-                    if (child) {                                       // asm 0x402831-0x402833
-                        float d2 = (float)RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_->obj, child);  // asm 0x402835-0x402839
-                        if (X87_LT_NAN(d2, (double)dist2))             // asm 0x40283E-0x402847 (fcom var_8 - NO-POP; test ah,1; jz discard)
-                            dist2 = d2;                                // asm 0x402849 (fstp [esp+var_8] - the min update)
+            && X87_EQ_NAN(this_->target_obj->world_z, this_->target_z))) {  // asm 0x4026BC-0x4026C7 (the z pair; jnz loc_402982) - all-equal -> the tail
+            double dx = (double)this_->target_obj->world_x - (double)this_->target_x;  // asm 0x4026CD-0x4026D2 (fld [ecx+48h]; fsub [esi+20h] - dx stays UNROUNDED on st0 for both compares, unlike dy/dz which are fst-stored)
+            float dy = this_->target_obj->world_y - this_->target_y;       // asm 0x4026D3-0x4026D6 (fld [ecx+4Ch]; fsub [esi+24h]; fstp [esp+x])
+            float dz = this_->target_obj->world_z - this_->target_z;       // asm 0x4026DD-0x4026E3 (fstp [esp+var_8])
+            if (dx > 0.5f || X87_LT_NAN(dx, -0.5f)                         // asm 0x4026E7-0x4026FA (fcom const_f_half(0.5); test ah,41h; jz the dx>=-0.5 check; fcomp flt_6545C4(-0.5); test ah,1; jnz the re-probe - the C0-only {< -0.5, NaN})
+                || dy > 0.5f || X87_LT_NAN(dy, -0.5f)                      // asm 0x402723-0x402743 (the dy pair)
+                || dz > 0.5f || X87_LT_NAN(dz, -0.5f)) {                   // asm (the dz pair; the jz loc_402982 = the all-within TAIL - straight there, NO sync)
+                float dist2 = (float)RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_->obj, this_->target_obj);  // asm 0x40274D-0x402756 (fst [esp+var_8])
+                if (X87_LT_NAN(dist2, (double)this_->min_range)) {         // asm 0x40275A-0x402762 (fcomp [esi+50h]; test ah,1; jz the range probe - the C0-only {<, NaN})
+                    *rangeState = 0;                                       // asm 0x402768 ([ecx] = 0)
+                    if (!this_->subActionValue)                            // asm 0x40276E-0x402773
+                        this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id,  // asm 0x402775-0x40278A (1FEh = 510, the (-1,-1,-1) trio)
+                            510, -1, -1, -1);
+                    if (!X87_EQ_NAN(this_->obj->vfptr->maximumSpeed(this_->obj), 0.0f)) {  // asm 0x402790-0x4027A6 (slot 98; test ah,40h; jnz Failed)
+                        UnitAIModule* ai = RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj);
+                        if (ai->vfptr->canMoveToAttack(ai, this_->targetID))  // asm 0x4027AC-0x4027C4 (slot 51; test)
+                            return 0;                                      // asm 0x4027CA-0x4027D0
                     }
+                    this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);  // asm loc_402905-0x40290B (push 0Dh)
+                    return 0;                                          // asm 0x40290E-0x402914
                 }
-            }
-            float probeRange = this_->range;                       // asm 0x4027D3-0x4027DF (mov [esp+x], [esi+4Ch])
-            double wr2 = this_->obj->vfptr->weaponRange(this_->obj);  // asm 0x4027DF-0x4027E5 (slot 101 - the st0 PARKED while the flags are taken)
-            if (X87_LE_NAN(wr2, 0.1f))                             // asm 0x4027EB-0x4027F0 (fcomp flt_6545BC; test ah,41h; jz skip)
-                probeRange = probeRange + 0.5f;                    // asm 0x4027F2-0x4027FC (fld [esp+x]; fadd const_f_half; fstp)
-            if (dist2 > (double)probeRange) {                      // asm loc_402859-0x402866 (fld var_8; fcomp [esp+x]; test ah,41h; jnz the sync - the {> ordered} fall = the too-far)
-                *rangeState = 2;                                   // asm 0x402870 ([ecx] = 2)
-                if (!this_->subActionValue)                        // asm 0x402876-0x40287B
-                    this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id,  // asm 0x40287D-0x402892 (1FDh = 509, the (0,0,0) trio)
-                        509, 0, 0, 0);
-                bool chaseable = RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj)->stateValue != 1u;  // asm 0x402898-0x4028A7 (cmp byte ptr [eax+169h], 1; jnz the move check)
-                if (!chaseable) {                                  // asm (the stateValue == 1 sqrt chase)
-                    float dxs = this_->target_obj->world_x - RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj)->statePositionXValue;  // asm 0x4028B1-0x40228BD (fld [eax+16Ch] = statePositionXValue; fsubr [ecx+48h])
-                    float dys = this_->target_obj->world_y - RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj)->statePositionYValue;  // asm 0x4028C9-0x40228D5 (fld [eax+170h] = statePositionYValue; fsubr [edx+4Ch])
-                    float chaseDist = (float)sqrt((double)dxs * (double)dxs + (double)dys * (double)dys);  // asm 0x4028DA-0x40228EE (fld st; fmulp; fld; fmul; faddp; fsqrt; fstp)
-                    double wr3 = this_->obj->vfptr->weaponRange(this_->obj);  // asm 0x40228EE-0x40228F4 (slot 101)
-                    chaseable = wr3 + 5.0f > (double)chaseDist;    // asm 0x40228F4-0x4022903 (fadd ds:flt_6545C0 = 5.0f; fcomp; test ah,41h; jz the move - the {> ordered} fall = Failed - the literal > MATCH row)
-                }
-                if (chaseable) {                                   // asm loc_402917-0x40294F
-                    if (!X87_EQ_NAN(this_->obj->vfptr->maximumSpeed(this_->obj), 0.0f)) {  // asm 0x402917-0x40292D (slot 98; test ah,40h; jnz Failed)
-                        UnitAIModule* ai2 = RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj);
-                        if (ai2->vfptr->canMoveToAttack(ai2, this_->targetID))  // asm 0x40292F-0x402947 (slot 51; test)
-                        {
-                            this_->vfptr->set_state(this_, RGE_ACTION_STATE_GOTO);  // asm 0x402949-0x40294F (push 4)
-                            return 0;                                  // asm 0x402952-0x402958
+                if (this_->target_obj->master_obj->object_group == 8u) {   // asm loc_402800-0x402855 (cmp word ptr [ecx+1Eh], 8 - THE GATE; the linked-child min walk)
+                    for (int i = 0; i < 2; i++) {                          // asm 0x40280F-0x402855 (xor ebp; the 2-iteration loop)
+                        int childId = this_->target_obj->vfptr->getLinkedChild(this_->target_obj, i);  // asm 0x402811-0x402823 (push i; call [eax+358h] - slot 214 = +0x358)
+                        RGE_Static_Object* child = RGE_Game_World__object((RGE_Game_World*)(*base_game)->world, childId);  // asm 0x402829-0x40282C (mov edi, [edx+420h] = (*base_game)->world; :6086; the TRIBE_World family cast)
+                        if (child) {                                       // asm 0x402831-0x402833
+                            float d2 = (float)RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_->obj, child);  // asm 0x402835-0x402839
+                            if (X87_LT_NAN(d2, (double)dist2))             // asm 0x40283E-0x402847 (fcom var_8 - NO-POP; test ah,1; jz discard)
+                                dist2 = d2;                                // asm 0x402849 (fstp [esp+var_8] - the min update)
                         }
                     }
-                    this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);  // asm loc_40295B-0x402961 (push 0Dh)
-                    return 0;                                          // asm 0x402964-0x40296A
                 }
-                this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);          // asm loc_40295B-0x402961 (push 0Dh - the stateValue == 1 && sqrt >= weaponRange+5 fall: FAILED, never the sync)
-                return 0;                                                          // asm 0x402964-0x40296A
-            } else {
-                this_->target_x = this_->target_obj->world_x;          // asm loc_40296D (the {<=, NaN} jnz -> the sync)
-                this_->target_y = this_->target_obj->world_y;
-                this_->target_z = this_->target_obj->world_z;
+                float probeRange = this_->range;                       // asm 0x4027D3-0x4027DF (mov [esp+x], [esi+4Ch])
+                double wr2 = this_->obj->vfptr->weaponRange(this_->obj);  // asm 0x4027DF-0x4027E5 (slot 101 - the st0 PARKED while the flags are taken)
+                if (X87_LE_NAN(wr2, 0.1f))                             // asm 0x4027EB-0x4027F0 (fcomp flt_6545BC; test ah,41h; jz skip)
+                    probeRange = probeRange + 0.5f;                    // asm 0x4027F2-0x4027FC (fld [esp+x]; fadd const_f_half; fstp)
+                if (dist2 > (double)probeRange) {                      // asm loc_402859-0x402866 (fld var_8; fcomp [esp+x]; test ah,41h; jnz the sync - the {> ordered} fall = the too-far)
+                    *rangeState = 2;                                   // asm 0x402870 ([ecx] = 2)
+                    if (!this_->subActionValue)                        // asm 0x402876-0x40287B
+                        this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id,  // asm 0x40287D-0x402892 (1FDh = 509, the (0,0,0) trio)
+                            509, 0, 0, 0);
+                    bool chaseable = RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj)->stateValue != 1u;  // asm 0x402898-0x4028A7 (cmp byte ptr [eax+169h], 1; jnz the move check)
+                    if (!chaseable) {                                  // asm (the stateValue == 1 sqrt chase)
+                        float dxs = this_->target_obj->world_x - RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj)->statePositionXValue;  // asm 0x4028B1-0x40228BD (fld [eax+16Ch] = statePositionXValue; fsubr [ecx+48h])
+                        float dys = this_->target_obj->world_y - RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj)->statePositionYValue;  // asm 0x4028C9-0x40228D5 (fld [eax+170h] = statePositionYValue; fsubr [edx+4Ch])
+                        float chaseDist = (float)sqrt((double)dxs * (double)dxs + (double)dys * (double)dys);  // asm 0x4028DA-0x40228EE (fld st; fmulp; fld; fmul; faddp; fsqrt; fstp)
+                        double wr3 = this_->obj->vfptr->weaponRange(this_->obj);  // asm 0x40228EE-0x40228F4 (slot 101)
+                        chaseable = wr3 + 5.0f > (double)chaseDist;    // asm 0x40228F4-0x4022903 (fadd ds:flt_6545C0 = 5.0f; fcomp; test ah,41h; jz the move - the {> ordered} fall = Failed - the literal > MATCH row)
+                    }
+                    if (chaseable) {                                   // asm loc_402917-0x40294F
+                        if (!X87_EQ_NAN(this_->obj->vfptr->maximumSpeed(this_->obj), 0.0f)) {  // asm 0x402917-0x40292D (slot 98; test ah,40h; jnz Failed)
+                            UnitAIModule* ai2 = RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj);
+                            if (ai2->vfptr->canMoveToAttack(ai2, this_->targetID))  // asm 0x40292F-0x402947 (slot 51; test)
+                            {
+                                this_->vfptr->set_state(this_, RGE_ACTION_STATE_GOTO);  // asm 0x402949-0x40294F (push 4)
+                                return 0;                              // asm 0x402952-0x402958
+                            }
+                        }
+                        this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);  // asm loc_40295B-0x402961 (push 0Dh)
+                        return 0;                                      // asm 0x402964-0x40296A
+                    }
+                    this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);          // asm loc_40295B-0x402961 (push 0Dh - the stateValue == 1 && sqrt >= weaponRange+5 fall: FAILED, never the sync)
+                    return 0;                                                          // asm 0x402964-0x40296A
+                } else {
+                    this_->target_x = this_->target_obj->world_x;          // asm loc_40296D (the {<=, NaN} jnz -> the sync)
+                    this_->target_y = this_->target_obj->world_y;
+                    this_->target_z = this_->target_obj->world_z;
+                }
             }
+            // all within +-0.5: asm 0x402743 (jz loc_402982) -> straight to the tail, NO sync
+            // (the ladder-else sync DELETED: loc_40296D's only inbound xref is 0x402866, the dist2 arm)
         }
-        // all within +-0.5: asm 0x402743 (jz loc_402982) -> straight to the tail, NO sync
-        // (the ladder-else sync DELETED: loc_40296D's only inbound xref is 0x402866, the dist2 arm)
+        // the all-equal path: the stored position is still exact -> the tail, no update
     } else {
         float x = this_->target_x;                                     // asm 0x40247D-0x402480
-        if (!X87_EQ_NAN(x, -1.0f)) {                                   // asm 0x402484-0x40248E (fld x; fcomp flt_6545C8 = -1.0f; test ah,40h; jnz the lastX block)
-            dist = (float)RGE_Static_Object__distance_to_position((RGE_Static_Object*)this_->obj, this_->target_x, this_->target_y, this_->target_z);  // asm 0x40249B-0x4024CB (push z/y/x; fst [var_8])
-        } else {
-            if (X87_EQ_NAN(this_->lastTargetPositionX, -1.0f))         // asm loc_4024A3-0x4024B2 (fld [esi+5Ch]; fst x; fcomp -1.0; test ah,40h; jnz Failed)
-                goto FAILED;
+        if (X87_EQ_NAN(x, -1.0f)) {                                    // asm 0x402484-0x40248E (fld x; fcomp flt_6545C8 = -1.0f; test ah,40h; jnz the lastX block)
+            if (X87_EQ_NAN(this_->lastTargetPositionX, -1.0f)) {       // asm loc_4024A3-0x4024B2 (fld [esi+5Ch]; fst x; fcomp -1.0; test ah,40h; jnz Failed)
+                this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);   // asm loc_402905-0x40290B (push 0Dh)
+                return 0;                                              // asm 0x40290E-0x402914
+            }
             dist = (float)RGE_Static_Object__distance_to_position((RGE_Static_Object*)this_->obj, this_->lastTargetPositionX, this_->lastTargetPositionY, this_->lastTargetPositionZ);  // asm 0x4024BB-0x4024CB
+        } else {
+            dist = (float)RGE_Static_Object__distance_to_position((RGE_Static_Object*)this_->obj, this_->target_x, this_->target_y, this_->target_z);  // asm 0x40249B-0x4024CB (push z/y/x; fst [var_8])
         }
         if (X87_LT_NAN(dist, (double)this_->min_range)) {              // asm 0x4024D4-0x4024DC (fcomp [esi+50h]; test ah,1; jz the range probe)
             *rangeState = 0;                                           // asm 0x4024E2
@@ -1063,7 +1096,8 @@ LADDER_REGION:                                                         // asm lo
                 if (ai->vfptr->canMoveToAttack(ai, this_->targetID))   // asm 0x402526-0x40253E (slot 51; test)
                     return 0;                                          // asm 0x402544-0x40254A
             }
-            goto FAILED;                                               // asm loc_402905
+            this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);   // asm loc_402905-0x402914 (the Failed tail, INLINED)
+            return 0;
         }
         float probeRange = this_->range;                               // asm 0x40254D-0x402553 (mov [esp+x], [esi+4Ch])
         double wr2 = this_->obj->vfptr->weaponRange(this_->obj);       // asm 0x402559-0x40255F (slot 101 - the st0 parked)
@@ -1081,191 +1115,15 @@ LADDER_REGION:                                                         // asm lo
                     return 0;                                          // asm 0x4025F8-0x4025FE
                 }
             }
-            goto FAILED;                                               // asm loc_40268D
+            this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);   // asm loc_402905-0x402914 (the Failed tail, INLINED)
+            return 0;
         }
     }
-IN_RANGE:
     *rangeState = 1;                                                   // asm loc_402982-0x402986 ([ecx] = 1)
     if (!this_->obj->vfptr->turn_towards(this_->obj, this_->target_obj, // asm 0x40298C-0x40299D (slot 221 = +0x374; the args (target_obj, target_x, target_y))
         this_->target_x, this_->target_y))
         return 0;                                                      // asm 0x4029A3-0x4029AD
     return this_->obj->vfptr->can_attack(this_->obj) != 0u;            // asm loc_4029B0-0x4029C2 (slot 61 = +0xF4; neg/sbb = the 1/0 return)
-FAILED:
-    this_->vfptr->set_state(this_, RGE_ACTION_STATE_FAILED);           // asm loc_402905-0x40290B (push 0Dh)
-    return 0;                                                          // asm 0x40290E-0x402914
-}
-
-// ===========================================================================
-// DIAG — THE READY_TO_ATTACK A/B HARNESS (the diagnostic process; REMOVE AT
-// SHIP). The construction: the naked _orig trampoline with the byte-exact
-// prologue replay + the esp-neutral push/ret resume, the one-incremental-
-// line logger, the one-global flip.
-// THE TRAMPOLINE: the E9 at 0x4023B0 covers 0x4023B0-0x4023B4 = sub esp,8
-// (3B) + push esi (1B) + the FIRST BYTE of mov esi, ecx (0x4023B4-B5) -
-// the replay is all three instructions; the resume = 0x4023B6 (the .lst's
-// next-instruction boundary, the addresses verified from the .lst).
-// NO esp compensation: the replayed sub/push restore the exact original
-// post-prologue frame (the owner-corrected push/ret form).
-__declspec(naked) int __fastcall RGE_Action_Attack__ready_to_attack_orig(
-    RGE_Action_Attack* this_, DWORD dummy, int* rangeState)
-{
-    __asm
-    {
-        sub     esp, 8              // the replay of 0x4023B0-0x4023B2
-        push    esi                 // the replay of 0x4023B3
-        mov     esi, ecx            // the replay of 0x4023B4-0x4023B5 (mov esi, ecx)
-        push    004023B6h           // the resume past the E9
-        ret
-    }
-}
-
-static int g_rtaTraceOrig = 0;   // 1 = the vanilla trace (build A), 0 = ready_to_attack_new (build B)
-
-static int __fastcall RGE_Action_Attack__ready_to_attack_logger(
-    RGE_Action_Attack* this_, DWORD dummy, int* rangeState)
-{
-    char b[0x400];
-    // DIAG: the rand GENERATOR STATE read non-invasively (0x0069EC98) - no
-    // draw is consumed, the stream is untouched.
-    unsigned int rnd = *(unsigned int*)0x0069EC98;
-    RGE_Static_Object* tgt = this_->target_obj;
-    UnitAIModule* ai = RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj);
-    sprintf(b, "rta-in id=%d rnd=%08X st=%u tgt=%d toid=%d g8=%d fog=%u os=%u sv=%d co=%d mx=%f rng=%f min=%f tx=%f ty=%f tz=%f ltx=%f lty=%f ltz=%f wx=%f wy=%f wsame=%u ind=%u sub=%u\n",
-        (int)this_->obj->id, rnd,
-        (unsigned)this_->state,
-        tgt ? (int)tgt->id : -1,
-        tgt && tgt->owner ? (int)tgt->owner->id : -1,
-        tgt && tgt->master_obj ? (int)tgt->master_obj->object_group : -1,
-        tgt && tgt->master_obj ? (unsigned)tgt->master_obj->fog_flag : 0u,
-        tgt ? (unsigned)tgt->object_state : 0u,
-        ai ? (int)ai->stateValue : -1,
-        ai ? UnitAIModule__currentOrder(ai) : -1,
-        (float)this_->obj->vfptr->maximumSpeed(this_->obj),
-        this_->range, this_->min_range,
-        this_->target_x, this_->target_y, this_->target_z,
-        this_->lastTargetPositionX, this_->lastTargetPositionY, this_->lastTargetPositionZ,
-        this_->obj->world_x, this_->obj->world_y,
-        (unsigned)this_->was_same_owner,
-        this_->indirect_fire_flag ? 1u : 0u,                    // DIAG: boolean - the byte is uninitialized heap at creation, consumers boolean-only (the A/B false-positive class)
-        (unsigned)this_->subActionValue);
-    int ret;
-    if (g_rtaTraceOrig)
-        ret = RGE_Action_Attack__ready_to_attack_orig(this_, 0, rangeState);
-    else
-        ret = RGE_Action_Attack__ready_to_attack_new(this_, 0, rangeState);
-    sprintf(b + strlen(b), "rta-out ret=%d rs=%d st=%u rng=%f min=%f tgt=%d tx=%f ty=%f\n",
-        ret, *rangeState,
-        (unsigned)this_->state, this_->range, this_->min_range,
-        this_->targetID,
-        this_->target_x, this_->target_y);
-    static FILE* rtaLog = NULL;
-    if (!rtaLog)
-        rtaLog = fopen("val_log.txt", "at");
-    fputs(b, rtaLog);
-    return ret;
-}
-
-// ===========================================================================
-// DIAG — THE UPDATE A/B HARNESS (the diagnostic process; REMOVE AT SHIP).
-// THE TRAMPOLINE: the E9 at 0x401970 covers 0x401970-0x401974 = push ecx /
-// push ebx / push ebp / push esi + the FIRST BYTE of mov esi, ecx - the
-// replay is all five instructions (6 bytes); the resume = 0x401976 (the
-// .lst's next-instruction boundary: push edi). The pushed-ecx slot IS the
-// function's rangeState scratch (the compiler's slot reuse, 0x401F73) -
-// the replay preserves it byte-exactly. NO esp compensation: the replayed
-// pushes restore the exact original post-prologue frame (the push/ret
-// resume form).
-__declspec(naked) unsigned __int8 __fastcall RGE_Action_Attack__update_orig(
-    RGE_Action_Attack* this_)
-{
-    __asm
-    {
-        push    ecx              // the replay of 0x401970 (the rangeState scratch slot)
-        push    ebx              // the replay of 0x401971
-        push    ebp              // the replay of 0x401972
-        push    esi              // the replay of 0x401973
-        mov     esi, ecx         // the replay of 0x401974-0x401975 (mov esi, ecx)
-        push    00401976h        // the resume past the E9
-        ret
-    }
-}
-
-static int g_updateTraceOrig = 1;   // 1 = the vanilla trace (build A), 0 = update_new (build B)
-
-static unsigned __int8 __fastcall RGE_Action_Attack__update_logger(
-    RGE_Action_Attack* this_)
-{
-    char b[0x700];
-    // DIAG: the rand GENERATOR STATE read non-invasively (0x0069EC98) - no
-    // draw is consumed, the stream is untouched.
-    unsigned int rnd = *(unsigned int*)0x0069EC98;
-    RGE_Static_Object* tgt = this_->target_obj;
-    RGE_Static_Object* tgt2 = this_->target_obj2;
-    unsigned __int8 aiPresent = 0;
-    int sv = -1, co = -1, aa = -1;
-    UnitAIModule* ai = RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj);
-    if (ai) {
-        aiPresent = 1;
-        sv = (int)ai->stateValue;
-        co = UnitAIModule__currentOrder(ai);
-        aa = (int)ai->autoAttackOrderFlag;
-    }
-    int ml = -1;
-    BUnitGroup* grp = RGE_Game_World__getUnitGroup((RGE_Game_World*)this_->obj->owner->world, this_->obj->mGroupID);
-    if (grp)
-        ml = (int)grp->mFormationLocked;
-    int fr = -1, fl = -1, lp = -1;
-    if (this_->obj->sprite) {
-        fr = (int)this_->obj->sprite->frame_num;
-        fl = (int)(this_->obj->sprite->flag & 1);
-        if (this_->obj->sprite_list)
-            lp = (int)this_->obj->sprite_list->vfptr->looped(this_->obj->sprite_list, this_->obj->sprite);
-    }
-    float tps = this_->obj->owner->world->world_time_delta_seconds;
-    sprintf(b, "upd-in id=%d rnd=%08X st=%u tgt=%d toid=%d t2=%d t2id=%d g8=%d g8s=%d mt=%u os=%u fog=%u mx=%f rng=%f min=%f wx=%f wy=%f lsx=%f lsy=%f wsame=%u ind=%u sub=%u need=%u fm=%u mid=%d mid0=%d ai=%u sv=%d co=%d aa=%d ml=%d tps=%f fr=%d fl=%d lp=%d\n",
-        (int)this_->obj->id, rnd,
-        (unsigned)this_->state,
-        tgt ? (int)tgt->id : -1,
-        tgt && tgt->owner ? (int)tgt->owner->id : -1,
-        tgt2 ? (int)tgt2->id : -1,
-        (int)this_->target2ID,
-        tgt && tgt->master_obj ? (int)tgt->master_obj->object_group : -1,
-        this_->obj->master_obj ? (int)this_->obj->master_obj->object_group : -1,
-        this_->obj->master_obj ? (unsigned)this_->obj->master_obj->master_type : 0u,
-        tgt ? (unsigned)tgt->object_state : 0u,
-        tgt && tgt->master_obj ? (unsigned)tgt->master_obj->fog_flag : 0u,
-        (float)this_->obj->vfptr->maximumSpeed(this_->obj),
-        this_->range, this_->min_range,
-        this_->obj->world_x, this_->obj->world_y,
-        this_->lastTargetPositionX, this_->lastTargetPositionY,
-        (unsigned)this_->was_same_owner,
-        this_->indirect_fire_flag,
-        (unsigned)this_->subActionValue,
-        (unsigned)this_->need_to_attack,
-        (unsigned)this_->fire_missile_at_frame,
-        this_->obj->master_obj ? (int)((RGE_Master_Combat_Object*)this_->obj->master_obj)->missile_id : -1,
-        this_->obj->master_obj ? (int)this_->obj->master_obj->id : -1,
-        (unsigned)aiPresent, sv, co, aa, ml,
-        tps, fr, fl, lp);
-    unsigned __int8 ret;
-    if (g_updateTraceOrig)
-        ret = RGE_Action_Attack__update_orig(this_);
-    else
-        ret = RGE_Action_Attack__update_new(this_);
-    sprintf(b + strlen(b), "upd-out ret=%u st=%u tgt=%d t2=%d tx=%f ty=%f lsx=%f lsy=%f need=%u timer=%f\n",
-        (unsigned)ret,
-        (unsigned)this_->state,
-        this_->target_obj ? (int)this_->target_obj->id : -1,
-        this_->target_obj2 ? (int)this_->target_obj2->id : -1,
-        this_->target_x, this_->target_y,
-        this_->lastTargetPositionX, this_->lastTargetPositionY,
-        (unsigned)this_->need_to_attack,
-        this_->timer);
-    static FILE* updLog = NULL;
-    if (!updLog)
-        updLog = fopen("val_log.txt", "at");
-    fputs(b, updLog);
-    return ret;
 }
 
 void install_RGE_Action_Attack()
@@ -1282,15 +1140,6 @@ void install_RGE_Action_Attack()
     setHook((void*)0x00401420, RGE_Action_Attack__save_new);
     setHook((void*)0x00402290, RGE_Action_Attack__work_new);
     setHook((void*)0x00401620, RGE_Action_Attack__set_state_new);
-    // DIAG: the ready_to_attack hook flipped to the logger (the A/B harness;
-    // flip g_rtaTraceOrig for the build A/B; REMOVE AT SHIP)
-    //setHook((void*)0x004023B0, RGE_Action_Attack__ready_to_attack_logger);
     setHook((void*)0x004023B0, RGE_Action_Attack__ready_to_attack_new);
-    // DIAG: rta_new is CONFIRMED FIXED (2026-11-26) - the flip pinned to 0 so
-    // BOTH update A/B legs run the fixed _new (an identical rta side in both
-    // builds is the harness's validity condition; REMOVE AT SHIP)
-    // DIAG: the update hook flipped to the logger (the A/B harness; flip
-    // g_updateTraceOrig for the build A/B; REMOVE AT SHIP)
-    //setHook((void*)0x00401970, RGE_Action_Attack__update_logger);
     setHook((void*)0x00401970, RGE_Action_Attack__update_new);
 }

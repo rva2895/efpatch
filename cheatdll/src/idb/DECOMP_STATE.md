@@ -8252,3 +8252,60 @@ single-pass (max 912 B set_state).
     1 then 0), diffs val_log.txt (the rta rows), the first divergent row
     names the mechanism; the targeted asm walk of that region. Re-verify:
     the harness emission (the trampoline bytes + the logger keys).
+
+  - READY_TO_ATTACK DESYNC ROOT-CAUSED + FIXED (2026-11-26, the A/B diff -
+    IN rows aligned 21 calls, OUT diverged at call 0: rs 1->-1, st 6->5 =
+    inside the probe): D1 the loc_402601 visibility routing inverted (the AI
+    probe = vis==0 || (128 && !fog); vis not in {0,128} and 128&&fog go to
+    the loc_40269F ladder region, no state change; the written complement
+    FAILED was invented); D2 the band ladder's all-within exit 0x402743 jumps
+    straight to loc_402982 - no target_x/y/z sync (loc_40296D's only xref =
+    0x402866, the dist2 arm); + the missing loc_40269F equality preliminary
+    (X87_EQ_NAN x3 -> tail, the {=,NaN} set). Fixed; owner-confirmed in-game.
+    Re-verify: the /Fa jcc forms at the routing sites.
+
+  - EXPL_DROID BAKE (2026-11-26, the step-3b scan catch): expldroid.cpp:73
+    setHook(0x40215F) MID-FUNCTION in update's WORK_2 immediate-fire gate
+    (expl1: the id read replayed, is_not_expl flags, the original jz at
+    0x402165 consumes) - the live gate is master id IN expl_list (the
+    suicide-attack txt list), not == 1239; update_new hooked at the entry
+    dead-reverted it (the body walks verified the UNPATCHED listing - the
+    scan class the step-3b rule exists for). BAKED conditional on
+    expl_installed (the vanilla 1239 gate when not installed); externs
+    cpp-local (the SPEED2 precedent); the site retired; the 3 sibling expl
+    hooks stay live in unowned TRIBE_Combat_Object__update/attack3/
+    SoldierAI ctor - STANDING BAKE INVENTORY for those decodes. master id
+    1239 = the vanilla-only sentinel (the registry note). /Fa: the flag
+    shape + the 1239 immediate. Re-verify: the bake emission at the gate.
+
+  - UPDATE_NEW DESYNC x2 ROOT-CAUSED + FIXED (2026-11-26, the upd A/B
+    harness - 2,232,501 pairs): (1) the WAIT-case return written OUTSIDE
+    the looped==1 if - vanilla looped != 1 -> jnz def return 0 (0x4021F3),
+    the 1/5 return INSIDE (0x40222F); fired once (the
+    WAIT-with-uncompleted-anim call is rare), the ret 0-vs-1 shifted the
+    sequence at pair 2232500. (2) the MAIN CTOR dropped the asm 0x40123C
+    [esi+5Ah]=bl store (need's twin) - ind = heap garbage, branchable at
+    the WORK_2 !target && !indirect gate; RESTORED = 0 (Attack2 = 2 and
+    the loader streams were correct; the full store census all three
+    creation paths FULL MATCH). The ind garbage (orig heap values vs 0,
+    ~3.6K pairs, ZERO outcome flips) = benign - both patched machines
+    share one binary/heap; the loggers logged it boolean. Re-verify: the
+    emission at the gate.
+
+  - ATTACK PASS-2 RESTRUCTURES + HARNESS REMOVED (2026-11-26, tests clean):
+    ready_to_attack_new: 5 gotos/3 labels -> 0 (FAILED inlined x3, IN_RANGE
+    = the post-if/else convergence, LADDER_REGION = the sequential fall);
+    update_new: 12 gotos/12 LABELs -> 0, the v-names dissolved, the staged
+    flow (the head / the target-validity flag / the position-sync / the
+    main stage / the switch), WORK_2 = the firePhase/spritePhase flags
+    (every re-check kept incl. the post-set7 need re-read at 0x402095),
+    fireNow replaces goto LABEL_146; the state switch tables byte-identical
+    (0,1,6,2,2,3,4,6,6,6,2,6,5 + the DD partitions), the label->body
+    mapping verified in-range, the immediates intact; trace-proven by the
+    owner's A/B runs. The DIAG harness REMOVED (the Gather precedent):
+    both trampolines/flips/loggers deleted (174 lines), the installer
+    hooks _new directly (0x4023B0 -> ready_to_attack_new, 0x401970 ->
+    update_new), the zero-symbol sweep = 0 (file + listing), the emission
+    diff = the game functions byte-identical (only install_RGE_Action_
+    Attack changed, the DIAG comments). THE ATTACK TIER SHIP-STATE: 14
+    hooks, every desync closed, 0 gotos in the file, gate 0/0.
