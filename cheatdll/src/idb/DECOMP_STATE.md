@@ -8160,3 +8160,34 @@ single-pass (max 912 B set_state).
     table per site); the rand STATE read at 0x0069EC98 (never an extra
     draw); the concision directive for the state additions; all edits
     approval-gated; the DIAG harness removal at ship."
+
+  - PRAGMA CLEANUP (owner-reported 2026-11-26): the Gather file's precise
+    bracket was 3-push/1-pop (the M7 write left two redundant nested pushes)
+    - the lone pop restored precise-on, so the tail compiled precise
+    silently. Fixed to the single push/pop bracket (Gather3->update_new);
+    the emission diff vs the pre-cleanup listing = byte-identical.
+    Re-verify: the pragma count = 2 (push@60/pop@1416).
+
+  - GATHER DIAG HARNESS REMOVED (owner-directed 2026-11-26, all tests
+    clean): the set_state A/B block deleted (set_state_orig/
+    g_setStateTraceOrig/set_state_logger + the installer flip lines + the
+    4 unreferenced A-leg externs); set_state hooks _new directly; work_new
+    active in the installer (the owner flip - the fix round in-game
+    verified on the real work path). The zero-diagnostic-symbol sweep =
+    all 0 (file + listing); defs/refs 11/11; the emission diff = only the
+    trampoline's COMDAT block removed, the 11 game functions
+    byte-identical. Re-verify: grep the TU listing for
+    _logger/_orig/sprintf/fopen (= 0).
+
+  - GATHER UPDATE PASS 2 SHIPPED (2026-11-25): the restructure of
+    update_new on the suite-verified pass-1 baseline (the fixes round
+    tested clean) - v-names dissolved, the joins inlined
+    (LABEL_53/96/33/43/127/135/156/162/164/187/189 + the LABEL_120
+    3-inbound join flattened to its true form), 0 gotos, locals at first
+    use. EQUIVALENCE: the call multiset identical (named + vtbl slots;
+    the deltas = pure-read CSE + one duplicated sentinel-compare pair,
+    tails merged); the main byte table 249/249 BYTE-IDENTICAL + the three
+    DD partitions identical; the brace-depth walk clean per stage; the TU
+    gate 0/0. Pass 1 = the VCS diff reference. The re-run = the owner's
+    suite (owed at entry time). Re-verify: the tables + the call census vs
+    the pre-splice listing.

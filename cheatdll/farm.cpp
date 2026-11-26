@@ -963,7 +963,7 @@ __declspec(naked) void farm_expiration() //005EB824
 void setFarmHooks()
 {
     setHook((void*)0x005B633D, fishing_ship_process_notify);
-    // retired 2026-11-25: baked into RGE_Action_Gather__update_new (src/engine/action/RGE_Action_Gather.cpp), see 0x00405FDE
+    // retired 2026-11-25: baked into RGE_Action_Gather__work_new (src/engine/action/RGE_Action_Gather.cpp), see 0x00405FDE
     // setHook((void*)0x00405FDE, action_gather_farm_xy_1);
     // retired 2026-11-25: baked into RGE_Action_Gather_new (the ctor capture gate), see 0x4041DD
     // setHook((void*)0x004041DD, action_gather_farm_xy_2);

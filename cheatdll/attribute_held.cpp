@@ -147,7 +147,7 @@ void setAttributeHeldHooks()
     // retired 2026-11-25: baked into RGE_Action_Gather__set_state_new (src/engine/action/RGE_Action_Gather.cpp), see 0x404A93
     // setHook((void*)0x00404A93, on_action_gather_set_state);
 
-    // retired 2026-11-25: baked into RGE_Action_Gather__update_new (src/engine/action/RGE_Action_Gather.cpp), see 0x00560D
+    // retired 2026-11-25: baked into RGE_Action_Gather__update_new (src/engine/action/RGE_Action_Gather.cpp), see 0x40560D
     // setHook((void*)0x0040560D, on_action_gather_update);
 }
 #pragma optimize( "", on )
