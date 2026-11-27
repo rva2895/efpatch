@@ -1584,6 +1584,22 @@ void test_handle_hotkey(TRIBE_Panel_Screen_Overlay* panel, void* user_data, int 
     return;
 }
 
+const int RAND_MAGIC = 0x1234;
+
+__declspec(naked) void on_random_game_seed() //004243F5
+{
+    __asm
+    {
+        mov     ecx, RAND_MAGIC
+        mov     [ebp + 44h], ecx
+        mov     [ebp + 48h], ecx
+        mov     [ebp + 4Ch], ecx
+        mov     [ebp + 50h], ecx
+        mov     ecx, 00424401h
+        jmp     ecx
+    }
+}
+
 #pragma optimize( "s", on )
 void setTestHook()
 {
@@ -1778,6 +1794,10 @@ void setTestHook()
 
     //action list
     //writeNops(0x004098FD, 5);
+
+#ifdef EFPATCH_ENABLE_DETERMINISTIC_RANDOM
+    setHook((void*)0x004243F5, on_random_game_seed);
+#endif
 
     efpatch_atexit(setTestHook_atexit);
 }
