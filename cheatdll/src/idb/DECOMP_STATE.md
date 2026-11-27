@@ -8309,3 +8309,52 @@ single-pass (max 912 B set_state).
     diff = the game functions byte-identical (only install_RGE_Action_
     Attack changed, the DIAG comments). THE ATTACK TIER SHIP-STATE: 14
     hooks, every desync closed, 0 gotos in the file, gate 0/0.
+
+  - SESSION CLOSE (2026-11-26, the Attack tier SHIP-STATE + Batch S1):
+    THE ATTACK TIER IS CLOSED: ready_to_attack/update desyncs root-caused
+    and fixed (the visibility routing, the equality preliminary, the
+    no-sync ladder, the WAIT-case return, the ctor ind hole, the
+    expl_droid bake - the entries above), the pass-2 restructures trace-
+    proven (0 gotos in ready_to_attack/update), the DIAG harness REMOVED
+    (the zero-symbol sweep 0, the emission diff = the game functions
+    byte-identical), the installer hooks _new directly - the owner
+    confirmed in-game tests CLEAN post-fix. The Enter tier's last goto
+    (after_deposit) eliminated (the attribute_index sentinel form); THE
+    WHOLE ACTION FAMILY: 0 gotos, 0 DIAG symbols, ship-state. The
+    inventory re-count (the fresh scan): the runtime exports 522, owned
+    249, REMAINING 273 (Static 127, TRIBE_Combat 75, TRIBE_Building 70,
+    Combat 1 = attack3 @0x4443C0 857B; Animated/Dopple/Moving/Action/
+    Missile COMPLETE; the idb lists NO RGE_Tree_Object__ exports - the
+    Tree ledger's 2 hooks stand). BATCH S1 WRITTEN: 45 Static
+    micro-methods (the <=39-byte tier) appended to RGE_Static_Object.cpp,
+    the installer 8 -> 53; the switch tables byte-compared x4 (Military/
+    Civilian/Aircraft/AttackGround byte-identical vs byte_54B50C/57C/42C/
+    2AC); the gate catches (the sprite-list vtbl explicit-this form x2,
+    the die_die_die owner cast) fixed, re-gated 0/0; defs/refs 53/53;
+    the scan 0 non-self. THE S1 HOOKS ARE NOT YET IN-GAME VERIFIED.
+    NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+    DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+    cheatdll/src/idb/ first. TARGET: the Static methods ladder. STATE:
+    the Attack tier ship-state (14 hooks, tests clean, the harness
+    removed); the Enter goto closed; the action family 0 gotos/0 DIAG.
+    BATCH S1 (45 Static micro-hooks, the <=39-byte tier) WRITTEN +
+    gated + table-compared but NOT yet in-game verified - run the game
+    pass first. THE INVENTORY (the fresh scan 2026-11-26): remaining
+    273 = Static 127, TRIBE_Combat 75, TRIBE_Building 70, Combat 1
+    (attack3 @0x4443C0 857B - the RGE fire function, the update WORK_2
+    vtbl slot 238 dispatch target for the RGE-tier units). IMMEDIATE:
+    (1) the S1 in-game pass; (2) BATCH S2 = the Static mid tier
+    (48-105 bytes, ~25 hooks: calculateDamage, inLockedFormation,
+    die already done?, heal, get_frame, give/take_attribute, change_
+    unique_id, set_sleep_flag, spawn_death_obj, handle_teleport_z_
+    correction, modify_percent/delta, the zone family, is_powered,
+    distance_to_position, teleport_off_map, inRange, distance_to_
+    object2 ...); (3) or the Combat attack3 dedicated decode (857B -
+    gameplay-central, the TRIBE sibling attack3 shares the shape).
+    STANDING: the TRIBE_Combat/Building decodes carry the expl_droid
+    sibling bakes (0x55A881 in TRIBE_Combat__update, 0x55BE40 in
+    attack3, the SoldierAI ctor hook). PROTOCOL: the approval gate
+    before every write; the switch-table byte comparison for every
+    jump-table predicate; the store-and-read diff; the concision
+    directive for the state additions; the DIAG removal at each tier's
+    ship."

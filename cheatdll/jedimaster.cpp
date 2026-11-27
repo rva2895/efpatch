@@ -44,7 +44,11 @@ void __cdecl masters_hooks()
 
 void __cdecl padawans_hooks()
 {
-    setHook((void*)0x0054B170, RGE_Static_Object__gbg_isPadawan_new);
+    // RETIRED (2026-11-26): gbg_isPadawan @0x0054B170 owned by
+    // RGE_Static_Object__gbg_isPadawan_new - the handler BAKED in
+    // conditionally on padawans_installed (the vanilla membership when the
+    // list is absent); the install order made this site's write dead anyway.
+    // setHook((void*)0x0054B170, RGE_Static_Object__gbg_isPadawan_new);
 
     efpatch_atexit(padawans_hooks_atexit);
 }

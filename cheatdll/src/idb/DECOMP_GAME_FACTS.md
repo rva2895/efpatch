@@ -232,6 +232,10 @@ in the master structs.
 | 293 | Worker transform target (the task_by_group != 1 variant) - owner designation owed | the same attack2 block: master_objects[293] (asm 0x4452C6, [ecx+494h] = 293*4) |
 | 992 | AA counter-battery projectile master (the GE Assault Mechanic vs Aircraft) - owner designation owed | attack4_new: the projectile-master selection - the launcher is a GE Assault Mech AND the target is an Aircraft -> make_new_obj from master_objects[992] (asm 0x44425E, [ecx+0F80h] = 992*4) - the AA-homing missile (the launcher arg = 0 at init_missile) |
 | 836 | AA counter-battery projectile master (the Air Cruiser vs Aircraft) - owner designation owed | the same selection: the launcher is an Air Cruiser AND the target is an Aircraft -> master_objects[836] (asm 0x444283, [ecx+0D10h] = 836*4) |
+| 109 | Self-powered master - owner designation owed | is_powered_new: the self-powered id set {109, 82, 50} (asm 0x54BDD7 cmp cx,6Dh) - the tile power query skipped |
+| 82  | Self-powered master - owner designation owed | is_powered_new: the same set (asm 0x54BDE1 cmp cx,52h); also the enter_target deposit-exclusion candidate (the A3c note) |
+| 199 | Aqua Harvester | farm.h (the gather tier's Aqua bake) |
+| 1239 | expl_droid vanilla sentinel (the suicide-attack list's vanilla-only gate) | expldroid.cpp:73 (the bake's not-installed arm) |
 
 
 ## Where group values gate owned code (decode-derived, asm-cited)
@@ -473,12 +477,88 @@ conversion.cpp's check_meditation_and_purge tests {7 Work2, 6 Work,
   Re-verify: the callee's implementation body in the .lst fixes the
   meanings - a future decode target.
 
-- **sound_id 38** — RGE_Base_Game__play_sound. PARTIAL (decode-derived
-  2026-11-24, asm 0x445034 push 26h): the capture fanfare —
+- **sound_id 38** - RGE_Base_Game__play_sound. PARTIAL (decode-derived
+  2026-11-24, asm 0x445034 push 26h): the capture fanfare -
   RGE_Combat_Object::update plays it when a capture_flag unit changes
   ownership to the local player (the get_player compare, asm
   0x445008-0x445015), suppressed when the master is a Building with a
   linked_owner (asm 0x445017-0x445028). Other users unknown.
+
+- **gbg_unknown23 (vtbl slot 23) = the worker armament classifier** -
+  CONFIRMED (asm 0x54B950-0x54B9C4): group 58 (Worker) with a sprite ->
+  the sprite NAME's last digit in {'1','3','4','5','7'} -> 1; else
+  object_flags bit 4 (mechanical). The armed-worker vs mechanical split.
+
+- **gbg_isBiological (vtbl slot 24) = the biological test** - CONFIRMED
+  (asm 0x54B9E0-0x54BA60): group {58 Worker, 14 Utility Trawler} with a
+  sprite -> the name digit class biological (the medic_worker row);
+  else object_flags bit 5 (biological).
+
+- **the worker name-digit civ classes** - PARTIAL (decode-derived): the
+  worker/trawler sprite NAME's last digit = the civ class: biological
+  {'2', '6', civ 10}; armed {'1','3','4','5','7'} (gbg_unknown23). The
+  per-digit civ meanings owed.
+
+- **medic_worker (langdll.cpp:178, the hook site 0x54BA2B in
+  gbg_isBiological) = the biological worker civs {2, 6, 10}** - CONFIRMED
+  (the owner-corrected decode 2026-11-26; the site baked into
+  gbg_isBiological_new): civ = (name[-1] - '0') + 10*(name[-2] == '1');
+  biological iff civ in {2, 6, 10} - the AI-civ worker support (civ 10 =
+  the '1'+'0' two-digit suffix). THE LESSON: the membership chains decode
+  by the cumulative arithmetic at each site (sub 2/4/4 = {2,6,10}), never
+  inherited from the sibling function (the vanilla's sub 2/4/2 = {2,6,8}).
+
+- **gbg_isDetector (vtbl slot 25) = the detector test** - CONFIRMED (asm
+  0x54BBC0-0x54BC35): object_flags bit 3 (detector); group {50 Jedi,
+  51 Jedi w-Holocron} with attributes[58] (Masters Can See Hidden Units)
+  > 0; group {11 Cruiser, 13 Destroyer, 15 Frigate 1, 16 AA Destroyer 1}
+  with attributes[23] (Submarine Detection) > 0.
+
+- **is_powered (RGE_Static_Object) = the self-powered set** - CONFIRMED
+  (asm 0x54BDA0-0x54BE3C): the master ids {109, 82, 50 Farm} and the
+  groups {34 Undeployed Cannon, 36 Cannon, 10 Turret, 9 Fortress} are
+  always powered; else RGE_Tile::is_powered at
+  map_row_offset[ftol(world_y)][ftol(world_x)] (the inside_obj coordinate
+  override; the 32-byte column stride shl 5) with (owner id, flag).
+
+- **the isPadawan/isMaster vanilla id sets + the jedimaster patch** -
+  CONFIRMED (asm 0x54B170 / 0x54B1D0): isPadawan: copy_id in
+  {180,183,232,204,52,239,647,652} or id in {1075,1076,800,814,824};
+  isMaster: copy_id in {115,125,136,134,89,140,643,645} or id in
+  {1077,1085,1082,1084,1080,725,728,731,747,753,761,770,778,784,806,792}.
+  The jedimaster patch replaces both with the txt-driven is_id_in_list
+  lists gated on group 50 (Jedi), installed conditionally (baked into the
+  owned replacements conditional-on-padawans_installed/masters_installed).
+
+- **handle_teleport_z_correction (the base, vtbl slot 43) - the flyer z
+  rules** - CONFIRMED (asm 0x54FD20-0x54FD91): movement_type 0 -> world_z
+  = ground_z (the raw set); movement_type 1 -> the group {43 Bomber,
+  48 Fighter, 59 Air Transport, 62 Air Cruiser, 63 Geonosian Warrior,
+  64 Jedi Starfighter} -> world_z = ground_z + 1.0 (the DOUBLE 1.0 per
+  the dd rule); else the world_z < ground_z floor; movement_type 2+ =
+  untouched. All paths return the STORED world_z reloaded (the m32).
+
+- **RGE_Master_Player::master_objects @+0x30** - CONFIRMED (spawn_death_obj
+  asm 0x54F477): the MASTER-side player's master_objects (vs the
+  TRIBE_Player's @+0x74) - world->master_players[civ] elements are
+  RGE_Master_Player*. The spawn chain: master id @+88 (death_spawn_obj_id,
+  signed) -> master_players[civ]->master_objects[id] -> the owner
+  ->master_objects[id] fallback -> make_new_obj (the master vtbl slot 12).
+
+- **the zone-family resolve chain** - CONFIRMED (lookupZone/currentZone/
+  withinRangeOfZone/findClosestPointInTerrainType asm 0x552610-0x552847):
+  the zoneMapIndex @+0x80 cache (-1 -> get_zone_map(map_zones @RGE_Map
+  +0xBF7C, terrains[master->terrain @+0x76], world terrain_size @+0x5E,
+  &the index); else get_zone_map2(index)) then the per-function query
+  (get_zone_info / withinRange2 / findClosestPointInTerrainType). The
+  callers: the Gather AI-water check, the Transport drop-off, the AI
+  staging.
+
+- **gbg_unknown_4 @TRIBE_World+0x1A0** - the unload-sound index (the
+  gbg_unknown_3 sibling @+0x19C) - PARTIAL (play_unload_sound asm
+  0x54B395): sounds[gbg_unknown_4] played via RGE_Sound::play(1, pan,
+  volume, civ, -1) after the get_3d_sound_info gate. The exact semantics
+  (the per-building unload sound assignment) owed.
 
 ## Open вЂ” meanings not yet supplied
 
@@ -635,3 +715,11 @@ shore terrains 2/4 in the scan rect; the non-ships accept any terrain)
 and the Explore calculateTargetPoint's firstTileAlongLine split (the
 ship targets walk the water-tile terrains 2/37; the land targets the
 land walk). The other bits = the registry for the future decodes.
+Consumed-by-decode notes (2026-11-26, the runtime Static gbg_* batch):
+bit 3 (0x08, DETECTOR UNIT) = gbg_isDetector's short-circuit (asm
+0x54BBC3 test byte ptr [eax+0ACh],8); bit 4 (0x10, MECHANICAL UNIT) =
+gbg_unknown23's fallback for the non-worker/non-trawler and the
+null-sprite arms (asm 0x54B9B6 shr eax,4); bit 5 (0x20, BIOLOGICAL
+UNIT) = gbg_isBiological's fallback (asm 0x54BA52 shr eax,5) and the
+can_be_healed (biological required) / can_be_repaired (mechanical =
+NOT biological required) gate pair.

@@ -543,22 +543,22 @@ int __fastcall RGE_Action_Enter__enter_target_new(
             && target_master->master_type == RGE_MASTER_TYPE_BUILDING)   // asm 0x4037A7 (cmp byte @+4, 50h)
         {
             __int16 held_type = obj->attribute_type_held;          // asm 0x4037B1 (mov bp, [edi+5Ch])
-            __int16 attribute_index;
+            __int16 attribute_index = -1;                          // the not-a-deposit-type sentinel (asm 0x4037DC-0x4037E0: the jnz to loc_403843 = the deposit skip)
             if (held_type == 15 || held_type == 16 || held_type == 17)   // asm 0x4037B5-0x4037C5
                 attribute_index = 0;                               // asm 0x4037C7 (xor ebp, ebp)
             else if (held_type == 0 || held_type == 1
                 || held_type == 2 || held_type == 3)               // asm 0x4037CB-0x4037E0
                 attribute_index = held_type;
-            else
-                goto after_deposit;                                // asm 0x4037DC-0x4037E0 (jnz loc_403843)
-            int deposit = (int)((double)obj->attribute_amount_held + 0.5);   // asm 0x4037E2-0x4037EB (fld; fadd const_f_half; __ftol - the 53-bit add feeds the conversion, rule (f))
-            obj->attribute_amount_held = (float)deposit;           // asm 0x4037F6-0x4037FA (fild; fstp - the int back into the field)
-            obj->owner->vfptr->add_attribute_num(obj->owner, attribute_index, obj->attribute_amount_held, 1);   // asm 0x4037FD-0x40380A (slot 32 = +0x80; the amount = the UPDATED float passed as the declared float)
-            obj->owner->vfptr->trackUnitGather(obj->owner, obj->id, attribute_index, (int)obj->attribute_amount_held);   // asm 0x403813-0x403831 (slot 24 = +0x60; the int amount)
-            obj->vfptr->set_attribute(obj, -1, 0.0f);              // asm 0x403834-0x40383D (slot 62 = +0xF8; the carried attribute (-1, 0.0))
+            if (attribute_index != -1)
+            {
+                int deposit = (int)((double)obj->attribute_amount_held + 0.5);   // asm 0x4037E2-0x4037EB (fld; fadd const_f_half; __ftol - the 53-bit add feeds the conversion, rule (f))
+                obj->attribute_amount_held = (float)deposit;           // asm 0x4037F6-0x4037FA (fild; fstp - the int back into the field)
+                obj->owner->vfptr->add_attribute_num(obj->owner, attribute_index, obj->attribute_amount_held, 1);   // asm 0x4037FD-0x40380A (slot 32 = +0x80; the amount = the UPDATED float passed as the declared float)
+                obj->owner->vfptr->trackUnitGather(obj->owner, obj->id, attribute_index, (int)obj->attribute_amount_held);   // asm 0x403813-0x403831 (slot 24 = +0x60; the int amount)
+                obj->vfptr->set_attribute(obj, -1, 0.0f);              // asm 0x403834-0x40383D (slot 62 = +0xF8; the carried attribute (-1, 0.0))
+            }
         }
     }
-after_deposit:
     RGE_Static_Object* target = this_->target_obj;
     if (target->master_obj->master_type == RGE_MASTER_TYPE_BUILDING)   // asm 0x403843-0x403849
     {

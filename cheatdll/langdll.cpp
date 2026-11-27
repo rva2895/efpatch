@@ -318,7 +318,11 @@ void setLangDllHooks()
     //setHook((void*)0x0048BC9F, jedi_temple_id_1);
     //setHook((void*)0x0048BBA4, jedi_temple_id_2);
 
-    setHook((void*)0x0054BA2B, medic_worker);        // KEEP — live, target not replaced
+    // retired 2026-11-26: gbg_isBiological @0x0054B9E0 is owned; the
+    // medic_worker stub BAKED into RGE_Static_Object__gbg_isBiological_new
+    // (the two-digit-civ base-0x26 arm; the site was mid-function in the now
+    // dead original body)
+    //setHook((void*)0x0054BA2B, medic_worker);
     // retired 2026-11-14: RGE_Static_Object::gbg_get_civ_override is hooked;
     // original body is dead and the replacement already applies CIV_COUNT + 1
     // (src/engine/object/RGE_Static_Object.cpp), see 0x0054B3E9
