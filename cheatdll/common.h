@@ -165,6 +165,8 @@ extern size_t (__cdecl* const fwrite_internal)(const void* Str, size_t Size, siz
 extern int (__cdecl* const fscanf_internal)(FILE* File, const char* Format, ...);
 extern char* (__cdecl* const fgets_internal)(char* Buf, int MaxCount, FILE* File);
 extern char* (__cdecl* const mbsupr_internal)(char* str);
+extern int (__cdecl* const vsprintf_internal)(char* Dest, const char* Format, va_list Args);
+extern int (__cdecl* const fprintf_internal)(FILE* File, const char* Format, ...);
 
 // --- the owned pathing scratch globals -------------------------------------
 // The reference set (verified closed, the .lst global-access scan):
@@ -181,3 +183,14 @@ extern int* const dword_689568;   // 0x689568 - the map-analysis smooth-path arm
 extern int* const dword_68956C;   // 0x68956C - the findTilePath arm gate (== 1 enables)
 extern float* const flt_68F494;   // 0x68F494 - the map-analysis arm's distance threshold
 extern int* const walk_tile_particles_enabled;   // 0x68957C - gates the extra-terrain walk_tile_sprite_id particle spawning (RGE_Moving_Object::teleport's same-terrain grounded arm)
+
+// --- the RGE_Static_Object::logDebug debug globals (the game's trace logger) -
+extern int* const logDebugOn;     // 0x6A3618 - the master switch
+extern int* const logDebugID;     // 0x68955C - the unit-id filter (-1 = all units)
+extern FILE** const debugOut;     // 0x77FBA8 - the FILE* slot logDebug lazily opens c:\genunit.txt into
+
+// --- the draw_frame selection/hp-bar color indices (the palette-index bytes) -
+extern unsigned __int8* const byte_69B550;   // 0x69B550 - the selection frame box color (0xFF)
+extern unsigned __int8* const color_red;     // 0x69B553 - the hp-bar trough fill (0x24 = 36)
+extern unsigned __int8* const byte_69B554;   // 0x69B554 - the hp-bar level fill color (0xF1 = 241)
+extern unsigned __int8* const combat_comparison;   // 0x6A35FC - the combat-mode byte gating the created-sound play

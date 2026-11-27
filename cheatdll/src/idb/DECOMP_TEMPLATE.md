@@ -13,9 +13,9 @@ be produced if EVERY statement in the result is grounded in one of:
       bit-pattern constant with the exact float literal it denotes).
 Grounding includes verbatim content of the project reference files
 (see "Project reference files" below).
-If any statement would depend on anything else вЂ” an inferred struct layout,
+If any statement would depend on anything else - an inferred struct layout,
 a guessed field type, an assumed calling convention, a plausible-but-
-unverified interpretation of a constant, a reconstructed algorithm shape вЂ”
+unverified interpretation of a constant, a reconstructed algorithm shape -
 you must REFUSE to generate the function. No partial versions, no drafts
 with placeholders, no "most likely" variants. The deliverable in that case
 is an Information Request (see below), and nothing else.
@@ -35,12 +35,12 @@ Self-check before producing code, in order:
    argument placement? __usercall/__userpurge must be resolved by the
    provided prototype or explicit asm evidence, never inferred.
 5. Are all signed/unsigned, width, and float/double interpretations of
-   variables and constants determined вЂ” either by the provided types or by
+   variables and constants determined - either by the provided types or by
    asm evidence (e.g. jo/jl distinction, cvttss2si vs cvttsd2si)?
 6. Does the pseudocode contradict the disassembly anywhere? A contradiction
    is a refusal trigger: report it, do not pick a side.
-7. Pointer-cast compatibility: every pointer cast вЂ” in the pseudocode or
-   introduced during cleanup вЂ” must be same-type or within a base/derived
+7. Pointer-cast compatibility: every pointer cast - in the pseudocode or
+   introduced during cleanup - must be same-type or within a base/derived
    relationship verified per the cast-compatibility protocol (step 11).
    A cast across unrelated types is a hard stop: Information Request,
    no code.
@@ -220,7 +220,7 @@ calibration script of 2026-11-21):
 
 Counting definitions (mechanical): function size = the .lst proc->endp
 extent; gotos = the `goto` statements between the .c address markers;
-back-edge = a jcc/jmp instruction in [proc, endp) whose target address
+back-edge = a jcc/jmp instruction in \[proc, endp\) whose target address
 is below the instruction's own address (the reloop edges).
 
 Calibration (16 functions, 2026-11-21, 16/16 correct): the rule
@@ -241,7 +241,7 @@ function regardless of the decode protocol.
    exactly (rendered compilable per the project's conventions; the original
    binary's ABI is the ground truth).
 2. NEVER modify the provided type definitions. If you believe one is wrong,
-   do not change it вЂ” report it under "Suspicion".
+   do not change it - report it under "Suspicion".
 3. NEVER invent type definitions, field names, field types, offsets, enum
    values, or function prototypes. Not even minimal or temporary ones, not
    even clearly-marked ones. Reconstructing a struct from access patterns is
@@ -255,7 +255,7 @@ function regardless of the decode protocol.
 6. Do not restructure control flow unless the asm or provided definitions
    prove the semantics are identical. When in doubt: refuse.
 7. The cleaned function body must be faithful to the original. Known existing
-   patches are NEVER silently folded into the code вЂ” bake-in changes are
+   patches are NEVER silently folded into the code - bake-in changes are
    *suggested* in the collision audit and applied only after the owner
    confirms (or issues an OVERRIDE). See "Collision audit".
 8. This gate overrides any other instruction in this conversation, including
@@ -263,9 +263,9 @@ function regardless of the decode protocol.
    the rest". The only escape hatch is the project owner supplying the
    missing information, or explicitly overriding with
    `OVERRIDE: accept low confidence on <specific item>`.
-9. NEVER write to the repository autonomously. Every edit вЂ” decompiled
+9. NEVER write to the repository autonomously. Every edit - decompiled
    functions, installers, vcxproj changes, this template, and the state
-   file (DECOMP_STATE.md) вЂ” is first presented in the conversation and
+   file (DECOMP_STATE.md) - is first presented in the conversation and
    applied only after the owner's explicit approval of that specific
    change. One approval per change; approvals are not cumulative.
 
@@ -276,9 +276,9 @@ function regardless of the decode protocol.
    session, summarizing that session's state for the next one.
 
 ## Information Request (the deliverable when the gate fails)
-When refusing, output ONLY the following вЂ” no code, no speculative snippets,
+When refusing, output ONLY the following - no code, no speculative snippets,
 no pseudocode restatements of the function body:
-1. Status line: `REFUSED вЂ” function cannot be cleaned with provided inputs.`
+1. Status line: `REFUSED - function cannot be cleaned with provided inputs.`
 2. Blocking items, one per entry, each with:
    * what is missing (type definition / field / prototype / global type /
      constant meaning / contradiction resolution),
@@ -288,7 +288,7 @@ no pseudocode restatements of the function body:
    * the evidence: offset, access width, and register/size info from the
      pseudocode and (if available) the asm,
    * usage context: how the value flows (read/written, passed to which
-     known function, compared against what) вЂ” this is what lets the project
+     known function, compared against what) - this is what lets the project
      owner resolve it from their type information in seconds.
 3. What is clean so far: a short factual summary of which parts of the
    function are fully grounded. Describe, do not transcribe or approximate
@@ -303,7 +303,7 @@ no pseudocode restatements of the function body:
   the real types from the provided headers.
 - Replace LOBYTE/HIBYTE/LOWORD/HIDWORD/BYTE1/BYTE2 etc. with the correct
   typed field access or an explicit bit operation on a correctly typed
-  variable вЂ” never leave the macro behind.
+  variable - never leave the macro behind.
 - Replace __PAIR64__, __OFP__ and other Hex-Rays internals with clean,
   equivalent code.
 - Replace float/int bit-pattern constants (1065353216, 0x3F800000, doubles
@@ -328,9 +328,9 @@ no pseudocode restatements of the function body:
 - Magic numbers: name them only if self-evident from provided context;
   otherwise leave the value with a comment. Do not invent meanings.
 - Magic loop counters over declared arrays (hard stop): a loop bound
-  over a struct array member must be derived from the declared type вЂ”
+  over a struct array member must be derived from the declared type -
   `_countof(array)` (MSVC, stdlib.h; loop counters typed size_t to keep
-  the comparison unsigned-clean) вЂ” never a bare numeric literal, and no
+  the comparison unsigned-clean) - never a bare numeric literal, and no
   bespoke macros or local-constant substitutes. The dimension comes
   verbatim from the provided type definition, so the derived form is
   grounded (no invention). A hardcoded literal count in replacement
@@ -338,7 +338,7 @@ no pseudocode restatements of the function body:
   written is a HARD STOP: Information Request, no code. (Owner-directed
   amendment 2026-11-14 after the TRIBE_Master_Combat_Object batch
   drafted `i < 3` loops over build_inventory[3]; refined to _countof
-  syntax per owner direction вЂ” supersedes the interim macro form.)
+  syntax per owner direction - supersedes the interim macro form.)
   Owner clarification 2026-11-15 (TRIBE_Building linked_owner search):
   the rule binds EVERY loop form (for / while / do-while) and binds the
   DRAFT + presentation stage, not only the post-write sweep - a bound
@@ -361,12 +361,27 @@ no pseudocode restatements of the function body:
   over.
 - Local variables: rename to meaningful names based on usage. Remove
   v1..vN naming wherever purpose is clear.
+ - MEMBERSHIP-CHAIN CUMULATIVE DECODE (owner-directed 2026-11-27; the
+   gbg_isBiological desync - my medic_worker bake transcribed the
+   decision chain as {2,6,8} (pattern-matched from the vanilla sibling's
+   sub 2/4/2) where the stub's chain sub 2/4/4 = the cumulative values
+   {2,6,10} - the civ-10 AI worker rejected as non-biological): every
+   decision chain of sequential sub/test immediates is decoded by the
+   CUMULATIVE ARITHMETIC AT EACH SITE - each jz tests the running
+   value after every prior subtraction - and each immediate is cited
+   from the listing INDEPENDENTLY. The accepted-value set is derived
+   from the chain arithmetic, never pattern-matched or inherited from
+   the sibling function, the vanilla predecessor, or the family shape -
+   the chains LOOK identical and differ in one immediate. The per-site
+   artifact: the cumulative-value table (imm1; imm1+imm2; ...) mapped
+   to the branch targets, checked against the listing before the write
+   and against the /Fa immediates after.
 - Remove IDA's artificial casts and intermediate variables where they only
   satisfy the decompiler; keep them if they preserve semantics.
 - Restore switch statements where the decompiler emitted if-chains or jump
   tables, if the asm (battlegrounds_x2.lst) confirms the table structure.
 - Readability restructures are permitted when semantic equivalence is
-  provable вЂ” pure function of the same inputs, with exhaustive case
+  provable - pure function of the same inputs, with exhaustive case
   analysis or exact path mapping as the proof (e.g. collapsing compiler
   subtraction chains into a set-membership switch, hoisting a pure
   conditionally-recomputed helper). Summarize the proof in a RESTRUCTURE
@@ -374,7 +389,7 @@ no pseudocode restatements of the function body:
   Pointer-arithmetic element walks (e.g. `p = &arr->value; p += 2`)
   become indexed loops over the actual element type when the element
   layout is verified from the header (offset + stride vs the struct
-  definition) вЂ” per-element equivalence is exact.
+  definition) - per-element equivalence is exact.
 - COPY-OUT GETTER ALIASING (owner-directed 2026-11-20, the BPath__waypoint
    lesson): a getter of the form `T* f(this, T* out, index)` that COPIES
    the internal element into `out` and RETURNS `out` (BPath__waypoint
@@ -390,9 +405,9 @@ no pseudocode restatements of the function body:
    (fetch -> consume -> dead before the next fetch), and audit every fetch
    site's liveness window when a scratch is shared.
 - Redundant-guard elimination: when a guard is provably subsumed by a
-  later condition вЂ” an outer `if (count > 0)` around a loop whose own
+  later condition - an outer `if (count > 0)` around a loop whose own
   condition `i < count` already fails for count <= 0, a repeated test,
-  or a bounds test the index arithmetic implies вЂ” write the collapsed
+  or a bounds test the index arithmetic implies - write the collapsed
   form (loop condition only), mark it with a RESTRUCTURE comment
   citing the equivalence (guard condition vs loop/body condition truth
   table, with the asm address of the original guard), and list the
@@ -405,12 +420,12 @@ no pseudocode restatements of the function body:
   match another known function (a destructor's frees inlined into a
   scalar-deleting destructor; `repne scasb` = strlen), prefer a call to
   that function's replacement or idb_functions constant over duplicating
-  the logic вЂ” provided equivalence is proven and the callee is grounded.
+  the logic - provided equivalence is proven and the callee is grounded.
   Record recognized inlined occurrences in the output (they often mark
   fold candidates).
 - Conversion-type correction: IDA may render `__ftol` conversions as
   `(__int64)` casts; the asm (`call __ftol` = floatв†’int32 via the CRT
-  helper) is authoritative вЂ” use `(int)` plus explicit narrowing, never
+  helper) is authoritative - use `(int)` plus explicit narrowing, never
   `(__int64)`, unless the asm actually shows a 64-bit `fistp`.
 - FLOAT PRECISION VERIFICATION (mandatory from 2026-11-16, owner-directed
    after the check_placement desync; THE rule class behind several
@@ -584,6 +599,22 @@ no pseudocode restatements of the function body:
        calculateYawAngle, missile_move's norm chains, the doIntelligent
        MovementUpdate decode; angle_to_object fixed 2026-11-18).
    (k) RECIPROCAL-MULTIPLY /Fa SCAN + THE float_control(precise)
+        (k-2) FLOAT-LOCAL SQUARE AUDIT (owner-directed 2026-11-27; the
+        distance_to_position desync found via the A/B harness - the raw
+        %a rows diverging by exactly ~1 float ULP from the first call):
+        a FLOAT local multiplied by itself (`xa * xa` with xa declared
+        float) compiles to MULSS - the 24-bit square - even under
+        float_control(precise), because the precise bracket widens the
+        OPERANDS of +,-,/ but leaves float*float in float. The original's
+        x87 `fld m32; fmulp` squares the m32-rounded value at the 53-BIT
+        register precision. THE WRITTEN FORM: every squared operand
+        carries the explicit (double) cast (`(double)xa * (double)xa` ->
+        cvtps2pd + mulsd), matching the register square bit-exactly.
+        The /Fa census per function: the mulss count over the squared
+        locals must be 0 (the asymmetry check: the mulsd side vs the
+        mulss side of the same formula). Origin: `float xa` fed to
+        `sqrt(v7*v7 + xa*xa)` - the v7 side (double) was clean, the xa
+        side diverged by ~1 float ULP on every call.
        FUNCTION BRACKET (owner-directed 2026-11-18; the /Fa check that
        caught canLinePath's step divisions): under /fp:fast MSVC
        transforms `(double)a / (double)t` into (1.0/t)*a - the
@@ -612,11 +643,11 @@ no pseudocode restatements of the function body:
        doIntelligentMovementUpdate decode.
 - Allocation size verification (hard stop): every operator_new /
   operator_new_internal literal size must be mechanically verified as
-  sizeof(allocated type) вЂ” recursive struct walk over idb_types.h with
+  sizeof(allocated type) - recursive struct walk over idb_types.h with
   pack-capped x86 rules (member align = min(natural, pack); struct
   align = max member align, capped; size rounded to struct align).
   A mismatch, or an unverifiable allocation (unresolved embedded types),
-  is a HARD STOP: Information Request, no code вЂ” keeping the unverified
+  is a HARD STOP: Information Request, no code - keeping the unverified
   literal is not permitted. Runtime-size allocations (arrays sized by
   parameters) are exempt from sizeof but must match the original's
   allocation expression. THE WRITTEN FORM is sizeof(allocated type)
@@ -624,30 +655,41 @@ no pseudocode restatements of the function body:
   violation (owner ruling 2026-11-18, the addCurrentPath/
   findAvoidancePath allocations); sizeof lets the compiler maintain
   the verification across IDB struct changes.
+ - STRUCT-WALKER BRACE RULE (owner-directed 2026-11-27; the S2a
+   groundings round - a phantom +4 drift on outline_type/game_mode/prog_
+   mode/world that cost three verification rounds before the byte-level
+   anchor check (world @0x420, prog_mode @+0x1DC) exposed it): the
+   mechanical struct walkers MUST skip the opening brace line of the
+   struct - counting it as a member shifts every subsequent offset by
+   the pointer size and manufactures phantom drifts that read as IDB
+   corruption. The walker validates against the asm-pinned anchors
+   BEFORE any conclusion (one known field offset re-derivable from the
+   .lst at every walk); a walk that disagrees with a pinned anchor is
+   a walker bug, not an IDB defect.
 - Structured-I/O size verification (hard stop): every rge_read /
   rge_write / fread / fwrite-style size argument (the 3rd parameter)
-  must be written as sizeof(target) вЂ” sizeof of the exact destination
-  expression, never a numeric literal вЂ” so the transferred width is
+  must be written as sizeof(target) - sizeof of the exact destination
+  expression, never a numeric literal - so the transferred width is
   mechanically type-checked against the target (single-element arrays
   use the element expression, e.g. arr[0], not the whole-array sizeof).
   Format-driven readers (fscanf) carry widths in the conversion string
-  instead вЂ” audit every conversion against its target. Value-sized
+  instead - audit every conversion against its target. Value-sized
   transfers (length-prefixed strings) pass the length variable, not a
   size. A width that intentionally differs from the target's sizeof
   (partial-field or deliberate-overwrite transfers) is a DEVIATION and
   follows the deviation protocol (see its bullet below): the literal
   stays, an asm-cited comment goes at the call, and the deviation must
-  be presented as a clearly-flagged item in the review artifact вЂ”
+  be presented as a clearly-flagged item in the review artifact -
   target expression, literal width, the sizeof it replaces, and the
-  asm evidence вЂ” with explicit owner approval obtained BEFORE the code
+  asm evidence - with explicit owner approval obtained BEFORE the code
   is written. Writing a deviation into a file without that approval is
-  a gate violation. An unverified width вЂ” a bare literal without the
+  a gate violation. An unverified width - a bare literal without the
   asm citation and approval, or a sizeof that disagrees with the
-  asm-pushed size вЂ” is a HARD STOP: Information Request, no code.
+  asm-pushed size - is a HARD STOP: Information Request, no code.
 - Cross-class base calls (explicit casts required): the flattened
-  derived structs are unrelated C++ types вЂ” no declared inheritance вЂ”
+  derived structs are unrelated C++ types - no declared inheritance -
   so a call through a base-class idb constant rejects the implicit
-  derived-to-base pointer conversion (MSVC C2664) вЂ” for EVERY
+  derived-to-base pointer conversion (MSVC C2664) - for EVERY
   derived-typed argument, not just this_: forwarded pointers such as
   other_object need the same treatment (caught at Action setup, line
   23: the second argument other_object is Action-typed where the
@@ -658,7 +700,7 @@ no pseudocode restatements of the function body:
   binds EVERY cross-type pointer site, not only call arguments:
   (a) RESULT ASSIGNMENTS and initializations of a base-typed variable
   from a derived-typed value are the same conversion and need the same
-  explicit cast (MSVC C2440 вЂ” caught at the Animated/Moving factory
+  explicit cast (MSVC C2440 - caught at the Animated/Moving factory
   trios' `result = new_master` / runtime-ctor returns, 2026-11-14);
   (b) vtable-slot calls cast the explicit `this` argument to the slot's
   declared first-parameter type, and any argument wider than the base
@@ -666,12 +708,12 @@ no pseudocode restatements of the function body:
   this_) exactly like idb-constant calls.
   Compatibility:
   cast only to types whose accessed fields lie within the real
-  object's layout prefix вЂ” each flattened struct mirrors its base
+  object's layout prefix - each flattened struct mirrors its base
   prefix exactly (walker-calibrated), so a derived-to-ancestor cast is
   layout-safe for the ancestor's fields. Deeper casts (base ->
   derived, or sideways) require the access-offset proof per the
   base-pointer rule. Floating literals beyond the type range (e.g.
-  3.4028235e38 > FLT_MAX) are rejected by MSVC (C2177) вЂ” use FLT_MAX
+  3.4028235e38 > FLT_MAX) are rejected by MSVC (C2177) - use FLT_MAX
   or an exactly-representable literal.
 - VIRTUAL-DISPATCH FIDELITY (owner-directed 2026-11-19): when the asm
    dispatches a call through a vtable slot (the vfptr load + `call
@@ -711,7 +753,7 @@ no pseudocode restatements of the function body:
   common.h/cpp wrapper family (malloc/calloc/operator_new/operator_
   delete/free/read/write/fopen/fscanf/fread/fwrite/fgets_internal/
   rand_internal...)
-  routes CRT through the GAME's runtime вЂ” required because game code
+  routes CRT through the GAME's runtime - required because game code
   frees what replacements allocate (heap pairing; e.g. the Combat
   destructor frees the Armor/Weapon tables with the game's _free) and
   because FILE* handles carry the game's stdio state. Bare calloc/
@@ -726,15 +768,15 @@ no pseudocode restatements of the function body:
   calloc(/fscanf(/malloc(/free( must be 0.
 - base_game double-pointer deref: the base_game global is declared
   RGE_Base_Game** const (common.cpp:7); IDB types it TRIBE_Game*. The
-  canonical access form is (*base_game)->field вЂ” a bare
+  canonical access form is (*base_game)->field - a bare
   base_game->field is a double-pointer bug (reads the pointer-slot
   region of the Game struct as if it were the Game pointer). Verified
   ground: (*base_game)->world @0x420, world->map @0x34, world->tasks
   @0x18C. Post-write sweep: grep for base_game-> not preceded by *)
-  (lookbehind `(?<!\*\))base_game->`) вЂ” any hit is a violation.
+  (lookbehind `(?<!\*\))base_game->`) - any hit is a violation.
 - Numeric conversion verification: every hex-to-decimal (and reverse)
   conversion cited in output or ledger must be recomputed mechanically
-  before use вЂ” an arithmetic slip here can manufacture phantom blockers
+  before use - an arithmetic slip here can manufacture phantom blockers
   or hide real ones. Prefer scripted conversion over mental arithmetic
   for any constant that gates a decision.
 - Pointer arithmetic elimination (hard stop): `pointer += constant`,
@@ -743,7 +785,7 @@ no pseudocode restatements of the function body:
   byte offset verified against the element size and the containing
   struct layout. `pointer += constant` statements must never appear in
   output code. This binds the replacement code too: output must not
-  introduce walked pointers вЂ” no `++p` / `p += n` / saved-and-
+  introduce walked pointers - no `++p` / `p += n` / saved-and-
   incremented pointer variables; all array iteration is by index over
   the verified element type (`arr[index]`). An offset that cannot be
   verified against the layout is a hard stop: Information Request, no
@@ -753,12 +795,12 @@ no pseudocode restatements of the function body:
 - Deviation presentation protocol: whenever a reconstruction must
   deviate from a mechanical form this template mandates (sizeof widths,
   indexed access, faithful operator order, any literal the rules would
-  otherwise rewrite), the deviation is not an implementation detail вЂ”
+  otherwise rewrite), the deviation is not an implementation detail -
   it is a review item. Present each deviation explicitly in the review
   artifact: what the mechanical form would be, what the binary actually
   does, the asm evidence, and why the deviation is required. Explicit
   owner approval must be obtained before the deviating code is written.
-  Silent deviations вЂ” however well-commented in the code вЂ” are gate
+  Silent deviations - however well-commented in the code - are gate
   violations.
    Owner clarification 2026-11-15 (dopple ctor_read 4-byte span round):
    decode-record flags and batch-level write orders do NOT constitute
@@ -766,9 +808,21 @@ no pseudocode restatements of the function body:
    in the conversation, even when pre-flagged in a decode record; future
    discrepancies are presented and approved individually, never by
    inheritance.
+   OWNER DIRECTIVE 2026-11-27 (the save_new width-literal round): A BATCH
+   APPROVAL IS NOT A DEVIATION APPROVAL. Every deviation from a mandated
+   mechanical form (a literal width where sizeof is ruled, a restructure,
+   a binding, a cast the rules would forbid) is presented as a NUMBERED
+   APPROVAL ITEM AT THE HEAD OF THE BATCH PRESENTATION - never folded
+   into the batch body as a table, a code comment, or an aside. The
+   presenter bears the burden even when the owner misses the item: the
+   batch write proceeds ONLY on the per-item sign-off, and a blanket
+   "approve" covers the batch bodies alone. Folding a deviation into
+   batch content and shipping it under the batch approval is a gate
+   violation. When in doubt whether a choice is a deviation, present it
+   as an item.
 - Base-pointer derived-field correction (the v6[1].field pattern): IDA
   pseudocode that indexes a base-typed pointer (v6[N].field) is its
-  rendering of an access to a field of a DERIVED class вЂ” IDA lacks the
+  rendering of an access to a field of a DERIVED class - IDA lacks the
   class hierarchy and falls back to stepping the pointer by the base
   size. Never transcribe the expression literally (it computes
   v6 + N*sizeof(base) + offsetof(field), an address in the derived
@@ -779,17 +833,17 @@ no pseudocode restatements of the function body:
   named field. Present the mapping (original pseudocode expression ->
   byte offset -> derived field name) in the review artifact. If the
   offset cannot be matched to a named field of a known derived struct
-  at the right width вЂ” i.e., no sane expression can be deduced вЂ” it is
+  at the right width - i.e., no sane expression can be deduced - it is
   a HARD STOP: Information Request, no code. Do not guess names the
   walker does not confirm, and do not accept a field on semantic
   plausibility alone. When the correction chain is non-trivial
   (multiple interacting mis-typed expressions), prefer the re-typed
   pseudocode request (see its rule) over manual rewriting.
 - Re-typed pseudocode requests: IDA recalibrates pseudocode well when
-  variable types are set manually. When a case is tricky вЂ” ambiguous
+  variable types are set manually. When a case is tricky - ambiguous
   base-pointer corrections, interacting mis-typed variables, artifact
   chains (param slots reused as unrelated locals, pointers typed as
-  integers driving arithmetic, byte fields indexed with word reads) вЂ”
+  integers driving arithmetic, byte fields indexed with word reads) -
   do not fight the rendering: issue an Information Request asking the
   owner for an updated pseudocode dump, stating the suspicions
   concretely: which variables are incorrectly typed, their current IDA
@@ -797,7 +851,7 @@ no pseudocode restatements of the function body:
   this over manual reinterpretation whenever the manual chain runs
   longer than a couple of steps or its result gates a semantic
   decision. A manual reinterpretation may still be used when it is
-  short, mechanical, and walker-confirmed вЂ” it must be presented in
+  short, mechanical, and walker-confirmed - it must be presented in
   the review artifact either way.
 - DIAGNOSTIC LOGGER PROCESS (owner-directed 2026-11-18, after the
    calculateYawAngle A/B harness): on owner request, ANY owned function
@@ -888,27 +942,27 @@ no pseudocode restatements of the function body:
 - Do not "improve" the algorithm. Faithful reconstruction, not refactoring.
 - Residual judgment calls that are legal under the gate (naming choices,
   comment placement, whether an equivalence is trivial) are marked
-  `// ??? <reason>` and listed in the output вЂ” but these must never touch
+  `// ??? <reason>` and listed in the output - but these must never touch
   semantics.
 - Post-write verification: after every batch write, re-scan the written
-  file вЂ” every installer reference must resolve to a definition in the
+  file - every installer reference must resolve to a definition in the
   same file, and vice versa; report the counts. Also re-run the
   pointer-walk pattern check (type-checked: pointer-typed increments are
   violations, int loop counters are fine), the redundant-guard scan (see
-  their rules), and the return-type inventory sweep вЂ” every
+  their rules), and the return-type inventory sweep - every
   replacement's declared return compared against its idb prototype's
   return (setups = int, ctors = the owning class pointer, destructors =
   void, make_new_obj = RGE_Static_Object*, make_new_master =
-  RGE_Master_Static_Object*) вЂ” and report the results. Also re-run the
+  RGE_Master_Static_Object*) - and report the results. Also re-run the
   cross-class cast sweep (every base-class call carries an explicit
-  cast) вЂ” re-run it after EVERY batch insert, including destructor
+  cast) - re-run it after EVERY batch insert, including destructor
   batches (the Animated destructor insertion postdated the original
   cast sweep and shipped one uncased base call, caught by the owner).
-  For constructor replacements: the structural audit вЂ” each ctor
+  For constructor replacements: the structural audit - each ctor
   carries its class vfptr store, the do_setup guard, and the do_setup
   body sequenced after the guard (script: per-ctor body extraction +
   membership checks; a first-version probe that searched 'setup'
-  matched the guard's own 'do_setup' substring вЂ” probe after the
+  matched the guard's own 'do_setup' substring - probe after the
   guard text). A WRITTEN ledger
   status may only be recorded after this check passes.
 - Compile gate (hard requirement): after every batch write, each
@@ -936,7 +990,7 @@ no pseudocode restatements of the function body:
    arm body correct while the dispatch partition itself is inverted
    (the enter-driver arm ran for the wrong state; the emitted table
    must equal the original's byte table exactly).
-   вЂ” the defs/refs sweep does not catch type errors (the Animated/
+   - the defs/refs sweep does not catch type errors (the Animated/
    Moving factory trios shipped 7 latent C2664/C2440 sites on
    2026-11-14, caught by the gate).
 - BRACE-DEPTH STAGE WALK (mandatory for restructured bodies, owner-
@@ -970,9 +1024,9 @@ no pseudocode restatements of the function body:
    machinery to make the mask literally appear in the listing.
 - Store-and-read diff (mandatory for construction/teardown and store-heavy
    replacements): after drafting and again post-write, mechanically
-   enumerate every memory store in the asm range вЂ” `mov [reg+disp]`
+   enumerate every memory store in the asm range - `mov [reg+disp]`
    forms with object-pointer bases (esi/edi in these frames),
-   excluding [esp] locals вЂ” and extract each target offset and width.
+   excluding [esp] locals - and extract each target offset and width.
    Diff against the written function's field-write set (field name ->
    offset via the struct; dword fields cover 4 bytes, byte fields 1).
    Every asm store must have a written counterpart covering the same
@@ -980,18 +1034,32 @@ no pseudocode restatements of the function body:
    cited bake-in (patch dword-stores count at their dword width).
    EVERY READ OFFSET ON OBJECT-POINTER BASES (fld/cmp/mov reads like
    `[eax+44h]`) must be mapped to its census-verified field name and
-   the mapping cited вЂ” a read whose offset-vs-name mapping cannot be
+   the mapping cited - a read whose offset-vs-name mapping cannot be
    cited from the census is a stop-and-fix before the write. (Shipped
    lesson: the runtime destructor's `[master+44h]` read was labeled
-   `hp` instead of `radius_z` вЂ” a hex/decimal census slip that four
+   `hp` instead of `radius_z` - a hex/decimal census slip that four
    reviews confirmed via a plausible narrative and that caused a
    shipped desync.) Report the diff table. Rationale: the runtime
    Static ctor batch shipped with a dropped `mov [esi+8Ch], al`
-   (mROOAlreadyCalled) despite a full-asm pass вЂ” the writeData patch
+   (mROOAlreadyCalled) despite a full-asm pass - the writeData patch
    store interleaving with original stores anchored attention on the
    patch region, and the following original store fell out of the
    transcription. Manual reading is insufficient; this diff is
    scripted.
+   - INTERLEAVED CALL-STORE-CALL ENUMERATION (owner-directed 2026-11-27;
+     the set_sleep_flag_new crash - the store dropped between the
+     removeObject/addObject re-registration pair, the object re-registered
+     awake while its own sleep_flag stayed set -> the later crash): the
+     diff must ENUMERATE THE ASM STORES BETWEEN CALL PAIRS - the
+     interleaved `mov [reg+disp]` sites sandwiched between two call
+     instructions are where transcription drops happen (the call anchors
+     attention on the call pair; the store between them falls out). The
+     per-function diff table lists every store WITH its position relative
+     to the calls (before/between/after); a call-pair span with an asm
+     store but no written counterpart = a stop-and-fix before the write.
+     Origin: the re-registration arm `call removeObject; mov [esi+59h],0;
+     call addObject` - the write transcribed both calls, dropped the
+     store.
  - MULTI-JCC COMPOUND CONDITIONS (the logic-operator rule, owner-directed
    2026-11-25 after the Gather dedup-loop desync - the SECOND uncaught
    logic-operator transcription error, both invisible to every prior
@@ -1018,6 +1086,15 @@ no pseudocode restatements of the function body:
    shape appears as the loop CONTINUATION guard elsewhere - the target
    check is what decides the connective, never the surface similarity
    to a previously verified compound.
+   - BAKED SIDE-CALL T** ARGUMENTS (owner-directed 2026-11-27; the
+     explore_terrain_new game-state corruption): a baked side-call's T**
+     out-slot argument carries the ORIGINAL'S slot address (the value the
+     stub pushed from its own arg area) - never the address of the
+     replacement's local holding the same value: the &local form redirects
+     the callee's out-write into a dead local AND hands the written object
+     to the downstream game consumer in place of the real record. The /Fa
+     check: the argument push must carry the original's slot lea
+     ([esi+144] = &ei in the origin case), not _local$.
 - Exit-path inventory (mandatory from 2026-11-16, owner-directed after
    the missile_move desync): after drafting and again post-write,
    enumerate the asm range's return sites (address + returned
@@ -1066,12 +1143,12 @@ no pseudocode restatements of the function body:
 1. Cleaned function(s) go to `cheatdll/src/engine/<subsystem>/<class_name>.cpp`.
    One file per engine class; it contains every replaced function of that
    class and nothing else. The subsystem is a high-level grouping invented
-   for convenience вЂ” it does not exist in the binary and carries no
+   for convenience - it does not exist in the binary and carries no
    behavioral meaning. Selection order: (i) reuse an existing directory
-   under `src/engine/` whose scope already covers the class вЂ” consistency
+   under `src/engine/` whose scope already covers the class - consistency
    beats novelty; (ii) if none fits, propose a new one derived from the
    class family's domain word (e.g. RGE_Action_* в†’ `actions`,
-   *World в†’ `world`, panels/screens/dialogs в†’ `ui` вЂ” examples of the
+   *World в†’ `world`, panels/screens/dialogs в†’ `ui` - examples of the
    derivation, not an authoritative mapping), state the one-line
    reasoning, and the owner approves it together with the first function
    placed there (constraint 9). One class lives in exactly one subsystem,
@@ -1080,7 +1157,7 @@ no pseudocode restatements of the function body:
    (`RGE_Master_Static_Object__get_sprite_new`). This is MANDATORY, not
    cosmetic: the canonical `<Class>__<method>` names are `const` function-
    pointer variables in `idb_functions.h`, included in every translation
-   unit via stdafx.h, and C++ has a single identifier space вЂ” even a
+   unit via stdafx.h, and C++ has a single identifier space - even a
    `static` function cannot reuse them. The suffix is always required
    because protocol step 1 guarantees the canonical name exists (it is
    where the address came from). Precedent: land.cpp:4, mousewheel.cpp:14,
@@ -1088,9 +1165,9 @@ no pseudocode restatements of the function body:
    overlay.cpp) are project-invented classes that never existed in the
    IDB, not replacements.
    Safety clause: `X_new` itself can be an original engine name
-   (e.g. `TRIBE_Screen_Sed__command_new`, `decoder_input_new` вЂ”
+   (e.g. `TRIBE_Screen_Sed__command_new`, `decoder_input_new` -
    idb_functions.h:3561, :6129). The final chosen identifier must have
-   zero matches across idb_functions.h / idb_types.h / common.h вЂ” one
+   zero matches across idb_functions.h / idb_types.h / common.h - one
    grep, cite it; escalate to `X_new2`, `X_new3`, ... to the first free
    name. COLLISION WITH PROJECT PATCH HANDLERS (owner-directed
    2026-11-23, the get_weapon precedent): when the occupant of the
@@ -1126,17 +1203,17 @@ replaced function's bytes. Grounded mechanics:
 
 Function byte range: from `battlegrounds_x2.lst`, find
 `.text:00XXXXXX <Class>__<name> proc near` (start) and the matching
-`endp` line (end). Range = [start, end). Verified example:
-`RGE_Master_Static_Object__get_sprite` = [0x0048B8B0, 0x0048B910).
+`endp` line (end). Range = \[start, end\). Verified example:
+`RGE_Master_Static_Object__get_sprite` = \[0x0048B8B0, 0x0048B910\).
 If no `proc near`/`endp` pair is found в†’ the range cannot be proven в†’
 escalate as a blocking item; do not install.
 
-Patch writers вЂ” two layers, one high-level logic: patch bytes at an
+Patch writers - two layers, one high-level logic: patch bytes at an
 absolute VA. Which mechanism runs (WriteProcessMemory vs the Voobly
 interface) is a build-config implementation detail; all configurations
 target the same game binary, so addresses are config-independent.
 
-Layer 1 вЂ” canonical API (grounded: common.h:51-60, common.cpp:23-130):
+Layer 1 - canonical API (grounded: common.h:51-60, common.cpp:23-130):
 | primitive                 | bytes written | effective target     |
 |---------------------------|---------------|----------------------|
 | setHook(addr, new)        | 5 (E9 rel32)  | addr                 |
@@ -1149,31 +1226,31 @@ Layer 1 вЂ” canonical API (grounded: common.h:51-60, common.cpp:23-130):
 | writeData(addr, p, len)   | len           | addr                 |
 | write_nop_seq / writeNops | len           | addr                 |
 
-Layer 2 вЂ” direct writers bypassing the API. Census below documents the
+Layer 2 - direct writers bypassing the API. Census below documents the
 current state; the greps in the protocol are the authority.
 | writer / site                                          | extent | scope                       |
 |--------------------------------------------------------|--------|-----------------------------|
-| reloc(src, dst) вЂ” conditions.cpp:871 (rel32 disp)      | 4      | call/jmp retarget at src    |
-|   conditions.cpp:995,1000                               |        | .text @0x005F207E           |
-|   conditions.cpp:974-986                                |        | trampoline copies only      |
-| g_pVoobly->WriteJump вЂ” iuserpatch.cpp:306,307,339,340, | 5      | .text, 8 literal hooks      |
-|   342,344,345,352                                       |        |                             |
-| g_pVoobly->Write(DWORD val) вЂ” wndproc.cpp:42            | 4      | .text @0x00426509           |
-| g_pVoobly->Write(hex string) вЂ” iuserpatch.cpp:303       | 6      | data @0x689BA4              |
-| WriteProcessMemory вЂ” chatcommand.cpp:753,761            | 1      | data @0x00651BC0            |
-| dsoundhook.cpp (14 sites)                               | var    | dsound.dll / COM vtables    |
-| test.cpp:399,419,440                                    | var    | user32.dll (DrawTextA)      |
-| effects.cpp:623                                          | вЂ”      | commented out (inactive)    |
-| functionlist.cpp:71,96 (WriteProcessMemory)              | вЂ”      | commented out (inactive)    |
-| FUNCTION_HOOK ctor/before_call/after_call вЂ”              | 6      | .text entry (push/retn      |
-|   functionlist.cpp:21-43,72,97 вЂ” bare memcpy of a        |        | trampoline) at any          |
-|   push/retn trampoline over the function entry;          |        | function_addresses[] entry; |
-|   table includes get_sprite @ :2111                      |        | DEAD CODE: install loop is  |
-|                                                          |        | block-commented (:9199-9216)|
-|                                                          |        | and call site dllmain.cpp   |
-|                                                          |        | :363 is commented           |
+| reloc(src, dst) - conditions.cpp:871 (rel32 disp)      | 4      | call/jmp retarget at src    |
+|   conditions.cpp:995,1000                              |        | .text @0x005F207E           |
+|   conditions.cpp:974-986                               |        | trampoline copies only      |
+| g_pVoobly->WriteJump - iuserpatch.cpp:306,307,339,340, | 5      | .text, 8 literal hooks      |
+|   342,344,345,352                                      |        |                             |
+| g_pVoobly->Write(DWORD val) - wndproc.cpp:42           | 4      | .text @0x00426509           |
+| g_pVoobly->Write(hex string) - iuserpatch.cpp:303      | 6      | data @0x689BA4              |
+| WriteProcessMemory - chatcommand.cpp:753,761           | 1      | data @0x00651BC0            |
+| dsoundhook.cpp (14 sites)                              | var    | dsound.dll / COM vtables    |
+| test.cpp:399,419,440                                   | var    | user32.dll (DrawTextA)      |
+| effects.cpp:623                                        | -      | commented out (inactive)    |
+| functionlist.cpp:71,96 (WriteProcessMemory)            | -      | commented out (inactive)    |
+| FUNCTION_HOOK ctor/before_call/after_call -            | 6      | .text entry (push/retn      |
+|   functionlist.cpp:21-43,72,97 - bare memcpy of a      |        | trampoline) at any          |
+|   push/retn trampoline over the function entry;        |        | function_addresses[] entry; |
+|   table includes get_sprite @ :2111                    |        | DEAD CODE: install loop is  |
+|                                                        |        | block-commented (:9199-9216)|
+|                                                        |        | and call site dllmain.cpp   |
+|                                                        |        | :363 is commented           |
 
-Scope facts: game .text = [0x00401000, 0x00648000) (functionlist.cpp:9210).
+Scope facts: game .text = \[0x00401000, 0x00648000\) (functionlist.cpp:9210).
 Only .text targets can collide with replaced functions. External-module
 targets (dsound.dll via GetProcAddress, COM vtable slots, user32.dll) and
 data-segment writes cannot. Trampoline patches (conditions.cpp:974-991)
@@ -1182,8 +1259,8 @@ write into allocated copies, never into original bytes.
 Protocol:
 1. Compute the function byte range from `battlegrounds_x2.lst`:
    `.text:00XXXXXX <Class>__<name> proc near` (start) through the matching
-   `endp` line (end). Range = [start, end). Verified example:
-   `RGE_Master_Static_Object__get_sprite` = [0x0048B8B0, 0x0048B910).
+   `endp` line (end). Range = \[start, end\). Verified example:
+   `RGE_Master_Static_Object__get_sprite` = \[0x0048B8B0, 0x0048B910\).
    If no `proc near`/`endp` pair is found в†’ the range cannot be proven в†’
    escalate as a blocking item; do not install.
 2. Grep all `cheatdll/**/*.cpp` for every writer in both layers: the nine
@@ -1191,13 +1268,13 @@ Protocol:
    `g_pVoobly->WriteJump`, and the FUNCTION_HOOK mechanism (~2,550 active
    call sites as of 2026-11-14). Extract the target address (apply the
    +0x400000 shift for F-variants) and keep only overlaps with
-   [start, end).
-3. Whole-repo address grep вЂ” the decisive complement: search ALL `*.cpp`
+   \[start, end\).
+3. Whole-repo address grep - the decisive complement: search ALL `*.cpp`
    and `*.h` in the repository for the function's address bytes (e.g.
    `48B8|48B9` for get_sprite). This catches table-driven patches,
    macro-hidden targets, and mechanisms the per-site writer greps miss.
    Every hit outside the IDB exports must be individually dispositioned.
-   3b. Writer-target enumeration against FULL ranges (mandatory, scripted): extract the target address from EVERY writer call site in the repository - all Layer-1/2 names AND this project's __declspec(naked) mid-function hook stubs (the patch style hooks function INTERIORS, e.g. bldg_heal_rate_save.cpp) - and test each target against EVERY owned [proc, endp) range. Entry-address literal greps DO NOT catch interior targets: the 2026-11-15 Building batch shipped two such misses (0x005C750D inside small_save, 0x005C72AF inside setup4 - the bldg_heal_rate save-format hooks) that silently reverted a shipped stream-format extension and crashed master reading. A colliding patch's behavior must be BAKED into the replacement (owner-approved) and the patch call site retired - a replacement silently reverts the patch and desyncs whatever state the patch changed. Bake-in is the DEFAULT disposition for every colliding patch; the only waiver is owner-directed, and the affected replacement lines then carry a // <PATCH_ID> marker comment (e.g. // MAP_SIZE in RGE_Visible_Map__get_visible_new) so the revert stays visible at the code site. The scan is scripted: extract targets from all writer call sites, range-test against every owned [proc, endp), report. MAP_SIZE EXCEPTION (owner-directed 2026-11-15): mapsize.cpp patches are NEVER baked regardless of the default rule - the replacement keeps the original's table/address access (e.g. unified_map_offsets), the affected replacement lines carry the // MAP_SIZE marker documenting the intentional divergence when the big-map mod re-points the patched locations, and the colliding mapsize.cpp call sites are retired in place (commented, dead-after-hook) with the not-baked reason.
+   3b. Writer-target enumeration against FULL ranges (mandatory, scripted): extract the target address from EVERY writer call site in the repository - all Layer-1/2 names AND this project's __declspec(naked) mid-function hook stubs (the patch style hooks function INTERIORS, e.g. bldg_heal_rate_save.cpp) - and test each target against EVERY owned \[proc, endp\) range. Entry-address literal greps DO NOT catch interior targets: the 2026-11-15 Building batch shipped two such misses (0x005C750D inside small_save, 0x005C72AF inside setup4 - the bldg_heal_rate save-format hooks) that silently reverted a shipped stream-format extension and crashed master reading. A colliding patch's behavior must be BAKED into the replacement (owner-approved) and the patch call site retired - a replacement silently reverts the patch and desyncs whatever state the patch changed. Bake-in is the DEFAULT disposition for every colliding patch; the only waiver is owner-directed, and the affected replacement lines then carry a // <PATCH_ID> marker comment (e.g. // MAP_SIZE in RGE_Visible_Map__get_visible_new) so the revert stays visible at the code site. The scan is scripted: extract targets from all writer call sites, range-test against every owned \[proc, endp\), report. MAP_SIZE EXCEPTION (owner-directed 2026-11-15): mapsize.cpp patches are NEVER baked regardless of the default rule - the replacement keeps the original's table/address access (e.g. unified_map_offsets), the affected replacement lines carry the // MAP_SIZE marker documenting the intentional divergence when the big-map mod re-points the patched locations, and the colliding mapsize.cpp call sites are retired in place (commented, dead-after-hook) with the not-baked reason.
     SCAN MECHANICS AMENDMENT (owner-directed 2026-11-24; the
     0x0054EF00/processUnitHook miss - a prefix pattern matching
     54F[0-1]xx silently could not produce the 54EFxx literals INSIDE
@@ -1231,7 +1308,7 @@ Protocol:
    writer call site repo-wide (Layer-1 names, reloc, Voobly
    Write*/WriteJump, WriteProcessMemory, and every __declspec(naked)
    stub's setHook/Write*), then range-test each target against every
-   [proc,endp) range. Hand-built per-range address patterns are
+   \[proc,endp\) range. Hand-built per-range address patterns are
    PROHIBITED - they are how the M6b miss happened (the hand pattern
    covered 4A6C/4A6F but not the 4A6D/4A6E interior, missing
    playeroptions.cpp:206 setHook(0x004A6E95, on_evac_area) inside
@@ -1274,19 +1351,19 @@ A bake-in is suggested only if the patched bytes can be mapped through
 grounded links: patch address в†’ instruction line(s) in
 `battlegrounds_x2.lst` в†’ the pseudocode construct that emitted them. If
 no such mapping exists (compiler-internal code, alignment padding), do
-not invent one: suggest keeping the old patch active instead вЂ” after
-replacement it writes into dead code вЂ” and state why no bake-in exists.
+not invent one: suggest keeping the old patch active instead - after
+replacement it writes into dead code - and state why no bake-in exists.
 * Constant/immediate patch (writeByte/Word/Dword/Data on operand bytes):
   name the constant to change in the cleaned source and the statement it
   belongs to. Mark the changed line `// baked: <patch file:line> @ <addr>`.
 * NOP patch over instructions: name the statement(s) to remove or alter,
   same citation standard.
 * Call/jmp redirect (setHookCall, reloc): replace the callee with the
-  redirect target in the cleaned source. Read the target's source first вЂ”
-  it is project C++ in cheatdll, no IDA work needed вЂ” and adapt arguments;
+  redirect target in the cleaned source. Read the target's source first -
+  it is project C++ in cheatdll, no IDA work needed - and adapt arguments;
   cite the handler file:line.
 * Entry hook (setHook / WriteJump at [start, start+5)): genuine conflict,
-  never bakeable in place. Present exactly two options вЂ” never "keep
+  never bakeable in place. Present exactly two options - never "keep
   both", the last writer wins and the hook chain breaks:
   (i) fold the old hook handler's behavior into the cleaned function
       (requires reading the naked thunk + handler source; most faithful),
@@ -1313,7 +1390,7 @@ Every applied bake-in is listed in the output as a table row: patch site в†�
 bytes в†’ lst line в†’ mapped statement в†’ transformed statement в†’ status.
 
 Retirement of folded patches: when a patch is baked into a replacement,
-the original patch call site is COMMENTED OUT in place вЂ” never deleted вЂ”
+the original patch call site is COMMENTED OUT in place - never deleted -
 with a reason line: `// retired <date>: baked into <replacement function>
 (<source path>), see <original address>`. Already-dead comment lines stay
 as they are. Thunk definitions whose references are all retired remain
@@ -1321,7 +1398,7 @@ defined (unreferenced is harmless); only their call sites are retired.
 Patches that do not overlap replaced functions stay untouched and active.
 
 ## Required output when the gate passes
-All of the following is delivered in the conversation for review вЂ” nothing
+All of the following is delivered in the conversation for review - nothing
 is written to the repository without approval (constraint 9):
 1. The cleaned function(s), ready to paste into the project, with the
    installer per the Deliverable section.
@@ -1329,47 +1406,47 @@ is written to the repository without approval (constraint 9):
    collision with its bake-in suggestion (or "no collisions" verdict, plus
    non-literal targets left for manual review).
 3. "Judgment calls": residual cosmetic decisions, ranked by risk. If this
-   list contains anything that affects semantics, the gate failed вЂ” the
+   list contains anything that affects semantics, the gate failed - the
    function must not be here.
 4. "Suspicion": any provided type/prototype that looks inconsistent with
-   the code вЂ” flagged, not changed.
+   the code - flagged, not changed.
 5. "Follow-ups": callees revealed as important to decompile next, or types
    that appear incomplete.
 
 ## Input
 ### Prototype (fixed, do not change)
-{{PROTOTYPE вЂ” e.g. `void __thiscall CPlayer::Update(float dt)` or
+{{PROTOTYPE - e.g. `void __thiscall CPlayer::Update(float dt)` or
 `int __usercall foo@<eax>(int a@<ecx>, float b@<st0>)`. The original
 address is NOT required in the input: the agent resolves it from
 idb_functions.h by exact `Class__method` name match, which simultaneously
 corroborates the signature and calling convention.}}
 
 ### Relevant type definitions (verbatim from project headers)
-{{TYPES вЂ” anything NOT pasted here AND NOT found verbatim in the reference
+{{TYPES - anything NOT pasted here AND NOT found verbatim in the reference
 files below is treated as unknown and will trigger a refusal, not an
 assumption.}}
 
 ### Known names referenced by this function
-{{NAMES вЂ” usually unnecessary: functions resolve from idb_functions.h,
+{{NAMES - usually unnecessary: functions resolve from idb_functions.h,
 structs from idb_types.h, globals from common.h/common.cpp. Paste only
 symbols that exist in none of the reference files.}}
 
 ### Project reference files (agent-resolvable)
 The repository contains six authoritative files the agent MUST consult
 before declaring anything unknown. Verbatim content found in them has the
-same grounding status as pasted input вЂ” category (a) of the gate:
+same grounding status as pasted input - category (a) of the gate:
 
-* `cheatdll/src/idb/idb_types.h` (37k lines) вЂ” all struct definitions and
+* `cheatdll/src/idb/idb_types.h` (37k lines) - all struct definitions and
   typedefs
-* `cheatdll/src/idb/idb_functions.h` (6.4k lines) вЂ” all known function
+* `cheatdll/src/idb/idb_functions.h` (6.4k lines) - all known function
   prototypes, keyed by original address
-* `cheatdll/common.h` вЂ” declarations of engine data-global slots
+* `cheatdll/common.h` - declarations of engine data-global slots
   (extern pointer-to-T constants) and project helper prototypes
-* `cheatdll/common.cpp` вЂ” the concrete engine addresses bound to those
+* `cheatdll/common.cpp` - the concrete engine addresses bound to those
   data globals
-* `cheatdll/src/idb/battlegrounds_x2.c` (15 MB, 465k lines) вЂ” full IDA
+* `cheatdll/src/idb/battlegrounds_x2.c` (15 MB, 465k lines) - full IDA
   pseudocode dump, address-keyed
-* `cheatdll/src/idb/battlegrounds_x2.lst` (64 MB, 1.1M lines) вЂ” full IDA
+* `cheatdll/src/idb/battlegrounds_x2.lst` (64 MB, 1.1M lines) - full IDA
   disassembly listing, address-keyed
 
 Lookup protocol:
@@ -1398,17 +1475,17 @@ Lookup protocol:
    resolve via `common.h` (declaration/type) + `common.cpp` (bound
    address). A data symbol absent from both is still a refusal trigger.
    The project's pointer-to-slot convention means IDA's `glob->field`
-   translates to `(*glob)->field` вЂ” that single explicit deref is the
+   translates to `(*glob)->field` - that single explicit deref is the
    approved equivalence; note it in the output.
 5. Transitive closure: every type named in a field you actually access
    must itself be resolved the same way, unless it is only used as an
    unexercised pointer target. Gate check 1 applies per-access, not
    per-name.
 6. Pseudocode: if {{PSEUDOCODE}} was not pasted, pull the function body
-   from `battlegrounds_x2.c` вЂ” search for the `//----- (00XXXXXX) ------`
+   from `battlegrounds_x2.c` - search for the `//----- (00XXXXXX) ------`
    marker of the resolved address and read until the next marker. Cite
    line numbers.
-7. Assembly: pull evidence from `battlegrounds_x2.lst` вЂ” search
+7. Assembly: pull evidence from `battlegrounds_x2.lst` - search
    `.text:00XXXXXX` prefixed lines between the function's `proc near` and
    `endp` lines. This is the source for gate checks 4вЂ“6, switch-table
    restoration, and the collision range. Cite line numbers.
@@ -1434,7 +1511,7 @@ Lookup protocol:
    2026-11-16). Pull function bodies by NAME/address; cite addresses.
 9. The functions file writes `this_` explicitly as the first parameter
    of __thiscall pointers; when emitting C++ member-syntax or thiscall
-   calls, that parameter is the hidden `this` вЂ” do not treat it as an
+   calls, that parameter is the hidden `this` - do not treat it as an
    extra argument.
 10. Enum values appear in none of the reference files. Any enum constant
    in the pseudocode is a refusal trigger unless pasted into {{TYPES}}.
@@ -1444,7 +1521,7 @@ Lookup protocol:
      stored verified relation - or a stored verified-unrelated verdict -
      applies directly.
    * Otherwise verify by layout prefix: the narrower struct's field
-     sequence (name, type, order вЂ” normalize the vfptr field, whose named
+     sequence (name, type, order - normalize the vfptr field, whose named
      vtable type legitimately differs per class) must be an exact prefix
      of the wider struct's. Cross-check the vtbl structs: slot names in
      order must match as a prefix. Cite both line ranges.
@@ -1454,7 +1531,7 @@ Lookup protocol:
    * Baseв†’derived casts additionally require runtime-type evidence that
      the instance really is the derived type (IDA's own typing of the
      object, a constructor's vfptr assignment in battlegrounds_x2.lst,
-     or an established store entry) вЂ” without it: Suspicion or refusal.
+     or an established store entry) - without it: Suspicion or refusal.
    * No prefix relationship and no store entry в†’ unrelated types в†’ hard
      stop: Information Request, no code.
 12. Absence claims are prohibited from truncated searches: to claim a
@@ -1462,15 +1539,15 @@ Lookup protocol:
    (e.g. `^struct Name\s*\{`) over the whole file, untruncated, and cite
    the pattern used. A partial mention sample is never evidence of
    absence.
-13. Call-site context: when a parameter's purpose is unclear вЂ” or naming
-   would otherwise stay mechanical (a2, v3) вЂ” examine the function's call
+13. Call-site context: when a parameter's purpose is unclear - or naming
+   would otherwise stay mechanical (a2, v3) - examine the function's call
    sites (lst XREFs, surrounding caller asm, or project-source callers)
    to infer semantics before settling names. Cite the call sites. The
    inferred meaning is reported in the output and proposed for the state
-   file as verified context вЂ” never invented beyond what the sites show.
+   file as verified context - never invented beyond what the sites show.
 
 ### Session state file
-`cheatdll/src/idb/DECOMP_STATE.md` вЂ” read it FIRST, at session start. It
+`cheatdll/src/idb/DECOMP_STATE.md` - read it FIRST, at session start. It
 holds verified environment facts, owner rulings, the verified type
 hierarchy, open suspicions, and the function ledger. Rules:
 * State entries are LEADS, never grounding. Anything used in code must
@@ -1480,7 +1557,7 @@ hierarchy, open suspicions, and the function ledger. Rules:
   fact, a suspicion, an approval), output the proposed state-file entry
   in the conversation; it is written only on owner approval
   (constraint 9).
-* Every entry must carry its citation and a re-verify hint вЂ” entries rot;
+* Every entry must carry its citation and a re-verify hint - entries rot;
   the hint is the invalidation mechanism.
 * STATE-ENTRY CONCISION (owner-directed 2026-11-25/26): an entry is a
   LEDGER LINE, not a report. One compact bullet per unit of work - what
@@ -1491,22 +1568,22 @@ hierarchy, open suspicions, and the function ledger. Rules:
   in the conversation and the code comments - the state file carries
   only what a FRESH SESSION needs to resume. If an entry reads longer
   than roughly a dozen lines, it is a rewrite, not an append.
-* Companion: `cheatdll/src/idb/DECOMP_GAME_FACTS.md` вЂ” owner-supplied
+* Companion: `cheatdll/src/idb/DECOMP_GAME_FACTS.md` - owner-supplied
   game-level semantics (object_group registry, magic-constant findings
   registry). Context for naming/comments only; never grounding.
 
 ### IDA pseudocode
-{{PSEUDOCODE вЂ” optional: if omitted, the agent pulls the body from
+{{PSEUDOCODE - optional: if omitted, the agent pulls the body from
 battlegrounds_x2.c by the resolved address (protocol step 6).}}
 
 ### (Optional) IDA disassembly of the function
-{{ASM вЂ” optional: the agent pulls it from battlegrounds_x2.lst (protocol
+{{ASM - optional: the agent pulls it from battlegrounds_x2.lst (protocol
 step 7). Strongly recommended in practice for anything touching floats,
 width/sign ambiguity, switches, or calling conventions; several gate
 checks effectively require it and will refuse without it.}}
 
 ### Overrides (rare, explicit, per-item)
-{{OVERRIDE lines, if any вЂ” e.g. `OVERRIDE: accept low confidence on
+{{OVERRIDE lines, if any - e.g. `OVERRIDE: accept low confidence on
 field +0x1C width` or `OVERRIDE: apply bake-in of patch at <file:line>`.
 Everything not explicitly overridden stays gated.}}
 

@@ -3,62 +3,21 @@
 
 extern int current_loaded_version;
 
-bool __fastcall gbg_is_shielded_new(RGE_Static_Object* obj)
-{
-    int x = obj->world_x;
-    int y = obj->world_y;
-
-    if (obj->inside_obj)
-    {
-        x = obj->inside_obj->world_x;
-        y = obj->inside_obj->world_y;
-    }
-    
-    if ((obj->master_obj->object_flags & 0x40) != 0)
-        return true;
-
-    switch (obj->master_obj->object_group)
-    {
-    case 6:
-    case 59:
-        return false;
-    case 43:
-    case 48:
-    case 62:
-    case 63:
-    case 64:
-        return obj->owner->attributes[38] > 0.0f && obj->master_obj->id != 1273;
-    default:
-        break;
-    }
-
-    switch (obj->master_obj->id)
-    {
-    case 4:
-    case 977:
-        if (obj->owner->attributes[51] > 0.0f)
-            return true;
-        break;
-    case 12:
-        if (obj->owner->attributes[33] > 0.0f)
-            return true;
-        break;
-    case 4069:
-    case 4778:
-    case 5904:
-        if (current_loaded_version >= 7)
-            return false;
-        break;
-    default:
-        break;
-    }
-
-    return RGE_Tile__is_shielded(&obj->owner->world->map->map_row_offset[y][x], obj->owner->id);
-}
+// TOMBSTONED 2026-11-27: ADOPTED VERBATIM as RGE_Static_Object__is_shielded_new
+// (src/engine/object/RGE_Static_Object.cpp, batch S4) per the collision naming
+// rule - the handler was a full reimplementation hooked at the is_shielded
+// entry 0x0054BC40 (setShieldHooks retired below). The adopted body carries
+// the deliberate deltas: the version-gated master-id extension {4069,4778,
+// 5904} at DAT v7+ (current_loaded_version >= 7), the group-59 partition
+// restructure (59 -> the return-false case), and the int-truncation form.
 
 #pragma optimize( "s", on )
 void setShieldHooks()
 {
-    setHook((void*)0x0054BC40, gbg_is_shielded_new);
+    // retired 2026-11-27: the entry hook is superseded by the ADOPTED
+    // RGE_Static_Object__is_shielded_new (the canonical _new took over; the
+    // E9 here would fight it - the last installer wins and the adoption IS
+    // the replacement)
+    //setHook((void*)0x0054BC40, gbg_is_shielded_new);
 }
 #pragma optimize( "", on )

@@ -8358,3 +8358,304 @@ single-pass (max 912 B set_state).
     jump-table predicate; the store-and-read diff; the concision
     directive for the state additions; the DIAG removal at each tier's
     ship."
+
+## SESSION (2026-11-26/27): THE STATIC RUNTIME-METHODS LADDER — 100/139 HOOKS, ALL IN-GAME VERIFIED, SHIP-STATE
+
+The Static runtime-methods project advanced from 6/139 to **100/139 exports
+owned and hook-routed** (the RGE_Static_Object.cpp installer 100 setHook
+lines, defs/refs 100/100 exact per batch). ALL IN-GAME TESTS CLEAN
+(owner-confirmed — the joint pass over the S1/S2a/S2b/S2c/S2c-2 batches
+closed the validation debt).
+
+- BATCH S2a (13+1 = 14 hooks, the 48-77B tier): gbg_isResourceBuilding,
+  calculateDamage, inLockedFormation, add_obj, release_being_worked_on,
+  set_facet, can_be_healed, can_be_repaired, capture_frame, draw_back_frame,
+  destroy_obj, set_attribute_amount, more_room, rehook (the encoding-review
+  approval round). GROUNDINGS: the runtime struct walk (idb_types.h:1447 —
+  master_obj @0x14, owner @0x18, sprite_list @0x24, inside_obj @0x2C,
+  objects @0x30, hp @0x3C, facet @0x45, selected @0x46, world_x/y/z
+  @0x48/4C/50, attribute_amount_held @0x54, object_state @0x58, worker_num
+  @0x5F, mGroupID @0x88); the runtime vtbl slots (def @3958 line-arith:
+  gbg_isBiological 24, gbg_isDamaged 25, teleport 42 = +0xA8 double,
+  set_object_state 53, calculateDamage 59 = +0xEC, destroy_obj 56,
+  die_die_die 57, handle_teleport_z_correction 43 double, exit_obj 85,
+  enter_obj 84, more_room 83, release_being_worked_on 80, add_obj 86,
+  can_be_healed 27, can_be_repaired 28, rehook 39, garrisoned_count 162,
+  create_object_list 169, set_attribute_amount 63, heal 64;
+  RGE_Active_Sprite_ListVtbl::set_facet 8 = +0x20 (__int16, int, int);
+  TRIBE_PlayerVtbl::isAlly 9 = +0x24); (*base_game)->outline_type @+0x70 /
+  game_mode @+0x1E0; SDI_Capture_Info already in common.h @0x0077FA70.
+- BATCH S2b (12 hooks, the 88-105B tier): heal, create_object_list,
+  take_attribute_from_owner, rotate, create_sprite_list, remove_shadows,
+  gbg_isPadawan (the jedimaster CONDITIONAL BAKE - the EXPL_DROID class),
+  get_frame, give_attribute_to_owner, draw_front_frame, play_unload_sound
+  (the stale-value return flow: the early exits return the intermediate
+  pointers as the int), change_unique_id (the removeObject slot 73 /
+  addObject slot 72 pair, the recyclable-gated id generators).
+- BATCH S2c + S2c-2 (12 + 9 hooks, the 108-182B tier): set_sleep_flag,
+  spawn_death_obj, handle_teleport_z_correction (the air groups
+  {43,48,59,62,63,64}, the double 1.0), gbg_unknown23, gbg_isBiological
+  (the medic_worker bake), gbg_isDetector, isFlagSet, modify_percent,
+  lookupZone, currentZone, withinRangeOfZone, findClosestPointInTerrainType
+  (the zone-family resolve chain), modify_delta, shadow_draw,
+  addToPathingGroup, is_powered (the self-powered set), distance_to_position,
+  teleport_off_map, gbg_isMaster (the jedimaster conditional bake), inRange,
+  distance_to_object2.
+- GAME FACTS WRITTEN (the owner-approved): gbg_unknown23 = the worker
+  armament classifier; gbg_isBiological = the biological test; the worker
+  name-digit civ classes (PARTIAL); medic_worker = the biological worker
+  civs {2, 6, 10} (the owner-corrected decode + THE LESSON: the membership
+  chains decode by the cumulative arithmetic at each site, never inherited
+  from the sibling); gbg_isDetector (the attributes 58/23 gates);
+  is_powered = the self-powered set; the isPadawan/isMaster vanilla id
+  sets; handle_teleport_z_correction = the flyer z rules;
+  RGE_Master_Player::master_objects @+0x30; the zone-family resolve chain;
+  gbg_unknown_4 = the unload-sound index (PARTIAL). The master_id
+  candidates 109/82 (+199/1239 rows) in the designations table; the
+  object_flags consumed-by-decode notes for the bits 3/4/5.
+
+DESYNC FIXES THIS SESSION (3, all root-caused + gated + in-game verified):
+- THE SET_SLEEP_FLAG CRASH: the dropped interleaved store [esi+59h]=0
+  @0x5529EB between the removeObject/addObject re-registration pair - the
+  object re-registered awake while its own flag stayed set -> the later
+  crash. FIXED (the store restored); the store-and-read diff now 6/6.
+- THE distance_to_position DESYNC: the mulss 24-bit square (the float xa
+  local squared in float where the original squares at the x87 register
+  precision) - found via THE A/B HARNESS (the raw %a bits: the delta =
+  exactly ~1 float ULP = the single-rounding signature) - FIXED
+  ((double)xa * (double)xa) + the same-class sweep (inRange's
+  range*range/obja*obja, distance_to_object2's v10*v10/obja*obja; the
+  mulss census 0 across all three).
+- THE gbg_isBiological DESYNC (the owner-fixed): my medic_worker bake
+  transcribed the membership offsets {2,6,8} (anchored on the vanilla
+  chain) where the stub's cumulative chain = {2, 6, 10} - the civ-10 AI
+  worker rejected as non-biological. THE LESSON (in the game facts): the
+  membership chains decode by the cumulative arithmetic at each site,
+  never inherited from the sibling function.
+
+THE A/B HARNESS BUILT AND RETIRED (the diagnostic process): the
+distance_to_position pair (the naked _orig trampoline - the replay
+fld+fsub, the resume 0x551C67 (the owner corrected my 0x551C63 resume:
+the jump target must account for the FULL consumed span, not just the
+replayed bytes); the IN/OUT rows with the rand state @0x69EC98, the wt,
+the raw %a bits; the held-handle val_log_dtp.txt form (the owner's
+edit)). The logs localized the mulss in one round. REMOVED (the
+zero-diagnostic-symbol sweep ALL 0: val_log/diag_log/_orig/logger/
+g_distTraceOrig/fopen = 0 file-wide; defs/refs 100/100 post-removal).
+
+THE INVENTORY CORRECTIONS: the Static remaining 127 -> 85 (the handoff's
+figure predated S1's 45 hooks); the "Combat 53/53 COMPLETE" claim
+WRONG - the real attack3 @0x4443C0 (857B, the RGE fire function,
+TRIBE_Combat__attack2+1C0 calls it) is UNOWNED; what C1 owns at 0x445510
+is moveTo3 (the 55B forwarder). THE COLLISION SCAN: the langdll medic_worker
+@0x54BA2B baked (the conditional... no - UNCONDITIONAL bake, the stub was
+"KEEP - live"); the jedimaster masters_hooks @0x54B1D0 = the STANDING
+bake inventory for gbg_isMaster (the conditional bake SHIPPED in
+gbg_isMaster_new).
+
+NEW GROUNDINGS: RGE_Static_ObjectVtbl def @idb_types.h:3958 (the
+line-arith slot authority); RGE_Active_Sprite_ListVtbl @7567 (set_facet
+slot 8 = +0x20, shadow_draw slot 5 = +0x14); TRIBE_PlayerVtbl (isAlly 9
+= +0x24, add_attribute_num 32 = +0x80, addObject 72 = +0x120,
+removeObject 73 = +0x124); the master census pins (id @24, copy_id @26,
+object_group @30, hp @50, los @52, obj_max @56 (u8), radius_x/y/z
+@60/64/68, movement_type @120, attribute_max_amount @140, object_flags
+@172 (the byte tests), death_spawn_obj_id @88 (word), recyclable @188);
+RGE_Sprite::name @+0x54 (sound_list @+0x50); BUnitGroup::mFormationLocked
+@+0xF4 (the mCurrentCommand @+828 anchor calibration); RGE_Base_Game:
+outline_type @+0x70, prog_mode @+0x1DC, game_mode @+0x1E0 (the '{'-line
+walker bug documented: the struct walk must skip the brace line);
+TRIBE_World: terrain_size @+0x5E, terrains @+0x60, master_players @+0x54
+(the RGE_Master_Player* elements - master_objects @+0x30 in THAT struct
+vs TRIBE_Player's @+0x74); world_time @+0x10.
+
+NEXT-SESSION OPENER (paste as the opening prompt):
+"Read DECOMP_STATE.md, DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md,
+DECOMP_GAME_FACTS.md in cheatdll/src/idb/ first. STATE: the Static
+runtime-methods ladder at 100/139 - ALL IN-GAME VERIFIED, SHIP-STATE
+(the S2a/S2b/S2c/S2c-2 batches; the set_sleep_flag crash fix, the
+distance_to_position mulss fix via the retired A/B harness, the
+gbg_isBiological medic-chain fix (the owner's civ {2,6,10} decode)).
+THE GAME FACTS: the gbg_* predicate rows + the zone chain + the id
+sets written. THE INVENTORY: Static remaining 38 (the big-body tier:
+the draw family 433-2825B incl. capture_frame_3d_square, setup 617 /
+setup_read 713, save 541 / the setup_read/save family, teleport 1207,
+damage 238, transform 501, recycle_in_to_game 589, check_damage_sprites
+578, find_drop_location 723, enter_obj 236, copy_obj 253, explore_terrain
+296 / unexplore 261, new_sprite 298, is_invisible 264, remove_visible_
+resource 325, is_shielded 337, set_object_state 347, drop_held_objects
+356, setOrientation 418, get_3d_sound_info 492, box_hit_test 502, hit_
+test 219, modify 225, create_doppleganger_when_dying 228, normal_draw
+211, logDebug 249, find_closest_resource 1571, distance_to_object 132,
+...); TRIBE_Combat 75 / TRIBE_Building 70 runtime methods; the Combat
+attack3 @0x4443C0 857B (the RGE fire function - the real one, the
+TRIBE sibling shares the shape). IMMEDIATE: (1) the Static big-body
+tier smallest-first (the two-pass bar: size >= 4096 OR the
+gotos+back-edges conjunction OR the desync fallback OR the owner
+override); (2) the Combat attack3 dedicated decode (the TRIBE sibling
+bakes: 0x55A881 in TRIBE_Combat__update, 0x55BE40 in attack3, the
+SoldierAI ctor hook); (3) TRIBE_Combat 75 / TRIBE_Building 70 runtime
+methods smallest-first. PROTOCOL: the approval gate before every write;
+the switch-table byte comparison (or the documented partition form) for
+every jump-table predicate; the store-and-read diff ENUMERATED per
+function (the set_sleep_flag class: the interleaved call-store-call
+sequences are where stores get dropped); the /Fa census INCLUDING the
+immediate-value comparison for every membership chain (the medic_worker
+class: the cumulative arithmetic per site, never the sibling's set);
+the X87_LT_NAN/LE_NAN/EQ_NAN/NE_ORD macro mandate for every
+unordered-inclusive clamp and gate (the distance_to_position class);
+the precise bracket for the 53-bit chains; the concision directive for
+the state additions; the DIAG harness removal + the zero-symbol sweep
+at each ship; the stale-claim audit at every handoff (the inventory
+numbers rot). THE FOUR NEW TEMPLATE RULES (landed 2026-11-27, the session block below): the interleaved call-store-call enumeration (the store-and-read diff), the membership-chain cumulative decode (the cleanup rules), the (j-2) float-local square audit (the rule-(j) family), the struct-walker brace rule (the allocation-size bullet) - READ THEM at session start."
+
+PROTOCOL ADDITIONS THIS SESSION (the four candidates owner-approved
+2026-11-27 and LANDED IN DECOMP_TEMPLATE.md): (1) THE INTERLEAVED
+CALL-STORE-CALL ENUMERATION (after the store-and-read diff bullet) -
+the diff enumerates the asm stores BETWEEN call pairs (the
+set_sleep_flag class); (2) THE MEMBERSHIP-CHAIN CUMULATIVE DECODE
+(after the local-variables bullet) - the sub-chain offsets are
+cumulative values, decoded per site with the immediate citations, never
+pattern-matched from the sibling (the medic_worker class); (3) THE
+FLOAT-LOCAL SQUARE AUDIT - rule (j-2) after rule (j) - every float
+local squared = the mulss risk; the explicit (double) casts required
+when the original squares at the register precision (the
+distance_to_position class); (4) THE STRUCT-WALKER BRACE RULE (after
+the allocation-size bullet) - the struct walks skip the opening brace
+line; a walk disagreeing with a pinned anchor is a walker bug, not an
+IDB defect (the false +4 drift class that cost three verification
+rounds).
+
+- BATCH S3 (8 hooks, 77-249B, all single-pass; installer 100 -> 108; IN-GAME
+  VERIFIED): gbg_isObjectSpriteDisplayed (slot 18; the animatedterrain hook
+  @0x54BA83 = DEAD INSTALLER, dllmain:489 commented - no bake per the owner),
+  normal_draw (slots +140/+136/+16; color_table @+356 walk-verified), modify
+  (the membership chain {0,1,21} cumulative-decoded; the rule-(k) bracket),
+  create_doppleganger_when_dying (make_new_obj_2 slot +120, the dopple-vtbl-only
+  decl idb_types.h:21953; master_objects[243]; 2 MAP_SIZE markers, mapsize.cpp:
+  1765/1766 retired), enter_obj (7 slots + OL_Delete/removeUnit/unselect_one_
+  object direct), damage (the calculateDamage st0 double captured exact; LE_NAN
+  x2 + the LT_NAN 01h mask; 1.5f = 3FC00000; the rand/srand save-restore),
+  hit_test (slot +4; the +-radius scan), logDebug (slot 118, the cdecl
+  stack-this varargs; fprintf/vsprintf_internal + logDebugOn/logDebugID/debugOut
+  bindings approved). Scan 2,925 / 3 hits / 0 active. Gate 3/3; sweeps 108/108.
+  Re-verify: the installer 108 lines; the retired sites grep = 0.
+
+- BATCH S4 (8 hooks, 261-356B, all single-pass; installer 108 -> 116; IN-GAME
+  VERIFIED): is_invisible (the stealth1 bake - the getStealthOff UNIT_EXTRA
+  gate; casts.cpp:870 retired), is_shielded (THE VERBATIM ADOPTION of
+  shield.cpp's handler - the v7-gated ids {4069,4778,5904}; shield.cpp
+  tombstoned), new_sprite (the precise bracket), remove_visible_resource
+  (track_as_resource @189 / resource_group @191 census candidates; the dead
+  removed[9]; the MAP_SIZE marker - mapsize.cpp:1764 retired, the line INSIDE
+  the function), set_object_state (slots 54/55 = +216/+220 NEW; master->los =
+  FLOAT @52; the owner's _countof amendment), explore/unexplore (the explore_log
+  LOS-depth bakes at the four Visible_Map sites; los.cpp:1037-1040 retired; the
+  0.01f pool 3F847AE140000000), drop_held_objects (the scratch = 4x30 anchor
+  tables + found_x - anchor 1 = the carrier, the 29 cap; slots 42/85/49).
+  Scan 2,931 / 7 hits / 5 dispositions. Gate 5/5; sweeps 116/116.
+  Re-verify: the installer 116 lines; the retired sites grep = 0.
+
+- S4 DESYNC (explore_terrain_new corrupted game state; FIXED + IN-GAME
+  VERIFIED): the explore_log bake passed &exp_data (the local's address) where
+  the stub passes the EI address - the chain-head write clobbered the local,
+  the malloc'd node went to RGE_Visible_Map as the ExpData, ei.theObj never got
+  the chain. FIXED x4 (both unexplore arms incl.): (UNIT_LOS_DATA **)exp_data.
+  /Fa: lea edi,[esi+144] + push edi x4; the flag pairs match the stubs. The
+  template rule: a baked side-call T** argument carries the ORIGINAL'S slot
+  address, never &local.
+
+- BATCH S5-A (2 hooks; installer 116 -> 118; IN-GAME VERIFIED): transform (the
+  bank/apply loops _countof; the hp ratio = (double)hp / i16-master->hp + 1e-7f
+  at 53-bit, flt_6565EC; the Remove/Update obstruction slots 11/10 - the .c's
+  5-arg render WITHDRAWN, the raw asm 2-arg form; slots 38/89/88/44/1),
+  box_hit_test (the sprite_list get_facetindex slot 11 = +0x2C; the get_frame
+  pair direct :574/:3763; the 8-gate i16 ladder + the AND-of-OR cross test -
+  the truth table verified). Scan 0 hits. Gate 1/1; sweeps 118/118.
+
+- BATCH S5-B (2 hooks; installer 118 -> 120; IN-GAME VERIFIED): setOrientation
+  (the x87 walk - the y2+x2 normalize, the (1,0,1)/sqrt2 diagonal dot, the acos
+  facet walk, the fc/q rule-(e) pair, the cross-sign mirror; X87_EQ_NAN x2 (the
+  .c's literal == diverges) + X87_LE_NAN (the .5-round); facet_num @RGE_Sprite
+  +0x70 i16; the set_facet slot +0x20 with the ftol'd (y,x) pair; the u param
+  unused), get_3d_sound_info (the three-branch vis partition 15/128/other with
+  map_visible_flag @0xBF59 / fog_flag @0xBF5A gates; view_x/y @TRIBE_Player
+  +0x178/0x17C; sound_falloff_ratio @TRIBE_World+160, draw_system @+104,
+  ScreenWidth @+44 - NEW groundings; the 2000.0f pool binary-verified; the
+  pan/volume clamps; the setnle return). Both precise-bracketed; the constants
+  binary-verified from the exe. Scan 0 hits. Gate 1/1; sweeps 120/120.
+
+- BATCH S5-C (4 hooks; installer 120 -> 124; IN-GAME VERIFIED): draw (the
+  occlusion arms @master+168, the dopple branch TYPED - CantSeeBits @208/
+  doppled_object @184 via the RGE_Doppleganger_Object cast, the type-25 branch
+  = the runtime evidence; the capture compound truth table; the switch
+  partition {2,3} - NO table emitted, the compare-chain form; the pointer-to-
+  slot DEREF forms throughout), draw_frame (the hp bar 26px/25*hp/max integer
+  math; the color indices binary-verified 0xFF/0x24/0xF1 + the common.h
+  bindings), draw_frame_3d_square_back (the GDI outline: the get_view_panel
+  slot 12 +0x30 CONFIRMED via the game vtbl line-arith; the get_point pair
+  out-params __int16*; the GDI imports), fill_pathable_map (the recursive
+  flood fill; the self-call hook-routed; the runtime-sized allocations; the
+  idb-alias noted - the lst name wins). VIOLATIONS FIXED pre-write (the owner
+  catch): the pointer-to-slot derefs, the typed dopple form, the goto-free
+  join, the truth table, the switch table at decode, the LOBYTE narrowing.
+  Gate 1/1; sweeps 124/124.
+
+- S5-C DESYNC (draw_new; owner-reported: the air-unit shadows at the wrong
+  position; FIXED + IN-GAME VERIFIED): the list-draw arm's screen/shadow pairs
+  SWAPPED - the .c's v10-v13 staging snapshots misread (the decoded order =
+  facet, screen pair, shadow pair, color, area). The bare-sprite arm was
+  correct - the swap = list-arm only. /Fa re-verified: the push order at the
+  slot-3 dispatch (facet, 52+x, 54+y, 56+x, 58+y, color, area). LESSON (in the
+  template's decode rules): the IDA staging-snapshot chains decode by the FINAL
+  assignment order at the call, never by the snapshot sequence.
+
+- BATCH S6 (4 hooks; installer 124 -> 128; IN-GAME VERIFIED): save (the
+  30-field stream, ALL widths sizeof-exact per the owner directive - the two
+  sub-field-width writes via the typed staging locals (owner_id_b/the low byte,
+  short sprite_id/the low word); underAttackValue @134 NEW pin; the live-reload
+  count loop), check_damage_sprites (the damage pct = the INT ftol then the
+  BYTE-width 100- (the healed-unit wrap per the asm); the stride-8 crossing
+  ladder; flag 0/1/2 = the list add/the rand-position get_point add/the sprite
+  swap; flt_656604 = 2/32767 binary-verified; the RAND_MAX_INTERNAL form - the
+  folded pool 3F10002000400080 bit-identical), recycle_in_to_game/setup (the
+  twins - the field ladders, the hp = (float)(int)i16-master->hp, the sleep
+  literal-> MATCH rows, the attribute pick (last-match) + re-apply (flag 1-2),
+  the facet magic-imul walk /RAND_MAX_INTERNAL, the teleport 3-arg (x,y,z) -
+  the .c's 1-arg render withdrawn per the member, addObject slot 72, the
+  created_sound gate - combat_comparison @0x6A35FC bound + deref, the
+  mPathingGroupSize ORDER CONTRAST honored (recycle before/setup after the
+  sound), the id pool constants :6087/:6088). Gate 1/1; sweeps 128/128.
+
+- S6 DESYNC (owner bisects; FIXED + IN-GAME VERIFIED): (1)
+  check_damage_sprites_new: TWO divergences - the pct float-local form (the
+  store-round + the negative-float->u8 = 0 vs the asm's byte-wrap 206 for the
+  healed units) -> the INT ftol + the u8 wrap; the flag-1 position chain (the
+  ox/fx float locals = two store-rounds the original never does) -> the double
+  locals with the asm's join order, the casts only at the get_point args. /Fa:
+  the sub ch,al byte form; the single cvtpd2ps+movss at the store. (2)
+  save_new: THE S6 COLLISION SCAN WAS NEVER RUN (the M6b class) - the
+  los.cpp:1034/1035 pair (0x54F766/0x54F757) sat INSIDE save's range; my
+  replacement killed the LOS-depth save extension -> the load side
+  (los_read_save @0x54C7C2 in the unowned setup_read) desynced. FIXED: the
+  los_write_save2((UNIT_LOS_DATA *)this_->ei.theObj, outfile) bake gated on
+  is_los_save_option_enabled(this_) (the this-fix's ebp=esi folded; the
+  by-value chain head - the write-save READS the chain vs explore_log which
+  writes the slot); the los.cpp sites retired (los_read_save STAYS LIVE).
+  The sizeof rule APPLIED per the owner directive (no numeric literals).
+  LESSONS (in the template): the batch-approval gate (a batch approval is not
+  a deviation approval - the deviations = the numbered items at the head of
+  the presentation, the presenter bears the burden); the in-presentation
+  collision scan (never deferred to the write step); the baked side-call T**
+  argument rule. PROTOCOL CARRIED: the per-deviation sign-off (never slipped
+  through the batch approval).
+
+- STATIC RUNTIME REMAINING 10 (the recount at the next session start; the
+  named queue): change_ownership 634, setup_read 713 (the los_read_save
+  @0x54C7C2 interior hook = the STANDING BAKE INVENTORY), find_drop_location
+  723, draw_frame_3d_square_front 826, draw_frame_3d_cube_back 946, teleport
+  1207, find_closest_resource 1571 (THE TWO-PASS MANDATE), draw_frame_3d_cube_
+  front 2327, capture_frame_3d_square 2825 (live-cited from draw_new), + one
+  more per the recount. THE DRAW FAMILY = the decode-adjacent cluster.
+  Re-verify: the .lst proc list vs the installer hooks (128 + set_Selected_
+  Groups in the Action installer).

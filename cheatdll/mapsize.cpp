@@ -1761,9 +1761,20 @@ void setMapSizeHooks(int ver)
     //writeDword(0x47026F, (DWORD)mapptr);
     //writeDword(0x4702CE, (DWORD)mapptr);
     //writeDword(0x47046B, (DWORD)mapptr);
-    writeDword(0x55079D, (DWORD)mapptr);
-    writeDword(0x5508C8, (DWORD)mapptr);
-    writeDword(0x55094A, (DWORD)mapptr);
+    // retired 2026-11-27: NOT baked (owner-directed MAP_SIZE rule) - the
+    // RGE_Static_Object::remove_visible_resource replacement keeps the
+    // original's unified_map_offsets base with a // MAP_SIZE marker at the
+    // tile UMV read (src/engine/object/RGE_Static_Object.cpp); after hooking
+    // this disp32 write is dead code (target 0x55079D)
+    //writeDword(0x55079D, (DWORD)mapptr);
+    // retired 2026-11-27: NOT baked (owner-directed MAP_SIZE rule) - the
+    // RGE_Static_Object::create_doppleganger_when_dying replacement keeps
+    // the original's unified_map_offsets base with // MAP_SIZE markers at
+    // both accesses (src/engine/object/RGE_Static_Object.cpp); after
+    // hooking these disp32 writes are dead code (targets 0x5508C8 in the
+    // tile UMV read, 0x55094A in the add_doppleganger_check tile address)
+    //writeDword(0x5508C8, (DWORD)mapptr);
+    //writeDword(0x55094A, (DWORD)mapptr);
 
     // retired 2026-11-15: NOT baked (owner-directed MAP_SIZE rule) - the
     // TRIBE_Building runtime ctor replacements keep the original's

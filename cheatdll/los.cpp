@@ -1031,13 +1031,25 @@ void setLOSHooks()
     // setHook((void*)0x0054B691, los_destructor);
     // setHook((void*)0x0054C0A7, los_recycle_out);
     setHook((void*)0x0054C7C2, los_read_save);
-    setHook((void*)0x0054F766, los_write_save);
-    setHook((void*)0x0054F757, los_write_save_this_fix);
+    // retired 2026-11-27: baked into RGE_Static_Object__save_new (batch S6 -
+    // src/engine/object/RGE_Static_Object.cpp) - the LOS save extension
+    // (los_write_save2 + the option gate) folds at the stream tail; the
+    // this-fix's ebp=esi is folded (the replacement passes this_ directly);
+    // after hooking these entry writes are dead code (targets 0x0054F766 /
+    // 0x0054F757). los_read_save @0x0054C7C2 STAYS LIVE (setup_read is
+    // unowned - the load side reads the baked save side's extension)
+    //setHook((void*)0x0054F766, los_write_save);
+    //setHook((void*)0x0054F757, los_write_save_this_fix);
 
-    setHook((void*)0x0055163E, on_explore);
-    setHook((void*)0x00551766, on_unexplore);
-    setHook((void*)0x005516C6, on_explore_sq);
-    setHook((void*)0x005517DC, on_unexplore_sq);
+    // retired 2026-11-27: baked into RGE_Static_Object__explore_terrain_new /
+    // RGE_Static_Object__unexplore_terrain_new (src/engine/object/
+    // RGE_Static_Object.cpp, batch S4) - the explore_log side-calls fold at
+    // the four Visible_Map call sites (0x0055163E / 0x00551766 / 0x005516C6 /
+    // 0x005517DC)
+    //setHook((void*)0x0055163E, on_explore);
+    //setHook((void*)0x00551766, on_unexplore);
+    //setHook((void*)0x005516C6, on_explore_sq);
+    //setHook((void*)0x005517DC, on_unexplore_sq);
 
     //LoS depth
     setHook((void*)0x006151EF, visible_map_constructor1_1);

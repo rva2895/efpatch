@@ -867,7 +867,10 @@ void setCastHooks()
     // (src/engine/object/RGE_Moving_Object.cpp, batch M4), see 0x004A6250 (SPEED_MOD)
     // setHook((void*)0x004A6250, speed4);
 
-    setHook((void*)0x0054BB42, stealth1);
+    // retired 2026-11-27: baked into RGE_Static_Object__is_invisible_new
+    // (src/engine/object/RGE_Static_Object.cpp, batch S4) - the getStealthOff
+    // gate folds ahead of the original stealth test (see 0x0054BB42)
+    // setHook((void*)0x0054BB42, stealth1);
 
     setHook((void*)0x004AF323, writeSaveHook);
     setHook((void*)0x004AEEEE, readSaveHook);

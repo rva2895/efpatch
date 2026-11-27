@@ -406,6 +406,12 @@ char* (__cdecl* const fgets_internal)(char* Buf, int MaxCount, FILE* File) =
 char* (__cdecl* const mbsupr_internal)(char* str) =
     (char* (__cdecl* const)(char*))0x0063658F;
 
+int (__cdecl* const vsprintf_internal)(char* Dest, const char* Format, va_list Args) =
+    (int (__cdecl* const)(char*, const char*, va_list))0x0063352F;   // the game's CRT vsprintf
+
+int (__cdecl* const fprintf_internal)(FILE* File, const char* Format, ...) =
+    (int (__cdecl* const)(FILE*, const char*, ...))0x0063399F;       // the game's CRT fprintf
+
 // --- the owned pathing scratch globals (completely ours - the definitions,
 // NOT bound to the game's .data slots; the reference set is closed and all
 // four referencing functions are owned - see common.h) ----------------------
@@ -419,3 +425,14 @@ int* const dword_689568 = (int* const)0x00689568;
 int* const dword_68956C = (int* const)0x0068956C;
 float* const flt_68F494 = (float* const)0x0068F494;
 int* const walk_tile_particles_enabled = (int* const)0x0068957C;
+
+// the RGE_Static_Object::logDebug debug globals (the game's trace logger)
+int* const logDebugOn = (int* const)0x006A3618;
+int* const logDebugID = (int* const)0x0068955C;
+FILE** const debugOut = (FILE** const)0x0077FBA8;
+
+// the draw_frame selection/hp-bar color indices (the palette-index bytes)
+unsigned __int8* const byte_69B550 = (unsigned __int8* const)0x0069B550;
+unsigned __int8* const color_red = (unsigned __int8* const)0x0069B553;
+unsigned __int8* const byte_69B554 = (unsigned __int8* const)0x0069B554;
+unsigned __int8* const combat_comparison = (unsigned __int8* const)0x006A35FC;
