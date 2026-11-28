@@ -193,4 +193,8 @@ extern FILE** const debugOut;     // 0x77FBA8 - the FILE* slot logDebug lazily o
 extern unsigned __int8* const byte_69B550;   // 0x69B550 - the selection frame box color (0xFF)
 extern unsigned __int8* const color_red;     // 0x69B553 - the hp-bar trough fill (0x24 = 36)
 extern unsigned __int8* const byte_69B554;   // 0x69B554 - the hp-bar level fill color (0xF1 = 241)
+extern unsigned __int8* const color_gray;    // 0x69B551 - the unselected capture frame color (0x85 = 133)
+extern unsigned __int8* const color_yellow;  // 0x69B555 - the sp-bar fill / the &4 selected frame color (0xF3 = 243)
+extern unsigned __int8* const color_black;   // 0x7A1C60 - the capture-frame shadow color (the game sets it at init)
+extern int* const dword_692450;              // 0x692450 - the capture assert id (the debug trap comparison)
 extern unsigned __int8* const combat_comparison;   // 0x6A35FC - the combat-mode byte gating the created-sound play

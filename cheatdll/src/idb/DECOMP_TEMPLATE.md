@@ -820,6 +820,23 @@ no pseudocode restatements of the function body:
    batch content and shipping it under the batch approval is a gate
    violation. When in doubt whether a choice is a deviation, present it
    as an item.
+   OWNER DIRECTIVE 2026-11-27 (the S7 scope clarification - amends the
+   paragraph above): the numbered-item gate exists to catch PROTOCOL
+   VIOLATIONS, not to tax choices the rules expressly permit. THE TEST:
+   blanket approval must never constitute approval of something done in
+   violation of the protocol. A choice that VIOLATES a mandated form (a
+   literal width where sizeof is ruled, a forbidden cast, a restructure
+   the equivalence rules do not cover, a rule bypassed) = a numbered
+   item - it is the confession mechanism. A choice the rules PERMIT (the
+   inlined-function fold, the redundant-guard collapse, the pure-call
+   hoist, the mandated bake disposition, the mandated precise bracket,
+   a readability restructure with the documented equivalence proof) is
+   NOT an approval item: it ships under the batch approval, documented
+   where the rules require it (the RESTRUCTURE comment + the review
+   artifact listing). Never manufacture per-item gates for compliant
+   work; never bury a violation in the batch body. The presenter's
+   burden is unchanged: do not violate the protocol, and number
+   everything that would need forgiveness if seen after the fact.
 - Base-pointer derived-field correction (the v6[1].field pattern): IDA
   pseudocode that indexes a base-typed pointer (v6[N].field) is its
   rendering of an access to a field of a DERIVED class - IDA lacks the

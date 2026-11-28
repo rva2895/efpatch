@@ -1030,14 +1030,12 @@ void setLOSHooks()
     // setHook((void*)0x0054B61D, los_constructor_read);
     // setHook((void*)0x0054B691, los_destructor);
     // setHook((void*)0x0054C0A7, los_recycle_out);
-    setHook((void*)0x0054C7C2, los_read_save);
-    // retired 2026-11-27: baked into RGE_Static_Object__save_new (batch S6 -
-    // src/engine/object/RGE_Static_Object.cpp) - the LOS save extension
-    // (los_write_save2 + the option gate) folds at the stream tail; the
-    // this-fix's ebp=esi is folded (the replacement passes this_ directly);
-    // after hooking these entry writes are dead code (targets 0x0054F766 /
-    // 0x0054F757). los_read_save @0x0054C7C2 STAYS LIVE (setup_read is
-    // unowned - the load side reads the baked save side's extension)
+    // setHook((void*)0x0054C7C2, los_read_save);
+    // retired 2026-11-27: baked into RGE_Static_Object__setup_read_new (batch
+    // S7 - src/engine/object/RGE_Static_Object.cpp): the option gate +
+    // los_read_save2(&ei.theObj, infile) fold at the re-registration join
+    // (0x0054C7C2); the stub's replayed objects-clear + resume (0x54C7C9)
+    // are the replacement's own tail lines.
     //setHook((void*)0x0054F766, los_write_save);
     //setHook((void*)0x0054F757, los_write_save_this_fix);
 

@@ -43,6 +43,10 @@ extern int current_loaded_version;
 extern void __stdcall los_write_save2(UNIT_LOS_DATA* los_data, int outfile);
 // los.cpp:81 (__stdcall) - the option byte gate (owner+0x21 >= 0xD)
 extern bool __stdcall is_los_save_option_enabled(RGE_Static_Object* unit);
+// los.cpp:91 (__stdcall) - the LOS-depth mod's load extension (the flag +
+// x/y/radius reload into the ei.theObj chain head); BAKED into setup_read_new
+// (batch S7; the los.cpp:1033 site retired)
+extern void __stdcall los_read_save2(UNIT_LOS_DATA** los_data, int infile);
 
 // .rdata vftable of RGE_Static_Object (.rdata:00662C8C, lst :994791)
 static RGE_Static_ObjectVtbl* const rge_static_object_vftable =
@@ -3460,19 +3464,35 @@ char __fastcall RGE_Static_Object__get_3d_sound_info_new(RGE_Static_Object *this
                                                                           // asm 0x552B36-0x552B49: fld st / fadd st,st(2) (dy+dx) / fmul
                                                                           // [edx+0A0h] (sound_falloff_ratio @160 - NEW GROUNDING) / ftol /
                                                                           // *pan = eax
-    int screen_term = (int)((double)this_->screen_y_offset * 2000.0f
-        / (*base_game)->draw_system->ScreenWidth);
+    double screen_term = (double)this_->screen_y_offset * 2000.0f
+        / (*base_game)->draw_system->ScreenWidth;
                                                                           // asm 0x552B4B-0x552B6F: movsx word [esi+36h] @54 / [ecx+68h]
                                                                           // draw_system @104 - NEW GROUNDING / fild / fmul flt_662B84
                                                                           // (44FA0000 = 2000.0f BINARY-VERIFIED raw 0x262B84) / fidiv
-                                                                          // [edx+2Ch] ScreenWidth @44
-    *volume = (int)((dy - dx) * this_->owner->world->sound_falloff_ratio + screen_term);
+                                                                          // [edx+2Ch] ScreenWidth @44 - the quotient stays UNROUNDED on
+                                                                          // st0 (the faddp consumes it at 53-bit; the intermediate
+                                                                          // (int) store-round the first write added is withdrawn - the
+                                                                          // rule-(e) class)
+    int volume_raw = (int)((dy - dx) * this_->owner->world->sound_falloff_ratio + screen_term);
                                                                           // asm 0x552B72-0x552B7E: fxch / fsub st,st(2) (dy-dx) / fmul ratio /
                                                                           // faddp / ftol
-    if (*volume <= 0)                                                 // asm 0x552B83-0x552B87: test eax,eax; jle
-        *volume = *volume * 3;                                        // asm 0x552BB2: lea edx,[ecx+ecx*2]
+    // DESYNC FIX (owner-reported wrong 3d sound info; the strict re-walk
+    // found THE FIRST VOLUME BLOCK dropped in the first write): the raw
+    // value folds into 0..1000 FIRST (v15 <= 0 -> v15 + 1000; else
+    // 1000 - v15), and only THEN the *3 / zero block runs on the STORED
+    // value. The shipped form had jumped straight to the *3 / zero block
+    // on the raw value - the out-param value-transform class (no memory
+    // stores between the two writes; the store-and-read diff sees the
+    // same two out-param stores on both sides - only this instruction-
+    // level re-walk catches it).
+    if (volume_raw <= 0)                                                  // asm 0x552B83-0x552B87 (test eax,eax; jle loc_552B98)
+        *volume = volume_raw + 1000;                                      // asm 0x552B98-0x552BA2 (lea ecx,[eax+3E8h]; mov [eax],ecx)
     else
-        *volume = 0;                                                  // asm 0x552BAA
+        *volume = 1000 - volume_raw;                                      // asm 0x552B89-0x552B94 (mov edx,3E8h; sub edx,eax; mov [eax],edx)
+    if (*volume <= 0)                                                     // asm 0x552BA4-0x552BA8 (the SECOND block - on the STORED value)
+        *volume = *volume * 3;                                            // asm 0x552BB2: lea edx,[ecx+ecx*2]
+    else
+        *volume = 0;                                                      // asm 0x552BAA
     if (*pan < -1000)                                                 // asm 0x552BB9: cmp 0FFFFFC18h; jge skips
     {
         *volume += 2 * (3 * *pan + 3000);                             // asm 0x552BC1-0x552BD0: lea edx,[edx+edx*2+0BB8h] / shl 1
@@ -3512,7 +3532,7 @@ void __fastcall RGE_Static_Object__draw_frame_3d_square_back_new(RGE_Static_Obje
                                                                           // asm: the DIRECT call (:1523)
         {
             SelectClipRgn(render_area->DrawDc, panel->clip_rgn);      // asm 0x54DA00: ds:SelectClipRgn
-            SelectObject(render_area->DrawDc, GetStockObject(6));     // asm 0x54DA08-0x54DA13: NULL_PEN
+            SelectObject(render_area->DrawDc, GetStockObject(WHITE_PEN)); // asm 0x54DA08-0x54DA13 (stock object 6 = WHITE_PEN)
             __int16 sx0 = this_->screen_x_offset + x;                 // asm: mov dx,[esi+34h] @52 / add
             __int16 sy0 = this_->screen_y_offset + y;                 // asm: [esi+38h] @56 + y
             short px[2];
@@ -4160,6 +4180,1225 @@ int __fastcall RGE_Static_Object__setup_new(RGE_Static_Object *this_, DWORD dumm
     return 1;                                                         // asm: mov eax,1 / retn 4
 }
 
+// ---------------------------------------------------------------------------
+// BATCH S7 (2026-11-27): change_ownership / setup_read / find_drop_location
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// change_ownership @0x0054FF20 [0x54FF20,0x55019A): the ownership transfer.
+// The new-owner master-table presence gate, the selected-unselect, the hp
+// ratio capture (this->hp / old master->hp at 53-bit, store-rounded - the
+// float local IDA mislabels onto the new_owner param slot; the *(float*)
+// &new_owner render is that esp-relative slot), the take-twin attribute
+// removal (flag == 2, negated) from the old owner, the object_state == 2
+// unexplore, the old-owner removeObject, the new-owner addObject (the node
+// kept), the sprite refetch from the new owner's master (normal/death/
+// undead with the get_sprite fallback), the civ-override ladder, the
+// ownership swap + the hp percentage rescale, the object_state == 2
+// re-explore on the NEW owner (the field RE-READ after the re-registration
+// calls), the give-twin attribute add (flag 1-2) to the new owner, the 523
+// owner-changed notify (a new 5xx registry candidate). RESTRUCTURE (the
+// inlined-function rule): the asm inlines take_attribute_from_owner /
+// give_attribute_to_owner's bodies verbatim (the flag gates, the negation,
+// the per-iteration master/owner reloads - the S2b replacements) - the
+// owned replacements called through the idb constants (hooked, route).
+// RESTRUCTURE (the hoisting precedent): the asm re-calls the pure
+// get_unit_civ 2-3x per ladder path; the written form calls it once per
+// path - value-identical.
+void __fastcall RGE_Static_Object__change_ownership_new(
+    RGE_Static_Object* this_, DWORD dummy, RGE_Player* new_owner)
+{
+    RGE_Master_Static_Object* old_master = this_->master_obj;               // asm 0x54FF2E mov eax,[esi+14h]
+    if (new_owner->master_objects[old_master->id] == 0)                     // asm 0x54FF2B-0x54FF39 (movsx word [eax+18h]; cmp [edx+ecx*4],0)
+        return;                                                             // asm jz loc_550195 (the shared epilogue)
+    if ((this_->selected & 1) != 0)                                         // asm 0x54FF3F test byte [esi+46h],1
+        RGE_Player__unselect_one_object((RGE_Player*)this_->owner, this_);  // asm 0x54FF49 call :2619 (the dual-naming cast)
+    float hp_ratio = (float)((double)this_->hp / (double)old_master->hp);   // asm 0x54FF5D-0x54FF71 (fild [master+32h]; fdivr [esi+3Ch]; fstp - the store-rounded ratio)
+    RGE_Static_Object__take_attribute_from_owner(this_);                    // asm 0x54FF75-0x54FFBF THE INLINED take twin (flag == 2; negated; the OLD owner)
+    if (this_->object_state == 2)                                           // asm 0x54FFC1 cmp byte [esi+58h],2
+        this_->vfptr->unexplore_terrain(this_, (RGE_Player*)this_->owner,   // asm 0x54FFD5 call [eax+164h] slot 89
+            0, -1, 0);
+    this_->owner->vfptr->removeObject(                                      // asm 0x54FFE1-0x54FFF1 push node/dopple/sleep/this; call [edx+124h] slot 73
+        this_->owner, this_, this_->sleep_flag, this_->dopple_flag,
+        this_->player_object_node);
+    this_->player_object_node = new_owner->vfptr->addObject(                // asm 0x54FFF7-0x550011 push dopple/sleep/this; call [edx+120h] slot 72; mov [esi+68h],eax
+        new_owner, this_, this_->sleep_flag, this_->dopple_flag);
+    RGE_Master_Static_Object* new_master =
+        new_owner->master_objects[old_master->id];                          // asm 0x550014-0x55001C (movsx id; [ecx+eax*4])
+    RGE_Sprite* swap_sprite;
+    if (this_->sprite == old_master->vfptr->get_sprite(old_master, this_))              // asm 0x55001F-0x550029 call [edx+4] slot 1; cmp [esi+1Ch]
+        swap_sprite = new_master->vfptr->get_sprite(new_master, this_);             // asm 0x55002B-0x550030 call [eax+4]
+    else if (this_->sprite == old_master->vfptr->get_death_sprite(old_master, this_))   // asm 0x550035-0x550041 call [edx+0Ch] slot 3
+        swap_sprite = new_master->vfptr->get_death_sprite(new_master, this_);        // asm 0x550043-0x550048 call [eax+0Ch]
+    else if (this_->sprite == old_master->vfptr->get_undead_sprite(old_master, this_))  // asm 0x55004D-0x550059 call [edx+10h] slot 4
+        swap_sprite = new_master->vfptr->get_undead_sprite(new_master, this_);       // asm 0x55005B-0x550060 call [eax+10h]
+    else
+        swap_sprite = new_master->vfptr->get_sprite(new_master, this_);              // asm 0x550065-0x55006A call [edx+4] (the fallback)
+    if (swap_sprite != 0)                                                   // asm 0x550082 test eax,eax; jz loc_55007C
+        this_->vfptr->new_sprite(this_, swap_sprite);                       // asm 0x550076 call [edx+0B0h] slot 44
+
+    if (this_->owner->id != new_owner->id)                                  // asm 0x55007C-0x55008D ([eax+0A0h] vs [ebx+0A0h]; cmp; jz loc_5500E6)
+    {
+        int civ = RGE_Master_Static_Object__get_unit_civ(this_->master_obj);      // asm 0x550092 call :1901 (the pure getter re-called 2-3x per path - hoisted)
+        if (civ != 0 && this_->gbg_civ_override != civ)                     // asm 0x550097-0x5500A6 (test; jz join; cmp [esi+4]; jz join)
+            this_->gbg_civ_override = civ;                                  // asm 0x5500A8-0x5500E3 (mov [esi+4],eax)
+        else if (this_->owner->id == 0                                      // asm 0x5500B2-0x5500BD (test eax,eax; jnz skip)
+            && this_->master_obj->master_type <= 0x46)                      // asm 0x5500C2-0x5500C6 (cmp byte [ecx+4],46h; ja skip - RGE_MASTER_TYPE_COMBAT)
+        {
+            civ = RGE_Master_Static_Object__get_unit_civ(this_->master_obj);      // asm 0x5500C8 call (the re-call hoisted)
+            if (civ != 0)                                                   // asm 0x5500CD test eax,eax; jz loc_5500DB
+                this_->gbg_civ_override = civ;                              // asm 0x5500D1-0x5500D9
+            else
+                this_->gbg_civ_override = new_owner->culture;               // asm 0x5500DB-0x5500DD (xor eax,eax; mov al,[ebx+0A5h] - culture @165)
+        }
+    }
+    this_->owner = (TRIBE_Player*)new_owner;                                // asm 0x5500E6 mov [esi+18h],ebx (the RGE_Player* -> TRIBE_Player* family cast; the .c's own v4 cast)
+    this_->master_obj = new_master;                                         // asm 0x5500E9 mov [esi+14h],edi
+    this_->hp = (float)((double)new_master->hp * hp_ratio);                 // asm 0x5500EC-0x550101 (movsx [edi+32h]; fild; fmul ratio; fstp [esi+3Ch])
+    if (this_->object_state == 2)                                           // asm 0x5500F4-0x550104 (mov al,[esi+58h] BEFORE the hp store; cmp al,2; jnz - the RE-READ after the re-registration calls)
+        this_->vfptr->explore_terrain(this_, (RGE_Player*)new_owner, 0, -1, 0);   // asm 0x550111 call [edx+160h] slot 88
+    RGE_Static_Object__give_attribute_to_owner(this_);                      // asm 0x550126-0x550172 THE INLINED give twin (flag 1-2; positive; the NEW owner)
+    this_->vfptr->notify(this_, this_->id, this_->id, 523,                  // asm 0x550174-0x55018D push 0/0/[ebx+0A0h]/20Bh/[esi+10h]x2; call [edx+1E0h] slot 120
+        new_owner->id, 0, 0);                                               // (523 = the owner-changed notify - the registry candidate; the .c's 4-arg render drops the two trailing zeros)
+}
+
+// ---------------------------------------------------------------------------
+// setup_read @0x0054C510 [0x54C510,0x54C7D9): the save-format loader - the
+// stream twin of setup_new. Reads the object state from infile (the
+// rge_read ladder, sizeof-form widths), rebuilds owner/master/sprite from
+// the world tables, replays the goto_sleep->sleep clear quirk, rebuilds the
+// pathing-group chain, conditionally loads the sprite list, then
+// re-registers with the owner's lists (the sleep/dopple/normal split; the
+// id==0 owner takes the player addObject path, node discarded) and the
+// world. THE LOS BAKE (los.cpp:1033 @0x0054C7C2, the re-registration join):
+// the LOS-depth mod's load-side extension - the option-gated x/y/radius
+// reload into the ei.theObj chain head - folds ahead of the objects/
+// selected clears; the stub's replayed store + resume (0x54C7C9) are the
+// tail's own lines. Patch call site retired.
+int __fastcall RGE_Static_Object__setup_read_new(
+    RGE_Static_Object* this_, DWORD dummy, int infile, RGE_Game_World* gworld)
+{
+    this_->type = 10;                                                       // asm 0x54C527 mov byte [esi+5Eh],0Ah (RGE_MASTER_TYPE_STATIC)
+    this_->shield_hit_timer = 0.0f;                                         // asm 0x54C52B mov [esi+0Ch],ebp
+    unsigned __int8 owner_ix = 0;
+    rge_read(infile, &owner_ix, sizeof(owner_ix));                          // asm 0x54C52E push 1 (the and eax,0FFh at 0x54C53B = the u8 read)
+    this_->owner = (TRIBE_Player*)gworld->players[owner_ix];                // asm 0x54C537-0x54C54A ([ebx+4Ch]; [ecx+eax*4]; the RGE_Player** -> TRIBE_Player* family cast per the .c)
+    __int16 master_ix = 0;
+    rge_read(infile, &master_ix, sizeof(master_ix));                        // asm 0x54C551 push 2
+    this_->master_obj = this_->owner->master_objects[master_ix];            // asm 0x54C556-0x54C56C (movsx; [ecx+74h]; [edx+eax*4])
+    __int16 sprite_ix = 0;
+    rge_read(infile, &sprite_ix, sizeof(sprite_ix));                        // asm 0x54C56F push 2
+    if (sprite_ix >= 0)                                                     // asm 0x54C574-0x54C57C (cmp ax,bp; jl loc_54C58C)
+        this_->sprite = gworld->sprites[sprite_ix];                         // asm 0x54C57E-0x54C587 ([ebx+44h]; movsx; [edx+ecx*4])
+    else
+        this_->sprite = 0;                                                  // asm 0x54C58C mov [esi+1Ch],ebp
+    this_->old_sprite = 0;                                                  // asm 0x54C597 mov [esi+20h],ebp
+    int inside_ix = 0;
+    rge_read(infile, &inside_ix, sizeof(inside_ix));                        // asm 0x54C59A push 4
+    if (inside_ix == -1)                                                    // asm 0x54C5A3 cmp eax,-1; jnz loc_54C5AD
+        this_->inside_obj = 0;                                              // asm 0x54C5A8 mov [esi+2Ch],ebp
+    else
+        this_->inside_obj = (RGE_Static_Object*)(inside_ix + 1);            // asm 0x54C5AD inc eax; mov [esi+2Ch],eax (the +1 encoding verbatim)
+    rge_read(infile, &this_->hp, sizeof(this_->hp));                        // asm 0x54C5B1 (+3Ch)
+    rge_read(infile, &this_->sp, sizeof(this_->sp));                        // asm 0x54C5BD (+40h)
+    rge_read(infile, &this_->shield_recharge_accumulator,
+        sizeof(this_->shield_recharge_accumulator));                        // asm 0x54C5C9 (+8h)
+    rge_read(infile, &this_->object_state, sizeof(this_->object_state));    // asm 0x54C5D5 (+58h)
+    rge_read(infile, &this_->sleep_flag, sizeof(this_->sleep_flag));         // asm 0x54C5E4 (ebx = &sleep_flag @0x54C5E1)
+    rge_read(infile, &this_->dopple_flag, sizeof(this_->dopple_flag));      // asm 0x54C5EF (+5Ah)
+    rge_read(infile, &this_->goto_sleep_flag, sizeof(this_->goto_sleep_flag));  // asm 0x54C5FE (ebp = &goto_sleep_flag @0x54C5FB)
+    if (this_->goto_sleep_flag != 0)                                        // asm 0x54C609 cmp byte [ebp+0],0; jz loc_54C612
+        this_->sleep_flag = 0;                                              // asm 0x54C60F mov byte [ebx],0
+    rge_read(infile, &this_->id, sizeof(this_->id));                        // asm 0x54C612 (+10h)
+    rge_read(infile, &this_->facet, sizeof(this_->facet));                  // asm 0x54C61E (+45h)
+    rge_read(infile, &this_->world_x, sizeof(this_->world_x));              // asm 0x54C62A (+48h)
+    rge_read(infile, &this_->world_y, sizeof(this_->world_y));              // asm 0x54C636 (+4Ch)
+    rge_read(infile, &this_->world_z, sizeof(this_->world_z));              // asm 0x54C642 (+50h)
+    rge_read(infile, &this_->screen_x_offset, sizeof(this_->screen_x_offset));  // asm 0x54C64E (+34h)
+    rge_read(infile, &this_->screen_y_offset, sizeof(this_->screen_y_offset));  // asm 0x54C65A (+36h)
+    rge_read(infile, &this_->shadow_x_offset, sizeof(this_->shadow_x_offset));  // asm 0x54C666 (+38h)
+    rge_read(infile, &this_->shadow_y_offset, sizeof(this_->shadow_y_offset));  // asm 0x54C672 (+3Ah)
+    rge_read(infile, &this_->attribute_type_held,
+        sizeof(this_->attribute_type_held));                                // asm 0x54C67E (+5Ch)
+    rge_read(infile, &this_->attribute_amount_held,
+        sizeof(this_->attribute_amount_held));                              // asm 0x54C68A (+54h)
+    rge_read(infile, &this_->worker_num, sizeof(this_->worker_num));        // asm 0x54C696 (+5Fh)
+    rge_read(infile, &this_->curr_damage_percent,
+        sizeof(this_->curr_damage_percent));                                // asm 0x54C6A2 (+44h)
+    rge_read(infile, &this_->damaged_lately_timer,
+        sizeof(this_->damaged_lately_timer));                               // asm 0x54C6AE (+78h)
+    rge_read(infile, &this_->underAttackValue, sizeof(this_->underAttackValue));  // asm 0x54C6BA (+86h)
+    rge_read(infile, &this_->gbg_civ_override, sizeof(this_->gbg_civ_override));  // asm 0x54C6C9 (+4h)
+    this_->tile = 0;                                                        // asm 0x54C6DF mov [esi+28h],ebp
+    int group_count = 0;
+    rge_read(infile, &group_count, sizeof(group_count));                    // asm 0x54C6D7 (var_10; the jle entry test collapses into the loop condition - the redundant-guard rule)
+    for (int i = 0; i < group_count; i++)                                   // asm 0x54C6EF-0x54C70F
+    {
+        int uID = 0;
+        rge_read(infile, &uID, sizeof(uID));                                // asm 0x54C6EF-0x54C6F7
+        RGE_Static_Object__addToPathingGroup(this_, uID);                   // asm 0x54C703 call :3888 (the DIRECT call - HOOKED, routes)
+    }
+    rge_read(infile, &this_->mGroupID, sizeof(this_->mGroupID));            // asm 0x54C711 (+88h)
+    rge_read(infile, &this_->mROOAlreadyCalled,
+        sizeof(this_->mROOAlreadyCalled));                                  // asm 0x54C720 (+8Ch)
+    unsigned __int8 has_sprite_list = 0;
+    rge_read(infile, &has_sprite_list, sizeof(has_sprite_list));            // asm 0x54C72F (into the infile param slot - the named-local form)
+    if (has_sprite_list != 0)                                               // asm 0x54C740 test al,al; jz loc_54C763
+    {
+        this_->sprite_list = this_->vfptr->create_sprite_list(this_);       // asm 0x54C748 call [edx+2A8h] slot 170
+        RGE_Active_Sprite_List__load(this_->sprite_list, infile,
+            gworld->sprites);                                               // asm 0x54C75C call :557 @0x422EF0
+    }
+    else
+    {
+        this_->sprite_list = 0;                                             // asm 0x54C763 mov dword [esi+24h],0
+    }
+    if (this_->owner->id == 0)                                              // asm 0x54C76D-0x54C775 ([ecx+0A0h]; test; jnz loc_54C78D)
+    {
+        this_->owner->vfptr->addObject(this_->owner, this_,                 // asm 0x54C777-0x54C785 call [eax+120h] slot 72 (the node DISCARDED)
+            this_->sleep_flag, this_->dopple_flag);
+    }
+    else
+    {
+        if (this_->sleep_flag != 0)                                         // asm 0x54C790 cmp byte [ebx],0; jz loc_54C798
+            RGE_Player_Object_List__Add_node(this_->owner->sleeping_objects, this_);  // asm 0x54C792-0x54C7AB ([ecx+7Ch])
+        else if (this_->dopple_flag != 0)                                   // asm 0x54C79E test al,al; jz loc_54C7A8
+            RGE_Player_Object_List__Add_node(this_->owner->doppleganger_objects, this_);  // asm 0x54C7A0 ([ecx+80h])
+        else
+            RGE_Player_Object_List__Add_node(this_->owner->objects, this_);  // asm 0x54C7A8 ([ecx+78h])
+        this_->owner->world->vfptr->addObject(this_->owner->world, this_);  // asm 0x54C7B0-0x54C7BC ([eax+8Ch]; [edx+11Ch] TRIBE_WorldVtbl slot 71 - the node DISCARDED)
+    }
+
+    // BAKED (los.cpp:1033 @0x0054C7C2, the re-registration join): the
+    // LOS-depth mod's load-side extension. The stub: push esi; call
+    // is_los_save_option_enabled; test al,al; jz skip; lea eax,[esi+90h];
+    // push edi (infile); push eax; call los_read_save2; skip: replays the
+    // objects-clear and resumes at 0x54C7C9 (the full 7-byte mov consumed).
+    // The T** argument carries the ORIGINAL's slot address (&ei.theObj
+    // @+0x90 - the explore_terrain rule), never a local.
+    if (is_los_save_option_enabled(this_))
+        los_read_save2((UNIT_LOS_DATA**)&this_->ei.theObj, infile);
+    this_->objects = 0;                                                     // asm 0x54C7C2 (the stub's replayed instruction)
+    this_->selected = 0;                                                    // asm 0x54C7C9 mov byte [esi+46h],0
+    return 1;                                                               // asm 0x54C7D0 mov eax,1
+}
+
+// ---------------------------------------------------------------------------
+// find_drop_location @0x00552180 [0x552180,0x552453): the drop-site point
+// finder - up to 50 attempts of a 4-way random edge pick around the drop
+// point (the 4*rand/RAND_MAX_INTERNAL select; the rand == RAND_MAX draw is
+// sel == 4 = the NO-WRITE default - the buffers keep their prior values),
+// the x/y zero + map-bounds gates (a bounds failure SKIPS the grow gate),
+// the dropZone gate (-1 = unconditional; else the lookupZone match or the
+// zone-map resolve chain + zonesConnect), then the master check_placement
+// + the unit passableTile2 == 1 accept. The grow: after attempt 8, radii
+// under 4.0 grow by 0.1 (the weak-NaN class: a NaN radius grows - kept).
+#pragma float_control(precise, on, push)   // rule (k): the rand*span*K - radius + drop chains and the 3-term radius sums feed the m32 stores (one rounding each); the single + / - pairs collapse value-identically
+unsigned __int8 __fastcall RGE_Static_Object__find_drop_location_new(
+    RGE_Static_Object* this_, DWORD dummy, int dropZone, float* x, float* y,
+    RGE_Master_Static_Object* m_obj, RGE_Static_Object* obj,
+    float drop_x, float drop_y, float radius_x, float radius_y)
+{
+    float span_x = (float)((double)radius_x + (double)radius_x);            // asm 0x552183-0x55219E (fld [radius_x]; fadd st,st; fstp var_C)
+    float span_y = (float)((double)radius_y + (double)radius_y);            // asm 0x5521A2-0x5521B7 (fstp var_14)
+    float radius_xa = (float)((double)radius_x + (double)m_obj->radius_x
+        + (double)0.0099999998f);                                           // asm 0x5521BB-0x5521D4 (fadd [eax+3Ch]; fadd flt_654978 = 0.01f, binary 0A D7 23 3C)
+    float radius_ya = (float)((double)radius_y + (double)m_obj->radius_y
+        + (double)0.0099999998f);                                           // asm 0x5521D8-0x5521E5 (fadd [eax+40h])
+    short attempts = 0;                                                     // asm 0x5521C6 var_18 (the i16 counter)
+    while (true)                                                            // asm loc_5521E9 (the back-edge 0x552438)
+    {
+        int sel = (rand_internal() * 4) / RAND_MAX_INTERNAL;                // asm 0x5521E9-0x552204 (call _rand; shl ecx,2; the 80010003h magic-imul = /RAND_MAX_INTERNAL; sar 0Eh + the sign fix)
+        switch (sel)                                                        // asm 0x552206-0x55220F (cmp edx,3; ja default; jmp ds:off_552458[edx*4])
+        {
+        case 0:
+            *x = drop_x + radius_xa;                                        // asm 0x552216-0x55221E (fld drop_x; fadd [radius_x]; fstp [ebx])
+            *y = (double)rand_internal() * span_y * 0.000030518509f         // asm 0x552220-0x552258 (call _rand; fild; fmul var_14; fmul flt_654CC8 = 0x38000100 binary; fsub var_10 = the RAW radius_y; fadd drop_y; fstp [ebp])
+                - radius_y + drop_y;
+            break;
+        case 1:
+            *x = drop_x - radius_xa;                                        // asm 0x55222F-0x552237 (fsub)
+            *y = (double)rand_internal() * span_y * 0.000030518509f         // asm 0x55223E-0x552258 (the loc_552246 shared tail)
+                - radius_y + drop_y;
+            break;
+        case 2:
+            *y = drop_y + radius_ya;                                        // asm 0x55225D-0x552265
+            *x = (double)rand_internal() * span_x * 0.000030518509f         // asm 0x552268-0x5522A1 (fmul var_C; fsub var_8 = the RAW radius_x; fadd drop_x; fstp [ebx])
+                - radius_x + drop_x;
+            break;
+        case 3:
+            *y = drop_y - radius_ya;                                        // asm 0x552277-0x55227F
+            *x = (double)rand_internal() * span_x * 0.000030518509f         // asm 0x552282-0x5522A1 (the loc_55228F shared tail)
+                - radius_x + drop_x;
+            break;
+        default:                                                            // asm ja loc_5522A3 (sel == 4 writes NOTHING)
+            break;
+        }
+        bool bounds_fail = X87_LT_NAN(*x, 0.0f)                             // asm 0x5522A3-0x5522B0 (fld [ebx]; fcomp const_f_zero; test ah,1; jnz loc_55242B - the {<, NaN} set)
+            || X87_LT_NAN(*y, 0.0f)                                         // asm 0x5522B6-0x5522C4
+            || X87_LE_NAN((double)this_->owner->world->map->map_width, *x)  // asm 0x5522CA-0x5522E4 (owner->world->map; fild [ecx+8]; fcomp [ebx]; test ah,41h; jnz loc_55242B)
+            || X87_LE_NAN((double)this_->owner->world->map->map_height, *y);    // asm 0x5522EA-0x5522F5 ([ecx+0Ch])
+        bool ok = !bounds_fail;
+        if (ok && dropZone != -1)                                           // asm 0x5522FB-0x552302 (cmp edi,-1; jz loc_5523A1)
+        {
+            unsigned __int8 obj_zone =
+                RGE_Static_Object__lookupZone(obj, (int)*x, (int)*y);       // asm 0x552308-0x55231B (fld *y; __ftol; fld *x; __ftol; push y then x; call :3883 HOOKED, routes)
+            if (obj_zone != dropZone)                                       // asm 0x552324-0x552330 (and ecx,0FFh; cmp ecx,edi; jz loc_5523A1 - the u8 vs the FULL int)
+            {
+                RGE_Zone_Map* zone_map;
+                if (obj->zoneMapIndex == -1)                                // asm 0x552332-0x552341 (cmp [esi+80h],-1; jnz loc_552374)
+                    zone_map = RGE_Zone_Map_List__get_zone_map(             // asm 0x552343-0x552369 (terrains[movsx master->terrain @+76h]; movsx terrain_size @+5Eh; map_zones @map+0xBF7C; &zoneMapIndex)
+                        obj->owner->world->map->map_zones,
+                        obj->owner->world->terrains[obj->master_obj->terrain],
+                        obj->owner->world->terrain_size,
+                        &obj->zoneMapIndex);
+                else
+                    zone_map = RGE_Zone_Map_List__get_zone_map2(            // asm 0x552374-0x552387 (the cached index)
+                        obj->owner->world->map->map_zones, obj->zoneMapIndex);
+                ok = zone_map != 0                                          // asm 0x55238C-0x55238E (test eax,eax; jz loc_5523E5 - THROUGH the grow gate)
+                    && RGE_Zone_Map__zonesConnect(                          // asm 0x552390-0x55239F (push zone2=dropZone then zone1; test al,al; jz loc_5523E5)
+                        zone_map, obj_zone, (unsigned __int8)dropZone) != 0;
+            }
+        }
+        if (ok)
+        {
+            // asm loc_5523A1 (the 3-inbound zone join)
+            if (m_obj->vfptr->check_placement(m_obj, (RGE_Player*)this_->owner,
+                *x, *y, 0, 1, 1, 1, 0, 1, 1, 0, 0) == 0                     // asm 0x5523A4-0x5523C8 (12 stack args; slot 14 = +0x38; test al,al; jnz loc_5523E5)
+                && obj->vfptr->passableTile2(obj, *x, *y) == 1)             // asm 0x5523CF-0x5523E3 (slot 104 = +0x1A0; cmp eax,1; jz loc_55244A)
+                return 1;                                                   // asm 0x55244A-0x552453 mov al,1
+        }
+        if (!bounds_fail                                                    // the bounds fails SKIP the grow gate (they jump straight to the counter)
+            && attempts > 8                                                 // asm 0x5523E5-0x5523EB (cmp word [var_18],8; jle - the SIGNED i16)
+            && X87_LT_NAN(radius_xa, 4.0f)                                  // asm 0x5523ED-0x5523FC (fcomp flt_65AB38 = 4.0f; test ah,1; jz skip - the grow fires on {<, NaN}; the weak-NaN class)
+            && X87_LT_NAN(radius_ya, 4.0f))                                 // asm 0x5523FE-0x55240D
+        {
+            radius_xa += 0.1f;                                              // asm 0x55240F-0x552419 (fadd flt_6545BC = 0.1f)
+            radius_ya += 0.1f;                                              // asm 0x55241D-0x552427
+        }
+        ++attempts;                                                         // asm 0x55242B-0x552434 (mov eax,var_18; inc; cmp ax,32h)
+        if (attempts >= 50)                                                 // asm 0x552430 (jl loc_5521E9)
+            return 0;                                                       // asm 0x55243E-0x552447 xor al,al
+    }
+}
+#pragma float_control(pop)
+
+// ---------------------------------------------------------------------------
+// BATCH S8 (2026-11-27): copy_obj / draw_frame_3d_square_front
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// copy_obj @0x005505B0 [0x5505B0,0x5506AD): the runtime master swap. The
+// tile+state explore pair (unexplore old, explore source->los), the hp
+// ratio capture (hp / old master->hp at 53-bit, store-rounded), the TEMP
+// hp store (hp = the old master's hp - the asm's fstp pair), the first
+// check_damage_sprites (state == 2, the PRE-read), the sprite ladder
+// (this->sprite vs the OLD master's normal/death/undead -> the SOURCE
+// master's fetch, null = no swap), the rescale (hp = source->hp * ratio,
+// AFTER the ladder per LABEL_13), the new_sprite, then the master swap +
+// the second check_damage_sprites (state RE-READ; runs with master_obj =
+// SOURCE - it reads the source's damage table) and the restore.
+void __fastcall RGE_Static_Object__copy_obj_new(
+    RGE_Static_Object* this_, DWORD dummy, RGE_Master_Static_Object* source)
+{
+    if (this_->tile != 0 && this_->object_state == 2)                       // asm 0x5505B9-0x5505C9 (test eax,eax; jz; cmp [esi+58h],bl; jnz)
+    {
+        this_->vfptr->unexplore_terrain(this_, (RGE_Player*)this_->owner,   // asm 0x5505CB-0x5505D7 slot 89 (+0x164)
+            0, -1, 0);
+        this_->vfptr->explore_terrain(this_, (RGE_Player*)this_->owner, 0,  // asm 0x5505DD-0x5505F0 (fld [edi+34h]; __ftol; slot 88 (+0x160); los @52)
+            (int)source->los, 0);
+    }
+    RGE_Master_Static_Object* old_master = this_->master_obj;               // asm 0x5505F8 mov eax,[esi+14h]
+    float hp_ratio = (float)((double)this_->hp / (double)old_master->hp);   // asm 0x5505FF-0x550611 (fild [master+32h]; fld [esi+3Ch]; fdiv st,st(1); fstp var_4)
+    this_->hp = (float)old_master->hp;                                      // asm 0x550615 fstp [esi+3Ch] (the TEMP store - the old master's hp)
+    if (this_->object_state == 2)                                           // asm 0x550603-0x550618 (mov al,[esi+58h]; cmp al,bl consumed after the fpu block)
+        this_->vfptr->check_damage_sprites(this_);                          // asm 0x55061E call [edx+98h] slot 38 (+0x98)
+    RGE_Sprite* swap_sprite = 0;                                            // asm 0x5505B6 xor ebp,ebp
+    if (this_->sprite == old_master->vfptr->get_sprite(old_master, this_))              // asm 0x550624-0x550630 slot 1 (+4)
+        swap_sprite = source->vfptr->get_sprite(source, this_);             // asm 0x550632-0x550637
+    else if (this_->sprite == old_master->vfptr->get_death_sprite(old_master, this_))   // asm 0x55063C-0x550648 slot 3 (+0xC)
+        swap_sprite = source->vfptr->get_death_sprite(source, this_);       // asm 0x55064A-0x55064F
+    else if (this_->sprite == old_master->vfptr->get_undead_sprite(old_master, this_))  // asm 0x550654-0x550660 slot 4 (+0x10)
+        swap_sprite = source->vfptr->get_undead_sprite(source, this_);      // asm 0x550662-0x550667
+    this_->hp = (float)((double)source->hp * hp_ratio);                     // asm 0x55066C-0x55067E (fild [edi+32h]; fmul var_4; fstp [esi+3Ch] - LABEL_13, after the ladder)
+    if (swap_sprite != 0)                                                   // asm 0x550678-0x550681 (test ebp,ebp; jz)
+        this_->vfptr->new_sprite(this_, swap_sprite);                       // asm 0x550683-0x550688 slot 44 (+0xB0)
+    unsigned __int8 state2 = this_->object_state;                           // asm 0x550694 mov al,[esi+58h] (the RE-READ - before the swap)
+    RGE_Master_Static_Object* saved_master = this_->master_obj;             // asm 0x550691 mov ebp,[esi+14h]
+    this_->master_obj = source;                                             // asm 0x550696-0x550697 mov [esi+14h],edi
+    if (state2 == 2)                                                        // asm 0x550696 cmp al,bl; jnz loc_5506A5
+        this_->vfptr->check_damage_sprites(this_);                          // asm 0x550699-0x55069F call [eax+98h] slot 38 (WITH master_obj = source - it reads the source's damage table)
+    this_->master_obj = saved_master;                                       // asm 0x5506A5 mov [esi+14h],ebp
+}
+
+// ---------------------------------------------------------------------------
+// draw_frame_3d_square_front @0x0054DB50 [0x54DB50,0x54DE8A): the front
+// square outline (the two FRONT edges: (-rx,-ry)->(-rx,+ry) then
+// (rx,+ry)->(-rx,+ry), the WHITE_PEN GDI stroke inside the panel clip) plus
+// the hp and sp bars (the 24px red troughs + the level fills, the integer
+// 24*value/max math). The bars' get_point anchors carry z = radius_z; the
+// outline legs carry z = 0. THE BAR ASYMMETRY: the hp bar's get_point sits
+// INSIDE the hp_int > 0 gate while the sp bar's get_point runs BEFORE its
+// sp_max > 0 gate (the asm order; the .c agrees). STAGING NOTE: the four
+// get_point calls reuse the IDA's screen_x/screen_y/var_16 slots per leg -
+// decoded by the final assignment at each call (the draw_new lesson),
+// written as per-leg buffers. The dead hp-int clamp (asm 0x54DD4A-0x54DD51)
+// is dropped per the redundant-guard rule: the (int)hp entry gate
+// (0x54DD17-0x54DD1D) guarantees >= 1 here - IDA's own note renders it
+// optimized away.
+void __fastcall RGE_Static_Object__draw_frame_3d_square_front_new(
+    RGE_Static_Object* this_, DWORD dummy, TDrawArea* render_area,
+    __int16 x, __int16 y)
+{
+    float rx = this_->master_obj->outline_radius_x;                         // asm 0x556183 [eax+0xC4] @196
+    float ry = this_->master_obj->outline_radius_y;                         // asm 0x556182 [eax+0xC8] @200
+    float rz = this_->master_obj->radius_z;                                 // asm 0x556187 [eax+44h] @68
+    RGE_Map* map = this_->owner->world->map;                                // asm 0x556176-0x556181 (owner @24; world @140; map @52)
+    TPanel* panel = (*base_game)->vfptr->get_view_panel(*base_game);
+                                                                            // asm 0x556185-0x556190: mov ecx,base_game; mov eax,[ecx]; call [eax+30h]
+                                                                            // (slot 12 = +0x30; RGE_Base_GameVtbl get_view_panel - the S5-C grounding)
+    if (panel != 0)                                                         // asm 0x556192-0x556193
+    {
+        TDrawArea__Unlock(render_area, "stat_obj::draw_frame_3d_square_front");
+                                                                            // asm 0x556195-0x556197 (the DIRECT call :1522)
+        __int16 sx0 = this_->screen_x_offset + x;                           // asm 0x556198+ ([ebx+34h] @52 + arg)
+        __int16 sy0 = this_->screen_y_offset + y;                           // asm ([ebx+36h] @54 + arg)
+        if (TDrawArea__GetDc(render_area, "stat_obj::draw_frame_3d_square_front") != 0)
+                                                                            // asm 0x5561C0-0x5561D0 (:1523)
+        {
+            SelectClipRgn(render_area->DrawDc, panel->clip_rgn);            // asm 0x5561D6-0x5561E5 (DrawDc @56; clip_rgn @+0x8C)
+            SelectObject(render_area->DrawDc, GetStockObject(WHITE_PEN));   // asm 0x5561EB-0x5561F8 (stock object 6 = WHITE_PEN)
+            short px[2];
+            short py[2];
+            RGE_Map__get_point(map, &px[0], &py[0], -rx, -ry, 0.0, sx0, sy0);
+                                                                            // asm 0x5561FE-0x556227 (fld [x]; fchs = -rx; the -ry fchs into the pushed slot)
+            RGE_Map__get_point(map, &px[1], &py[1], -rx, ry, 0.0, sx0, sy0);
+                                                                            // asm 0x55622C-0x556246
+            MoveToEx(render_area->DrawDc, px[0], py[0], 0);                 // asm 0x55624B-0x55625D
+            LineTo(render_area->DrawDc, px[1], py[1]);                      // asm 0x556260-0x55626D (the LEFT edge)
+            RGE_Map__get_point(map, &px[0], &py[0], rx, ry, 0.0, sx0, sy0);
+                                                                            // asm 0x556272-0x55627F
+            RGE_Map__get_point(map, &px[1], &py[1], -rx, ry, 0.0, sx0, sy0);
+                                                                            // asm 0x556280-0x556292 (the .c's (thisc, v26) repeat)
+            MoveToEx(render_area->DrawDc, px[0], py[0], 0);                 // asm 0x556293-0x5562A5
+            LineTo(render_area->DrawDc, px[1], py[1]);                      // asm 0x5562A8-0x5562DF (the BOTTOM edge)
+            SelectClipRgn(render_area->DrawDc, 0);                          // asm 0x5562E5-0x5562EB (the clip restore)
+            TDrawArea__ReleaseDc(render_area, "stat_obj::draw_frame_3d_square_front");
+                                                                            // asm 0x5562F1-0x5562F8 (:1524)
+        }
+        TDrawArea__Lock(render_area, "stat_obj::draw_frame_3d_square_front", 1);
+                                                                            // asm 0x5562FD-0x556306 (:1521; BOTH paths)
+        int hp_int = (int)this_->hp;                                        // asm 0x55630B-0x556319 (fld [edx+3Ch]; __ftol; test eax,eax)
+        if (hp_int > 0)                                                     // asm 0x55631D jle loc_54DDCC
+        {
+            short bar_px;
+            short bar_py;
+            RGE_Map__get_point(map, &bar_px, &bar_py, rx, -ry, rz, sx0, sy0);
+                                                                            // asm 0x556323-0x556345 (z = radius_z)
+            int hp_max = this_->master_obj->hp;                             // asm 0x556348-0x556353 (movsx word [edx+32h] @50)
+            if (hp_max > 0)                                                 // asm 0x556353-0x55635A (test; jle loc_54DDCC)
+            {
+                TDrawArea__FillRect(render_area, bar_px - 12, bar_py - 2,   // asm 0x55635C-0x55636B (color_red)
+                    bar_px + 12, bar_py - 1, *color_red);
+                TDrawArea__FillRect(render_area, bar_px - 12, bar_py - 2,   // asm 0x556368-0x556388 (byte_69B554; the 24*hp/max integer math: lea [eax+eax*2]; shl 3; cdq; idiv)
+                    24 * hp_int / hp_max + bar_px - 12, bar_py - 1, *byte_69B554);
+            }
+        }
+        if (!X87_LE_NAN(this_->sp, 0.0f))                                   // asm 0x556390-0x55639E (fld [ecx+40h] @64; fcomp const_f_zero; test ah,41h; jnz exit - the {<=, NaN} skip)
+        {
+            int sp_int = (int)this_->sp;                                    // asm 0x5563E4-0x5563F0 (fld; __ftol; arg_4)
+            int sp_max = this_->master_obj->hp;                             // asm 0x5563FE-0x556401 (movsx word [edx+32h]; the [this] spill)
+            short bar_px;
+            short bar_py;
+            RGE_Map__get_point(map, &bar_px, &bar_py, rx, -ry, rz, sx0, sy0);
+                                                                            // asm 0x5563F4-0x556421 (the push-then-fstp y-slot form; BEFORE the gate)
+            if (sp_max > 0)                                                 // asm 0x556421-0x55642C (mov ebp,[this] = sp_max; test ebp,ebp; jle exit)
+            {
+                TDrawArea__FillRect(render_area, bar_px - 12, bar_py - 1,   // asm 0x55642E-0x55643B (color_red; y2 = by, y1 = by-1)
+                    bar_px + 12, bar_py, *color_red);
+                TDrawArea__FillRect(render_area, bar_px - 12, bar_py - 1,   // asm 0x556437-0x556455 (byte_69B554 + 1; idiv ebp = /sp_max)
+                    24 * sp_int / sp_max + bar_px - 12, bar_py, *byte_69B554 + 1);
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// BATCH S9 (2026-11-27): draw_frame_3d_cube_back / draw_frame_3d_cube_front
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// draw_frame_3d_cube_back @0x0054DE90 [0x54DE90,0x54E242): the cube BACK
+// wireframe - six edges around the (rx,-ry) back corner: the two vertical
+// segments (z 0->rz/4, rz*0.75->rz - the middle occluded section left
+// open), the bottom x-spokes (rx -> rx/4 and -rx -> -rx/4), the bottom
+// y-spokes (-ry -> -ry/4 and +ry -> +ry/4). The fraction locals are single
+// fld/fmul/fstp products (rule (d) float-safe); the NULL caller tags (the
+// cube family form vs square_front's strings); NO -16 y-anchor here.
+// STAGING: the .c's v18/v19/ya snapshots decode by the final assignment at
+// each call (the draw_new lesson); the var_14/var_10/var_18 registers =
+// ry/ry/4/rx/4 verified per leg.
+void __fastcall RGE_Static_Object__draw_frame_3d_cube_back_new(
+    RGE_Static_Object* this_, DWORD dummy, TDrawArea* render_area,
+    __int16 x, __int16 y)
+{
+    RGE_Master_Static_Object* master = this_->master_obj;                   // asm 0x54DEA1 mov eax,[ebx+14h]
+    float rx_q = master->outline_radius_x * 0.25f;                          // asm 0x54DEA4-0x54DEAA: fld [eax+0xC4] @196; fmul flt_654968 (0.25f)
+    float ry = master->outline_radius_y;                                    // asm 0x54DEB3 [eax+0xC8] @200
+    float rx = master->outline_radius_x;                                    // asm 0x54DEB4 [eax+0xC4]
+    float ry_q = master->outline_radius_y * 0.25f;                          // asm 0x54DED1-0x54DED7 fmul flt_654968
+    float rz = master->outline_radius_z;                                    // asm 0x54DEDD [eax+0xCC] @204
+    float rz_q = master->outline_radius_z * 0.25f;                          // asm 0x54DEEB-0x54DEF1 fmul flt_654968
+    float rz_3q = master->outline_radius_z * 0.75f;                         // asm 0x54DEFB-0x54DF01 fmul flt_657EC8 (0.75f)
+    RGE_Map* map = this_->owner->world->map;                                // asm 0x54DE98-0x54DEB2 (owner @24 / world @140 / map @52)
+    TPanel* panel = (*base_game)->vfptr->get_view_panel(*base_game);        // asm 0x54DEBC-0x54DF0D slot 12 = +0x30
+    if (panel != 0)                                                         // asm 0x54DF12-0x54DF14
+    {
+        TDrawArea__Unlock(render_area, 0);                                  // asm 0x54DF1F-0x54DF23 (the NULL tag - the cube family form)
+        float neg_ry = -ry;                                                 // asm 0x54DF48-0x54DF53 (fld var_14 = ry; fchs)
+        __int16 sx0 = this_->screen_x_offset + x;                           // asm ([ebx+34h] @52 + arg)
+        __int16 sy0 = this_->screen_y_offset + y;                           // asm ([ebx+36h] @54 + arg - NO -16 here)
+        short px[2];
+        short py[2];
+        RGE_Map__get_point(map, &px[0], &py[0], rx, neg_ry, 0.0, sx0, sy0);     // asm leg 1a 0x54DF59-0x54DF95
+        RGE_Map__get_point(map, &px[1], &py[1], rx, neg_ry, rz_q, sx0, sy0);    // asm leg 1b 0x54DF9A-0x54DFB7 (z 0 -> rz/4)
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54DFBC-0x54DFCE
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54DFD4-0x54DFE4
+        RGE_Map__get_point(map, &px[0], &py[0], rx, neg_ry, rz_3q, sx0, sy0);   // asm leg 2a 0x54DFEA-0x54E007 (z rz*0.75)
+        RGE_Map__get_point(map, &px[1], &py[1], rx, neg_ry, rz, sx0, sy0);      // asm leg 2b 0x54E00C-0x54E029 (z rz)
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E02E-0x54E040
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E046-0x54E056
+        RGE_Map__get_point(map, &px[0], &py[0], rx, neg_ry, 0.0, sx0, sy0);     // asm leg 3a 0x54E05C-0x54E076
+        RGE_Map__get_point(map, &px[1], &py[1], rx_q, neg_ry, 0.0, sx0, sy0);   // asm leg 3b 0x54E07B-0x54E095 (x rx -> rx/4)
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E09A-0x54E0AC
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E0B2-0x54E0C2
+        RGE_Map__get_point(map, &px[0], &py[0], -rx, neg_ry, 0.0, sx0, sy0);    // asm leg 4a 0x54E0C8-0x54E0E7 (the fchs'd rx)
+        RGE_Map__get_point(map, &px[1], &py[1], -rx_q, neg_ry, 0.0, sx0, sy0);  // asm leg 4b 0x54E0EC-0x54E10B (the fchs'd rx/4)
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E110-0x54E122
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E128-0x54E138
+        RGE_Map__get_point(map, &px[0], &py[0], rx, neg_ry, 0.0, sx0, sy0);     // asm leg 5a 0x54E13E-0x54E158
+        RGE_Map__get_point(map, &px[1], &py[1], rx, -ry_q, 0.0, sx0, sy0);      // asm leg 5b 0x54E15D-0x54E17C (y -ry -> -ry/4, the fchs'd var_10)
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E181-0x54E193
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E199-0x54E1A9
+        RGE_Map__get_point(map, &px[0], &py[0], rx, ry, 0.0, sx0, sy0);         // asm leg 6a 0x54E1AF-0x54E1C9 (y = +ry, var_14)
+        RGE_Map__get_point(map, &px[1], &py[1], rx, ry_q, 0.0, sx0, sy0);       // asm leg 6b 0x54E1CE-0x54E1E8 (y = +ry/4, var_10)
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E1ED-0x54E1FF
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E205-0x54E215
+        SelectClipRgn(render_area->DrawDc, 0);                              // asm 0x54E21B-0x54E221
+        TDrawArea__ReleaseDc(render_area, 0);                               // asm 0x54E227-0x54E22B
+    }
+    TDrawArea__Lock(render_area, 0, 1);                                     // asm 0x54E230-0x54E236 (BOTH paths)
+}
+
+// ---------------------------------------------------------------------------
+// draw_frame_3d_cube_front @0x0054E250 [0x54E250,0x54EB67): the cube FRONT
+// wireframe - 18 edges: the 4 top-face center spokes (legs 1-4, the
+// x-halvings at z=rz), the 4 y-spokes at z=rz (legs 5-8), the 4 z=0 spokes
+// on/around -x (legs 9-12), and the 3 front vertical edges each drawn as
+// TWO segments with the middle occluded section open (legs 13-18: z
+// 0->rz/4 and rz*0.75->rz). THE -16 Y-ANCHOR (asm 0x54E335 sub dx,10h) is
+// cube_front-UNIQUE (sy0 = screen_y_offset - 16 + y; cube_back has plain
+// +y). The fraction locals = the rule-(d) single-product form; the NULL
+// caller tags.
+void __fastcall RGE_Static_Object__draw_frame_3d_cube_front_new(
+    RGE_Static_Object* this_, DWORD dummy, TDrawArea* render_area,
+    __int16 x, __int16 y)
+{
+    RGE_Master_Static_Object* master = this_->master_obj;                   // asm 0x54E25A mov eax,[ebx+14h]
+    float rx_q = master->outline_radius_x * 0.25f;                          // asm fmul flt_654968 (0.25f)
+    float ry = master->outline_radius_y;                                    // asm [eax+0xC8] @200
+    float rx = master->outline_radius_x;                                    // asm [eax+0xC4] @196
+    float ry_q = master->outline_radius_y * 0.25f;                          // asm fmul flt_654968
+    float rz = master->outline_radius_z;                                    // asm [eax+0xCC] @204
+    float rz_q = master->outline_radius_z * 0.25f;                          // asm fmul flt_654968
+    float rz_3q = master->outline_radius_z * 0.75f;                         // asm 0x54E2C1 fmul flt_657EC8 (0.75f)
+    RGE_Map* map = this_->owner->world->map;                                // asm owner @24 / world @140 / map @52
+    TPanel* panel = (*base_game)->vfptr->get_view_panel(*base_game);        // asm slot 12 = +0x30
+    if (panel != 0)                                                         // asm
+    {
+        TDrawArea__Unlock(render_area, 0);                                  // asm (the NULL tag)
+        __int16 sx0 = this_->screen_x_offset + x;                           // asm ([ebx+34h] @52 + arg)
+        float neg_ry = -ry;                                                 // asm (the .c's ya - the fchs)
+        __int16 sy0 = this_->screen_y_offset - 16 + y;                      // asm 0x54E335 sub dx,10h - THE -16 ANCHOR
+        float neg_rx = -rx;                                                 // asm (the .c's thisa)
+        float neg_ry_q = -ry_q;                                             // asm (the .c's v32)
+        short px[2];
+        short py[2];
+        RGE_Map__get_point(map, &px[0], &py[0], rx, neg_ry, rz, sx0, sy0);      // asm leg 1a 0x54E35C
+        RGE_Map__get_point(map, &px[1], &py[1], rx_q, neg_ry, rz, sx0, sy0);    // asm leg 1b 0x54E37E
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E395
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E3AB
+        RGE_Map__get_point(map, &px[0], &py[0], neg_rx, neg_ry, rz, sx0, sy0);  // asm leg 2a 0x54E3D8
+        RGE_Map__get_point(map, &px[1], &py[1], -rx_q, neg_ry, rz, sx0, sy0);   // asm leg 2b 0x54E404
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E41B
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E431
+        RGE_Map__get_point(map, &px[0], &py[0], rx, ry, rz, sx0, sy0);          // asm leg 3a 0x54E454
+        RGE_Map__get_point(map, &px[1], &py[1], rx_q, ry, rz, sx0, sy0);        // asm leg 3b 0x54E476
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E48D
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E4A3
+        RGE_Map__get_point(map, &px[0], &py[0], neg_rx, ry, rz, sx0, sy0);      // asm leg 4a 0x54E4C6
+        RGE_Map__get_point(map, &px[1], &py[1], -rx_q, ry, rz, sx0, sy0);       // asm leg 4b 0x54E4E8
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E4FF
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E515
+        RGE_Map__get_point(map, &px[0], &py[0], rx, ry, rz, sx0, sy0);          // asm leg 5a 0x54E538
+        RGE_Map__get_point(map, &px[1], &py[1], rx, ry_q, rz, sx0, sy0);        // asm leg 5b 0x54E55A
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E571
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E587
+        RGE_Map__get_point(map, &px[0], &py[0], rx, neg_ry, rz, sx0, sy0);      // asm leg 6a 0x54E5AA
+        RGE_Map__get_point(map, &px[1], &py[1], rx, neg_ry_q, rz, sx0, sy0);    // asm leg 6b 0x54E5D6
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E5ED
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E603
+        RGE_Map__get_point(map, &px[0], &py[0], neg_rx, ry, rz, sx0, sy0);      // asm leg 7a 0x54E626
+        RGE_Map__get_point(map, &px[1], &py[1], neg_rx, ry_q, rz, sx0, sy0);    // asm leg 7b 0x54E648
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E65F
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E675
+        RGE_Map__get_point(map, &px[0], &py[0], neg_rx, neg_ry, rz, sx0, sy0);  // asm leg 8a 0x54E698
+        RGE_Map__get_point(map, &px[1], &py[1], neg_rx, neg_ry_q, rz, sx0, sy0); // asm leg 8b 0x54E6BA
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E6D1
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E6E7
+        RGE_Map__get_point(map, &px[0], &py[0], neg_rx, neg_ry, 0.0, sx0, sy0); // asm leg 9a 0x54E707
+        RGE_Map__get_point(map, &px[1], &py[1], neg_rx, neg_ry_q, 0.0, sx0, sy0); // asm leg 9b 0x54E726
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E73D
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E753
+        RGE_Map__get_point(map, &px[0], &py[0], neg_rx, ry, 0.0, sx0, sy0);     // asm leg 10a 0x54E773
+        RGE_Map__get_point(map, &px[1], &py[1], neg_rx, ry_q, 0.0, sx0, sy0);   // asm leg 10b 0x54E792
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E7A9
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E7BF
+        RGE_Map__get_point(map, &px[0], &py[0], rx, ry, 0.0, sx0, sy0);         // asm leg 11a 0x54E7DF
+        RGE_Map__get_point(map, &px[1], &py[1], rx_q, ry, 0.0, sx0, sy0);       // asm leg 11b 0x54E7FE
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E815
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E82B
+        RGE_Map__get_point(map, &px[0], &py[0], neg_rx, ry, 0.0, sx0, sy0);     // asm leg 12a 0x54E84B
+        RGE_Map__get_point(map, &px[1], &py[1], -rx_q, ry, 0.0, sx0, sy0);      // asm leg 12b 0x54E86A
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E881
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E897
+        RGE_Map__get_point(map, &px[0], &py[0], neg_rx, ry, 0.0, sx0, sy0);     // asm leg 13a 0x54E8B7
+        RGE_Map__get_point(map, &px[1], &py[1], neg_rx, ry, rz_q, sx0, sy0);    // asm leg 13b 0x54E8D9
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E8F0
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E906
+        RGE_Map__get_point(map, &px[0], &py[0], neg_rx, ry, rz_3q, sx0, sy0);   // asm leg 14a 0x54E929
+        RGE_Map__get_point(map, &px[1], &py[1], neg_rx, ry, rz, sx0, sy0);      // asm leg 14b 0x54E94B
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E962
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E978
+        RGE_Map__get_point(map, &px[0], &py[0], neg_rx, neg_ry, 0.0, sx0, sy0); // asm leg 15a 0x54E998
+        RGE_Map__get_point(map, &px[1], &py[1], neg_rx, neg_ry, rz_q, sx0, sy0); // asm leg 15b 0x54E9BA
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54E9D1
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54E9E7
+        RGE_Map__get_point(map, &px[0], &py[0], neg_rx, neg_ry, rz_3q, sx0, sy0); // asm leg 16a 0x54EA0A
+        RGE_Map__get_point(map, &px[1], &py[1], neg_rx, neg_ry, rz, sx0, sy0);  // asm leg 16b 0x54EA2C
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54EA43
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54EA59
+        RGE_Map__get_point(map, &px[0], &py[0], rx, ry, 0.0, sx0, sy0);         // asm leg 17a 0x54EA79
+        RGE_Map__get_point(map, &px[1], &py[1], rx, ry, rz_q, sx0, sy0);        // asm leg 17b 0x54EA9B
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54EAB2
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54EAC8
+        RGE_Map__get_point(map, &px[0], &py[0], rx, ry, rz_3q, sx0, sy0);       // asm leg 18a 0x54EAEB
+        RGE_Map__get_point(map, &px[1], &py[1], rx, ry, rz, sx0, sy0);          // asm leg 18b 0x54EB0D
+        MoveToEx(render_area->DrawDc, px[0], py[0], 0);                     // asm 0x54EB24
+        LineTo(render_area->DrawDc, px[1], py[1]);                          // asm 0x54EB3A
+        SelectClipRgn(render_area->DrawDc, 0);                              // asm (the clip restore)
+        TDrawArea__ReleaseDc(render_area, 0);                               // asm (the NULL tag)
+    }
+    TDrawArea__Lock(render_area, 0, 1);                                     // asm (BOTH paths)
+}
+
+// ---------------------------------------------------------------------------
+// BATCH S10 (2026-11-27): teleport
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// teleport @0x0054F820 [0x54F820,0x54FCD7): the base teleport. The inside_obj
+// early-out (0.0), the x/y clamps (the X87_LT_NAN <0 clamps; the literal >=
+// map_max_x/y clamps - map_max_x @0xBF24 / map_max_y @0xBF28, NEW census;
+// -0.001f = flt_65B488 BINARY-VERIFIED), the tile ints + the 53-bit
+// fractions from the UNCLAMPED ints, the tile-index clamps on map_width/
+// height @+8/+0xC, the tile fetch (map_row_offset[ty] + tx<<5, the 32B
+// stride), the same-tile early exit (world_x/y/z only), the OL delete/add
+// (the FRESH (*base_game)->world->map chain), the unexplore gate on the
+// re-read tile, the world store ladder (z first), the explore gate on the
+// state PRE-read, the obstruction refresh (radius_z > 0 - the literal
+// MATCH row; the redundant master test is REAL; Air/Land by
+// movement_type == 1, slot 10), the 17-case tile_type switch (@RGE_Tile+4)
+// setting the z-offset v4 + the slope flag xa (four X87_LE_NAN cases
+// 10/12/15/16 - the test-mask bytes read from the listing; the six literal
+// MATCH rows), then za = (float)(tile->height @+6 + v4), the
+// handle_teleport_z_correction dispatch (slot 43 - the double return
+// discarded), the screen/shadow offsets from the UNROUNDED v26 chain
+// consumed twice (screen_x = half_width*(yf+xf); screen_y uses world_z;
+// shadow_y uses za - the distinct sources faithful), the return = the za
+// widening.
+#pragma float_control(precise, on, push)   // rule (k): the tile-truncation chains feed __ftol (the half_width/half_height math + the fractions)
+double __fastcall RGE_Static_Object__teleport_new(
+    RGE_Static_Object* this_, DWORD dummy, float x, float y, float z)
+{
+    float v4 = 0.0f;                                                        // asm 0x54F825-0x54F82D (fld const_f_zero; fst var_4 - the result slot)
+    float xa = 0.0f;                                                        // asm (the .c's xa - the LABEL_68 slope flag)
+    RGE_Map* map = this_->owner->world->map;                                // asm 0x54F831-0x54F842 (owner @24 / world @140 / map @52)
+    if (this_->inside_obj != 0)                                             // asm 0x54F83A-0x54F842 (test [esi+2Ch] @44)
+        return 0.0;                                                         // asm 0x54F844-0x54F851 (fstp st; fld zero; retn)
+    if (X87_LT_NAN(x, 0.0f))                                                // asm 0x54F854-0x54F863 (fcomp zero; test ah,1; jz skip - the {<, NaN} clamp - THE MACRO)
+        x = 0.0f;
+    if (x >= map->map_max_x)                                                // asm 0x54F86D-0x54F87C (fcomp [ebp+0BF24h]; test ah,1; jnz skip - the literal >= MATCH row)
+        x = map->map_max_x - 0.001f;                                        // asm 0x54F87E-0x54F884 (fld [ebp+0BF24h]; fsub flt_65B488 = 0.001f BINARY-VERIFIED)
+    if (X87_LT_NAN(y, 0.0f))                                                // asm 0x54F88E-0x54F89D (the macro)
+        y = 0.0f;
+    if (y >= map->map_max_y)                                                // asm 0x54F8A7-0x54F8B6 ([ebp+0BF28h] - the literal >= MATCH row)
+        y = map->map_max_y - 0.001f;                                        // asm 0x54F8B8-0x54F8C4
+    int tx = (int)x;                                                        // asm 0x54F8C8-0x54F8D2 (fld; __ftol)
+    int ty = (int)y;                                                        // asm 0x54F8D3-0x54F8DD
+    float x_frac = (float)(x - (double)tx);                                 // asm 0x54F8E2-0x54F8F3 (fild var_8; fsubr x; fstp var_8 - the 53-bit diff, one store)
+    float y_frac = (float)(y - (double)ty);                                 // asm 0x54F8DD-0x54F8FF (fild var_C; fsubr y; fstp var_C)
+    if (tx >= map->map_width)                                               // asm 0x54F8ED-0x54F905 ([ebp+8] @8)
+        tx = map->map_width - 1;                                            // asm lea edi,[ecx-1]
+    if (tx < 0)                                                             // asm 0x54F908-0x54F90C
+        tx = 0;                                                             // asm xor edi,edi
+    if (ty >= map->map_height)                                              // asm 0x54F90E-0x54F918 ([ebp+0Ch])
+        ty = map->map_height - 1;
+    if (ty < 0)                                                             // asm 0x54F918-0x54F91C
+        ty = 0;
+    RGE_Tile* new_tile = map->map_row_offset[ty] + tx;                      // asm 0x54F91E-0x54F92D (mov edx,[ebp+0BF18h]; shl edi,5 (the 32B stride); mov ebx,[edx+eax*4]; add ebx,edi)
+    if (new_tile == this_->tile)                                            // asm 0x54F92A-0x54F931 (cmp ebx,[esi+28h] @40; jz loc_54F9E7)
+    {
+        this_->world_x = x;                                                 // asm 0x54F9E7-0x54F9F3 ([esi+48h] @72)
+        this_->world_y = y;                                                 // asm [esi+4Ch] @76
+        this_->world_z = z;                                                 // asm [esi+50h] @80
+    }
+    else
+    {
+        if (this_->tile != 0)                                               // asm 0x54F937-0x54F939 (test eax,eax)
+            RGE_Map__OL_DeleteObjectListEntry((*base_game)->world->map,     // asm 0x54F93D-0x54F94D (the FRESH chain re-read: base_game -> +0x420 world -> +0x34 map; push theObj/theTile)
+                this_->tile, this_);
+        RGE_Map__OL_AddObjectListEntry((*base_game)->world->map, new_tile, this_);
+                                                                            // asm 0x54F952-0x54F963
+        if (this_->tile != 0)                                               // asm 0x54F968-0x54F96D (the [esi+28h] re-read BEFORE the update)
+            this_->vfptr->unexplore_terrain(this_, (RGE_Player*)this_->owner, 0, -1, 0);
+                                                                            // asm 0x54F96F-0x54F97D slot 89 (+0x164)
+        this_->world_z = z;                                                 // asm 0x54F983-0x54F98F ([esi+50h] FIRST)
+        unsigned __int8 state = this_->object_state;                        // asm 0x54F992 mov al,[esi+58h] (the PRE-read)
+        this_->world_x = x;                                                 // asm [esi+48h]
+        this_->world_y = y;                                                 // asm [esi+4Ch]
+        this_->tile = new_tile;                                             // asm 0x54F99D mov [esi+28h],ebx
+        if (state == 2)                                                     // asm 0x54F998-0x54F9A0 (cmp al,2 consumed after the stores)
+            this_->vfptr->explore_terrain(this_, (RGE_Player*)this_->owner, 0, -1, 0);
+                                                                            // asm 0x54F9A2-0x54F9B0 slot 88 (+0x160)
+    }
+    RGE_Master_Static_Object* master = this_->master_obj;                   // asm 0x54F9BA mov ecx,[esi+14h]
+    if (master->radius_z > 0.0f)                                            // asm 0x54F9BD-0x54F9CB (fld [ecx+44h] @68; fcomp zero; test ah,41h; jnz skip - the literal > MATCH row)
+    {
+        if (master != 0 && master->movement_type == 1)                      // asm 0x54F9CD-0x54F9D7 (test ecx,ecx; jz land; cmp byte [ecx+78h] @120,1; jnz land - the redundant test is REAL)
+            (*OBSystem_Air)->vfptr->UpdateObjectObstruction(*OBSystem_Air, this_);
+                                                                            // asm 0x54F9D9-0x54F9E2 (+0x28 = slot 10)
+        else
+            (*OBSystem_Land)->vfptr->UpdateObjectObstruction(*OBSystem_Land, this_);
+                                                                            // asm 0x54F9FE-0x54FA07
+    }
+    switch (new_tile->tile_type)                                            // asm 0x54FA0E-0x54FA26 (mov al,[ebx+4] @4; cmp 10h; ja default; jpt_54FA26)
+    {
+    case 0:                                                                 // asm loc_54FA2D (fstp st; fld zero)
+        v4 = 0.0f;
+        break;
+    case 1:                                                                 // asm loc_54FA3A-0x54FA59
+        if (y_frac + x_frac >= 1.0f)                                        // asm 0x54FA3C-0x54FA4F (fadd; fcomp const_f_one; test ah,1; jz loc_54FBB7 - the literal >= MATCH row)
+            v4 = 1.0f - x_frac;                                             // asm loc_54FBB7 (the shared 1-xf arm)
+        else
+            v4 = y_frac;                                                    // asm 0x54FA55 fld var_C
+        break;
+    case 2:                                                                 // asm loc_54FA5E-0x54FA7D - BOTH arms -> loc_54FC24 (xa)
+        if (y_frac + x_frac >= 1.0f)
+            v4 = 1.0f - y_frac;                                             // asm loc_54FBDA (the shared 1-yf arm)
+        else
+            v4 = x_frac;                                                    // asm 0x54FA79 fld var_8
+        xa = 1.0f;                                                          // asm loc_54FC24 mov [esp+x],1.0
+        break;
+    case 3:                                                                 // asm loc_54FA82-0x54FAA6
+        v4 = X87_LE_NAN(x_frac, y_frac) ? 1.0f - y_frac : 1.0f - x_frac;
+                                                                            // asm 0x54FA84-0x54FAA6 (fld var_8; fcomp var_C; fld one; fnstsw; test ah,41h; jnz -> fsub var_C (1-yf); the fall: fsub var_8 (1-xf)) - THE MACRO
+        break;
+    case 4:                                                                 // asm loc_54FAAB-0x54FAC9
+        if (x_frac > y_frac)                                                // asm 0x54FAAD-0x54FABA (fld var_8; fcomp var_C; test ah,41h; jnz -> the xf arm - the literal > MATCH row)
+            v4 = y_frac;                                                    // asm loc_54FABC (the shared fld var_C arm - case 13's hit arm)
+        else
+            v4 = x_frac;                                                    // asm loc_54FAC5 fld var_8
+        break;
+    case 5:                                                                 // asm loc_54FACE-0x54FADA
+        v4 = 1.0f - x_frac;                                                 // asm fld one; fsub var_8
+        break;
+    case 6:                                                                 // asm loc_54FADF-0x54FAEB
+        v4 = 1.0f - y_frac;                                                 // asm fld one; fsub var_C
+        xa = 1.0f;                                                          // asm jmp loc_54FC24
+        break;
+    case 7:                                                                 // asm loc_54FAF0-0x54FAF6
+        v4 = y_frac;                                                        // asm fld var_C
+        break;
+    case 8:                                                                 // asm loc_54FAFB-0x54FB01
+        v4 = x_frac;                                                        // asm fld var_8
+        xa = 1.0f;                                                      // asm jmp loc_54FC24
+        break;
+    case 9:                                                                 // asm loc_54FB06-0x54FB23
+    {
+        float d = x_frac - y_frac;                                      // asm 0x54FB08-0x54FB0C (fld var_8; fsub var_C)
+        if (d >= 0.0f)                                                  // asm 0x54FB10-0x54FB1B (fcom zero; test ah,1; jz -> loc_54FA2D (v4 = 0)) - the literal >= MATCH row
+            v4 = 0.0f;
+        else
+            v4 = -d;                                                    // asm 0x54FB21 fchs
+        break;
+    }
+    case 10:                                                                // asm loc_54FB28-0x54FB4B - BOTH arms -> loc_54FC24
+    {
+        float d = x_frac - y_frac;                                      // asm 0x54FB2A-0x54FB2E
+        if (X87_LE_NAN(d, 0.0f))                                        // asm 0x54FB32-0x54FB3D (fcom zero; test ah,41h; jz KEEPS d - the {<= 0, NaN} zero arm) - THE MACRO
+            v4 = 0.0f;                                                  // asm 0x54FB43-0x54FB48 (fstp st; fld zero)
+        else
+            v4 = d;
+        xa = 1.0f;                                                      // asm jmp loc_54FC24
+        break;
+    }
+    case 11:                                                                // asm loc_54FB50-0x54FB71
+    {
+        float s = y_frac + x_frac;                                      // asm 0x54FB52-0x54FB56
+        if (s >= 1.0f)                                                  // asm fcom const_f_one; test ah,1; jz -> loc_54FA2D (v4 = 0) - the literal >= MATCH row
+            v4 = 0.0f;
+        else
+            v4 = 1.0f - s;                                              // asm 0x54FB6B fsubr const_f_one
+        break;
+    }
+    case 12:                                                                // asm loc_54FB76-0x54FB97
+    {
+        float s = y_frac + x_frac;                                      // asm 0x54FB78-0x54FB7C
+        v4 = X87_LE_NAN(s, 1.0f) ? 0.0f : s - 1.0f;
+                                                                            // asm 0x54FB80-0x54FB91 (fcom one; test ah,41h; jnz -> loc_54FA2D (0); the fall: fsub const_f_one (s-1)) - THE MACRO
+        break;
+    }
+    case 13:                                                                // asm loc_54FB9C-0x54FBC1
+    {
+        float s = y_frac + x_frac;                                      // asm 0x54FB9E-0x54FBA2
+        if (s >= 1.0f)                                                  // asm fcomp const_f_one; test ah,1; jz -> loc_54FABC (v4 = y_frac - the case-4 shared arm) - the literal >= MATCH row
+            v4 = y_frac;
+        else
+            v4 = 1.0f - x_frac;                                         // asm loc_54FBB7
+        break;
+    }
+    case 14:                                                                // asm loc_54FBC3-0x54FBE4 - BOTH arms -> loc_54FC24
+    {
+        float s = y_frac + x_frac;                                      // asm 0x54FBC5-0x54FBC9
+        if (s >= 1.0f)
+            v4 = x_frac;                                                // asm loc_54FBF7 (the shared fld var_8 arm)
+        else
+            v4 = 1.0f - y_frac;                                         // asm loc_54FBDA
+        xa = 1.0f;                                                      // asm jmp loc_54FC24
+        break;
+    }
+    case 15:                                                                // asm loc_54FBE6-0x54FC01 - BOTH arms -> loc_54FC24
+        v4 = X87_LE_NAN(x_frac, y_frac) ? y_frac : x_frac;
+                                                                            // asm 0x54FBE8-0x54FBFD (fld var_8; fcomp var_C; test ah,41h; jnz -> loc_54FBFD (fld var_C = yf); the fall: fld var_8 = xf) - THE MACRO
+        xa = 1.0f;                                                      // asm jmp loc_54FC24
+        break;
+    case 16:                                                                // asm loc_54FC03-0x54FC1E - BOTH arms -> loc_54FC24
+        v4 = X87_LE_NAN(x_frac, y_frac) ? 1.0f - x_frac : 1.0f - y_frac;
+                                                                            // asm 0x54FC05-0x54FC1E (fld var_8; fcomp var_C; fld one pre-load; fnstsw; test ah,41h; jnz -> fsub var_8 (1-xf); the fall: fsub var_C (1-yf)) - THE MACRO
+        xa = 1.0f;                                                      // asm loc_54FC24
+        break;
+    default:                                                                // asm def_54FA26 (st0 = v4 unchanged)
+        break;
+    }
+    float za = (float)this_->tile->height + v4;                             // asm 0x54FC2C-0x54FC40 (mov dl,[ecx+6] @6 - RGE_Tile::height; fild; fadd st,st(1); fstp [esp+z] - the store-round)
+    this_->vfptr->handle_teleport_z_correction(this_, za);                  // asm 0x54FC44-0x54FC53 (push za; slot +0xAC = 43; fstp st - the double return DISCARDED; the member = the DOUBLE-returning decl @idb_types.h:4003)
+    double v26 = (double)xa + (double)y_frac + 1.0 - (double)x_frac;
+                                                                            // asm 0x54FC55-0x54FC72 (fld xa; fadd var_C; fadd const_f_one; fsub var_8 - the UNROUNDED chain, consumed TWICE below)
+    this_->screen_x_offset = (__int16)((double)map->tile_half_width * (double)(y_frac + x_frac));
+                                                                            // asm 0x54FC5D-0x54FC85 (movsx word [ebp+0BF40h] half_width; fild; fld var_C; fadd var_8; fmulp; __ftol; mov [esi+34h],ax @52 - the __int16 store)
+    this_->screen_y_offset = (__int16)((double)map->tile_half_height * (v26 - (double)this_->world_z));
+                                                                            // asm 0x54FC89-0x54FCA8 (movsx [ebp+0BF3Eh] half_height; fld st (the v26 DUP); fsub [esi+50h] = world_z; fild; fmulp; __ftol; mov [esi+36h],ax @54)
+    this_->shadow_x_offset = this_->screen_x_offset;                        // asm 0x54FCA4-0x54FCB0 (mov cx,[esi+34h]; mov [esi+38h],cx @56)
+    this_->shadow_y_offset = (__int16)((double)map->tile_half_height * (v26 - (double)za));
+                                                                            // asm 0x54FCAC-0x54FCD4 (fsub [esp+z] = za - the DISTINCT z source; fild half_height; fmulp; __ftol; mov [esi+3Ah],ax @58)
+    return za;                                                              // asm 0x54FCCA fld [esp+z] (the float widened to the double return); retn 0Ch
+}
+#pragma float_control(pop)
+
+// ---------------------------------------------------------------------------
+// BATCH S11 (2026-11-27): capture_frame_3d_square
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// capture_frame_3d_square @0x0054CE80 [0x54CE80,0x54D989): the capture /
+// selection overlay. The id assert (int 3 kept), the radii pick (outline 3
+// = radius_*, else the outline radii with the rz <= 0 -> ry fallback - THE
+// MACRO), the color ladder (selected & 1 / & 8 (the inline 0xF3 literal) /
+// outline 3 (color_gray) / draw_flag&1 && prog_mode 7 (draw_color) /
+// byte_69B550), the VIEW_Occlusion_Color swap pair (& 2 -> byte_69B554,
+// & 4 -> color_yellow - each falling back to color_red on the match), the
+// four capture corners, the OB manager pick (Air by movement_type == 1 -
+// the redundant master test REAL), the obstruction three-way (Type < 5 +
+// radius_x <= 0.5f (THE MACRO) -> the two OB draws; Type >= 5 -> the
+// color_gray re-check + the DirectVal[2] save/swap/restore + the two OB
+// draws; the null / the radius > 0.5 -> the plain square). THE .C
+// CONFLATED THE OB ARMS (the goto render dropped the Type >= 5 guard and
+// merged its draws after the plain square) - the asm flow is authoritative:
+// the OB arms SKIP the plain square (jmp loc_54D271). Then the
+// selected-groups badge (the get_Selected_Groups family slots 216/218/215,
+// the owner == curr_player gate, the AddDrawNode loop over the 32-byte
+// Shape_Info records), the hp bar (GDI_Type 2, byte_69B554, the 24*hp/max
+// fill with the i16 clamp), the sp bar (GDI_Type 9, color_yellow, the
+// three-way fill split full/partial/zero), the id digits
+// (display_selected_ids == 1: the /10000./1000./100./10/%10 extraction,
+// the leading-zero skip, the negative-id minus-sign draw in color_red, the
+// 5-digit AddDrawNode/AddGDINode loop) or the group digits
+// (display_selected_group_ids == 1 && mGroupID != -1, the same machinery).
+void __fastcall RGE_Static_Object__capture_frame_3d_square_new(
+    RGE_Static_Object* this_, DWORD dummy, TDrawArea* render_area,
+    __int16 x, __int16 y)
+{
+    if (this_->id == *dword_692450)                                         // asm 0x54CE9A-0x54CEA7 (cmp eax,ecx; jnz skip; int 3 - the assert kept)
+        __debugbreak();
+    RGE_Map* map = this_->owner->world->map;                                // asm 0x54CE8B-0x54CEA2 (owner @24 / world @140 / map @52; var_20)
+    RGE_Master_Static_Object* master = this_->master_obj;                   // asm 0x54CEAE mov ecx,[esi+14h]
+    unsigned __int8 outline = (*base_game)->outline_type;                   // asm 0x54CEB1 mov dl,[edi+70h] @+0x70
+    float rx, ry, rz;
+    if (outline == 3)                                                       // asm 0x54CEB4 cmp dl,3
+    {
+        rx = this_->master_obj->radius_x;                                   // asm 0x54CEB9 [ecx+3Ch] @60
+        ry = this_->master_obj->radius_y;                                   // asm 0x54CEBF [ecx+40h] @64
+        rz = this_->master_obj->radius_z;                                   // asm 0x54CEC5 [ecx+44h] @68
+    }
+    else
+    {
+        rx = this_->master_obj->outline_radius_x;                           // asm 0x54CED6 [ecx+0xC4h] @196
+        ry = this_->master_obj->outline_radius_y;                           // asm 0x54CEDF [ecx+0xC8h] @200
+        rz = X87_LE_NAN(this_->master_obj->outline_radius_z, 0.0f) ? ry : this_->master_obj->outline_radius_z;
+                                                                            // asm 0x54CECA-0x54CEFD (fld [ecx+0xCC] @204; fcomp zero; test ah,41h; jnz -> ry; the fall: [ecx+0xCC]) - THE MACRO
+    }
+    unsigned __int8 sel = this_->selected;                                  // asm 0x54CF00 mov al,[esi+46h] @70 (the ladder read - the field is RE-READ fresh at each later .c site)
+    unsigned __int8 color;
+    if ((sel & 1) != 0)                                                     // asm 0x54CF03 test al,1
+    {
+        if ((sel & 8) != 0)                                                 // asm 0x54CF07 test al,8
+            color = 0xF3;                                                   // asm 0x54CF0B mov byte,0F3h (the INLINE literal - the color_yellow value, not the global)
+        else
+            color = *byte_69B550;                                           // asm 0x54CF11-0x54CF17
+    }
+    else
+    {
+        if (outline == 3)                                                   // asm 0x54CF10 cmp dl,3
+            color = *color_gray;                                            // asm 0x54CF21 (color_gray @0x69B551 = 0x85)
+        else
+        {
+            if ((this_->master_obj->draw_flag & 1) == 1 && (*base_game)->prog_mode == 7)
+                                                                            // asm 0x54CF29-0x54CF3E (and dl,1; cmp dl,1; jnz; cmp dword [edi+1DCh],7)
+                color = this_->master_obj->draw_color;                      // asm 0x54CF40 mov cl,[ecx+0C1h] @193
+            else
+                color = *byte_69B550;                                       // asm loc_54CF4B
+        }
+    }
+    if ((sel & 2) != 0)                                                     // asm 0x54CF37-0x54CF3E (test al,2 - al = the ladder's selected; cl = color_red PRE-HELD for the fallback)
+    {
+        color = *byte_69B554;                                               // asm 0x54CF5E
+        unsigned __int8 occ = color;
+        if (*VIEW_Occlusion_Color == (unsigned __int8)*byte_69B554)         // asm 0x54CF6C-0x54CF74
+            occ = (unsigned __int8)*color_red;                              // asm 0x54CF78 (al = cl)
+        *VIEW_Occlusion_Color = occ;                                        // asm 0x54CF7A
+    }
+    if ((this_->selected & 4) != 0)                                         // asm 0x54CF7F-0x54CF83 (test byte [esi+46h],4 - the FRESH re-read per the .c)
+    {
+        color = *color_yellow;                                              // asm 0x54CF85
+        unsigned __int8 occ = color;
+        if (*VIEW_Occlusion_Color == (unsigned __int8)*color_yellow)        // asm 0x54CF93-0x54CF9B
+            occ = (unsigned __int8)*color_red;                              // asm 0x54CF9D-0x54CF9F (al = cl)
+        *VIEW_Occlusion_Color = occ;                                        // asm 0x54CFA1
+    }
+    __int16 sy16 = (__int16)(this_->screen_y_offset + y);                  // asm 0x54CFA9+ ([esi+36h] @54 + arg - the i16 wrap; the junk-high dword reads are masked by the movsx bx forms at every push)
+    __int16 sx16 = (__int16)(this_->screen_x_offset + x);                  // asm ([esi+34h] @52 + arg)
+    int sy = sy16;                                                          // asm ebx
+    int sx = sx16;                                                          // asm edi
+    float neg_ry = -ry;                                                     // asm 0x54CFB4-0x54CFB9 (fld var_34; fchs)
+    short c0x, c0y, c1x, c1y, c2x, c2y, c3x, c3y;
+    RGE_Map__get_point(map, &c0x, &c0y, rx, neg_ry, 0.0f, sx, sy);          // asm 0x54CFC6-0x54CFDA (the corner buffers DISTINCT - all 8 live for the AddGDINode)
+    RGE_Map__get_point(map, &c1x, &c1y, rx, ry, 0.0f, sx, sy);              // asm 0x54CDFB-0x54CFF6
+    float neg_rx = -rx;                                                     // asm 0x54CFFB-0x54D004 (fld [ebp+x]; fchs; the arg_8 slot)
+    RGE_Map__get_point(map, &c2x, &c2y, neg_rx, ry, 0.0f, sx, sy);          // asm 0x54D007-0x54D01A
+    RGE_Map__get_point(map, &c3x, &c3y, neg_rx, neg_ry, 0.0f, sx, sy);      // asm 0x54D01F-0x54D036
+    RGE_Obstruction_Manager** ob = OBSystem_Land;                           // asm 0x54D03B (var_30 = OBSystem_Land)
+    RGE_Master_Static_Object* m2 = this_->master_obj;                       // asm 0x54D044 (the RE-read)
+    if (m2 != 0 && m2->movement_type == 1)                                  // asm 0x54D047-0x54D04F (test ecx,ecx; jz; cmp byte [ecx+78h] @120,1; jnz - the redundant test REAL)
+        ob = (RGE_Obstruction_Manager**)OBSystem_Air;                       // asm 0x54D051 (the Airspace twin sideways cast - layout-proven per the passableTile grounding)
+    // asm 0x54D05A [esi+60h] @96 - CurrentObstructionData is RE-READ fresh at each .c site (the OB draw may reassign it)
+    ObsRecord* occ_rec = this_->CurrentObstructionData;                     // asm 0x54D05A mov edx,[esi+60h] (the SINGLE load: the null test, the Type test, the save, and the swap use edx)
+    // THE OB ARMS: the draws REPLACE the plain square; the badge/bars/digits ALWAYS follow
+    // (asm jmp loc_54D271 = the badge/bars/digits head, NOT the exit). THE .C'S goto LABEL_41
+    // RENDER FOOLED THE FIRST WRITE: LABEL_41 is the post-square continuation - the first
+    // write's `return;` skipped the bars/digits entirely for every obstructed unit.
+    bool skip_square = false;
+    if (occ_rec != 0)                                                       // asm 0x54D05D test edx,edx; jz loc_54D164
+    {
+        if (this_->CurrentObstructionData->Type < 5)                        // asm 0x54D065-0x54D069 (cmp byte [edx+4] @4,5; jb loc_54D102)
+        {
+            if (X87_LE_NAN(m2->radius_x, 0.5f))                             // asm 0x54D106-0x54D114 (fld [ecx+3Ch] @60; fcomp const_f_half; test ah,41h; jz -> the plain square) - THE MACRO
+            {
+                (*ob)->vfptr->DisplayObstructionInView(*ob, this_->CurrentObstructionData, sy, color,      // asm 0x54D0AB-0x54D0D1 (the vtbl member 27 = +0x6C; the args - the FRESH read)
+                    *SDI_Object_ID, 0);
+                (*ob)->vfptr->DisplayObstructionInView(*ob, this_->CurrentObstructionData, sy,             // asm 0x54D0D4-0x54D0F1 (color_black @0x7A1C60; the flag 1)
+                    (unsigned __int8)*color_black, *SDI_Object_ID, 1);
+                skip_square = true;                                         // asm jmp loc_54D271 (the badge/bars/digits STILL follow)
+            }
+            // else: fall INTO the plain square (asm jz loc_54D164)
+        }
+        else
+        {
+            if (color == *byte_69B550 && sel == 0)                          // asm 0x54D06F-0x54D07F (the FULL selected byte: test al,al)
+                color = *color_gray;                                        // asm 0x54D081
+            float saved = occ_rec->DirectVal[2];                            // asm 0x54D095-0x54D098 (fld [edx+28h] - the edx-cached record; ObsRecord.DirectVal[8] @+0x20, [2] = +0x28)
+            if (master->outline_radius_x > 0.0f)                            // asm 0x54D09D-0x54D0A0 (test ah,41h; jnz skip - the literal > MATCH row)
+                occ_rec->DirectVal[2] = master->outline_radius_x;           // asm 0x54D0A2-0x54D0A8 (mov [edx+28h],ecx - the edx-cached record)
+            (*ob)->vfptr->DisplayObstructionInView(*ob, this_->CurrentObstructionData, sy, color,          // asm 0x54D0AB-0x54D0D1
+                *SDI_Object_ID, 0);
+            (*ob)->vfptr->DisplayObstructionInView(*ob, this_->CurrentObstructionData, sy,                 // asm 0x54D0D4-0x54D0F1
+                (unsigned __int8)*color_black, *SDI_Object_ID, 1);
+            this_->CurrentObstructionData->DirectVal[2] = saved;            // asm 0x54D0F4-0x54D0FA (the restore - through the FRESH pointer)
+            skip_square = true;                                             // asm jmp loc_54D271
+        }
+    }
+    if (!skip_square)                                                       // asm loc_54D164 (reached: the ob-null / Type<5 + radius>0.5)
+    {
+        // THE PLAIN SQUARE: the 4 FRESH get_points (the corner re-projection) + the 2 AddGDINodes
+        RGE_Map__get_point(map, &c0x, &c0y, rx, neg_ry, 0.0f, sx, sy);          // asm loc_54D164-0x54D17B
+        RGE_Map__get_point(map, &c1x, &c1y, rx, ry, 0.0f, sx, sy);              // asm 0x54D180-0x54D197
+        RGE_Map__get_point(map, &c2x, &c2y, neg_rx, ry, 0.0f, sx, sy);          // asm 0x54D19C-0x54D1B3
+        RGE_Map__get_point(map, &c3x, &c3y, neg_rx, neg_ry, 0.0f, sx, sy);      // asm 0x54D1B8-0x54D1CF
+        DClipInfo_List__AddGDINode(*SDI_List, 1, sy,                             // asm 0x54D203-0x54D21E (GDI_Type 1; DrawLevel 11; DrawColor = color)
+            c0x, c0y, c1x, c1y, c2x, c2y, c3x, c3y, 11, color, *SDI_Object_ID);
+        DClipInfo_List__AddGDINode(*SDI_List, 1, sy,                             // asm 0x54D223-0x54D26C (the +1 shadow Ys: inc screen_y/var_8/var_14; DrawLevel 10; color_black)
+            c0x, c0y + 1, c1x, c1y + 1, c2x, c2y + 1, c3x, c3y + 1, 10,
+            (unsigned __int8)*color_black, *SDI_Object_ID);
+    }
+    // loc_54D271: THE BADGE/BARS/DIGITS ALWAYS FOLLOW (both the OB arms and the plain square converge here)
+    // THE SELECTED-GROUPS BADGE
+    if ((this_->selected & 1) != 0 && (this_->selected & 8) == 0)            // asm 0x54D271-0x54D27E (mov al,[esi+46h] the RE-READ; test al,1; jz; test al,8; jnz - the .c's v21)
+    {
+        if (this_->vfptr->get_Selected_Groups(this_) != 0)                  // asm 0x54D284-0x54D291 slot +0x360 = 216 (test ax,ax)
+        {
+            RGE_Player* player = (RGE_Player*)this_->owner;                 // asm 0x54D297 mov eax,[esi+18h] (the dual-naming cast)
+            if (player->id == player->world->curr_player)                   // asm 0x54D2A0-0x54D2AD ([eax+0A0h] id vs movsx word [ecx+94h] curr_player @150)
+            {
+                TShape* shape = RGE_Base_Game__get_shape(*base_game, 0);    // asm 0x54D2B3-0x54D2BB (:684)
+                int count = this_->vfptr->get_num_Selected_groups(this_);   // asm 0x54D2C3-0x54D2CD slot +0x368 = 218
+                if (shape != 0)                                             // asm 0x54D2D0-0x54D2D5
+                {
+                    int iter = this_->vfptr->get_next_selected_group(this_, 0);
+                                                                            // asm 0x54D2DB-0x54D2E1 slot +0x35C = 215
+                    if (iter != 0)                                          // asm 0x54D2E7-0x54D2EB
+                    {
+                        int off = 0;                                        // asm 0x54D2F0 var_34 = 0 (the int counter - the .c's float v64 render = the slot-reuse artifact)
+                        int step = count * 8;                               // asm 0x54D2F7 lea ecx,[eax*8]
+                        do                                                  // asm loc_54D301-0x54D363
+                        {
+                            DClipInfo_List__AddDrawNode(*SDI_List,           // asm 0x54D308-0x54D346 (ShapeBase = FShape @+0xC; theShape = FShape + 32*iter (shl 5 = sizeof(Shape_Info)); the SortLine = sy)
+                                shape->FShape, (Shape_Info*)shape->FShape + iter, sy,
+                                c3x + off - step + 2, c3y - 8,
+                                0, 0, 0, 30, *SDI_Object_ID, 0, 0);
+                            iter = this_->vfptr->get_next_selected_group(this_, iter);
+                                                                            // asm 0x54D34B-0x54D350
+                            off += 8;                                       // asm 0x54D35B add ecx,8
+                        } while (iter != 0);                                // asm 0x54D35E-0x54D363
+                    }
+                }
+            }
+        }
+    }
+    // THE HP + SP BARS: the asm's single gate chain guards BOTH bars (the sp bar has
+    // NO separate sel/df gate inside - only sp > 0 / sp_max > 0). THE NESTED IF FORM:
+    // the flat && chain compiled to `sel == 1` (the MSVC fold of (sel&1)&&!(sel&8) -
+    // INVALID for sel = 3/5/7, the real multi-flag states) - the nested form preserves
+    // the asm's exact three-test sequence.
+    int saved_c1x = c1x;                                                    // asm 0x54D368-0x54D370 (var_34/var_30 = the c1 corner saved - the slot reuse)
+    int saved_c1y = c1y;
+    if ((this_->selected & 1) != 0)                                         // asm 0x54D371-0x54D374 (mov al,[esi+46h] the RE-READ; test al,1; jz loc_54D5EF - the .c's v23)
+    {
+        if ((sel & 8) == 0)                                                 // asm 0x54D377+ (test al,8; jnz loc_54D5EF)
+        {
+            if ((master->draw_flag & 2) == 0)                               // asm 0x54D387-0x54D391 (test byte [edx+0C0h] @192,2; jnz loc_54D5EF)
+            {
+                int hp_int = (int)this_->hp;                                // asm 0x54D397-0x54D3A4 (fld [esi+3Ch]; __ftol)
+                if (hp_int > 0)                                             // asm 0x54D3A4 jle loc_54D4CE
+                {
+                    short bx2, by2;
+                    RGE_Map__get_point(map, &bx2, &by2, rx, neg_ry, rz, sx, sy);    // asm 0x54D3AA-0x54D3C3 (z = rz)
+                    if (hp_int < 1)                                         // asm 0x54D3C8-0x54D3D1 (cmp arg_4,1; jge skip) - the dead-in-practice re-clamp kept (the gate guarantees >= 1; the asm has it)
+                        hp_int = 0;
+                    int hp_max = this_->master_obj->hp;                     // asm 0x54D3D5-0x54D3DC (movsx word [eax+32h] @50)
+                    if (hp_max > 0)                                         // asm 0x54D3DE-0x54D3DE (test ecx,ecx; jle loc_54D4CE)
+                    {
+                        int bar_x1 = bx2 - 12;                              // asm 0x54D3E4-0x54D3EA (lea eax,[edx-0Ch]; screen_x)
+                        int bar_x2 = bar_x1 + 23;                           // asm 0x54D3ED add eax,17h (var_4)
+                        int bar_y2 = by2 - 1;                               // asm 0x54D3F3-0x54D3F6 (lea edx,[eax-1]; var_8)
+                        int bar_y1 = bar_y2 - 1;                            // asm 0x54D3FC (lea eax,[edx-1]; screen_y)
+                        int fill_x2, fill_y2, fill_x1, fill_y1;
+                        if (hp_int == hp_max)                               // asm 0x54D402-0x54D405
+                        {
+                            fill_x2 = bar_x2;                               // asm 0x54D409-0x54D40F (var_C = var_4)
+                            fill_y2 = 1;                                    // asm var_14 = 1
+                            fill_x1 = -1;                                   // asm var_18 = -1
+                            fill_y1 = 0;                                    // asm var_10 = 0
+                        }
+                        else
+                        {
+                            fill_y2 = 1;                                    // asm 0x54D425-0x54D432 (var_14 = 1)
+                            fill_x2 = bar_x1 + 24 * hp_int / hp_max;        // asm 0x54D43B-0x54D456 (lea [eax+eax*2]; shl 3; cdq; idiv ecx; add eax, screen_x)
+                            if ((__int16)fill_x2 >= (__int16)bar_x2)        // asm 0x54D453-0x54D45E (cmp ax,cx; jl skip; lea eax,[ecx-1]) - the i16 clamp
+                                fill_x2 = bar_x2 - 1;
+                            fill_x1 = fill_x2 + 1;                          // asm 0x54D461 lea ecx,[eax+1]
+                            fill_y1 = 1;                                    // asm 0x54D467 var_10 = 1
+                        }
+                        if ((this_->selected & 1) == 1 && (this_->master_obj->draw_flag & 2) == 0) // asm 0x54D46E-0x54D483 (mov dl,[esi+46h] the FRESH re-read; and dl,1; cmp 1; jnz loc_54D4CE; test byte [edx+0C0h],2; jnz)
+                            DClipInfo_List__AddGDINode(*SDI_List, 2, sy,             // asm 0x54D485-0x54D4C9 (GDI_Type 2; DrawLevel 1Eh = 30; DrawColor = byte_69B554)
+                                bar_x1, bar_y1, bar_x2, bar_y2,
+                                fill_x2, fill_y2, fill_x1, fill_y1,
+                                30, *byte_69B554, *SDI_Object_ID);
+                    }
+                }
+                // THE SP BAR (loc_54D4CE - INSIDE the gate chain: NO separate sel/df gate)
+                if (this_->sp > 0.0f)                                       // asm 0x54D4CE-0x54D4DC (fld [esi+40h] @64; fcomp zero; test ah,41h; jnz loc_54D5EF - the literal > MATCH row)
+                {
+                    short bx2, by2;
+                    RGE_Map__get_point(map, &bx2, &by2, rx, neg_ry, rz, sx, sy);    // asm 0x54D4E2-0x54D4FB
+                    int sp_int = (int)this_->sp;                            // asm 0x54D4FF-0x54D503 (fld; __ftol)
+                    int sp_max = this_->master_obj->hp;                     // asm 0x54D508-0x54D511 (movsx word [ecx+32h] - the master RE-READ)
+                    if (sp_max > 0)                                         // asm 0x54D50F-0x54D511 (test; jle loc_54D5EF)
+                    {
+                        int bar_x1 = bx2 - 12;                              // asm 0x54D517-0x54D51D (lea edi,[edx-0Ch]; screen_x)
+                        int bar_y1 = by2;                                   // asm 0x54D51D-0x54D520 (var_3C -> screen_y)
+                        int bar_y2 = by2 + 1;                               // asm 0x54D523 inc edx
+                        int bar_x2 = bar_x1 + 23;                           // asm 0x54D524 lea ebx,[edi+17h]
+                        int fill_x2, fill_y2, fill_x1, fill_y1;
+                        if (sp_int == sp_max)                               // asm 0x54D527-0x54D532
+                        {
+                            fill_x2 = bar_x2;                               // asm 0x54D534-0x54D539 (var_C = ebx)
+                            fill_y2 = 1;                                    // asm var_14 = 1
+                            fill_x1 = -1;                                   // asm var_18 = -1
+                            fill_y1 = 0;                                    // asm edx = 0
+                        }
+                        else if (sp_int != 0)                               // asm 0x54D54A-0x54D54C (test eax,eax; jnz)
+                        {
+                            fill_y2 = 1;                                    // asm 0x54D56D-0x54D575 (var_14 = 1)
+                            fill_x2 = bar_x1 + 24 * sp_int / sp_max;        // asm 0x54D567-0x54D585 (lea; shl 3; cdq; idiv ecx; add eax,edi)
+                            if ((__int16)fill_x2 >= (__int16)bar_x2)        // asm cmp ax,bx; jl skip
+                                fill_x2 = bar_x2 - 1;                       // asm lea eax,[ebx-1]
+                            fill_x1 = fill_x2 + 1;                          // asm 0x54D588 lea ecx,[eax+1]
+                            fill_y1 = 1;                                    // asm 0x54D570 mov edx,1 (var_18 = ecx; var_10 = edx)
+                        }
+                        else                                                // asm 0x54D54E-0x54D565 (the sp_int == 0 arm)
+                        {
+                            fill_x2 = -1;                                   // asm or eax,-1 (var_C)
+                            fill_y2 = 0;                                    // asm var_14 = 0
+                            fill_x1 = bar_x1;                               // asm var_18 = edi
+                            fill_y1 = 1;                                    // asm edx = 1 (var_10)
+                        }
+                        if ((this_->selected & 1) == 1 && (this_->master_obj->draw_flag & 2) == 0) // asm 0x54D58E-0x54D5A6 (mov bl,[esi+46h] the FRESH re-read; and bl,1; cmp 1; jnz loc_54D5EF; test byte [ebx+0C0h],2; jnz)
+                            DClipInfo_List__AddGDINode(*SDI_List, 9, sy,             // asm 0x54D5A8-0x54D5EA (GDI_Type 9; DrawLevel 1Eh = 30; DrawColor = color_yellow)
+                                bar_x1, bar_y1, bar_x2, bar_y2,
+                                fill_x2, fill_y2, fill_x1, fill_y1,
+                                30, *color_yellow, *SDI_Object_ID);
+                    }
+                }
+            }
+        }
+    }
+    // THE ID DIGITS
+    c1x = saved_c1x;                                                        // asm 0x54D5EF-0x54D5FF (var_8 = var_30; var_4 = var_34 - the c1 corner restored into var_4/var_8)
+    c1y = saved_c1y;
+    if ((*base_game)->display_selected_ids == 1)                            // asm 0x54D5FE-0x54D60C (cmp [ecx+0A0Ch],1)
+    {
+        TShape* shape = RGE_Base_Game__get_shape(*base_game, 0);            // asm 0x54D612-0x54D619
+        int id = this_->id;                                                 // asm 0x54D619 mov esi,[esi+10h] @16
+        int abs_id = id < 0 ? -id : id;                                     // asm 0x54D61F-0x54D625 (test; jge; neg ecx)
+        int digits[5];                                                      // asm var_5C/var_58/var_54/var_50/var_4C (the 5 consecutive int slots)
+        digits[0] = abs_id / 10000;                                         // asm 0x54D627-0x54D63D (the 68DB8BADh magic = /10000)
+        digits[1] = (abs_id % 10000) / 1000;                                // asm 0x54D64F-0x54D667 (the 10624DD3h magic = /1000)
+        digits[2] = ((abs_id % 10000) % 1000) / 100;                        // asm 0x54D677-0x54D68D (the 51EB851Fh magic = /100)
+        digits[3] = (((abs_id % 10000) % 1000) % 100) / 10;                 // asm 0x54D69A-0x54D6AE (the 66666667h magic = /10)
+        digits[4] = abs_id % 10;                                            // asm 0x54D6B6 sub ecx,edx (the remainder)
+        int start = 0;                                                      // asm 0x556D62C xor edi,edi
+        if (abs_id < 10000)                                                 // asm 0x54D6B8 cmp esi,2710h; jge skip
+            start = 1;
+        if (abs_id < 1000)                                                  // asm cmp 3E8h
+            start = 2;
+        if (abs_id < 100)                                                   // asm cmp 64h
+            start = 3;
+        if (abs_id < 10)                                                    // asm cmp 0Ah
+            start = 4;
+        if (id >= 0)                                                        // asm 0x54D6E6 test esi,esi; jge loc_54D732 (the minus arm skipped)
+        {
+            sy = sy16;                                                      // asm loc_54D732 mov esi,[ebp+arg_8] (the restore)
+        }
+        else
+        {
+            c1x += 7;                                                       // asm 0x54D6F0-0x54D703 (add ecx,7; var_4 = ecx)
+            DClipInfo_List__AddGDINode(*SDI_List, 4, sy,                     // asm 0x54D6EA-0x54D72B (GDI_Type 4; DrawLevel 1Eh; DrawColor = color_red - THE MINUS SIGN)
+                c1x + 1, c1y + 3, c1x + 5, c1y + 3,
+                0, 0, 0, 0, 30, *color_red, *SDI_Object_ID);
+        }
+        if (start <= 4)                                                     // asm 0x54D735-0x54D738 (cmp edi,4; jg loc_54D983)
+        {
+            int count = 5 - start;                                          // asm 0x54D73E-0x54D749 (mov eax,5; lea ebx,[edi*4+var_5C]; sub)
+            int* digit = &digits[start];                                    // asm ebx
+            do                                                              // asm loc_54D74C-0x54D7D6 (while (--count != 0); the .c's v79/v45 Flags render = the artifact)
+            {
+                c1x += 7;                                                   // asm 0x54D732-0x54D756 (mov edx,var_4; add edx,7; var_4 = edx)
+                if (*digit == 0)                              // asm 0x54D754 test eax,eax; jz -> the zero AddGDINode
+                {
+                    DClipInfo_List__AddGDINode(*SDI_List, 4, sy,             // asm loc_54D792-0x54D7C5 (byte_69B550; GDI_Type 4)
+                        c1x + 1, c1y, c1x + 5, c1y + 5,
+                        0, 0, 0, 0, 30, *byte_69B550, *SDI_Object_ID);
+                }
+                else
+                {
+                    DClipInfo_List__AddDrawNode(*SDI_List,                   // asm 0x54D75B-0x54D78B (the ShapeBase = FShape @+0xC; theShape = FShape + 32*digit)
+                        shape->FShape, (Shape_Info*)shape->FShape + *digit,
+                        sy, c1x, c1y, 0, 0, 0, 30, *SDI_Object_ID, 0, 0);
+                }
+                ++digit;                                                    // asm 0x54D7CF add ebx,4
+            } while (--count != 0);                                         // asm 0x54D7CC-0x54D7D6
+        }
+    }
+    else if ((*base_game)->display_selected_group_ids == 1                 // asm loc_54D7E5-0x54D7EB (cmp [ecx+0A10h],1)
+        && this_->mGroupID != -1)                                           // asm 0x54D7F1-0x54D7F8 ([esi+88h] @136 cmp -1)
+    {
+        TShape* shape = RGE_Base_Game__get_shape(*base_game, 0);            // asm 0x54D7FE-0x54D800
+        int group = this_->mGroupID;                                        // asm 0x54D805 mov esi,[esi+88h]
+        int digits[5];                                                      // asm var_5C..var_4C
+        digits[0] = group / 10000;                                          // asm 0x54D80F-0x54D820 (the magic)
+        digits[1] = (group % 10000) / 1000;                                 // asm 0x54D835-0x54D84D
+        digits[2] = ((group % 10000) % 1000) / 100;                         // asm 0x54D85D-0x54D873
+        digits[3] = ((group % 10000) % 1000) % 100 / 10;                    // asm 0x54D880-0x54D894
+        digits[4] = group % 10;                                             // asm 0x54D89E sub ecx,edx
+        int start = 0;                                                      // asm 0x54D8A0-0x54D8A9
+        if (group < 10000)
+            start = 1;
+        if (group < 1000)
+            start = 2;
+        if (group < 100)
+            start = 3;
+        if (group < 10)
+            start = 4;                                                      // asm 0x54D8C9 (NO minus arm - the ids' id >= 0 contrast: the group path always reaches the loop head)
+        if (start > 4)                                                      // asm 0x54D8D0-0x54D8D3 (cmp eax,4; jg loc_54D983)
+            return;
+        int count = 5 - start;                                              // asm 0x54D8D9-0x54D8EA
+        int* digit = &digits[start];                                        // asm lea ecx,[ebp+eax*4+var_5C]
+        do                                                                  // asm loc_54D8ED-0x54D97D (while (--count != 0))
+        {
+            c1x += 7;                                                       // asm 0x54D8ED-0x54D8F8
+            if (*digit == 0)                                                // asm 0x54D8FB test eax,eax; jz
+                DClipInfo_List__AddGDINode(*SDI_List, 4, sy,                 // asm loc_54D933-0x54D968 (byte_69B550)
+                    c1x + 1, c1y, c1x + 5, c1y + 5,
+                    0, 0, 0, 0, 30, *byte_69B550, *SDI_Object_ID);
+            else
+                DClipInfo_List__AddDrawNode(*SDI_List,                       // asm 0x54D8FF-0x54D92C
+                    shape->FShape, (Shape_Info*)shape->FShape + *digit,
+                    sy, c1x, c1y, 0, 0, 0, 30, *SDI_Object_ID, 0, 0);
+            ++digit;                                                        // asm 0x54D95C add ecx,4
+        } while (--count != 0);                                             // asm 0x54D96D-0x54D97D
+    }
+}
+
 void install_RGE_Static_Object()
 {
     setHook((void*)0x0054B3E0, RGE_Static_Object__gbg_get_civ_override_new);
@@ -4303,4 +5542,18 @@ void install_RGE_Static_Object()
     setHook((void*)0x0054F1F0, RGE_Static_Object__check_damage_sprites_new);
     setHook((void*)0x0054BE50, RGE_Static_Object__recycle_in_to_game_new);
     setHook((void*)0x0054C2A0, RGE_Static_Object__setup_new);
+    // BATCH S7 (2026-11-27): change_ownership / setup_read / find_drop_location
+    setHook((void*)0x0054FF20, RGE_Static_Object__change_ownership_new);
+    setHook((void*)0x0054C510, RGE_Static_Object__setup_read_new);
+    setHook((void*)0x00552180, RGE_Static_Object__find_drop_location_new);
+    // BATCH S8 (2026-11-27): copy_obj / draw_frame_3d_square_front
+    setHook((void*)0x005505B0, RGE_Static_Object__copy_obj_new);
+    setHook((void*)0x0054DB50, RGE_Static_Object__draw_frame_3d_square_front_new);
+    // BATCH S9 (2026-11-27): draw_frame_3d_cube_back / draw_frame_3d_cube_front
+    setHook((void*)0x0054DE90, RGE_Static_Object__draw_frame_3d_cube_back_new);
+    setHook((void*)0x0054E250, RGE_Static_Object__draw_frame_3d_cube_front_new);
+    // BATCH S10 (2026-11-27): teleport
+    setHook((void*)0x0054F820, RGE_Static_Object__teleport_new);
+    // BATCH S11 (2026-11-27): capture_frame_3d_square
+    setHook((void*)0x0054CE80, RGE_Static_Object__capture_frame_3d_square_new);
 }

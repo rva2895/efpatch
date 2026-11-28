@@ -8659,3 +8659,186 @@ rounds).
   more per the recount. THE DRAW FAMILY = the decode-adjacent cluster.
   Re-verify: the .lst proc list vs the installer hooks (128 + set_Selected_
   Groups in the Action installer).
+
+- BATCH S7 (owner-approved + WRITTEN 2026-11-27): 3 Static hooks -
+  change_ownership @0x0054FF20, setup_read @0x0054C510, find_drop_location
+  @0x00552180 (installer 128 -> 131). THE LOS BAKE: los.cpp:1033 setHook
+  @0x0054C7C2 (the re-registration join) folded into setup_read_new (the
+  option gate + los_read_save2(&ei.theObj @+0x90, infile); the stub's
+  replayed objects-clear + resume 0x54C7C9 = the tail's own lines);
+  los.cpp:1033 retired. change_ownership: the take/give attribute loops
+  FOLDED to the owned replacements (the inlined-function rule; the asm
+  inlines their bodies verbatim) + the get_unit_civ pure-call hoist + the
+  hp-ratio local (the *(float*)&new_owner render = the esp-relative slot
+  IDA mislabeled) + the 6-arg notify with 523 (the owner-changed notify -
+  the registry candidate; the .c's 4-arg render drops the trailing zeros).
+  find_drop_location: the 4-way rand select ((rand*4)/RAND_MAX_INTERNAL,
+  the magic-imul byte-exact), the switch DD table verified
+  {0x552216,0x55222F,0x55225D,0x552277}, the precise bracket (rule k), the
+  bounds-fail-skips-grow structure, X87_LT_NAN/LE_NAN at the gates, the K
+  pool 0x38000100 binary-verified. THE RECOUNT (mechanical): 139 procs /
+  129 owned / 10 remaining - the "+ one more" = copy_obj @0x005505B0 (253B);
+  two-pass re-measured: find_closest_resource 16 gotos / 14 back-edges =
+  the ONLY trigger. GATE 2/2 TUs 0/0 (RGE_Static_Object.cpp + los.cpp);
+  defs/refs 131/131; the emission censuses (divsd no-reciprocal, the
+  widened pools, the LOS-bake lea [edi+144] slot form). IN-GAME VALIDATION
+  OWED. Re-verify: the installer 131 lines; los.cpp active setHook
+  0x0054C7C2 = 0.
+
+- BATCH S8 (owner-approved + WRITTEN 2026-11-27): 2 Static hooks -
+  copy_obj @0x005505B0, draw_frame_3d_square_front @0x0054DB50 (installer
+  131 -> 133). copy_obj: the hp ratio/temp-store pair + the double
+  check_damage_sprites (the second with master_obj = SOURCE, restored) +
+  the sprite ladder (the source-fetch shared tail = the codegen-neutral
+  merge); drop_held_objects_new's constant call routes. square_front: the
+  two front edges + the hp/sp bars (the 24px troughs, the 24*value/max
+  integer math, *color_red/*byte_69B554); THE BAR ASYMMETRY (the hp
+  get_point INSIDE hp_int > 0, the sp get_point BEFORE sp_max > 0 - the .c
+  agrees); the dead hp-int clamp dropped (the redundant-guard rule; IDA's
+  own note); the sp gate = X87_LE_NAN (the comiss+jbe emission). THE
+  WHITE_PEN DIRECTIVE: GetStockObject(6) -> GetStockObject(WHITE_PEN) in
+  square_front + the square_back sibling retrofitted (the NULL_PEN comment
+  was a mislabel - stock object 6 = WHITE_PEN). GATE 0/0; the emission
+  verified per-function (divsd, the +48 get_view_panel dispatch, ret
+  4/12); defs/refs 133/133; the scans 0/0 both batches. IN-GAME VALIDATION
+  OWED. Re-verify: the installer 133 lines; grep GetStockObject(6) = 0.
+
+- DESYNC FIX - get_3d_sound_info_new (owner-reported wrong 3d sound info;
+  the strict re-walk of [0x552A50,0x552C3C) 2026-11-27): ROOT CAUSE #1 -
+  THE FIRST VOLUME BLOCK DROPPED: the original folds the raw computed
+  volume into 0..1000 FIRST (v15 <= 0 -> v15 + 1000 @0x552B98 lea
+  ecx,[eax+3E8h] / else 1000 - v15 @0x552B89) and only then runs the *3 /
+  zero block on the STORED value (@0x552BA4); the shipped form jumped
+  straight to *3/zero on the raw value. THE CLASS: an out-param
+  value-transform between two writes to the same out-param - no memory
+  stores in between, so the store-and-read diff sees the same two
+  out-param stores on both sides and passes; only the instruction-level
+  re-walk catches it. ROOT CAUSE #2 (the same re-walk, rule (e)): the
+  added intermediate (int) store-round on screen_term - the original
+  consumes the UNROUNDED fidiv quotient on st0 in the faddp (one final
+  ftol); fixed to an unrounded double local. Everything else re-verified
+  faithful (the gates, the vis partition, the dy/dx/pan orders, both pan
+  clamps, the setnle return). GATE 0/0; the emission: the cmovg
+  first-block form + the addsd on the unrounded quotient + one cvttsd2si.
+  TEMPLATE PROPOSAL (owner-approved): the out-param write blocks need the
+  instruction-level value-source pass (the bootstrap rule generalized).
+  Re-verify: the volume block in get_3d_sound_info_new (the cmovg /
+  [ecx+1000] form); the in-game re-test owed.
+
+- PROTOCOL AMENDMENT (owner-directed 2026-11-27, LANDED in
+  DECOMP_TEMPLATE.md): the numbered-item gate exists to catch PROTOCOL
+  VIOLATIONS, not to tax rule-permitted choices. THE TEST: blanket
+  approval must never constitute approval of a protocol violation. A
+  violating deviation = a numbered item (the confession mechanism); a
+  rule-PERMITTED choice (the inlined-function fold, the redundant-guard
+  collapse, the pure-call hoist, the mandated bake, the mandated bracket,
+  the documented restructure) ships under the batch approval, documented
+  per the rules. Never manufacture per-item gates for compliant work;
+  never bury a violation in the batch body.
+
+- PROTOCOL AMENDMENT (owner-directed 2026-11-27, LANDED in
+  DECOMP_TEMPLATE.md): THE &&-CHAIN FOLD RULE - MSVC /O2 folds a flat &&
+  chain of bit tests into an equality ((sel&1)!=0 && (sel&8)==0 compiled
+  to `cmp al, 1` = sel == 1 in flow context - INVALID for the
+  multi-flag states). Every multi-bit gate written as the NESTED if form
+  matching the asm's test sequence; the /Fa census includes the emitted
+  bit-test mask vs the original's test immediates (the capture_frame_3d_
+  square class). Probe-verified: the (sel&9)==1 fold is value-identical
+  when emitted as and/mask + cmp; the flat form in flow context is not.
+  Re-verify: grep the owned tree for the flat multi-bit && gates (the
+  nested forms only).
+
+- DESYNC FIX - capture_frame_3d_square_new (owner-reported broken hp/sp
+  bars + group numbers; fixed + CONFIRMED FIXED IN-GAME 2026-11-27):
+  ROOT CAUSE = the three OB-arm `return;` statements - the original asm's
+  OB arms `jmp loc_54D271` = the BADGE/BARS/DIGITS HEAD (not the exit);
+  the .c's `goto LABEL_41` render deceived the first write (LABEL_41 is
+  the post-square continuation, not the end). The returns silenced every
+  overlay element for every unit with an obstruction record. Fixed: the
+  skip_square flag - the OB arms set it and fall through to the
+  badge/bars/digits, which run unconditionally. SECONDARY FIXES in the
+  same re-walk: (1) the sp bar moved INSIDE the sel&1/!sel&8/!df&2 gate
+  chain (it has no separate gate in the asm); (2) the &&-chain fold
+  (see the template rule above); (3) the fresh re-reads of
+  selected/master_obj/CurrentObstructionData at the .c's exact sites
+  (the vtbl dispatches between may mutate them). GATE 0/0; the emission
+  verified (the (sel&9)==1 fold, the three df&2 re-tests, the OB draws
+  x4, ret 12 x4). LESSON: the .c's goto LABEL renders - ALWAYS verify
+  the jump TARGET's body before reading LABEL_N as the function exit.
+  Re-verify: the capture body (the skip_square structure); grep ret
+  count in the capture PROC (2 = the merged epilogues).
+- SESSION CLOSE (2026-11-27, owner-confirmed): THE STATIC RUNTIME-METHODS
+  LADDER AT 137/139 INSTALLER HOOKS (138 exports owned incl.
+  set_Selected_Groups in the Action installer). THIS SESSION SHIPPED: S7
+  (change_ownership/setup_read/find_drop_location - the LOS bake, los.cpp
+  :1033 retired, the take/give folds, the get_unit_civ hoist, the 523
+  notify); S8 (copy_obj/draw_frame_3d_square_front + the WHITE_PEN
+  retrofit in square_back); S9 (cube_back/cube_front - the -16 y-anchor);
+  S10 (teleport - the 17-case tile_type slope switch, the four
+  X87_LE_NAN cases); S11 (capture_frame_3d_square); the
+  get_3d_sound_info_new desync fix; the &&-CHAIN FOLD template rule;
+  the numbered-item gate clarification. ALL GATES 0/0; defs/refs
+  137/137 exact; all collision scans 0/0; the emission censuses passed.
+  IN-GAME VALIDATED: S11 + the capture fix (owner-confirmed). OWED:
+  S7/S8/S9/S10 + get_3d_sound_info in-game tests. THE ONLY REMAINING
+  STATIC: find_closest_resource @0x550AF0 (1571B, 16 gotos / 14
+  back-edges = the two-pass mandate). NEXT: find_closest_resource, then
+  Static = COMPLETE (139/139); the ladder moves to TRIBE_Combat 75 /
+  TRIBE_Building 70. CARRIED: the common.h collisionUnits comment fix
+  (provisional); the DECOMP_HIERARCHY Building-row re-walk.
+
+- NEXT SESSION (paste as the opening prompt): "Read DECOMP_STATE.md,
+  DECOMP_TEMPLATE.md, DECOMP_HIERARCHY.md, DECOMP_GAME_FACTS.md in
+  cheatdll/src/idb/ first. STATE: the Static runtime-methods ladder at
+  137/139 installer hooks (138 exports owned incl. set_Selected_Groups
+  in the Action installer). S7-S11 ALL WRITTEN + GATED 0/0 (the
+  installer 137 lines, defs/refs 137/137 exact); S11 + the capture fix
+  IN-GAME CONFIRMED; S7/S8/S9/S10 + the get_3d_sound_info fix OWED
+  in-game tests. THE ONLY REMAINING STATIC:
+  find_closest_resource @0x550AF0 [0x550AF0,0x551113) 1571B - THE
+  TWO-PASS MANDATE (16 gotos / 14 back-edges, the ONLY trigger).
+  IMMEDIATE: (1) find_closest_resource under the two-pass protocol:
+  Pass 1 = the aligned transcription (no control-flow changes,
+  value-level fixes only: the AND 0FFh masks, the ftol conversions, the
+  float precision rules (a)-(k), the X87 macro mandate, the dd-constant
+  rule); suite-verify against the vanilla replay; Pass 2 = the
+  restructure on the verified baseline (the stage-map walk BEFORE the
+  compile; the brace-depth walk; the /Fa call-multiset comparison; the
+  paired capture byte-identical). (2) After find_closest_resource:
+  STATIC = COMPLETE (139/139); the ladder moves to TRIBE_Combat 75 /
+  TRIBE_Building 70 runtime methods smallest-first (the two-pass bar:
+  size >= 4096 OR gotos >= 12 AND back-edges >= 12 OR the desync
+  fallback OR the owner override). PROTOCOL: the approval gate before
+  every write; the per-batch collision scan EXECUTED AND QUOTED in the
+  presentation; the switch-table byte comparison for every jump-table
+  predicate; the store-and-read diff ENUMERATED per function incl. the
+  interleaved call-store-call spans; the /Fa census incl. the
+  immediate-value comparison for every membership chain, the
+  RAND_MAX_INTERNAL form at every RNG site, the x0.0-fold scan, the
+  staging-snapshot decode rule; the X87 macro mandate + the precise
+  brackets; the sizeof rule with the typed staging locals; the DIAG
+  harness removal + the zero-symbol sweep at each ship; the
+  stale-claim audit at every handoff; the &&-CHAIN FOLD rule (the
+  nested if form for every multi-bit gate); the fresh re-reads at the
+  .c's exact sites (the vtbl-dispatch staleness class). ALSO OWED: the
+  S7-S10 in-game validation; the registry candidates (523 the
+  owner-changed notify, 733 patrol order, 507/508 target-moved, master
+  id 82, the drop-off terrains 1/22/23). CARRIED: the common.h
+  collisionUnits comment fix (provisional); the DECOMP_HIERARCHY
+  Building-row re-walk."
+- CPP MIGRATION DOC (owner-directed 2026-11-27): NEW companion file
+  cheatdll/src/idb/DECOMP_CPP_MIGRATION.md - the C-style -> C++ class
+  conversion process (incremental, along the way - not after the
+  entire engine). THE REFRAME: recovery, not redesign (the original
+  was MSVC C++; the conversion recovers the original class
+  declarations). THE THREE STATES (C-STYLE / C++-ABI / C++-NATIVE);
+  the ABI-preserving constraints (the frozen member order, the vtable
+  slot order, the allocation size, the padding); the conversion
+  order = the verified ladder (base-first); the per-class checklist
+  (the header, the bodies, the hook trampolines, the placement-new
+  ctors, the vtable verification); the vtable verification model
+  (structural + semantic, NOT byte-identical: the slot count, the
+  redirector-exact targets, the RTTI/dtor-pair structure); the
+  risks (the partial-vtable trap, the invisible mutator, the float
+  model); THE TREE RUNTIME SPIKE first. Re-verify: the vtable gate
+  per class (the emitted vftable vs the original .lst DD list).
