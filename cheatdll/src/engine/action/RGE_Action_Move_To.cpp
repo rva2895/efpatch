@@ -75,11 +75,11 @@ RGE_Action_Move_To* __fastcall RGE_Action_Move_To__RGE_Action_Move_To_new(
     this_->sprite = sprite_in;                                    // asm 0x40827F ([esi+38h])
     if (!sprite_in)                                               // asm 0x408282 (test eax)
     {
-        RGE_Sprite* test = ((RGE_Master_Moving_Object*)obj_in->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)obj_in->master_obj, (RGE_Static_Object*)obj_in);   // asm 0x408288-0x40828D (slot 30 = +0x78; the M4 lowest-declaring-tier cast)
+        RGE_Sprite* test = ((RGE_Master_Moving_Object*)obj_in->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)obj_in->master_obj, (RGE_Static_Object_idb*)obj_in);   // asm 0x408288-0x40828D (slot 30 = +0x78; the M4 lowest-declaring-tier cast)
         if (test)                                                 // asm 0x408292
-            this_->sprite = ((RGE_Master_Moving_Object*)obj_in->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)obj_in->master_obj, (RGE_Static_Object*)obj_in);   // asm 0x40829B-0x4082A3 (the SECOND dispatch = the fetch)
+            this_->sprite = ((RGE_Master_Moving_Object*)obj_in->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)obj_in->master_obj, (RGE_Static_Object_idb*)obj_in);   // asm 0x40829B-0x4082A3 (the SECOND dispatch = the fetch)
         else
-            this_->sprite = obj_in->master_obj->vfptr->get_sprite(obj_in->master_obj, (RGE_Static_Object*)obj_in);   // asm 0x40829D (slot 1 = +0x4 - the base vtbl, no cast)
+            this_->sprite = obj_in->master_obj->vfptr->get_sprite(obj_in->master_obj, (RGE_Static_Object_idb*)obj_in);   // asm 0x40829D (slot 1 = +0x4 - the base vtbl, no cast)
     }
     return this_;                                                 // asm 0x4082AC (mov eax, esi)
 }
@@ -113,11 +113,11 @@ RGE_Action_Move_To* __fastcall RGE_Action_Move_To__RGE_Action_Move_To2_new(
     this_->sprite = sprite_in;                                    // asm 0x40832D ([esi+38h])
     if (!sprite_in)                                               // asm 0x408330
     {
-        RGE_Sprite* test = ((RGE_Master_Moving_Object*)obj_in->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)obj_in->master_obj, (RGE_Static_Object*)obj_in);   // asm 0x40833B (slot 30 = +0x78)
+        RGE_Sprite* test = ((RGE_Master_Moving_Object*)obj_in->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)obj_in->master_obj, (RGE_Static_Object_idb*)obj_in);   // asm 0x40833B (slot 30 = +0x78)
         if (test)                                                 // asm 0x408340
-            this_->sprite = ((RGE_Master_Moving_Object*)obj_in->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)obj_in->master_obj, (RGE_Static_Object*)obj_in);   // asm 0x408350 (the fetch)
+            this_->sprite = ((RGE_Master_Moving_Object*)obj_in->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)obj_in->master_obj, (RGE_Static_Object_idb*)obj_in);   // asm 0x408350 (the fetch)
         else
-            this_->sprite = obj_in->master_obj->vfptr->get_sprite(obj_in->master_obj, (RGE_Static_Object*)obj_in);   // asm 0x408348 (slot 1)
+            this_->sprite = obj_in->master_obj->vfptr->get_sprite(obj_in->master_obj, (RGE_Static_Object_idb*)obj_in);   // asm 0x408348 (slot 1)
     }
     return this_;                                                 // asm 0x40835A (mov eax, esi)
 }
@@ -157,7 +157,7 @@ void __fastcall RGE_Action_Move_To__destructor_new(
 void __fastcall RGE_Action_Move_To__first_in_stack_new(
     RGE_Action_Move_To* this_, DWORD dummy, unsigned __int8 first_time)
 {
-    double dist = RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_->obj, this_->target_obj);   // asm 0x4083D6-0x4083DF (:3871 @0x551B80)
+    double dist = RGE_Static_Object__distance_to_object((RGE_Static_Object *)this_->obj, (RGE_Static_Object *)this_->target_obj);   // asm 0x4083D6-0x4083DF (:3871 @0x551B80)
     if (dist > 0.01f)                                             // asm 0x4083DF-0x4083EA (fcomp flt_654978; test ah,41h/jz - the ordered-> path = the literal MATCH row)
     {
         double speed = this_->obj->vfptr->maximumSpeed(this_->obj);   // asm 0x4083FE (slot 98 = +0x188 - the DOUBLE return captured unrounded)
@@ -194,7 +194,7 @@ void __fastcall RGE_Action_Move_To__set_state_new(
     case RGE_ACTION_STATE_INVALIDATED:                            // 14
         if (!this_->subActionValue)                               // asm 0x408466 (al @+0x3C)
         {
-            RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object*)this_->obj);   // asm 0x408481 (slot 1 = +0x4)
+            RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);   // asm 0x408481 (slot 1 = +0x4)
             this_->obj->vfptr->new_sprite(this_->obj, base_sprite);   // asm 0x408488 (slot 44 = +0xB0)
         }
         return;                                                   // asm def_40844D
@@ -294,7 +294,7 @@ unsigned __int8 __fastcall RGE_Action_Move_To__update_new(
         // {<= range, NaN} -> the patrol gate
         if (this_->target_obj)                                    // asm 0x40855F
         {
-            double dist = RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_->obj, this_->target_obj);   // asm 0x40856B (:3871)
+            double dist = RGE_Static_Object__distance_to_object((RGE_Static_Object *)this_->obj, (RGE_Static_Object *)this_->target_obj);   // asm 0x40856B (:3871)
             if (dist > this_->range)                              // asm 0x408570-0x408578 (fcomp range @+0x40; test ah,41h/jnz - the {<=,NaN} fall = the literal MATCH row)
                 break;                                            // asm -> loc_40857E (the re-path)
         }

@@ -69,7 +69,7 @@ bool __stdcall processCheatCodeEF(TRIBE_Game* game, int playerID, char* text)
             }
             if (strstr(s, "YOU HAVE FAILED ME FOR THE LAST TIME"))
             {
-                RGE_Static_Object** sel_units = player->sel_list;
+                RGE_Static_Object** sel_units = (RGE_Static_Object **)player->sel_list;
                 int n = player->sel_count;
                 RGE_Static_Object* order_units[40];
                 RGE_Static_Object** unit_ptr = order_units;
@@ -81,7 +81,7 @@ bool __stdcall processCheatCodeEF(TRIBE_Game* game, int playerID, char* text)
             }
             if (strstr(s, "JOIN US OR DIE"))
             {
-                RGE_Static_Object** sel_units = player->sel_list;
+                RGE_Static_Object** sel_units = (RGE_Static_Object **)player->sel_list;
                 int n = player->sel_count;
                 RGE_Static_Object* order_units[40];
                 RGE_Static_Object** unit_ptr = order_units;
@@ -129,7 +129,7 @@ bool __stdcall processCheatCodeEF(TRIBE_Game* game, int playerID, char* text)
         }
         if (strstr(s, "THE DEFLECTOR SHIELD IS TOO STRONG"))
         {
-            RGE_Static_Object** sel_units = player->sel_list;
+            RGE_Static_Object** sel_units = (RGE_Static_Object **)player->sel_list;
             int n = player->sel_count;
             RGE_Static_Object* order_units[40];
             RGE_Static_Object** unit_ptr = order_units;
@@ -141,7 +141,7 @@ bool __stdcall processCheatCodeEF(TRIBE_Game* game, int playerID, char* text)
         }
         if (strstr(s, "NO SHIP THAT SMALL HAS A CLOAKING DEVICE"))
         {
-            RGE_Static_Object** sel_units = player->sel_list;
+            RGE_Static_Object** sel_units = (RGE_Static_Object **)player->sel_list;
             int n = player->sel_count;
             RGE_Static_Object* order_units[40];
             RGE_Static_Object** unit_ptr = order_units;
@@ -153,7 +153,7 @@ bool __stdcall processCheatCodeEF(TRIBE_Game* game, int playerID, char* text)
         }
         if (strstr(s, "FORCEHEAL"))
         {
-            RGE_Static_Object** sel_units = player->sel_list;
+            RGE_Static_Object** sel_units = (RGE_Static_Object **)player->sel_list;
             int n = player->sel_count;
             RGE_Static_Object* order_units[40];
             RGE_Static_Object** unit_ptr = order_units;
@@ -165,7 +165,7 @@ bool __stdcall processCheatCodeEF(TRIBE_Game* game, int playerID, char* text)
         }
         if (strstr(s, "FORCEPROTECT"))
         {
-            RGE_Static_Object** sel_units = player->sel_list;
+            RGE_Static_Object** sel_units = (RGE_Static_Object **)player->sel_list;
             int n = player->sel_count;
             RGE_Static_Object* order_units[40];
             RGE_Static_Object** unit_ptr = order_units;
@@ -197,7 +197,7 @@ bool __stdcall processCheatCodeEF(TRIBE_Game* game, int playerID, char* text)
             {
                 if (id < game->world->player_num && id != player->id)
                 {
-                    RGE_Static_Object** sel_units = player->sel_list;
+                    RGE_Static_Object** sel_units = (RGE_Static_Object **)player->sel_list;
                     int n = player->sel_count;
                     RGE_Static_Object* order_units[40];
                     RGE_Static_Object** unit_ptr = order_units;

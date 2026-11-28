@@ -37,7 +37,11 @@ void __cdecl padawans_hooks_atexit()
 
 void __cdecl masters_hooks()
 {
-    setHook((void*)0x0054B1D0, RGE_Static_Object__gbg_isMaster_new);
+    // STAYS RETIRED (the conversion ENTRY-FIGHT, 2026-11-28): 0x0054B1D0 =
+    // the RGE_Static_Object::gbg_isMaster entry E9 (slot 13). The handler was
+    // install-order-dead unless the txt load raced past install_engine; the
+    // identical txt-list logic rides the member's masters_installed
+    // conditional bake (the parity verified at batch S2c).
 
     efpatch_atexit(masters_hooks_atexit);
 }

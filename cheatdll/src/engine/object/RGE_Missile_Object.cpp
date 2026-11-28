@@ -451,7 +451,7 @@ RGE_Check_List* __fastcall RGE_Missile_Object__make_object_collision_list_new(
         for (int i = 0; i < *numberObSystemCollisions; ++i)
         {
             ObsRecord* rec = obSystemCollisions[i];   // common.h:112; asm 0x49C11A (entry = ObsRecord*, +4 stride; the owner's ObsRecord** listing correction - the cast dropped)
-            RGE_Static_Object* hit = rec->Object;         // asm 0x49C11D-0x49C120 (ObsRecord.Object @+8 - deref unconditional)
+            RGE_Static_Object* hit = (RGE_Static_Object *)rec->Object;         // asm 0x49C11D-0x49C120 (ObsRecord.Object @+8 - deref unconditional)
             if (hit != 0)                                 // asm 0x49C120-0x49C122
             {
                 float dz = hit->world_z - this_->world_z;     // asm 0x49C124-0x49C132 (world_z @+0x50)

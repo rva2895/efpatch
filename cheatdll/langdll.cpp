@@ -322,7 +322,7 @@ void setLangDllHooks()
     // medic_worker stub BAKED into RGE_Static_Object__gbg_isBiological_new
     // (the two-digit-civ base-0x26 arm; the site was mid-function in the now
     // dead original body)
-    //setHook((void*)0x0054BA2B, medic_worker);
+    if (g_origRGEStatic) setHook((void*)0x0054BA2B, medic_worker);   // THE CONVERSION GATE: the interior site (gbg_isBiological, +0x4B) - the ORIG leg installs, the NEW leg = the dead bytes (the medic_worker bake carries)
     // retired 2026-11-14: RGE_Static_Object::gbg_get_civ_override is hooked;
     // original body is dead and the replacement already applies CIV_COUNT + 1
     // (src/engine/object/RGE_Static_Object.cpp), see 0x0054B3E9

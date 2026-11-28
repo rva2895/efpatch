@@ -28,7 +28,7 @@ void* __stdcall findUnit(TRIBE_Player* this_, __int16 id, RGE_Static_Object* beg
         if (current)
             do
             {
-                if (current && current->vfptr->is_powered(current, 1))
+                if (current && current->is_powered(1))
                     break;
                 else
                     current = TRIBE_Player__find_obj(this_, id, current, unk);

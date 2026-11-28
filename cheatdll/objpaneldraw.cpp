@@ -233,7 +233,7 @@ void __stdcall objPanel(TRIBE_Panel_Object* obj_panel)
             TRIBE_Panel_Object__draw_item(obj_panel, cntr++, 28, 6, val, 0, 0, 0, 42044);
         }
 
-        UNIT_EXTRA* ud = getUnitExtra(obj_panel->game_obj);
+        UNIT_EXTRA* ud = getUnitExtra((RGE_Static_Object *)obj_panel->game_obj);
         if (ud && ud->countersUsed)
         {
             if (ud->miscCounter1 > 0.0f)

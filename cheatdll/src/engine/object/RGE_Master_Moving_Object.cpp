@@ -315,7 +315,7 @@ RGE_Static_Object* __fastcall RGE_Master_Moving_Object__make_new_obj_new(
                 RGE_Game_World__recycle_object_in_to_game(owner->world, this_->master_type);
             if (recycled)
             {
-                recycled->vfptr->recycle_in_to_game(recycled, (RGE_Master_Static_Object*)this_, owner, x, y, z);
+                recycled->recycle_in_to_game((RGE_Master_Static_Object*)this_, owner, x, y, z);
                 result = recycled;
             }
         }

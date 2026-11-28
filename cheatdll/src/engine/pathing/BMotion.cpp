@@ -937,7 +937,7 @@ int __fastcall BMotion__updateMovement_new(BMotion* this_, DWORD dummy, int doAv
             for (int recordIndex = 0; recordIndex < *numberObSystemCollisions; ++recordIndex)
             {
                 ObsRecord* record = obSystemCollisions[recordIndex];
-                RGE_Static_Object* hitObject = record->Object;
+                RGE_Static_Object* hitObject = (RGE_Static_Object *)record->Object;
                 if (hitObject != 0)
                 {
                     RGE_Static_Object* blocker = RGE_Game_World__object(
@@ -953,7 +953,7 @@ int __fastcall BMotion__updateMovement_new(BMotion* this_, DWORD dummy, int doAv
                                 && blocker->id == this_->mPathData->targetID)
                                 collisionTargetFound = 1;
                             if (activePath->creationTimeValue
-                                < blocker->vfptr->lastMoveTime(blocker))   // slot +0x30C = 195
+                                < blocker->lastMoveTime())   // slot +0x30C = 195
                                 ++freshBlockers;
                         }
                     }

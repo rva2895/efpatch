@@ -1051,7 +1051,7 @@ unsigned __int8 __stdcall log_object_update(RGE_Static_Object* obj)
     //if (obj->owner->world->world_time == 21990 && obj->id == 10730)
     //    __debugbreak();
 
-    unsigned __int8 result = obj->vfptr->update(obj);
+    unsigned __int8 result = obj->update();
     log("    obj=%d: after update: rand=%d", obj->id, rand_no_change());
     return result;
 }
@@ -1312,14 +1312,14 @@ void __fastcall TRIBE_Building_Object__findUnitsUnderGate_new(TRIBE_Building_Obj
         {
             if (*numberUnits >= maxNumberUnits)
                 break;
-            RGE_Static_Object* obj = ob_recs[i]->Object;
+            RGE_Static_Object* obj = (RGE_Static_Object *)ob_recs[i]->Object;
             if (obj
                 && obj->master_obj->object_group != 6
                 && obj->master_obj->object_group != 18
                 && obj->master_obj->object_group != 8
                 && obj->master_obj->object_group != 10
                 && obj->master_obj->object_group != 9
-                && ((obj->vfptr->maximumSpeed)(obj) >= 0.0000001f || obj->owner->id))
+                && (obj->maximumSpeed() >= 0.0000001f || obj->owner->id))
             {
                 units[*numberUnits] = obj->id;
                 ++*numberUnits;

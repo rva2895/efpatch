@@ -130,6 +130,10 @@ void setCargoTraderHooks()
     setHook((void*)0x005CED83, cargoTrader_1);
     setHook((void*)0x005F901A, cargoTrader_2);
 
-    setHook((void*)0x0054B400, gbg_is_aircraft_new);
+    // STAYS RETIRED (the conversion ENTRY-FIGHT, 2026-11-28): 0x0054B400 = the
+    // RGE_Static_Object::gbg_isAircraft entry E9 (slot 5). The handler computed the
+    // identical air-group set {43,48,59,62,63,64} (the parity verified against the
+    // member body); it was install-order-dead since inception (setCargoTraderHooks
+    // at dllmain:491 < install_engine at :765 - the replacement owned the entry).
 }
 #pragma optimize( "", on )

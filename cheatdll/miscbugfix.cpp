@@ -166,8 +166,8 @@ void __stdcall do_handle_idle_button(TRIBE_Screen_Game* game_screen, unsigned in
         bool idle_found = false;
         for (int i = 0; i < list->Number_of_objects; i++)
         {
-            RGE_Static_Object* obj = list->List[i];
-            if (obj && obj->vfptr->gbg_isCivilianUnit(obj) && obj->vfptr->is_idle(obj))
+            RGE_Static_Object* obj = (RGE_Static_Object *)list->List[i];
+            if (obj && obj->gbg_isCivilianUnit() && obj->is_idle())
             {
                 idle_found = true;
                 break;
@@ -869,7 +869,11 @@ void setMiscBugfixHooks(int ver)
         setHook((void*)0x0055D410, useSameZoneDropsite_new);
 
         //exclude rs fort annex power droid
-        setHook((void*)0x0054B4E0, RGE_Static_Object__gbg_isMilitaryUnit_new);
+        // STAYS RETIRED (the conversion ENTRY-FIGHT, 2026-11-28): 0x0054B4E0 =
+    // the RGE_Static_Object::gbg_isMilitaryUnit entry E9 (slot 8). The
+    // handler was install-order-dead since inception (setMiscBugfixHooks at
+    // dllmain:203 < install_engine at :765 - the S1 replacement owned the
+    // entry; the handler's group switch = the same predicate).
 
         //artillery and bomber building targeting
         setHook((void*)0x0041AAFE, targeting_classes_sort_buildings);

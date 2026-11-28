@@ -264,7 +264,7 @@ void __fastcall RGE_Action_Gather__first_in_stack_new(
     }
     if (first_time && this_->target_obj)                          // asm 0x403CD-0x403DA (the arg consumed; the target test)
     {
-        RGE_Static_Object* effective = this_->target_obj;         // asm 0x4043E4 (mov edx, ecx)
+        RGE_Static_Object* effective = (RGE_Static_Object *)this_->target_obj;         // asm 0x4043E4 (mov edx, ecx)
         if (effective->master_obj->master_type == RGE_MASTER_TYPE_BUILDING   // asm 0x403E6 (cmp byte [eax+4], 50h)
             && ((TRIBE_Building_Object*)effective)->linked_owner) // asm 0x403EC-0x403F4 (mov eax, [ecx+1DCh] = 476; the Enter ctor precedent)
             effective = (RGE_Static_Object*)((TRIBE_Building_Object*)effective)->linked_owner;   // asm 0x403F6 (the linked-building redirect)
@@ -273,7 +273,7 @@ void __fastcall RGE_Action_Gather__first_in_stack_new(
                 || effective->master_obj->id == this_->obj->master_obj->backup_drop_site)   // asm 0x40409 (cmp dx, [eax+11Ah] = 282)
             && this_->obj->attribute_amount_held > 0.0f)          // asm 0x40422-0x40430 (fld @+0x54; fcomp const_f_zero; test ah,41h/jnz - the {<= 0,NaN} -> Goto(4) = the literal MATCH row)
         {
-            this_->vfptr->set_target_obj2(this_, effective);      // asm 0x40437 (slot 23 = +0x5C; push ecx = the effective building)
+            this_->vfptr->set_target_obj2(this_, (RGE_Static_Object_idb*)effective);      // asm 0x40437 (slot 23 = +0x5C; push ecx = the effective building)
             this_->vfptr->set_target_obj(this_, 0);               // asm 0x4043E (slot 22)
             this_->target_x = -1.0f;                              // asm 0x40443 (mov eax, -1.0)
             this_->target_y = -1.0f;                              // asm 0x40444D
@@ -458,7 +458,7 @@ void __fastcall RGE_Action_Gather__set_state_new(
                 || ctrCounts[1617] > 0)                           // asm 0x4047EA-0x4047F2 (cmp word [eax+1617*2], 0; jle skip)
             {
                 // THE AI-WATER CHECK (the Goto arm's version)
-                unsigned __int8 target_zone = RGE_Static_Object__lookupZone(this_->target_obj, (int)this_->target_obj->world_x, (int)this_->target_obj->world_y);   // asm 0x404810-0x404824 (the ftol pair y-then-x pushed = the (x, y) order)
+                unsigned __int8 target_zone = RGE_Static_Object__lookupZone((RGE_Static_Object *)this_->target_obj, (int)this_->target_obj->world_x, (int)this_->target_obj->world_y);   // asm 0x404810-0x404824 (the ftol pair y-then-x pushed = the (x, y) order)
                 if (RGE_Static_Object__currentZone((RGE_Static_Object*)this_->obj) != target_zone)   // asm 0x40482E (the SELF slot call :? - the currentZone)
                 {
                     this_->vfptr->set_state(this_, 244);          // asm 0x40483E (push 0F4h - the internal water-crossing state)
@@ -477,7 +477,7 @@ void __fastcall RGE_Action_Gather__set_state_new(
                 if (created)                                      // asm 0x40496A
                 {
                     RGE_Sprite* sprite = RGE_Action_Gather__get_move_sprite(this_, 0);   // asm 0x40497A (unk = 0)
-                    RGE_Action_Move_To__RGE_Action_Move_To2(created, this_->obj, this_->target_obj, this_->task->work_range, sprite);   // asm 0x404991 (:101 - HOOKED -> routes)
+                    RGE_Action_Move_To__RGE_Action_Move_To2(created, this_->obj, (RGE_Static_Object *)this_->target_obj, this_->task->work_range, sprite);   // asm 0x404991 (:101 - HOOKED -> routes)
                 }
             }
             __except (operator_delete_internal(created), EXCEPTION_CONTINUE_SEARCH)
@@ -615,12 +615,12 @@ void __fastcall RGE_Action_Gather__set_state_new(
                 if (this_->obj->vfptr->useSameZoneDropsite(this_->obj) == 1)   // asm 0x404B60-0x404B68 (slot 115 = +0x1CC = 460 decimal)
                 {
                     RGE_Static_Object* found = RGE_Player_Object_List__find_by_master_ids(this_->obj->owner->objects, this_->obj->master_obj->drop_site, this_->obj->master_obj->backup_drop_site, this_->obj->world_x, this_->obj->world_y, 1, 2, (RGE_Static_Object*)this_->obj);   // asm 0x404B95 (the zone_obj = the obj - NOT 0)
-                    this_->vfptr->set_target_obj2(this_, found);  // asm 0x404B9D (slot 23)
+                    this_->vfptr->set_target_obj2(this_, (RGE_Static_Object_idb*)found);  // asm 0x404B9D (slot 23)
                 }
                 if (!this_->target_obj2)                          // asm 0x404BA3-0x404BA5
                 {
                     RGE_Static_Object* found = RGE_Player_Object_List__find_by_master_ids(this_->obj->owner->objects, this_->obj->master_obj->drop_site, this_->obj->master_obj->backup_drop_site, this_->obj->world_x, this_->obj->world_y, 1, 2, 0);   // asm 0x404BD3 (the zone_obj = 0)
-                    this_->vfptr->set_target_obj2(this_, found);  // asm 0x404BDB (slot 23)
+                    this_->vfptr->set_target_obj2(this_, (RGE_Static_Object_idb*)found);  // asm 0x404BDB (slot 23)
                 }
             }
         }
@@ -630,7 +630,7 @@ void __fastcall RGE_Action_Gather__set_state_new(
             && this_->target_obj2                                 // asm 0x404BFC
             && (ctrCounts[1659] > 0                               // asm 0x404C06 ([eax+0FE6h] -> the re-based table[1659])
                 || ctrCounts[1617] > 0)                           // asm 0x404C10 ([eax+0F92h] -> the re-based table[1617])
-            && (RGE_Static_Object__lookupZone(this_->target_obj2, (int)this_->target_obj2->world_x, (int)this_->target_obj2->world_y) != RGE_Static_Object__currentZone((RGE_Static_Object*)this_->obj)))   // asm 0x404C2E (the lookupZone/currentZone pair)
+            && (RGE_Static_Object__lookupZone((RGE_Static_Object *)this_->target_obj2, (int)this_->target_obj2->world_x, (int)this_->target_obj2->world_y) != RGE_Static_Object__currentZone((RGE_Static_Object *)this_->obj)))   // asm 0x404C2E (the lookupZone/currentZone pair)
         {
             this_->vfptr->set_state(this_, 247);                  // asm 0x404C43 (push 0F7h - the internal water-crossing state)
             return; // asm 0x404C4F
@@ -643,7 +643,7 @@ void __fastcall RGE_Action_Gather__set_state_new(
                 if (created)                                      // asm 0x404C7C
                 {
                     RGE_Sprite* sprite = RGE_Action_Gather__get_move_sprite(this_, 0);   // asm 0x404C8C (unk = 0)
-                    RGE_Action_Move_To__RGE_Action_Move_To2(created, this_->obj, this_->target_obj2, this_->task->work_range, sprite);   // asm 0x404CA3 (:101 - HOOKED -> routes)
+                    RGE_Action_Move_To__RGE_Action_Move_To2(created, this_->obj, (RGE_Static_Object *)this_->target_obj2, this_->task->work_range, sprite);   // asm 0x404CA3 (:101 - HOOKED -> routes)
                 }
             }
             __except (operator_delete_internal(created), EXCEPTION_CONTINUE_SEARCH)
@@ -726,13 +726,13 @@ RGE_Sprite* __fastcall RGE_Action_Gather__get_wait_sprite_new(RGE_Action_Gather*
     RGE_Sprite* carry = task->carry_sprite;                              // asm 0x405DF6 ([eax+40h])
     RGE_Action_Object* obj = this_->obj;                                 // asm 0x405E07 ([esi+8])
     if (!carry)                                                          // asm 0x405DF9-0x405DFB
-        return obj->master_obj->vfptr->get_sprite(obj->master_obj, (RGE_Static_Object*)obj); // asm 0x405E5F-0x405E68 (the master vtbl slot 1; the ancestor cast per the cross-class rule)
+        return obj->master_obj->vfptr->get_sprite(obj->master_obj, (RGE_Static_Object_idb*)obj); // asm 0x405E5F-0x405E68 (the master vtbl slot 1; the ancestor cast per the cross-class rule)
     __int16 attrType = task->attribute_type;                             // asm 0x405DFD ([eax+14h])
     if (attrType == -1)                                                  // asm 0x405E01-0x405E05
-        return obj->master_obj->vfptr->get_sprite(obj->master_obj, (RGE_Static_Object*)obj);
+        return obj->master_obj->vfptr->get_sprite(obj->master_obj, (RGE_Static_Object_idb*)obj);
     if (obj->attribute_type_held != attrType                             // asm 0x405E0A-0x405E0E (cmp [ecx+5Ch], ax)
         || X87_LE_NAN(obj->attribute_amount_held, 0.0f))                 // asm 0x405E10-0x405E1E (fcomp const_f_zero; test ah,41h; jnz fallback - the skip set is {<=0, NaN}; the .c's literal <= would keep NaN in the civ arm - the negated-opposite form, rule (i))
-        return obj->master_obj->vfptr->get_sprite(obj->master_obj, (RGE_Static_Object*)obj);
+        return obj->master_obj->vfptr->get_sprite(obj->master_obj, (RGE_Static_Object_idb*)obj);
     __int16 group = obj->master_obj->object_group;                       // asm 0x405E20-0x405E31
     if (group == 58 || group == 14) {                                    // asm 0x405E27-0x405E37
         int civ = obj->vfptr->gbg_get_civ_override(obj);                 // asm 0x405E37-0x405E43 (slot 2)
@@ -772,7 +772,7 @@ int __fastcall RGE_Action_Gather__work_new(RGE_Action_Gather* this_, DWORD dummy
         this_->vfptr->set_state(this_, RGE_ACTION_STATE_MOVE_NO_SEARCH); // asm 0x406094-0x40609A (slot 24 = +0x60; 15)
         return 1;                                                        // asm 0x40609D-0x4060A2
     }
-    if (obj_in == this_->target_obj) {                                   // asm 0x405E96-0x405E99 (cmp edi,[esi+10h])
+    if ((RGE_Static_Object *)obj_in == (RGE_Static_Object *)this_->target_obj) {                                   // asm 0x405E96-0x405E99 (cmp edi,[esi+10h])
         unsigned __int8 st = this_->state;                               // asm 0x405E9B ([esi+0Ch])
         if (st == RGE_ACTION_STATE_GOTO || st == RGE_ACTION_STATE_WORK   // asm 0x405E9E-0x405EB0 (cmp 4 / 6 / 7)
             || st == RGE_ACTION_STATE_WORK_2 || st == RGE_ACTION_STATE_MOVE
@@ -789,7 +789,7 @@ int __fastcall RGE_Action_Gather__work_new(RGE_Action_Gather* this_, DWORD dummy
             RGE_Action_Object* obj = this_->obj;                         // asm 0x405EEE ([esi+8])
             if (workTarget->owner == obj->owner) {                       // asm 0x405EF1-0x405EF7 ([ebp+18h] vs [ebx+18h])
                 obj->vfptr->set_only_action(obj, 0);                     // asm 0x405EF9-0x405EFF (slot 231 = +0x39C)
-                obj->vfptr->work2(obj, workTarget, workTarget->world_x,  // asm 0x405F05-0x405F1C (slot 227 = +0x38C; the IR#2-corrected
+                obj->vfptr->work2(obj, (RGE_Static_Object_idb*)workTarget, workTarget->world_x,  // asm 0x405F05-0x405F1C (slot 227 = +0x38C; the IR#2-corrected
                     workTarget->world_y, workTarget->world_z,            //   form: obj, x, y, z, work_flag 1, gather_flag 0, certain_action -1)
                     1, 0, -1);
                 return 1;                                                // asm 0x405F22-0x405F2B
@@ -813,12 +813,12 @@ int __fastcall RGE_Action_Gather__work_new(RGE_Action_Gather* this_, DWORD dummy
         this_->target_x = -1.0f;                                         // asm 0x405F8E-0x405F94
         this_->target_y = -1.0f;                                         // asm 0x405F97
         this_->target_z = -1.0f;                                         // asm 0x405F9A
-        this_->vfptr->set_target_obj2(this_, obj_in);                    // asm 0x405F93-0x405FA1 (slot 23 = +0x5C)
+        this_->vfptr->set_target_obj2(this_, (RGE_Static_Object_idb*)obj_in);                    // asm 0x405F93-0x405FA1 (slot 23 = +0x5C)
         this_->vfptr->set_state(this_, RGE_ACTION_STATE_RETURN);         // asm 0x405FA4-0x405FAA (8)
         return 1;                                                        // asm 0x405FAD-0x405FB6
     }
     // the gather arm
-    this_->vfptr->set_target_obj(this_, obj_in);                         // asm 0x405FB9-0x405FBE (slot 22)
+    this_->vfptr->set_target_obj(this_, (RGE_Static_Object_idb*)obj_in);                         // asm 0x405FB9-0x405FBE (slot 22)
     this_->target_x = obj_in->world_x;                                   // asm 0x405FC1-0x405FC7
     this_->target_y = obj_in->world_y;                                   // asm 0x405FC7-0x405FCD
     this_->target_z = obj_in->world_z;                                   // asm 0x405FCD-0x405FD3
@@ -920,7 +920,7 @@ unsigned __int8 __fastcall RGE_Action_Gather__update_new(RGE_Action_Gather* this
         }
         this_->vfptr->set_target_obj(this_, 0);                          // asm 0x404F68-0x404F6D
     }
-    RGE_Static_Object* dropTarget = this_->target_obj2;                  // asm 0x404F70 ([esi+14h])
+    RGE_Static_Object* dropTarget = (RGE_Static_Object *)this_->target_obj2;                  // asm 0x404F70 ([esi+14h])
     if (dropTarget && dropTarget->object_state >= 7u) {                  // asm 0x404F75-0x404F7A
         this_->vfptr->set_target_obj2(this_, 0);                         // asm 0x404F7C-0x404F81 (slot 23)
     }
@@ -938,7 +938,7 @@ unsigned __int8 __fastcall RGE_Action_Gather__update_new(RGE_Action_Gather* this
         this_->timer = (float)ticked;                                    // asm 0x404FCD (fst [esi+2Ch] - the m32 store-round, st0 stays UNROUNDED)
         if (X87_LE_NAN(ticked, 0.0))                                     // asm 0x404FD0-0x404FDB (fcomp const_d_zero; test ah,41h; jnz default - the {<=0, NaN} set; the .c's literal <= would keep NaN ticking - the negated-opposite form)
             return 0;
-        RGE_Static_Object* drop = this_->target_obj2;                    // asm 0x404FE1 ([esi+14h])
+        RGE_Static_Object* drop = (RGE_Static_Object *)this_->target_obj2;                    // asm 0x404FE1 ([esi+14h])
         this_->timer = -10.0f;                                           // asm 0x404FE4 ([esi+2Ch] = -10.0)
         if (drop) {                                                      // asm 0x404FEB-0x404FED
             obj->vfptr->notify(obj, obj->id, obj->id, 514, RGE_UNITAI_ACTION_GATHER, this_->targetType, drop->id); // asm 0x404FEF-0x405008 (slot 120 = +0x1E0; push 261h/202h; 514 = the gather re-target notify - the 5xx candidate)
@@ -1013,7 +1013,7 @@ unsigned __int8 __fastcall RGE_Action_Gather__update_new(RGE_Action_Gather* this
     }
     case RGE_ACTION_STATE_WORK:                                          // asm case 5 -> loc_405392
     {
-        RGE_Static_Object* target = this_->target_obj;                   // asm 0x405392 ([esi+10h])
+        RGE_Static_Object* target = (RGE_Static_Object *)this_->target_obj;                   // asm 0x405392 ([esi+10h])
         if (!target) {                                                   // asm 0x40539C ([esi+8])
             RGE_Action_Object* obj = this_->obj;
             if (obj->attribute_amount_held > 0.0f) {                     // asm 0x40539F-0x4053AA (the literal > MATCH row)
@@ -1040,9 +1040,9 @@ unsigned __int8 __fastcall RGE_Action_Gather__update_new(RGE_Action_Gather* this
             }
         }
         // LABEL_60 (asm 0x40543D): the turn-towards + the Work2 hand-off
-        if (!((unsigned __int8)this_->obj->vfptr->turn_towards(this_->obj, target, 0, 0)))  // asm 0x40543D-0x40544D (slot 221 = +0x374; test al,al; jz default)
+        if (!((unsigned __int8)this_->obj->vfptr->turn_towards(this_->obj, (RGE_Static_Object_idb*)target, 0, 0)))  // asm 0x40543D-0x40544D (slot 221 = +0x374; test al,al; jz default)
             return 0;
-        RGE_Static_Object* workTarget = this_->target_obj;               // asm 0x405453 ([esi+10h] - the re-read)
+        RGE_Static_Object* workTarget = (RGE_Static_Object *)this_->target_obj;               // asm 0x405453 ([esi+10h] - the re-read)
         if (workTarget->attribute_amount_held > 0.0f                     // asm 0x405456-0x405464 (the literal > MATCH row)
             || this_->obj->vfptr->keepGatheringWhenObjectIsOut(this_->obj, workTarget->master_obj->id)) {  // asm 0x405466-0x40547B (slot 113 = +0x1C4; test al,al; jnz keep-gathering)
             this_->vfptr->set_state(this_, RGE_ACTION_STATE_WORK_2);     // asm 0x4054AC-0x4054B1 (7; ebx = 7 held from the head)
@@ -1062,7 +1062,7 @@ unsigned __int8 __fastcall RGE_Action_Gather__update_new(RGE_Action_Gather* this
     }
     case RGE_ACTION_STATE_WORK_2:                                        // asm case 6 -> loc_4054C1
     {
-        RGE_Static_Object* target = this_->target_obj;                   // asm 0x4054C1 ([esi+10h])
+        RGE_Static_Object* target = (RGE_Static_Object *)this_->target_obj;                   // asm 0x4054C1 ([esi+10h])
         if (!target) {                                                   // asm 0x4054C8 ([esi+8])
             RGE_Action_Object* obj = this_->obj;
             if (obj->attribute_amount_held > 0.0f) {                     // asm 0x4054CB-0x4054D9 (the literal > MATCH row)
@@ -1123,22 +1123,22 @@ unsigned __int8 __fastcall RGE_Action_Gather__update_new(RGE_Action_Gather* this
             return 0;
         }
         float negGain = (float)-gain;                                    // asm 0x40564C-0x405656 (fchs; fstp [esp+var_24] - the arg store-round of the negated UNROUNDED gain)
-        target->vfptr->set_attribute_amount(target, negGain, 1, 0);      // asm 0x40564E-0x405659 (the TARGET's Static vtbl slot 63 = +0xFC, idb_types.h:4007; args (float, 1, 0))
-        RGE_Static_Object* gatherTarget = this_->target_obj;             // asm 0x40565F ([esi+10h] - the re-read)
+        target->set_attribute_amount(negGain, 1, 0);      // asm 0x40564E-0x405659 (the TARGET's Static vtbl slot 63 = +0xFC, idb_types.h:4007; args (float, 1, 0))
+        RGE_Static_Object* gatherTarget = (RGE_Static_Object *)this_->target_obj;             // asm 0x40565F ([esi+10h] - the re-read)
         if (X87_LT_NAN(gatherTarget->attribute_amount_held, 0.1f)        // asm 0x405662-0x405670 (fld; fcomp flt_6545BC (0.1f - binary-verified 3DCCCCCD); test ah,1; jz skip - the {<, NaN} continue set; the .c's literal < would skip NaN)
             && gatherTarget->attribute_amount_held > 0.0f) {             // asm 0x405672-0x405680 (fcomp const_f_zero; test ah,41h; jnz skip - the literal > MATCH row)
             unitGain = (float)((double)unitGain + (double)gatherTarget->attribute_amount_held + (double)0.01f);  // asm 0x405682-0x405694 (fld var_8; fadd [ecx+54h]; fadd flt_654978 (0.01f - binary-verified 3C23D70A); fstp var_8 - ONE final rounding)
-            gatherTarget->vfptr->set_attribute_amount(gatherTarget, 0, 0, 0);  // asm 0x40568A-0x405698 (the target's slot 63; args (0, 0, 0))
+            gatherTarget->set_attribute_amount(0, 0, 0);  // asm 0x40568A-0x405698 (the target's slot 63; args (0, 0, 0))
         }
         this_->obj->vfptr->set_attribute_amount(this_->obj, unitGain, 1, 0);  // asm 0x40569E-0x4056AB (the unit's ACTION vtbl slot 63 = +0xFC, idb_types.h:11679; args (float, 1, 0))
         RGE_Action_Object* unit2 = this_->obj;                           // asm 0x4056B1 (the re-read)
         float tolerance = (float)fabs((double)unit2->attribute_amount_held - (double)cap);  // asm 0x4056B4-0x4056BD (fld; fsub var_4; fabs; fstp var_8 - the 53-bit sub; /Fa: cvtps2pd x2 + subsd + the fabs andps + cvtsd2ss)
         if (!(unit2->attribute_amount_held >= (double)cap)) {            // asm 0x4056C1-0x4056CD (fcomp var_4; test ah,1; jz LABEL_120 - C0 = {< cap, NaN} enters the transfer block; the {>= ordered} set skips; the literal >= MATCH row: NaN enters in both)
             if (X87_LT_NAN(tolerance, 0.1f)) {                           // asm 0x4056CF-0x4056DE (fld var_8; fcomp flt_6545BC; test ah,1; jz past - the {<, NaN} continue set)
-                RGE_Static_Object* transferTarget = this_->target_obj;   // asm 0x4056E0 ([esi+10h])
+                RGE_Static_Object* transferTarget = (RGE_Static_Object *)this_->target_obj;   // asm 0x4056E0 ([esi+10h])
                 if (transferTarget->attribute_amount_held >= (double)tolerance) {  // asm 0x4056E3-0x4056EF (fcomp var_8; test ah,1; jnz LABEL_120 - the literal >= MATCH row: NaN -> past in both)
                     float negTolerance = -tolerance;                     // asm 0x4056F1-0x4056FB (fld var_8 - the ROUNDED tolerance; fchs; fstp)
-                    transferTarget->vfptr->set_attribute_amount(transferTarget, negTolerance, 1, 0);  // asm 0x4056F7-0x405700 (the target's slot 63)
+                    transferTarget->set_attribute_amount(negTolerance, 1, 0);  // asm 0x4056F7-0x405700 (the target's slot 63)
                     this_->obj->vfptr->set_attribute_amount(this_->obj, tolerance, 1, 0);  // asm 0x405706-0x405713 (the unit's slot 63)
                 }
             }
@@ -1147,7 +1147,7 @@ unsigned __int8 __fastcall RGE_Action_Gather__update_new(RGE_Action_Gather* this
             this_->vfptr->set_state(this_, RGE_ACTION_STATE_RETURN);     // asm LABEL_189 (0x405754)
             return 0;
         }
-        RGE_Static_Object* tailTarget = this_->target_obj;               // asm 0x40572A ([esi+10h] - the re-read)
+        RGE_Static_Object* tailTarget = (RGE_Static_Object *)this_->target_obj;               // asm 0x40572A ([esi+10h] - the re-read)
         if (tailTarget->attribute_amount_held > 0.0f                     // asm 0x40572D-0x40573B (the literal > MATCH row)
             || this_->obj->vfptr->keepGatheringWhenObjectIsOut(this_->obj, tailTarget->master_obj->id)) {  // asm 0x40573D-0x405752 (slot 113; test al,al; jnz default)
             return 0;
@@ -1179,7 +1179,7 @@ unsigned __int8 __fastcall RGE_Action_Gather__update_new(RGE_Action_Gather* this
             this_->vfptr->set_state(this_, RGE_ACTION_STATE_RETURN);     // asm LABEL_189 (0x405754-0x40575A, push 8)
             return 0;
         }
-        if (RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_->obj, this_->target_obj2) > 1.0) {  // asm 0x4057ED-0x405801 (:3871 double; fcomp const_d_one; test ah,41h; jnz deposit - the literal > MATCH row: NaN deposits in both)
+        if (RGE_Static_Object__distance_to_object((RGE_Static_Object *)this_->obj, (RGE_Static_Object *)this_->target_obj2) > 1.0) {  // asm 0x4057ED-0x405801 (:3871 double; fcomp const_d_one; test ah,41h; jnz deposit - the literal > MATCH row: NaN deposits in both)
             this_->timer = -3.0f;                                        // asm LABEL_135 (0x405806, [esi+2Ch] = -3.0)
             this_->obj->vfptr->stop_moving(this_->obj);                  // asm 0x40580F (slot 220)
             return 0;
@@ -1274,7 +1274,7 @@ unsigned __int8 __fastcall RGE_Action_Gather__update_new(RGE_Action_Gather* this
         RGE_Static_Object* found = RGE_Game_World__object((RGE_Game_World*)this_->obj->owner->world, foundId);  // asm 0x405987-0x405999 (:6086)
         if (!found)
             return 0;                                                    // asm 0x40599B-0x4057A8 (default)
-        this_->vfptr->work(this_, found, found->world_x, found->world_y, found->world_z);  // asm 0x4059A1-0x4059B2 (the Gather vftable slot 13 = +0x34 - the recursive work dispatch)
+        this_->vfptr->work(this_, (RGE_Static_Object_idb*)found, found->world_x, found->world_y, found->world_z);  // asm 0x4059A1-0x4059B2 (the Gather vftable slot 13 = +0x34 - the recursive work dispatch)
         return 0;
     }
     case RGE_ACTION_STATE_MOVE:                                          // asm cases 10 -> loc_405109
@@ -1468,7 +1468,7 @@ int __fastcall RGE_Action_Gather__auto_rebuild_farm_new(RGE_Action_Gather* actio
     if (farm_bldg->vfptr->check_placement(farm_bldg, (RGE_Player*)action->obj->owner, action->farm_x, action->farm_y, NULL, 1, 1, 1, 1, 1, 1, NULL, 0))
         return 0;
 
-    RGE_Static_Object* new_farm = farm_bldg->vfptr->make_new_obj_2(farm_bldg, (RGE_Player*)action->obj->owner, action->farm_x, action->farm_y, 0.0f, -1);
+    RGE_Static_Object* new_farm = (RGE_Static_Object *)farm_bldg->vfptr->make_new_obj_2(farm_bldg, (RGE_Player*)action->obj->owner, action->farm_x, action->farm_y, 0.0f, -1);
     if (!new_farm)
         return 0;
 
@@ -1478,7 +1478,7 @@ int __fastcall RGE_Action_Gather__auto_rebuild_farm_new(RGE_Action_Gather* actio
         TRIBE_Player__use_farm_queue_new(action->obj->owner, farm_obj_id);
 
     RGE_Static_Object__removeAllFromPathingGroup((RGE_Static_Object*)action->obj);
-    action->obj->vfptr->do_command(action->obj, new_farm, action->farm_x, action->farm_y, 0.0f);
+    action->obj->vfptr->do_command(action->obj, (RGE_Static_Object_idb*)new_farm, action->farm_x, action->farm_y, 0.0f);
 
     return 1;
 }

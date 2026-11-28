@@ -145,9 +145,9 @@ int __fastcall RGE_Action__setup2_new(
     rge_read(infile, &this_->state, sizeof(this_->state));       // asm 0x40A937 (@+0xC, 1)
     int id = 0;
     rge_read(infile, &id, sizeof(id));                           // asm 0x40A944 (the staging slot, 4)
-    this_->target_obj = (id == -1) ? 0 : (RGE_Static_Object*)id;   // asm 0x40A94D-0x40A957 (the id-fixup form, faithful)
+    this_->target_obj = (id == -1) ? 0 : (RGE_Static_Object_idb*)id;   // asm 0x40A94D-0x40A957 (the id-fixup form, faithful)   // asm 0x40A94D-0x40A957 (the id-fixup form, faithful)
     rge_read(infile, &id, sizeof(id));                           // asm 0x40A962
-    this_->target_obj2 = (id == -1) ? 0 : (RGE_Static_Object*)id;   // asm 0x40A96B-0x40A975 (@+0x14)
+    this_->target_obj2 = (id == -1) ? 0 : (RGE_Static_Object_idb*)id;   // asm 0x40A96B-0x40A975 (@+0x14)   // asm 0x40A96B-0x40A975 (@+0x14)
     rge_read(infile, &this_->targetID, sizeof(this_->targetID));   // asm 0x40A97F (@+0x18, 4)
     rge_read(infile, &this_->target2ID, sizeof(this_->target2ID));   // asm 0x40A984 (@+0x1C, 4)
     rge_read(infile, &this_->target_x, sizeof(this_->target_x));   // asm 0x40A990 (@+0x20, 4)
@@ -241,13 +241,13 @@ void __fastcall RGE_Action__rehook_new(RGE_Action* this_, DWORD dummy)
 {
     if (this_->target_obj)                                       // asm 0x40AB06-0x40AB08 (@+0x10)
     {
-        this_->target_obj = RGE_Static_Object__get_object_pointer((RGE_Static_Object*)this_->obj, (int)this_->target_obj);   // asm 0x40AB0E (:3828; the id-fixup: the pointer slot holds the raw id)
+        this_->target_obj = (RGE_Static_Object_idb*)RGE_Static_Object__get_object_pointer((RGE_Static_Object*)this_->obj, (int)this_->target_obj);   // asm 0x40AB0E (:3828; the id-fixup: the pointer slot holds the raw id)
         if (this_->target_obj)                                   // asm 0x40AB18
             this_->targetID = this_->target_obj->id;             // asm 0x40AB1A-0x40AB1D (@+0x18; id @+0x10)
     }
     if (this_->target_obj2)                                      // asm 0x40AB23 (@+0x14)
     {
-        this_->target_obj2 = RGE_Static_Object__get_object_pointer((RGE_Static_Object*)this_->obj, (int)this_->target_obj2);   // asm 0x40AB2B
+        this_->target_obj2 = (RGE_Static_Object_idb*)RGE_Static_Object__get_object_pointer((RGE_Static_Object*)this_->obj, (int)this_->target_obj2);   // asm 0x40AB2B
         if (this_->target_obj2)                                  // asm 0x40AB35
             this_->target2ID = this_->target_obj2->id;           // asm 0x40AB37-0x40AB3A (@+0x1C)
     }
@@ -365,19 +365,19 @@ unsigned __int8 __fastcall RGE_Action__update_new(
 void __fastcall RGE_Action__set_target_obj_new(
     RGE_Action* this_, DWORD dummy, RGE_Static_Object* new_obj)
 {
-    if (this_->target_obj && this_->target_obj != new_obj)       // asm 0x40AD48-0x40AD51
+    if (this_->target_obj && this_->target_obj != (RGE_Static_Object_idb*)new_obj)       // asm 0x40AD48-0x40AD51
     {
         RGE_Static_Object* resolved = RGE_Game_World__object((RGE_Game_World*)this_->obj->owner->world, this_->targetID);   // asm 0x40AD63 (the dual-naming cast - the update_new precedent)
         if (resolved)                                            // asm 0x40AD68
-            resolved->vfptr->release_being_worked_on(resolved, (RGE_Static_Object*)this_->obj);   // asm 0x40AD74 (the Static vtbl slot 80 = +0x140; the explicit-this form)
+            resolved->release_being_worked_on((RGE_Static_Object*)this_->obj);   // asm 0x40AD74 (the Static vtbl slot 80 = +0x140; the explicit-this form)
     }
-    if (this_->target_obj != new_obj)                            // asm 0x40AD7A-0x40AD7D
+    if (this_->target_obj != (RGE_Static_Object_idb*)new_obj)                            // asm 0x40AD7A-0x40AD7D
     {
-        this_->target_obj = new_obj;                             // asm 0x40AD81
+        this_->target_obj = (RGE_Static_Object_idb*)new_obj;                             // asm 0x40AD81
         if (new_obj)                                             // asm 0x40AD84
         {
             this_->targetID = new_obj->id;                       // asm 0x40AD86-0x40AD8D (id @+0x10 -> @+0x18)
-            new_obj->vfptr->set_being_worked_on(new_obj, this_->obj, this_->action_type, 0);   // asm 0x40AD9B (the Static vtbl slot 79 = +0x13C; the i16 action_type @+4)
+            new_obj->set_being_worked_on(this_->obj, this_->action_type, 0);   // asm 0x40AD9B (the Static vtbl slot 79 = +0x13C; the i16 action_type @+4)
         }
         else
             this_->targetID = -1;                                // asm 0x40ADA6
@@ -393,19 +393,19 @@ void __fastcall RGE_Action__set_target_obj_new(
 void __fastcall RGE_Action__set_target_obj2_new(
     RGE_Action* this_, DWORD dummy, RGE_Static_Object* new_obj)
 {
-    if (this_->target_obj2 && this_->target_obj2 != new_obj)     // asm 0x40ADC8-region
+    if (this_->target_obj2 && this_->target_obj2 != (RGE_Static_Object_idb*)new_obj)     // asm 0x40ADC8-region
     {
         RGE_Static_Object* resolved = RGE_Game_World__object((RGE_Game_World*)this_->obj->owner->world, this_->target2ID);
         if (resolved)
-            resolved->vfptr->release_being_worked_on(resolved, (RGE_Static_Object*)this_->obj);   // the Static vtbl slot 80 = +0x140
+            resolved->release_being_worked_on((RGE_Static_Object*)this_->obj);   // the Static vtbl slot 80 = +0x140
     }
-    if (this_->target_obj2 != new_obj)
+    if (this_->target_obj2 != (RGE_Static_Object_idb*)new_obj)
     {
-        this_->target_obj2 = new_obj;
+        this_->target_obj2 = (RGE_Static_Object_idb*)new_obj;
         if (new_obj)
         {
             this_->target2ID = new_obj->id;
-            new_obj->vfptr->set_being_worked_on(new_obj, this_->obj, this_->action_type, 0);   // the Static vtbl slot 79 = +0x13C
+            new_obj->set_being_worked_on(this_->obj, this_->action_type, 0);   // the Static vtbl slot 79 = +0x13C
         }
         else
             this_->target2ID = -1;

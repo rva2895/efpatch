@@ -13,7 +13,7 @@ RGE_Static_Object* __stdcall find_first_object(RGE_Player_Object_List* list, int
 {
     for (int i = 0; i < list->Number_of_objects; i++)
         if (list->List[i]->master_obj->id == obj_id && list->List[i]->object_state == 2)
-            return list->List[i];
+            return (RGE_Static_Object *)list->List[i];
     return NULL;
 }
 

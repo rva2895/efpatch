@@ -289,7 +289,7 @@ void __fastcall RGE_Moving_Object__new_sprite_new(
 {
     RGE_Sprite* target = nsprite;
     if (target == 0)                                     // .c:173432
-        target = this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object*)this_);   // .c:173433
+        target = this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object_idb*)this_);   // .c:173433
     if (this_->sprite != target)                         // .c:173435
     {
         this_->old_sprite = this_->sprite;               // .c:173437 (@+0x20)
@@ -311,7 +311,7 @@ RGE_Static_Object* __fastcall RGE_Moving_Object__spawn_death_obj_new(
     RGE_Static_Object* spawned = RGE_Static_Object__spawn_death_obj((RGE_Static_Object*)this_);   // .c:173449
     if (spawned != 0 && spawned->master_obj->master_type >= RGE_MASTER_TYPE_MOVING)   // .c:173451 (0x1E)
     {
-        spawned->vfptr->new_angle(spawned, this_->angle);   // .c:173453 (Static vtbl new_angle)
+        spawned->new_angle(this_->angle);   // .c:173453 (Static vtbl new_angle)
         RGE_Static_Object__set_facet(spawned, this_->facet);   // .c:173454
     }
     return spawned;
@@ -915,7 +915,7 @@ double __fastcall RGE_Moving_Object__precalcDistToTarget_new(
     for (int i = 0; i < 2; ++i)                                      // asm 0x4A3F94-0x4A3FDC (J3)
     {
         RGE_Game_World* world = (RGE_Game_World*)(*base_game)->world;   // asm 0x4A3F94-0x4A3F9B (@+0x420)
-        int childID = obj->vfptr->getLinkedChild(obj, i);            // asm 0x4A3FA1-0x4A3FA5 (slot +0x358, :4149)
+        int childID = obj->getLinkedChild(i);            // asm 0x4A3FA1-0x4A3FA5 (slot +0x358, :4149)
         RGE_Static_Object* child = RGE_Game_World__object(world, childID);   // asm 0x4A3FAB-0x4A3FAE (:6086)
         if (child != 0)
         {
@@ -1108,7 +1108,7 @@ unsigned __int8 __fastcall RGE_Moving_Object__incrementWaypoint_new(
             for (int i = 0; i < 2; ++i)                              // asm 0x4A429F-0x4A42FC (J3)
             {
                 RGE_Game_World* world = (RGE_Game_World*)(*base_game)->world;   // asm 0x4A429F-0x4A42AC (@+0x420)
-                int childID = objLocal->vfptr->getLinkedChild(objLocal, i);   // asm 0x4A42B4 (slot +0x358)
+                int childID = objLocal->getLinkedChild(i);   // asm 0x4A42B4 (slot +0x358)
                 RGE_Static_Object* child = RGE_Game_World__object(world, childID);   // asm 0x4A42BA-0x4A42BD (:6086)
                 if (child != 0)
                 {
@@ -1259,7 +1259,7 @@ unsigned __int8 __fastcall RGE_Moving_Object__checkRange_new(
         for (int i = 0; i < 2; ++i)                                  // asm 0x4A45C9-0x4A4614 (J3)
         {
             RGE_Game_World* world = (RGE_Game_World*)(*base_game)->world;   // asm 0x4A45C9-0x4A45D4 (@+0x420)
-            int childID = obj->vfptr->getLinkedChild(obj, i);        // asm 0x4A45DA (slot +0x358, :4149)
+            int childID = obj->getLinkedChild(i);        // asm 0x4A45DA (slot +0x358, :4149)
             RGE_Static_Object* child = RGE_Game_World__object(world, childID);   // asm 0x4A45E0-0x4A45E3 (:6086)
             if (child != 0)
             {
@@ -1519,10 +1519,10 @@ double __fastcall RGE_Moving_Object__calculateMaximumSpeed_new(
 int __fastcall RGE_Moving_Object__setRunSprite_new(RGE_Moving_Object* this_, DWORD dummy)
 {
     RGE_Master_Moving_Object* master = (RGE_Master_Moving_Object*)this_->master_obj;   // asm 0x4A69B4 ([esi+14h]); see the cast note above
-    if (master->vfptr->get_run_sprite(master, (RGE_Static_Object*)this_) == 0)   // asm 0x4A69B9 (slot +0x7C) - the master refuses (no run sprite for this tier/unit): stay as-is
+    if (master->vfptr->get_run_sprite(master, (RGE_Static_Object_idb*)this_) == 0)   // asm 0x4A69B9 (slot +0x7C) - the master refuses (no run sprite for this tier/unit): stay as-is
         return 0;                                            // asm 0x4A69DD-0x4A69E0
     this_->vfptr->new_sprite(this_,
-        master->vfptr->get_run_sprite(master, (RGE_Static_Object*)this_));   // asm 0x4A69C9-0x4A69CF - the SECOND getter call is real: its result goes straight into the sprite registration (never stored on the unit)
+        master->vfptr->get_run_sprite(master, (RGE_Static_Object_idb*)this_));   // asm 0x4A69C9-0x4A69CF - the SECOND getter call is real: its result goes straight into the sprite registration (never stored on the unit)
     return 1;                                                // asm 0x4A69D6
 }
 
@@ -1539,13 +1539,13 @@ int __fastcall RGE_Moving_Object__setMoveSprite_new(RGE_Moving_Object* this_, DW
     RGE_Master_Moving_Object* master = (RGE_Master_Moving_Object*)this_->master_obj;   // asm 0x4A69F4
 
     // the master refuses (no move sprite for this tier/unit): stay as-is
-    if (master->vfptr->get_move_sprite(master, (RGE_Static_Object*)this_) == 0)   // asm 0x4A69F9 (slot +0x78)
+    if (master->vfptr->get_move_sprite(master, (RGE_Static_Object_idb*)this_) == 0)   // asm 0x4A69F9 (slot +0x78)
         return 0;                                            // asm 0x4A6A1D-0x4A6A20
 
     // the SECOND getter call is real: its result goes straight into the
     // sprite registration (never stored on the unit)
     this_->vfptr->new_sprite(this_,
-        master->vfptr->get_move_sprite(master, (RGE_Static_Object*)this_));   // asm 0x4A6A09-0x4A6A0F (slot +0x78 -> new_sprite +0xB0)
+        master->vfptr->get_move_sprite(master, (RGE_Static_Object_idb*)this_));   // asm 0x4A6A09-0x4A6A0F (slot +0x78 -> new_sprite +0xB0)
     return 1;                                                // asm 0x4A6A16
 }
 
@@ -1559,13 +1559,13 @@ int __fastcall RGE_Moving_Object__setMoveSprite_new(RGE_Moving_Object* this_, DW
 int __fastcall RGE_Moving_Object__setFidgetSprite_new(RGE_Moving_Object* this_, DWORD dummy)
 {
     // the plain sprite getter is IN the Static master vtbl (slot 1) - no cast
-    if (this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object*)this_) == 0)   // asm 0x4A6A39 (slot +0x04)
+    if (this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object_idb*)this_) == 0)   // asm 0x4A6A39 (slot +0x04)
         return 0;                                            // asm 0x4A6A5D
 
     // the SECOND getter call is real: its result goes straight into the
     // sprite registration (never stored on the unit)
     this_->vfptr->new_sprite(this_,
-        this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object*)this_));   // asm 0x4A6A49-0x4A6A4F (slot +0x04 -> new_sprite +0xB0)
+        this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object_idb*)this_));   // asm 0x4A6A49-0x4A6A4F (slot +0x04 -> new_sprite +0xB0)
     return 1;                                                // asm 0x4A6A4F-region epilogue
 }
 
@@ -2070,7 +2070,7 @@ unsigned __int8 __fastcall RGE_Moving_Object__try_evac_tile_new(
             this_->master_obj,
             (RGE_Player*)this_->owner, xa, goal,             // dual-naming cast: the runtime field is TRIBE_Player*, the vtbl slot declares RGE_Player* (the M1/Combat(70) precedent)
             0, 0, 0, 0, 0, 0,
-            1, (RGE_Static_Object*)this_, 1))
+            1, (RGE_Static_Object_idb*)this_, 1))
     {
         return 0;                                            // asm 0x4A6F91-0x4A6F97 - blocked: not an evacuation destination
     }
@@ -4923,7 +4923,7 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
                         {
                             ObsRecord* obRecord = obSystemCollisions[recordIdx];   // 0x4A5A38-0x4A5A44 (the .c's obja walk ->
                                                                               //  the indexed form)
-                            RGE_Static_Object* obBlocker = obRecord->Object;  // 0x4A5A46 ([ecx+8])
+                            RGE_Static_Object* obBlocker = (RGE_Static_Object *)obRecord->Object;  // 0x4A5A46 ([ecx+8])
                             if (obBlocker)
                             {
                                 RGE_Static_Object* obObj = RGE_Game_World__object((RGE_Game_World*)this_->owner->world, obBlocker->id);
@@ -4963,7 +4963,7 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
                                                 {
                                                                               // 0x4A5B1D-0x4A5B21 ([eax+1Ch]; the .c's
                                                                               //  v101 ctm temp inlined - read once)
-                                                    if (activePath->creationTimeValue < obObj->vfptr->lastMoveTime(obObj))
+                                                    if (activePath->creationTimeValue < obObj->lastMoveTime())
                                                                               // 0x4A5B1D-0x4A5B2C (slot +0x30C = 195;
                                                                               //  cmp ebx,eax; jnb skips)
                                                     {
@@ -5012,7 +5012,7 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
                                 // 0x4A5C4x-region: the count re-read per iteration - faithful
                                 for (pauseIdx = 0; pauseIdx < *numberObSystemCollisions; pauseIdx++)
                                 {
-                                    RGE_Static_Object* pauseBlocker = obSystemCollisions[pauseIdx]->Object;   // 0x4A5BD5-0x4A5BDA ([ebx] -> [+8])
+                                    RGE_Static_Object* pauseBlocker = (RGE_Static_Object *)obSystemCollisions[pauseIdx]->Object;   // 0x4A5BD5-0x4A5BDA ([ebx] -> [+8])
                                     if (pauseBlocker)
                                     {
                                         int pauseTargetId = this_->pathData->targetID;   // 0x4A5BDE-0x4A5BE4
@@ -5032,9 +5032,9 @@ int __fastcall RGE_Moving_Object__doIntelligentMovementUpdate_new(
                                                                           //  the .c's v108 priority temp inlined -
                                                                           //  the two dispatches kept, the cmp fed
                                                                           //  by the first call's return)
-                                                    if (pauseTarget->vfptr->movementPriority(pauseTarget) > this_->vfptr->movementPriority(this_))
+                                                    if (pauseTarget->movementPriority() > this_->vfptr->movementPriority(this_))
                                                                           // 0x4A5C2A-0x4A5C36 (cmp ebp,eax; jle skips)
-                                                        pauseTarget->vfptr->pauseMovement(pauseTarget, 0.5f);
+                                                        pauseTarget->pauseMovement(0.5f);
                                                                           // 0x4A5C38-0x4A5C41 (slot +0x310 = 196;
                                                                           //  push 0.5 = the .c's 1056964608 bits)
                                                 }
@@ -5204,15 +5204,15 @@ int __fastcall RGE_Moving_Object__isMoving_new(RGE_Moving_Object* this_)
 void __fastcall RGE_Moving_Object__copy_obj_new(RGE_Moving_Object* this_, DWORD dummy, RGE_Master_Static_Object *source2)
 {
     RGE_Master_Moving_Object *master = (RGE_Master_Moving_Object *)this_->master_obj;  // asm 0x4A2EF5 mov ecx,[esi+14h]
-    RGE_Sprite *sprite = master->vfptr->get_move_sprite(master, (RGE_Static_Object *)this_);  // asm 0x4A2EF8 mov eax,[ecx] / 0x4A2EFA call [eax+78h]
+    RGE_Sprite *sprite = master->vfptr->get_move_sprite(master, (RGE_Static_Object_idb*)this_);  // asm 0x4A2EF8 mov eax,[ecx] / 0x4A2EFA call [eax+78h]
     RGE_Sprite *newSprite = 0;
     if (this_->sprite == sprite) {                          // asm 0x4A2EFD mov ecx,[esi+1Ch] / 0x4A2F04 cmp ecx,eax / 0x4A2F06 jnz short loc_4A2F12
-        newSprite = ((RGE_Master_Moving_Object *)source2)->vfptr->get_move_sprite((RGE_Master_Moving_Object *)source2, (RGE_Static_Object *)this_);  // asm 0x4A2F08-0x4A2F0D call [edx+78h] / 0x4A2F10 jmp loc_4A2F28
+        newSprite = ((RGE_Master_Moving_Object *)source2)->vfptr->get_move_sprite((RGE_Master_Moving_Object *)source2, (RGE_Static_Object_idb*)this_);  // asm 0x4A2F08-0x4A2F0D call [edx+78h] / 0x4A2F10 jmp loc_4A2F28
     }
     else {
-        sprite = master->vfptr->get_run_sprite(master, (RGE_Static_Object *)this_);  // asm 0x4A2F12-0x4A2F18 call [eax+7Ch]
+        sprite = master->vfptr->get_run_sprite(master, (RGE_Static_Object_idb*)this_);  // asm 0x4A2F12-0x4A2F18 call [eax+7Ch]
         if (this_->sprite == sprite)                        // asm 0x4A2F1B cmp [esi+1Ch],eax / 0x4A2F1E jnz short loc_4A2F37
-            newSprite = ((RGE_Master_Moving_Object *)source2)->vfptr->get_run_sprite((RGE_Master_Moving_Object *)source2, (RGE_Static_Object *)this_);  // asm 0x4A2F20-0x4A2F25 call [edx+7Ch]
+            newSprite = ((RGE_Master_Moving_Object *)source2)->vfptr->get_run_sprite((RGE_Master_Moving_Object *)source2, (RGE_Static_Object_idb*)this_);  // asm 0x4A2F20-0x4A2F25 call [edx+7Ch]
     }
     if (newSprite != 0) {                                   // asm 0x4A2F28 test eax,eax / 0x4A2F2A jz short loc_4A2F37
         this_->vfptr->new_sprite(this_, newSprite);         // asm 0x4A2F2C mov edx,[esi] / 0x4A2F2E push eax / 0x4A2F31 call [edx+0B0h]
@@ -5240,17 +5240,17 @@ void __fastcall RGE_Moving_Object__updateEnd_new(RGE_Moving_Object* this_)
 {
     if (this_->vfptr->isMoving(this_) == 1) {               // asm 0x4A1AC3 mov eax,[esi] / 0x4A1AC5 call [eax+300h] / 0x4A1ACB mov ecx,1 / 0x4A1AD0 cmp / 0x4A1AD2 jnz loc_4A1AFC
         if (this_->master_obj->movement_type == 1) {        // asm 0x4A1AD4 mov edx,[esi+14h] / 0x4A1AD7 cmp [edx+78h],cl / 0x4A1ADA jnz loc_4A1AEC
-            (*OBSystem_Air)->vfptr->ModifyObjectObstruction(*OBSystem_Air, (RGE_Static_Object *)this_, 16);   // asm 0x4A1ADC mov ecx,OBSystem_Air / 0x4A1AE2 push 10h / 0x4A1AE7 call [eax+30h]
+            (*OBSystem_Air)->vfptr->ModifyObjectObstruction(*OBSystem_Air, (RGE_Static_Object_idb*)this_, 16);   // asm 0x4A1ADC mov ecx,OBSystem_Air / 0x4A1AE2 push 10h / 0x4A1AE7 call [eax+30h]
         }
         else {
-            (*OBSystem_Land)->vfptr->ModifyObjectObstruction(*OBSystem_Land, (RGE_Static_Object *)this_, 16); // asm 0x4A1AEC mov ecx,OBSystem_Land / 0x4A1AF2 push 10h / 0x4A1AF7 call [edx+30h]
+            (*OBSystem_Land)->vfptr->ModifyObjectObstruction(*OBSystem_Land, (RGE_Static_Object_idb*)this_, 16); // asm 0x4A1AEC mov ecx,OBSystem_Land / 0x4A1AF2 push 10h / 0x4A1AF7 call [edx+30h]
         }
     }
     else if (this_->master_obj->movement_type == 1) {       // asm 0x4A1AFC mov eax,[esi+14h] / 0x4A1AFF cmp [eax+78h],cl / 0x4A1B02 jnz loc_4A1B14
-        (*OBSystem_Air)->vfptr->ModifyObjectObstruction(*OBSystem_Air, (RGE_Static_Object *)this_, 0);    // asm 0x4A1B04 mov ecx,OBSystem_Air / 0x4A1B0A push 0 / 0x4A1B0F call [edx+30h]
+        (*OBSystem_Air)->vfptr->ModifyObjectObstruction(*OBSystem_Air, (RGE_Static_Object_idb*)this_, 0);    // asm 0x4A1B04 mov ecx,OBSystem_Air / 0x4A1B0A push 0 / 0x4A1B0F call [edx+30h]
     }
     else {
-        (*OBSystem_Land)->vfptr->ModifyObjectObstruction(*OBSystem_Land, (RGE_Static_Object *)this_, 0);  // asm 0x4A1B14 mov ecx,OBSystem_Land / 0x4A1B1A push 0 / 0x4A1B1F call [eax+30h]
+        (*OBSystem_Land)->vfptr->ModifyObjectObstruction(*OBSystem_Land, (RGE_Static_Object_idb*)this_, 0);  // asm 0x4A1B14 mov ecx,OBSystem_Land / 0x4A1B1A push 0 / 0x4A1B1F call [eax+30h]
     }
 }
 
@@ -5463,7 +5463,7 @@ int __fastcall RGE_Moving_Object__canPath_new(RGE_Moving_Object* this_, DWORD du
     if (target == 0)                                            // asm 0x4A1DF9 test eax,eax / 0x4A1DFB jnz
         return 0;                                               // asm 0x4A1DFD xor eax,eax (exit 2)
     BVector goalBuffer;                                         // asm 0x4A1D50 sub esp,0Ch (var_C - the getter's out-buffer)
-    BVector *fetched = target->vfptr->position(target, &goalBuffer);  // asm 0x4A1E24-0x4A1E2B: lea ecx,[esp+30h+var_C] / push ecx / mov ecx,eax / call [edx+2ACh] (slot 171 = position)
+    BVector *fetched = target->position(&goalBuffer);  // asm 0x4A1E24-0x4A1E2B: lea ecx,[esp+30h+var_C] / push ecx / mov ecx,eax / call [edx+2ACh] (slot 171 = position)
     BVector start = this_->positionValue;                       // asm 0x4A1E46-0x4A1E5E: lea ecx,[esi+0F4h] + the 12-byte copy
     return totalCanPath(this_, targetID, start, *fetched, range, pathDistance, unobstructiblePlayerID, unobstructibleGroupID, 1, 0, useHulledArea);  // asm 0x4A1E61-0x4A1E65: mov edx,edi (targetID) / call totalCanPath
 }
@@ -5870,7 +5870,7 @@ int __fastcall RGE_Moving_Object__resolveCollisions_new(RGE_Moving_Object *this_
 		float ourUpperX = correctedPos.x + ownMaster->radius_x;    // asm 0x4A5ECF-0x4A5ED6 (var_60)
 		float ourUpperY = correctedPos.y + ownMaster->radius_y;    // asm 0x4A5EDA-0x4A5EE6 (var_58)
 
-		RGE_Static_Object *blocker = rec->Object;                  // asm 0x4A5EE1-0x4A5EEA (ObsRecord.Object @+8, idb_types.h:4318)
+		RGE_Static_Object *blocker = (RGE_Static_Object *)rec->Object;                  // asm 0x4A5EE1-0x4A5EEA (ObsRecord.Object @+8, idb_types.h:4318)
 		if (blocker == 0)
 			continue;                                              // asm 0x4A5EEA jz loc_4A61C9
 
@@ -5885,7 +5885,7 @@ int __fastcall RGE_Moving_Object__resolveCollisions_new(RGE_Moving_Object *this_
 		if (blocker == 0)
 			continue;                                              // asm 0x4A5F1E-0x4A5F20 jz
 
-		if (blocker->vfptr->maximumSpeed(blocker) > 0.0f)
+		if (blocker->maximumSpeed() > 0.0f)
 			// asm 0x4A5F26-0x4A5F3B (the RUNTIME vtbl slot +0x188 = 98, idb_types.h:4033 double; fcomp const_f_zero;
 			// test ah,41h; jz = the skip arm {> 0 ordered} - the literal MATCH row: a NaN blocker is PROCESSED)
 			continue;                                              // asm 0x4A5F3B jz loc_4A61C9
@@ -5922,13 +5922,13 @@ int __fastcall RGE_Moving_Object__resolveCollisions_new(RGE_Moving_Object *this_
 
 		BVector fetchedA;                                          // asm var_18 - the copy-out buffer, fetch 1
 		BVector fetchedB;                                          // asm var_C - the copy-out buffer, fetch 2 (each fetch consumed before the next)
-		blocker->vfptr->position(blocker, &fetchedA);              // asm 0x4A6008-0x4A6014 (the RUNTIME vtbl slot +0x2AC = 171, idb_types.h:4106)
+		blocker->position(&fetchedA);              // asm 0x4A6008-0x4A6014 (the RUNTIME vtbl slot +0x2AC = 171, idb_types.h:4106)
 		float pushOutX;
 		if (this_->positionValue.x >= fetchedA.x)                  // asm 0x4A601A-0x4A6023 (test ah,1; jz = the {>= ordered} MATCH row; NaN -> the else arm)
 			pushOutX = theirUpperX - ourLowerX;                    // asm loc_4A602F (var_30 - var_3C)
 		else
 			pushOutX = ourUpperX - theirLowerX;                    // asm loc_4A6025 (var_60 - var_48)
-		blocker->vfptr->position(blocker, &fetchedB);              // asm 0x4A6037-0x4A6047 (the second fetch, its own buffer)
+		blocker->position(&fetchedB);              // asm 0x4A6037-0x4A6047 (the second fetch, its own buffer)
 		float pushOutY;
 		if (this_->positionValue.y >= fetchedB.y)                  // asm 0x4A604D-0x4A605B (the .y slot @+8)
 			pushOutY = theirUpperY - ourLowerY;                    // asm loc_4A6067 (var_28 - var_34)

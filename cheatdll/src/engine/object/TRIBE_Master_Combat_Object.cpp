@@ -912,7 +912,7 @@ unsigned __int8 __fastcall TRIBE_Master_Combat_Object__check_placement_new(
             const RGE_Tile& tile = map->map_row_offset[row][col];
             if (!tile.TileObject_Count)
                 continue;
-            RGE_Static_Object** objp = tile.Object_List;
+            RGE_Static_Object** objp = (RGE_Static_Object **)tile.Object_List;
             for (int i = 0; i < tile.TileObject_Count; ++i, ++objp)
             {
                 RGE_Static_Object* obj = *objp;

@@ -109,13 +109,13 @@ void __fastcall RGE_Action_Explore__set_state_new(
         if (new_state == RGE_ACTION_STATE_SEARCH)                 // the asm's two paths: the terminal states JUMP past the notify (the table entry 0 -> loc_403E20 directly); Search falls through it (loc_403E02 -> loc_403E20) - this compare is the goto-free join's structural cost (the /Fa positional-diff class)
             this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id, 514, RGE_UNITAI_ACTION_EXPLORE, 0, 0);   // asm 0x403E0E-0x403E1A (0x202 = 514, 0x25D = 605 - the expedition-started notify, the 5xx candidate)
         {                                                         // loc_403E20 (the shared restore - ONE emission site, the asm's 2-inbound join)
-            RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object*)this_->obj);   // asm 0x403E2B (slot 1)
+            RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);   // asm 0x403E2B (slot 1)
             this_->obj->vfptr->new_sprite(this_->obj, base_sprite);   // asm 0x403E32 (slot 44)
         }
         return;                                                   // asm def_403DFB
     case RGE_ACTION_STATE_WAIT:                                   // 2 -> loc_403E4B
     {
-        RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object*)this_->obj);   // asm 0x403E56 (slot 1)
+        RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);   // asm 0x403E56 (slot 1)
         this_->obj->vfptr->new_sprite(this_->obj, base_sprite);   // asm 0x403E5D (slot 44 = +0xB0)
         this_->vfptr->set_target_obj(this_, 0);                   // asm 0x403E69 (slot 22 = +0x58)
         this_->vfptr->set_target_obj2(this_, 0);                  // asm 0x403E72 (slot 23 = +0x5C)
@@ -130,7 +130,7 @@ void __fastcall RGE_Action_Explore__set_state_new(
         if (this_->task && this_->task->move_sprite)              // asm 0x403E99-0x403EA2 (test eax; test [eax+34h])
             move_sprite = this_->task->move_sprite;               // asm 0x403E9D
         else
-            move_sprite = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);   // asm 0x403EAD (slot 30 = +0x78 = 120 decimal; the M4 lowest-declaring-tier cast)
+            move_sprite = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);   // asm 0x403EAD (slot 30 = +0x78 = 120 decimal; the M4 lowest-declaring-tier cast)
         RGE_Action_Move_To* created = (RGE_Action_Move_To*)operator_new_internal(sizeof(RGE_Action_Move_To));   // asm 0x403EB4 (push 44h = 68 walked)
         __try
         {

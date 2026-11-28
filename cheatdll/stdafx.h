@@ -39,7 +39,20 @@
 #include "registry.h"
 #include "utf8.h"
 
+// THE CONVERSION SWAP (DECOMP_CPP_MIGRATION.md sec 3b, THE INVERTED ORDER,
+// owner-approved 2026-11-28): the by-value member ei (LOS_ExploreInfo, 36 B
+// @+0x90) requires the idb definitions FIRST, so the rename wraps
+// idb_types.h and the class header follows with the clean name. The idb
+// struct survives as RGE_Static_Object_idb (alive in the decode references,
+// dead in the build); token-safe: RGE_Static_ObjectVtbl /
+// RGE_Static_Object__method / RGE_Static_Object_RGE_Static_Object are
+// distinct preprocessor tokens. With idb_functions.h included AFTER the
+// class, the idb constants' RGE_Static_Object* positions type-check
+// against the class.
+#define RGE_Static_Object RGE_Static_Object_idb
 #include "src\idb\idb_types.h"
+#undef RGE_Static_Object
+#include "src\engine\object\RGE_Static_Object.h"
 #include "src\idb\idb_functions.h"
 
 #include "structs.h"

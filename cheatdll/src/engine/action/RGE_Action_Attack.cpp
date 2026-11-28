@@ -104,7 +104,7 @@ RGE_Action_Attack* __fastcall RGE_Action_Attack__RGE_Action_Attack_new(
         && ((TRIBE_Building_Object*)target_obj_in)->linked_owner) {    // asm 0x4011B4-0x4011BC (mov eax, [edi+1DCh]; test - the work_new/first_in_stack redirect precedent)
         workTarget = (RGE_Static_Object*)((TRIBE_Building_Object*)target_obj_in)->linked_owner;  // asm 0x4011BE (mov edi, eax)
     }
-    if (workTarget != this_->target_obj)                               // asm 0x4011C0-0x4011C3 (cmp edi, [esi+10h])
+    if (workTarget != (RGE_Static_Object *)this_->target_obj)                               // asm 0x4011C0-0x4011C3 (cmp edi, [esi+10h])
         ((RGE_Combat_Object*)this_->obj)->attack_count = 0;            // asm 0x4011C5 (mov dword ptr [ecx+170h], ebx(0) - the ecx = obj staged at 0x40117C; the AT1 factory-identity downcast)
     RGE_Action__set_target_obj((RGE_Action*)this_, workTarget);        // asm 0x4011CB-0x4011CE (push edi; the idb constant :182 - HOOKED -> routes)
     if (workTarget) {                                                  // asm 0x4011D3-0x4011DA (cmp edi, ebx; the -1.0 staged in eax)
@@ -133,17 +133,17 @@ RGE_Action_Attack* __fastcall RGE_Action_Attack__RGE_Action_Attack_new(
     else
         this_->was_same_owner = 0;                                     // asm 0x401251 ([esi+59h], bl)
     if (!move_sprite_in) {                                             // asm 0x401254-0x401256 (cmp eax, ebx - eax = move_sprite_in held from 0x401218)
-        RGE_Sprite* run = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm 0x401258-0x401261 (call [edx+7Ch] - slot 31 = +0x7C = get_run_sprite, the M9 grounding)
+        RGE_Sprite* run = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm 0x401258-0x401261 (call [edx+7Ch] - slot 31 = +0x7C = get_run_sprite, the M9 grounding)
         if (run)                                                       // asm 0x401264 (test eax, eax)
-            run = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm 0x401269-0x401271 (call [edx+7Ch] AGAIN - THE DOUBLE CALL, the original's own redundant fetch)
+            run = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm 0x401269-0x401271 (call [edx+7Ch] AGAIN - THE DOUBLE CALL, the original's own redundant fetch)
         else
-            run = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm loc_401276 (call [edx+78h] - slot 30)
+            run = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm loc_401276 (call [edx+78h] - slot 30)
         this_->move_sprite = run;                                      // asm loc_401279-0x40127C (mov [esi+40h], eax)
     }
     if (!this_->fight_sprite)                                          // asm 0x40127C-0x40127F (cmp [esi+44h], ebx)
-        this_->fight_sprite = ((RGE_Master_Combat_Object*)this_->obj->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm 0x401281-0x401290 (call [edx+84h] - slot 33)
+        this_->fight_sprite = ((RGE_Master_Combat_Object*)this_->obj->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm 0x401281-0x401290 (call [edx+84h] - slot 33)
     if (!this_->wait_sprite)                                           // asm 0x401293-0x401296 (cmp [esi+48h], ebx)
-        this_->wait_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm 0x401298-0x4012A1 (call [edx+4] - slot 1)
+        this_->wait_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm 0x401298-0x4012A1 (call [edx+4] - slot 1)
     if (X87_EQ_NAN(this_->range, 0.0f))                                // asm 0x4012A7-0x4012B5 (fld [esi+4Ch]; fcomp const_f_zero; test ah, 40h; jz skip - the C3-only {== 0, NaN} set -> the replacement; the .c's literal == would skip NaN)
         this_->range = ((RGE_Master_Combat_Object*)this_->obj->master_obj)->weapon_range;  // asm 0x4012B7-0x4012C3 (mov edx, [ecx+144h] = 324 - the Combat master's weapon_range)
     return this_;                                                      // asm 0x4012C6-0x4012DA (mov eax, esi)
@@ -191,17 +191,17 @@ RGE_Action_Attack* __fastcall RGE_Action_Attack__RGE_Action_Attack2_new(
     this_->was_same_owner = 0;                                         // asm 0x40137B
     this_->indirect_fire_flag = 2;                                     // asm 0x40137F (mov byte ptr [esi+5Ah], 2 - the coordinate form = indirect; the registry candidate)
     if (!move_sprite_in) {                                             // asm 0x40135E-0x401383 (test eax, eax; jnz skip - the flags persisting across the store block, the asm order)
-        RGE_Sprite* run = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm 0x401385-0x40138E (call [edx+7Ch] - slot 31)
+        RGE_Sprite* run = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm 0x401385-0x40138E (call [edx+7Ch] - slot 31)
         if (run)                                                       // asm 0x401391 (test eax, eax)
-            run = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm 0x40139E (call [edx+7Ch] AGAIN - the double call)
+            run = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm 0x40139E (call [edx+7Ch] AGAIN - the double call)
         else
-            run = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm loc_4013A3 (call [edx+78h])
+            run = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm loc_4013A3 (call [edx+78h])
         this_->move_sprite = run;                                      // asm loc_4013A6 (mov [esi+40h], eax)
     }
     if (!this_->fight_sprite)                                          // asm 0x4013A9-0x4013AE
-        this_->fight_sprite = ((RGE_Master_Combat_Object*)this_->obj->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm 0x4013B0-0x4013BF
+        this_->fight_sprite = ((RGE_Master_Combat_Object*)this_->obj->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm 0x4013B0-0x4013BF
     if (!this_->wait_sprite)                                           // asm 0x4013C2-0x4013C7
-        this_->wait_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm 0x4013C9-0x4013D5
+        this_->wait_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm 0x4013C9-0x4013D5
     if (X87_EQ_NAN(this_->range, 0.0f))                                // asm 0x4013D8-0x4013E6 (the C3-only {== 0, NaN} set)
         this_->range = ((RGE_Master_Combat_Object*)this_->obj->master_obj)->weapon_range;  // asm 0x4013E8-0x4013F4
     return this_;                                                      // asm 0x4013F7-0x401408
@@ -266,7 +266,7 @@ int __fastcall RGE_Action_Attack__work_new(RGE_Action_Attack* this_, DWORD dummy
         && ((TRIBE_Building_Object*)obj_in)->linked_owner) {           // asm 0x4022C3-0x4022CB (mov eax, [edi+1DCh]; test)
         workTarget = (RGE_Static_Object*)((TRIBE_Building_Object*)obj_in)->linked_owner;  // asm 0x4022CD (mov edi, eax)
     }
-    if (workTarget == this_->target_obj) {                             // asm 0x4022CF-0x4022D2 (cmp edi, [esi+10h]; jnz skip)
+    if (workTarget == (RGE_Static_Object *)this_->target_obj) {                             // asm 0x4022CF-0x4022D2 (cmp edi, [esi+10h]; jnz skip)
         unsigned __int8 st = this_->state;                             // asm 0x4022D4 (mov al, [esi+0Ch])
         if (st == RGE_ACTION_STATE_GOTO || st == RGE_ACTION_STATE_GOTO_2    // asm 0x4022D7-0x4022DD (cmp 4 / cmp 5 - Goto2 joins THIS tier's set)
             || st == RGE_ACTION_STATE_MOVE || st == RGE_ACTION_STATE_WORK   // asm 0x4022DF-0x4022E5 (cmp 0Bh / cmp 6)
@@ -280,7 +280,7 @@ int __fastcall RGE_Action_Attack__work_new(RGE_Action_Attack* this_, DWORD dummy
         if (ai->vfptr->canMoveToAttack(ai, workTarget->id) != 0) {     // asm 0x402313-0x402323 (mov ecx, [edi+10h] - THE WORKTARGET's id, not this->targetID; push; call [edx+0CCh] = slot 51; test)
             // the commit (asm loc_40236A - 2 inbound: canMove nonzero + the in-range fall)
             this_->indirect_fire_flag = 0;                             // asm 0x40236F (mov byte ptr [esi+5Ah], 0)
-            this_->vfptr->set_target_obj(this_, workTarget);           // asm 0x40236A-0x402373 (push edi; call [edx+58h] - slot 22)
+            this_->vfptr->set_target_obj(this_, (RGE_Static_Object_idb*)workTarget);           // asm 0x40236A-0x402373 (push edi; call [edx+58h] - slot 22)
             this_->lastTargetPositionX = workTarget->world_x;          // asm 0x402376-0x40237B ([edi+48h] -> [esi+5Ch])
             this_->lastTargetPositionY = workTarget->world_y;          // asm 0x40237E-0x402383 ([edi+4Ch] -> [esi+60h])
             this_->lastTargetPositionZ = workTarget->world_z;          // asm 0x402386-0x40238B ([edi+50h] -> [esi+64h])
@@ -296,7 +296,7 @@ int __fastcall RGE_Action_Attack__work_new(RGE_Action_Attack* this_, DWORD dummy
     if (dist > range)                                                  // asm 0x40235B-0x402368 (fld var_4; fcomp st(1); test ah, 41h; fstp st; jz loc_40239C - the {> ordered} -> return 0, the {<=, NaN} -> the commit - THE LITERAL > MATCH ROW, the .c's v17 > v12 form confirmed against the asm flags)
         return 0;                                                      // asm loc_40239C (xor eax, eax)
     this_->indirect_fire_flag = 0;                                     // asm 0x40236F
-    this_->vfptr->set_target_obj(this_, workTarget);                   // asm 0x40236A-0x402373
+    this_->vfptr->set_target_obj(this_, (RGE_Static_Object_idb*)workTarget);                   // asm 0x40236A-0x402373
     this_->lastTargetPositionX = workTarget->world_x;                  // asm 0x402376-0x40237B
     this_->lastTargetPositionY = workTarget->world_y;                  // asm 0x40237E-0x402383
     this_->lastTargetPositionZ = workTarget->world_z;                  // asm 0x402386-0x40238B
@@ -366,7 +366,7 @@ void __fastcall RGE_Action_Attack__set_state_new(
             __try {
                 if (created)
                     RGE_Action_Move_To__RGE_Action_Move_To2(created, this_->obj,  // asm 0x40173C-0x40174E (the idb constant - HOOKED -> routes)
-                        this_->target_obj, this_->range, this_->move_sprite);
+                        (RGE_Static_Object *)this_->target_obj, this_->range, this_->move_sprite);
             }
             __except (operator_delete_internal(created), EXCEPTION_CONTINUE_SEARCH) {}  // the var_4 state 2
         } else if (this_->target_x != -1.0f) {                         // asm 0x401755-0x40175F (mov ecx, [esi+20h]; cmp ecx, eax(-1.0))
@@ -469,10 +469,10 @@ unsigned __int8 __fastcall RGE_Action_Attack__update_new(RGE_Action_Attack* this
     // below returns, the valid fall continues to the sync stage.
     bool targetDead = false;
     if (this_->targetID != -1) {                                       // asm 0x4019C7-0x4019CC (cmp eax, ebx; jz loc_401C93)
-        RGE_Static_Object* target = this_->target_obj;
+        RGE_Static_Object* target = (RGE_Static_Object *)this_->target_obj;
         if (!(target
             && RGE_Game_World__object((RGE_Game_World*)obj->owner->world, this_->targetID)  // asm 0x4019DB-0x4019ED (:6086)
-            && !target->vfptr->is_invisible(target, obj->owner->id)    // asm 0x4019F5-0x401A0C (ecx = the TARGET; push owner->id; call [eax+48h] - slot 18)
+            && !target->is_invisible(obj->owner->id)    // asm 0x4019F5-0x401A0C (ecx = the TARGET; push owner->id; call [eax+48h] - slot 18)
             && !(target->object_state >= 3u                            // asm 0x401A12-0x401A1E (cmp al, 3; jb valid)
                 && (target->master_obj->object_group != 31u            // asm 0x401A20-0x401A28 (cmp word ptr [edx+1Eh], 1Fh - the TREE)
                     || obj->master_obj->object_group != 36u            // asm 0x401A2E-0x401A39 (cmp word ptr [edx+1Eh], 24h - the CANNON)
@@ -486,7 +486,7 @@ unsigned __int8 __fastcall RGE_Action_Attack__update_new(RGE_Action_Attack* this
             && !RGE_Game_World__object((RGE_Game_World*)obj->owner->world, this_->targetID))  // asm loc_401B3E-0x401B5A (:6086)
             this_->vfptr->set_target_obj(this_, 0);                    // asm 0x401B5C-0x401B61 (slot 22)
         if (RGE_Static_Object__unitAI((RGE_Static_Object*)obj)) {      // asm 0x401B64-0x401B6E (:261)
-            RGE_Static_Object* target = this_->target_obj;             // asm 0x401B75-0x401B78
+            RGE_Static_Object* target = (RGE_Static_Object *)this_->target_obj;             // asm 0x401B75-0x401B78
             if (!target || target->owner->id || obj->master_obj->object_group != 58u)  // asm 0x401B7A-0x401B93 (the owner->id test; cmp group, di(3Ah) - the WORKER carve)
                 UnitAIModule__removeCurrentTarget(RGE_Static_Object__unitAI((RGE_Static_Object*)obj));  // asm loc_401B95-0x401B9F (the Worker-with-neutral-target jz skip at 0x401B93)
         }
@@ -520,13 +520,13 @@ unsigned __int8 __fastcall RGE_Action_Attack__update_new(RGE_Action_Attack* this
     // STAGE: the position sync (loc_401A47-0x401B3D) - the chase arms return;
     // the equal-skip and the non-chase falls continue to the main stage.
     if (this_->targetID != -1 && !targetDead) {
-        RGE_Static_Object* target = this_->target_obj;
+        RGE_Static_Object* target = (RGE_Static_Object *)this_->target_obj;
         if (!(X87_EQ_NAN(target->world_x, this_->lastTargetPositionX)             // asm 0x401A47-0x401A52 (fld [ecx+48h]; fcomp [esi+5Ch]; test ah,40h; jz the update - the C3-only {==,NaN} pair)
             && X87_EQ_NAN(target->world_y, this_->lastTargetPositionY))) {        // asm 0x401A54-0x401A5F (fld [ecx+4Ch]; fcomp [esi+60h]; test ah,40h; jnz loc_401C93 = the skip)
             this_->lastTargetPositionX = target->world_x;                         // asm 0x401A65-0x401A68
             this_->lastTargetPositionY = target->world_y;                         // asm 0x401A6B-0x401A6E
             this_->lastTargetPositionZ = target->world_z;                         // asm 0x401A71-0x401A74
-            unsigned __int8 vis = target->vfptr->get_visibility(target, (RGE_Player*)obj->owner);  // asm 0x401A7A-0x401A80 (push owner->id; call [edx+16Ch] = slot 91 - the OWNED get_visibility_new routes)
+            unsigned __int8 vis = target->get_visibility((RGE_Player*)obj->owner);  // asm 0x401A7A-0x401A80 (push owner->id; call [edx+16Ch] = slot 91 - the OWNED get_visibility_new routes)
             if (vis == 15u || vis == 128u && target->master_obj->fog_flag) {      // asm 0x401A86-0x401A9D (cmp al, 0Fh; cmp al, 80h; mov al, [edx+75h] = fog_flag @+0x75)
                 unsigned __int8 st = this_->state;                                // asm 0x401B1E-0x401B21
                 if (st == RGE_ACTION_STATE_GOTO_2 || st == RGE_ACTION_STATE_MOVE) {  // asm 0x401B21-0x401B27
@@ -561,7 +561,7 @@ unsigned __int8 __fastcall RGE_Action_Attack__update_new(RGE_Action_Attack* this
     if (this_->target2ID != -1
         && !RGE_Game_World__object((RGE_Game_World*)obj->owner->world, this_->target2ID))  // asm loc_401C93-0x401CAE (:6086)
         this_->vfptr->set_target_obj2(this_, 0);                       // asm 0x401CB0-0x401CB5 (slot 23)
-    RGE_Static_Object* target = this_->target_obj;
+    RGE_Static_Object* target = (RGE_Static_Object *)this_->target_obj;
     if (target && obj->owner->id != 0) {                               // asm 0x401CB8-0x401CD2
         if ((!this_->was_same_owner && target->master_obj->object_group == 1u)   // asm 0x401CD4-0x401CE2 (mov dl, [esi+59h]; the HERD cmp bx(1))
             || target->master_obj->object_group != 1u) {               // asm loc_401CE4-0x401CEB (the .c's (!was_same_owner && group == 1) || group != 1)
@@ -574,7 +574,7 @@ unsigned __int8 __fastcall RGE_Action_Attack__update_new(RGE_Action_Attack* this
             }
         }
     }
-    RGE_Static_Object* targetNow = this_->target_obj;              // asm loc_401D37 (mov eax, [esi+10h]) - the FRESH re-read after the ally block
+    RGE_Static_Object* targetNow = (RGE_Static_Object *)this_->target_obj;              // asm loc_401D37 (mov eax, [esi+10h]) - the FRESH re-read after the ally block
     if (!(targetNow && targetNow->inside_obj)) {                   // asm 0x401D3A-0x401D47 (the jz to the main switch)
     switch (this_->state) {                                        // asm loc_401DCE (the main state switch: jpt_401DDD)
     case RGE_ACTION_STATE_DONE:                                               // asm loc_402147 (case 1)
@@ -597,7 +597,7 @@ unsigned __int8 __fastcall RGE_Action_Attack__update_new(RGE_Action_Attack* this
         case 0u: {                                                            // asm loc_401F43 (case 0)
             if (!this_->target_obj
                 || fabs((double)this_->range) <= 0.0000001000000011686097     // asm 0x401F4A-0x401F5A (fld [esi+4Ch]; fabs; fcomp dbl_6545B0 = the 1e-7f widening, binary-verified; test ah,41h; jnz default - the {<=, NaN} -> return 0)
-                || RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_->obj, this_->target_obj) > this_->range) {  // asm 0x401F5C-0x401F6D (fcomp [esi+4Ch]; test ah,41h; jz default - the {> ordered} -> return 0, the literal > MATCH row)
+                || RGE_Static_Object__distance_to_object((RGE_Static_Object *)this_->obj, (RGE_Static_Object *)this_->target_obj) > this_->range) {  // asm 0x401F5C-0x401F6D (fcomp [esi+4Ch]; test ah,41h; jz default - the {> ordered} -> return 0, the literal > MATCH row)
                 return 0;                                                     // asm def_401DDD
             }
             this_->vfptr->set_state(this_, RGE_ACTION_STATE_WORK);             // asm loc_401F6F-0x401F75 (push 6 - the Work hand-off, the .c's LABEL_107)
@@ -663,7 +663,7 @@ unsigned __int8 __fastcall RGE_Action_Attack__update_new(RGE_Action_Attack* this
         if (this_->target_obj
             && this_->obj->master_obj->master_type == 70u                     // asm 0x401FB5-0x401FBF (cmp byte ptr [eax+4], 46h - COMBAT)
             && RGE_Static_Object__unitAI((RGE_Static_Object*)this_->obj)->autoAttackOrderFlag  // asm 0x401FC1-0x401FCE ([eax+191h] = 401)
-            && !TRIBE_Combat_Object__canAttackUnit((TRIBE_Combat_Object*)this_->obj, this_->target_obj)) {  // asm 0x401FD0-0x401FDE (the OWNED canAttackUnit_new routes; the downcast call form)
+            && !TRIBE_Combat_Object__canAttackUnit((TRIBE_Combat_Object*)this_->obj, (RGE_Static_Object *)this_->target_obj)) {  // asm 0x401FD0-0x401FDE (the OWNED canAttackUnit_new routes; the downcast call form)
             this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id,  // asm 0x401FE0-0x401FF8 (1FAh = 506, 258h = 600)
                 506, RGE_UNITAI_ACTION_ATTACK, 0, 0);
             this_->vfptr->set_state(this_, RGE_ACTION_STATE_DONE);            // asm 0x401FFE-0x402003 (push ebx(1))
@@ -818,7 +818,7 @@ int __fastcall RGE_Action_Attack__stop_new(RGE_Action_Attack* this_)
 void __fastcall RGE_Action_Attack__set_target_obj_new(
     RGE_Action_Attack* this_, DWORD dummy, RGE_Static_Object* new_obj)
 {
-    if (new_obj != this_->target_obj)                               // asm 0x402AD4-0x402AD9 (mov edx, [ecx+10h]; cmp eax, edx; jz skip)
+    if (new_obj != (RGE_Static_Object *)this_->target_obj)                               // asm 0x402AD4-0x402AD9 (mov edx, [ecx+10h]; cmp eax, edx; jz skip)
         ((RGE_Combat_Object*)this_->obj)->attack_count = 0;         // asm 0x402ADB-0x402ADE (mov edx, [ecx+8]; mov dword ptr [edx+170h], 0 - the Combat extension's attack_count @+0x170 = 368, the batch 1b-4 map; the .c's obj[1].inside_obj render = the base-pointer artifact, the asm's dword width wins; the downcast = the Combat-tier factory identity - the asm is unguarded and every in-vivo Attack-action carrier is Combat+, the bare 0x144 Action tier would put the store outside its allocation)
     RGE_Action__set_target_obj((RGE_Action*)this_, new_obj);        // asm 0x402AE8-0x402AEE (push eax; call RGE_Action__set_target_obj - the idb constant :182, HOOKED -> routes; the derived->base cast)
 }
@@ -889,9 +889,9 @@ void __fastcall RGE_Action_Attack__copy_obj_sprites_new(
         if (task && new_task && this_->move_sprite == task->move_sprite)  // asm 0x4029E9-0x4029F4 (test ebx; test edi; cmp eax, [ebx+34h] = 52)
             this_->move_sprite = new_task->move_sprite;             // asm 0x4029F6-0x4029F9 (mov eax, [edi+34h] -> loc_402A18)
         else {
-            RGE_Sprite* fetched = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm 0x4029FB-0x402A04 (push obj; mov ecx, [eax+14h]; call [edx+78h] - slot 30 = +0x78, the M4 lowest-declaring-tier cast)
+            RGE_Sprite* fetched = ((RGE_Master_Moving_Object*)this_->obj->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm 0x4029FB-0x402A04 (push obj; mov ecx, [eax+14h]; call [edx+78h] - slot 30 = +0x78, the M4 lowest-declaring-tier cast)
             if (this_->move_sprite == fetched)                      // asm 0x402A07-0x402A0A (cmp [esi+40h], eax)
-                fetched = ((RGE_Master_Moving_Object*)source)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)source, (RGE_Static_Object*)this_->obj);  // asm 0x402A0C-0x402A15 (mov eax, [ebp+0]; push ecx; call [eax+78h] - the SOURCE's own vtbl dispatch)
+                fetched = ((RGE_Master_Moving_Object*)source)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)source, (RGE_Static_Object_idb*)this_->obj);  // asm 0x402A0C-0x402A15 (mov eax, [ebp+0]; push ecx; call [eax+78h] - the SOURCE's own vtbl dispatch)
             this_->move_sprite = fetched;                           // asm loc_402A18-0x402A1B (mov [esi+40h], eax)
         }
     }
@@ -902,15 +902,15 @@ void __fastcall RGE_Action_Attack__copy_obj_sprites_new(
             } else if (this_->fight_sprite == task->work_sprite2) { // asm 0x402A3B-0x402A3E (cmp eax, [ebx+3Ch] = 60)
                 this_->fight_sprite = new_task->work_sprite2;       // asm 0x402A40-0x402A43 (mov eax, [edi+3Ch] -> loc_402A68)
             } else {
-                RGE_Sprite* fetched = ((RGE_Master_Combat_Object*)this_->obj->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm 0x402A45-0x402A4E (call [edx+84h] - slot 33 = +0x84, the C2 lowest-declaring-tier cast)
+                RGE_Sprite* fetched = ((RGE_Master_Combat_Object*)this_->obj->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm 0x402A45-0x402A4E (call [edx+84h] - slot 33 = +0x84, the C2 lowest-declaring-tier cast)
                 if (this_->fight_sprite == fetched)                 // asm 0x402A54-0x402A57
-                    fetched = ((RGE_Master_Combat_Object*)source)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)source, (RGE_Static_Object*)this_->obj);  // asm 0x402A59-0x402A62 (the .c's vfptr[1].do_i_care_about_power render = the cast-form artifact, the documented C2 class)
+                    fetched = ((RGE_Master_Combat_Object*)source)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)source, (RGE_Static_Object_idb*)this_->obj);  // asm 0x402A59-0x402A62 (the .c's vfptr[1].do_i_care_about_power render = the cast-form artifact, the documented C2 class)
                 this_->fight_sprite = fetched;                      // asm loc_402A68-0x402A6B
             }
         } else {
-            RGE_Sprite* fetched = ((RGE_Master_Combat_Object*)this_->obj->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm loc_402A45 (the task-pair-null join)
+            RGE_Sprite* fetched = ((RGE_Master_Combat_Object*)this_->obj->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm loc_402A45 (the task-pair-null join)
             if (this_->fight_sprite == fetched)
-                fetched = ((RGE_Master_Combat_Object*)source)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)source, (RGE_Static_Object*)this_->obj);
+                fetched = ((RGE_Master_Combat_Object*)source)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)source, (RGE_Static_Object_idb*)this_->obj);
             this_->fight_sprite = fetched;
         }
     }
@@ -921,15 +921,15 @@ void __fastcall RGE_Action_Attack__copy_obj_sprites_new(
             } else if (this_->wait_sprite == task->work_sprite2) {  // asm 0x402A90-0x402A93 (cmp eax, [ebx+3Ch])
                 this_->wait_sprite = new_task->work_sprite2;        // asm 0x402A95-0x402A99 (mov eax, [edi+3Ch] -> the store -> the pops + retn)
             } else {
-                RGE_Sprite* fetched = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm 0x402AA2-0x402AAB (call [edx+4] - slot 1 = +4)
+                RGE_Sprite* fetched = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm 0x402AA2-0x402AAB (call [edx+4] - slot 1 = +4)
                 if (this_->wait_sprite == fetched)                  // asm 0x402AAE-0x402AB1
-                    fetched = source->vfptr->get_sprite(source, (RGE_Static_Object*)this_->obj);  // asm 0x402AB3-0x402ABC
+                    fetched = source->vfptr->get_sprite(source, (RGE_Static_Object_idb*)this_->obj);  // asm 0x402AB3-0x402ABC
                 this_->wait_sprite = fetched;                       // asm 0x402ABF (mov [esi+48h], eax)
             }
         } else {
-            RGE_Sprite* fetched = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object*)this_->obj);  // asm loc_402AA2 (the task-pair-null join)
+            RGE_Sprite* fetched = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);  // asm loc_402AA2 (the task-pair-null join)
             if (this_->wait_sprite == fetched)
-                fetched = source->vfptr->get_sprite(source, (RGE_Static_Object*)this_->obj);
+                fetched = source->vfptr->get_sprite(source, (RGE_Static_Object_idb*)this_->obj);
             this_->wait_sprite = fetched;
         }
     }
@@ -965,7 +965,7 @@ int __fastcall RGE_Action_Attack__ready_to_attack_new(
 {
     float dist = FLT_MAX;                                              // asm 0x4023B6-0x4023B9 (mov [var_8], SINGLE_MAXIMUM_VALUE)
     if (this_->target_obj) {                                           // asm 0x4023BE-0x4023C3
-        dist = (float)RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_->obj, this_->target_obj);  // asm 0x4023C5-0x4023CE (fstp [var_8] - the m32 store)
+        dist = (float)RGE_Static_Object__distance_to_object((RGE_Static_Object *)this_->obj, (RGE_Static_Object *)this_->target_obj);  // asm 0x4023C5-0x4023CE (fstp [var_8] - the m32 store)
     }
     double weaponRange = this_->obj->vfptr->weaponRange(this_->obj);   // asm 0x4023D2-0x4023DD (slot 101 = +0x194)
     if (X87_LE_NAN(weaponRange, 0.1f))                                 // asm 0x4023DD-0x4023E8 (fcomp flt_6545BC = 0.1f; test ah,41h; jz skip - the {<=, NaN} set)
@@ -1009,7 +1009,7 @@ int __fastcall RGE_Action_Attack__ready_to_attack_new(
             if (dx > 0.5f || X87_LT_NAN(dx, -0.5f)                         // asm 0x4026E7-0x4026FA (fcom const_f_half(0.5); test ah,41h; jz the dx>=-0.5 check; fcomp flt_6545C4(-0.5); test ah,1; jnz the re-probe - the C0-only {< -0.5, NaN})
                 || dy > 0.5f || X87_LT_NAN(dy, -0.5f)                      // asm 0x402723-0x402743 (the dy pair)
                 || dz > 0.5f || X87_LT_NAN(dz, -0.5f)) {                   // asm (the dz pair; the jz loc_402982 = the all-within TAIL - straight there, NO sync)
-                float dist2 = (float)RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_->obj, this_->target_obj);  // asm 0x40274D-0x402756 (fst [esp+var_8])
+                float dist2 = (float)RGE_Static_Object__distance_to_object((RGE_Static_Object *)this_->obj, (RGE_Static_Object *)this_->target_obj);  // asm 0x40274D-0x402756 (fst [esp+var_8])
                 if (X87_LT_NAN(dist2, (double)this_->min_range)) {         // asm 0x40275A-0x402762 (fcomp [esi+50h]; test ah,1; jz the range probe - the C0-only {<, NaN})
                     *rangeState = 0;                                       // asm 0x402768 ([ecx] = 0)
                     if (!this_->subActionValue)                            // asm 0x40276E-0x402773

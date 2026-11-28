@@ -147,7 +147,7 @@ void __fastcall RGE_Action_Enter__first_in_stack_new(
         this_->vfptr->set_state(this_, RGE_ACTION_STATE_GOTO);               // asm 0x4030D4 (4 = Goto)
         return;                                                  // asm 0x4030D8
     }
-    if (this_->target_obj->vfptr->more_room(this_->target_obj, (RGE_Static_Object*)this_->obj))   // asm 0x403048 (slot 83 = +0x14C)
+    if (this_->target_obj->vfptr->more_room(this_->target_obj, (RGE_Static_Object_idb*)this_->obj))   // asm 0x403048 (slot 83 = +0x14C)
     {
         this_->vfptr->set_state(this_, RGE_ACTION_STATE_GOTO);               // asm 0x4030CE-0x4030D4 (4 = Goto - the room to enter)
         return;                                                  // asm 0x4030D8
@@ -243,7 +243,7 @@ void __fastcall RGE_Action_Enter__set_state_new(
     {
         if (this_->sub_actions)                                  // asm (the second sub_actions delete)
             RGE_Action_List__delete_list(this_->sub_actions);
-        RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object*)this_->obj);   // asm (the master get_sprite virtual - slot 1 = +0x4)
+        RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);   // asm (the master get_sprite virtual - slot 1 = +0x4)
         this_->obj->vfptr->new_sprite(this_->obj, base_sprite);   // asm (the obj new_sprite virtual - slot 44 = +0xB0)
         if (!this_->subActionValue)                              // asm (the gate)
             this_->obj->vfptr->notify(this_->obj, this_->obj->id, this_->obj->id, 505, RGE_UNITAI_ACTION_ENTER, 0, 0);   // asm (the obj notify virtual - the Static vtbl slot 75 = +0x12C; the mType 505 blocked-entry + the ENTER action payload - the registry candidates)
@@ -252,7 +252,7 @@ void __fastcall RGE_Action_Enter__set_state_new(
     case RGE_ACTION_STATE_WAIT:                                  // WAIT (2)
     {
         this_->timer = 1.0f;                                     // asm (@+0x2C)
-        RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object*)this_->obj);
+        RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);
         this_->obj->vfptr->new_sprite(this_->obj, base_sprite);
         return;                                                  // asm
     }
@@ -263,7 +263,7 @@ void __fastcall RGE_Action_Enter__set_state_new(
         {
             if (this_->target_obj->master_obj->master_type == RGE_MASTER_TYPE_BUILDING)   // asm 0x403207 (cmp byte @+4, 50h)
                 isBuilding = 1;                                  // asm 0x40320D
-            if (!this_->target_obj->vfptr->more_room(this_->target_obj, (RGE_Static_Object*)this_->obj))   // asm 0x40321A-0x403228 (slot 83 = +0x14C)
+            if (!this_->target_obj->vfptr->more_room(this_->target_obj, (RGE_Static_Object_idb*)this_->obj))   // asm 0x40321A-0x403228 (slot 83 = +0x14C)
             {
                 if (isBuilding)                                  // asm 0x40322E
                     (*base_game)->vfptr->display_cant_do_msg(*base_game, 3065, (*base_game)->save_music_track_from);   // asm 0x403232-0x40324C (0xBF9 = 3065; the player arg = the game field @+0xA0 - the base-pointer resolution)
@@ -279,7 +279,7 @@ void __fastcall RGE_Action_Enter__set_state_new(
             }
         }
         if (this_->target_obj
-            && X87_LE_NAN(RGE_Static_Object__distance_to_object((RGE_Static_Object*)this_->obj, this_->target_obj), this_->task->work_range)   // asm 0x4032C4-0x4032DF (fcomp work_range @+0x24; test ah,41h/jz -> the {<=, NaN} proceed - THE X87_LE_NAN MACRO SITE)
+            && X87_LE_NAN(RGE_Static_Object__distance_to_object((RGE_Static_Object *)this_->obj, (RGE_Static_Object *)this_->target_obj), this_->task->work_range)   // asm 0x4032C4-0x4032DF (fcomp work_range @+0x24; test ah,41h/jz -> the {<=, NaN} proceed - THE X87_LE_NAN MACRO SITE)
             && RGE_Action_Enter__enter_target(this_))              // asm 0x4032E3 (:32 - the idb constant, the A3c target - routes when owned)
         {
             this_->vfptr->set_state(this_, RGE_ACTION_STATE_DONE);   // asm 0x4032F2 (1 = Done)
@@ -296,7 +296,7 @@ void __fastcall RGE_Action_Enter__set_state_new(
                 __try
                 {
                     if (move_action)
-                        RGE_Action_Move_To__RGE_Action_Move_To2(move_action, this_->obj, this_->target_obj, 0.0f, this_->task->move_sprite);   // asm 0x4033E8 (:42 - the idb constant, routes when the Move_To tier lands)
+                        RGE_Action_Move_To__RGE_Action_Move_To2(move_action, this_->obj, (RGE_Static_Object *)this_->target_obj, 0.0f, this_->task->move_sprite);   // asm 0x4033E8 (:42 - the idb constant, routes when the Move_To tier lands)
                 }
                 __except (operator_delete_internal(move_action), EXCEPTION_CONTINUE_SEARCH)
                 {
@@ -321,7 +321,7 @@ void __fastcall RGE_Action_Enter__set_state_new(
             __try
             {
                 if (move_action)
-                    RGE_Action_Move_To__RGE_Action_Move_To2(move_action, this_->obj, this_->target_obj, this_->task->work_range, this_->task->move_sprite);   // asm 0x403329 (the building path: the work_range approach)
+                    RGE_Action_Move_To__RGE_Action_Move_To2(move_action, this_->obj, (RGE_Static_Object *)this_->target_obj, this_->task->work_range, this_->task->move_sprite);   // asm 0x403329 (the building path: the work_range approach)
             }
             __except (operator_delete_internal(move_action), EXCEPTION_CONTINUE_SEARCH)
             {
@@ -418,7 +418,7 @@ unsigned __int8 __fastcall RGE_Action_Enter__update_new(
         && !RGE_Game_World__object((RGE_Game_World*)obj->owner->world, this_->target2ID))   // asm 0x4035A5-0x4035B9 (the family cast)
         this_->vfptr->set_target_obj2(this_, 0);                   // asm 0x4035BB (slot 23 = +0x5C)
     if (this_->target_obj                                          // asm 0x4035C3
-        && !this_->target_obj->vfptr->more_room(this_->target_obj, (RGE_Static_Object*)obj))   // asm 0x4035CA-0x4035D6 (slot 83 = +0x14C)
+        && !this_->target_obj->vfptr->more_room(this_->target_obj, (RGE_Static_Object_idb*)obj))   // asm 0x4035CA-0x4035D6 (slot 83 = +0x14C)
     {
         this_->vfptr->set_target_obj(this_, 0);                    // asm 0x4035DA
         this_->vfptr->set_state(this_, RGE_ACTION_STATE_MOVE);     // asm 0x4035E3 (11 = Move)
@@ -439,7 +439,7 @@ unsigned __int8 __fastcall RGE_Action_Enter__update_new(
     case RGE_ACTION_STATE_GOTO:                                    // 4 -> loc_403628 (byte_403724[3] = 2 - THE ENTER DRIVER ARM; the .c's case 4u - the arm runs when the state = Goto, fired by the WAIT-timer expiry and the first-in-stack re-drive)
     {
         if (!this_->target_obj                                     // asm 0x403628
-            || RGE_Static_Object__is_dying(this_->target_obj))     // asm 0x40362F (:3848 @0x550AD0)
+            || RGE_Static_Object__is_dying((RGE_Static_Object *)this_->target_obj))     // asm 0x40362F (:3848 @0x550AD0)
         {
             this_->vfptr->set_target_obj(this_, 0);                // asm 0x403652
             this_->vfptr->set_state(this_, RGE_ACTION_STATE_MOVE); // asm 0x40365B (11 = Move)
@@ -449,7 +449,7 @@ unsigned __int8 __fastcall RGE_Action_Enter__update_new(
         {
         case RGE_ACTION_STATE_DONE:                                // sub 1 -> loc_40368F
         {
-            double dist = RGE_Static_Object__distance_to_object((RGE_Static_Object*)obj, this_->target_obj);   // asm 0x40368F-0x403696 (:3871 - the DOUBLE return consumed unrounded)
+            double dist = RGE_Static_Object__distance_to_object((RGE_Static_Object *)obj, (RGE_Static_Object *)this_->target_obj);   // asm 0x40368F-0x403696 (:3871 - the DOUBLE return consumed unrounded)
             if (dist > this_->task->work_range)                    // asm 0x40369B-0x4036A6 (fcomp task->work_range @+0x24; test ah,41h/jz - the ordered > case = the literal MATCH row; a NaN dist falls to the enter)
             {
                 this_->vfptr->set_state(this_, RGE_ACTION_STATE_WAIT);   // asm loc_403682 (2 = Wait)
@@ -559,7 +559,7 @@ int __fastcall RGE_Action_Enter__enter_target_new(
             }
         }
     }
-    RGE_Static_Object* target = this_->target_obj;
+    RGE_Static_Object* target = (RGE_Static_Object *)this_->target_obj;
     if (target->master_obj->master_type == RGE_MASTER_TYPE_BUILDING)   // asm 0x403843-0x403849
     {
         if ((double)target->master_obj->hp * (double)0.2f >= (double)target->hp)   // asm 0x40384F-0x403869 (fild the i16 hp @+0x32; fmul flt_65479C = 0.2f, binary-verified CD CC 4C 3E; fcomp target->hp @+0x3C; test ah,1/jnz - the {<,NaN} skip = the literal >= MATCH row)
@@ -574,7 +574,7 @@ int __fastcall RGE_Action_Enter__enter_target_new(
     // the selected bit is captured BEFORE the attempt (the tail reselect)
     unsigned __int8 saved_selected = obj->selected;            // asm 0x4038CC (mov bl, [ecx+46h])
     if (!target->inside_obj)                                   // asm 0x4038C7-0x4038CF ([edx+2Ch])
-        obj->vfptr->enter_obj(obj, target, 0);                 // asm 0x4038D1-0x4038D6 (slot 84 = +0x150)
+        obj->vfptr->enter_obj(obj, (RGE_Static_Object_idb*)target, 0);                 // asm 0x4038D1-0x4038D6 (slot 84 = +0x150)
     if (!obj->inside_obj)                                      // asm 0x4038DC-0x4038E4 (the obj failed to get inside)
     {
         if (target->master_obj->master_type == RGE_MASTER_TYPE_BUILDING)   // asm 0x4039CB-0x4039D5 (the target master re-fetch)
@@ -599,7 +599,7 @@ int __fastcall RGE_Action_Enter__enter_target_new(
         }
     }
     if (!target->owner->id)                                    // asm 0x40394A-0x403958 (target->owner->id @+0xA0)
-        target->vfptr->change_ownership(target, (RGE_Player*)obj->owner);   // asm 0x40395A-0x403963 (slot 47 = +0xBC; the TRIBE_Player* -> RGE_Player* dual-naming cast, the C2 precedent)
+        target->change_ownership((RGE_Player*)obj->owner);   // asm 0x40395A-0x403963 (slot 47 = +0xBC; the TRIBE_Player* -> RGE_Player* dual-naming cast, the C2 precedent)
     if (!this_->subActionValue)                                // asm 0x403969
         obj->vfptr->notify(obj, obj->id, obj->id, 506, RGE_UNITAI_ACTION_ENTER, 0, 0);   // asm 0x403970-0x403988 (slot 120; 0x269 = 506 - the success capture; 505 above = the blocked entry)
     this_->vfptr->set_state(this_, RGE_ACTION_STATE_DONE);     // asm 0x40398E-0x403994 (1 = Done)
@@ -645,26 +645,26 @@ int __fastcall RGE_Action_Enter__calculateTargetPoint_new(
     RGE_Action_Enter* this_, DWORD dummy, float* tX, float* tY)
 {
     RGE_Action_Object* obj = this_->obj;
-    RGE_Static_Object* target = this_->target_obj;
+    RGE_Static_Object* target = (RGE_Static_Object *)this_->target_obj;
     if (!target)                                               // asm 0x403A47-0x403A4C
         return 0;                                              // asm loc_403D1C (NOTHING written - the null-target exit)
-    if (!target->vfptr->more_room(target, (RGE_Static_Object*)obj))   // asm 0x403A52-0x403A60 (slot 83 = +0x14C)
+    if (!target->more_room((RGE_Static_Object*)obj))   // asm 0x403A52-0x403A60 (slot 83 = +0x14C)
     {
         *tX = target->world_x;                                 // asm loc_403CC4 (world_x @+0x48)
         *tY = target->world_y;                                 // asm (world_y @+0x4C)
         return 0;                                              // asm 0x403CE3
     }
-    double speed = target->vfptr->maximumSpeed(target);        // asm 0x403A66-0x403A6B (slot 98 = +0x188 - the DOUBLE return captured unrounded)
+    double speed = target->maximumSpeed();        // asm 0x403A66-0x403A6B (slot 98 = +0x188 - the DOUBLE return captured unrounded)
     if (X87_LE_NAN(speed, 0.0))                                // asm 0x403A71-0x403A7F (fcomp const_f_zero; test ah,41h/jz - the {<=,NaN} set = this arm; a NaN speed returns the raw position in the original)
     {
         *tX = target->world_x;                                 // asm 0x403A81-0x403A96
         *tY = target->world_y;
         return 0;                                              // asm 0x403A9D
     }
-    if (target->vfptr->actionState(target) == RGE_ACTION_STATE_WAIT        // asm 0x403AA0-0x403AAA (slot 112 = +0x1C0; cmp al,2)
-        || target->vfptr->actionState(target) == RGE_ACTION_STATE_NONE)    // asm 0x403AAC-0x403AB9 (the second call; test al)
+    if (target->actionState() == RGE_ACTION_STATE_WAIT        // asm 0x403AA0-0x403AAA (slot 112 = +0x1C0; cmp al,2)
+        || target->actionState() == RGE_ACTION_STATE_NONE)    // asm 0x403AAC-0x403AB9 (the second call; test al)
     {
-        if (target->vfptr->more_room(target, (RGE_Static_Object*)obj) == 1)   // asm 0x403ABF-0x403AD0 (cmp al, 1)
+        if (target->more_room((RGE_Static_Object*)obj) == 1)   // asm 0x403ABF-0x403AD0 (cmp al, 1)
         {
             XYPoint obj_pt;                                    // asm var_8/var_4 (the ftol quartet)
             XYPoint tgt_pt;                                    // asm var_10/var_C
@@ -692,9 +692,9 @@ int __fastcall RGE_Action_Enter__calculateTargetPoint_new(
                 RGE_Map* map = obj->owner->world->map;         // asm 0x403BBC-0x403BC6 (the chain obj->owner->world->map @+0x34; the asm re-walks the chain for the second call - the local is trivially equivalent)
                 if (RGE_Map__get_terrain(map, (int)obj->world_x, (int)obj->world_y) != 2   // asm 0x403BB6-0x403BD0 (:1994 @0x495B50; mapcol = ftol(x) = param1 - the map col/row convention; the int args truncate to the callee's __int16 reads, the shipped form)
                     && RGE_Map__get_terrain(map, (int)obj->world_x, (int)obj->world_y) != 37   // asm 0x403BD2-0x403BFA (the SECOND call - both kept, asm 0x403BC9/0x403BF3)
-                    || target->vfptr->actionState(target) == RGE_ACTION_STATE_MOVE   // asm 0x403BFC-0x403C09 (cmp al, 0Bh)
-                    || target->vfptr->actionState(target) == RGE_ACTION_STATE_GOTO   // asm 0x403C0B-0x403C18
-                    || target->vfptr->actionState(target) == RGE_ACTION_STATE_SEARCH)   // asm 0x403C1A-0x403C27
+                    || target->actionState() == RGE_ACTION_STATE_MOVE   // asm 0x403BFC-0x403C09 (cmp al, 0Bh)
+                    || target->actionState() == RGE_ACTION_STATE_GOTO   // asm 0x403C0B-0x403C18
+                    || target->actionState() == RGE_ACTION_STATE_SEARCH)   // asm 0x403C1A-0x403C27
                 {
                     *tX = target->world_x;                     // asm loc_403C31
                     *tY = target->world_y;
@@ -708,9 +708,9 @@ int __fastcall RGE_Action_Enter__calculateTargetPoint_new(
     }
     // the occupied/steering arms - reached when the state isn't
     // Wait/None or the second more_room isn't exactly 1 (loc_403C97)
-    if (target->vfptr->actionState(target) == RGE_ACTION_STATE_MOVE   // asm 0x403C97-0x403CA4
-        || target->vfptr->actionState(target) == RGE_ACTION_STATE_GOTO   // asm 0x403CA6-0x403CB3
-        || target->vfptr->actionState(target) == RGE_ACTION_STATE_SEARCH)   // asm 0x403CB5-0x403CC2
+    if (target->actionState() == RGE_ACTION_STATE_MOVE   // asm 0x403C97-0x403CA4
+        || target->actionState() == RGE_ACTION_STATE_GOTO   // asm 0x403CA6-0x403CB3
+        || target->actionState() == RGE_ACTION_STATE_SEARCH)   // asm 0x403CB5-0x403CC2
     {
         // the target is steering - the approach point = the target's
         // own action's target (the actions list @+0x13C = 316 is the

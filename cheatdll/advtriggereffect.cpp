@@ -285,7 +285,7 @@ bool __stdcall advTriggerEffectActual2(void* unitData, char* str)
 void modify_object_sprite(RGE_Static_Object* obj, RGE_Sprite* old_sprite, RGE_Sprite* new_sprite)
 {
     if (obj->sprite == old_sprite)
-        obj->vfptr->new_sprite(obj, new_sprite);
+        obj->new_sprite(new_sprite);
 }
 
 void modify_sprite(RGE_Master_Static_Object* master, RGE_Static_Object* obj, RGE_Player* player, RGE_Sprite** old_sprite, short new_sprite_id)
@@ -299,7 +299,7 @@ void modify_sprite(RGE_Master_Static_Object* master, RGE_Static_Object* obj, RGE
         {
             for (int i = 0; i < player->objects->Number_of_objects; i++)
                 if (player->objects->List[i]->master_obj == master)
-                    modify_object_sprite(player->objects->List[i], *old_sprite, new_sprite);
+                    modify_object_sprite((RGE_Static_Object *)player->objects->List[i], *old_sprite, new_sprite);
         }
         *old_sprite = new_sprite;
     }

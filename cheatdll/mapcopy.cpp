@@ -53,7 +53,7 @@ void __stdcall do_map_copy_brush(RGE_Map* map, RGE_Map_Copy_Object_Data* od, flo
     if (!is_annex)
     {
         RGE_Player* player = map->game_world->players[od->owner & 0xFF];
-        RGE_Static_Object* obj = player->vfptr->make_scenario_obj(player, x, y, 0.0f, od->id & 0xFFFF, 2, od->angle);
+        RGE_Static_Object* obj = (RGE_Static_Object *)player->vfptr->make_scenario_obj(player, x, y, 0.0f, od->id & 0xFFFF, 2, od->angle);
         if (facet != 0xFF)
             RGE_Static_Object__set_facet(obj, facet);
     }

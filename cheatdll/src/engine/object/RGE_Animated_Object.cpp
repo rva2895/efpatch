@@ -46,7 +46,7 @@ RGE_Animated_Object* __fastcall RGE_Animated_Object__RGE_Animated_Object_new(
                 this_->sprite_list = this_->vfptr->create_sprite_list(this_);   // slot +0x2A8
                 this_->sprite = 0;                                // asm 0x422A15
                 RGE_Master_Animated_Object* master = this_->master_obj;
-                RGE_Sprite* new_sprite = master->vfptr->get_sprite(master, (RGE_Static_Object*)this_);   // asm 0x422A1D ? master vtbl slot +4; result NOT stored (passes to new_sprite)
+                RGE_Sprite* new_sprite = master->vfptr->get_sprite(master, (RGE_Static_Object_idb*)this_);   // asm 0x422A1D ? master vtbl slot +4; result NOT stored (passes to new_sprite)
                 this_->vfptr->new_sprite(this_, new_sprite);      // asm 0x422A23 ? slot +0xB0
             }
         }
@@ -98,7 +98,7 @@ int __fastcall RGE_Animated_Object__setup_new(
         this_->sprite_list = this_->vfptr->create_sprite_list(this_);   // .c:73971
         RGE_Master_Animated_Object* master = this_->master_obj;         // .c:73972
         this_->sprite = 0;                                           // .c:73974
-        RGE_Sprite* new_sprite = master->vfptr->get_sprite(master, (RGE_Static_Object*)this_);   // .c:73976
+        RGE_Sprite* new_sprite = master->vfptr->get_sprite(master, (RGE_Static_Object_idb*)this_);   // .c:73976
         this_->vfptr->new_sprite(this_, new_sprite);                 // .c:73977
     }
     return 1;
@@ -143,7 +143,7 @@ unsigned __int8 __fastcall RGE_Animated_Object__update_new(RGE_Animated_Object* 
     unsigned __int8 result = RGE_Static_Object__update((RGE_Static_Object*)this_);   // .c:74002
     if (this_->object_state == 3)                    // .c:74003
     {
-        if (this_->master_obj->vfptr->get_death_sprite(this_->master_obj, (RGE_Static_Object*)this_) != 0)   // .c:74005
+        if (this_->master_obj->vfptr->get_death_sprite(this_->master_obj, (RGE_Static_Object_idb*)this_) != 0)   // .c:74005
             this_->vfptr->set_object_state(this_, 4);   // .c:74006
         else
             this_->vfptr->set_object_state(this_, 5);   // .c:74008
@@ -157,19 +157,19 @@ unsigned __int8 __fastcall RGE_Animated_Object__update_new(RGE_Animated_Object* 
     this_->sprite_list->vfptr->update(this_->sprite_list,
         this_->owner->world->world_time_delta_seconds,   // .c:74017 (TRIBE_World :988)
         this_->speed);                               // .c:74015-0x49C1-analog
-    if (this_->master_obj->vfptr->get_sprite2(this_->master_obj, (RGE_Static_Object*)this_) != 0)   // .c:74019
+    if (this_->master_obj->vfptr->get_sprite2(this_->master_obj, (RGE_Static_Object_idb*)this_) != 0)   // .c:74019
     {
-        if (this_->sprite == this_->master_obj->vfptr->get_sprite2(this_->master_obj, (RGE_Static_Object*)this_))   // .c:74022
+        if (this_->sprite == this_->master_obj->vfptr->get_sprite2(this_->master_obj, (RGE_Static_Object_idb*)this_))   // .c:74022
         {
             if (this_->sprite_list->vfptr->looped(this_->sprite_list, this_->sprite) && rand_internal() > 0x3FFF)   // .c:74024
                 this_->vfptr->new_sprite(this_,
-                    this_->master_obj->vfptr->get_sprite2(this_->master_obj, (RGE_Static_Object*)this_));   // .c:74027
+                    this_->master_obj->vfptr->get_sprite2(this_->master_obj, (RGE_Static_Object_idb*)this_));   // .c:74027
         }
-        else if (this_->sprite == this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object*)this_))   // .c:74035
+        else if (this_->sprite == this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object_idb*)this_))   // .c:74035
         {
             if (this_->sprite_list->vfptr->looped(this_->sprite_list, this_->sprite) && rand_internal() > 0x3FFF)   // .c:74037
                 this_->vfptr->new_sprite(this_,
-                    this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object*)this_));   // .c:74041
+                    this_->master_obj->vfptr->get_sprite(this_->master_obj, (RGE_Static_Object_idb*)this_));   // .c:74041
         }
     }
     return result;

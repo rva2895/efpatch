@@ -18,10 +18,10 @@ RGE_Sprite* __fastcall RGE_Master_Static_Object__get_sprite_new(RGE_Master_Stati
     RGE_Master_Static_Object* master_obj;
 
     if (obj
-        && get_object_civ(this_) != obj->vfptr->gbg_get_civ_override(obj)   // IDA: BYTE1(this->object_flags)
+        && get_object_civ(this_) != obj->gbg_get_civ_override()   // IDA: BYTE1(this->object_flags)
         && this_->master_type <= RGE_MASTER_TYPE_COMBAT                      // IDA: <= 0x46u — combat bound, excludes building
         && (world = (*base_game)->world) != 0                                                 // IDA: TRIBE_Game* slot deref (double-pointer through the ** const)
-        && (master_obj = world->master_players[obj->vfptr->gbg_get_civ_override(obj)]->master_objects[this_->copy_id]) != 0)
+        && (master_obj = world->master_players[obj->gbg_get_civ_override()]->master_objects[this_->copy_id]) != 0)
     {
         result = master_obj->sprite;
     }
@@ -42,10 +42,10 @@ RGE_Sprite* __fastcall RGE_Master_Static_Object__get_sprite2_new(RGE_Master_Stat
     RGE_Master_Static_Object* master_obj;
 
     if (obj
-        && get_object_civ(this_) != obj->vfptr->gbg_get_civ_override(obj)
+        && get_object_civ(this_) != obj->gbg_get_civ_override()
         && this_->master_type <= RGE_MASTER_TYPE_COMBAT
         && (world = (*base_game)->world) != 0
-        && (master_obj = world->master_players[obj->vfptr->gbg_get_civ_override(obj)]->master_objects[this_->copy_id]) != 0)
+        && (master_obj = world->master_players[obj->gbg_get_civ_override()]->master_objects[this_->copy_id]) != 0)
     {
         result = master_obj->sprite2;
     }
@@ -66,10 +66,10 @@ RGE_Sprite* __fastcall RGE_Master_Static_Object__get_death_sprite_new(RGE_Master
     RGE_Master_Static_Object* master_obj;
 
     if (obj
-        && get_object_civ(this_) != obj->vfptr->gbg_get_civ_override(obj)
+        && get_object_civ(this_) != obj->gbg_get_civ_override()
         && this_->master_type <= RGE_MASTER_TYPE_COMBAT
         && (world = (*base_game)->world) != 0
-        && (master_obj = world->master_players[obj->vfptr->gbg_get_civ_override(obj)]->master_objects[this_->copy_id]) != 0)
+        && (master_obj = world->master_players[obj->gbg_get_civ_override()]->master_objects[this_->copy_id]) != 0)
     {
         result = master_obj->death_sprite;
     }
@@ -90,10 +90,10 @@ RGE_Sprite* __fastcall RGE_Master_Static_Object__get_undead_sprite_new(RGE_Maste
     RGE_Master_Static_Object* master_obj;
 
     if (obj
-        && get_object_civ(this_) != obj->vfptr->gbg_get_civ_override(obj)
+        && get_object_civ(this_) != obj->gbg_get_civ_override()
         && this_->master_type <= RGE_MASTER_TYPE_COMBAT
         && (world = (*base_game)->world) != 0
-        && (master_obj = world->master_players[obj->vfptr->gbg_get_civ_override(obj)]->master_objects[this_->copy_id]) != 0)
+        && (master_obj = world->master_players[obj->gbg_get_civ_override()]->master_objects[this_->copy_id]) != 0)
     {
         result = master_obj->undead_sprite;
     }
@@ -868,7 +868,7 @@ RGE_Static_Object* __fastcall RGE_Master_Static_Object__make_new_obj_new(RGE_Mas
             RGE_Static_Object* recycled = RGE_Game_World__recycle_object_in_to_game(owner->world, this_->master_type);
             if (recycled)
             {
-                recycled->vfptr->recycle_in_to_game(recycled, this_, owner, x, y, z);
+                recycled->recycle_in_to_game(this_, owner, x, y, z);
                 return recycled;
             }
         }
@@ -1243,7 +1243,7 @@ unsigned __int8 __fastcall RGE_Master_Static_Object__check_placement_new(
             const RGE_Tile& tile = map->map_row_offset[ry][rx];
             if (!tile.TileObject_Count)
                 continue;
-            RGE_Static_Object** objp = tile.Object_List;
+            RGE_Static_Object** objp = (RGE_Static_Object **)tile.Object_List;
             for (int i = 0; i < tile.TileObject_Count; ++i, ++objp)
             {
                 RGE_Static_Object* obj = *objp;

@@ -68,7 +68,7 @@ void __stdcall verify_food_resource(RGE_Static_Object* obj, __int16 attribute, b
         if (!keep_attribute)
         {
             if (!test_food_attribute(obj->attribute_type_held, attribute))
-                obj->vfptr->set_attribute(obj, attribute, 0.0f);
+                obj->set_attribute(attribute, 0.0f);
             else
                 obj->attribute_type_held = attribute;
         }
@@ -76,7 +76,7 @@ void __stdcall verify_food_resource(RGE_Static_Object* obj, __int16 attribute, b
     else
     {
         if (obj->attribute_type_held != attribute)
-            obj->vfptr->set_attribute(obj, attribute, 0.0f);
+            obj->set_attribute(attribute, 0.0f);
     }
 }
 

@@ -870,7 +870,7 @@ void setCastHooks()
     // retired 2026-11-27: baked into RGE_Static_Object__is_invisible_new
     // (src/engine/object/RGE_Static_Object.cpp, batch S4) - the getStealthOff
     // gate folds ahead of the original stealth test (see 0x0054BB42)
-    // setHook((void*)0x0054BB42, stealth1);
+    if (g_origRGEStatic) setHook((void*)0x0054BB42, stealth1);   // THE CONVERSION GATE: the interior site (is_invisible, +0x92) - the ORIG leg installs, the NEW leg = the dead bytes (the stealth1 bake carries)
 
     setHook((void*)0x004AF323, writeSaveHook);
     setHook((void*)0x004AEEEE, readSaveHook);
@@ -887,10 +887,16 @@ void setCastHooks()
     //   0x0054C0A0 recycle_out -> removeUnitExtra folded into RGE_Static_Object__recycle_out_of_game_new
     //   0x0054B315 ctor        -> the unit_constructor_asm_fix dword-clears folded into RGE_Static_Object__RGE_Static_Object_new
     //   0x0054B638 ctor_read   -> folded into RGE_Static_Object__RGE_Static_Object_read_new
-    // setHook((void*)0x0054B680, unit_remove_unit_extra_destructor);
-    // setHook((void*)0x0054C0A0, unit_remove_unit_extra_recycle_out);
-    // writeData(0x0054B315, unit_constructor_asm_fix, 18);
-    // writeData(0x0054B638, unit_constructor_asm_fix, 18);
+    // THE CONVERSION GATES + THE STAYS-RETIRED (2026-11-28): the removeUnitExtra
+    // setHooks sit ON the conversion's entry E9s (0x0054B680 = the destructor
+    // entry, 0x0054C0A0 = the recycle_out entry - the ENTRY-FIGHT class: the
+    // re-enable would overwrite the trampoline E9s) - STAY RETIRED; their
+    // behavior reaches the ORIG leg via the fold-before-replay (the
+    // removeUnitExtra calls live in the member bodies). The writeData byte-
+    // clears = INTERIOR (0x0054B315 = ctor+0x35, 0x0054B638 = ctor_read+0x38)
+    // - leg-gated:
+    if (g_origRGEStatic) writeData(0x0054B315, unit_constructor_asm_fix, 18);
+    if (g_origRGEStatic) writeData(0x0054B638, unit_constructor_asm_fix, 18);
 
     // retired 2026-11-24 (owner-approved bake-in): the UNIT_EXTRA
     // per-frame processor (processUnitExtra) is baked into the runtime
@@ -898,6 +904,10 @@ void setCastHooks()
     // (src/engine/object/RGE_Static_Object.cpp, the // UNIT_EXTRA
     // marker); after hooking RGE_Static_Object::update (0x0054EF00)
     // this hook would fight the replacement's entry hook
+    // STAYS RETIRED (the ENTRY-FIGHT class: 0x0054EF00 = the update entry =
+    // the conversion's E9 span; the re-enable would overwrite the trampoline;
+    // the fold-before-replay: the processUnitExtra call lives in the update
+    // member body with the // UNIT_EXTRA marker)
     // setHook((void*)0x0054EF00, processUnitHook);
 
     setHook((void*)0x0055B4F0, on_unit_killed);

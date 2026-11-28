@@ -118,7 +118,7 @@ void __fastcall RGE_Action_Bird__set_state_new(
         return;                                                   // asm 0x402BD4
     }
     // THE SPRITE-LESS FALLBACK (both sprite-null arms join here)
-    RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object*)this_->obj);   // asm 0x402C6C (slot 1 = +0x4)
+    RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);   // asm 0x402C6C (slot 1 = +0x4)
     this_->obj->vfptr->new_sprite(this_->obj, base_sprite);       // asm 0x402C73 (slot 44)
 }
 

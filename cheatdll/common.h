@@ -198,3 +198,16 @@ extern unsigned __int8* const color_yellow;  // 0x69B555 - the sp-bar fill / the
 extern unsigned __int8* const color_black;   // 0x7A1C60 - the capture-frame shadow color (the game sets it at init)
 extern int* const dword_692450;              // 0x692450 - the capture assert id (the debug trap comparison)
 extern unsigned __int8* const combat_comparison;   // 0x6A35FC - the combat-mode byte gating the created-sound play
+
+// ---- THE CONVERSION-ERA FLIP GLOBALS (the startup-constant coherence: fixed
+// before any installer runs; the compiled default false = the NEW leg) ----
+// - g_origRGEStatic: the coarse class leg for the converted RGE_Static_Object
+//   (the class = src/engine/object/RGE_Static_Object.h). The gated retired-
+//   patch sites below reference it: the TRUE run installs the interior
+//   patches (the replayed originals execute them); the FALSE run leaves them
+//   dead (the body bakes carry the behavior - no double-apply).
+// - the per-method switches (g_origRGEStatic<Method>) are added ON DEMAND
+//   with the owning method's _orig replay form; each gated site's condition
+//   extends to the OR-form at that time
+//   (DECOMP_CPP_MIGRATION.md sec 14, the two-level hierarchy).
+extern bool g_origRGEStatic;

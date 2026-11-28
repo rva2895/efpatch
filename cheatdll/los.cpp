@@ -1026,28 +1026,35 @@ void setLOSHooks()
     //   0x0054B61D ctor_read   -> folded into RGE_Static_Object__RGE_Static_Object_read_new
     //   0x0054B691 destructor  -> delete_unit_los_data folded into RGE_Static_Object__destructor_new
     //   0x0054C0A7 recycle_out -> folded into RGE_Static_Object__recycle_out_of_game_new
-    // setHook((void*)0x0054B33F, los_constructor_default);
-    // setHook((void*)0x0054B61D, los_constructor_read);
-    // setHook((void*)0x0054B691, los_destructor);
-    // setHook((void*)0x0054C0A7, los_recycle_out);
-    // setHook((void*)0x0054C7C2, los_read_save);
+    // THE CONVERSION GATES (2026-11-28): the interior sites leg-gated per the
+    // conversion-era amendment - the TRUE (ORIG) run installs the stubs (the
+    // replayed originals execute them); the FALSE (NEW) run leaves them dead
+    // (the original bytes are never executed under the entry E9s - the body
+    // bakes carry the behavior). The E9-span audit: each address sits outside
+    // its entry's [entry, entry+5). The per-method OR-terms land with the
+    // _orig replay forms.
+    if (g_origRGEStatic) setHook((void*)0x0054B33F, los_constructor_default);   // ctor (interior, +0x5F)
+    if (g_origRGEStatic) setHook((void*)0x0054B61D, los_constructor_read);      // ctor_read (interior, +0x1D)
+    if (g_origRGEStatic) setHook((void*)0x0054B691, los_destructor);            // destructor (interior, +0x11)
+    if (g_origRGEStatic) setHook((void*)0x0054C0A7, los_recycle_out);           // recycle_out (interior, +0x7 - the tightest span, clear)
+    if (g_origRGEStatic) setHook((void*)0x0054C7C2, los_read_save);             // setup_read (interior, +0x2B2)
     // retired 2026-11-27: baked into RGE_Static_Object__setup_read_new (batch
     // S7 - src/engine/object/RGE_Static_Object.cpp): the option gate +
     // los_read_save2(&ei.theObj, infile) fold at the re-registration join
     // (0x0054C7C2); the stub's replayed objects-clear + resume (0x54C7C9)
     // are the replacement's own tail lines.
-    //setHook((void*)0x0054F766, los_write_save);
-    //setHook((void*)0x0054F757, los_write_save_this_fix);
+    if (g_origRGEStatic) setHook((void*)0x0054F766, los_write_save);            // save (interior, +0x216)
+    if (g_origRGEStatic) setHook((void*)0x0054F757, los_write_save_this_fix);   // save (interior, +0x207)
 
     // retired 2026-11-27: baked into RGE_Static_Object__explore_terrain_new /
     // RGE_Static_Object__unexplore_terrain_new (src/engine/object/
     // RGE_Static_Object.cpp, batch S4) - the explore_log side-calls fold at
     // the four Visible_Map call sites (0x0055163E / 0x00551766 / 0x005516C6 /
     // 0x005517DC)
-    //setHook((void*)0x0055163E, on_explore);
-    //setHook((void*)0x00551766, on_unexplore);
-    //setHook((void*)0x005516C6, on_explore_sq);
-    //setHook((void*)0x005517DC, on_unexplore_sq);
+    if (g_origRGEStatic) setHook((void*)0x0055163E, on_explore);                // explore (interior, +0x8E)
+    if (g_origRGEStatic) setHook((void*)0x00551766, on_unexplore);              // unexplore (interior, +0x86)
+    if (g_origRGEStatic) setHook((void*)0x005516C6, on_explore_sq);             // explore sq (interior, +0x116)
+    if (g_origRGEStatic) setHook((void*)0x005517DC, on_unexplore_sq);           // unexplore sq (interior, +0xFC)
 
     //LoS depth
     setHook((void*)0x006151EF, visible_map_constructor1_1);

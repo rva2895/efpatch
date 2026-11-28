@@ -791,7 +791,7 @@ unsigned __int8 __fastcall TRIBE_Master_Building_Object__check_placement_new(
             const RGE_Tile& tile = map->map_row_offset[ry][rx];
             if (!tile.TileObject_Count)
                 continue;
-            RGE_Static_Object** obj_list = tile.Object_List;
+            RGE_Static_Object** obj_list = (RGE_Static_Object **)tile.Object_List;
             for (int i = 0; i < tile.TileObject_Count; ++i)
             {
                 RGE_Static_Object* obj = obj_list[i];
@@ -973,7 +973,7 @@ unsigned __int8 __fastcall TRIBE_Master_Building_Object__check_placement_for_uni
             const RGE_Tile& tile = map->map_row_offset[ry][rx];
             if (!tile.TileObject_Count)
                 continue;
-            RGE_Static_Object** obj_list = tile.Object_List;
+            RGE_Static_Object** obj_list = (RGE_Static_Object **)tile.Object_List;
             for (int i = 0; i < tile.TileObject_Count; ++i)
             {
                 RGE_Static_Object* obj = obj_list[i];
@@ -1021,7 +1021,7 @@ unsigned __int8 __fastcall TRIBE_Master_Building_Object__check_placement_for_uni
                     if (dx < 0.0f) dx = -dx;
                     if (dx < radius_x && dy < radius_y)   // both strict <
                     {
-                        if (obj->vfptr->get_target_obj(obj) != ignore_obj   // slot 82 (+0x148), idb_types.h:4013
+                        if (obj->get_target_obj() != ignore_obj   // slot 82 (+0x148), idb_types.h:4013
                             && master->master_type >= RGE_MASTER_TYPE_MOVING
                             && obj->object_state == 2)
                         {

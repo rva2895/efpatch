@@ -107,7 +107,7 @@ void __fastcall RGE_Action_Transport__set_state_new(
     this_->state = new_state;                                     // asm 0x409FE8 ([esi+0Ch])
     if (new_state == RGE_ACTION_STATE_WAIT)                       // asm 0x409FF0-0x409FF3 (sub eax, 2; jz -> loc_40A190)
     {
-        RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object*)this_->obj);   // asm 0x40A19B (slot 1)
+        RGE_Sprite* base_sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);   // asm 0x40A19B (slot 1)
         this_->obj->vfptr->new_sprite(this_->obj, base_sprite);   // asm 0x40A1A2 (slot 44 = +0xB0)
         return;                                                   // asm loc_40A1A8
     }
@@ -132,13 +132,13 @@ void __fastcall RGE_Action_Transport__set_state_new(
             if (created)                                          // asm 0x40A08A
                 RGE_Action_Move_To__RGE_Action_Move_To(created, this_->obj, this_->target_x, this_->target_y, this_->target_z, 0.3f, this_->task->move_sprite);   // asm 0x40A0B6 (the range = flt_6552F0 = 0.3f BINARY-VERIFIED)
         }
-        else if (((RGE_Master_Action_Object*)this_->obj->master_obj)->vfptr->get_move_sprite((RGE_Master_Action_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj))   // asm 0x40A0C9 (slot 30 = +0x78 = 120 decimal; the member this_ = RGE_Master_Action_Object* - the IDB's inherited-slot typing; the layout-safe Action-master cast)
+        else if (((RGE_Master_Action_Object*)this_->obj->master_obj)->vfptr->get_move_sprite((RGE_Master_Action_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj))   // asm 0x40A0C9 (slot 30 = +0x78 = 120 decimal; the member this_ = RGE_Master_Action_Object* - the IDB's inherited-slot typing; the layout-safe Action-master cast)
         {
             sprite_case = 1;                                      // asm 0x40A0E0 (var_4 = 1)
             created = (RGE_Action_Move_To*)operator_new_internal(sizeof(RGE_Action_Move_To));   // asm 0x40A0D2
             if (created)                                          // asm 0x40A0E0
             {
-                RGE_Sprite* sprite = ((RGE_Master_Action_Object*)this_->obj->master_obj)->vfptr->get_move_sprite((RGE_Master_Action_Object*)this_->obj->master_obj, (RGE_Static_Object*)this_->obj);   // asm 0x40A0F5 (the SECOND call = the fetch)
+                RGE_Sprite* sprite = ((RGE_Master_Action_Object*)this_->obj->master_obj)->vfptr->get_move_sprite((RGE_Master_Action_Object*)this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);   // asm 0x40A0F5 (the SECOND call = the fetch)
                 RGE_Action_Move_To__RGE_Action_Move_To(created, this_->obj, this_->target_x, this_->target_y, this_->target_z, 0.3f, sprite);   // asm 0x40A110
             }
         }
@@ -148,7 +148,7 @@ void __fastcall RGE_Action_Transport__set_state_new(
             created = (RGE_Action_Move_To*)operator_new_internal(sizeof(RGE_Action_Move_To));   // asm 0x40A117
             if (created)                                          // asm 0x40A125
             {
-                RGE_Sprite* sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object*)this_->obj);   // asm 0x40A13A (slot 1 = +0x4)
+                RGE_Sprite* sprite = this_->obj->master_obj->vfptr->get_sprite(this_->obj->master_obj, (RGE_Static_Object_idb*)this_->obj);   // asm 0x40A13A (slot 1 = +0x4)
                 RGE_Action_Move_To__RGE_Action_Move_To(created, this_->obj, this_->target_x, this_->target_y, this_->target_z, 0.3f, sprite);   // asm 0x40A110 (the shared ctor tail)
             }
         }
@@ -226,11 +226,11 @@ unsigned __int8 __fastcall RGE_Action_Transport__update_new(
             && this_->target_x != -1.0f                           // asm 0x40A234 (cmp dword, 0BF800000h - the sentinel)
             && this_->obj->objects->Number_of_objects > 0         // asm 0x40703D-region: 0x40A23D-0x402242 ([eax+4] jle - the signed)
             && this_->obj->objects->List[0])                      // asm 0x40A244-0x40A24A (mov edx,[eax]; mov edi,[edx])
-            zone = RGE_Static_Object__lookupZone(this_->obj->objects->List[0], (int)this_->target_x, (int)this_->target_y);   // asm 0x402B-region: 0x40A260 (:3883; the ftol pair y-then-x pushed = the (x, y) arg order; the and-0FFh)
+            zone = RGE_Static_Object__lookupZone((RGE_Static_Object *)this_->obj->objects->List[0], (int)this_->target_x, (int)this_->target_y);   // asm 0x402B-region: 0x40A260 (:3883; the ftol pair y-then-x pushed = the (x, y) arg order; the and-0FFh)
         XYPoint goal;                                             // asm 0x40A271-0x40A288 (the ftol pair of the obj world_x/y)
         goal.x = (int)this_->obj->world_x;
         goal.y = (int)this_->obj->world_y;
-        RGE_Static_Object* carried = this_->obj->objects ? this_->obj->objects->List[0] : 0;   // asm 0x402A8C-region: 0x40A28C-0x40A29B
+        RGE_Static_Object* carried = (RGE_Static_Object *)(this_->obj->objects ? this_->obj->objects->List[0] : 0);  // asm 0x402A8C-region: 0x40A28C-0x40A29B
         if (zone != -1 && carried                                 // asm 0x40A29B-0x4022A2
             && !RGE_Static_Object__withinRangeOfZone(carried, (unsigned __int8)zone, 1.5f, &goal))   // asm 0x40A2AF (:3885 @0x552730 - the range 1.5)
             failed = true;                                        // asm 0x402B6 -> loc_40A3DB (the not-at-zone skip)
@@ -245,7 +245,7 @@ unsigned __int8 __fastcall RGE_Action_Transport__update_new(
                 && this_->target_x != -1.0f                       // asm 0x40A2EE
                 && this_->obj->objects->Number_of_objects > 0     // asm 0x40A2FA-0x4022FC
                 && this_->obj->objects->List[0])                  // asm 0x40A300-0x40A304
-                zone = RGE_Static_Object__lookupZone(this_->obj->objects->List[0], (int)this_->target_x, (int)this_->target_y);   // asm 0x40A31A
+                zone = RGE_Static_Object__lookupZone((RGE_Static_Object *)this_->obj->objects->List[0], (int)this_->target_x, (int)this_->target_y);   // asm 0x40A31A
             if (RGE_Static_Object__drop_held_objects((RGE_Static_Object*)this_->obj, zone))   // asm 0x40A32D (:3877 @0x552010)
             {
                 if (this_->obj->objects                           // asm 0x40A340-0x402352
@@ -333,7 +333,7 @@ int __fastcall RGE_Action_Transport__work_new(
     this_->target2ID = 1;                                         // asm 0x40A4AA (mov dword [esi+1Ch], 1)
     RGE_Static_Object* carried = 0;                               // asm 0x40A4B1-0x40A4BE (the List[0] chain, null-guarded)
     if (this_->obj->objects)
-        carried = this_->obj->objects->List[0];
+        carried = (RGE_Static_Object *)this_->obj->objects->List[0];
     unsigned __int8 zone = RGE_Static_Object__lookupZone((RGE_Static_Object*)this_->obj, (int)x, (int)y);   // asm 0x40A4DD (:3883; the ftol pair y-then-x pushed = the (x, y) order; the and-0FFh)
     if (carried)                                                  // asm 0x40A4E7-0x40A4ED
         zone = RGE_Static_Object__lookupZone(carried, (int)x, (int)y);   // asm 0x40A4F3 (the carried override)
@@ -410,7 +410,7 @@ int __fastcall RGE_Action_Transport__next_to_drop_off_terrain_new(
         zone = RGE_Static_Object__lookupZone(obj, (int)this_->target_x, (int)this_->target_y);   // asm 0x40A6F4 (:3883)
     RGE_Static_Object* carried = 0;                               // asm 0x40A70C-0x40A71C
     if (obj->objects)
-        carried = obj->objects->List[0];
+        carried = (RGE_Static_Object *)obj->objects->List[0];
     if (this_->target_x != -1.0f                                  // asm 0x40A722 (cmp [esi+20h], edi)
         && carried)                                               // asm 0x40A727-0x40A729
         zone = RGE_Static_Object__lookupZone(carried, (int)this_->target_x, (int)this_->target_y);   // asm 0x40A73F (the carried override)

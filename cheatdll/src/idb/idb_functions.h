@@ -3896,7 +3896,7 @@ void (__thiscall* const RGE_Static_Object__setOrientation)(RGE_Static_Object *th
 double (__thiscall* const RGE_Static_Object__searchRadius)(RGE_Static_Object *this_) = (double (__thiscall* const)(RGE_Static_Object *this_))0x00552E10;
 int (__thiscall* const RGE_Static_Object__isFlagSet)(RGE_Static_Object *this_, int n) = (int (__thiscall* const)(RGE_Static_Object *this_, int n))0x00552E20;
 int (__thiscall* const RGE_Static_Object__garrisoned_count)(RGE_Static_Object *this_) = (int (__thiscall* const)(RGE_Static_Object *this_))0x00552EA0;
-int (__fastcall* const RGE_Static_Object__get_group_number_mask)(int group_num) = (int (__fastcall* const)(int group_num))0x00552EB0;
+int (__fastcall* const get_group_number_mask)(int group_num) = (int (__fastcall* const)(int group_num))0x00552EB0;
 SymbolTable* (__thiscall* const SymbolTable__SymbolTable)(SymbolTable *this_, int tableSize) = (SymbolTable* (__thiscall* const)(SymbolTable *this_, int tableSize))0x00552ED0;
 void (__thiscall* const SymbolTable__destructor)(SymbolTable *this_) = (void (__thiscall* const)(SymbolTable *this_))0x00552F10;
 int (__thiscall* const SymbolTable__hashSymbol)(SymbolTable *this_, char *symbol) = (int (__thiscall* const)(SymbolTable *this_, char *symbol))0x00552F60;

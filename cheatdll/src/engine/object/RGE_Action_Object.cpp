@@ -330,7 +330,7 @@ RGE_Static_Object* __fastcall RGE_Action_Object__get_target_obj_new(RGE_Action_O
     RGE_Action* action = RGE_Action_List__get_action(this_->actions);   // asm 0x409A46
     if (!action)                                                        // asm 0x409A4B-0x409A4D
         return 0;                                                       // asm 0x409A56-0x409A58
-    return action->vfptr->get_target_obj(action);                       // asm 0x409A4F-0x409A53 (slot +0x50)
+    return (RGE_Static_Object *)action->vfptr->get_target_obj(action);                       // asm 0x409A4F-0x409A53 (slot +0x50)
 }
 
 // Replacement for RGE_Action_Object::searchRadius. Original: @ 0x00409B70
@@ -619,7 +619,7 @@ int __fastcall RGE_Action_Object__get_num_Selected_groups_new(RGE_Action_Object*
 void __fastcall RGE_Action_Object__play_command_sound_new(RGE_Action_Object* this_, DWORD dummy)
 {
     this_->master_obj->vfptr->play_command_sound(
-        this_->master_obj, (RGE_Static_Object*)this_);           // asm 0x409613-0x409618 (slot +0x44)
+        this_->master_obj, (RGE_Static_Object_idb*)this_);           // asm 0x409613-0x409618 (slot +0x44)
 }
 
 // Replacement for RGE_Action_Object::play_move_sound. Original:
@@ -632,7 +632,7 @@ void __fastcall RGE_Action_Object__play_command_sound_new(RGE_Action_Object* thi
 void __fastcall RGE_Action_Object__play_move_sound_new(RGE_Action_Object* this_, DWORD dummy)
 {
     this_->master_obj->vfptr->play_move_sound(
-        this_->master_obj, (RGE_Static_Object*)this_);           // asm 0x409623-0x409628 (slot +0x48)
+        this_->master_obj, (RGE_Static_Object_idb*)this_);           // asm 0x409623-0x409628 (slot +0x48)
 }
 
 // ============ RUNTIME METHODS (batch A3) ============
@@ -976,7 +976,7 @@ int __fastcall RGE_Action_Object__actionTypeIfOrdered_new(
         return -1;
     RGE_Task* task = this_->master_obj->tasks->vfptr->get_target_task(   // asm 0x40904D (slot +0x4)
         this_->master_obj->tasks, this_, this_->master_obj,
-        obj, x, y, z, -1, 0);
+        (RGE_Static_Object_idb*)obj, x, y, z, -1, 0);
     if (!task)
     {
         if (this_->master_obj->task_by_group != 0)                  // asm 0x40905D-0x409065 (@+0x11C)
@@ -996,7 +996,7 @@ int __fastcall RGE_Action_Object__actionTypeIfOrdered_new(
                     continue;                                       // asm 0x4090CF
                 task = candidate->tasks->vfptr->get_target_task(    // asm 0x4090C6 (slot +0x4; tasks @+0x104)
                     candidate->tasks, this_, this_->master_obj,
-                    obj, x, y, z, -1, 0);
+                    (RGE_Static_Object_idb*)obj, x, y, z, -1, 0);
                 if (task)
                     break;
             }
@@ -1076,7 +1076,7 @@ unsigned __int8 __fastcall RGE_Action_Object__move_to_new(
         if (action)
         {
             __int16 action_type = action->vfptr->type(action);      // asm 0x40922D (slot +0x18; RESTRUCTURE note above)
-            this_->vfptr->setUnitAIAction(this_, action_type, obj, x, y, z);   // asm 0x40923A (slot 234 = +0x3A8; the 4 pre-staged args)
+            this_->vfptr->setUnitAIAction(this_, action_type, (RGE_Static_Object_idb*)obj, x, y, z);   // asm 0x40923A (slot 234 = +0x3A8; the 4 pre-staged args)
             this_->vfptr->set_only_action(this_, action);           // asm 0x409245 (slot 231 = +0x39C)
         }
         ++this_->command_flag;                                      // asm 0x40924B (byte @+0x141)
@@ -1111,7 +1111,7 @@ RGE_Master_Static_Object* __fastcall RGE_Action_Object__get_command_master_new(
         {
             RGE_Task* task = this_->master_obj->tasks->vfptr->get_target_task(   // asm 0x409671 (slot +0x4)
                 this_->master_obj->tasks, this_, this_->master_obj,
-                obj, x, y, z, -1, 0);
+                (RGE_Static_Object_idb*)obj, x, y, z, -1, 0);
             if (task)
                 return (RGE_Master_Static_Object*)this_->master_obj;   // asm 0x409703
             TRIBE_Player* owner = this_->owner;
@@ -1128,7 +1128,7 @@ RGE_Master_Static_Object* __fastcall RGE_Action_Object__get_command_master_new(
                     continue;                                       // asm 0x4096F3
                 task = candidate->tasks->vfptr->get_target_task(    // asm 0x4096E8 (slot +0x4)
                     candidate->tasks, this_, this_->master_obj,
-                    obj, x, y, z, -1, 0);
+                    (RGE_Static_Object_idb*)obj, x, y, z, -1, 0);
                 if (task)
                     return (RGE_Master_Static_Object*)candidate;    // asm 0x40970A
             }
@@ -1164,7 +1164,7 @@ RGE_Task* __fastcall RGE_Action_Object__getTask_new(
 {
     RGE_Task* task = this_->master_obj->tasks->vfptr->get_target_task(   // asm 0x409A8E (slot +0x4)
         this_->master_obj->tasks, this_, this_->master_obj,
-        target, targetX, targetY, targetZ, certain_action, 0);
+        (RGE_Static_Object_idb*)target, targetX, targetY, targetZ, certain_action, 0);
     if (task)
         return task;                                                // asm 0x409A95
     if (this_->master_obj->task_by_group == 0)                      // asm 0x409A9E-0x409AA6
@@ -1183,7 +1183,7 @@ RGE_Task* __fastcall RGE_Action_Object__getTask_new(
             continue;                                               // asm 0x409B14
         task = candidate->tasks->vfptr->get_target_task(            // asm 0x409B07 (slot +0x4)
             candidate->tasks, this_, this_->master_obj,
-            target, targetX, targetY, targetZ, -1, 0);
+            (RGE_Static_Object_idb*)target, targetX, targetY, targetZ, -1, 0);
         if (task)
         {
             this_->vfptr->transform(this_,                          // asm 0x409B2F (slot +0xCC)
@@ -1217,7 +1217,7 @@ void __fastcall RGE_Action_Object__do_command_new(
 {
     if (obj != (RGE_Static_Object*)this_)                           // asm 0x408FD7-0x408FD9
     {
-        this_->vfptr->work2(this_, obj, x, y, z, 0, 0, -1);         // asm 0x408FF5 (slot +0x38C)
+        this_->vfptr->work2(this_, (RGE_Static_Object_idb*)obj, x, y, z, 0, 0, -1);         // asm 0x408FF5 (slot +0x38C)
         ++this_->command_flag;                                      // asm 0x4090FB (byte @+0x141)
     }
 }
@@ -1241,7 +1241,7 @@ void __fastcall RGE_Action_Object__work_new(
 {
     if (obj != (RGE_Static_Object*)this_)                           // asm 0x409277-0x409279
     {
-        this_->vfptr->work2(this_, obj, x, y, z, 1, unk, -1);       // asm 0x409298 (slot +0x38C)
+        this_->vfptr->work2(this_, (RGE_Static_Object_idb*)obj, x, y, z, 1, unk, -1);       // asm 0x409298 (slot +0x38C)
         ++this_->command_flag;                                      // asm 0x40929E (byte @+0x141)
     }
 }
@@ -1342,7 +1342,7 @@ void __fastcall RGE_Action_Object__work2_new(
         return;
     RGE_Task* task = this_->master_obj->tasks->vfptr->get_target_task(   // asm 0x4092E7 (slot +0x4)
         this_->master_obj->tasks, this_, this_->master_obj,
-        obj, x, y, z, certain_action, 0);
+        (RGE_Static_Object_idb*)obj, x, y, z, certain_action, 0);
     RGE_Task* own_task = 0;                                         // asm var_4 (the .c v29)
     if (!task || task->action_type == RGE_ACTION_TYPE_ATTACK)       // asm 0x4092EE-0x4092F5 (word @+6 cmp 7; ATTACK)
     {
@@ -1362,7 +1362,7 @@ void __fastcall RGE_Action_Object__work2_new(
                     continue;                                       // asm 0x409391
                 task = candidate->tasks->vfptr->get_target_task(    // asm 0x409372 (slot +0x4)
                     candidate->tasks, this_, this_->master_obj,
-                    obj, x, y, z, certain_action, 0);
+                    (RGE_Static_Object_idb*)obj, x, y, z, certain_action, 0);
                 if (task && (!own_task || own_task->action_type != task->action_type))
                 {                                                   // asm 0x409379-0x40938B
                     this_->vfptr->transform(this_,                  // asm 0x4093A5 (slot +0xCC)
@@ -1384,20 +1384,20 @@ void __fastcall RGE_Action_Object__work2_new(
     {
         RGE_Action* action = RGE_Action_List__get_action(this_->actions);   // asm 0x409420
         __int16 action_type = action->vfptr->type(action);          // asm 0x40943B (slot +0x18)
-        this_->vfptr->setUnitAIAction(this_, action_type, obj, x, y, z);   // asm 0x409448 (slot +0x3A8)
+        this_->vfptr->setUnitAIAction(this_, action_type, (RGE_Static_Object_idb*)obj, x, y, z);   // asm 0x409448 (slot +0x3A8)
         worked = 1;                                                 // asm 0x409452
     }
     if (RGE_Action_List__have_action(this_->actions) == 1           // asm 0x409460-0x409467 (cmp al,1)
         && RGE_Action_List__get_action(this_->actions)->vfptr->get_target_obj(
-               RGE_Action_List__get_action(this_->actions)) == obj  // asm 0x40947C (slot +0x50)
+               RGE_Action_List__get_action(this_->actions)) == (RGE_Static_Object_idb *)obj  // asm 0x40947C (slot +0x50)
         && RGE_Action_List__get_action(this_->actions)->vfptr->type(
                RGE_Action_List__get_action(this_->actions)) == RGE_ACTION_TYPE_ATTACK2   // asm 0x409492 (slot +0x18; cmp ax,9)
         && RGE_Action_List__get_action(this_->actions)->vfptr->work(
-               RGE_Action_List__get_action(this_->actions), obj, x, y, z))   // asm 0x4094B6 (slot +0x34)
+               RGE_Action_List__get_action(this_->actions), (RGE_Static_Object_idb*)obj, x, y, z))   // asm 0x4094B6 (slot +0x34)
     {
         RGE_Action* action = RGE_Action_List__get_action(this_->actions);   // asm 0x4094C3
         __int16 action_type = action->vfptr->type(action);          // asm 0x4094DA (slot +0x18)
-        this_->vfptr->setUnitAIAction(this_, action_type, obj, x, y, z);   // asm 0x4094E3 (slot +0x3A8)
+        this_->vfptr->setUnitAIAction(this_, action_type, (RGE_Static_Object_idb*)obj, x, y, z);   // asm 0x4094E3 (slot +0x3A8)
         RGE_Static_Object__unitAI((RGE_Static_Object*)this_)->autoAttackOrderFlag = 0;   // asm 0x4094EB/0x4094F3 (:261; byte @+0x191)
         return;                                                     // asm 0x4094FC
     }
@@ -1406,7 +1406,7 @@ void __fastcall RGE_Action_Object__work2_new(
         if (task)                                                   // asm 0x40950B-0x40950D
         {
             RGE_Action* action = this_->actions->vfptr->create_task_action(   // asm 0x40952D (slot +0x8; IR#3 form)
-                this_->actions, task, obj, x, y, z, gather_flag);
+                this_->actions, task, (RGE_Static_Object_idb*)obj, x, y, z, gather_flag);
             if (action)
             {
                 if (this_->master_obj->object_group == 1            // asm 0x40953D (word @+0x1E; Herd Animal)
@@ -1417,7 +1417,7 @@ void __fastcall RGE_Action_Object__work2_new(
                     return;                                         // asm 0x40956E
                 }
                 __int16 action_type = action->vfptr->type(action);  // asm 0x409587 (slot +0x18)
-                this_->vfptr->setUnitAIAction(this_, action_type, obj, x, y, z);   // asm 0x409594 (slot +0x3A8)
+                this_->vfptr->setUnitAIAction(this_, action_type, (RGE_Static_Object_idb*)obj, x, y, z);   // asm 0x409594 (slot +0x3A8)
                 this_->vfptr->set_only_action(this_, action);       // asm 0x40959F (slot +0x39C)
                 RGE_Static_Object__unitAI((RGE_Static_Object*)this_)->autoAttackOrderFlag = 0;   // asm 0x4095A7/0x4095AF
                 return;                                             // asm 0x4095B8
@@ -1425,8 +1425,8 @@ void __fastcall RGE_Action_Object__work2_new(
         }
         if (this_->master_obj->speed > 0.0)                         // asm loc_4095BB (test ah,41h / jnz = ordered-> runs; the polarity MATCH row - literal kept)
         {
-            this_->vfptr->setUnitAIAction(this_, RGE_ACTION_TYPE_MOVE_TO, obj, x, y, z);   // asm 0x4095E3 (slot +0x3A8; push 1 = Move to; the FULL 5-arg form)
-            this_->vfptr->move_to(this_, obj, x, y, z);             // asm 0x4095F5 (slot +0x118)
+            this_->vfptr->setUnitAIAction(this_, RGE_ACTION_TYPE_MOVE_TO, (RGE_Static_Object_idb*)obj, x, y, z);   // asm 0x4095E3 (slot +0x3A8; push 1 = Move to; the FULL 5-arg form)
+            this_->vfptr->move_to(this_, (RGE_Static_Object_idb*)obj, x, y, z);             // asm 0x4095F5 (slot +0x118)
         }
     }
 }
@@ -1519,7 +1519,7 @@ void __fastcall RGE_Action_Object__setUnitAIAction_new(
     {
         UnitAIModule__setCurrentTarget2(module, obj->id,            // asm 0x409D21 (:503)
             obj->master_obj->object_group, x, y, z);                // asm 0x409D18 (movsx @+0x1E)
-        obj->vfptr->position(obj, &target_position);                // asm 0x409D30 (slot +0x2AC) = tempA
+        obj->position(&target_position);                // asm 0x409D30 (slot +0x2AC) = tempA
         target_id = obj->id;                                        // asm 0x409D4D (the lingering push)
         this_->vfptr->position(this_, &own_position);               // asm 0x409D58 (slot +0x2AC) = bufB
     }

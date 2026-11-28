@@ -168,7 +168,7 @@ RGE_Static_Object* __fastcall RGE_Master_Doppleganger_Object__make_new_obj_new(
             {
                 ((RGE_Doppleganger_Object*)recycled)->vfptr->recycle_in_to_game_2(
                     (RGE_Doppleganger_Object*)recycled,
-                    (RGE_Master_Static_Object*)this_, owner, x, y, z, obj_to_dopple);
+                    (RGE_Master_Static_Object*)this_, owner, x, y, z, (RGE_Static_Object_idb*)obj_to_dopple);
                 result = recycled;
             }
         }

@@ -140,7 +140,7 @@ void editKills(RGE_Static_Object* unit, float val, int action)
 
 void editFacet(RGE_Static_Object* unit, float val, int action)
 {
-    if (!unit->vfptr->isMoving(unit))
+    if (!unit->isMoving())
     {
         unsigned __int8 facet = unit->facet;
         float val2 = val * unit->sprite->facet_num / 16;
@@ -155,47 +155,47 @@ void editCivOverride(RGE_Static_Object* unit, float val, int action)
         {
             editVal(&unit->gbg_civ_override, val, false, 0, action);
             TRIBE_Screen_Game* game_screen = ((TRIBE_Game*)(*base_game))->game_screen;
-            if (game_screen && game_screen->game_obj == unit)
+            if (game_screen && game_screen->game_obj == (RGE_Static_Object_idb*)unit)
                 game_screen->object_panel->vfptr->set_redraw(game_screen->object_panel, 1);
         };
 
-    if (unit->sprite == unit->master_obj->vfptr->get_sprite(unit->master_obj, unit))
+    if (unit->sprite == unit->master_obj->vfptr->get_sprite(unit->master_obj, (RGE_Static_Object_idb*)unit))
     {
         edit_civ_override_val();
-        unit->vfptr->new_sprite(unit, unit->master_obj->vfptr->get_sprite(unit->master_obj, unit));
+        unit->new_sprite(unit->master_obj->vfptr->get_sprite(unit->master_obj, (RGE_Static_Object_idb*)unit));
     }
-    else if (unit->sprite == unit->master_obj->vfptr->get_sprite2(unit->master_obj, unit))
+    else if (unit->sprite == unit->master_obj->vfptr->get_sprite2(unit->master_obj, (RGE_Static_Object_idb*)unit))
     {
         edit_civ_override_val();
-        unit->vfptr->new_sprite(unit, unit->master_obj->vfptr->get_sprite2(unit->master_obj, unit));
+        unit->new_sprite(unit->master_obj->vfptr->get_sprite2(unit->master_obj, (RGE_Static_Object_idb*)unit));
     }
-    else if (unit->sprite == unit->master_obj->vfptr->get_death_sprite(unit->master_obj, unit))
+    else if (unit->sprite == unit->master_obj->vfptr->get_death_sprite(unit->master_obj, (RGE_Static_Object_idb*)unit))
     {
         edit_civ_override_val();
-        unit->vfptr->new_sprite(unit, unit->master_obj->vfptr->get_death_sprite(unit->master_obj, unit));
+        unit->new_sprite(unit->master_obj->vfptr->get_death_sprite(unit->master_obj, (RGE_Static_Object_idb*)unit));
     }
-    else if (unit->sprite == unit->master_obj->vfptr->get_undead_sprite(unit->master_obj, unit))
+    else if (unit->sprite == unit->master_obj->vfptr->get_undead_sprite(unit->master_obj, (RGE_Static_Object_idb*)unit))
     {
         edit_civ_override_val();
-        unit->vfptr->new_sprite(unit, unit->master_obj->vfptr->get_undead_sprite(unit->master_obj, unit));
-    }
-    else if (unit->master_obj->master_type >= 30 &&
-        unit->sprite == ((RGE_Master_Moving_Object*)unit->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)unit->master_obj, unit))
-    {
-        edit_civ_override_val();
-        unit->vfptr->new_sprite(unit, ((RGE_Master_Moving_Object*)unit->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)unit->master_obj, unit));
+        unit->new_sprite(unit->master_obj->vfptr->get_undead_sprite(unit->master_obj, (RGE_Static_Object_idb*)unit));
     }
     else if (unit->master_obj->master_type >= 30 &&
-        unit->sprite == ((RGE_Master_Moving_Object*)unit->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)unit->master_obj, unit))
+        unit->sprite == ((RGE_Master_Moving_Object*)unit->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)unit->master_obj, (RGE_Static_Object_idb*)unit))
     {
         edit_civ_override_val();
-        unit->vfptr->new_sprite(unit, ((RGE_Master_Moving_Object*)unit->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)unit->master_obj, unit));
+        unit->new_sprite(((RGE_Master_Moving_Object*)unit->master_obj)->vfptr->get_move_sprite((RGE_Master_Moving_Object*)unit->master_obj, (RGE_Static_Object_idb*)unit));
+    }
+    else if (unit->master_obj->master_type >= 30 &&
+        unit->sprite == ((RGE_Master_Moving_Object*)unit->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)unit->master_obj, (RGE_Static_Object_idb*)unit))
+    {
+        edit_civ_override_val();
+        unit->new_sprite(((RGE_Master_Moving_Object*)unit->master_obj)->vfptr->get_run_sprite((RGE_Master_Moving_Object*)unit->master_obj, (RGE_Static_Object_idb*)unit));
     }
     else if (unit->master_obj->master_type >= 50 &&
-        unit->sprite == ((RGE_Master_Combat_Object*)unit->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)unit->master_obj, unit))
+        unit->sprite == ((RGE_Master_Combat_Object*)unit->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)unit->master_obj, (RGE_Static_Object_idb*)unit))
     {
         edit_civ_override_val();
-        unit->vfptr->new_sprite(unit, ((RGE_Master_Combat_Object*)unit->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)unit->master_obj, unit));
+        unit->new_sprite(((RGE_Master_Combat_Object*)unit->master_obj)->vfptr->get_fight_sprite((RGE_Master_Combat_Object*)unit->master_obj, (RGE_Static_Object_idb*)unit));
     }
     else
     {

@@ -13,7 +13,7 @@ bool collect_units_for_player(TRIBE_Player* player, std::vector<UEntry>& entries
 
     for (int i = 0; i < player->objects->Number_of_objects; i++)
     {
-        RGE_Static_Object* obj = player->objects->List[i];
+        RGE_Static_Object* obj = (RGE_Static_Object *)player->objects->List[i];
         if (!obj || !obj->master_obj) continue;
         if (obj->master_obj->master_type != 70) continue;
         if (obj->master_obj->object_group == 1) continue;

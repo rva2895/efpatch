@@ -400,7 +400,7 @@ void __stdcall do_effect_transform_obj(RGE_Player* player, RGE_Static_Object** o
         (target_master = player->master_objects[target_id]))
     {
         for (int i = 0; i < obj_count; i++)
-            obj_list[i]->vfptr->transform(obj_list[i], target_master);
+            obj_list[i]->transform(target_master);
     }
 }
 
@@ -433,7 +433,7 @@ void __stdcall do_effect_teleport_obj(RGE_Player* player, RGE_Static_Object** ob
         for (int i = 0; i < obj_count; i++)
         {
             RGE_Static_Object* obj = obj_list[i];
-            obj->vfptr->teleport(obj_list[i], x1, y1, 0.0f);
+            obj->teleport(x1, y1, 0.0f);   // the this-explicit vtbl form: obj == obj_list[i]
         }
 
         int obj_id_list_stack[0x100];
@@ -470,8 +470,8 @@ void __stdcall do_effect_teleport_obj(RGE_Player* player, RGE_Static_Object** ob
                     BUnitGroup__removeUnit(g, obj->id);
                 }
                 RGE_Static_Object__removeAllFromPathingGroup(obj);
-                obj->vfptr->stop(obj);
-                obj->vfptr->stopAllMovement(obj);
+                obj->stop();
+                obj->stopAllMovement();
             }
         }
 

@@ -98,17 +98,17 @@ void __stdcall do_sleeping_objects_update(RGE_Player* player)
     {
         for (int i = 0; i < player->sleeping_objects->Number_of_objects; i++)
         {
-            RGE_Static_Object* obj = player->sleeping_objects->List[i];
+            RGE_Static_Object* obj = (RGE_Static_Object *)player->sleeping_objects->List[i];
             if (obj->type == 80 && obj->object_state == 2)
             {
                 //shields
-                if (obj->vfptr->is_shielded(obj) && obj->master_obj->hp >= obj->sp)
+                if (obj->is_shielded() && obj->master_obj->hp >= obj->sp)
                 {
-                    obj->vfptr->gbg_doShieldRecharge(obj);
+                    obj->gbg_doShieldRecharge();
                 }
                 else if (obj->sp > 0.0f)
                 {
-                    obj->vfptr->gbg_doShieldDropoff(obj);
+                    obj->gbg_doShieldDropoff();
                 }
 
                 //regeneration

@@ -941,6 +941,77 @@ no pseudocode restatements of the function body:
    and hook the replacement directly (the updateMovement precedent);
    re-run the suite once on the ship build - only the observer I/O
    differs, but the project standard is one confirming pass.
+   THE CONVERSION-ERA FLIP MODEL (owner-directed 2026-11-28, the
+   C++-ABI class conversion; the full model in DECOMP_CPP_MIGRATION.md
+   section 14): the setHook-target flip is valid ONLY while the class
+   is C-style. Once a class converts, the flip moves INTO the member
+   bodies: the setHook targets are FIXED (one stable qualified-call
+   trampoline per hooked address), each member body opens with the leg
+   check (g_orig<Class> || g_orig<Class><Method>) -> the per-method
+   _orig replay+jmp form. REASON (measured in the PoC analysis): the
+   converted class creates hook-bypassing paths - our emitted vftable's
+   dispatches and the qualified internal calls - that the installer
+   flip cannot rewire; the installer flip would leave those on the new
+   implementation and void the A/B attribution (a mixed call graph).
+   Both the direct-call paths (the idb constants, the game vftables ->
+   E9 -> the trampolines) and the virtual-dispatch paths (our vftable
+   -> the members; the ORIG leg's internal virtual dispatches re-enter
+   the members) funnel through the members, so the member flip covers
+   every path and the legs stay atomic. THE TWO-LEVEL HIERARCHY: the
+   class global for the coarse legs, the per-method globals added ON
+   DEMAND during a hunt (all previous desyncs were found with
+   per-method switches - the per-method apparatus is never pre-built);
+   the globals are startup constants fixed before any installer runs
+   (the bake gating depends on it); the ship removal per the standing
+   protocol.
+   THE TRAMPOLINE CONSTRUCTION PROCEDURE (owner-directed 2026-11-28;
+   the mandatory form for every _orig/replay trampoline, closing the
+   two recurring mistake classes - the insufficient replay and the
+   register trash. The scattered incident lessons below remain the
+   record; THIS is the construction form):
+   THE REPLAY SET (mistake 1 - structurally impossible by
+   construction): the replay span is DERIVED FROM THE .LST, never from
+   encoding tables, never eyeballed, never computed from instruction
+   encodings. Walk the .lst instruction lines from the entry address;
+   each line's byte length = THE NEXT LINE'S ADDRESS minus the line's
+   own address (the .lst states the boundaries). The replayed set =
+   the minimal instruction prefix whose accumulated END is >= entry+5
+   (the E9 patch covers exactly [entry, entry+5); an instruction
+   STARTING below entry+5 and straddling it is replayed IN FULL).
+   THE RESUME ADDRESS = the first .lst instruction boundary at or
+   after entry+5, taken VERBATIM from the listing - never computed as
+   entry + replayed_length. THE CONSISTENCY CHECK: the walk's
+   accumulated end and the resume boundary must be the same address;
+   if they are not, the walk is wrong - stop and re-derive. The
+   resume address must exist in the .lst as an instruction start.
+   THE REPLAY BYTES are the original bytes [entry, resume), verified
+   against the raw binary (the PE-walk script) before use - the .lst
+   renders are previews.
+   THE RESUME TRANSFER (mistake 2 - eliminated by idiom): the jump to
+   the original body is ALWAYS the esp-neutral, register-neutral,
+   flag-neutral pair:
+       push imm32      ; the resume address
+       ret
+   No mov reg / jmp reg forms (the mov clobbers a live register - the
+   EAX-held-wpIndex and the EDX-first-arg incidents); no register-held
+   jump targets at all; push/ret touches no register and no flag, and
+   reaches any target unconditionally.
+   THE REPLAYED INSTRUCTIONS are copied VERBATIM in their original
+   order (including mid-prologue register setups like the ebx=0
+   idiom); the trampoline's own code never interleaves them and never
+   writes a register the original body reads. Any [esp+X] operand in
+   the replayed instructions is re-based for the trampoline's own
+   frame (each form's adjustment derived once, /Fa-verified per the
+   M6b lesson).
+   THE /Fa VERIFICATION (mandatory per form): the emitted replay =
+   step 1's instruction list byte-for-byte; the transfer = push/ret to
+   step 2's address; every re-based [esp+X] operand matches the frame
+   arithmetic.
+   THE CONVERSION-ERA FORM: the _orig trampolines are CALLED FROM the
+   member bodies (the flip lives in the members - see
+   DECOMP_CPP_MIGRATION.md section 14), taking (this_, args...)
+   explicitly; their replayed-prologue esp adjustments are derived for
+   that calling depth (the logger-calls-_orig precedent).
 - SEMANTIC COMMENT HEADER (owner-directed 2026-11-17, style per
    check_placement_new / alignment_new / get_string_id_new): every
    replacement's decode comment OPENS with a short semantic summary -
@@ -986,16 +1057,22 @@ no pseudocode restatements of the function body:
    touched translation unit must pass a syntax-only compile (vcvars +
    `cl /c /std:c++17`, 0 errors) before the WRITTEN status is recorded
    THE CONCRETE INVOCATION (owner-directed 2026-11-18 - the practiced
-   form, reproduce exactly): cmd /c '"<VS>\VC\Auxiliary\Build\
+   form, reproduce exactly; AMENDED 2026-11-28 - /GR- and the real
+   include root): cmd /c '"<VS>\VC\Auxiliary\Build\
    vcvarsall.bat" x86 -vcvars_ver=14.16 && cl /c /nologo /std:c++17
-   /O2 /arch:SSE2 /fp:fast /EHsc /DWIN32 /D_CRT_SECURE_NO_WARNINGS
+   /O2 /GR- /arch:SSE2 /fp:fast /EHsc /DWIN32 /D_CRT_SECURE_NO_WARNINGS
    /DEFPATCH_CURRENT_CONFIG=Release /DNDEBUG /D_WINDOWS /D_USRDLL
-   /DCHEATDLL_EXPORTS /I"<repo>\DoctorDumpSDK\include" /I"<Cpp
-   libs>\zlib" /I"<Cpp libs>\CImg" /I"<Cpp
-   libs>\zlib\contrib\minizip" /I"<repo>\cheatdll" /Fa<temp>\<TU>.asm
+   /DCHEATDLL_EXPORTS /I"<repo>\DoctorDumpSDK\include" /I"C:\Users\Vasya\source\libs\zlib" /I"C:\Users\Vasya\source\libs\CImg" /I"C:\Users\Vasya\source\libs\zlib\contrib\minizip" /I"<repo>\cheatdll" /Fa<temp>\<TU>.asm
    /Fo<temp>\<TU>.obj <TU>.cpp' (<VS> = the vswhere-located install;
    -vcvars_ver=14.16 = the project's v141_xp toolset; non-/GL per the
-   known LTG gap; the "Cpp libs" env var = the include root). The /Fa
+   known LTG gap; the "%Cpp libs%" env var expands to
+   C:\Users\Vasya\source\libs - THE LITERAL PLACEHOLDER FORM IS A BUG:
+   read as a real path it silently C1083-masked seven+ TUs at the
+   conversion gate (2026-11-28); /GR- = the RTTI off - THE LAYOUT GATE:
+   with /GR the emitted vftable carries the ??_R4 COL at the head and
+   the slot layout shifts - the conversion vtable gate structurally
+   fails; the vcxproj sets RuntimeTypeInfo=false in all four configs
+   to match). The /Fa
    listing is NOT optional: it feeds the rule-(j) widen-before-op
    check, the X87 macro /Fa gate check, the dd-constant pool check
    (rule C), the vtbl slot-offset verification, and the reciprocal-
@@ -1007,6 +1084,21 @@ no pseudocode restatements of the function body:
    arm body correct while the dispatch partition itself is inverted
    (the enter-driver arm ran for the wrong state; the emitted table
    must equal the original's byte table exactly).
+   - THE LINK GATE (owner-directed 2026-11-28, the conversion commit):
+   the /c-only compile STRUCTURALLY CANNOT see the unresolved-external
+   class - three real defects passed every per-TU compile and surfaced
+   only at link: (1) the vtable referencing a member with no
+   definition (the naked debug slot emitted `EXTRN ?debug@...:PROC`
+   while the definition was missing), (2) the four ICF-fold virtuals
+   declared in the header with no bodies (the folded procs the game
+   never had as separate functions), (3) the operator-delete tripwire
+   referenced by the compiler-generated scalar-deleting-destructor
+   COMDAT. THE MANDATORY FORM: after the per-TU compile gate, BUILD
+   THE REAL PROJECT CONFIGURATION (msbuild cheatdll.sln
+   /p:Configuration=Release /p:Platform=Win32) - the link resolves
+   every EXTRN against the real CRT/GDI/lib set (the ad-hoc
+   link-with-partial-libs drowns the signal in CRT noise). A LNK2019
+   from the class TU = a stop-and-fix before the WRITTEN status.
    - the defs/refs sweep does not catch type errors (the Animated/
    Moving factory trios shipped 7 latent C2664/C2440 sites on
    2026-11-14, caught by the gate).
@@ -1413,6 +1505,36 @@ with a reason line: `// retired <date>: baked into <replacement function>
 as they are. Thunk definitions whose references are all retired remain
 defined (unreferenced is harmless); only their call sites are retired.
 Patches that do not overlap replaced functions stay untouched and active.
+   CONVERSION-ERA AMENDMENT (owner-directed 2026-11-28, the C++-ABI
+   class conversion; the full model in DECOMP_CPP_MIGRATION.md
+   section 14): the retired call sites are UN-RETIRED as LEG-GATED
+   sites when their owning function converts. THE THREE CLASSES:
+   (1) the INTERIOR/BYTE patch forms become
+       `if (g_orig<Class> || g_orig<Class><Method>) <original call>;`
+       evaluated at install time - the ORIG run installs the patches
+       (the replayed originals execute them; the interior stubs' esp
+       adjustments are upstream-transparent to the conversion's entry
+       E9); the NEW run does not install them (the interior code is
+       dead under the conversion; the bodies' bakes carry the
+       behavior - no double-apply).
+   (2) the ENTRY-FIGHT and verbatim-adoption sites STAY RETIRED
+       permanently (re-enabling overwrites the conversion's stable E9,
+       breaking the conversion and the flip) - their behavior reaches
+       the ORIG leg via the FOLD-BEFORE-REPLAY in the member's ORIG
+       path (the bake-side call, then the orig replay; both legs apply
+       the patch effect exactly once; the fold follows the method's
+       own switch - no external gate).
+   (3) the MAP_SIZE sites stay live in both legs unchanged (the
+       never-bake exception).
+   THE COHERENCE REQUIREMENT: the flip globals (g_orig<Class>,
+   g_orig<Class><Method>) are startup constants fixed before any
+   installer runs. THE RE-ENABLE AUDIT: each un-retired interior site
+   is range-checked against the conversion's entry E9 span (a site
+   inside the first 5 bytes = the entry-fight class = stays retired).
+   THE SITE->METHOD GATE TABLE: a conversion-audit deliverable - per
+   retired site: the address, the owning method (the [proc, endp)
+   mapping the collision audits already produce), the patch form, the
+   gate expression.
 
 ## Required output when the gate passes
 All of the following is delivered in the conversation for review - nothing

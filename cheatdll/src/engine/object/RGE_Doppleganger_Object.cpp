@@ -69,7 +69,7 @@ RGE_Doppleganger_Object* __fastcall RGE_Doppleganger_Object__RGE_Doppleganger_Ob
             this_->MapAddress = (unsigned int*)(                  // MAP_SIZE - asm 0x46FCC1-0x46FCD7:
                 (int)unified_map_offsets[(int)y] + 4 * (int)x);   // ftol(y) row, + ftol(x)*4
         }
-        this_->doppled_object = obj_to_dopple;                    // asm 0x46FCE3 (unconditional)
+        this_->doppled_object = (RGE_Static_Object_idb*)obj_to_dopple;                    // asm 0x46FCE3 (unconditional)
         if (obj_to_dopple != 0)
         {
             this_->doppled_master_obj = obj_to_dopple->master_obj;              // asm 0x46FCEF-0x46FCF2
@@ -92,7 +92,7 @@ RGE_Doppleganger_Object* __fastcall RGE_Doppleganger_Object__RGE_Doppleganger_Ob
                 {
                     RGE_Master_Static_Object* sprite_master =
                         obj_to_dopple->owner->master_objects[construction_id];      // asm 0x46FD3D-0x46FD47 (@0x74)
-                    this_->sprite = sprite_master->vfptr->get_sprite(sprite_master, obj_to_dopple);   // master vtbl slot +4 (asm 0x46FD4C)
+                    this_->sprite = sprite_master->vfptr->get_sprite(sprite_master, (RGE_Static_Object_idb*)obj_to_dopple);   // master vtbl slot +4 (asm 0x46FD4C)
                     swap_flag = 1;                                                  // asm 0x46FD52
                 }
             }
@@ -113,7 +113,7 @@ RGE_Doppleganger_Object* __fastcall RGE_Doppleganger_Object__RGE_Doppleganger_Ob
             *temp_disable_sound_playing = old_sound_gate;                       // asm 0x46FDA1-0x46FDA5
             this_->facet = this_->doppled_object->facet;                        // asm 0x46FDB1-0x46FDB4 (byte @0x45; DECODE-STATE
                                                                                 // correction: facet, not "selected" - selected @0x46)
-            __int16 frame = RGE_Static_Object__get_animation_frame(this_->doppled_object);   // asm 0x46FDB7 (:3853)
+            __int16 frame = RGE_Static_Object__get_animation_frame((RGE_Static_Object *)this_->doppled_object);   // asm 0x46FDB7 (:3853)
             RGE_Static_Object__set_animation_frame((RGE_Static_Object*)this_, frame);        // asm 0x46FDBC-0x46FDBF (:3852)
             this_->draw_color_owner = (RGE_Player*)this_->doppled_object->owner;   // asm 0x46FDC4-0x46FDCD (owner @0x18;
                                                                                     // TRIBE_Player* -> RGE_Player* dual-naming cast)
@@ -204,7 +204,7 @@ RGE_Doppleganger_Object* __fastcall RGE_Doppleganger_Object__RGE_Doppleganger_Ob
                 + 4 * (int)this_->world_x);                       // + ftol(world_x @0x48)*4
         }
         rge_read(infile, &read_value, sizeof(read_value));                    // asm 0x46FF61-0x46FF69 (4)
-        this_->doppled_object = (RGE_Static_Object*)read_value;               // asm 0x46FF74
+        this_->doppled_object = (RGE_Static_Object_idb*)(RGE_Static_Object_idb*)read_value;               // asm 0x46FF74
         this_->doppledObjectID = -1;                                          // asm 0x46FF82
         rge_read(infile, &this_->map_draw_level, sizeof(this_->map_draw_level));   // asm 0x46FF8C (1)
         // DEVIATION (deliberate span, decode-record approved): the original
@@ -293,7 +293,7 @@ void __fastcall RGE_Doppleganger_Object__recycle_in_to_game_new(
     this_->Destroy_Next_Turn = 0;                    // .c:133664
     RGE_Animated_Object__recycle_in_to_game((RGE_Animated_Object*)this_, tobj, obj_owner, x, y, z);   // .c:133665
     this_->type = RGE_MASTER_TYPE_DOPPELGANGER;                                // .c:133666
-    this_->doppled_object = obj_to_dopple;           // .c:133667
+    this_->doppled_object = (RGE_Static_Object_idb*)obj_to_dopple;           // .c:133667
     if (obj_to_dopple != 0)                          // .c:133668
     {
         this_->doppled_master_obj = obj_to_dopple->master_obj;        // .c:133670
@@ -309,7 +309,7 @@ void __fastcall RGE_Doppleganger_Object__recycle_in_to_game_new(
             {
                 RGE_Master_Static_Object* sprite_master =
                     obj_to_dopple->owner->master_objects[construction_id];   // .c:133681
-                this_->sprite = sprite_master->vfptr->get_sprite(sprite_master, obj_to_dopple);   // .c:133682
+                this_->sprite = sprite_master->vfptr->get_sprite(sprite_master, (RGE_Static_Object_idb*)obj_to_dopple);   // .c:133682
                 installed = 1;                                        // .c:133683
             }
         }
@@ -329,7 +329,7 @@ void __fastcall RGE_Doppleganger_Object__recycle_in_to_game_new(
         }
         *temp_disable_sound_playing = old_sound;                  // .c:133702
         this_->facet = this_->doppled_object->facet;              // .c:133704
-        __int16 frame = RGE_Static_Object__get_animation_frame(this_->doppled_object);   // .c:133705
+        __int16 frame = RGE_Static_Object__get_animation_frame((RGE_Static_Object *)this_->doppled_object);   // .c:133705
         RGE_Static_Object__set_animation_frame((RGE_Static_Object*)this_, frame);   // .c:133706
         this_->draw_color_owner = (RGE_Player*)this_->doppled_object->owner;   // .c:133708
         this_->map_draw_level = this_->doppled_object->master_obj->map_draw_level;   // .c:133709
@@ -484,7 +484,7 @@ void __fastcall RGE_Doppleganger_Object__validate_new(RGE_Doppleganger_Object* t
     {
         for (int i = 0; i < count; ++i)
         {
-            RGE_Static_Object* found = tile->Object_List[i];   // .c:133955
+            RGE_Static_Object* found = (RGE_Static_Object *)tile->Object_List[i];   // .c:133955
             if (found != 0                               // .c:133956
                 && found->type == RGE_MASTER_TYPE_DOPPELGANGER                     // .c:133957
                 && found->id != this_->id                // .c:133958
@@ -492,7 +492,7 @@ void __fastcall RGE_Doppleganger_Object__validate_new(RGE_Doppleganger_Object* t
                 && found->object_state == 2)             // .c:133960
             {
                 if (found->owner->id == this_->owner->id)   // .c:133962-133964
-                    found->vfptr->destroy_obj(found);   // .c:133966
+                    found->destroy_obj();   // .c:133966
                 else
                 {
                     ((RGE_Doppleganger_Object*)found)->CantSeeBits |= 1 << this_->owner->id;   // .c:133971 (base-pointer render; asm pass verifies the exact field)
@@ -530,7 +530,7 @@ void __fastcall RGE_Doppleganger_Object__rehook_new(RGE_Doppleganger_Object* thi
     {
         RGE_Static_Object* obj = RGE_Static_Object__get_object_pointer(
             (RGE_Static_Object*)this_, encoded);     // .c:133792 (0x54F500)
-        this_->doppled_object = obj;                 // .c:133793
+        this_->doppled_object = (RGE_Static_Object_idb*)obj;                 // .c:133793
         if (obj != 0)                                // .c:133794
         {
             this_->doppledObjectID = obj->id;        // .c:133796

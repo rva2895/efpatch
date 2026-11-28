@@ -88,7 +88,7 @@ unsigned int dump_objects(const char* filename)
                 int n = players[p]->objects->Number_of_objects;
                 if (n > 0)
                 {
-                    RGE_Static_Object** units_unsorted = players[p]->objects->List;
+                    RGE_Static_Object** units_unsorted = (RGE_Static_Object **)players[p]->objects->List;
                     RGE_Static_Object** units = new RGE_Static_Object * [n];
                     memcpy(units, units_unsorted, sizeof(RGE_Static_Object*) * n);
                     qsort(units, n, sizeof(RGE_Static_Object*), compare_unit_ordinal);
@@ -118,7 +118,7 @@ unsigned int dump_objects(const char* filename)
                             units[i]->object_state +
                             units[i]->master_obj->id;
 
-                        RGE_Static_Object* target = units[i]->vfptr->get_target_obj(units[i]);
+                        RGE_Static_Object* target = units[i]->get_target_obj();
                         if (target)
                         {
                             /*if (target->prop_object->unit_class == 8 && target->player != units[i]->player)
@@ -128,13 +128,13 @@ unsigned int dump_objects(const char* filename)
                             printf_if_exists(dump_file, "      tar=%d\n", target->id);
                             unit_checksum += target->id;
                         }
-                        int action_checksum = units[i]->vfptr->get_action_checksum(units[i]);
+                        int action_checksum = units[i]->get_action_checksum();
                         if (action_checksum)
                         {
                             printf_if_exists(dump_file, "      act_cs=%d\n", action_checksum);
                             unit_checksum += action_checksum;
                         }
-                        int waypoint_checksum = units[i]->vfptr->get_waypoint_checksum(units[i]);
+                        int waypoint_checksum = units[i]->get_waypoint_checksum();
                         if (waypoint_checksum)
                         {
                             printf_if_exists(dump_file, "      wp_cs=%d\n", waypoint_checksum);
@@ -401,7 +401,7 @@ void __stdcall unit_update_log_before(RGE_Static_Object* unit)
 {
     if ((get_worldtime() == 527900) && (unit->id == 4325))
     {
-        wp_cs = unit->vfptr->get_waypoint_checksum(unit);
+        wp_cs = unit->get_waypoint_checksum();
         print_stats = true;
     }
 }
@@ -410,7 +410,7 @@ void __stdcall unit_update_log_after(RGE_Static_Object* unit)
 {
     if (print_stats)
     {
-        chat("Before update: wp_cs=%u, after update: wp_cs=%u", wp_cs, unit->vfptr->get_waypoint_checksum(unit));
+        chat("Before update: wp_cs=%u, after update: wp_cs=%u", wp_cs, unit->get_waypoint_checksum());
         print_stats = false;
     }
 }
@@ -599,7 +599,7 @@ WORLD_DUMP::WORLD_DUMP()
                 int n = players_ptr[p]->objects->Number_of_objects;
                 if (n > 0)
                 {
-                    RGE_Static_Object** units = players_ptr[p]->objects->List;
+                    RGE_Static_Object** units = (RGE_Static_Object **)players_ptr[p]->objects->List;
                     player.objects.reserve(n);
                     for (int i = 0; i < n; i++)
                     {
@@ -617,13 +617,13 @@ WORLD_DUMP::WORLD_DUMP()
                         object.resources = units[i]->attribute_amount_held;
                         object.unit_id = units[i]->master_obj->id;
 
-                        RGE_Static_Object* target = units[i]->vfptr->get_target_obj(units[i]);
+                        RGE_Static_Object* target = units[i]->get_target_obj();
                         if (target)
                             object.target = target->id;
                         else
                             object.target = 0;
-                        object.act_cs = units[i]->vfptr->get_action_checksum(units[i]);
-                        object.wp_cs = units[i]->vfptr->get_waypoint_checksum(units[i]);
+                        object.act_cs = units[i]->get_action_checksum();
+                        object.wp_cs = units[i]->get_waypoint_checksum();
                         
                         player.objects.push_back(object);
                     }

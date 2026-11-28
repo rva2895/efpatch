@@ -12,7 +12,7 @@ bool check_purged(RGE_Static_Object* obj)
 
 bool __stdcall check_meditation_and_purge(TRIBE_Action_Convert* act)
 {
-    RGE_Static_Object* target_obj = act->target_obj;
+    RGE_Static_Object* target_obj = (RGE_Static_Object *)act->target_obj;
     if (current_loaded_version >= 6) //1.5.2+
     {
         if (target_obj && ((act->obj->owner->vfptr->isAlly(act->obj->owner, target_obj->owner->id) == 1)
@@ -43,7 +43,7 @@ bool __stdcall check_meditation_and_purge(TRIBE_Action_Convert* act)
 
 void __stdcall onPurgeAction(RGE_Static_Object* obj)
 {
-    obj->vfptr->die_die_die(obj);
+    obj->die_die_die();
     if (current_loaded_version >= 6)
     {
         UNIT_EXTRA* ud = createUnitExtra(obj);
@@ -86,7 +86,7 @@ void __stdcall reset_jedi_force(RGE_Static_Object* obj)
         && (obj->master_obj->object_group == 50 || obj->master_obj->object_group == 51)
         && obj->attribute_type_held == 34
         && (obj->attribute_amount_held > obj->owner->attributes[213]))
-        obj->vfptr->set_attribute(obj, 34, obj->owner->attributes[213]);
+        obj->set_attribute(34, obj->owner->attributes[213]);
 }
 
 __declspec(naked) void onUnitConverted() //00568BF7
