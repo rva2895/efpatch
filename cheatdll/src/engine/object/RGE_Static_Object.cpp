@@ -5399,6 +5399,419 @@ void __fastcall RGE_Static_Object__capture_frame_3d_square_new(
     }
 }
 
+// ============================================================================
+// BATCH S12 (2026-11-28) - find_closest_resource @0x00550AF0 [0x550AF0,0x551113)
+// (lst proc :561319 / endp :562020. idb_functions.h:3849 names the constant
+// TRIBE_Action_Build__find_closest_resource; the .c (:300945), the .lst comment
+// and the body census all type this_ RGE_Static_Object* - the heal/heal2 +
+// set_Selected_Groups precedent: the .lst proc names + bodies win.)
+//
+// SEMANTIC: the build-flow resource finder (callers TRIBE_Action_Build__update
+// +148 and RGE_Main_View__command_make_do+200, both range = 4). Maps the
+// target's master id onto a resource class {621->109, 68, 584, 323, 562, 50};
+// other ids return 0. Scans world_x/y +- ((int)(master->radius_x + 0.5) +
+// range) clamped to the map; a tile is searched only when the map analysis
+// does not flag it unreachable AND the fill_pathable_map flood table (owned,
+// routed) marks it passable AND the tile holds objects. Each object is
+// classified: category 0 = food (Farm group 7 unworked; Fruit Bush 27; Shore
+// Fish 25; Wild Animal 4 / Dangerous Animal 60 / Monster 5 / Herd Animal 1
+// only in object_state 5), 1 = Tree/Carbon 31, 2 = Nova 30, 3 = Holocron 29,
+// keyed on the class selector (109 accepts all four; 68 food; 584 Nova;
+// 323 Holocron; 562 Carbon; 50 Farm-only). Per category the best candidate
+// trades the floored box distance (|dx|-radius_x + |dy|-radius_y) first, then
+// the fewest workers (worker_num - 1 clamped at 0). The final pick walks
+// category 3 -> 2 -> 0 -> 1 keeping the smallest distance, frees the flood
+// table, returns the winner or 0.
+//
+// TWO-PASS PROTOCOL PASS 1 - the aligned transcription: the IDA rendering
+// transcribed 1:1 (the v-names, the gotos/labels, the synthetic loop nests,
+// the comma expression). Value-level fixes only, each cited inline:
+// the (__int64) renders -> (int) __ftol conversions; the punned distance slot
+// -> the typed int local; the rule-(a)/(j) (double) widenings; the rule-(i)
+// X87_LT_NAN macros at the seven C0-only compares; the dd constants 90.0f;
+// the indexed loops (the pointer-walk rule); operator_delete_internal.
+// ============================================================================
+#pragma float_control(precise, on, push)  // rule (k) extension: the 53-bit scoring chains feed the compares
+
+RGE_Static_Object* __fastcall RGE_Static_Object__find_closest_resource_new(RGE_Static_Object *this_, DWORD dummy,
+    RGE_Static_Object *target_obj, int range)
+{
+    RGE_Static_Object *v3; // edi
+    RGE_Master_Static_Object *v4; // ecx
+    __int16 v5; // ax
+    int v6; // ebp
+    int v7; // esi
+    int v8; // edi
+    int v9; // ebx
+    int v10; // eax
+    int v11; // edi
+    int v12; // ecx
+    TRIBE_World *v13; // eax
+    int v14; // ecx
+    int v15; // ecx
+    int v16; // edi
+    int v17; // esi
+    RGE_Tile *v18; // eax
+    int v19; // ecx
+    RGE_Tile *v20; // eax
+    RGE_Static_Object **v21; // edi
+    int v21i; // the index (the .c's ++v21 walk, the pointer-walk rule)
+    RGE_Static_Object *v22; // ebx
+    unsigned __int8 v23; // cl
+    int v24; // eax
+    int v25; // esi
+    double v26; // st7
+    RGE_Master_Static_Object *v27; // ecx
+    double v28; // st7
+    double v29; // st6
+    double v30; // st6
+    int v31; // ecx
+    double v32; // st7
+    double v33; // st7
+    double v34; // st7
+    double v35; // st7
+    RGE_Static_Object *v36; // ebx
+    double v37; // st7
+    int v38; // edi
+    int v39i; // the index (the .c's v39 row walk, the pointer-walk rule)
+    int dist; // the .c's target_obja: the consumed target_obj param slot reused as the int box distance (asm 0x550D9A) - typed int per the pun rule
+    float rangea; // [esp+70h] [ebp+8h] - the .c's four names for the ONE reused param-slot scratch (asm fstp [esp+range])
+    float rangeb; // [esp+70h] [ebp+8h]
+    float rangec; // [esp+70h] [ebp+8h]
+    float ranged; // [esp+70h] [ebp+8h]
+    float v41; // [esp+8h]
+    float v42; // [esp+Ch]
+    float v43; // [esp+10h]
+    int v44; // [esp+14h]
+    int start_x; // [esp+18h]
+    int v46; // [esp+1Ch]
+    float v47; // [esp+20h]
+    int offset_y; // [esp+24h]
+    int v50; // [esp+2Ch]
+    int v51; // [esp+30h]
+    int v52; // [esp+34h]
+    int v53; // [esp+38h]
+    int v54; // [esp+3Ch]
+    int v55; // [esp+40h]
+    RGE_Static_Object *v56; // [esp+44h]
+    RGE_Static_Object *v57; // [esp+48h]
+    RGE_Static_Object *v58; // [esp+4Ch]
+    RGE_Static_Object *v59; // [esp+50h]
+    RGE_Map_Analysis *v60; // [esp+54h]
+    RGE_Map *v61; // [esp+58h]
+    int v62; // [esp+5Ch]
+    unsigned __int8 **ptr; // [esp+60h]
+    int v64; // [esp+64h]
+
+    v3 = this_;
+    v4 = this_->master_obj;                                           // asm 0x550AFB [edi+14h]
+    v5 = v4->id;                                                      // asm 0x550AFE word [ecx+18h]
+    switch ( v5 )                                                     // asm 0x550B02-0x550B4D compare chain (no table)
+    {
+        case 621:
+            v6 = 109;
+            break;
+        case 68:
+            v6 = 68;
+            break;
+        case 584:
+            v6 = 584;
+            break;
+        case 323:
+            v6 = 323;
+            break;
+        case 562:
+            v6 = 562;
+            break;
+        case 50:
+            v6 = 50;
+            break;
+        default:
+            return 0;                                                 // asm 0x55110C the early exit
+    }
+    v7 = (int)((double)v4->radius_x + 0.5) + range;                   // asm 0x550B52-0x550B69 (fld radius; fadd const_f_half; __ftol) - rule (f) widened
+    v8 = (int)v3->world_x;                                            // asm 0x550B66-0x550B70
+    v9 = v8 - v7;
+    v55 = v8 - v7;
+    v10 = (int)this_->world_y;                                        // asm 0x550B78-0x550B81 (the .c's __int64 render)
+    v11 = v7 + v8;
+    v12 = v10 - v7;
+    v44 = v7 + v10;
+    offset_y = v12;
+    v46 = v11;
+    v13 = target_obj->owner->world;                                   // asm 0x550B98-0x550BA9 ([esi+18h] owner; +8Ch world)
+    v61 = v13->map;                                                   // asm 0x550BA9-0x550BAC (+34h)
+    if ( v9 < 0 )                                                     // asm 0x550B96-0x550BB4
+    {
+        v9 = 0;
+        v55 = 0;
+    }
+    if ( v12 < 0 )                                                    // asm 0x550BB8-0x550BBC
+        offset_y = 0;
+    v14 = v61->map_width;                                             // asm 0x550BC4-0x550BD4 (+8)
+    if ( v11 >= v14 )
+        v46 = v14 - 1;
+    v15 = v61->map_height;                                            // asm 0x550BD8-0x550BE4 (+0Ch)
+    if ( v44 >= v15 )
+        v44 = v15 - 1;
+    v59 = 0;                                                          // asm 0x550BEB-0x550BFD the zero block
+    v58 = 0;
+    v57 = 0;
+    v56 = 0;
+    v47 = 90.0f;                                                      // asm 0x550C01 42B40000h - dd rule
+    v43 = 90.0f;                                                      // asm 0x550C09
+    v42 = 90.0f;                                                      // asm 0x550C11
+    v41 = 90.0f;                                                      // asm 0x550C19
+    v53 = 0;                                                          // asm 0x550C21-0x550C2D
+    v50 = 0;
+    v52 = 0;
+    v51 = 0;
+    v16 = offset_y;                                                   // asm 0x550C41
+    v60 = RGE_Map_Analysis_System__get_map_analysis(v13->map_analysis_system, target_obj->master_obj); // asm 0x550BE8-0x550C31 (the +74h system; the constant = the asm's direct call)
+    v64 = v46 - v9 + 1;                                               // asm 0x550C45-0x550C4C
+    ptr = RGE_Static_Object__fill_pathable_map_new(this_, dummy,      // asm 0x550C3E-0x550C75 (calls 0x00551130 - the owned hook routes; the idb constant :3850 carries the same TRIBE_Action_Build mis-prefix, so the direct _new call per the in-file recursive-call precedent)
+            (int)target_obj->world_x - v9,                            // asm 0x550C63-0x550C74 (the __ftol renders)
+            (int)target_obj->world_y - offset_y,
+            v64,
+            v44 - offset_y + 1,
+            v9,
+            offset_y,
+            v60,
+            0,
+            1u);
+    start_x = v9;                                                     // asm 0x550C84
+    if ( v9 <= v46 )
+    {
+        while ( 1 )
+        {
+            v54 = v16;                                                // asm 0x550C92
+            if ( v16 <= v44 )                                         // asm 0x550C96-0x550C98
+                break;
+        LABEL_114:
+            if ( ++start_x > v46 )                                    // asm 0x551046-0x551055
+                goto LABEL_115;
+        }
+        v17 = v16;                                                    // asm 0x550C9E
+        while ( 1 )
+        {
+            if ( (!v60 || !RGE_Map_Analysis__is_tile_unreachable(v60, start_x, v17)) // asm 0x550CA0-0x550CB9 (the constant = the asm's direct call)
+              && (!ptr || ptr[start_x - v9][v17 - v16]) )             // asm 0x550CBF-0x550CD6 (the row byte: - offset_y + v17)
+            {
+                v18 = v61->map_row_offset[v17];                       // asm 0x550CDC-0x550CED (+0xBF18; the row = the outer dimension)
+                v19 = v18[start_x].TileObject_Count;                  // asm 0x550CF0-0x550CF2 (+0Dh byte)
+                v20 = &v18[start_x];
+                if ( v19 > 0 )                                        // asm 0x550CF8-0x550CFA (jle skips)
+                    break;
+            }
+        LABEL_113:
+            v9 = v55;                                                 // asm 0x55102D-0x551039 (the clobbered-register reloads)
+            v16 = offset_y;
+            v54 = ++v17;
+            if ( v17 > v44 )                                          // asm 0x55103A-0x551040
+                goto LABEL_114;
+        }
+        v21 = v20->Object_List;                                       // asm 0x550D00 (+14h)
+        v62 = v19;                                                    // asm 0x550D03
+        v21i = 0;
+        while ( 1 )
+        {
+            v22 = v21[v21i];                                          // asm 0x550D07
+            v23 = v21[v21i]->object_state;                            // asm 0x550D09 (+58h byte)
+            if ( v23 > 5u )                                           // asm 0x550D0C-0x550D0F (ja)
+                goto LABEL_111;
+            v24 = v22->master_obj->object_group;                      // asm 0x550D15-0x550D1B (movsx word +1Eh)
+            if ( v6 == 50 )                                           // asm 0x550D18-0x550D1F
+            {
+                if ( v24 != 7 )                                       // asm 0x550D25-0x550D28
+                    goto LABEL_111;
+            }
+            else
+            {
+                if ( v6 != 109 && v6 != 68 )                          // asm 0x550E22-0x550E2A
+                {
+        LABEL_72:
+                    if ( (v6 == 109 || v6 == 584) && v24 == 30 )      // asm 0x550E8D-0x550E9D (Nova)
+                    {
+                        v25 = 2;                                      // asm 0x550E9F
+                    }
+                    else if ( (v6 == 109 || v6 == 323) && v24 == 29 ) // asm 0x550EA9-0x550EB9 (Holocron)
+                    {
+                        v25 = 3;                                      // asm 0x550EBB
+                    }
+                    else
+                    {
+                        if ( v6 != 109 && v6 != 562 || v24 != 31 )    // asm 0x550EC5-0x550ED9 (Tree/Carbon)
+                            goto LABEL_111;
+                        v25 = 1;                                      // asm 0x550EDF
+                    }
+                    goto LABEL_34;
+                }
+                if ( v24 != 27 && v24 != 25 )                         // asm 0x550E2C-0x550E38 (Fruit Bush / Shore Fish accept direct)
+                {
+                    switch ( v24 )                                    // asm 0x550E3E-0x550E87 compare chain (no table)
+                    {
+                        case 7:                                       // Farm: accepted only unworked
+                            if ( v22->worker_num )                    // asm 0x550E43-0x550E48 (+5Fh)
+                                goto LABEL_72;
+                            break;
+                        case 4:                                       // Wild Animal: state 5 only
+                            if ( v23 != 5 )                           // asm 0x550E55-0x550E58 (cl = object_state, the E43 load not reached on this path)
+                                goto LABEL_72;
+                            break;
+                        case 60:                                      // Dangerous Animal: state 5 only
+                            if ( v23 != 5 )                           // asm 0x550E65-0x550E68
+                                goto LABEL_72;
+                            break;
+                        case 5:                                       // Monster: state 5 only
+                            if ( v23 != 5 )                           // asm 0x550E75-0x550E77 (cmp cl,al)
+                                goto LABEL_72;
+                            break;
+                        default:                                      // Herd Animal 1: state 5 only
+                            if ( v24 != 1 || v23 != 5 )               // asm 0x550E7F-0x550E87
+                                goto LABEL_72;
+                            break;
+                    }
+                }
+            }
+            v25 = 0;                                                  // asm 0x550D2E (loc_550D2E: xor esi,esi)
+        LABEL_34:
+            v26 = (double)v22->world_x - (double)this_->world_x;      // asm 0x550D30-0x550D37 (fld/fsub at 53-bit) - rules (a)/(j)
+            if ( X87_LT_NAN(v26, 0.0) )                               // asm 0x550D3A-0x550D47 (fcom const_f_zero; test ah,1; jz; fchs - {<,NaN} negates)
+                v26 = -v26;
+            v27 = this_->master_obj;                                  // asm 0x550D49
+            v28 = v26 - (double)v27->radius_x;                        // asm 0x550D4C (+3Ch)
+            if ( X87_LT_NAN(v28, 0.0) )                               // asm 0x550D4F-0x550D5E (test ah,1; jz; fstp st; fld const_f_zero)
+                v28 = 0.0;
+            v29 = (double)v22->world_y - (double)this_->world_y;      // asm 0x550D64-0x550D67
+            if ( X87_LT_NAN(v29, 0.0) )                               // asm 0x550D6A-0x550D77
+                v29 = -v29;
+            v30 = v29 - (double)v27->radius_y;                        // asm 0x550D79-0x550D7C (+40h)
+            if ( X87_LT_NAN(v30, 0.0) )                               // asm 0x550D7C-0x550D8B
+                v30 = 0.0;
+            dist = (int)(v30 + v28);                                  // asm 0x550D91-0x550D98 (fadd st,st(1); __ftol - the .c's punned slot)
+            v31 = v22->worker_num - 1;                                // asm 0x550D9E-0x550DA1 (+5Fh, dec)
+            if ( v31 < 0 )                                            // asm 0x550DA4-0x550DA6 (jns)
+                v31 = 0;
+            switch ( v25 )                                            // asm 0x550DA8-0x550DB1 (jpt_550DB1 @0x551118: {DB8,FB6,F53,EE9} = cases {0,1,2,3})
+            {
+                case 0:
+                    if ( !v58 )                                       // asm 0x550DB8-0x550DBE
+                        goto LABEL_51;
+                    rangea = (float)dist;                             // asm 0x550DC0-0x550DC4 (fild; fstp m32 - the store-round)
+                    if ( v43 > (double)rangea || v31 < v50 )          // asm 0x550DC8-0x550DDB (test ah,41h; jz = the > MATCH row; jge skips)
+                    {
+                        if ( v31 < v50 || v43 > (double)rangea && v31 == v50 ) // asm 0x550DE1-0x550DFA (jl stores; jnz skips on <=; jnz skips on !=)
+                        {
+        LABEL_51:
+                            v58 = v21[v21i];                          // asm 0x550DFC
+                            v50 = v31;                                // asm 0x550E00
+                        }
+                        v32 = (double)dist;                           // asm 0x550E04 (fild)
+                        if ( v43 > v32 )                              // asm 0x550E08-0x550E13 (fcomp st(1); test ah,41h; jnz skips - the MATCH row)
+                            v43 = v32;                                // asm 0x550E19 (fstp m32 - the store-round)
+                    }
+                    break;
+                case 1:
+                    if ( !v59 )                                       // asm 0x550FB6-0x550FBC
+                        goto LABEL_108;
+                    ranged = (float)dist;                             // asm 0x550FBE-0x550FC2
+                    if ( v47 > (double)ranged || v31 < v53 )          // asm 0x550FC6-0x550FD9
+                    {
+                        if ( v31 < v53 || v47 > (double)ranged && v31 == v53 ) // asm 0x550FDB-0x550FF4
+                        {
+        LABEL_108:
+                            v59 = v21[v21i];                          // asm 0x550FF6
+                            v53 = v31;                                // asm 0x550FFA
+                        }
+                        v35 = (double)dist;                           // asm 0x550FFE (fild)
+                        if ( v47 > v35 )                              // asm 0x551002-0x55100D
+                            v47 = v35;                                // asm 0x55100F
+                    }
+                    break;
+                case 2:
+                    if ( !v57 )                                       // asm 0x550F53-0x550F59
+                        goto LABEL_99;
+                    rangec = (float)dist;                             // asm 0x550F5B-0x550F5F
+                    if ( v42 > (double)rangec || v31 < v52 )          // asm 0x550F63-0x550F76
+                    {
+                        if ( v31 < v52 || v42 > (double)rangec && v31 == v52 ) // asm 0x550F7C-0x550F95
+                        {
+        LABEL_99:
+                            v57 = v21[v21i];                          // asm 0x550F97
+                            v52 = v31;                                // asm 0x550F9B
+                        }
+                        v34 = (double)dist;                           // asm 0x550F9F (fild)
+                        if ( v42 > v34 )                              // asm 0x550FA3-0x550FAE
+                            v42 = v34;                                // asm 0x550FB0
+                    }
+                    break;
+                case 3:
+                    if ( !v56 )                                       // asm 0x550EE9-0x550EEF
+                        goto LABEL_90;
+                    rangeb = (float)dist;                             // asm 0x550EF1-0x550EF5
+                    if ( v41 > (double)rangeb || v31 < v51 )          // asm 0x550EF9-0x550F0C
+                    {
+                        if ( v31 < v51 || v41 > (double)rangeb && v31 == v51 ) // asm 0x550F12-0x550F2B
+                        {
+        LABEL_90:
+                            v56 = v21[v21i];                          // asm 0x550F2D
+                            v51 = v31;                                // asm 0x550F31
+                        }
+                        v33 = (double)dist;                           // asm 0x550F35 (fild)
+                        if ( v41 > v33 )                              // asm 0x550F39-0x550F44
+                            v41 = v33;                                // asm 0x550F4A
+                    }
+                    break;
+                default:
+                    break;
+            }
+        LABEL_111:
+            ++v21i;                                                   // asm 0x55101B (the .c's ++v21, indexed)
+            if ( !--v62 )                                             // asm 0x55101E-0x551023
+            {
+                v17 = v54;                                            // asm 0x551029
+                goto LABEL_113;
+            }
+        }
+    }
+LABEL_115:
+    v36 = 0;                                                          // asm 0x55105B-0x55105F
+    v37 = 0.0;                                                        // asm 0x551061 (fld const_f_zero)
+    if ( !v56 || (v37 = v41, v36 = v56, X87_LT_NAN(v42, v41)) )       // asm 0x551067-0x551080 (fstp st/fld var_60 when v56 set; fcomp var_60; test ah,1; jz skips - {<,NaN} enters)
+    {
+        if ( v57 )                                                    // asm 0x551082-0x551088
+        {
+            v37 = v42;                                                // asm 0x55108A-0x551090
+            v36 = v57;
+        }
+    }
+    if ( (!v36 || X87_LT_NAN(v43, v37)) && v58 )                      // asm 0x551092-0x5510A9 (test ah,1; jz skips - {<,NaN} swaps)
+    {
+        v37 = v43;                                                    // asm 0x5510AB-0x5510B1
+        v36 = v58;
+    }
+    if ( (!v36 || X87_LT_NAN(v47, v37)) && v59 )                      // asm 0x5510B3-0x5510C2 (the fstp st before the jz covers both paths)
+        v36 = v59;                                                    // asm 0x5510CA-0x5510D2 (no v37 store - faithful)
+    if ( ptr )                                                        // asm 0x5510D4-0x5510DA
+    {
+        v38 = v64;                                                    // asm 0x5510DC-0x5510E2
+        if ( v64 > 0 )                                                // asm 0x5510E2 (jle skips the row loop)
+        {
+            v39i = 0;
+            do
+            {
+                operator_delete_internal(ptr[v39i]);                  // asm 0x5510E6-0x5510E9 (the game's operator_delete; the CRT wrapper)
+                ++v39i;
+                --v38;                                                // asm 0x5510F4
+            }
+            while ( v38 );                                            // asm 0x5510F5 (jnz - the 14th back-edge)
+        }
+        operator_delete_internal(ptr);                                // asm 0x5510F7-0x5510F8
+    }
+    return v36;                                                       // asm 0x551100-0x551109 (retn 8)
+}
+#pragma float_control(pop)
+
 void install_RGE_Static_Object()
 {
     setHook((void*)0x0054B3E0, RGE_Static_Object__gbg_get_civ_override_new);
@@ -5556,4 +5969,7 @@ void install_RGE_Static_Object()
     setHook((void*)0x0054F820, RGE_Static_Object__teleport_new);
     // BATCH S11 (2026-11-27): capture_frame_3d_square
     setHook((void*)0x0054CE80, RGE_Static_Object__capture_frame_3d_square_new);
+    // BATCH S12 (2026-11-28): find_closest_resource - THE LAST STATIC EXPORT
+    // (the two-pass decode pass 1; the restructure follows on the suite-verified baseline)
+    setHook((void*)0x00550AF0, RGE_Static_Object__find_closest_resource_new);
 }
