@@ -51,10 +51,13 @@
 // against the class.
 #define RGE_Static_Object RGE_Static_Object_idb
 #define TRIBE_Tree_Object TRIBE_Tree_Object_idb
+#define RGE_Animated_Object RGE_Animated_Object_idb
 #include "src\idb\idb_types.h"
 #undef RGE_Static_Object
 #undef TRIBE_Tree_Object
+#undef RGE_Animated_Object
 #include "src\engine\object\RGE_Static_Object.h"
+#include "src\engine\object\RGE_Animated_Object.h"
 #include "src\engine\object\TRIBE_Tree_Object.h"
 #include "src\idb\idb_functions.h"
 
