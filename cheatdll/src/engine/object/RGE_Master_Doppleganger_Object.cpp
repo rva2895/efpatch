@@ -166,9 +166,8 @@ RGE_Static_Object* __fastcall RGE_Master_Doppleganger_Object__make_new_obj_new(
                 RGE_Game_World__recycle_object_in_to_game(owner->world, this_->master_type);
             if (recycled)
             {
-                ((RGE_Doppleganger_Object*)recycled)->vfptr->recycle_in_to_game_2(
-                    (RGE_Doppleganger_Object*)recycled,
-                    (RGE_Master_Static_Object*)this_, owner, x, y, z, (RGE_Static_Object_idb*)obj_to_dopple);
+                ((RGE_Doppleganger_Object*)recycled)->recycle_in_to_game(
+                    (RGE_Master_Static_Object*)this_, owner, x, y, z, (RGE_Static_Object *)obj_to_dopple);   // the named virtual (the appended slot 220; the vfptr form died with the conversion)
                 result = recycled;
             }
         }
